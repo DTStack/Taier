@@ -15,10 +15,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>com.dtstack.rdos</groupId>
-			<artifactId>engine.execution.base</artifactId>
-			<version>0.0.1-SNAPSHOT></version>
-		</dependency>
+      <dependency>
+         <groupId>com.dtstack.rdos</groupId>
+         <artifactId>engine.execution.base</artifactId>
+         <version>0.0.1-SNAPSHOT</version>
+      </dependency>
 	</dependencies>
 </project>
