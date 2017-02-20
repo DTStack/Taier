@@ -12,10 +12,10 @@
 	</properties>
 
 	<modules>
-		<module>engine.entrance</module>
-		<module>engine.execution.base</module>
-		<module>engine.execution.flink120</module>
-		<module>engine.common</module>
+		<module>entrance</module>
+		<module>execution/base</module>
+		<module>execution/flink120</module>
+		<module>common</module>
 	</modules>
 	<dependencies>
 		<dependency>

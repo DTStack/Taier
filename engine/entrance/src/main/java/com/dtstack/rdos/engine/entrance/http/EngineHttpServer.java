@@ -40,10 +40,10 @@ public class EngineHttpServer {
 	
 	private void init() throws Exception{
 		this.server = HttpServer.create(new InetSocketAddress(InetAddress.getByName(host),port), 0);
-		server.setExecutor(null);
+		this.server.setExecutor(null);
 		setHandler();
 		this.server.start();
-		logger.warn("LogstashHttpServer start at:{}",String.valueOf(port));
+		logger.warn("EngineHttpServer start at:{}",String.valueOf(port));
 	}
 	
 	private void setHandler(){
