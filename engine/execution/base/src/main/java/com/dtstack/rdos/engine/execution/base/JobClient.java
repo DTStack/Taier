@@ -1,10 +1,11 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.entrance.sql.operator.Operator;
-import com.dtstack.rdos.engine.execution.pojo.JobExeContext;
-import com.dtstack.rdos.engine.execution.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Reason:
@@ -18,15 +19,20 @@ public class JobClient {
 
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
-    private JobExeContext exeContext = new JobExeContext();
+    private List<Operator> operators = new ArrayList<Operator>();
 
     private void getStatus(){
 
     }
 
     public void addOperator(Operator operator){
-        exeContext.addOperator(operator);
+        operators.add(operator);
     }
+
+    public List<Operator> getOperators() {
+        return operators;
+    }
+
 
     public void submit(){
         JobSubmitExecutor.getInstance().submitJob(this);

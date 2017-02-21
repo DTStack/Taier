@@ -200,7 +200,6 @@ public class FlinkClient implements IClient {
     @Override
     public JobResult submitJob(JobClient jobClient) {
 
-
         return null;
     }
 }
