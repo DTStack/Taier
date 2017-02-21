@@ -53,4 +53,9 @@ public class JobResult {
     public void setErr(boolean err) {
         isErr = err;
     }
+
+    @Override
+    public String toString() {
+        return json.toString();
+    }
 }

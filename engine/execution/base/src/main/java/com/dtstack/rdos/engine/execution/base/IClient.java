@@ -24,6 +24,8 @@ public interface IClient {
 
     String submitSqlJob(String sql);
 
+    JobResult submitJob(JobClient jobClient);
+
     String cancleJob(String jobId);
 
     String getJobStatus(String jobId);

@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink120;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.pojo.JobResult;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobSubmissionResult;
@@ -161,11 +162,11 @@ public class FlinkClient implements IClient {
         return null;
     }
 
-    public String cancleJob() {
+    public String cancleJob(String jobId) {
         return null;
     }
 
-    public String getJobStatus() {
+    public String getJobStatus(String jobId) {
         return null;
     }
 
@@ -194,5 +195,12 @@ public class FlinkClient implements IClient {
         program.setSavepointRestoreSettings(spSetting);
 
         return program;
+    }
+
+    @Override
+    public JobResult submitJob(JobClient jobClient) {
+
+
+        return null;
     }
 }

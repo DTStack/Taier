@@ -12,7 +12,7 @@ import com.dtstack.rdos.engine.execution.flink120.FlinkClient;
 
 public class ClientFactory {
 
-    public IClient getClient(ClientType type){
+    public static IClient getClient(ClientType type){
 
         IClient client = null;
 

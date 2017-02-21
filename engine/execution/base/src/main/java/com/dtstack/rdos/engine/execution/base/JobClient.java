@@ -28,8 +28,8 @@ public class JobClient {
         exeContext.addOperator(operator);
     }
 
-    public JobResult submit(){
-        return null;
+    public void submit(){
+        JobSubmitExecutor.getInstance().submitJob(this);
     }
 
 }
