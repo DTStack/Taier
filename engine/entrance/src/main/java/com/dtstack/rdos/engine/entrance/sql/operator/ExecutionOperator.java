@@ -11,4 +11,9 @@ public class ExecutionOperator implements Operator{
 		return true;
 	}
 
+	public String getSql() {
+		return sql;
+	}
+
+	
 }
