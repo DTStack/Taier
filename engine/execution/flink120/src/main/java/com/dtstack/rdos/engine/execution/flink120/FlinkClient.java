@@ -1,8 +1,8 @@
 package com.dtstack.rdos.engine.execution.flink120;
 
-import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.util.FlinkUtil;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
@@ -11,15 +11,10 @@ import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
-import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,7 +26,7 @@ import java.util.Properties;
  * @ahthor xuchao
  */
 
-public class FlinkClient implements IClient {
+public class FlinkClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
@@ -105,7 +100,7 @@ public class FlinkClient implements IClient {
         PackagedProgram packagedProgram = null;
         try{
             //FIXME 参数设置细化
-            packagedProgram = buildProgram((String) jarPath, null, null, null, null);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, null, null, null, null);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());
@@ -170,36 +165,6 @@ public class FlinkClient implements IClient {
         return null;
     }
 
-    protected static PackagedProgram buildProgram(String jarFilePath, List<URL> classpaths,
-                        String entryPointClass, String[] programArgs, SavepointRestoreSettings spSetting)
-            throws FileNotFoundException, ProgramInvocationException {
-        if (jarFilePath == null) {
-            throw new IllegalArgumentException("The program JAR file was not specified.");
-        }
 
-        File jarFile = new File(jarFilePath);
 
-        // Check if JAR file exists
-        if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + jarFile);
-        }
-        else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + jarFile);
-        }
-
-        // Get assembler class
-        PackagedProgram program = entryPointClass == null ?
-                new PackagedProgram(jarFile, classpaths, programArgs) :
-                new PackagedProgram(jarFile, classpaths, entryPointClass, programArgs);
-
-        program.setSavepointRestoreSettings(spSetting);
-
-        return program;
-    }
-
-    @Override
-    public JobResult submitJob(JobClient jobClient) {
-
-        return null;
-    }
 }

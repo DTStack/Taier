@@ -36,12 +36,14 @@
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>engine.execution.base</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>engine.common</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

@@ -86,8 +86,12 @@ public class JobSubmitExecutor{
             while(runnable){
                 JobClient jobClient = submitQueue.poll(2000, TimeUnit.MILLISECONDS);
                 if(jobClient != null){
-                    JobResult jobResult = clusterClient.submitJob(jobClient);
-                    logger.info("submit job result is:{}.", jobResult);
+                    try{
+                        JobResult jobResult = clusterClient.submitJob(jobClient);
+                        logger.info("submit job result is:{}.", jobResult);
+                    }catch (Exception e){//捕获未处理异常,防止跳出执行线程
+                        logger.error("get unexpect exception", e);
+                    }
                 }
 
                 //TODO maybe have other deal fuc
