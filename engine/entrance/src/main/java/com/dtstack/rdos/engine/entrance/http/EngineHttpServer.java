@@ -30,7 +30,7 @@ public class EngineHttpServer {
 	
 	public EngineHttpServer(String localAddress) throws Exception{
 		this.localAddress = localAddress;
-		this.port = (int) HttpCommon.getUrlPort(this.localAddress)[1];
+		this.port = (Integer) HttpCommon.getUrlPort(this.localAddress)[1];
 		init();
 	}
 	

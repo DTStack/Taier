@@ -5,9 +5,10 @@
   <parent>
     <groupId>com.dtstack.rdos</groupId>
     <artifactId>engine</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>engine.common</artifactId>
+  <artifactId>common</artifactId>
   <name>common</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

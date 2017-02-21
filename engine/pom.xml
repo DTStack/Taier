@@ -4,7 +4,7 @@
 
 	<groupId>com.dtstack.rdos</groupId>
 	<artifactId>engine</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>engine</name>
 	<properties>
@@ -13,8 +13,7 @@
 
 	<modules>
 		<module>entrance</module>
-		<module>execution/base</module>
-		<module>execution/flink120</module>
+		<module>base</module>
 		<module>common</module>
 	</modules>
 	<dependencies>
