@@ -15,16 +15,33 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
-      <dependency>
-         <groupId>com.dtstack.rdos</groupId>
-         <artifactId>engine.execution.base</artifactId>
-         <version>0.0.1-SNAPSHOT</version>
-      </dependency>
-      
-      <dependency>
-         <groupId>com.dtstack.rdos</groupId>
-         <artifactId>engine.common</artifactId>
-         <version>0.0.1-SNAPSHOT</version>
-      </dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.4.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>6.0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.dtstack.rdos</groupId>
+			<artifactId>engine.execution.base</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.dtstack.rdos</groupId>
+			<artifactId>engine.common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
