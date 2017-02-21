@@ -20,4 +20,10 @@ public class ParamsOperator implements Operator{
 	public Properties getProperties() {
 		return properties;
 	}
+
+	@Override
+	public boolean verification(String sql) throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

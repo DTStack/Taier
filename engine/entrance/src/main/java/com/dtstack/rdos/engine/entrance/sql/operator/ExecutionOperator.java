@@ -15,5 +15,11 @@ public class ExecutionOperator implements Operator{
 		return sql;
 	}
 
+	@Override
+	public boolean verification(String sql) throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	
 }
