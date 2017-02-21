@@ -6,9 +6,10 @@
 	<parent>
 		<groupId>com.dtstack.rdos</groupId>
 		<artifactId>engine</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>engine.execution.flink120</artifactId>
+	<artifactId>execution.flink120</artifactId>
 	<name>execution.flink120</name>
 	<packaging>jar</packaging>
 	<properties>
@@ -22,26 +23,22 @@
 			<version>${flink.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-connector-kafka-0.9_2.11</artifactId>
 			<version>${flink.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.rdos</groupId>
-			<artifactId>engine.execution.base</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-table_2.11</artifactId>
 			<version>${flink.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.dtstack.rdos</groupId>
+		    <artifactId>common</artifactId>
+		    <version>1.0.0</version>
 		</dependency>
 	</dependencies>
 </project>

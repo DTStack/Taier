@@ -6,9 +6,10 @@
 	<parent>
 		<groupId>com.dtstack.rdos</groupId>
 		<artifactId>engine</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>engine.entrance</artifactId>
+	<artifactId>entrance</artifactId>
 	<name>entrance</name>
 	<packaging>jar</packaging>
 	<properties>
@@ -34,14 +35,8 @@
 
 		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
-			<artifactId>engine.execution.base</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.dtstack.rdos</groupId>
-			<artifactId>engine.common</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>execution.base</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 </project>
