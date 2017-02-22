@@ -8,16 +8,18 @@ package com.dtstack.rdos.engine.execution.base.operator;
  * @author sishu.yss
  *
  */
-public class CreateTableFunctionOperator implements Operator{
+public class CreateFunctionOperator implements Operator{
 	
 	/**
-	 * create table function xxx with com.dtstack.testFunction
+	 * create (table|scala) function xxx with com.dtstack.testFunction
 	 */
-	private static String tablePattern ="";
+	private static String functionPattern ="";
 	
 	private String name;
 
 	private String className;
+	
+	private String type;
 	
 
 	@Override
@@ -38,6 +40,10 @@ public class CreateTableFunctionOperator implements Operator{
 
 	public String getClassName() {
 		return className;
+	}
+
+	public String getType() {
+		return type;
 	}
 	
 
