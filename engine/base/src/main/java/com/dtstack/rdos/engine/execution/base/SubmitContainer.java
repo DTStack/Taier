@@ -15,7 +15,9 @@ public class SubmitContainer {
 
     private String host;
 
-    private String port;
+    private String jobManagerPort;
+
+    private String restPort;
 
     public void start(){
 
@@ -47,11 +49,19 @@ public class SubmitContainer {
         this.host = host;
     }
 
-    public String getPort() {
-        return port;
+    public String getJobManagerPort() {
+        return jobManagerPort;
     }
 
-    public void setPort(String port) {
-        this.port = port;
+    public void setJobManagerPort(String jobManagerPort) {
+        this.jobManagerPort = jobManagerPort;
+    }
+
+    public String getRestPort() {
+        return restPort;
+    }
+
+    public void setRestPort(String restPort) {
+        this.restPort = restPort;
     }
 }

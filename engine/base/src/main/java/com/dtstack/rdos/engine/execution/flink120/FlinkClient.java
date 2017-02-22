@@ -74,16 +74,17 @@ public class FlinkClient extends AbsClient {
         Object port = prop.get("port");
         Object zkNamespace = prop.get("zkNamespace");
 
-        Preconditions.checkState(host == null && zkNamespace == null,
+        Preconditions.checkState(host != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
-        if(zkNamespace != null){
+        if(zkNamespace != null){//优先使用zk
             initClusterClient((String) zkNamespace);
         }else{
-            Preconditions.checkState(port == null,
+            Preconditions.checkState(port != null,
                     "flink client can not init for specil host but port is null.");
 
-            initClusterClient((String)host, (Integer) port);
+            Integer portVal = Integer.valueOf((String)port);
+            initClusterClient((String)host, portVal);
         }
 
     }
