@@ -22,6 +22,10 @@ public class AddJarOperator implements Operator{
 		return jarPath;
 	}
 
+	public void setJarPath(String jarPath){
+		this.jarPath = jarPath;
+	}
+
 
 	@Override
 	public boolean createOperator(String sql)throws Exception {

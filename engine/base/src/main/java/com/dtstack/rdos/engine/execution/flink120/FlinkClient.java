@@ -12,10 +12,14 @@ import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -100,13 +104,18 @@ public class FlinkClient extends AbsClient {
         }
 
         PackagedProgram packagedProgram = null;
+        String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
+        List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
+        SavepointRestoreSettings spSettings = SavepointRestoreSettings.none();
+
         try{
             //FIXME 参数设置细化
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, null, null, null, null);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, classpaths, null, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());
             logger.error("", e);
+            e.printStackTrace();
             return jobResult;
         }
 
@@ -155,7 +164,7 @@ public class FlinkClient extends AbsClient {
      * @param sql
      * @return
      */
-    public String submitSqlJob(String sql) {
+    public JobResult submitSqlJob(String sql) {
         return null;
     }
 

@@ -31,21 +31,19 @@ public abstract class AbsClient implements IClient{
         }
 
         if(isJarOperator){
-            adaptToJarSubmit(jarOperator);
+            return adaptToJarSubmit(jarOperator);
         }else{
-            adaptToSqlSubmit(jobClient.getOperators());
+            return adaptToSqlSubmit(jobClient.getOperators());
         }
-
-        return null;
     }
 
-    public void adaptToJarSubmit(AddJarOperator jarOperator){
+    public JobResult adaptToJarSubmit(AddJarOperator jarOperator){
         Properties properties = new Properties();
         properties.setProperty("jarpath", jarOperator.getJarPath());
-        submitJobWithJar(properties);
+        return submitJobWithJar(properties);
     }
 
-    public void adaptToSqlSubmit(List<Operator> operators){
-
+    public JobResult adaptToSqlSubmit(List<Operator> operators){
+        return null;
     }
 }

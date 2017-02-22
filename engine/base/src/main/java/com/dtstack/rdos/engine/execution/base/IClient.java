@@ -22,8 +22,13 @@ public interface IClient {
 
     JobResult submitJobWithJar(Properties properties);
 
-    String submitSqlJob(String sql);
+    JobResult submitSqlJob(String sql);
 
+    /**
+     * FIXME 提交的时候先判断下计算资源是否足够
+     * @param jobClient
+     * @return
+     */
     JobResult submitJob(JobClient jobClient);
 
     String cancleJob(String jobId);

@@ -19,7 +19,7 @@ import java.util.List;
 
 public class FlinkUtil {
 
-    private static String tmp_file_path = "/tmp";
+    public static String tmp_file_path = "/tmp/flinkjar";
 
     private static final String URL_SPLITE = "/";
 

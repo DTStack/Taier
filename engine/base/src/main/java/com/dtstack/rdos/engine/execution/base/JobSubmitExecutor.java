@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.util.FlinkUtil;
 import com.google.common.collect.Queues;
 
 import org.slf4j.Logger;
@@ -41,6 +42,9 @@ public class JobSubmitExecutor{
     public void init(ClientType type, Properties clusterProp){
         clusterClient = ClientFactory.getClient(type);
         clusterClient.init(clusterProp);
+
+        String jarTmpPath = clusterProp.getProperty("jarFileTmpPath", "/tmp/flinkjar");
+        FlinkUtil.tmp_file_path = jarTmpPath;
         hasInit = true;
     }
 
@@ -92,6 +96,7 @@ public class JobSubmitExecutor{
                         logger.info("submit job result is:{}.", jobResult);
                     }catch (Exception e){//捕获未处理异常,防止跳出执行线程
                         logger.error("get unexpect exception", e);
+                        e.printStackTrace();
                     }
                 }
 

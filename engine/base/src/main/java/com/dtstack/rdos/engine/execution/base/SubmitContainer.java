@@ -19,6 +19,11 @@ public class SubmitContainer {
 
     private String restPort;
 
+    /**
+     * 设置上传jar文件临时目录,如果未设置默认是/tmp/flinkjar
+     */
+    private String jarFileTmpPath;
+
     public void start(){
 
     }
@@ -63,5 +68,13 @@ public class SubmitContainer {
 
     public void setRestPort(String restPort) {
         this.restPort = restPort;
+    }
+
+    public String getJarFileTmpPath() {
+        return jarFileTmpPath;
+    }
+
+    public void setJarFileTmpPath(String jarFileTmpPath) {
+        this.jarFileTmpPath = jarFileTmpPath;
     }
 }
