@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,6 @@ public class FileUtil {
             }
 
             Files.createParentDirs(outFile);//如果父目录不存在则创建
-
             FileOutputStream fout = new FileOutputStream(outFile);
             URL url = new URL(urlStr);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -58,11 +58,10 @@ public class FileUtil {
             fout.close();
             bfInputStream.close();
             httpURLConnection.disconnect();
-
             logger.info("download from remote url:{} success,dest file name is {}.", urlStr, dstFileName);
         } catch (IOException e) {
             logger.error("download from remote url:" + urlStr +"failure.", e);
-            return false;
+            throw new RdosException("download from remote url:" + urlStr +"failure." + e.getMessage());
         }
 
         return true;

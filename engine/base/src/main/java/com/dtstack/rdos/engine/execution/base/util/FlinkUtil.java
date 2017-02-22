@@ -23,7 +23,7 @@ public class FlinkUtil {
 
     private static final String URL_SPLITE = "/";
 
-    private static char fileSP = File.separatorChar;
+    private static String fileSP = File.separator;
 
     public static PackagedProgram buildProgram(String jarFilePath, List<URL> classpaths,
                                                   String entryPointClass, String[] programArgs, SavepointRestoreSettings spSetting)
@@ -32,8 +32,12 @@ public class FlinkUtil {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        //FIXME 如何从远处读取文件
-        File jarFile = new File(jarFilePath);
+        String localJarPath = getTmpFileName(jarFilePath);
+        if(!FileUtil.downLoadFile(jarFilePath, localJarPath)){
+            return null;
+        }
+
+        File jarFile = new File(localJarPath);
 
         // Check if JAR file exists
         if (!jarFile.exists()) {
@@ -58,9 +62,4 @@ public class FlinkUtil {
         return tmpFileName;
     }
 
-    public static void main(String[] args) {
-        String url = "https://zhidao.baidu.com/question/426176937576742932.html";
-        String fileName = getTmpFileName(url);
-        System.out.println(fileName);
-    }
 }
