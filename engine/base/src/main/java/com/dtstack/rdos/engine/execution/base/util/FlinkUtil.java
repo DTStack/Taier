@@ -1,8 +1,14 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.engine.execution.exception.RdosException;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.functions.ScalarFunction;
+import org.apache.flink.table.functions.TableFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,6 +24,8 @@ import java.util.List;
  */
 
 public class FlinkUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
     public static String tmp_file_path = "/tmp/flinkjar";
 
@@ -60,6 +68,41 @@ public class FlinkUtil {
         String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE));
         String tmpFileName = tmp_file_path  + fileSP + name;
         return tmpFileName;
+    }
+
+    /**
+     * 注册自定义方法到env上
+     * @param classPath
+     * @param funcName
+     * @param tableEnv
+     */
+    public static void registerUDF(String classPath, String funcName, StreamTableEnvironment tableEnv){
+        try{
+            ScalarFunction udfFunc = Class.forName(classPath)
+                    .asSubclass(ScalarFunction.class).newInstance();
+            tableEnv.registerFunction(funcName, udfFunc);
+        }catch (Exception e){
+            logger.error("", e);
+            throw new RdosException("register UDF exception:" + e.getMessage());
+        }
+    }
+
+    /**
+     * 注册自定义TABLEFFUNC方法到env上
+     * @param classPath
+     * @param funcName
+     * @param tableEnv
+     */
+    public static void registerUDTF(String classPath, String funcName, StreamTableEnvironment tableEnv){
+
+        try {
+            TableFunction udfFunc = Class.forName(classPath)
+                    .asSubclass(TableFunction.class).newInstance();
+            tableEnv.registerFunction(funcName, udfFunc);
+        }catch (Exception e){
+            logger.error("", e);
+            throw new RdosException("register Table UDF exception:" + e.getMessage());
+        }
     }
 
 }

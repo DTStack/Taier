@@ -22,6 +22,8 @@ public class JobClient {
 
     private List<Operator> operators = new ArrayList<Operator>();
 
+    private String jobName;
+
     private void getStatus(){
 
     }
@@ -39,4 +41,11 @@ public class JobClient {
         JobSubmitExecutor.getInstance().submitJob(this);
     }
 
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
 }
