@@ -32,6 +32,8 @@ public class CreateResultOperator implements Operator{
 	private String[] fields;
 	
 	private Class<?>[] fieldTypes;
+	
+	private String name;
 
 	@Override
 	public boolean createOperator(String sql) throws Exception{
@@ -49,6 +51,10 @@ public class CreateResultOperator implements Operator{
 
 	public Class<?>[] getFieldTypes() {
 		return fieldTypes;
+	}
+	
+	public String getName() {
+		return name;
 	}
 
 	@Override

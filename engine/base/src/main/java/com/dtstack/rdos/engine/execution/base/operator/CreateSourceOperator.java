@@ -31,6 +31,8 @@ public class CreateSourceOperator implements Operator{
 	private String[] fields;
 	
 	private Class<?>[] fieldTypes;
+	
+	private String name;
 
 	@Override
 	public boolean createOperator(String sql) throws Exception{
@@ -48,6 +50,16 @@ public class CreateSourceOperator implements Operator{
 
 	public Class<?>[] getFieldTypes() {
 		return fieldTypes;
+	}
+
+	
+	
+	public static String getSourcePattern() {
+		return sourcePattern;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	@Override
