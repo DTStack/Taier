@@ -1,5 +1,13 @@
 package com.dtstack.rdos.engine.execution.base.operator;
 
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2016年02月22日 下午1:16:37
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;

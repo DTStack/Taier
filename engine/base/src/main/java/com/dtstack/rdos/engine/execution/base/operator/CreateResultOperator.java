@@ -2,6 +2,14 @@ package com.dtstack.rdos.engine.execution.base.operator;
 
 import java.util.Properties;
 
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2016年02月22日 下午1:16:37
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class CreateResultOperator implements Operator{
 	
 	
