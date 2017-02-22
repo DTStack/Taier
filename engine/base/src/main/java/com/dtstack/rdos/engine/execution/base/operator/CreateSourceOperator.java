@@ -13,7 +13,7 @@ import java.util.Properties;
 public class CreateSourceOperator implements Operator{
 	
 	/**
-	 *  CREATE STREAM TABLE student_stream(
+	 *  CREATE source TABLE student_stream(
      *  id BIGINT,
      *  name STRING) WITH (
      *  type='datahub',
@@ -33,6 +33,8 @@ public class CreateSourceOperator implements Operator{
 	private Class<?>[] fieldTypes;
 	
 	private String name;
+	
+	private String type;
 
 	@Override
 	public boolean createOperator(String sql) throws Exception{
@@ -40,6 +42,13 @@ public class CreateSourceOperator implements Operator{
 		return false;
 	}
 
+
+	@Override
+	public boolean verification(String sql) throws Exception {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	public Properties getProperties() {
 		return properties;
 	}
@@ -52,19 +61,12 @@ public class CreateSourceOperator implements Operator{
 		return fieldTypes;
 	}
 
-	
-	
-	public static String getSourcePattern() {
-		return sourcePattern;
-	}
-
 	public String getName() {
 		return name;
 	}
 
-	@Override
-	public boolean verification(String sql) throws Exception {
-		// TODO Auto-generated method stub
-		return false;
+	public String getType() {
+		return type;
 	}
+
 }
