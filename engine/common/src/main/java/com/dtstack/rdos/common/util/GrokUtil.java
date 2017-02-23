@@ -2,11 +2,13 @@ package com.dtstack.rdos.common.util;
 
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.Set;
 import oi.thekraken.grok.api.Grok;
 import oi.thekraken.grok.api.Match;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import com.google.common.collect.Maps;
 
 /**
  * 
@@ -19,26 +21,42 @@ public class GrokUtil {
 
 	private static String patternFile = "pattern";
 	
-	private static Grok grok = new Grok();
-	
-	
+    private static Map<String,Grok> groks = Maps.newConcurrentMap();
+    
 	static{
 		try {
+			Grok grok = new Grok();
 			grok.addPatternFromReader(new InputStreamReader(GrokUtil.class.getClassLoader()
 					.getResourceAsStream(patternFile)));
+			Set<Map.Entry<String, String>> sets = grok.getPatterns().entrySet();
+			for(Map.Entry<String, String> entry:sets){
+				Grok g = new Grok();
+				g.addPatternFromReader(new InputStreamReader(GrokUtil.class.getClassLoader()
+					.getResourceAsStream(patternFile)));
+				String name = getName(entry.getKey());
+				g.compile(name);
+				groks.put(name, g);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			logger.error(ExceptionUtil.getErrorMessage(e));
 		}
 	}
 	
-	public static boolean isSuccess(String text) throws Exception{
-		Match match =grok.match(text);
-		match.captures();
-		return match.isNull();
+	
+	private static String getName(String name){
+		return "%{"+name+"}";
 	}
 	
-	public static Map<String,Object> toMap(String text) throws Exception{
+	public static boolean isSuccess(String name,String text) throws Exception{
+		Grok grok = groks.get(getName(name));
+		Match match =grok.match(text);
+		match.captures();
+		return !match.isNull();
+	}
+	
+	public static Map<String,Object> toMap(String name,String text) throws Exception{
+		Grok grok = groks.get(getName(name));
 		Match match =grok.match(text);
 		match.captures();
 		return match.toMap();
@@ -46,7 +64,7 @@ public class GrokUtil {
 	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-      System.out.println(GrokUtil.toMap("add jar with xxxxx"));
+      System.out.println(GrokUtil.isSuccess("ADDJAR","ADD JAR WITH xxxxx;"));
 	}
 
 }
