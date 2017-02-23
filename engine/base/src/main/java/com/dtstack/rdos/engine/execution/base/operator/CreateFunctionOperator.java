@@ -15,7 +15,7 @@ import com.dtstack.rdos.common.util.GrokUtil;
 public class CreateFunctionOperator implements Operator{
 	
 	/**
-	 * CREATE (TABBLE|SCALA) FUNCTION xxx WITH com.dtstack.testFunction
+	 * CREATE (TABLE|SCALA) FUNCTION xxx WITH com.dtstack.testFunction
 	 */
 	private static String pattern = "CREATEFUNCTION";
 	

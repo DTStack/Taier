@@ -16,7 +16,7 @@ import com.dtstack.rdos.common.util.GrokUtil;
 public class AddJarOperator implements Operator{
 	
 	/**
-	 * add jar with xx
+	 * ADD JAR WITH xx
 	 */
 	private static String pattern = "ADDJAR";
 	
