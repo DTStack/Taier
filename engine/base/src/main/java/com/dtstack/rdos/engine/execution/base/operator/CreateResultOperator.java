@@ -14,7 +14,7 @@ public class CreateResultOperator implements Operator{
 	
 	
 	/**
-	 * CREATE result TABLE student_stream(
+	 *  CREATE RESULT TABLE student_stream(
      *  id BIGINT,
      *  name STRING) WITH (
      *  type='datahub',

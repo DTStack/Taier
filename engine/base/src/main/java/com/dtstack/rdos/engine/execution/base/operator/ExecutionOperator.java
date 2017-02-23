@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.operator;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -26,8 +28,6 @@ public class ExecutionOperator implements Operator{
 	@Override
 	public boolean verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		return false;
+		return StringUtils.isNotBlank(sql);
 	}
-
-	
 }

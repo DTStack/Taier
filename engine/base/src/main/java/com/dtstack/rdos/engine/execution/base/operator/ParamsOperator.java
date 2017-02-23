@@ -12,6 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ParamsOperator implements Operator{
 	
 	private Properties properties;
@@ -32,6 +34,6 @@ public class ParamsOperator implements Operator{
 	@Override
 	public boolean verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		return false;
+		return StringUtils.isNotBlank(sql);
 	}
 }

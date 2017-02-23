@@ -11,7 +11,7 @@ package com.dtstack.rdos.engine.execution.base.operator;
 public class CreateFunctionOperator implements Operator{
 	
 	/**
-	 * create (table|scala) function xxx with com.dtstack.testFunction
+	 * CREATE (TABBLE|SCALA) FUNCTION xxx WITH com.dtstack.testFunction
 	 */
 	private static String functionPattern ="";
 	

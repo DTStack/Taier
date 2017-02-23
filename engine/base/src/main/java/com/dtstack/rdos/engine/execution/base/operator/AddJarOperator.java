@@ -1,5 +1,10 @@
 package com.dtstack.rdos.engine.execution.base.operator;
 
+import java.util.Map;
+
+import com.dtstack.rdos.common.util.GrokUtil;
+
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -13,23 +18,18 @@ public class AddJarOperator implements Operator{
 	/**
 	 * add jar with xx
 	 */
-	private static String addJarPattern = "";
-	
 	private String jarPath;
 
-	
 	public String getJarPath() {
 		return jarPath;
-	}
-
-	public void setJarPath(String jarPath){
-		this.jarPath = jarPath;
 	}
 
 
 	@Override
 	public boolean createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
+		Map<String,Object> result =GrokUtil.toMap( sql);
+		jarPath = (String)result.get("path");
 		return true;
 	}
 
@@ -37,7 +37,7 @@ public class AddJarOperator implements Operator{
 	@Override
 	public boolean verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		return false;
+		return GrokUtil.isSuccess(sql);
 	}
 	
 }
