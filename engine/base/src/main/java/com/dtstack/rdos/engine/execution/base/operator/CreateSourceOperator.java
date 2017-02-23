@@ -67,10 +67,11 @@ public class CreateSourceOperator implements Operator{
         for(int i=0;i<strs.length;i++){
         	String[] ss = strs[i].split("=");
         	String key = ss[0].trim();
+        	String value = ss[1].trim().replaceAll("'", "").trim();
         	if("type".equals(key)){
-        		this.type = ss[1].trim().replaceAll("'", "");
+        		this.type = value;
         	}else{
-        		properties.put(key, ss[1].trim().replaceAll("'", ""));
+        		properties.put(key, value);
         	}
         }
 	}
