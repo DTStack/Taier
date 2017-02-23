@@ -25,6 +25,11 @@ public class AddJarOperator implements Operator{
 	}
 
 
+	public void setJarPath(String jarPath) {
+		this.jarPath = jarPath;
+	}
+
+
 	@Override
 	public boolean createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
