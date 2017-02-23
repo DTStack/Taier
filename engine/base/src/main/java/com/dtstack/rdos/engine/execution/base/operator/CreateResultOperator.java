@@ -54,25 +54,25 @@ public class CreateResultOperator implements Operator{
 	
 	private void setFieldsAndFieldTypes(String sql){
 		String[] strs = sql.trim().split(",");
-		fields = new String[strs.length];
-		fieldTypes = new Class<?>[strs.length];
+		this.fields = new String[strs.length];
+		this.fieldTypes = new Class<?>[strs.length];
 		for(int i=0;i<strs.length;i++){
 			String[] ss = strs[i].split("\\s+");
-			fields[i] = ss[0].trim();
-			fieldTypes[i] = ClassUtil.stringConvetClass(ss[0].trim());
+			this.fields[i] = ss[0].trim();
+			this.fieldTypes[i] = ClassUtil.stringConvetClass(ss[0].trim());
 		}
 	}
 	
 	private void setTypeAndProperties(String sql){
 		String[] strs = sql.trim().split(",");
-		properties = new Properties();
+		this.properties = new Properties();
         for(int i=0;i<strs.length;i++){
         	String[] ss = strs[i].split("=");
         	String key = ss[0].trim();
         	if("type".equals(key)){
         		this.type = ss[1].trim().replaceAll("'", "");
         	}else{
-        		properties.put(key, ss[1].trim().replaceAll("'", ""));
+        		this.properties.put(key, ss[1].trim().replaceAll("'", ""));
         	}
         }
 	}

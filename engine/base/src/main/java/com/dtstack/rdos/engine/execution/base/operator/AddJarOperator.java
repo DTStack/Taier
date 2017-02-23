@@ -36,7 +36,7 @@ public class AddJarOperator implements Operator{
 	public boolean createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
-		jarPath = (String)result.get("path");
+		this.jarPath = (String)result.get("path");
 		return true;
 	}
 
