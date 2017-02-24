@@ -11,6 +11,11 @@ package com.dtstack.rdos.engine.entrance.db.dataobject;
 public class RdosActionLog extends DataObject{
 	
 	/**
+	 * 发起操作的唯一标识
+	 */
+	private String actionLogId;
+	
+	/**
 	 * 操作类型
 	 */
 	private Byte actionType;
@@ -35,6 +40,27 @@ public class RdosActionLog extends DataObject{
 	 * 发起操作的用户id
 	 */
 	private Long createUserId;
+	
+	/**
+	 * 租户id
+	 */
+	private Long tenantId;
+	
+	public String getActionLogId() {
+		return actionLogId;
+	}
+
+	public void setActionLogId(String actionLogId) {
+		this.actionLogId = actionLogId;
+	}
+
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
 
 
 	public Byte getActionType() {

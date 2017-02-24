@@ -66,9 +66,22 @@ public class RdosTask extends DataObject{
     private Long createUserId;
     
     /**
+     * 租户id
+     */
+    private Long tenantId;
+    
+    /**
      * 版本号
      */
     private Long version;
+
+	public Long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(Long tenantId) {
+		this.tenantId = tenantId;
+	}
 
 	public String getTaskId() {
 		return taskId;

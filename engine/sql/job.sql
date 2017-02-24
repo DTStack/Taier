@@ -7,9 +7,12 @@ CREATE TABLE `rdos_action_log` (
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',
   `create_user_id` int(11) NOT NULL comment '发起操作的用户',
+  `tenant_id` int(11) NOT NULL comment '租户id',
+  `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   KEY `index_create_time` (`create_time`),
-  KEY `index_task_id_status` (`task_id`,`status`)
+  KEY `index_task_id` (`task_id`,`is_deleted`),
+  KEY `index_tenant_id` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
 CREATE TABLE `rdos_node_machine` (
@@ -17,6 +20,7 @@ CREATE TABLE `rdos_node_machine` (
   `ip` varchar(64) NOT NULL comment 'master主机ip',
   `port` int(11) NOT NULL comment 'master主机端口',
   `machine_type` tinyint(1) NOT NULL default 0 comment '0 master,1 slave',
+  `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',
   PRIMARY KEY (`id`),
@@ -39,8 +43,10 @@ CREATE TABLE `rdos_task` (
   `gmt_modified` datetime NOT NULL comment '修改时间',
   `modify_user_id` int(11) NOT NULL comment '最后修改task的用户',
   `create_user_id` int(11) NOT NULL comment '新建task的用户',
+  `tenant_id` int(11) NOT NULL comment '租户id',
   `version` int(11) NOT NULL default 0 comment 'task版本',
+  `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_name` (`name`),
-  KEY `index_task_id_status` (`task_id`,`status`),
+  KEY `index_task_id` (`task_id`,`is_deleted`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8

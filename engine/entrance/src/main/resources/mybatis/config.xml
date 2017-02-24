@@ -5,15 +5,25 @@
  
 <configuration>
     <typeAliases>
-        <typeAlias alias="RdosAction" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosAction"/>
-        <typeAlias alias="RdosTask" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask"/>        
+        <typeAlias alias="RdosActionLog" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosAction"/>
+        <typeAlias alias="RdosTask" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask"/>     
+        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine"/>        
     </typeAliases>
  
-    <environments default="development">
-        <environment id="development">
+    <environments default="production">
+<!--         <environment id="development">
           <transactionManager type="JDBC"/>
-            <!--  connecting to Local MySql -->
             <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/hmkcode"/>
+                <property name="username" value="root"/>
+                <property name="password" value=""/>
+            </dataSource>
+       </environment> -->
+       
+        <environment id="production">
+          <transactionManager type="MANAGED"/>
+            <dataSource type="JNDI">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
                 <property name="url" value="jdbc:mysql://localhost:3306/hmkcode"/>
                 <property name="username" value="root"/>
@@ -22,6 +32,8 @@
        </environment>
     </environments>
     <mappers>
-       <mapper resource="mybatis/mapper/Person.xml"/>
+       <mapper resource="mybatis/mapper/RdosActionLogMapping.xml"/>
+       <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
+       <mapper resource="mybatis/mapper/RdosTaskMapping.xml"/>
     </mappers>
 </configuration>

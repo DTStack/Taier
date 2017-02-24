@@ -17,15 +17,6 @@ public class DataObject {
 	
 	private long id;
 	
-	
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
 	/**
 	 * 创建时间
 	 */
@@ -35,6 +26,28 @@ public class DataObject {
 	 * 修改时间
 	 */
 	private Date gmtModified;
+	
+	/**
+	 * 是否逻辑删除
+	 */
+	private Byte isDeleted;
+	
+	
+	public Byte getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Byte isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
 	
 	
 	/**

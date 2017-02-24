@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.db;
+package com.dtstack.rdos.engine.entrance.db.callback;
 
 import java.io.Reader;
 import org.apache.ibatis.io.Resources;
