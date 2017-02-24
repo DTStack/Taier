@@ -1,98 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aliyun.shuju.biz.dao.AppDAO">
+<mapper namespace="com.dtstack.rdos.engine.entrance.db.mapper.RdosNodeMachineMapper">
 	
-	<resultMap id="appResult" type="com.aliyun.shuju.biz.dao.dataobject.App">
+	<resultMap id="rdosNodeMachineResult" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
     <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
-    <result column="tilte" property="tilte" jdbcType="VARCHAR" />
-    <result column="describer" property="describer" jdbcType="VARCHAR" />
-    <result column="studio_id" property="studioId" jdbcType="BIGINT" />
-    <result column="ace_app_id" property="aceAppId" jdbcType="BIGINT" />
-    <result column="warehourse_type" property="warehourseType" jdbcType="BIT" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="port" property="port" jdbcType="BIGINT" />
+    <result column="machine_type" property="machineype" jdbcType="BIT" />
     <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
     </resultMap>
 	
-    <insert id="insertDpApp" parameterType="com.aliyun.shuju.biz.dao.dataobject.App">
-	insert into dp_app(gmt_create,gmt_modified,studio_id,title,ace_app_id,warehouse_type,identifier,is_deleted)
-	values(now(),now(),#{studioId},#{title},#{aceAppId},#{warehouseType},#{identifier},0)
+    <insert id="insert" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
+	insert into rdos_node_machine(gmt_create,gmt_modified,ip,port,machine_type)
+	values(now(),now(),#{ip},#{port},#{machine_type})
 	<selectKey resultType="long" keyProperty="id">
 	SELECT LAST_INSERT_ID() AS ID
 	</selectKey>
 	</insert>
 	
-	<select id="checkOperatorPower"  parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	  select da.ace_app_id from dp_app da ,dp_studio_user su where da.studio_id = su.studio_id and da.ace_app_id=#{id} and su.user_id=#{userId} and da.is_deleted=0 and su.is_deleted=0
-	</select>
-	
-	 <select id="checkQueryPower" parameterType="java.util.HashMap" resultType="java.lang.Long">
-	    select count(1) from dp_user du,dp_studio_user su where du.user_id = su.user_id and du.user_id=#{userId} and su.studio_id= #{studioId} and du.is_deleted=0 and su.is_deleted=0
-	</select> 
-	
-	<select id="queryAceAppIds" parameterType="com.aliyun.shuju.biz.dao.dataobject.App" resultMap="appResult">
-	    select * from dp_app where is_deleted=0
-	    
-	    <if test="title !=null">
-				and title=#{title}
-		</if>
-		<if test="studioId !=null">
-				and studio_id=#{studioId}
-		</if>
-		
-		<if test="identifier != null">
-		  and identifier =#{identifier}
-		</if>
-		
-		<if test="describer !=null">
-				and describer=#{describer}
-		</if>
-		
-		  <if test="id !=null">
-				and id=#{id}
-	      </if>
-	</select>
-	
-	
-<update id="updateDpApp" parameterType="com.aliyun.shuju.biz.dao.dataobject.App">
-	update dp_app
-		set gmt_modified=now()
-			<if test="isDeleted !=null">
-				,is_deleted=#{isDeleted}
-		  </if>
-		  
-		  <if test="title !=null">
-				,title=#{title}
-		  </if>
-		WHERE is_deleted=0
-	   <if test="id !=null">
-				and id=#{id}
-	   </if>
-	   
-	   <if test="aceAppId !=null">
-	            and ace_app_id =#{aceAppId}
-	   </if>
-	</update>
-	
-	<select id="selectByAppUser" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-		select o1.user_id 
-		from (select user_id,studio_id from dp_studio_user where is_deleted=0 and user_id=#{uid})o1 
-		join  (select studio_id,ace_app_id from dp_app where is_deleted=0 and ace_app_id=#{appId}) o2 
-		on(o1.studio_id=o2.studio_id);
-	</select>
-	
-	<select id="selectByAppId" parameterType="long" resultMap="appResult">
-		select * from dp_app where ace_app_id=#{appId} and is_deleted=0
-	</select>
-	
-	<select id="selectByStudio" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-		select * from dp_app
-		where is_deleted=0 and studio_id=#{studioId} and ace_app_id=#{appId};
-	</select>
-	
-	<select id="selectAppsByStudioId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-		select title,ace_app_id as appId from dp_app
-		where is_deleted=0 and studio_id=#{studioId}
-	</select>
+   <delete id="deleteUnavaiableMasterNode">
+        delete from rdos_node_machine where machine_type='master';
+   </delete>
 	
 </mapper>
