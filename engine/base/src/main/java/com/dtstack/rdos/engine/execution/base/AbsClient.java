@@ -1,8 +1,9 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Properties;
@@ -16,6 +17,8 @@ import java.util.Properties;
  */
 
 public abstract class AbsClient implements IClient{
+
+    private static final Logger logger = LoggerFactory.getLogger(AbsClient.class);
 
     @Override
     public JobResult submitJob(JobClient jobClient) {
@@ -33,7 +36,7 @@ public abstract class AbsClient implements IClient{
         if(isJarOperator){
             return adaptToJarSubmit(jarOperator);
         }else{
-            return adaptToSqlSubmit(jobClient.getOperators());
+            return submitSqlJob(jobClient);
         }
     }
 
@@ -43,7 +46,4 @@ public abstract class AbsClient implements IClient{
         return submitJobWithJar(properties);
     }
 
-    public JobResult adaptToSqlSubmit(List<Operator> operators){
-        return null;
-    }
 }

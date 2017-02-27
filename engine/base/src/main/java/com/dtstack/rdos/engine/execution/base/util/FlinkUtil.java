@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
+import com.dtstack.rdos.engine.execution.flink120.FlinkKafka09SourceGenr;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
@@ -32,6 +34,10 @@ public class FlinkUtil {
     private static final String URL_SPLITE = "/";
 
     private static String fileSP = File.separator;
+
+    public enum ESourceType{
+        KAFKA09;
+    }
 
     public static PackagedProgram buildProgram(String jarFilePath, List<URL> classpaths,
                                                   String entryPointClass, String[] programArgs, SavepointRestoreSettings spSetting)
@@ -71,16 +77,32 @@ public class FlinkUtil {
     }
 
     /**
+     * TABLE|SCALA
+     * 注册UDF到table env
+     */
+    public static void registerUDF(String type, String classPath, String funcName, StreamTableEnvironment tableEnv){
+        if("TABLE".equalsIgnoreCase(type)){
+            registerScalaUDF(classPath, funcName, tableEnv);
+        }else if("SCALA".equalsIgnoreCase(type)){
+            registerTableUDF(classPath, funcName, tableEnv);
+        }else{
+            throw new RdosException("not support of UDF not in (TABLE, SCALA)");
+        }
+
+    }
+
+    /**
      * 注册自定义方法到env上
      * @param classPath
      * @param funcName
      * @param tableEnv
      */
-    public static void registerUDF(String classPath, String funcName, StreamTableEnvironment tableEnv){
+    public static void registerScalaUDF(String classPath, String funcName, StreamTableEnvironment tableEnv){
         try{
             ScalarFunction udfFunc = Class.forName(classPath)
                     .asSubclass(ScalarFunction.class).newInstance();
             tableEnv.registerFunction(funcName, udfFunc);
+            logger.info("register scala function:{} success.", funcName);
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("register UDF exception:" + e.getMessage());
@@ -93,16 +115,32 @@ public class FlinkUtil {
      * @param funcName
      * @param tableEnv
      */
-    public static void registerUDTF(String classPath, String funcName, StreamTableEnvironment tableEnv){
+    public static void registerTableUDF(String classPath, String funcName, StreamTableEnvironment tableEnv){
 
         try {
             TableFunction udfFunc = Class.forName(classPath)
                     .asSubclass(TableFunction.class).newInstance();
             tableEnv.registerFunction(funcName, udfFunc);
+            logger.info("register table function:{} success.", funcName);
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("register Table UDF exception:" + e.getMessage());
         }
+    }
+
+    /**
+     * 根据指定的类型构造数据源
+     * 当前只支持kafka09
+     * @param sourceType
+     * @return
+     */
+    public static IStreamSourceGener getStreamSourceGener(ESourceType sourceType){
+        switch (sourceType){
+            case KAFKA09:
+                return  new FlinkKafka09SourceGenr();
+        }
+
+        return null;
     }
 
 }
