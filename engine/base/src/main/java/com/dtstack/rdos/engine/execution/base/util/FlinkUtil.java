@@ -3,9 +3,11 @@ package com.dtstack.rdos.engine.execution.base.util;
 import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.FlinkKafka09SourceGenr;
+import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.streaming.api.functions.sink.OutputFormatSinkFunction;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
@@ -147,6 +149,24 @@ public class FlinkUtil {
         }
 
         return null;
+    }
+
+    public OutputFormatSinkFunction getSinkFunc(){
+
+        JDBCOutputFormat.JDBCOutputFormatBuilder jdbcFormatBuild = JDBCOutputFormat.buildJDBCOutputFormat();
+        jdbcFormatBuild.setDBUrl("");
+        jdbcFormatBuild.setDrivername("");
+        jdbcFormatBuild.setUsername("");
+        jdbcFormatBuild.setQuery("");
+        jdbcFormatBuild.setPassword("");
+        jdbcFormatBuild.setBatchInterval(1000);//默认5s
+
+        int[] types = new int[]{1};
+        jdbcFormatBuild.setSqlTypes(types);
+        JDBCOutputFormat outputFormat = jdbcFormatBuild.finish();
+
+        OutputFormatSinkFunction outputFormatSinkFunc = new OutputFormatSinkFunction(outputFormat);
+        return outputFormatSinkFunc;
     }
 
 }

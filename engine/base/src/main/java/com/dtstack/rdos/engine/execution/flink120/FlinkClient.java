@@ -245,7 +245,7 @@ public class FlinkClient extends AbsClient {
                 //FIXME 暂时还未开始研究输出
 
             }else{
-                return JobResult.createErrorResult("not support operator of " + operator.getClass().getName());
+                throw new RdosException("not support operator of " + operator.getClass().getName());
             }
         }
 
