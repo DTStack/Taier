@@ -1,8 +1,7 @@
 package com.dtstack.rdos.engine.entrance;
 
 import org.apache.commons.cli.CommandLine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -15,23 +14,26 @@ import org.slf4j.LoggerFactory;
  */
 public class CmdLineParams {
 	
-	private static Logger logger  = LoggerFactory.getLogger(CmdLineParams.class);
-	
-	
 	private static CommandLine line;
 	
 	public static void setLine(CommandLine line) {
 		CmdLineParams.line = line;
 	}
 	
-	
 	public static String getConfigFilePath(){
+		String configFile = line.getOptionValue("f");
+		if(StringUtils.isBlank(configFile)){
+			return String.format("%s/%s", System.getProperty("user.dir"),"config/node.yml");
+		}
 		return line.getOptionValue("f");
 	}
 	
-
 	public static String getLogFilePath(){
-		return line.getOptionValue("l");
+		String logFile = line.getOptionValue("l");
+		if(StringUtils.isBlank(logFile)){
+			return String.format("%s/%s", System.getProperty("user.dir"),"logs/node.log");
+		}
+		return logFile;
 	}
 	
 	public static boolean hasOptionTrace(){

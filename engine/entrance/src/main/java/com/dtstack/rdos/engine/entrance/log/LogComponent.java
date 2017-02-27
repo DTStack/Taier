@@ -1,7 +1,5 @@
 package com.dtstack.rdos.engine.entrance.log;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.dtstack.rdos.engine.entrance.CmdLineParams;
 
 /**
@@ -18,9 +16,6 @@ public abstract class LogComponent {
 	
 	protected String checkFile(){
 		String logfile = CmdLineParams.getLogFilePath();
-		if(StringUtils.isBlank(logfile)){
-			return String.format("%s/%s", System.getProperty("user.dir"),"logs/node.log");
-		}
 		return logfile;
 	}
 }

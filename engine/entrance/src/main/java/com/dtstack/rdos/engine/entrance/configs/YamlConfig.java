@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -18,15 +15,12 @@ import org.yaml.snakeyaml.Yaml;
  * @author sishu.yss
  *
  */
-@SuppressWarnings("rawtypes")
 public class YamlConfig implements Config{
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
-    private static Logger logger = LoggerFactory.getLogger(YamlConfig.class);
 
     @Override
-    public Map parse(String filename){
-    	try{
+    public <T> T parse(String filename,Class<T> classType) throws Exception{
             Yaml yaml = new Yaml();
             if (filename.startsWith(YamlConfig.HTTP) || filename.startsWith(YamlConfig.HTTPS)) {
                 URL httpUrl;
@@ -34,15 +28,10 @@ public class YamlConfig implements Config{
                 httpUrl = new URL(filename);
                 connection = httpUrl.openConnection();
                 connection.connect();
-                return (Map) yaml.load(connection.getInputStream());
+                return yaml.loadAs(connection.getInputStream(),classType);
             } else {
                 FileInputStream input = new FileInputStream(new File(filename));
-                return (Map) yaml.load(input);
+                return  yaml.loadAs(input,classType);
             }
-    	}catch(Exception e){
-    		logger.error("load yaml config error", e);
-    		System.exit(1);
-    	}
-       return null;
     }
 }

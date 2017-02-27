@@ -5,9 +5,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+
 import com.google.common.collect.Maps;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -20,7 +22,6 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author sishu.yss
  *
  */
-@SuppressWarnings("restriction")
 public abstract class PostHandler implements HttpHandler{
 
 	private static String encoding = "utf-8";
@@ -49,6 +50,7 @@ public abstract class PostHandler implements HttpHandler{
 	}
 
 
+	@SuppressWarnings("unchecked")
 	protected Map<String,Object> parseQuery(String query) throws IOException {
 		         Map<String,Object> parameters = Maps.newConcurrentMap();
 		         if (StringUtils.isNotBlank(query)) {

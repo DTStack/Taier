@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.entrance.configs;
 
-import java.util.Map;
 
 
 /**
@@ -13,6 +12,6 @@ import java.util.Map;
  */
 public interface Config {
 
-	 public Map parse(String filename);
+	public <T> T parse(String filename, Class<T> classType)throws Exception;
 	
 }
