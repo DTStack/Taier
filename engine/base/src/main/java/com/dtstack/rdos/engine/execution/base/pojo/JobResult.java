@@ -32,6 +32,12 @@ public class JobResult {
         return jobResult;
     }
 
+    public static JobResult createErrorResult(String errMsg){
+        JobResult jobResult = JobResult.newInstance(true);
+        jobResult.setData("errMsg", errMsg);
+        return jobResult;
+    }
+
     public boolean setData(String key, String value){
         try{
             json.put(key, value);

@@ -23,7 +23,8 @@ public class FlinkKafka09SourceGenr implements IStreamSourceGener<StreamTableSou
     /**
      * 获取kafka数据源,需要提供数据字段名称,数据类型
      * FIXME 还未做字段校验
-     * 默认 从kafka 的latest开始读取数据, 如果不指定的话
+     * 如果不指定auto.offset.reset的话,默认 从kafka 的latest开始读取数据,
+     * 后续调用方式 tableEnvironment.registerTableSource("kafka-source", kafkaTableSource);
      * 参数不合法会抛出{@link IllegalStateException}
      * @param params
      * @return

@@ -1,10 +1,14 @@
 package com.dtstack.rdos.engine.execution.flink120;
 
 import com.dtstack.rdos.engine.execution.base.AbsClient;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.base.util.FlinkUtil;
 
 import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
@@ -12,10 +16,21 @@ import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.runtime.akka.AkkaUtils;
+import org.apache.flink.runtime.instance.ActorGateway;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.runtime.messages.JobManagerMessages;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
+import org.apache.flink.util.StringUtils;
+import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,6 +50,12 @@ public class FlinkClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
+    private String jobMgrHost;
+
+    private int jobMgrPort;
+
+    private int restPort;
+
     private ClusterClient client;
 
     //默认使用异步提交
@@ -47,6 +68,10 @@ public class FlinkClient extends AbsClient {
      * @throws Exception
      */
     public void initClusterClient(String host, int port){
+
+        this.jobMgrHost = host;
+        this.jobMgrPort = port;
+
         Configuration config = new Configuration();
         config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, host);
         config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, port);
@@ -161,17 +186,113 @@ public class FlinkClient extends AbsClient {
 
     /**
      * FIXME flink sql提交需要使用remoteEnv
-     * @param sql
+     * 区分出source, transformation, sink
+     * FIXME 目前source 只支持kafka
+     * FIXME 注意流程的顺序--校验顺序
+     * 1: 获取数据源 -- 可能多个
+     * 2: 注册udf--fuc/table -- 可能多个---必须附带jar(做校验)
+     * 3: 调用sql ---》
+     * @param jobClient
      * @return
      */
-    public JobResult submitSqlJob(String sql) {
-        return null;
+    public JobResult submitSqlJob(JobClient jobClient) {
+
+        //FIXME 如何获取udf 对应jar包？是否还是根据AddJarOperator,如果根据AddJarOperator 作为判断,如何区分是提交jar还是sql
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
+
+        int currStep = 0;
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
+                if(currStep > 1){
+                    return JobResult.createErrorResult("sql exe order setting err. cause of CreateSourceOperator");
+                }
+
+                currStep = 1;
+                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(FlinkUtil.ESourceType.KAFKA09);
+                CreateSourceOperator tmpOperator = (CreateSourceOperator) operator;
+                StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
+                        (tmpOperator.getProperties(), tmpOperator.getFields(), tmpOperator.getFieldTypes());
+
+                tableEnv.registerTableSource(tmpOperator.getName(), tableSource);
+
+            }else if(operator instanceof CreateFunctionOperator){//注册自定义func
+                if(currStep > 2){
+                    return JobResult.createErrorResult("sql exe order setting err. cause of CreateFunctionOperator");
+                }
+
+                currStep = 2;
+                CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
+                FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(), tableEnv);
+
+            }else if(operator instanceof ExecutionOperator){
+                if(currStep > 3){
+                    return JobResult.createErrorResult("sql exe order setting err. cause of ExecutionOperator");
+                }
+
+                currStep = 3;
+                tableEnv.sql(((ExecutionOperator) operator).getSql());
+
+            }else if(operator instanceof CreateResultOperator){
+                if(currStep > 4){
+                    return JobResult.createErrorResult("sql exe order setting err. cause of CreateResultOperator");
+                }
+
+                currStep = 4;
+                //FIXME 暂时还未开始研究输出
+
+            }else{
+                return JobResult.createErrorResult("not support operator of " + operator.getClass().getName());
+            }
+        }
+
+        try {
+            JobExecutionResult exeResult = env.execute();
+            JobResult jobResult = JobResult.newInstance(false);
+            jobResult.setData("jobId", exeResult.getJobID().toString());
+            return jobResult;
+
+        } catch (Exception e) {
+            return JobResult.createErrorResult(e);
+        }
+
     }
 
-    public String cancleJob(String jobId) {
-        return null;
+    public JobResult cancleJob(String jobId) {
+
+        JobID jobID = new JobID(StringUtils.hexStringToByte(jobId));
+        FiniteDuration clientTimeout = AkkaUtils.getDefaultClientTimeout();
+
+        ActorGateway jobManager = null;
+        Object rc = null;
+        try {
+            jobManager = client.getJobManagerGateway();
+            Future<Object> response = jobManager.ask(new JobManagerMessages.CancelJob(jobID), clientTimeout);
+            rc = Await.result(response, clientTimeout);
+        } catch (Exception e) {
+            logger.error("cancle job exception.", e);
+            return  JobResult.createErrorResult(e);
+        }
+
+        if (rc instanceof JobManagerMessages.CancellationSuccess) {
+            logger.info("cancle job {} success.", jobId);
+        } else if (rc instanceof JobManagerMessages.CancellationFailure) {
+            return JobResult.createErrorResult("Canceling the job with ID " + jobId + " failed. cause:"
+                    + ((JobManagerMessages.CancellationFailure) rc).cause());
+        } else {
+            return  JobResult.createErrorResult("Unexpected response: " + rc);
+        }
+
+        JobResult jobResult = JobResult.newInstance(false);
+        jobResult.setData("jobid", jobId);
+        return jobResult;
     }
 
+    /**
+     * 考虑直接调用rest api直接返回
+     * @param jobId
+     * @return
+     */
     public String getJobStatus(String jobId) {
         return null;
     }
