@@ -22,25 +22,36 @@ public abstract class AbsClient implements IClient{
 
     @Override
     public JobResult submitJob(JobClient jobClient) {
-        //根据operator 判断是提交jar任务还是生成sqltable并提交任务
-        boolean isJarOperator = false;
+
+        JobClient.EJobType jobType = jobClient.geteJobType();
+        if(JobClient.EJobType.MR.equals(jobType)){
+            return adaptToJarSubmit(jobClient);
+        }else{
+            JobResult result = null;
+            try{
+                result = submitSqlJob(jobClient);
+            }catch (Exception e){
+                logger.error("", e);
+                result = JobResult.createErrorResult(e.getMessage());
+            }
+            return result;
+        }
+    }
+
+    public JobResult adaptToJarSubmit(JobClient jobClient){
+
         AddJarOperator jarOperator = null;
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof AddJarOperator){
-                isJarOperator = true;
                 jarOperator = (AddJarOperator) operator;
                 break;
             }
         }
 
-        if(isJarOperator){
-            return adaptToJarSubmit(jarOperator);
-        }else{
-            return submitSqlJob(jobClient);
+        if(jarOperator == null){
+            return JobResult.createErrorResult("submit type of MR need have add jar operator.");
         }
-    }
 
-    public JobResult adaptToJarSubmit(AddJarOperator jarOperator){
         Properties properties = new Properties();
         properties.setProperty("jarpath", jarOperator.getJarPath());
         return submitJobWithJar(properties);

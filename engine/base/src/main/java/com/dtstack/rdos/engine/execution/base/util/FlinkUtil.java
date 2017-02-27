@@ -46,19 +46,7 @@ public class FlinkUtil {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        String localJarPath = getTmpFileName(jarFilePath);
-        if(!FileUtil.downLoadFile(jarFilePath, localJarPath)){
-            return null;
-        }
-
-        File jarFile = new File(localJarPath);
-
-        // Check if JAR file exists
-        if (!jarFile.exists()) {
-            throw new FileNotFoundException("JAR file does not exist: " + jarFile);
-        } else if (!jarFile.isFile()) {
-            throw new FileNotFoundException("JAR file is not a file: " + jarFile);
-        }
+        File jarFile = downloadJar(jarFilePath);
 
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
@@ -74,6 +62,24 @@ public class FlinkUtil {
         String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE));
         String tmpFileName = tmp_file_path  + fileSP + name;
         return tmpFileName;
+    }
+
+    public static File downloadJar(String remoteFilePath) throws FileNotFoundException {
+        String localJarPath = FlinkUtil.getTmpFileName(remoteFilePath);
+        if(!FileUtil.downLoadFile(remoteFilePath, localJarPath)){
+            return null;
+        }
+
+        File jarFile = new File(localJarPath);
+
+        // Check if JAR file exists
+        if (!jarFile.exists()) {
+            throw new FileNotFoundException("JAR file does not exist: " + jarFile);
+        } else if (!jarFile.isFile()) {
+            throw new FileNotFoundException("JAR file is not a file: " + jarFile);
+        }
+
+        return jarFile;
     }
 
     /**

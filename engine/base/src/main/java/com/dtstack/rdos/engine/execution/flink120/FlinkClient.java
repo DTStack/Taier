@@ -5,8 +5,10 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
+import com.dtstack.rdos.engine.execution.base.util.FileUtil;
 import com.dtstack.rdos.engine.execution.base.util.FlinkUtil;
 
+import com.dtstack.rdos.engine.execution.exception.RdosException;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
@@ -32,6 +34,8 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -195,17 +199,16 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    public JobResult submitSqlJob(JobClient jobClient) {
+    public JobResult submitSqlJob(JobClient jobClient) throws FileNotFoundException {
 
-        //FIXME 如何获取udf 对应jar包？是否还是根据AddJarOperator,如果根据AddJarOperator 作为判断,如何区分是提交jar还是sql
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort);
+        StreamExecutionEnvironment env = getRemoteStreamExeEnv(jobClient);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
 
         int currStep = 0;
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
-                    return JobResult.createErrorResult("sql exe order setting err. cause of CreateSourceOperator");
+                    throw new RdosException("sql exe order setting err. cause of CreateSourceOperator");
                 }
 
                 currStep = 1;
@@ -218,7 +221,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateFunctionOperator){//注册自定义func
                 if(currStep > 2){
-                    return JobResult.createErrorResult("sql exe order setting err. cause of CreateFunctionOperator");
+                    throw new RdosException("sql exe order setting err. cause of CreateFunctionOperator");
                 }
 
                 currStep = 2;
@@ -227,7 +230,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof ExecutionOperator){
                 if(currStep > 3){
-                    return JobResult.createErrorResult("sql exe order setting err. cause of ExecutionOperator");
+                    throw new RdosException("sql exe order setting err. cause of ExecutionOperator");
                 }
 
                 currStep = 3;
@@ -235,7 +238,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateResultOperator){
                 if(currStep > 4){
-                    return JobResult.createErrorResult("sql exe order setting err. cause of CreateResultOperator");
+                    throw new RdosException("sql exe order setting err. cause of CreateResultOperator");
                 }
 
                 currStep = 4;
@@ -296,6 +299,28 @@ public class FlinkClient extends AbsClient {
     public String getJobStatus(String jobId) {
         return null;
     }
+
+
+    private StreamExecutionEnvironment getRemoteStreamExeEnv(JobClient jobClient) throws FileNotFoundException {
+        AddJarOperator addJarOperator = null;
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof  AddJarOperator){
+                addJarOperator = (AddJarOperator) operator;
+                break;
+            }
+        }
+
+        StreamExecutionEnvironment env = null;
+        if(addJarOperator != null){
+            File jarFile = FlinkUtil.downloadJar(addJarOperator.getJarPath());
+            env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort, jarFile.getAbsolutePath());
+        }else{
+            env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort);
+        }
+
+        return env;
+    }
+
 
 
 
