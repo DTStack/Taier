@@ -24,6 +24,8 @@ public class JobClient {
 
     private String jobName;
 
+    private EJobType eJobType;
+
     private void getStatus(){
 
     }
@@ -47,5 +49,18 @@ public class JobClient {
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
+    }
+
+    public EJobType geteJobType() {
+        return eJobType;
+    }
+
+    public void seteJobType(EJobType eJobType) {
+        this.eJobType = eJobType;
+    }
+
+    public enum EJobType{
+        MR,//提交 mr 任务
+        SQL;//提交sql执行
     }
 }

@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
+import java.io.FileNotFoundException;
 import java.util.Properties;
 
 /**
@@ -22,7 +23,7 @@ public interface IClient {
 
     JobResult submitJobWithJar(Properties properties);
 
-    JobResult submitSqlJob(JobClient jobClient);
+    JobResult submitSqlJob(JobClient jobClient) throws FileNotFoundException;
 
     /**
      * FIXME 提交的时候先判断下计算资源是否足够
