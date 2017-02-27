@@ -2,8 +2,10 @@ package com.dtstack.rdos.engine.execution.base.operator;
 
 import java.util.Map;
 import java.util.Properties;
+
 import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.GrokUtil;
+import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 /**
  * 
@@ -77,9 +79,11 @@ public class CreateSourceOperator implements Operator{
 	}
 	
 	@Override
-	public boolean verification(String sql) throws Exception {
+	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		return GrokUtil.isSuccess(pattern, sql);
+		if(!GrokUtil.isSuccess(pattern, sql)){
+			throw new SqlVerificationException("create source");
+		}
 	}
 	
 	public Properties getProperties() {

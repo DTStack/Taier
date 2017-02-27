@@ -14,6 +14,8 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
+
 public class ParamsOperator implements Operator{
 	
 	private Properties properties;
@@ -32,8 +34,10 @@ public class ParamsOperator implements Operator{
 	}
 
 	@Override
-	public boolean verification(String sql) throws Exception {
+	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		return StringUtils.isNotBlank(sql);
+		if(!StringUtils.isNotBlank(sql)){
+			throw new SqlVerificationException("set params");
+		}
 	}
 }

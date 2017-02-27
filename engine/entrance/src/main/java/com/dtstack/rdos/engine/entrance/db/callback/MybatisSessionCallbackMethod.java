@@ -4,13 +4,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
-import com.dtstack.rdos.engine.entrance.http.EngineHttpServer;
 
 public class MybatisSessionCallbackMethod {
 	
-	private static final Logger logger = LoggerFactory.getLogger(EngineHttpServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(MybatisSessionCallbackMethod.class);
 
 	private static SqlSessionFactory sqlSessionFactory = MyBatisConnectionFactory.getSqlSessionFactory();
 	
