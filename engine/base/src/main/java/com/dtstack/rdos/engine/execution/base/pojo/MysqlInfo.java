@@ -1,8 +1,11 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
+import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
+import com.google.common.base.Preconditions;
 
 import java.sql.Types;
+import java.util.Properties;
 
 /**
  * Reason:
@@ -14,7 +17,23 @@ import java.sql.Types;
 
 public class MysqlInfo extends JdbcInfo {
 
-    public MysqlInfo(String dburl, String userName, String pwd, String tableName, String[] fields, Class<?>[] fieldTypeArray){
+    public MysqlInfo(CreateResultOperator operator){
+        Properties properties = operator.getProperties();
+        String tmpDbURL = Preconditions.checkNotNull(properties.getProperty("dbURL"),
+                "dbURL must not be null");
+        String tmpUserName = Preconditions.checkNotNull(properties.getProperty("userName"),
+                "userName must not be null");
+        String tmpPassword = Preconditions.checkNotNull(properties.getProperty("password"),
+                "password must not be null");
+        String tmpDriverName = Preconditions.checkNotNull(properties.getProperty("driverName"),
+                "driverName must not be null");
+        String tmpTableName = Preconditions.checkNotNull(properties.getProperty("tableName"),
+                "tableName must not be null");
+
+        init(tmpDbURL, tmpUserName, tmpPassword, tmpTableName, operator.getFields(), operator.getFieldTypes());
+    }
+
+    public void init(String dburl, String userName, String pwd, String tableName, String[] fields, Class<?>[] fieldTypeArray){
         this.dbURL = dburl;
         this.userName = userName;
         this.password = pwd;

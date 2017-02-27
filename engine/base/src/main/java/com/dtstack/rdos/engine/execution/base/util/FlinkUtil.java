@@ -1,5 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.pojo.JdbcInfo;
+import com.dtstack.rdos.engine.execution.base.pojo.MysqlInfo;
 import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.FlinkKafka09SourceGenr;
@@ -8,6 +11,7 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.streaming.api.functions.sink.OutputFormatSinkFunction;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
@@ -145,28 +149,21 @@ public class FlinkUtil {
     public static IStreamSourceGener getStreamSourceGener(ESourceType sourceType){
         switch (sourceType){
             case KAFKA09:
-                return  new FlinkKafka09SourceGenr();
+                return new FlinkKafka09SourceGenr();
         }
 
         return null;
     }
 
-    public OutputFormatSinkFunction getSinkFunc(){
+    public RichSinkFunction getSinkFunc(CreateResultOperator resultOperator){
 
-        JDBCOutputFormat.JDBCOutputFormatBuilder jdbcFormatBuild = JDBCOutputFormat.buildJDBCOutputFormat();
-        jdbcFormatBuild.setDBUrl("");
-        jdbcFormatBuild.setDrivername("");
-        jdbcFormatBuild.setUsername("");
-        jdbcFormatBuild.setQuery("");
-        jdbcFormatBuild.setPassword("");
-        jdbcFormatBuild.setBatchInterval(1000);//默认5s
-
-        int[] types = new int[]{1};
-        jdbcFormatBuild.setSqlTypes(types);
-        JDBCOutputFormat outputFormat = jdbcFormatBuild.finish();
-
-        OutputFormatSinkFunction outputFormatSinkFunc = new OutputFormatSinkFunction(outputFormat);
-        return outputFormatSinkFunc;
+        String resultType = resultOperator.getType();
+        if("mysql".equalsIgnoreCase(resultType)){
+            JdbcInfo jdbcInfo = new MysqlInfo(resultOperator);
+            return jdbcInfo.createJdbc();
+        }else{
+            throw new RdosException("not support type:" + resultType + " for sink!!!");
+        }
     }
 
 }
