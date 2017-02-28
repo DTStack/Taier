@@ -1,11 +1,15 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.pojo.DBSink;
+import com.dtstack.rdos.engine.execution.base.pojo.MysqlSink;
 import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.FlinkKafka09SourceGenr;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
@@ -143,10 +147,21 @@ public class FlinkUtil {
     public static IStreamSourceGener getStreamSourceGener(ESourceType sourceType){
         switch (sourceType){
             case KAFKA09:
-                return  new FlinkKafka09SourceGenr();
+                return new FlinkKafka09SourceGenr();
         }
 
         return null;
+    }
+
+    public static void witeToSink(CreateResultOperator resultOperator, Table table){
+
+        String resultType = resultOperator.getType();
+        if("mysql".equalsIgnoreCase(resultType)){
+            DBSink jdbcInfo = new MysqlSink(resultOperator);
+            table.writeToSink(jdbcInfo);
+        }else{
+            throw new RdosException("not support type:" + resultType + " for sink!!!");
+        }
     }
 
 }
