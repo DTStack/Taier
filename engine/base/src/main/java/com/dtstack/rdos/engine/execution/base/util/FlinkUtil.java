@@ -1,17 +1,15 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.base.pojo.JdbcInfo;
-import com.dtstack.rdos.engine.execution.base.pojo.MysqlInfo;
+import com.dtstack.rdos.engine.execution.base.pojo.DBSink;
+import com.dtstack.rdos.engine.execution.base.pojo.MysqlSink;
 import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.FlinkKafka09SourceGenr;
-import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.flink.streaming.api.functions.sink.OutputFormatSinkFunction;
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
@@ -155,12 +153,12 @@ public class FlinkUtil {
         return null;
     }
 
-    public RichSinkFunction getSinkFunc(CreateResultOperator resultOperator){
+    public static void witeToSink(CreateResultOperator resultOperator, Table table){
 
         String resultType = resultOperator.getType();
         if("mysql".equalsIgnoreCase(resultType)){
-            JdbcInfo jdbcInfo = new MysqlInfo(resultOperator);
-            return jdbcInfo.createJdbc();
+            DBSink jdbcInfo = new MysqlSink(resultOperator);
+            table.writeToSink(jdbcInfo);
         }else{
             throw new RdosException("not support type:" + resultType + " for sink!!!");
         }

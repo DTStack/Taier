@@ -23,6 +23,8 @@ import org.apache.flink.runtime.instance.ActorGateway;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.messages.JobManagerMessages;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
@@ -203,6 +205,7 @@ public class FlinkClient extends AbsClient {
 
         StreamExecutionEnvironment env = getRemoteStreamExeEnv(jobClient);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
+        Table resultTable = null; //FIXME 注意现在只能使用一个result
 
         int currStep = 0;
         for(Operator operator : jobClient.getOperators()){
@@ -234,7 +237,7 @@ public class FlinkClient extends AbsClient {
                 }
 
                 currStep = 3;
-                tableEnv.sql(((ExecutionOperator) operator).getSql());
+                resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
 
             }else if(operator instanceof CreateResultOperator){
                 if(currStep > 4){
@@ -242,7 +245,9 @@ public class FlinkClient extends AbsClient {
                 }
 
                 currStep = 4;
-                //FIXME 暂时还未开始研究输出
+                CreateResultOperator resultOperator = (CreateResultOperator) operator;
+                RichSinkFunction sinkFunction = FlinkUtil.getSinkFunc(resultOperator);
+
 
             }else{
                 throw new RdosException("not support operator of " + operator.getClass().getName());
@@ -320,8 +325,5 @@ public class FlinkClient extends AbsClient {
 
         return env;
     }
-
-
-
 
 }
