@@ -246,8 +246,7 @@ public class FlinkClient extends AbsClient {
 
                 currStep = 4;
                 CreateResultOperator resultOperator = (CreateResultOperator) operator;
-                RichSinkFunction sinkFunction = FlinkUtil.getSinkFunc(resultOperator);
-
+                FlinkUtil.witeToSink(resultOperator, resultTable);
 
             }else{
                 throw new RdosException("not support operator of " + operator.getClass().getName());
