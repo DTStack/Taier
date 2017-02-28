@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink.sink;
+package com.dtstack.rdos.engine.execution.flink120.sink;
 
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

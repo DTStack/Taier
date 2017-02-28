@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink.source;
+package com.dtstack.rdos.engine.execution.flink120.source;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.com.google.common.base.Preconditions;
