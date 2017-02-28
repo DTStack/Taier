@@ -12,10 +12,10 @@ public class Urls {
 
 	public final static String ROOT = "/node";
 	
-	public final static String OPERATOR = ROOT+"/operator";
+	public final static String OPERATOR = String.format("%s/", "operator");
 	
-	public final static String START = ROOT+"/operator/start";
+	public final static String START = String.format("%s/", "start");
 	
-	public final static String STOP = ROOT+"/operator/stop";
+	public final static String STOP = String.format("%s/", "stop");
 
 }

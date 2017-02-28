@@ -6,6 +6,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.dtstack.rdos.engine.entrance.http.handler.StartHandler;
+import com.dtstack.rdos.engine.entrance.http.handler.StopHandler;
 import com.sun.net.httpserver.HttpServer;
 
 /**
@@ -49,7 +51,7 @@ public class EHttpServer {
 	}
 	
 	private void setHandler(){
-
+		server.createContext(Urls.START, new StartHandler());
+		server.createContext(Urls.STOP, new StopHandler());
 	}
-
 }
