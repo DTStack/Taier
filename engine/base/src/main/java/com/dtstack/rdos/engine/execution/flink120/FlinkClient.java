@@ -4,11 +4,10 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.sql.IStreamSourceGener;
-import com.dtstack.rdos.engine.execution.base.util.FileUtil;
-import com.dtstack.rdos.engine.execution.base.util.FlinkUtil;
-
+import com.dtstack.rdos.engine.execution.flink.source.IStreamSourceGener;
+import com.dtstack.rdos.engine.execution.flink.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
@@ -18,18 +17,21 @@ import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.akka.AkkaUtils;
 import org.apache.flink.runtime.instance.ActorGateway;
+import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.messages.JobManagerMessages;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
-import org.apache.hadoop.mapred.jobcontrol.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
@@ -37,7 +39,8 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,6 +127,12 @@ public class FlinkClient extends AbsClient {
 
     }
 
+    /***
+     * 提交 job-jar 到cluster, jobname 需要在job-jar里面指定
+     * FIXME 该提交功能也需要支持指定savepoint 方式启动
+     * @param properties
+     * @return
+     */
     public JobResult submitJobWithJar(Properties properties) {
 
         Object jarPath = properties.get("jarpath");
@@ -135,23 +144,23 @@ public class FlinkClient extends AbsClient {
         }
 
         PackagedProgram packagedProgram = null;
+
+        String entryPointClass = properties.getProperty("class");//如果jar包里面未指定mainclass,需要设置该参数
         String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
-        SavepointRestoreSettings spSettings = SavepointRestoreSettings.none();
+        SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
             //FIXME 参数设置细化
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, classpaths, null, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());
             logger.error("", e);
-            e.printStackTrace();
             return jobResult;
         }
 
         Integer runParallelism = properties.get("parallelism") == null ? 1 : (Integer)properties.get("parallelism");
-
         JobSubmissionResult result = null;
 
         try {
@@ -166,7 +175,7 @@ public class FlinkClient extends AbsClient {
             logger.error("", e);
             return JobResult.createErrorResult(e);
         }finally {
-            //FIXME 作用
+            //FIXME 作用?
             packagedProgram.deleteExtractedLibraries();
         }
 
@@ -190,6 +199,18 @@ public class FlinkClient extends AbsClient {
         return jobResult;
     }
 
+    public SavepointRestoreSettings buildSavepointSetting(Properties properties){
+        if(properties.contains("fromSavepoint")){ //有指定savepoint
+            String savepointPath = properties.getProperty("fromSavepoint");
+            String stateStr = properties.getProperty("allowNonRestoredState");
+            boolean allowNonRestoredState = BooleanUtils.toBoolean(stateStr);
+            return SavepointRestoreSettings.forPath(savepointPath, allowNonRestoredState);
+        }else{
+            return SavepointRestoreSettings.none();
+        }
+    }
+
+
     /**
      * FIXME flink sql提交需要使用remoteEnv
      * 区分出source, transformation, sink
@@ -201,7 +222,7 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    public JobResult submitSqlJob(JobClient jobClient) throws FileNotFoundException {
+    public JobResult submitSqlJob(JobClient jobClient) throws IOException {
 
         StreamExecutionEnvironment env = getRemoteStreamExeEnv(jobClient);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
@@ -254,7 +275,20 @@ public class FlinkClient extends AbsClient {
         }
 
         try {
-            JobExecutionResult exeResult = env.execute();
+            //FIXME 这个getStreamGraph 和 getJobGraph均 是创建新的对象,方法命名让人疑惑
+            JobGraph jobGraph = env.getStreamGraph().getJobGraph();
+
+            //TODO 获取savepoint setting
+            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(null);
+            jobGraph.setSavepointRestoreSettings(spRestoreSetting);
+
+            String[] jarFiles = new String[]{};//FIXME 填写jarpath
+            for(String jarFile : jarFiles){
+                URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
+                jobGraph.addJar(new Path(jarFileUri));
+            }
+
+            JobExecutionResult exeResult = client.run(jobGraph, client.getClass().getClassLoader());
             JobResult jobResult = JobResult.newInstance(false);
             jobResult.setData("jobId", exeResult.getJobID().toString());
             return jobResult;
@@ -305,7 +339,7 @@ public class FlinkClient extends AbsClient {
     }
 
 
-    private StreamExecutionEnvironment getRemoteStreamExeEnv(JobClient jobClient) throws FileNotFoundException {
+    private StreamExecutionEnvironment getRemoteStreamExeEnv(JobClient jobClient) throws IOException {
         AddJarOperator addJarOperator = null;
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof  AddJarOperator){
@@ -322,7 +356,31 @@ public class FlinkClient extends AbsClient {
             env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort);
         }
 
+        openCheckpoint(env);
+
         return env;
+    }
+
+    /**
+     * FIXME 参数需要根据指定设置,以及是否开启
+     * @param env
+     * @throws IOException
+     */
+    public static void openCheckpoint(StreamExecutionEnvironment env) throws IOException {
+        //start checkpoint every 10s
+        env.enableCheckpointing(10000);
+        //set mode to exactly-once(this is the default)
+        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        //checkpoints have to complete within one min,or are discard
+        env.getCheckpointConfig().setCheckpointTimeout(60000);
+        //allow only one checkpoint to be int porgress at the same time
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
+        //设置在cancle job情况下checkpoint是否被保存
+        env.getCheckpointConfig().enableExternalizedCheckpoints(
+                CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        //set checkpoint save path on file system,FIXME  根据实际的需求设定文件路径
+        env.setStateBackend(new FsStateBackend("file:///tmp/flink-checkpoints"));
+        //env.setStateBackend(new MemoryStateBackend());
     }
 
 }

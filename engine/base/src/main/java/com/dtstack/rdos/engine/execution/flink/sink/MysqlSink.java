@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.base.pojo;
+package com.dtstack.rdos.engine.execution.flink.sink;
 
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.flink.sink.DBSink;
 import com.google.common.base.Preconditions;
 
 import java.util.Properties;

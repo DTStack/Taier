@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.flink.util.FlinkUtil;
 import com.google.common.collect.Queues;
 
 import org.slf4j.Logger;

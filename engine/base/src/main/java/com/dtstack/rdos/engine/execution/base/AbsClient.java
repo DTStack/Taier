@@ -24,18 +24,28 @@ public abstract class AbsClient implements IClient{
     public JobResult submitJob(JobClient jobClient) {
 
         JobClient.EJobType jobType = jobClient.geteJobType();
+        JobResult jobResult;
+
         if(JobClient.EJobType.MR.equals(jobType)){
-            return adaptToJarSubmit(jobClient);
-        }else{
-            JobResult result = null;
             try{
-                result = submitSqlJob(jobClient);
+                jobResult = adaptToJarSubmit(jobClient);
             }catch (Exception e){
                 logger.error("", e);
-                result = JobResult.createErrorResult(e.getMessage());
+                jobResult = JobResult.createErrorResult(e);
             }
-            return result;
+
+        }else if(JobClient.EJobType.SQL.equals(jobType)){
+            try{
+                jobResult = submitSqlJob(jobClient);
+            }catch (Exception e){
+                logger.error("", e);
+                jobResult = JobResult.createErrorResult(e.getMessage());
+            }
+        }else{
+            jobResult = JobResult.createErrorResult("not support type of " + jobType);
         }
+
+        return jobResult;
     }
 
     public JobResult adaptToJarSubmit(JobClient jobClient){
@@ -54,6 +64,7 @@ public abstract class AbsClient implements IClient{
 
         Properties properties = new Properties();
         properties.setProperty("jarpath", jarOperator.getJarPath());
+        //FIXME 需要AddJarOperator 也提供设置savepoint功能
         return submitJobWithJar(properties);
     }
 
