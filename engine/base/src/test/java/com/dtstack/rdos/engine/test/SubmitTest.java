@@ -36,4 +36,9 @@ public class SubmitTest {
         JobSubmitExecutor.getInstance().submitJob(jobClient);
         System.out.println("---------over--------");
     }
+
+    @Test
+    public void submitSql(){
+
+    }
 }

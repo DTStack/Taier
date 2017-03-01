@@ -130,8 +130,7 @@ public class FlinkClient extends AbsClient {
     }
 
     /***
-     * 提交 job-jar 到cluster, jobname 需要在job-jar里面指定
-     * FIXME 该提交功能也需要支持指定savepoint 方式启动
+     * 提交 job-jar 到 cluster 的方式, jobname 需要在job-jar里面指定
      * @param properties
      * @return
      */
@@ -153,7 +152,6 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
-            //FIXME 参数设置细化
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
@@ -219,10 +217,9 @@ public class FlinkClient extends AbsClient {
 
 
     /**
-     * FIXME flink sql提交需要使用remoteEnv
+     * FIXME 设置 计算并行度
      * 区分出source, transformation, sink
      * FIXME 目前source 只支持kafka
-     * FIXME 注意流程的顺序--校验顺序
      * 1: 添加数据源 -- 可能多个
      * 2: 注册udf--fuc/table -- 可能多个---必须附带jar(做校验)
      * 3: 调用sql
@@ -251,7 +248,6 @@ public class FlinkClient extends AbsClient {
                 CreateSourceOperator tmpOperator = (CreateSourceOperator) operator;
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
                         (tmpOperator.getProperties(), tmpOperator.getFields(), tmpOperator.getFieldTypes());
-
                 tableEnv.registerTableSource(tmpOperator.getName(), tableSource);
 
             }else if(operator instanceof CreateFunctionOperator){//注册自定义func

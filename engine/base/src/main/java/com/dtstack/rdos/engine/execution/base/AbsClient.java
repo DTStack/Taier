@@ -63,7 +63,6 @@ public abstract class AbsClient implements IClient{
 
         Properties properties = new Properties();
         properties.setProperty("jarpath", jarOperator.getJarPath());
-        //FIXME 需要AddJarOperator 也提供设置savepoint功能
         return submitJobWithJar(properties);
     }
 
