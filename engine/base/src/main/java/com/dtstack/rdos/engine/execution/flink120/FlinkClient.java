@@ -4,6 +4,7 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
@@ -27,6 +28,7 @@ import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sources.StreamTableSource;
@@ -200,6 +202,11 @@ public class FlinkClient extends AbsClient {
     }
 
     public SavepointRestoreSettings buildSavepointSetting(Properties properties){
+
+        if(properties == null){
+            return SavepointRestoreSettings.none();
+        }
+
         if(properties.contains("fromSavepoint")){ //有指定savepoint
             String savepointPath = properties.getProperty("fromSavepoint");
             String stateStr = properties.getProperty("allowNonRestoredState");
@@ -216,9 +223,10 @@ public class FlinkClient extends AbsClient {
      * 区分出source, transformation, sink
      * FIXME 目前source 只支持kafka
      * FIXME 注意流程的顺序--校验顺序
-     * 1: 获取数据源 -- 可能多个
+     * 1: 添加数据源 -- 可能多个
      * 2: 注册udf--fuc/table -- 可能多个---必须附带jar(做校验)
-     * 3: 调用sql ---》
+     * 3: 调用sql
+     * 4: 添加sink
      * @param jobClient
      * @return
      */
@@ -229,10 +237,13 @@ public class FlinkClient extends AbsClient {
         Table resultTable = null; //FIXME 注意现在只能使用一个result
 
         int currStep = 0;
+        ParamsOperator paramsOperator = null;
+        List<String> jarPathList = new ArrayList<>();
+
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
-                    throw new RdosException("sql exe order setting err. cause of CreateSourceOperator");
+                    throw new RdosException("sql job order setting err. cause of CreateSourceOperator");
                 }
 
                 currStep = 1;
@@ -245,7 +256,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateFunctionOperator){//注册自定义func
                 if(currStep > 2){
-                    throw new RdosException("sql exe order setting err. cause of CreateFunctionOperator");
+                    throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
                 }
 
                 currStep = 2;
@@ -254,7 +265,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof ExecutionOperator){
                 if(currStep > 3){
-                    throw new RdosException("sql exe order setting err. cause of ExecutionOperator");
+                    throw new RdosException("sql job order setting err. cause of ExecutionOperator");
                 }
 
                 currStep = 3;
@@ -262,28 +273,37 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateResultOperator){
                 if(currStep > 4){
-                    throw new RdosException("sql exe order setting err. cause of CreateResultOperator");
+                    throw new RdosException("sql job order setting err. cause of CreateResultOperator");
                 }
 
                 currStep = 4;
                 CreateResultOperator resultOperator = (CreateResultOperator) operator;
-                FlinkUtil.witeToSink(resultOperator, resultTable);
+                FlinkUtil.writeToSink(resultOperator, resultTable);
+
+            }else if(operator instanceof ParamsOperator){
+                paramsOperator = (ParamsOperator) operator;
+
+            }else if(operator instanceof AddJarOperator){
+                AddJarOperator addJarOperator = (AddJarOperator) operator;
+                jarPathList.add(addJarOperator.getJarPath());
 
             }else{
                 throw new RdosException("not support operator of " + operator.getClass().getName());
             }
         }
 
+
         try {
-            //FIXME 这个getStreamGraph 和 getJobGraph均 是创建新的对象,方法命名让人疑惑
-            JobGraph jobGraph = env.getStreamGraph().getJobGraph();
+            //这里getStreamGraph() 和 getJobGraph()均是创建新的对象,方法命名让人疑惑.
+            StreamGraph streamGraph = env.getStreamGraph();
+            streamGraph.setJobName(jobClient.getJobName());
+            JobGraph jobGraph = streamGraph.getJobGraph();
+            if(paramsOperator != null){
+                SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(paramsOperator.getProperties());
+                jobGraph.setSavepointRestoreSettings(spRestoreSetting);
+            }
 
-            //TODO 获取savepoint setting
-            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(null);
-            jobGraph.setSavepointRestoreSettings(spRestoreSetting);
-
-            String[] jarFiles = new String[]{};//FIXME 填写jarpath
-            for(String jarFile : jarFiles){
+            for(String jarFile : jarPathList){
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
                 jobGraph.addJar(new Path(jarFileUri));
             }
@@ -356,31 +376,80 @@ public class FlinkClient extends AbsClient {
             env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort);
         }
 
-        openCheckpoint(env);
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof ParamsOperator){
+                ParamsOperator paramsOperator = (ParamsOperator) operator;
+                openCheckpoint(env, paramsOperator.getProperties());
+            }
+        }
 
         return env;
     }
 
     /**
-     * FIXME 参数需要根据指定设置,以及是否开启
+     * 开启checkpoint
      * @param env
      * @throws IOException
      */
-    public static void openCheckpoint(StreamExecutionEnvironment env) throws IOException {
-        //start checkpoint every 10s
-        env.enableCheckpointing(10000);
-        //set mode to exactly-once(this is the default)
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        //checkpoints have to complete within one min,or are discard
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
-        //allow only one checkpoint to be int porgress at the same time
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
-        //设置在cancle job情况下checkpoint是否被保存
-        env.getCheckpointConfig().enableExternalizedCheckpoints(
-                CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-        //set checkpoint save path on file system,FIXME  根据实际的需求设定文件路径
-        env.setStateBackend(new FsStateBackend("file:///tmp/flink-checkpoints"));
-        //env.setStateBackend(new MemoryStateBackend());
+    public static void openCheckpoint(StreamExecutionEnvironment env, Properties properties) throws IOException {
+
+        if(properties == null){
+            return;
+        }
+
+        //设置了时间间隔才表明开启了checkpoint
+        if(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL) == null){
+            return;
+        }else{
+            Long interval = Long.valueOf(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL));
+            //start checkpoint every ${interval}
+            env.enableCheckpointing(interval);
+        }
+
+        String checkMode = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_MODE);
+        if(checkMode != null){
+            if(checkMode.equalsIgnoreCase("EXACTLY_ONCE")){
+                env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+            }else if(checkMode.equalsIgnoreCase("AT_LEAST_ONCE")){
+                env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.AT_LEAST_ONCE);
+            }else{
+                throw new RdosException("not support of FLINK_CHECKPOINT_MODE :" + checkMode);
+            }
+        }
+
+        String checkpointTimeoutStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_TIMEOUT);
+        if(checkpointTimeoutStr != null){
+            Long checkpointTimeout = Long.valueOf(checkpointTimeoutStr);
+            //checkpoints have to complete within one min,or are discard
+            env.getCheckpointConfig().setCheckpointTimeout(checkpointTimeout);
+        }
+
+        String maxConcurrCheckpointsStr = properties.getProperty(PropertyConstant.FLINK_MAXCONCURRENTCHECKPOINTS);
+        if(maxConcurrCheckpointsStr != null){
+            Integer maxConcurrCheckpoints = Integer.valueOf(maxConcurrCheckpointsStr);
+            //allow only one checkpoint to be int porgress at the same time
+            env.getCheckpointConfig().setMaxConcurrentCheckpoints(maxConcurrCheckpoints);
+        }
+
+        String cleanupModeStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_CLEANUPMODE);
+        if(cleanupModeStr != null){//设置在cancle job情况下checkpoint是否被保存
+            if("true".equalsIgnoreCase(cleanupModeStr)){
+                env.getCheckpointConfig().enableExternalizedCheckpoints(
+                        CheckpointConfig.ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION);
+            }else if("false".equalsIgnoreCase(cleanupModeStr)){
+                env.getCheckpointConfig().enableExternalizedCheckpoints(
+                        CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+            }else{
+                throw new RdosException("not support value of cleanup mode :" + cleanupModeStr);
+            }
+        }
+
+        String backendPath = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_DATAURI);
+        if(backendPath != null){
+            //set checkpoint save path on file system, 根据实际的需求设定文件路径,hdfs://, file://
+            env.setStateBackend(new FsStateBackend(backendPath));
+        }
+
     }
 
 }

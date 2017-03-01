@@ -97,7 +97,7 @@ public class FlinkUtil {
         }else if("SCALA".equalsIgnoreCase(type)){
             registerTableUDF(classPath, funcName, tableEnv);
         }else{
-            throw new RdosException("not support of UDF not in (TABLE, SCALA)");
+            throw new RdosException("not support of UDF which is not in (TABLE, SCALA)");
         }
 
     }
@@ -151,10 +151,11 @@ public class FlinkUtil {
                 return new FlinkKafka09SourceGenr();
         }
 
-        return null;
+        throw new RdosException("not support for flink stream source type " + sourceType);
     }
 
-    public static void witeToSink(CreateResultOperator resultOperator, Table table){
+
+    public static void writeToSink(CreateResultOperator resultOperator, Table table){
 
         String resultType = resultOperator.getType();
         if("mysql".equalsIgnoreCase(resultType)){
