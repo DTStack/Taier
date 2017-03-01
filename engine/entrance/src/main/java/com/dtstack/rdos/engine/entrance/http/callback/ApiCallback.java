@@ -11,5 +11,5 @@ package com.dtstack.rdos.engine.entrance.http.callback;
  */
 public interface ApiCallback {
 
-	void execute(ApiResult apiResult) throws Exception;
+	Object execute() throws Exception;
 }

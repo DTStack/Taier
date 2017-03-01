@@ -50,7 +50,7 @@ public class Main {
 	
 	private static void initService(NodeConfig nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig.getLocalAddress());
-		zkDistributed = new ZkDistributed(nodeConfig);
+		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
 	}
 	
 	private static void addShutDownHook(){

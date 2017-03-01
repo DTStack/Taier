@@ -12,7 +12,7 @@ public class Urls {
 
 	public final static String ROOT = "/node";
 	
-	public final static String OPERATOR = String.format("%s/", "operator");
+	public final static String ACTION = String.format("%s/", "action");
 	
 	public final static String START = String.format("%s/", "start");
 	

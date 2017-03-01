@@ -18,16 +18,14 @@ import com.sun.net.httpserver.HttpExchange;
 public class ApiCallbackMethod {
 	private final static Logger logger = LoggerFactory
 			.getLogger(ApiCallbackMethod.class);
-	
 	private static ObjectMapper objectMapper = new ObjectMapper();
-
 	public static void doCallback(ApiCallback ac,HttpExchange he) {
 		 OutputStream os = null;
 		 ApiResult apiResult = new ApiResult();
 		try {
 			os = he.getResponseBody();
 			long start = System.currentTimeMillis();
-			ac.execute(apiResult);
+			apiResult.setData(ac.execute());
 			apiResult.setCode(200);
 			long end = System.currentTimeMillis();
 			apiResult.setSpace(end - start);
