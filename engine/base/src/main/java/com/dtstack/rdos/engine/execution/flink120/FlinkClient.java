@@ -376,10 +376,32 @@ public class FlinkClient extends AbsClient {
             if(operator instanceof ParamsOperator){
                 ParamsOperator paramsOperator = (ParamsOperator) operator;
                 openCheckpoint(env, paramsOperator.getProperties());
+                setEnvParallelism(env, paramsOperator.getProperties());
             }
         }
 
         return env;
+    }
+
+    /**
+     *
+     * FIXME 仅针对sql执行方式,暂时未找到区分设置source,transform,sink 并行度的方式
+     * 设置job运行的并行度
+     * @param env
+     * @param properties
+     */
+    public static void setEnvParallelism(StreamExecutionEnvironment env, Properties properties){
+
+        if(env == null || properties == null){
+            return;
+        }
+
+        String parallelismStr = properties.getProperty("parallelism");
+        if(parallelismStr != null){
+            Integer parallelism = Integer.valueOf(parallelismStr);
+            env.setParallelism(parallelism);
+        }
+
     }
 
     /**

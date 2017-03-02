@@ -8,6 +8,8 @@ import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.*;
 
@@ -26,13 +28,17 @@ public class JobSubmitExecutor{
 
     private BlockingQueue<JobClient> submitQueue = Queues.newLinkedBlockingQueue();
 
-    private static ExecutorService executor = Executors.newSingleThreadExecutor();
+    private int poolSize = 1;
 
-    private JobSubmitProcessor processor = new JobSubmitProcessor();
+    private ExecutorService executor;
+
+    private List<JobSubmitProcessor> processorList = new ArrayList<>();
 
     private IClient clusterClient;
 
     private boolean hasInit = false;
+
+    private boolean isStarted = false;
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
@@ -50,6 +56,18 @@ public class JobSubmitExecutor{
         }
 
         FlinkUtil.tmp_file_path = jarTmpPath;
+
+        String poolsizeStr = clusterProp.getProperty("poolsize");
+        if(poolsizeStr != null){
+            poolSize = Integer.valueOf(poolsizeStr);
+        }
+
+        executor = Executors.newFixedThreadPool(poolSize);
+        for(int i=0; i<poolSize; i++){
+            JobSubmitProcessor processor = new JobSubmitProcessor();
+            processorList.add(processor);
+        }
+
         hasInit = true;
     }
 
@@ -68,23 +86,32 @@ public class JobSubmitExecutor{
             System.exit(-1);
         }
 
-        if(processor.isRunnable()){
+        if(isStarted){
             logger.error("processor is already started");
             return;
         }
 
-        processor.setRunnable(true);
-        executor.submit(processor);
+        for(JobSubmitProcessor processor : processorList){
+            processor.setRunnable(true);
+            executor.submit(processor);
+        }
+
+        isStarted = true;
     }
 
     public void shutdown(){
-        processor.setRunnable(false);
+        isStarted = false;
         //FIXME 是否需要做同步等processor真正完成
         executor.shutdownNow();
     }
 
     public int getCurrJobQueue(){
         return submitQueue.size();
+    }
+
+    private synchronized JobClient getNextJob() throws InterruptedException {
+        JobClient jobClient = submitQueue.poll(2000, TimeUnit.MILLISECONDS);
+        return jobClient;
     }
 
     class JobSubmitProcessor implements Callable{
@@ -94,7 +121,7 @@ public class JobSubmitExecutor{
         @Override
         public Object call() throws Exception {
             while(runnable){
-                JobClient jobClient = submitQueue.poll(2000, TimeUnit.MILLISECONDS);
+                JobClient jobClient = getNextJob();
                 if(jobClient != null){
                     try{
                         JobResult jobResult = clusterClient.submitJob(jobClient);
