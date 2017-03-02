@@ -47,8 +47,12 @@ public class NodeHandler extends PostHandler{
 		}
 		Class<?> cla = Class.forName(String.format(classNameTemplate,name));
 		Object obj = objects.get(name);
-		if(obj==null){
-			obj = cla.newInstance();
+		if(obj == null){
+			synchronized(NodeHandler.class){
+				if(obj == null){
+					obj = cla.newInstance();
+				}
+			}
 		}
 		Method rmethod = cla.getMethod(method, paramType);
 		return rmethod.invoke(obj, paramsMap);

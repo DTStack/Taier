@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.http;
+package com.dtstack.rdos.common.util;
 
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpEntity;
