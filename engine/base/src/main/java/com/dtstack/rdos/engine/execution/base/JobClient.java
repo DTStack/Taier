@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
@@ -28,11 +29,18 @@ public class JobClient {
     
     private String engineTaskId;
 
-    private EJobType eJobType;
+    private EJobType jobType;
+
+    private JobResult jobResult;
 
     private static ArrayBlockingQueue<JobClient> queue;
-    
-    private RdosTaskStatus getStatus(){
+
+    /***
+     * 获取Flink上job执行的状态
+     * @param engineTaskId Flink jobId
+     * @return
+     */
+    public static RdosTaskStatus getStatus(String engineTaskId){
 		return null;
     }
 
@@ -87,12 +95,20 @@ public class JobClient {
         this.jobName = jobName;
     }
 
-    public EJobType geteJobType() {
-        return eJobType;
+    public EJobType getJobType() {
+        return jobType;
     }
 
-    public void seteJobType(EJobType eJobType) {
-        this.eJobType = eJobType;
+    public void setJobType(EJobType jobType) {
+        this.jobType = jobType;
+    }
+
+    public JobResult getJobResult() {
+        return jobResult;
+    }
+
+    public void setJobResult(JobResult jobResult) {
+        this.jobResult = jobResult;
     }
 
     public enum EJobType{

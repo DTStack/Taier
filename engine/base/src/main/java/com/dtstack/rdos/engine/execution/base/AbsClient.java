@@ -22,7 +22,7 @@ public abstract class AbsClient implements IClient{
     @Override
     public JobResult submitJob(JobClient jobClient) {
 
-        JobClient.EJobType jobType = jobClient.geteJobType();
+        JobClient.EJobType jobType = jobClient.getJobType();
         JobResult jobResult;
 
         if(JobClient.EJobType.MR.equals(jobType)){

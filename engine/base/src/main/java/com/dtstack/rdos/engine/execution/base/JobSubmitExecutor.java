@@ -34,8 +34,6 @@ public class JobSubmitExecutor{
 
     private List<JobSubmitProcessor> processorList = new ArrayList<>();
 
-    private IClient clusterClient;
-
     private boolean hasInit = false;
 
     private boolean isStarted = false;
@@ -47,8 +45,6 @@ public class JobSubmitExecutor{
     }
 
     public void init(ClientType type, Properties clusterProp){
-        clusterClient = ClientFactory.getClient(type);
-        clusterClient.init(clusterProp);
 
         String jarTmpPath = clusterProp.getProperty("jarFileTmpPath");
         if(jarTmpPath == null){
@@ -64,7 +60,7 @@ public class JobSubmitExecutor{
 
         executor = Executors.newFixedThreadPool(poolSize);
         for(int i=0; i<poolSize; i++){
-            JobSubmitProcessor processor = new JobSubmitProcessor();
+            JobSubmitProcessor processor = new JobSubmitProcessor(type, clusterProp);
             processorList.add(processor);
         }
 
@@ -118,20 +114,32 @@ public class JobSubmitExecutor{
 
         private boolean runnable;
 
+        private IClient clusterClient;
+
+        public JobSubmitProcessor(ClientType type, Properties clusterProp){
+            clusterClient = ClientFactory.getClient(type);
+            clusterClient.init(clusterProp);
+        }
+
         @Override
         public Object call() throws Exception {
             while(runnable){
                 JobClient jobClient = getNextJob();
                 if(jobClient != null){
+
+                    JobResult jobResult = null;
                     try{
-                        JobResult jobResult = clusterClient.submitJob(jobClient);
+                        jobResult = clusterClient.submitJob(jobClient);
                         logger.info("submit job result is:{}.", jobResult);
                     }catch (Exception e){//捕获未处理异常,防止跳出执行线程
+                        jobResult = JobResult.createErrorResult(e);
                         logger.error("get unexpect exception", e);
                     }
-                }
 
-                //TODO maybe have other deal fuc
+                    //FIXME 之后需要对本地异常信息做存储
+                    jobClient.setJobResult(jobResult);
+                    JobClient.getQueue().add(jobClient);//添加触发读取任务状态消息
+                }
             }
 
             return null;
