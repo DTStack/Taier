@@ -1,5 +1,13 @@
 package com.dtstack.rdos.engine.entrance.zk.data;
 
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2017年03月03日 下午1:25:18
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class BrokerHeartNode {
 	
 	private  Long seq;

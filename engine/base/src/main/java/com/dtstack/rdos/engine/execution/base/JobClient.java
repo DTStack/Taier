@@ -61,6 +61,10 @@ public class JobClient {
 		}
 	}
 	
+	public JobClient(){
+		
+	}
+	
 	public JobClient (List<Operator> operators){
 		this.operators.addAll(operators);
 	}

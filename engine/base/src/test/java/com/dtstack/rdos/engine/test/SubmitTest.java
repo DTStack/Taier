@@ -1,10 +1,11 @@
 package com.dtstack.rdos.engine.test;
 
 import com.dtstack.rdos.common.util.HttpClient;
-import com.dtstack.rdos.engine.execution.base.ClientType;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
+
 import org.junit.Test;
 
 import java.util.Properties;

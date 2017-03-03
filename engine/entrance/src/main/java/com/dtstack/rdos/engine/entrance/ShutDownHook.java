@@ -6,6 +6,14 @@ import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2017年03月03日 下午1:25:18
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class ShutDownHook {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ShutDownHook.class);

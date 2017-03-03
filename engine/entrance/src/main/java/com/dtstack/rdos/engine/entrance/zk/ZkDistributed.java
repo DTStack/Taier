@@ -13,6 +13,15 @@ import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
 
+
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2017年03月03日 下午1:25:18
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class ZkDistributed {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ZkDistributed.class);

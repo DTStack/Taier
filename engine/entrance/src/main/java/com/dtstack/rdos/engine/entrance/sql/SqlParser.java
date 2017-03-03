@@ -14,6 +14,15 @@ import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.google.common.collect.Lists;
 
+
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2017年03月03日 下午1:25:18
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class SqlParser {
 	
 	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);

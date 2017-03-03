@@ -7,6 +7,14 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2017年03月03日 下午1:25:18
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class RdosTaskStatusTaskListener implements Runnable{
 	
 	private static Logger looger = LoggerFactory.getLogger(RdosTaskStatusTaskListener.class);

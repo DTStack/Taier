@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.enumeration;
 
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -8,22 +9,21 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
  * @author sishu.yss
  *
  */
-public enum EJobType{
+public enum ComputeType {
 	
-    SQL(0),//提交sql执行
-    MR(1);//提交 mr 任务
+    STREAM(0),BATCH(1);
     
     private int type;
     
-    EJobType(int type){
+    ComputeType(int type){
     	this.type = type;
     }
     
-    public static EJobType getEJobType(int type){
-    	EJobType[] eJobTypes = EJobType.values();
-    	for(EJobType eJobType:eJobTypes){
-    		if(eJobType.type == type){
-    			return eJobType;
+    public static ComputeType getComputeType(int type){
+    	ComputeType[] computeTypes = ComputeType.values();
+    	for(ComputeType computeType:computeTypes){
+    		if(computeType.type == type){
+    			return computeType;
     		}
     	}
     	return null;
