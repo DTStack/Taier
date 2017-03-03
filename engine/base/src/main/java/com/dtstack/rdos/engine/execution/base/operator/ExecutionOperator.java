@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.operator;
 
 import org.apache.commons.lang.StringUtils;
-
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 /**
@@ -30,8 +29,12 @@ public class ExecutionOperator implements Operator{
 	@Override
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		if(!StringUtils.isNotBlank(sql)){
+		if(!StringUtils.isNotBlank(sql)||(!sql.trim().startsWith("select")&&!sql.trim().startsWith("insert"))){
 			throw new SqlVerificationException("execution");
 		}
+	}
+	
+	public static boolean verific(String sql) throws Exception{
+		return StringUtils.isNotBlank(sql)&&(sql.trim().startsWith("select")||sql.trim().startsWith("insert"));
 	}
 }

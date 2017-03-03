@@ -73,6 +73,10 @@ public class JobClient {
 	public void setEngineTaskId(String engineTaskId) {
 		this.engineTaskId = engineTaskId;
 	}
+	
+	public void addOperators(List<Operator> operators){
+        operators.addAll(operators);
+    }
 
 	public void addOperator(Operator operator){
         operators.add(operator);
