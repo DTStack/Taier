@@ -67,13 +67,9 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String REQ_URL_FORMAT = "http://${ip}:%{port}";
-
     private String jobMgrHost;
 
     private int jobMgrPort;
-
-    private int restPort;
 
     private ClusterClient client;
 
@@ -129,7 +125,6 @@ public class FlinkClient extends AbsClient {
         String host = prop.getProperty("host");
         String port = prop.getProperty("port");
         String zkNamespace = prop.getProperty("zkNamespace");
-        String restPortStr = prop.getProperty("restPort");
 
         Preconditions.checkState(host != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
@@ -143,8 +138,6 @@ public class FlinkClient extends AbsClient {
             Integer portVal = Integer.valueOf(port);
             initClusterClient(host, portVal);
         }
-
-        this.restPort = Integer.valueOf(restPortStr);
 
     }
 
@@ -307,7 +300,6 @@ public class FlinkClient extends AbsClient {
             }
         }
 
-
         try {
             //这里getStreamGraph() 和 getJobGraph()均是创建新的对象,方法命名让人疑惑.
             StreamGraph streamGraph = env.getStreamGraph();
@@ -323,9 +315,15 @@ public class FlinkClient extends AbsClient {
                 jobGraph.addJar(new Path(jarFileUri));
             }
 
-            JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());
             JobResult jobResult = JobResult.newInstance(false);
-            jobResult.setData(jobResult.JOB_ID_KEY, submissionResult.getJobID().toString());
+            if(isDetact){
+                JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());
+                jobResult.setData(jobResult.JOB_ID_KEY, submissionResult.getJobID().toString());
+            }else{
+                JobExecutionResult jobExecutionResult = client.run(jobGraph, client.getClass().getClassLoader());
+                jobResult.setData(jobResult.JOB_ID_KEY, jobExecutionResult.getJobID().toString());
+            }
+
             return jobResult;
 
         } catch (Exception e) {
@@ -408,13 +406,11 @@ public class FlinkClient extends AbsClient {
     }
 
     /**
-     * FIXME 在HA情况下如何获取host ip
-     * 是否是通过zk获取web的ip端口呢?
+     * 获取jobMgr-web地址
      * @return
      */
     private String getReqUrl(){
-        String reqUrl = REQ_URL_FORMAT.replace("${ip}", jobMgrHost).replace("${port}", restPort + "");
-        return reqUrl;
+        return client.getWebInterfaceURL();
     }
 
 
