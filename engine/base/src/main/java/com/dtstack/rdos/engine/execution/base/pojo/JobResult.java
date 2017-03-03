@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
+import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ public class JobResult {
     private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
 
     private boolean isErr;
+
+    public static final String JOB_ID_KEY = "jobid";
 
     private JSONObject json = new JSONObject();
 
@@ -45,6 +48,15 @@ public class JobResult {
         }catch (Exception e){
             logger.error("", e);
             return false;
+        }
+    }
+
+    public String getData(String key){
+        try {
+            return (String) json.get(key);
+        } catch (JSONException e) {
+            logger.error("", e);
+            return null;
         }
     }
 

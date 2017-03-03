@@ -41,7 +41,7 @@ public class JobClient {
      * @return
      */
     public static RdosTaskStatus getStatus(String engineTaskId){
-		return null;
+		return JobSubmitExecutor.getInstance().getJobStatus(engineTaskId);
     }
 
     public static ArrayBlockingQueue<JobClient> getQueue() {

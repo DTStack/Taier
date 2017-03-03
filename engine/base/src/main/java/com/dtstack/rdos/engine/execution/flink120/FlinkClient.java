@@ -1,13 +1,16 @@
 package com.dtstack.rdos.engine.execution.flink120;
 
+import com.dtstack.rdos.common.util.HttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
+import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
-import com.dtstack.rdos.engine.execution.exception.RdosException;
+import com.google.gson.JsonObject;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
@@ -23,6 +26,7 @@ import org.apache.flink.runtime.akka.AkkaUtils;
 import org.apache.flink.runtime.instance.ActorGateway;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.runtime.messages.JobManagerMessages;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -34,6 +38,7 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.Await;
@@ -42,6 +47,7 @@ import scala.concurrent.duration.FiniteDuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -53,19 +59,17 @@ import java.util.Properties;
  * Reason:
  * Date: 2017/2/20
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
-
 public class FlinkClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private String jobMgrHost;
 
     private int jobMgrPort;
-
-    private int restPort;
 
     private ClusterClient client;
 
@@ -93,6 +97,7 @@ public class FlinkClient extends AbsClient {
         client = clusterClient;
     }
 
+
     /**
      * 根据zk获取cluster
      * FIXME 未测试过
@@ -100,31 +105,38 @@ public class FlinkClient extends AbsClient {
      */
     public void initClusterClient(String zkNamespace){
         Configuration config = new Configuration();
-        config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, zkNamespace);
+        config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+        config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkNamespace);
 
         StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
         StandaloneClusterClient clusterClient = descriptor.retrieve(null);
         clusterClient.setDetached(isDetact);
+
+        //初始化的时候需要设置,否则提交job会出错 update config of jobMgrhost, jobMgrprt
+        InetSocketAddress address = clusterClient.getJobManagerAddress();
+        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getHostName());
+        config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
+
         client = clusterClient;
     }
 
     public void init(Properties prop) {
 
-        Object host = prop.get("host");
-        Object port = prop.get("port");
-        Object zkNamespace = prop.get("zkNamespace");
+        String host = prop.getProperty("host");
+        String port = prop.getProperty("port");
+        String zkNamespace = prop.getProperty("zkNamespace");
 
         Preconditions.checkState(host != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
         if(zkNamespace != null){//优先使用zk
-            initClusterClient((String) zkNamespace);
+            initClusterClient(zkNamespace);
         }else{
             Preconditions.checkState(port != null,
                     "flink client can not init for specil host but port is null.");
 
-            Integer portVal = Integer.valueOf((String)port);
-            initClusterClient((String)host, portVal);
+            Integer portVal = Integer.valueOf(port);
+            initClusterClient(host, portVal);
         }
 
     }
@@ -194,7 +206,7 @@ public class FlinkClient extends AbsClient {
         }
 
         JobResult jobResult = JobResult.newInstance(false);
-        jobResult.setData("jobid", result.getJobID().toString());
+        jobResult.setData(jobResult.JOB_ID_KEY, result.getJobID().toString());
 
         return jobResult;
     }
@@ -229,7 +241,7 @@ public class FlinkClient extends AbsClient {
      */
     public JobResult submitSqlJob(JobClient jobClient) throws IOException {
 
-        StreamExecutionEnvironment env = getRemoteStreamExeEnv(jobClient);
+        StreamExecutionEnvironment env = getStreamExeEnv(jobClient);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
         Table resultTable = null; //FIXME 注意现在只能使用一个result
 
@@ -288,7 +300,6 @@ public class FlinkClient extends AbsClient {
             }
         }
 
-
         try {
             //这里getStreamGraph() 和 getJobGraph()均是创建新的对象,方法命名让人疑惑.
             StreamGraph streamGraph = env.getStreamGraph();
@@ -304,9 +315,15 @@ public class FlinkClient extends AbsClient {
                 jobGraph.addJar(new Path(jarFileUri));
             }
 
-            JobExecutionResult exeResult = client.run(jobGraph, client.getClass().getClassLoader());
             JobResult jobResult = JobResult.newInstance(false);
-            jobResult.setData("jobId", exeResult.getJobID().toString());
+            if(isDetact){
+                JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());
+                jobResult.setData(jobResult.JOB_ID_KEY, submissionResult.getJobID().toString());
+            }else{
+                JobExecutionResult jobExecutionResult = client.run(jobGraph, client.getClass().getClassLoader());
+                jobResult.setData(jobResult.JOB_ID_KEY, jobExecutionResult.getJobID().toString());
+            }
+
             return jobResult;
 
         } catch (Exception e) {
@@ -346,31 +363,60 @@ public class FlinkClient extends AbsClient {
     }
 
     /**
-     * 考虑直接调用rest api直接返回
+     * 直接调用rest api直接返回
      * @param jobId
      * @return
      */
-    public String getJobStatus(String jobId) {
+    public RdosTaskStatus getJobStatus(String jobId) {
+        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+        String response = HttpClient.get(reqUrl);
+        if(response == null){
+            return null;
+        }
+
+        try{
+            JsonObject jsonObject = objectMapper.readValue(response, JsonObject.class);
+            String state = jsonObject.get("state").getAsString();
+            if(state == null){
+                return null;
+            }
+
+            state = org.apache.commons.lang3.StringUtils.upperCase(state);
+            switch (state){
+                case "RUNNING": return RdosTaskStatus.RUNNING;
+                case "CANCELING":
+                case "CANCELED":
+                    return RdosTaskStatus.CANCLE;
+                case "STOPED": return RdosTaskStatus.STOPED;
+                case "FAILED": return RdosTaskStatus.FAIL;
+            }
+        }catch (Exception e){
+            logger.error("", e);
+            return null;
+        }
+
         return null;
     }
 
+    @Override
+    public String getJobDetail(String jobId) {
+        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+        String response = HttpClient.get(reqUrl);
+        return response;
+    }
 
-    private StreamExecutionEnvironment getRemoteStreamExeEnv(JobClient jobClient) throws IOException {
-        AddJarOperator addJarOperator = null;
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof  AddJarOperator){
-                addJarOperator = (AddJarOperator) operator;
-                break;
-            }
-        }
+    /**
+     * 获取jobMgr-web地址
+     * @return
+     */
+    private String getReqUrl(){
+        return client.getWebInterfaceURL();
+    }
 
-        StreamExecutionEnvironment env = null;
-        if(addJarOperator != null){
-            File jarFile = FlinkUtil.downloadJar(addJarOperator.getJarPath());
-            env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort, jarFile.getAbsolutePath());
-        }else{
-            env = StreamExecutionEnvironment.createRemoteEnvironment(jobMgrHost, jobMgrPort);
-        }
+
+    private StreamExecutionEnvironment getStreamExeEnv(JobClient jobClient) throws IOException {
+
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
 
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof ParamsOperator){

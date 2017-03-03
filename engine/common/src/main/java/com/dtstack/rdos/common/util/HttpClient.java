@@ -1,10 +1,12 @@
 package com.dtstack.rdos.common.util;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -13,7 +15,8 @@ import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.rdos.commom.exception.ExceptionUtil;
+
+import java.io.*;
 import java.util.Map;
 
 
@@ -79,4 +82,29 @@ public class HttpClient {
         }  
         return responseBody;  
     }
+
+    public static String get(String url){
+
+        String respBody = null;
+        CloseableHttpClient httpClient = getHttpClient();
+        HttpGet httpGet = new HttpGet(url);
+        try {
+            CloseableHttpResponse response = httpClient.execute(httpGet);
+            if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
+                HttpEntity entity = response.getEntity();
+                respBody = EntityUtils.toString(entity, Charsets.UTF_8);
+            }
+        } catch (IOException e) {
+            logger.error("url:"+url+"--->http request error",e);
+        } finally {
+            try {
+                if(httpClient!=null)httpClient.close();
+            } catch (Exception e) {
+                logger.error(ExceptionUtil.getErrorMessage(e));
+            }
+        }
+
+        return respBody;
+    }
+
 }
