@@ -20,7 +20,7 @@ public class SqlParser {
 	
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> operatorClasses = 
-			    Lists.newArrayList(AddJarOperator.class,CreateFunctionOperator.class,CreateResultOperator.class,CreateSourceOperator.class,ExecutionOperator.class);
+			    Lists.newArrayList(AddJarOperator.class,CreateFunctionOperator.class,CreateSourceOperator.class,CreateResultOperator.class,ExecutionOperator.class);
 
 	public static List<Operator> parser(ParamAction paramAction) throws Exception{
 		List<Operator> operators = parserSql(paramAction.getSqlText());
