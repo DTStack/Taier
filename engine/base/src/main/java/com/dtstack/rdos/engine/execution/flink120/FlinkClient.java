@@ -98,7 +98,6 @@ public class FlinkClient extends AbsClient {
 
     /**
      * 根据zk获取cluster
-     * FIXME 未测试过
      * @param zkNamespace
      */
     public void initClusterClient(String zkNamespace){
@@ -240,7 +239,7 @@ public class FlinkClient extends AbsClient {
 
         }
 
-        throw  new RdosException("not support for compute type :" + computeType);
+        throw new RdosException("not support for compute type :" + computeType);
     }
 
     /**

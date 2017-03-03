@@ -21,4 +21,16 @@ public class PropertyConstant {
     public static final String FLINK_CHECKPOINT_CLEANUPMODE = "flinkCheckpointCleanupmode";
 
     public static final String FLINK_CHECKPOINT_DATAURI = "flinkCheckpointDatauri";
+
+    /**************flink client init*********************/
+
+    public static final String FLINK_JOBMGR_HOST = "flinkJobMgrHost";
+
+    public static final String FLINK_JOBMGR_RPC_PORT = "flinkJobMgrRpcPort";
+
+    public static final String FLINK_ZKNAMESPACE = "flinkJobMgrZknamespace";
+
+    public static final String FLINK_ZK_ROOT = "flinkZkRoot";
+
+    public static final String FLINK_ZK_CLUSTERID = "flinkZkClusterId";
 }

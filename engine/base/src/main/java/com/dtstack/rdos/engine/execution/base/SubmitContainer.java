@@ -1,6 +1,10 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 /**
  * Reason:
@@ -11,7 +15,15 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 
 public class SubmitContainer {
 
+    private static final Logger logger = LoggerFactory.getLogger(SubmitContainer.class);
+
     private ClientType clientType;
+
+    /**设置上传jar文件临时目录,如果未设置默认是/tmp/flinkjar*/
+    private String jarFileTmpPath;
+
+    //计算资源
+    private int slots;
 
     private String zkNamespace;
 
@@ -19,14 +31,6 @@ public class SubmitContainer {
 
     private String jobManagerPort;
 
-    /**
-     * 设置上传jar文件临时目录,如果未设置默认是/tmp/flinkjar
-     */
-    private String jarFileTmpPath;
-    
-    //计算资源
-    private int slots;
-    
     private static SubmitContainer submitContainer;
     
     public static SubmitContainer createSubmitContainer(ClientType clientType,String zkNamespace,String executionEngineUrl,String jarFileTmpPath,int slots){
@@ -56,10 +60,21 @@ public class SubmitContainer {
     	return SubmitContainer.submitContainer;
     }
     
-    
 
     public void start(){
 
+        Properties properties = new Properties();
+        JobSubmitExecutor.getInstance().init(clientType, jarFileTmpPath, slots, properties);
+        JobSubmitExecutor.getInstance().start();
+
+        logger.info("------start job container----");
+        logger.info("client_type:{}", clientType);
+        logger.info("zkNamespace:{}", zkNamespace);
+        logger.info("jobMgrHost:{}", host);
+        logger.info("jobManagerPort:{}", jobManagerPort);
+        logger.info("jarFileTmpPath:{}", jarFileTmpPath);
+        logger.info("slots:{}", slots);
+        logger.info("------------------------------");
     }
 
 
