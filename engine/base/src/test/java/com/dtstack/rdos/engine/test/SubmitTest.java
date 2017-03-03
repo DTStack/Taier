@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.test;
 
+import com.dtstack.rdos.common.util.HttpClient;
 import com.dtstack.rdos.engine.execution.base.ClientType;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
@@ -39,6 +40,17 @@ public class SubmitTest {
 
     @Test
     public void submitSql(){
+
+    }
+
+    @Test
+    public void testGetJobInfo(){
+
+        String reqUrl = "http://172.16.1.151:8081/jobs/ed27939c59a611fe54e256eb5b044c91";
+        String response = HttpClient.get(reqUrl);
+        if(response != null){
+            System.out.println(response);
+        }
 
     }
 }

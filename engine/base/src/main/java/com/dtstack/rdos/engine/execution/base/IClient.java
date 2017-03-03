@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
 import java.io.FileNotFoundException;
@@ -36,6 +37,8 @@ public interface IClient {
 
     JobResult cancleJob(String jobId);
 
-    String getJobStatus(String jobId);
+    RdosTaskStatus getJobStatus(String jobId);
+
+    String getJobDetail(String jobId);
 
 }
