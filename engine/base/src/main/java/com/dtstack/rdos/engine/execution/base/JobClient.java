@@ -1,10 +1,13 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -57,6 +60,10 @@ public class JobClient {
 			}
 		}
 	}
+	
+	public JobClient (List<Operator> operators){
+		this.operators.addAll(operators);
+	}
 
 	public String getTaskId() {
 		return taskId;
@@ -90,6 +97,10 @@ public class JobClient {
     public void submit(){
         JobSubmitExecutor.getInstance().submitJob(this);
     }
+    
+    public static void stop(String engineTaskId){
+    	
+    }
 
     public String getJobName() {
         return jobName;
@@ -115,8 +126,4 @@ public class JobClient {
         this.jobResult = jobResult;
     }
 
-    public enum EJobType{
-        MR,//提交 mr 任务
-        SQL;//提交sql执行
-    }
 }

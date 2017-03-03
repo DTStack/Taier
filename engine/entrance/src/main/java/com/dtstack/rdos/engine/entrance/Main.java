@@ -11,6 +11,8 @@ import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.log.LogComponent;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.execution.base.ClientType;
+import com.dtstack.rdos.engine.execution.base.SubmitContainer;
 
 /**
  * 
@@ -30,6 +32,8 @@ public class Main {
 	
 	private static ZkDistributed zkDistributed;
 
+	private static SubmitContainer submitContainer;
+	
 	public static void main(String[] args) {
 		try {
 			CommandLine cmdLine = OptionsProcessor.parseArg(args);
@@ -51,6 +55,7 @@ public class Main {
 	private static void initService(NodeConfig nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig.getLocalAddress());
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
+		submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, nodeConfig.getZkNamespace(), nodeConfig.getEngineUrl(),nodeConfig.getJarTmpDir(), nodeConfig.getSlots());
 	}
 	
 	private static void addShutDownHook(){

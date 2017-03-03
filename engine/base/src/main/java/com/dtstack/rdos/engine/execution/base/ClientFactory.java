@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.flink120.FlinkClient;
 
 /**

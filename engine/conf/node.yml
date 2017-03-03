@@ -1,6 +1,6 @@
 slots: 1000
-executionEngineUrl: http://127.0.0.1:8080
-executionEngineZkAddress: /
+engineUrl: http://127.0.0.1:8080
+zkNamespace: /
 jarTmpDir: /
 localAddress: 127.0.0.1:8080
 nodeZkAddress: /

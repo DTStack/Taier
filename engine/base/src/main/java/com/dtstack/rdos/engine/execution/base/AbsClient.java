@@ -1,7 +1,9 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +24,10 @@ public abstract class AbsClient implements IClient{
     @Override
     public JobResult submitJob(JobClient jobClient) {
 
-        JobClient.EJobType jobType = jobClient.getJobType();
+        EJobType jobType = jobClient.getJobType();
         JobResult jobResult;
 
-        if(JobClient.EJobType.MR.equals(jobType)){
+        if(EJobType.MR.equals(jobType)){
             try{
                 jobResult = adaptToJarSubmit(jobClient);
             }catch (Exception e){
@@ -33,7 +35,7 @@ public abstract class AbsClient implements IClient{
                 jobResult = JobResult.createErrorResult(e);
             }
 
-        }else if(JobClient.EJobType.SQL.equals(jobType)){
+        }else if(EJobType.SQL.equals(jobType)){
             try{
                 jobResult = submitSqlJob(jobClient);
             }catch (Exception e){

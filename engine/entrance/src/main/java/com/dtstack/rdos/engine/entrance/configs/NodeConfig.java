@@ -4,9 +4,9 @@ public class NodeConfig {
 	
 	private Integer slots;
 	
-	private String executionEngineUrl;
+	private String engineUrl;
 	
-	private String executionEngineZkAddress;
+	private String zkNamespace;
 	
 	private String jarTmpDir;
 	
@@ -20,17 +20,17 @@ public class NodeConfig {
 	public void setSlots(Integer slots) {
 		this.slots = slots;
 	}
-	public String getExecutionEngineUrl() {
-		return executionEngineUrl;
+	public String getEngineUrl() {
+		return engineUrl;
 	}
-	public void setExecutionEngineUrl(String executionEngineUrl) {
-		this.executionEngineUrl = executionEngineUrl;
+	public void setEngineUrl(String engineUrl) {
+		this.engineUrl = engineUrl;
 	}
-	public String getExecutionEngineZkAddress() {
-		return executionEngineZkAddress;
+	public String getZkNamespace() {
+		return zkNamespace;
 	}
-	public void setExecutionEngineZkAddress(String executionEngineZkAddress) {
-		this.executionEngineZkAddress = executionEngineZkAddress;
+	public void setZkNamespace(String zkNamespace) {
+		this.zkNamespace = zkNamespace;
 	}
 	public String getJarTmpDir() {
 		return jarTmpDir;
