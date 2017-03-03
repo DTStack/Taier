@@ -27,7 +27,6 @@ public class FileUtil {
     private static final int BUFFER_SIZE = 10240;
 
     /**
-     * FIXME 需要判断dstFile的父目录是否存在
      * @param urlStr
      * @param dstFileName
      * @return
@@ -36,7 +35,7 @@ public class FileUtil {
 
         try {
             File outFile = new File(dstFileName);
-            //FIXME 如果当前文件存在则删除,覆盖最新的文件
+            //如果当前文件存在则删除,覆盖最新的文件
             if(outFile.exists()){
                 outFile.delete();
             }

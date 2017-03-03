@@ -75,8 +75,8 @@ public class JobClient {
         JobSubmitExecutor.getInstance().submitJob(this);
     }
     
-    public static void stop(String engineTaskId){
-    	
+    public static JobResult stop(String engineTaskId){
+    	return JobSubmitExecutor.getInstance().stopJob(engineTaskId);
     }
 
 	public String getTaskId() {

@@ -3,10 +3,11 @@ package com.dtstack.rdos.engine.execution.flink120;
 import com.dtstack.rdos.common.util.HttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
@@ -28,9 +29,6 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.runtime.messages.JobManagerMessages;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
@@ -228,8 +226,24 @@ public class FlinkClient extends AbsClient {
     }
 
 
+    public JobResult submitSqlJob(JobClient jobClient) throws IOException{
+        ComputeType computeType = jobClient.getComputeType();
+        if(computeType == null){
+            throw new RdosException("need to set compute type.");
+        }
+
+        switch (computeType){
+            case BATCH:
+                return submitSqlJobForBatch(jobClient);
+            case STREAM:
+                return  submitSqlJobForStream(jobClient);
+
+        }
+
+        throw  new RdosException("not support for compute type :" + computeType);
+    }
+
     /**
-     * FIXME 设置 计算并行度
      * 区分出source, transformation, sink
      * FIXME 目前source 只支持kafka
      * 1: 添加数据源 -- 可能多个
@@ -239,7 +253,7 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException {
+    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException {
 
         StreamExecutionEnvironment env = getStreamExeEnv(jobClient);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
@@ -256,7 +270,7 @@ public class FlinkClient extends AbsClient {
                 }
 
                 currStep = 1;
-                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(FlinkUtil.ESourceType.KAFKA09);
+                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(ESourceType.KAFKA09);
                 CreateSourceOperator tmpOperator = (CreateSourceOperator) operator;
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
                         (tmpOperator.getProperties(), tmpOperator.getFields(), tmpOperator.getFieldTypes());
@@ -329,7 +343,10 @@ public class FlinkClient extends AbsClient {
         } catch (Exception e) {
             return JobResult.createErrorResult(e);
         }
+    }
 
+    private JobResult submitSqlJobForBatch(JobClient jobClient){
+        throw new RdosException("not support flink sql job for batch type.");
     }
 
     public JobResult cancleJob(String jobId) {
@@ -431,99 +448,12 @@ public class FlinkClient extends AbsClient {
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof ParamsOperator){
                 ParamsOperator paramsOperator = (ParamsOperator) operator;
-                openCheckpoint(env, paramsOperator.getProperties());
-                setEnvParallelism(env, paramsOperator.getProperties());
+                FlinkUtil.openCheckpoint(env, paramsOperator.getProperties());
+                FlinkUtil.setEnvParallelism(env, paramsOperator.getProperties());
             }
         }
 
         return env;
-    }
-
-    /**
-     *
-     * FIXME 仅针对sql执行方式,暂时未找到区分设置source,transform,sink 并行度的方式
-     * 设置job运行的并行度
-     * @param env
-     * @param properties
-     */
-    public static void setEnvParallelism(StreamExecutionEnvironment env, Properties properties){
-
-        if(env == null || properties == null){
-            return;
-        }
-
-        String parallelismStr = properties.getProperty("parallelism");
-        if(parallelismStr != null){
-            Integer parallelism = Integer.valueOf(parallelismStr);
-            env.setParallelism(parallelism);
-        }
-
-    }
-
-    /**
-     * 开启checkpoint
-     * @param env
-     * @throws IOException
-     */
-    public static void openCheckpoint(StreamExecutionEnvironment env, Properties properties) throws IOException {
-
-        if(properties == null){
-            return;
-        }
-
-        //设置了时间间隔才表明开启了checkpoint
-        if(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL) == null){
-            return;
-        }else{
-            Long interval = Long.valueOf(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL));
-            //start checkpoint every ${interval}
-            env.enableCheckpointing(interval);
-        }
-
-        String checkMode = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_MODE);
-        if(checkMode != null){
-            if(checkMode.equalsIgnoreCase("EXACTLY_ONCE")){
-                env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-            }else if(checkMode.equalsIgnoreCase("AT_LEAST_ONCE")){
-                env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.AT_LEAST_ONCE);
-            }else{
-                throw new RdosException("not support of FLINK_CHECKPOINT_MODE :" + checkMode);
-            }
-        }
-
-        String checkpointTimeoutStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_TIMEOUT);
-        if(checkpointTimeoutStr != null){
-            Long checkpointTimeout = Long.valueOf(checkpointTimeoutStr);
-            //checkpoints have to complete within one min,or are discard
-            env.getCheckpointConfig().setCheckpointTimeout(checkpointTimeout);
-        }
-
-        String maxConcurrCheckpointsStr = properties.getProperty(PropertyConstant.FLINK_MAXCONCURRENTCHECKPOINTS);
-        if(maxConcurrCheckpointsStr != null){
-            Integer maxConcurrCheckpoints = Integer.valueOf(maxConcurrCheckpointsStr);
-            //allow only one checkpoint to be int porgress at the same time
-            env.getCheckpointConfig().setMaxConcurrentCheckpoints(maxConcurrCheckpoints);
-        }
-
-        String cleanupModeStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_CLEANUPMODE);
-        if(cleanupModeStr != null){//设置在cancle job情况下checkpoint是否被保存
-            if("true".equalsIgnoreCase(cleanupModeStr)){
-                env.getCheckpointConfig().enableExternalizedCheckpoints(
-                        CheckpointConfig.ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION);
-            }else if("false".equalsIgnoreCase(cleanupModeStr)){
-                env.getCheckpointConfig().enableExternalizedCheckpoints(
-                        CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
-            }else{
-                throw new RdosException("not support value of cleanup mode :" + cleanupModeStr);
-            }
-        }
-
-        String backendPath = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_DATAURI);
-        if(backendPath != null){
-            //set checkpoint save path on file system, 根据实际的需求设定文件路径,hdfs://, file://
-            env.setStateBackend(new FsStateBackend(backendPath));
-        }
-
     }
 
 }

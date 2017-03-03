@@ -87,6 +87,10 @@ public class JobSubmitExecutor{
         return client.getJobStatus(jobId);
     }
 
+    public JobResult stopJob(String jobId){
+        return client.cancleJob(jobId);
+    }
+
     public void start(){
 
         if(!hasInit){
