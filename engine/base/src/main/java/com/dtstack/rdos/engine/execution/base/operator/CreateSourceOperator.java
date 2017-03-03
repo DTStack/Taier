@@ -81,9 +81,13 @@ public class CreateSourceOperator implements Operator{
 	@Override
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		if(!GrokUtil.isSuccess(pattern, sql)){
+		if(GrokUtil.isSuccess(pattern, sql)){
 			throw new SqlVerificationException("create source");
 		}
+	}
+	
+	public static boolean verific(String sql) throws Exception{
+		return GrokUtil.isSuccess(pattern, sql);
 	}
 	
 	public Properties getProperties() {
