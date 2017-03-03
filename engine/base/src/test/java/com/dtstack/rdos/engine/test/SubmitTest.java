@@ -4,6 +4,7 @@ import com.dtstack.rdos.common.util.HttpClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
 
 import org.junit.Test;
@@ -53,5 +54,11 @@ public class SubmitTest {
             System.out.println(response);
         }
 
+    }
+
+    @Test
+    public void testRdosTaskStatus(){
+        RdosTaskStatus rdosTaskStatus = RdosTaskStatus.getTaskStatus("UNS1UBMIT");
+        System.out.println("----over---" + rdosTaskStatus);
     }
 }

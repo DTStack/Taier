@@ -399,30 +399,12 @@ public class FlinkClient extends AbsClient {
             }
 
             state = org.apache.commons.lang3.StringUtils.upperCase(state);
-            switch (state){
-                case "CREATED":
-                    return RdosTaskStatus.CREATED;
-                case "SCHEDULED":
-                    return RdosTaskStatus.SCHEDULED;
-                case "DEPLOYING":
-                    return RdosTaskStatus.DEPLOYING;
-                case "RUNNING":
-                    return RdosTaskStatus.RUNNING;
-                case "CANCELING":
-                    return  RdosTaskStatus.CANCELING;
-                case "CANCELED":
-                    return RdosTaskStatus.CANCELED;
-                case "FAILED":
-                    return RdosTaskStatus.FAILED;
-                case "FINISHED":
-                    return RdosTaskStatus.FINISHED;
-            }
+            return RdosTaskStatus.getTaskStatus(state);
         }catch (Exception e){
             logger.error("", e);
             return null;
         }
 
-        return null;
     }
 
     @Override
