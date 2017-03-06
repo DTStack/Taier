@@ -26,9 +26,9 @@ public class SubmitContainer {
     private Properties properties = new Properties();
     
     public static SubmitContainer createSubmitContainer(ClientType clientType,Map<String,Object> properties){
-    	if(submitContainer!=null){
+    	if(submitContainer == null){
     		synchronized(SubmitContainer.class){
-    			if(submitContainer!=null){
+    			if(submitContainer == null){
     				submitContainer = new SubmitContainer(clientType,properties);
     			}
     		}

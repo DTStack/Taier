@@ -68,7 +68,7 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String tmpFilePath = "/tmp/flinkjar";
+    public String tmpFilePath;
 
     private String jobMgrHost;
 
@@ -80,8 +80,7 @@ public class FlinkClient extends AbsClient {
     private boolean isDetact = true;
 
     /**
-     * 注意 StandaloneClusterClient 是否适用于Yarn方式
-     * FIXME
+     * FIXME 注意 StandaloneClusterClient 是否适用于Yarn方式
      * @return
      * @throws Exception
      */
@@ -179,7 +178,7 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath,classpaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());

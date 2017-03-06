@@ -3,12 +3,15 @@ package com.dtstack.rdos.engine.test;
 import com.dtstack.rdos.common.util.HttpClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.execution.base.SubmitContainer;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
 
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -43,6 +46,14 @@ public class SubmitTest {
     @Test
     public void submitSql(){
 
+        Map<String, Object> prop = new HashMap<>();
+        prop.put("slots", 2);
+        prop.put("engineZkAddress", "172.16.1.151:2181");
+        prop.put("jarTmpDir", "D:\\tmp");
+
+        SubmitContainer submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, prop);
+        submitContainer.start();
+
     }
 
     @Test
@@ -58,7 +69,7 @@ public class SubmitTest {
 
     @Test
     public void testRdosTaskStatus(){
-        RdosTaskStatus rdosTaskStatus = RdosTaskStatus.getTaskStatus("UNS1UBMIT");
+        RdosTaskStatus rdosTaskStatus = RdosTaskStatus.getTaskStatus("UNSUBMIT");
         System.out.println("----over---" + rdosTaskStatus);
     }
 }
