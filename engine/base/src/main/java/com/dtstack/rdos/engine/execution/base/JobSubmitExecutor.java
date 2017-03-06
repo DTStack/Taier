@@ -49,7 +49,10 @@ public class JobSubmitExecutor{
 
     }
 
-    public void init(ClientType type, int poolSize, Properties clusterProp){
+    public void init(ClientType type, Properties clusterProp){
+
+        //FIXME 从clusterProp读取
+        int poolSize = 1;
 
         String jarTmpPath = clusterProp.getProperty("jartmppath");
 
@@ -57,7 +60,6 @@ public class JobSubmitExecutor{
             throw new RdosException("you need to set tmp file path for store remote jar file.");
         }
 
-        FlinkUtil.tmp_file_path = jarTmpPath;
         this.poolSize = poolSize;
         executor = Executors.newFixedThreadPool(poolSize);
 
