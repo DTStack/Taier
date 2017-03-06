@@ -2,10 +2,13 @@ package com.dtstack.rdos.engine.entrance.http;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.engine.entrance.http.handler.NodeHandler;
 import com.sun.net.httpserver.HttpServer;
 
@@ -37,6 +40,13 @@ public class EHttpServer {
 		init();
 	}
 	
+	public EHttpServer(Map<String, Object> nodeConfig) throws Exception{
+		// TODO Auto-generated constructor stub
+		this.localAddress = (String) nodeConfig.get("localAddress");
+		this.port = (Integer) HttpCommon.getUrlPort(this.localAddress)[1];
+		init();
+	}
+
 	public void release(){
 		this.server.stop(1);
 	}

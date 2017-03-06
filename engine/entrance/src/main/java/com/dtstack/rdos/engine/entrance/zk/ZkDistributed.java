@@ -1,13 +1,11 @@
 package com.dtstack.rdos.engine.entrance.zk;
 
 import java.io.IOException;
-
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.rdos.engine.entrance.configs.NodeConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -26,7 +24,7 @@ public class ZkDistributed {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ZkDistributed.class);
 
-	private NodeConfig nodeConfig;
+	private Map<String,Object> nodeConfig;
 	
 	private String zkAddress;
 	
@@ -50,14 +48,14 @@ public class ZkDistributed {
 	
 	private static ZkDistributed zkDistributed;
 	
-	private ZkDistributed(NodeConfig nodeConfig) throws Exception {
+	private ZkDistributed(Map<String,Object> nodeConfig) throws Exception {
 		// TODO Auto-generated constructor stub
 		this.nodeConfig  = nodeConfig;
 		checkDistributedConfig();
 		initZk();
 	}
 
-	public static ZkDistributed createZkDistributed(NodeConfig nodeConfig) throws Exception{
+	public static ZkDistributed createZkDistributed(Map<String,Object> nodeConfig) throws Exception{
 		if(zkDistributed == null){
 			synchronized(ZkDistributed.class){
 				if(zkDistributed == null){
@@ -90,7 +88,7 @@ public class ZkDistributed {
 	}
 	
 	private void checkDistributedConfig() throws Exception {
-		this.zkAddress = nodeConfig.getNodeZkAddress();
+		this.zkAddress = (String)nodeConfig.get("nodeZkAddress");
 		if (StringUtils.isBlank(this.zkAddress)
 				|| this.zkAddress.split("/").length < 2) {
 			throw new Exception("zkAddress is error");
@@ -98,7 +96,7 @@ public class ZkDistributed {
 		String[] zks = this.zkAddress.split("/");
 		this.zkAddress = zks[0].trim();
 		this.distributeRootNode = String.format("/%s", zks[1].trim());
-		this.localAddress = nodeConfig.getLocalAddress();
+		this.localAddress = (String)nodeConfig.get("localAddress");
 		if (StringUtils.isBlank(this.localAddress)||this.localAddress.split(":").length < 2) {
 			throw new Exception("localAddress is error");
 		}

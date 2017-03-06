@@ -1,11 +1,10 @@
 package com.dtstack.rdos.engine.entrance;
 
+import java.util.Map;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
-import com.dtstack.rdos.engine.entrance.configs.NodeConfig;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.log.LogComponent;
@@ -34,6 +33,7 @@ public class Main {
 
 	private static SubmitContainer submitContainer;
 	
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
 			CommandLine cmdLine = OptionsProcessor.parseArg(args);
@@ -41,7 +41,7 @@ public class Main {
 			// set logger
 			logbackComponent.setupLogger();
 			// load config
-			NodeConfig nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),NodeConfig.class);
+			Map<String,Object> nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),Map.class);
 			// init service
 			initService(nodeConfig);
 			// add hook
@@ -52,10 +52,10 @@ public class Main {
 		}
 	}
 	
-	private static void initService(NodeConfig nodeConfig) throws Exception{
-		eHttpServer = new EHttpServer(nodeConfig.getLocalAddress());
+	private static void initService(Map<String,Object> nodeConfig) throws Exception{
+		eHttpServer = new EHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
-		submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, nodeConfig.getZkNamespace(), nodeConfig.getEngineUrl(),nodeConfig.getJarTmpDir(), nodeConfig.getSlots());
+		submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, nodeConfig);
 	}
 	
 	private static void addShutDownHook(){
