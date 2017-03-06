@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.entrance.sql;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
 import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.CreateFunctionOperator;
@@ -11,7 +12,6 @@ import com.dtstack.rdos.engine.execution.base.operator.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.ExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
-import com.dtstack.rdos.engine.execution.exception.RdosException;
 import com.google.common.collect.Lists;
 
 
