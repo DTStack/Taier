@@ -1,7 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
-import com.dtstack.rdos.engine.execution.exception.RdosException;
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.io.Files;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
