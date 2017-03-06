@@ -49,7 +49,9 @@ public class JobSubmitExecutor{
 
     }
 
-    public void init(ClientType type, String jarTmpPath, int poolSize, Properties clusterProp){
+    public void init(ClientType type, int poolSize, Properties clusterProp){
+
+        String jarTmpPath = clusterProp.getProperty("jartmppath");
 
         if(jarTmpPath == null){
             throw new RdosException("you need to set tmp file path for store remote jar file.");

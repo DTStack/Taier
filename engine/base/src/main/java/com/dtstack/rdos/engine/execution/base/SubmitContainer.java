@@ -46,7 +46,7 @@ public class SubmitContainer {
     	return SubmitContainer.submitContainer;
     }
     
-    private SubmitContainer(ClientType clientType,int slots,Properties  properties){
+    private SubmitContainer(ClientType clientType,int slots, Properties properties){
     	this.clientType = clientType;
     	this.properties.putAll(properties);
     	this.slots = slots;
@@ -60,7 +60,7 @@ public class SubmitContainer {
     
 
     public void start(){
-        JobSubmitExecutor.getInstance().init(clientType,slots,properties);
+        JobSubmitExecutor.getInstance().init(clientType, slots, properties);
         JobSubmitExecutor.getInstance().start();
 
         logger.info("------start job container----");
