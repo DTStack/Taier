@@ -29,7 +29,6 @@ public class BrokerDataNode {
     	}
 	}
 	
-	
 	public static BrokerDataNode initBrokerDataNode(){
 		BrokerDataNode brokerNode = new BrokerDataNode();
 		brokerNode.setMetas(new HashMap<String,Byte>());

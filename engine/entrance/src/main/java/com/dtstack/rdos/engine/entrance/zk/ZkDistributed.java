@@ -1,14 +1,24 @@
 package com.dtstack.rdos.engine.entrance.zk;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
+import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
 
 
@@ -36,23 +46,33 @@ public class ZkDistributed {
 
 	private String localNode;
 	
-	private String heartNode;
+	private String heartNode = "heart";
 	
-	private String metaDataNode;
+	private String metaDataNode = "data";
 	
 	private CuratorFramework zkClient;
 	
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
-
-	
 	private static ZkDistributed zkDistributed;
+	
+	private Map<String,BrokerDataNode> memTaskStatus = Maps.newHashMap();
+	
+	private InterProcessMutex masterlock;
+	
+	private InterProcessMutex brokerDataLock;
+
+	private InterProcessMutex brokerHeartLock;
+
+	private ExecutorService executors  = Executors.newFixedThreadPool(5);
+
 	
 	private ZkDistributed(Map<String,Object> nodeConfig) throws Exception {
 		// TODO Auto-generated constructor stub
 		this.nodeConfig  = nodeConfig;
 		checkDistributedConfig();
 		initZk();
+		zkRegistration();
 	}
 
 	public static ZkDistributed createZkDistributed(Map<String,Object> nodeConfig) throws Exception{
@@ -75,44 +95,130 @@ public class ZkDistributed {
 		logger.warn("connector zk success...");
 	}
 	
+	private void zkRegistration() throws Exception {
+		createNodeIfExists(this.distributeRootNode,"");
+		createNodeIfExists(this.brokersNode,BrokersNode.initBrokersNode());
+		createNodeIfExists(this.localNode,"");
+		createNodeIfExists(String.format("%s/%s", this.localNode,heartNode),BrokerHeartNode.initBrokerHeartNode());
+		createNodeIfExists(String.format("%s/%s", this.localNode,metaDataNode),BrokerDataNode.initBrokerDataNode());
+		this.masterlock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "masterlock"));
+		this.brokerDataLock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "masterlock"));
+		
+		this.brokerHeartLock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "masterlock"));
+		initMemTaskStatus();
+		setMaster();
+		initScheduledExecutorService();
+	}
 	
-	public void createNodeIfNotExists(String node,Object obj) throws Exception {
-		if (zkClient.checkExists().forPath(node) == null) {
-			try {
-				zkClient.create().forPath(node,
-						objectMapper.writeValueAsBytes(obj));
-			} catch (KeeperException.NodeExistsException e) {
-				logger.warn("%s node is Exist", node);
+	private void initScheduledExecutorService() {
+	
+	}
+
+	
+	
+	private InterProcessMutex createDistributeLock(String nodePath){
+		return new InterProcessMutex(zkClient,nodePath);
+	}
+	
+	public boolean setMaster() {
+		boolean flag = false;
+		try {
+			String master = isHaveMaster();
+			if (this.localAddress.equals(master))return true;
+			boolean isMaster = this.masterlock.acquire(10, TimeUnit.SECONDS);
+			if(isMaster){
+				BrokersNode brokersNode = BrokersNode.initBrokersNode();
+				brokersNode.setMaster(this.localAddress);
+				this.zkClient.setData().forPath(this.brokersNode,
+						objectMapper.writeValueAsBytes(brokersNode));
+				flag = true;
 			}
+		} catch (Exception e) {
+			logger.error(ExceptionUtil.getErrorMessage(e));
+		}
+		return flag;
+	}
+	
+	public String isHaveMaster() throws Exception {
+		byte[] data = this.zkClient.getData().forPath(this.brokersNode);
+		if (data == null
+				|| StringUtils.isBlank(objectMapper.readValue(data,
+						BrokersNode.class).getMaster())) {
+			return null;
+		}
+		return objectMapper.readValue(data, BrokersNode.class).getMaster();
+	}
+	
+	public void initMemTaskStatus(){
+		List<String> brokers = getBrokersChildren();
+		for(String broker:brokers){
+			memTaskStatus.put(broker, getBrokerDataNode(broker));
 		}
 	}
+	
+	
+	public void createNodeIfExists(String node,Object obj) throws Exception{
+			if (zkClient.checkExists().forPath(node) == null) {
+				zkClient.create().forPath(node,
+						objectMapper.writeValueAsBytes(obj));
+			}else{
+				zkClient.setData().forPath(node, objectMapper.writeValueAsBytes(obj));
+			}
+	}
+	
+	
 	
 	private void checkDistributedConfig() throws Exception {
 		this.zkAddress = (String)nodeConfig.get("nodeZkAddress");
 		if (StringUtils.isBlank(this.zkAddress)
 				|| this.zkAddress.split("/").length < 2) {
-			throw new Exception("zkAddress is error");
+			throw new RdosException("zkAddress is error");
 		}
 		String[] zks = this.zkAddress.split("/");
 		this.zkAddress = zks[0].trim();
 		this.distributeRootNode = String.format("/%s", zks[1].trim());
 		this.localAddress = (String)nodeConfig.get("localAddress");
 		if (StringUtils.isBlank(this.localAddress)||this.localAddress.split(":").length < 2) {
-			throw new Exception("localAddress is error");
+			throw new RdosException("localAddress is error");
 		}
 		this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
 		this.localNode = String.format("%s/%s", this.brokersNode,this.localAddress);
-		this.heartNode = String.format("%s/%s", this.localNode,"heart");
-		this.metaDataNode = String.format("%s/%s", this.localNode,"data");
 	}
+	
+	public BrokerDataNode getBrokerDataNode(String node) {
+		try {
+			String nodePath = String.format("%s/%s/%s", this.brokersNode, node,this.metaDataNode);
+			BrokerDataNode nodeSign = objectMapper.readValue(zkClient.getData()
+					.forPath(nodePath), BrokerDataNode.class);
+			return nodeSign;
+		} catch (Exception e) {
+			logger.error("{}:getBrokerNodeData error:{}", node,
+					ExceptionUtil.getErrorMessage(e));
+		}
+		return null;
+	}
+	
+	
+	public List<String> getBrokersChildren() {
+		try {
+			return zkClient.getChildren().forPath(this.brokersNode);
+		} catch (Exception e) {
+			logger.error("getBrokersChildren error:{}",
+					ExceptionUtil.getErrorMessage(e));
+		}
+		return null;
+	}
+
 	
 	public static ZkDistributed getZkDistributed(){
 		return zkDistributed;
 	}
-
+	
 	public void release() {
 		// TODO Auto-generated method stub
-		
 	}
 
 }

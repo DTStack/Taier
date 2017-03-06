@@ -60,7 +60,7 @@ public class CreateResultOperator implements Operator{
 		for(int i=0;i<strs.length;i++){
 			String[] ss = strs[i].split("\\s+");
 			this.fields[i] = ss[0].trim();
-			this.fieldTypes[i] = ClassUtil.stringConvetClass(ss[0].trim());
+			this.fieldTypes[i] = ClassUtil.stringConvetClass(ss[1].trim());
 		}
 	}
 	
