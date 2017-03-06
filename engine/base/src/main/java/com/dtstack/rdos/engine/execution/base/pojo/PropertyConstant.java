@@ -29,13 +29,23 @@ public class PropertyConstant {
 
     /**************flink client init*********************/
 
-    public static final String FLINK_JOBMGR_HOST_KEY = "flinkJobMgrHost";
-
-    public static final String FLINK_JOBMGR_RPC_PORT_KEY = "flinkJobMgrRpcPort";
+    public static final String FLINK_JOBMGR_URL_KEY = "engineUrl";
 
     public static final String FLINK_ZKNAMESPACE_KEY = "zkNamespace";
 
     public static final String FLINK_ZK_ROOT_KEY = "flinkZkRoot";
 
     public static final String FLINK_ZK_CLUSTERID_KEY = "flinkZkClusterId";
+
+    /**************flink submit job info***************/
+
+    public static final String FLINK_JOB_JAR_PATH_KEY = "jobJarPath";
+
+    public static final String FLINK_JOB_JAR_MAINCLASS_KEY = "jobJarMainClass";
+
+    public static final String FLINK_JOB_PARALLELISM_KEY = "flinkJobParallelism";
+
+    public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
+
+    public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 }

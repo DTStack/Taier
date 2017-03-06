@@ -83,7 +83,7 @@ public class JobSubmitExecutor{
     public void start(){
 
         if(!hasInit){
-            logger.error("need to init JobSubmitExecutor first. please check your program first!");
+            logger.error("need to init JobSubmitExecutor first. please check your program!!!");
             System.exit(-1);
         }
 
