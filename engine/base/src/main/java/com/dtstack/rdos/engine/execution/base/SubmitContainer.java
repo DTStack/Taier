@@ -49,12 +49,17 @@ public class SubmitContainer {
     
 
     public void start(){
-        JobSubmitExecutor.getInstance().init(clientType,properties);
+        JobSubmitExecutor.getInstance().init(clientType, properties);
         JobSubmitExecutor.getInstance().start();
 
         logger.info("------start job container----");
         logger.info("client_type:{}", clientType);
+        logger.info("properties:{}", properties);
         logger.info("------------------------------");
+    }
+
+    public void shutdown(){
+        JobSubmitExecutor.getInstance().shutdown();
     }
 
 

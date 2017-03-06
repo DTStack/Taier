@@ -49,8 +49,8 @@ public class JobSubmitExecutor{
 
     public void init(ClientType type, Properties clusterProp){
 
-        String slots = clusterProp.getProperty(PropertyConstant.SLOTS_KEY);
-        this.poolSize = slots == null ? 1 : Integer.valueOf(slots);
+        Object slots = clusterProp.get(PropertyConstant.SLOTS_KEY);
+        this.poolSize = slots == null ? 1 : (int) slots;
 
         executor = Executors.newFixedThreadPool(poolSize);
         for(int i=0; i<poolSize; i++){

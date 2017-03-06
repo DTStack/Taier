@@ -288,11 +288,12 @@ public class FlinkClient extends AbsClient {
                 }
 
                 currStep = 1;
-                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(ESourceType.KAFKA09);
-                CreateSourceOperator tmpOperator = (CreateSourceOperator) operator;
+                CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
+                ESourceType sourceType = ESourceType.getSourceType(sourceOperator.getType());
+                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(sourceType);
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
-                        (tmpOperator.getProperties(), tmpOperator.getFields(), tmpOperator.getFieldTypes());
-                tableEnv.registerTableSource(tmpOperator.getName(), tableSource);
+                        (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
+                tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
             }else if(operator instanceof CreateFunctionOperator){//注册自定义func
                 if(currStep > 2){

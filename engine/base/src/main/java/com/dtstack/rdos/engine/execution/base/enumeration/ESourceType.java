@@ -9,4 +9,8 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
  */
 public enum ESourceType {
     KAFKA09;
+
+    public static ESourceType getSourceType(String sourceType){
+        return ESourceType.valueOf(sourceType);
+    }
 }
