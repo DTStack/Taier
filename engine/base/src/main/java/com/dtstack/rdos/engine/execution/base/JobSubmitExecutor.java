@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.google.common.collect.Queues;
 
 import org.slf4j.Logger;
@@ -49,13 +49,8 @@ public class JobSubmitExecutor{
 
     public void init(ClientType type, Properties clusterProp){
 
-        String slots = clusterProp.getProperty("slots");
+        String slots = clusterProp.getProperty(PropertyConstant.SLOTS_KEY);
         this.poolSize = slots == null ? 1 : Integer.valueOf(slots);
-
-        String jarTmpPath = clusterProp.getProperty("jartmppath");
-        if(jarTmpPath == null){
-            throw new RdosException("you need to set tmp file path for store remote jar file.");
-        }
 
         executor = Executors.newFixedThreadPool(poolSize);
         for(int i=0; i<poolSize; i++){

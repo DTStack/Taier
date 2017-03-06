@@ -9,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.gson.JsonObject;
@@ -45,6 +46,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
+import javax.rmi.PortableRemoteObject;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -123,10 +125,10 @@ public class FlinkClient extends AbsClient {
 
     public void init(Properties prop) {
 
-        String host = prop.getProperty("host");
-        String port = prop.getProperty("port");
-        String zkNamespace = prop.getProperty("zkNamespace");
-        tmpFilePath = prop.getProperty("tmpFilePath");
+        String host = prop.getProperty(PropertyConstant.FLINK_JOBMGR_HOST_KEY);
+        String port = prop.getProperty(PropertyConstant.FLINK_JOBMGR_RPC_PORT_KEY);
+        String zkNamespace = prop.getProperty(PropertyConstant.FLINK_ZKNAMESPACE_KEY);
+        tmpFilePath = prop.getProperty(PropertyConstant.FILE_TMP_PATH_KEY);
 
         Preconditions.checkNotNull(tmpFilePath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(host != null || zkNamespace != null,
