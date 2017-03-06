@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.google.common.collect.Queues;
 
 import org.slf4j.Logger;
@@ -45,24 +45,14 @@ public class JobSubmitExecutor{
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
-    private JobSubmitExecutor(){
-
-    }
+    private JobSubmitExecutor(){}
 
     public void init(ClientType type, Properties clusterProp){
 
-        //FIXME 从clusterProp读取
-        int poolSize = 1;
+        String slots = clusterProp.getProperty(PropertyConstant.SLOTS_KEY);
+        this.poolSize = slots == null ? 1 : Integer.valueOf(slots);
 
-        String jarTmpPath = clusterProp.getProperty("jartmppath");
-
-        if(jarTmpPath == null){
-            throw new RdosException("you need to set tmp file path for store remote jar file.");
-        }
-
-        this.poolSize = poolSize;
         executor = Executors.newFixedThreadPool(poolSize);
-
         for(int i=0; i<poolSize; i++){
             JobSubmitProcessor processor = new JobSubmitProcessor(type, clusterProp);
             processorList.add(processor);
@@ -93,7 +83,7 @@ public class JobSubmitExecutor{
     public void start(){
 
         if(!hasInit){
-            logger.error("need to init JobSubmitExecutor first. please check your program first!");
+            logger.error("need to init JobSubmitExecutor first. please check your program!!!");
             System.exit(-1);
         }
 

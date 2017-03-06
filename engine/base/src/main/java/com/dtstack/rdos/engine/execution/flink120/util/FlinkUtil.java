@@ -43,8 +43,6 @@ public class FlinkUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
-    public static String tmp_file_path = "/tmp/flinkjar";
-
     private static final String URL_SPLITE = "/";
 
     private static String fileSP = File.separator;
@@ -61,40 +59,40 @@ public class FlinkUtil {
         }
 
         //设置了时间间隔才表明开启了checkpoint
-        if(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL) == null){
+        if(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL_KEY) == null){
             return;
         }else{
-            Long interval = Long.valueOf(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL));
+            Long interval = Long.valueOf(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL_KEY));
             //start checkpoint every ${interval}
             env.enableCheckpointing(interval);
         }
 
-        String checkMode = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_MODE);
+        String checkMode = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_MODE_KEY);
         if(checkMode != null){
             if(checkMode.equalsIgnoreCase("EXACTLY_ONCE")){
                 env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
             }else if(checkMode.equalsIgnoreCase("AT_LEAST_ONCE")){
                 env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.AT_LEAST_ONCE);
             }else{
-                throw new RdosException("not support of FLINK_CHECKPOINT_MODE :" + checkMode);
+                throw new RdosException("not support of FLINK_CHECKPOINT_MODE_KEY :" + checkMode);
             }
         }
 
-        String checkpointTimeoutStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_TIMEOUT);
+        String checkpointTimeoutStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_TIMEOUT_KEY);
         if(checkpointTimeoutStr != null){
             Long checkpointTimeout = Long.valueOf(checkpointTimeoutStr);
             //checkpoints have to complete within one min,or are discard
             env.getCheckpointConfig().setCheckpointTimeout(checkpointTimeout);
         }
 
-        String maxConcurrCheckpointsStr = properties.getProperty(PropertyConstant.FLINK_MAXCONCURRENTCHECKPOINTS);
+        String maxConcurrCheckpointsStr = properties.getProperty(PropertyConstant.FLINK_MAXCONCURRENTCHECKPOINTS_KEY);
         if(maxConcurrCheckpointsStr != null){
             Integer maxConcurrCheckpoints = Integer.valueOf(maxConcurrCheckpointsStr);
             //allow only one checkpoint to be int porgress at the same time
             env.getCheckpointConfig().setMaxConcurrentCheckpoints(maxConcurrCheckpoints);
         }
 
-        String cleanupModeStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_CLEANUPMODE);
+        String cleanupModeStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_CLEANUPMODE_KEY);
         if(cleanupModeStr != null){//设置在cancle job情况下checkpoint是否被保存
             if("true".equalsIgnoreCase(cleanupModeStr)){
                 env.getCheckpointConfig().enableExternalizedCheckpoints(
@@ -107,7 +105,7 @@ public class FlinkUtil {
             }
         }
 
-        String backendPath = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_DATAURI);
+        String backendPath = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_DATAURI_KEY);
         if(backendPath != null){
             //set checkpoint save path on file system, 根据实际的需求设定文件路径,hdfs://, file://
             env.setStateBackend(new FsStateBackend(backendPath));
@@ -116,14 +114,14 @@ public class FlinkUtil {
     }
 
 
-    public static PackagedProgram buildProgram(String jarFilePath, List<URL> classpaths,
+    public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths,
                                                   String entryPointClass, String[] programArgs, SavepointRestoreSettings spSetting)
             throws FileNotFoundException, ProgramInvocationException {
-        if (jarFilePath == null) {
+        if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(jarFilePath);
+        File jarFile = downloadJar(fromPath, toPath);
 
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
@@ -135,15 +133,15 @@ public class FlinkUtil {
         return program;
     }
 
-    public static String getTmpFileName(String fileUrl){
+    public static String getTmpFileName(String fileUrl, String toPath){
         String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE));
-        String tmpFileName = tmp_file_path  + fileSP + name;
+        String tmpFileName = toPath  + fileSP + name;
         return tmpFileName;
     }
 
-    public static File downloadJar(String remoteFilePath) throws FileNotFoundException {
-        String localJarPath = FlinkUtil.getTmpFileName(remoteFilePath);
-        if(!FileUtil.downLoadFile(remoteFilePath, localJarPath)){
+    public static File downloadJar(String fromPath, String toPath) throws FileNotFoundException {
+        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+        if(!FileUtil.downLoadFile(fromPath, localJarPath)){
             return null;
         }
 

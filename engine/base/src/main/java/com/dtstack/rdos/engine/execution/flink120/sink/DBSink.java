@@ -133,6 +133,6 @@ public abstract class DBSink implements StreamTableSink<Row> {
     }
 
     public void buildSql(String tableName, String[] fields){
-        throw new RdosException("you need to achieve this method in your own class.");
+        throw new RdosException("you need to overwrite this method in your own class.");
     }
 }

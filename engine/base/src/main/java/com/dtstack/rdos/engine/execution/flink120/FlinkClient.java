@@ -9,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.gson.JsonObject;
@@ -67,6 +68,8 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public String tmpFilePath = "/tmp/flinkjar";
+
     private String jobMgrHost;
 
     private int jobMgrPort;
@@ -82,14 +85,20 @@ public class FlinkClient extends AbsClient {
      * @return
      * @throws Exception
      */
-    public void initClusterClient(String host, int port){
+    public void initClusterClientByURL(String jobMgrURL){
 
-        this.jobMgrHost = host;
-        this.jobMgrPort = port;
+        String[] splitInfo = jobMgrURL.split(":");
+        if(splitInfo.length < 2){
+            throw new RdosException("the config of engineUrl is wrong. " +
+                    "setting value is :" + jobMgrURL +", please check it!");
+        }
+
+        this.jobMgrHost = splitInfo[0].trim();
+        this.jobMgrPort = Integer.parseInt(splitInfo[1].trim())+1;
 
         Configuration config = new Configuration();
-        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, host);
-        config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, port);
+        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, jobMgrHost);
+        config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, jobMgrPort);
 
         StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
         StandaloneClusterClient clusterClient = descriptor.retrieve(null);
@@ -102,16 +111,24 @@ public class FlinkClient extends AbsClient {
      * 根据zk获取cluster
      * @param zkNamespace
      */
-    public void initClusterClient(String zkNamespace){
+    public void initClusterClientByZK(String zkNamespace, String root, String clusterId){
         Configuration config = new Configuration();
         config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
         config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkNamespace);
+
+        if(root != null){//不设置默认值"/flink"
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, root);
+        }
+
+        if(clusterId != null){//不设置默认值"/default"
+            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
+        }
 
         StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
         StandaloneClusterClient clusterClient = descriptor.retrieve(null);
         clusterClient.setDetached(isDetact);
 
-        //初始化的时候需要设置,否则提交job会出错 update config of jobMgrhost, jobMgrprt
+        //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
         InetSocketAddress address = clusterClient.getJobManagerAddress();
         config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getHostName());
         config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
@@ -121,21 +138,20 @@ public class FlinkClient extends AbsClient {
 
     public void init(Properties prop) {
 
-        String host = prop.getProperty("host");
-        String port = prop.getProperty("port");
-        String zkNamespace = prop.getProperty("zkNamespace");
+        String jobMgrURL = prop.getProperty(PropertyConstant.FLINK_JOBMGR_URL_KEY);
+        String zkNamespace = prop.getProperty(PropertyConstant.FLINK_ZKNAMESPACE_KEY);
+        tmpFilePath = prop.getProperty(PropertyConstant.FILE_TMP_PATH_KEY);
 
-        Preconditions.checkState(host != null || zkNamespace != null,
+        Preconditions.checkNotNull(tmpFilePath, "you need to set tmp file path for jar download.");
+        Preconditions.checkState(jobMgrURL != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
         if(zkNamespace != null){//优先使用zk
-            initClusterClient(zkNamespace);
+            String zkRoot = prop.getProperty(PropertyConstant.FLINK_ZK_ROOT_KEY);
+            String clusterId = prop.getProperty(PropertyConstant.FLINK_ZK_CLUSTERID_KEY);
+            initClusterClientByZK(zkNamespace, zkRoot, clusterId);
         }else{
-            Preconditions.checkState(port != null,
-                    "flink client can not init for specil host but port is null.");
-
-            Integer portVal = Integer.valueOf(port);
-            initClusterClient(host, portVal);
+            initClusterClientByURL(jobMgrURL);
         }
 
     }
@@ -147,7 +163,7 @@ public class FlinkClient extends AbsClient {
      */
     public JobResult submitJobWithJar(Properties properties) {
 
-        Object jarPath = properties.get("jarpath");
+        Object jarPath = properties.get(PropertyConstant.FLINK_JOB_JAR_PATH_KEY);
         if(jarPath == null){
             logger.error("can not submit a job without jarpath, please check it");
             JobResult jobResult = JobResult.newInstance(true);
@@ -157,13 +173,13 @@ public class FlinkClient extends AbsClient {
 
         PackagedProgram packagedProgram = null;
 
-        String entryPointClass = properties.getProperty("class");//如果jar包里面未指定mainclass,需要设置该参数
+        String entryPointClass = properties.getProperty(PropertyConstant.FLINK_JOB_JAR_MAINCLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
         String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, classpaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath,classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());
@@ -171,7 +187,9 @@ public class FlinkClient extends AbsClient {
             return jobResult;
         }
 
-        Integer runParallelism = properties.get("parallelism") == null ? 1 : (Integer)properties.get("parallelism");
+        //只有当程序本身没有指定并行度的时候该参数才生效
+        String parallelismStr = properties.getProperty(PropertyConstant.FLINK_JOB_PARALLELISM_KEY);
+        Integer runParallelism = parallelismStr == null ? 1 : Integer.valueOf(parallelismStr);
         JobSubmissionResult result = null;
 
         try {
@@ -216,9 +234,9 @@ public class FlinkClient extends AbsClient {
             return SavepointRestoreSettings.none();
         }
 
-        if(properties.contains("fromSavepoint")){ //有指定savepoint
-            String savepointPath = properties.getProperty("fromSavepoint");
-            String stateStr = properties.getProperty("allowNonRestoredState");
+        if(properties.contains(PropertyConstant.FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
+            String savepointPath = properties.getProperty(PropertyConstant.FLINK_JOB_FROMSAVEPOINT_KEY);
+            String stateStr = properties.getProperty(PropertyConstant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             boolean allowNonRestoredState = BooleanUtils.toBoolean(stateStr);
             return SavepointRestoreSettings.forPath(savepointPath, allowNonRestoredState);
         }else{

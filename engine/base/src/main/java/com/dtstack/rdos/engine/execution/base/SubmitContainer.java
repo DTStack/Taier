@@ -21,18 +21,6 @@ public class SubmitContainer {
 
     private ClientType clientType;
 
-//    /**设置上传jar文件临时目录,如果未设置默认是/tmp/flinkjar*/
-//    private String jarFileTmpPath;
-
-    //计算资源
-//    private int slots;
-
-//    private String zkNamespace;
-//
-//    private String host;
-//
-//    private String jobManagerPort;
-
     private static SubmitContainer submitContainer;
     
     private Properties properties = new Properties();
