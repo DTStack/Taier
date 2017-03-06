@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.flink120.sink;
 
-import com.dtstack.rdos.engine.execution.exception.RdosException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -11,6 +10,8 @@ import org.apache.flink.table.sinks.StreamTableSink;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
+
+import com.dtstack.rdos.commom.exception.RdosException;
 
 import java.sql.Types;
 
