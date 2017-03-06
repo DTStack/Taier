@@ -28,12 +28,6 @@ public enum RdosTaskStatus {
      * @return
      */
     public static RdosTaskStatus getTaskStatus(String taskStatus){
-	    for(RdosTaskStatus rdosStatus : RdosTaskStatus.values()){
-            RdosTaskStatus destStatus = RdosTaskStatus.valueOf(taskStatus);
-            if(destStatus != null && destStatus == rdosStatus){
-                return rdosStatus;
-            }
-        }
-        return  null;
+	   return RdosTaskStatus.valueOf(taskStatus);
     }
 }

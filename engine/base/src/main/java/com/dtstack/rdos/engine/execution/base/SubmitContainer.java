@@ -26,9 +26,9 @@ public class SubmitContainer {
     private Properties properties = new Properties();
     
     public static SubmitContainer createSubmitContainer(ClientType clientType,Map<String,Object> properties){
-    	if(submitContainer!=null){
+    	if(submitContainer == null){
     		synchronized(SubmitContainer.class){
-    			if(submitContainer!=null){
+    			if(submitContainer == null){
     				submitContainer = new SubmitContainer(clientType,properties);
     			}
     		}
@@ -49,12 +49,17 @@ public class SubmitContainer {
     
 
     public void start(){
-        JobSubmitExecutor.getInstance().init(clientType,properties);
+        JobSubmitExecutor.getInstance().init(clientType, properties);
         JobSubmitExecutor.getInstance().start();
 
         logger.info("------start job container----");
         logger.info("client_type:{}", clientType);
+        logger.info("properties:{}", properties);
         logger.info("------------------------------");
+    }
+
+    public void shutdown(){
+        JobSubmitExecutor.getInstance().shutdown();
     }
 
 

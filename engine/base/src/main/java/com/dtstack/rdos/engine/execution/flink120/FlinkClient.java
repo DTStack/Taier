@@ -68,7 +68,7 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String tmpFilePath = "/tmp/flinkjar";
+    public String tmpFilePath;
 
     private String jobMgrHost;
 
@@ -80,8 +80,7 @@ public class FlinkClient extends AbsClient {
     private boolean isDetact = true;
 
     /**
-     * 注意 StandaloneClusterClient 是否适用于Yarn方式
-     * FIXME
+     * FIXME 注意 StandaloneClusterClient 是否适用于Yarn方式
      * @return
      * @throws Exception
      */
@@ -179,7 +178,7 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath,classpaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());
@@ -289,11 +288,12 @@ public class FlinkClient extends AbsClient {
                 }
 
                 currStep = 1;
-                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(ESourceType.KAFKA09);
-                CreateSourceOperator tmpOperator = (CreateSourceOperator) operator;
+                CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
+                ESourceType sourceType = ESourceType.getSourceType(sourceOperator.getType());
+                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(sourceType);
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
-                        (tmpOperator.getProperties(), tmpOperator.getFields(), tmpOperator.getFieldTypes());
-                tableEnv.registerTableSource(tmpOperator.getName(), tableSource);
+                        (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
+                tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
             }else if(operator instanceof CreateFunctionOperator){//注册自定义func
                 if(currStep > 2){

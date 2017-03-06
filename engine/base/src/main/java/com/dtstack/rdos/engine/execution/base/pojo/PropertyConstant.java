@@ -25,17 +25,17 @@ public class PropertyConstant {
 
     public static final String FLINK_CHECKPOINT_CLEANUPMODE_KEY = "flinkCheckpointCleanupmode";
 
-    public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDatauri";
+    public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDataURI";
 
     /**************flink client init*********************/
 
     public static final String FLINK_JOBMGR_URL_KEY = "engineUrl";
 
-    public static final String FLINK_ZKNAMESPACE_KEY = "zkNamespace";
+    public static final String FLINK_ZKNAMESPACE_KEY = "engineZkAddress";
 
-    public static final String FLINK_ZK_ROOT_KEY = "flinkZkRoot";
+    public static final String FLINK_ZK_ROOT_KEY = "engineZkNamespace";
 
-    public static final String FLINK_ZK_CLUSTERID_KEY = "flinkZkClusterId";
+    public static final String FLINK_ZK_CLUSTERID_KEY = "engineClusterId";
 
     /**************flink submit job info***************/
 
