@@ -42,8 +42,6 @@ public class FlinkUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
-    public static String tmp_file_path = "/tmp/flinkjar";
-
     private static final String URL_SPLITE = "/";
 
     private static String fileSP = File.separator;
@@ -115,14 +113,14 @@ public class FlinkUtil {
     }
 
 
-    public static PackagedProgram buildProgram(String jarFilePath, List<URL> classpaths,
+    public static PackagedProgram buildProgram(String fromPath, String toPath, List<URL> classpaths,
                                                   String entryPointClass, String[] programArgs, SavepointRestoreSettings spSetting)
             throws FileNotFoundException, ProgramInvocationException {
-        if (jarFilePath == null) {
+        if (fromPath == null) {
             throw new IllegalArgumentException("The program JAR file was not specified.");
         }
 
-        File jarFile = downloadJar(jarFilePath);
+        File jarFile = downloadJar(fromPath, toPath);
 
         // Get assembler class
         PackagedProgram program = entryPointClass == null ?
@@ -134,15 +132,15 @@ public class FlinkUtil {
         return program;
     }
 
-    public static String getTmpFileName(String fileUrl){
+    public static String getTmpFileName(String fileUrl, String toPath){
         String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE));
-        String tmpFileName = tmp_file_path  + fileSP + name;
+        String tmpFileName = toPath  + fileSP + name;
         return tmpFileName;
     }
 
-    public static File downloadJar(String remoteFilePath) throws FileNotFoundException {
-        String localJarPath = FlinkUtil.getTmpFileName(remoteFilePath);
-        if(!FileUtil.downLoadFile(remoteFilePath, localJarPath)){
+    public static File downloadJar(String fromPath, String toPath) throws FileNotFoundException {
+        String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
+        if(!FileUtil.downLoadFile(fromPath, localJarPath)){
             return null;
         }
 

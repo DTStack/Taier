@@ -65,6 +65,8 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public String tmpFilePath = "/tmp/flinkjar";
+
     private String jobMgrHost;
 
     private int jobMgrPort;
@@ -109,7 +111,7 @@ public class FlinkClient extends AbsClient {
         StandaloneClusterClient clusterClient = descriptor.retrieve(null);
         clusterClient.setDetached(isDetact);
 
-        //初始化的时候需要设置,否则提交job会出错 update config of jobMgrhost, jobMgrprt
+        //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
         InetSocketAddress address = clusterClient.getJobManagerAddress();
         config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getHostName());
         config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
@@ -122,7 +124,9 @@ public class FlinkClient extends AbsClient {
         String host = prop.getProperty("host");
         String port = prop.getProperty("port");
         String zkNamespace = prop.getProperty("zkNamespace");
+        tmpFilePath = prop.getProperty("tmpFilePath");
 
+        Preconditions.checkNotNull(tmpFilePath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(host != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
@@ -161,7 +165,7 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, classpaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath,classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());

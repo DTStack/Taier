@@ -45,24 +45,19 @@ public class JobSubmitExecutor{
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
-    private JobSubmitExecutor(){
-
-    }
+    private JobSubmitExecutor(){}
 
     public void init(ClientType type, Properties clusterProp){
 
-        //FIXME 从clusterProp读取
-        int poolSize = 1;
+        String slots = clusterProp.getProperty("slots");
+        this.poolSize = slots == null ? 1 : Integer.valueOf(slots);
 
         String jarTmpPath = clusterProp.getProperty("jartmppath");
-
         if(jarTmpPath == null){
             throw new RdosException("you need to set tmp file path for store remote jar file.");
         }
 
-        this.poolSize = poolSize;
         executor = Executors.newFixedThreadPool(poolSize);
-
         for(int i=0; i<poolSize; i++){
             JobSubmitProcessor processor = new JobSubmitProcessor(type, clusterProp);
             processorList.add(processor);
