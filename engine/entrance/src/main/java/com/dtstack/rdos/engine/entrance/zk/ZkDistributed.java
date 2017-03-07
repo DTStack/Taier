@@ -3,12 +3,15 @@ package com.dtstack.rdos.engine.entrance.zk;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
@@ -217,10 +220,18 @@ public class ZkDistributed {
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
 	
-	public synchronized void initMemTaskStatus(){
-		List<String> brokers = getBrokersChildren();
-		for(String broker:brokers){
-			memTaskStatus.put(broker, getBrokerDataNode(broker));
+	public  void initMemTaskStatus(){
+		synchronized(memTaskStatus){
+			List<String> brokers = getBrokersChildren();
+			for(String broker:brokers){
+				memTaskStatus.put(broker, getBrokerDataNode(broker));
+			}
+		}
+	}
+	
+	public void updateLocalMemTaskStatus(BrokerDataNode brokerDataNode){
+		synchronized(memTaskStatus){
+			memTaskStatus.get(this.getLocalAddress()).getMetas().putAll(brokerDataNode.getMetas());
 		}
 	}
 	
@@ -276,6 +287,23 @@ public class ZkDistributed {
 		return null;
 	}
 	
+	
+	public String getExcutionNode(){
+		int def = Integer.MAX_VALUE;
+		String node = this.localAddress;
+		if(memTaskStatus.size() > 0){
+			Set<Map.Entry<String,BrokerDataNode>> entrys  = memTaskStatus.entrySet();
+			for(Map.Entry<String,BrokerDataNode> entry:entrys){
+				int size = entry.getValue().getMetas().size();
+				if(size < def){
+					def = size;
+					node = entry.getKey();
+				}
+			}
+		}
+		return node;
+	}
+	
 	public List<String> getBrokersChildren() {
 		try {
 			return zkClient.getChildren().forPath(this.brokersNode);
@@ -290,6 +318,10 @@ public class ZkDistributed {
 		return zkDistributed;
 	}
 	
+	public String getLocalAddress() {
+		return localAddress;
+	}
+
 	public void release() {
 		// TODO Auto-generated method stub
 	}

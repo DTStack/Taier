@@ -17,6 +17,13 @@ public class PublicUtil {
 		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static Map<String,Object> ObjectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+		
+		return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
+	}
+	
+	
 	public static boolean count(int index,int multiples){
 		return index%multiples==0;
 	}

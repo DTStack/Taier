@@ -8,8 +8,8 @@
     <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
     <result column="ip" property="ip" jdbcType="VARCHAR" />
     <result column="port" property="port" jdbcType="BIGINT" />
-    <result column="machine_type" property="machineType" jdbcType="BLOB" />
-    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+    <result column="machine_type" property="machineType" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
 	
     <insert id="insert" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
@@ -21,7 +21,7 @@
 	</insert>
 	
    <delete id="deleteUnavaiableMasterNode">
-        delete from rdos_node_machine where machine_type='1';
+        delete from rdos_node_machine where machine_type=1;
    </delete>
 	
 </mapper>

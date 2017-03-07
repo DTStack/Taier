@@ -17,7 +17,7 @@ import com.dtstack.rdos.engine.entrance.db.mapper.RdosNodeMachineMapper;
  */
 public class RdosNodeMachineDAO {
 	
-	public void insert(String ip,long port,byte machineType){
+	public void insert(String ip,long port,int machineType){
 		final RdosNodeMachine RdosNodeMachine = new RdosNodeMachine(ip,port,machineType);
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override

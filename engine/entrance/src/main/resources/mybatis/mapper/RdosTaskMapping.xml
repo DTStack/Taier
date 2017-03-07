@@ -9,9 +9,9 @@
     <result column="task_id" property="taskId" jdbcType="VARCHAR" />
     <result column="engine_task_id" property="engineTaskId" jdbcType="VARCHAR" />
     <result column="name" property="name" jdbcType="VARCHAR" />
-    <result column="status" property="status" jdbcType="BIT" />
-    <result column="task_type" property="taskType" jdbcType="BIT" />
-    <result column="compute_type" property="computeType" jdbcType="BIT" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="task_type" property="taskType" jdbcType="INTEGER" />
+    <result column="compute_type" property="computeType" jdbcType="INTEGER" />
     <result column="store_location" property="storeLocation" jdbcType="VARCHAR" />
     <result column="task_params" property="taskParams" jdbcType="VARCHAR" />
     <result column="sql_text" property="sqlText" jdbcType="VARCHAR" />
@@ -19,7 +19,7 @@
     <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
     <result column="tenant_id" property="tenantId" jdbcType="BIGINT" />
     <result column="version" property="version" jdbcType="BIGINT" />
-    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
 	
    <update id="updateTaskStatus" parameterType="java.util.HashMap">

@@ -1,8 +1,12 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -19,7 +23,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
 	
 	private static Logger looger = LoggerFactory.getLogger(RdosTaskStatusTaskListener.class);
 	
-	private ArrayBlockingQueue<JobClient> queue = new ArrayBlockingQueue<JobClient>(1000);
+	private LinkedBlockingQueue<JobClient> queue = new LinkedBlockingQueue<JobClient>();
 	
 	private ZkDistributed zkDistributed =ZkDistributed.getZkDistributed();
 	

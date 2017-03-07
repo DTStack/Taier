@@ -5,11 +5,14 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Reason:
@@ -37,7 +40,7 @@ public class JobClient {
 
     private JobResult jobResult;
 
-    private static ArrayBlockingQueue<JobClient> queue;
+    private static LinkedBlockingQueue<JobClient> queue;
 
     /***
      * 获取Flink上job执行的状态
@@ -48,11 +51,11 @@ public class JobClient {
 		return JobSubmitExecutor.getInstance().getJobStatus(engineTaskId);
     }
 
-    public static ArrayBlockingQueue<JobClient> getQueue() {
+    public static LinkedBlockingQueue<JobClient> getQueue() {
 		return queue;
 	}
 
-	public static void setQueue(ArrayBlockingQueue<JobClient> queue) {
+	public static void setQueue(LinkedBlockingQueue<JobClient> queue) {
 		if(JobClient.queue==null){
 			synchronized(JobClient.class){
 				if(JobClient.queue==null){

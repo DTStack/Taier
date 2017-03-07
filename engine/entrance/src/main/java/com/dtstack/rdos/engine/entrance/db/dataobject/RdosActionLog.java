@@ -18,12 +18,12 @@ public class RdosActionLog extends DataObject{
 	/**
 	 * 操作类型
 	 */
-	private Byte actionType;
+	private Integer actionType;
 	
 	/**
 	 * 操作状态
 	 */
-	private Byte status;
+	private Integer status;
 	
 	/**
 	 * 任务 id
@@ -62,26 +62,21 @@ public class RdosActionLog extends DataObject{
 		this.tenantId = tenantId;
 	}
 
-
-	public Byte getActionType() {
+	public Integer getActionType() {
 		return actionType;
 	}
 
-
-	public void setActionType(Byte actionType) {
+	public void setActionType(Integer actionType) {
 		this.actionType = actionType;
 	}
 
-
-	public Byte getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 
-
-	public void setStatus(Byte status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
-
 
 	public String getTaskId() {
 		return taskId;

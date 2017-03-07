@@ -7,7 +7,7 @@
     <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
     <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
     <result column="tilte" property="tilte" jdbcType="VARCHAR" />
-    <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
+    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
     
     <update id="updateActionStatus" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosActionLog">

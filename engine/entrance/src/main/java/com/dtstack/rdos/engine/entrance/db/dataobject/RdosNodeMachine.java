@@ -23,9 +23,9 @@ public class RdosNodeMachine extends DataObject{
 	/**
 	 * 0 master 1 slave
 	 */
-	private Byte machineType;
+	private Integer machineType;
 
-	public RdosNodeMachine(String ip2, Long port2, byte machineType2) {
+	public RdosNodeMachine(String ip2, Long port2, Integer machineType2) {
 		// TODO Auto-generated constructor stub
 		this.ip=ip2;
 		this.port = port2;
@@ -52,12 +52,13 @@ public class RdosNodeMachine extends DataObject{
 		this.port = port;
 	}
 
-	public Byte getMachineType() {
+	public Integer getMachineType() {
 		return machineType;
 	}
 
-	public void setMachineType(Byte machineType) {
+	public void setMachineType(Integer machineType) {
 		this.machineType = machineType;
 	}
+
 
 }

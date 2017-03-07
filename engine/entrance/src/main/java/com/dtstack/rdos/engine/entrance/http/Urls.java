@@ -10,12 +10,12 @@ package com.dtstack.rdos.engine.entrance.http;
  */
 public class Urls {
 
-	public final static String ROOT = "/node";
+	public final static String ROOT = "node";
 	
-	public final static String ACTION = String.format("%s/", "action");
+	public final static String ACTION = String.format("%s/%s",ROOT,"action");
 	
-	public final static String START = String.format("%s/", "start");
+	public final static String START = String.format("%s/%s", ACTION,"start");
 	
-	public final static String STOP = String.format("%s/", "stop");
+	public final static String STOP = String.format("%s/%s",ACTION, "stop");
 
 }

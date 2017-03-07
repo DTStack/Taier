@@ -18,7 +18,7 @@ public enum RdosTaskStatus {
 		this.status = status;
 	}
 	
-	public int getStatus(){
+	public Integer getStatus(){
 		return this.status;
 	}
 

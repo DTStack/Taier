@@ -30,14 +30,14 @@ public class DataObject {
 	/**
 	 * 是否逻辑删除
 	 */
-	private Byte isDeleted;
+	private Integer isDeleted;
 	
 	
-	public Byte getIsDeleted() {
+	public Integer getIsDeleted() {
 		return isDeleted;
 	}
 
-	public void setIsDeleted(Byte isDeleted) {
+	public void setIsDeleted(Integer isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 
