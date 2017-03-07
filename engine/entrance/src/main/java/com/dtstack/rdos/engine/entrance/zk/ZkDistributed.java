@@ -99,15 +99,9 @@ public class ZkDistributed {
 		createNodeIfExists(this.distributeRootNode,"");
 		createNodeIfExists(this.brokersNode,BrokersNode.initBrokersNode());
 		createNodeIfExists(this.localNode,"");
-		createNodeIfExists(String.format("%s/%s", this.localNode,heartNode),BrokerHeartNode.initBrokerHeartNode());
-		createNodeIfExists(String.format("%s/%s", this.localNode,metaDataNode),BrokerDataNode.initBrokerDataNode());
-		this.masterlock = createDistributeLock(String.format(
-				"%s/%s", this.distributeRootNode, "masterlock"));
-		this.brokerDataLock = createDistributeLock(String.format(
-				"%s/%s", this.distributeRootNode, "masterlock"));
-		
-		this.brokerHeartLock = createDistributeLock(String.format(
-				"%s/%s", this.distributeRootNode, "masterlock"));
+		initNeedLock();
+		createLocalBrokerHeartNode();
+		createLocalBrokerDataNode();
 		initMemTaskStatus();
 		setMaster();
 		initScheduledExecutorService();
@@ -116,8 +110,75 @@ public class ZkDistributed {
 	private void initScheduledExecutorService() {
 	
 	}
-
 	
+	
+	private void createLocalBrokerHeartNode() throws Exception{
+		String node = String.format("%s/%s", this.localNode,heartNode);
+		if (zkClient.checkExists().forPath(node) == null) {
+			zkClient.create().forPath(node,
+					objectMapper.writeValueAsBytes(BrokerHeartNode.initBrokerHeartNode()));
+		}else{
+			updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode.initBrokerHeartNode());
+		}
+	}
+	private void createLocalBrokerDataNode() throws Exception{
+		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
+		if (zkClient.checkExists().forPath(nodePath) == null) {
+			zkClient.create().forPath(nodePath,
+					objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
+		}else{
+			updateSynchronizedLocalBrokerDatalock(BrokerDataNode.initBrokerDataNode());
+		}
+	}
+	
+	public void updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode brokerHeartNode){
+		String nodePath = String.format("%s/%s", this.localNode,heartNode);
+		try {
+			this.brokerHeartLock.acquire(30, TimeUnit.SECONDS);
+			zkClient.setData().forPath(nodePath,
+					objectMapper.writeValueAsBytes(brokerHeartNode));
+		} catch (Exception e) {
+			logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
+					ExceptionUtil.getErrorMessage(e));
+		} finally{
+			try {
+				if (this.brokerHeartLock.isAcquiredInThisProcess()) this.brokerHeartLock.release();
+			} catch (Exception e) {
+				logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
+						ExceptionUtil.getErrorMessage(e));
+			}
+		}
+	}
+		
+	public void updateSynchronizedLocalBrokerDatalock(BrokerDataNode brokerDataNode){
+		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
+		try {
+			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
+			zkClient.setData().forPath(nodePath,
+					objectMapper.writeValueAsBytes(brokerDataNode));
+		} catch (Exception e) {
+			logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
+					ExceptionUtil.getErrorMessage(e));
+		} finally{
+			try {
+				if (this.brokerDataLock.isAcquiredInThisProcess()) this.brokerDataLock.release();
+			} catch (Exception e) {
+				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
+						ExceptionUtil.getErrorMessage(e));
+			}
+		}
+	}
+	
+	private void initNeedLock(){
+		this.masterlock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "masterlock"));
+		
+		this.brokerDataLock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "brokerdatalock"));
+		
+		this.brokerHeartLock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "brokerheartlock"));
+	}
 	
 	private InterProcessMutex createDistributeLock(String nodePath){
 		return new InterProcessMutex(zkClient,nodePath);
@@ -152,13 +213,12 @@ public class ZkDistributed {
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
 	
-	public void initMemTaskStatus(){
+	public synchronized void initMemTaskStatus(){
 		List<String> brokers = getBrokersChildren();
 		for(String broker:brokers){
 			memTaskStatus.put(broker, getBrokerDataNode(broker));
 		}
 	}
-	
 	
 	public void createNodeIfExists(String node,Object obj) throws Exception{
 			if (zkClient.checkExists().forPath(node) == null) {
@@ -168,8 +228,6 @@ public class ZkDistributed {
 				zkClient.setData().forPath(node, objectMapper.writeValueAsBytes(obj));
 			}
 	}
-	
-	
 	
 	private void checkDistributedConfig() throws Exception {
 		this.zkAddress = (String)nodeConfig.get("nodeZkAddress");
@@ -201,7 +259,6 @@ public class ZkDistributed {
 		return null;
 	}
 	
-	
 	public List<String> getBrokersChildren() {
 		try {
 			return zkClient.getChildren().forPath(this.brokersNode);
@@ -212,7 +269,6 @@ public class ZkDistributed {
 		return null;
 	}
 
-	
 	public static ZkDistributed getZkDistributed(){
 		return zkDistributed;
 	}

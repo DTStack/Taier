@@ -85,7 +85,6 @@ public class SqlParser {
 	"projectName='dtstack',\n"+
 	"topic='datahub_test'\n"+
 ");";
-		System.out.println(ss.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", ""));
-		
+		System.out.println(ss.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", ""));		
 	}
 }

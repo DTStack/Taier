@@ -16,5 +16,9 @@ public class PublicUtil {
 	public static <T> T mapToObject(Map<String,Object> params,Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
 	}
+	
+	public static boolean count(int index,int multiples){
+		return index%multiples==0;
+	}
 
 }
