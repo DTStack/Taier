@@ -23,9 +23,13 @@ public class BrokerDataNode {
 		this.metas = metas;
 	}
 	
-	public static void copy(BrokerDataNode source,BrokerDataNode target){
+	public static void copy(BrokerDataNode source,BrokerDataNode target,boolean isCover){
     	if(source.getMetas()!=null){
-    		target.setMetas(source.getMetas());
+    		if(isCover){
+        		target.setMetas(source.getMetas());
+    		}else{
+    			target.getMetas().putAll(target.getMetas());
+    		}
     	}
 	}
 	

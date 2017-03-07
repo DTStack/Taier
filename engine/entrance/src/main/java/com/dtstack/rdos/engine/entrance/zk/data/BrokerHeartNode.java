@@ -37,10 +37,20 @@ public class BrokerHeartNode {
 		return brokerHeartNode;
 	}
 	
-	public static void copy(BrokerHeartNode source,BrokerHeartNode target){
-    	if(source.getSeq()!=null){
-    		target.setSeq(source.getSeq()+target.getSeq());
-    	}
+	public static BrokerHeartNode initNullBrokerHeartNode(){
+		BrokerHeartNode brokerHeartNode = new BrokerHeartNode();
+		brokerHeartNode.setAlive(false);
+		return brokerHeartNode;
+	}
+	
+	public static void copy(BrokerHeartNode source,BrokerHeartNode target,boolean isCover){
+		if(isCover){
+			target.setSeq(source.getSeq());
+		}else{
+	    	if(source.getSeq()!=null){
+	    		target.setSeq(source.getSeq()+target.getSeq());
+	    	}
+		}
     	if(source.getAlive()!=null){
     		target.setAlive(source.getAlive());
     	}

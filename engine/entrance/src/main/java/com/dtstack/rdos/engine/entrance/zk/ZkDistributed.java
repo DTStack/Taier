@@ -118,7 +118,7 @@ public class ZkDistributed {
 			zkClient.create().forPath(node,
 					objectMapper.writeValueAsBytes(BrokerHeartNode.initBrokerHeartNode()));
 		}else{
-			updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode.initBrokerHeartNode());
+			updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode.initBrokerHeartNode(),true);
 		}
 	}
 	private void createLocalBrokerDataNode() throws Exception{
@@ -127,16 +127,18 @@ public class ZkDistributed {
 			zkClient.create().forPath(nodePath,
 					objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
 		}else{
-			updateSynchronizedLocalBrokerDatalock(BrokerDataNode.initBrokerDataNode());
+			updateSynchronizedLocalBrokerDatalock(BrokerDataNode.initBrokerDataNode(),true);
 		}
 	}
 	
-	public void updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode brokerHeartNode){
+	public void updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode source,boolean isCover){
 		String nodePath = String.format("%s/%s", this.localNode,heartNode);
 		try {
 			this.brokerHeartLock.acquire(30, TimeUnit.SECONDS);
+			BrokerHeartNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerHeartNode.class);
+			BrokerHeartNode.copy(source, target,isCover);
 			zkClient.setData().forPath(nodePath,
-					objectMapper.writeValueAsBytes(brokerHeartNode));
+					objectMapper.writeValueAsBytes(target));
 		} catch (Exception e) {
 			logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
 					ExceptionUtil.getErrorMessage(e));
@@ -150,12 +152,14 @@ public class ZkDistributed {
 		}
 	}
 		
-	public void updateSynchronizedLocalBrokerDatalock(BrokerDataNode brokerDataNode){
+	public void updateSynchronizedLocalBrokerDatalock(BrokerDataNode source,boolean isCover){
 		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
 		try {
 			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
+			BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
+			BrokerDataNode.copy(source, target,isCover);
 			zkClient.setData().forPath(nodePath,
-					objectMapper.writeValueAsBytes(brokerDataNode));
+					objectMapper.writeValueAsBytes(target));
 		} catch (Exception e) {
 			logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
 					ExceptionUtil.getErrorMessage(e));
@@ -254,6 +258,19 @@ public class ZkDistributed {
 			return nodeSign;
 		} catch (Exception e) {
 			logger.error("{}:getBrokerNodeData error:{}", node,
+					ExceptionUtil.getErrorMessage(e));
+		}
+		return null;
+	}
+	
+	public BrokerHeartNode getBrokerHeartNode(String node) {
+		try {
+			String nodePath = String.format("%s/%s/%s", this.brokersNode, node,this.heartNode);
+			BrokerHeartNode nodeSign = objectMapper.readValue(zkClient.getData()
+					.forPath(nodePath), BrokerHeartNode.class);
+			return nodeSign;
+		} catch (Exception e) {
+			logger.error("{}:getBrokerHeartNode error:{}", node,
 					ExceptionUtil.getErrorMessage(e));
 		}
 		return null;

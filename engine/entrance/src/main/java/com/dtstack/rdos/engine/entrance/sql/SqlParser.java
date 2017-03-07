@@ -1,8 +1,8 @@
 package com.dtstack.rdos.engine.entrance.sql;
 
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
 import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
@@ -25,12 +25,16 @@ import com.google.common.collect.Lists;
  */
 public class SqlParser {
 	
-	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);
+//	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);
 	
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> operatorClasses = 
 			    Lists.newArrayList(AddJarOperator.class,CreateFunctionOperator.class,CreateSourceOperator.class,CreateResultOperator.class,ExecutionOperator.class);
 
+	
+	@SuppressWarnings("unchecked")
+	private static List noMustOperatorClasses = Lists.newArrayList(AddJarOperator.class);
+	
 	public static List<Operator> parser(ParamAction paramAction) throws Exception{
 		List<Operator> operators = parserSql(paramAction.getSqlText());
 		operators.add(parserParams(paramAction.getTaskParams()));
@@ -44,8 +48,10 @@ public class SqlParser {
 		A:for(String cql:sqls){
 			cql = cql.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", "").trim();
 			boolean result = false;
+			Class<? extends Operator> operatorClass1 = null;
 			for(Class<? extends Operator> operatorClass :operatorClasses){
-				 result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(null, cql);
+				operatorClass1 = operatorClass;
+				result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(null, cql);
 			    if(result){
 			    	Object obj = operatorClass.newInstance();
 			    	operatorClass.getMethod("createOperator", String.class).invoke(obj, cql);
@@ -53,7 +59,7 @@ public class SqlParser {
 			    	continue A;
 			    }
 			}
-			if(!result){
+			if(!result&&!noMustOperatorClasses.contains(operatorClass1)){
 				throw new RdosException(String.format("%s:parserSql fail",cql));
 			}
 		}
