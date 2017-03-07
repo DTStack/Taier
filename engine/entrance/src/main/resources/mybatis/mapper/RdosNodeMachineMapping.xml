@@ -3,25 +3,25 @@
 <mapper namespace="com.dtstack.rdos.engine.entrance.db.mapper.RdosNodeMachineMapper">
 	
 	<resultMap id="rdosNodeMachineResult" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
-   <id column="id" property="id" jdbcType="BIGINT" />
+    <id column="id" property="id" jdbcType="BIGINT" />
     <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
     <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
     <result column="ip" property="ip" jdbcType="VARCHAR" />
     <result column="port" property="port" jdbcType="BIGINT" />
-    <result column="machine_type" property="machineype" jdbcType="BIT" />
+    <result column="machine_type" property="machineType" jdbcType="BLOB" />
     <result column="is_deleted" property="isDeleted" jdbcType="BIT" />
     </resultMap>
 	
     <insert id="insert" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
 	insert into rdos_node_machine(gmt_create,gmt_modified,ip,port,machine_type)
-	values(now(),now(),#{ip},#{port},#{machine_type})
+	values(now(),now(),#{ip},#{port},#{machineType})
 	<selectKey resultType="long" keyProperty="id">
 	SELECT LAST_INSERT_ID() AS ID
 	</selectKey>
 	</insert>
 	
    <delete id="deleteUnavaiableMasterNode">
-        delete from rdos_node_machine where machine_type='master';
+        delete from rdos_node_machine where machine_type='1';
    </delete>
 	
 </mapper>

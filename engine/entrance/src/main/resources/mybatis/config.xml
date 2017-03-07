@@ -23,17 +23,17 @@
        
         <environment id="production">
           <transactionManager type="MANAGED"/>
-            <dataSource type="JNDI">
+            <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/hmkcode"/>
-                <property name="username" value="root"/>
-                <property name="password" value=""/>
+                <property name="url" value="jdbc:mysql://172.16.1.203:3306/flink_test"/>
+                <property name="username" value="dtstack_xc"/>
+                <property name="password" value="dtstack_xc"/>
             </dataSource>
        </environment>
     </environments>
     <mappers>
-       <mapper resource="mybatis/mapper/RdosActionLogMapping.xml"/>
+       <!--<mapper resource="mybatis/mapper/RdosActionLogMapping.xml"/>-->
        <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
-       <mapper resource="mybatis/mapper/RdosTaskMapping.xml"/>
+       <!--<mapper resource="mybatis/mapper/RdosTaskMapping.xml"/>-->
     </mappers>
 </configuration>
