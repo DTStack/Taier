@@ -50,3 +50,14 @@ CREATE TABLE `rdos_task` (
   UNIQUE KEY `index_name` (`name`),
   KEY `index_task_id` (`task_id`(128),`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `rdos_server_log` (
+  `id` INT(11)  NOT NULL AUTO_INCREMENT,
+  `task_id` VARCHAR(256) COMMENT '任务id',
+  `log_info` MEDIUMTEXT NOT NULL COMMENT '错误信息',
+  `gmt_create` datetime NOT NULL comment '新增时间',
+  `gmt_modified` datetime NOT NULL comment '修改时间',
+  `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_task_id` (`task_id`(128), `is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -2,8 +2,10 @@ package com.dtstack.rdos.engine.entrance.test;
 
 import com.dtstack.rdos.engine.entrance.db.dao.RdosActionLogDAO;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.entrance.db.dao.RdosServerLogDao;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosTaskDAO;
 import com.dtstack.rdos.engine.entrance.db.dataobject.RdosActionLog;
+import com.dtstack.rdos.engine.entrance.db.dataobject.RdosServerLog;
 import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -57,6 +59,16 @@ public class TestDao {
         String taskId = "123";
         String engineId = "123";
         rdosTaskDAO.updateTaskEngineId(taskId, engineId);
+    }
+
+    @Test
+    public void insertSvrLog(){
+        RdosServerLogDao dao = new RdosServerLogDao();
+        String taskId = "first_task";
+        String logInfo = "--------this is a log -------";
+        dao.insertLog(taskId, logInfo);
+        System.out.println("-------over----------");
+
     }
 
 }
