@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.source;
 
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.google.common.base.Preconditions;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSource;
@@ -30,23 +31,20 @@ public class FlinkKafka09SourceGenr implements IStreamSourceGener<StreamTableSou
         Preconditions.checkState(fieldNames.length == fieldTypes.length,
                 "create kafka source : fieldNames length must match fieldTypes length");
 
-        Preconditions.checkNotNull(params.getProperty("bootstrapservers"),
-                "create kafka source need set params of bootstrapservers.");
+        String boostrapSrvs = params.getProperty(PropertyConstant.KAFKA_BOOTSTRAPSERVERS_KEY);
+        Preconditions.checkNotNull(boostrapSrvs, "create kafka source need set params of bootstrapservers.");
 
-        Preconditions.checkNotNull(params.getProperty("offsetreset"),
-                "create kafka source need set params of offsetreset. which value in(latest, earliest)");
+        String offsetReset = params.getProperty(PropertyConstant.KAFKA_OFFSETRESET_KEY);//latest, earliest
+        offsetReset = offsetReset == null ? "latest" : "earliest";
+        Preconditions.checkState(checkOffsetReset(offsetReset), "create kafka source need set params of offsetreset. which value in(latest, earliest)");
 
-        String topicName = (String)params.get("topicname");
+        String topicName = (String)params.get(PropertyConstant.KAFKA_TOPIC_KEY);
         //flink 使用kafka partition assign 方式消费,所以不需要设置consumegroup
         //String groupId = (String) params.get("consumegroup");
-        String boostrapSrvs = (String) params.get("bootstrapservers");
-        Object offsetReset = params.get("offsetreset");//latest, earliest
-
-        offsetReset = offsetReset == null ? "latest" : "earliest";
 
         Properties props = new Properties();
         //props.setProperty("group.id", groupId);
-        props.setProperty("auto.offset.reset", (String) offsetReset);
+        props.setProperty("auto.offset.reset", offsetReset);
         props.setProperty("bootstrap.servers", boostrapSrvs);
 
         TypeInformation[] types = new TypeInformation[fieldTypes.length];
@@ -56,5 +54,14 @@ public class FlinkKafka09SourceGenr implements IStreamSourceGener<StreamTableSou
 
         Kafka09JsonTableSource source = new Kafka09JsonTableSource(topicName, props, fieldNames, types);
         return source;
+    }
+
+    private static boolean checkOffsetReset(String offsetreset){//latest, earliest
+        if(offsetreset.equalsIgnoreCase("latest") ||
+                offsetreset.equalsIgnoreCase("earliest")){
+            return true;
+        }
+
+        return false;
     }
 }

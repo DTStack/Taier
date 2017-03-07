@@ -40,8 +40,9 @@ public class FileUtil {
             if(outFile.exists()){
                 outFile.delete();
             }
-
             Files.createParentDirs(outFile);//如果父目录不存在则创建
+            outFile.createNewFile();
+
             FileOutputStream fout = new FileOutputStream(outFile);
             URL url = new URL(urlStr);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -66,4 +67,5 @@ public class FileUtil {
 
         return true;
     }
+
 }

@@ -25,7 +25,7 @@ public interface IClient {
 
     JobResult submitJobWithJar(Properties properties);
 
-    JobResult submitSqlJob(JobClient jobClient) throws IOException;
+    JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException;
 
     /**
      *  提交的时候先判断下计算资源是否足够,

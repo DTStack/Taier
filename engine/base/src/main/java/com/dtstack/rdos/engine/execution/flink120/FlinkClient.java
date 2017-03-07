@@ -12,6 +12,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -51,6 +52,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String tmpFilePath;
+    public String tmpFileDirPath;
 
     private String jobMgrHost;
 
@@ -139,9 +141,9 @@ public class FlinkClient extends AbsClient {
 
         String jobMgrURL = prop.getProperty(PropertyConstant.FLINK_JOBMGR_URL_KEY);
         String zkNamespace = prop.getProperty(PropertyConstant.FLINK_ZKNAMESPACE_KEY);
-        tmpFilePath = prop.getProperty(PropertyConstant.FILE_TMP_PATH_KEY);
+        tmpFileDirPath = prop.getProperty(PropertyConstant.FILE_TMP_PATH_KEY);
 
-        Preconditions.checkNotNull(tmpFilePath, "you need to set tmp file path for jar download.");
+        Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(jobMgrURL != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
@@ -178,7 +180,7 @@ public class FlinkClient extends AbsClient {
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
 
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFilePath, classpaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.newInstance(true);
             jobResult.setData("errMsg", e.getMessage());
@@ -244,7 +246,7 @@ public class FlinkClient extends AbsClient {
     }
 
 
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException{
+    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
             throw new RdosException("need to set compute type.");
@@ -271,7 +273,7 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException {
+    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException {
 
         StreamExecutionEnvironment env = getStreamExeEnv(jobClient);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
@@ -280,9 +282,23 @@ public class FlinkClient extends AbsClient {
         int currStep = 0;
         ParamsOperator paramsOperator = null;
         List<String> jarPathList = new ArrayList<>();
+        List<URL> jarURList = Lists.newArrayList();
+        URLClassLoader classLoader = null;
 
         for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
+
+            if(operator instanceof AddJarOperator){
+                if(currStep > 0){
+                    throw new RdosException("sql job order setting err. cause of AddJarOperator");
+                }
+
+                AddJarOperator addJarOperator = (AddJarOperator) operator;
+                String addFilePath = addJarOperator.getJarPath();
+                File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
+                jarURList.add(tmpFile.toURI().toURL());
+                jarPathList.add(tmpFile.getAbsolutePath());
+
+            }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
                     throw new RdosException("sql job order setting err. cause of CreateSourceOperator");
                 }
@@ -302,7 +318,14 @@ public class FlinkClient extends AbsClient {
 
                 currStep = 2;
                 CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
-                FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(), tableEnv);
+                //需要把字节码加载进来
+                if(classLoader == null){
+                    classLoader = FlinkUtil.loadJar(jarURList);
+                }
+
+                classLoader.loadClass(tmpOperator.getClassName());
+                FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(),
+                        tableEnv, classLoader);
 
             }else if(operator instanceof ExecutionOperator){
                 if(currStep > 3){
@@ -323,10 +346,6 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof ParamsOperator){
                 paramsOperator = (ParamsOperator) operator;
-
-            }else if(operator instanceof AddJarOperator){
-                AddJarOperator addJarOperator = (AddJarOperator) operator;
-                jarPathList.add(addJarOperator.getJarPath());
 
             }else{
                 throw new RdosException("not support operator of " + operator.getClass().getName());
@@ -445,13 +464,18 @@ public class FlinkClient extends AbsClient {
     private StreamExecutionEnvironment getStreamExeEnv(JobClient jobClient) throws IOException {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
+        boolean setParallelism = false;
 
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof ParamsOperator){
                 ParamsOperator paramsOperator = (ParamsOperator) operator;
                 FlinkUtil.openCheckpoint(env, paramsOperator.getProperties());
-                FlinkUtil.setEnvParallelism(env, paramsOperator.getProperties());
+                setParallelism = FlinkUtil.setEnvParallelism(env, paramsOperator.getProperties());
             }
+        }
+
+        if(!setParallelism){//默认的并行度是1
+            env.setParallelism(1);
         }
 
         return env;

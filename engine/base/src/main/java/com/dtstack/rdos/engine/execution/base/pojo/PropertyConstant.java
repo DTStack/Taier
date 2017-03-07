@@ -48,4 +48,25 @@ public class PropertyConstant {
     public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
 
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
+
+    /**************kafka connect info*****************/
+
+    public static final String KAFKA_BOOTSTRAPSERVERS_KEY = "bootstrapServers";
+
+    public static final String KAFKA_TOPIC_KEY = "topic";
+
+    public static final String KAFKA_OFFSETRESET_KEY = "offsetReset";
+
+    /*************sql connect info**********************/
+
+    public static final String SQL_BATCH_SIZE_KEY = "sqlBatchSize";
+
+    public static final String SQL_DB_URL_KEY = "dbURL";
+
+    public static final String SQL_DB_USERNAME_KEY = "userName";
+
+    public static final String SQL_DB_password_KEY = "password";
+
+    public static final String SQL_DB_tableName_KEY = "tableName";
+
 }

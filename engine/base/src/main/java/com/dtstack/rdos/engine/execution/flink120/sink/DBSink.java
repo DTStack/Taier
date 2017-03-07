@@ -32,8 +32,8 @@ public abstract class DBSink implements StreamTableSink<Row> {
 
     protected String password;
 
-    /**batch 刷新间隔 ms, 默认是1s*/
-    protected int batchInterval = 1000;
+    /**batch 刷新条数间隔, 默认是1*/
+    protected int batchInterval = 1;
 
     protected int[] sqlTypes;
 
@@ -59,7 +59,7 @@ public abstract class DBSink implements StreamTableSink<Row> {
         jdbcFormatBuild.setUsername(userName);
         jdbcFormatBuild.setPassword(password);
         jdbcFormatBuild.setQuery(sql);
-        jdbcFormatBuild.setBatchInterval(batchInterval);//默认5s
+        jdbcFormatBuild.setBatchInterval(batchInterval);
         jdbcFormatBuild.setSqlTypes(sqlTypes);
         JDBCOutputFormat outputFormat = jdbcFormatBuild.finish();
 
@@ -78,7 +78,9 @@ public abstract class DBSink implements StreamTableSink<Row> {
         int[] tmpFieldsType = new int[fieldTypeArray.length];
         for(int i=0; i<fieldTypeArray.length; i++){
             Class fieldType = fieldTypeArray[i];
-            if(fieldType == Long.class){
+            if(fieldType == Integer.class){
+                tmpFieldsType[i] = Types.INTEGER;
+            }else if(fieldType == Long.class){
                 tmpFieldsType[i] = Types.BIGINT;
             }else if(fieldType == Byte.class){
                 tmpFieldsType[i] = Types.TINYINT;
@@ -86,6 +88,8 @@ public abstract class DBSink implements StreamTableSink<Row> {
                 tmpFieldsType[i] = Types.SMALLINT;
             }else if(fieldType == String.class){
                 tmpFieldsType[i] = Types.CHAR;
+            }else if(fieldType == Byte.class){
+                tmpFieldsType[i] = Types.BINARY;
             }else if(fieldType == Float.class || fieldType == Double.class){
                 tmpFieldsType[i] = Types.DOUBLE;
             }else{
@@ -97,7 +101,7 @@ public abstract class DBSink implements StreamTableSink<Row> {
     }
 
     /**
-     * 设置提交更新的频率---默认是1s,单位是ms
+     * 设置提交更新的频率---默认每次都提交
      * @param batchInterval
      */
     public void setBatchInterval(int batchInterval) {

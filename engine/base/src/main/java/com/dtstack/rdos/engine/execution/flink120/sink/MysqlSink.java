@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink120.sink;
 
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.google.common.base.Preconditions;
 
 import java.util.Properties;
@@ -17,26 +18,27 @@ public class MysqlSink extends DBSink {
 
     public MysqlSink(CreateResultOperator operator){
         Properties properties = operator.getProperties();
-        String tmpDbURL = Preconditions.checkNotNull(properties.getProperty("dbURL"),
+        String tmpDbURL = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_URL_KEY),
                 "dbURL must not be null");
-        String tmpUserName = Preconditions.checkNotNull(properties.getProperty("userName"),
+        String tmpUserName = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_USERNAME_KEY),
                 "userName must not be null");
-        String tmpPassword = Preconditions.checkNotNull(properties.getProperty("password"),
+        String tmpPassword = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_password_KEY),
                 "password must not be null");
-        String tmpTableName = Preconditions.checkNotNull(properties.getProperty("tableName"),
+        String tmpTableName = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_tableName_KEY),
                 "tableName must not be null");
 
-        init(tmpDbURL, tmpUserName, tmpPassword, tmpTableName, operator.getFields(), operator.getFieldTypes());
-    }
+        Object tmpSqlBatchSize = properties.get(PropertyConstant.SQL_BATCH_SIZE_KEY);
+        if(tmpSqlBatchSize != null){
+            setBatchInterval((Integer) tmpSqlBatchSize);
+        }
 
-    public void init(String dburl, String userName, String pwd, String tableName, String[] fields, Class<?>[] fieldTypeArray){
-        this.driverName = "mysql.driver";
-        this.dbURL = dburl;
-        this.userName = userName;
-        this.password = pwd;
-        this.tableName = tableName;
-        buildSql(tableName, fields);
-        buildSqlTypes(fieldTypeArray);
+        this.driverName = "com.mysql.jdbc.Driver";
+        this.dbURL = tmpDbURL;
+        this.userName = tmpUserName;
+        this.password = tmpPassword;
+        this.tableName = tmpTableName;
+        buildSql(tableName, operator.getFields());
+        buildSqlTypes(operator.getFieldTypes());
     }
 
     @Override
@@ -50,8 +52,8 @@ public class MysqlSink extends DBSink {
             placeholder += ",?";
         }
 
-        fieldsStr.replaceFirst(",", "");
-        placeholder.replaceFirst(",", "");
+        fieldsStr = fieldsStr.replaceFirst(",", "");
+        placeholder = placeholder.replaceFirst(",", "");
 
         sqlTmp = sqlTmp.replace("${fields}", fieldsStr).replace("${placeholder}", placeholder);
         this.sql = sqlTmp;

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Properties;
 
@@ -134,7 +135,7 @@ public class FlinkUtil {
     }
 
     public static String getTmpFileName(String fileUrl, String toPath){
-        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE));
+        String name = fileUrl.substring(fileUrl.lastIndexOf(URL_SPLITE) + 1);
         String tmpFileName = toPath  + fileSP + name;
         return tmpFileName;
     }
@@ -161,11 +162,12 @@ public class FlinkUtil {
      * TABLE|SCALA
      * 注册UDF到table env
      */
-    public static void registerUDF(String type, String classPath, String funcName, StreamTableEnvironment tableEnv){
-        if("TABLE".equalsIgnoreCase(type)){
-            registerScalaUDF(classPath, funcName, tableEnv);
-        }else if("SCALA".equalsIgnoreCase(type)){
-            registerTableUDF(classPath, funcName, tableEnv);
+    public static void registerUDF(String type, String classPath, String funcName, StreamTableEnvironment tableEnv,
+                                   ClassLoader classLoader){
+        if("SCALA".equalsIgnoreCase(type)){
+            registerScalaUDF(classPath, funcName, tableEnv, classLoader);
+        }else if("TABLE".equalsIgnoreCase(type)){
+            registerTableUDF(classPath, funcName, tableEnv, classLoader);
         }else{
             throw new RdosException("not support of UDF which is not in (TABLE, SCALA)");
         }
@@ -178,9 +180,10 @@ public class FlinkUtil {
      * @param funcName
      * @param tableEnv
      */
-    public static void registerScalaUDF(String classPath, String funcName, StreamTableEnvironment tableEnv){
+    public static void registerScalaUDF(String classPath, String funcName, StreamTableEnvironment tableEnv,
+                                        ClassLoader classLoader){
         try{
-            ScalarFunction udfFunc = Class.forName(classPath)
+            ScalarFunction udfFunc = Class.forName(classPath, false, classLoader)
                     .asSubclass(ScalarFunction.class).newInstance();
             tableEnv.registerFunction(funcName, udfFunc);
             logger.info("register scala function:{} success.", funcName);
@@ -196,10 +199,11 @@ public class FlinkUtil {
      * @param funcName
      * @param tableEnv
      */
-    public static void registerTableUDF(String classPath, String funcName, StreamTableEnvironment tableEnv){
+    public static void registerTableUDF(String classPath, String funcName, StreamTableEnvironment tableEnv,
+                                        ClassLoader classLoader){
 
         try {
-            TableFunction udfFunc = Class.forName(classPath)
+            TableFunction udfFunc = Class.forName(classPath, false, classLoader)
                     .asSubclass(TableFunction.class).newInstance();
             tableEnv.registerFunction(funcName, udfFunc);
             logger.info("register table function:{} success.", funcName);
@@ -243,17 +247,41 @@ public class FlinkUtil {
      * @param env
      * @param properties
      */
-    public static void setEnvParallelism(StreamExecutionEnvironment env, Properties properties){
+    public static boolean setEnvParallelism(StreamExecutionEnvironment env, Properties properties){
 
         if(env == null || properties == null){
-            return;
+            return false;
         }
 
         String parallelismStr = properties.getProperty("parallelism");
         if(parallelismStr != null){
             Integer parallelism = Integer.valueOf(parallelismStr);
             env.setParallelism(parallelism);
+            return true;
         }
 
+        return false;
+    }
+
+    public static URLClassLoader loadJar(List<URL> jarURLList){
+
+        int size = 0;
+        for(URL url : jarURLList){
+            if(url.toString().endsWith(".jar")){
+                size++;
+            }
+        }
+
+        URL[] urlArray = new URL[size];
+        int i=0;
+        for(URL url : jarURLList){
+            if(url.toString().endsWith(".jar")){
+                urlArray[i] = url;
+                i++;
+            }
+        }
+
+        URLClassLoader classLoader = new URLClassLoader(urlArray);
+        return classLoader;
     }
 }

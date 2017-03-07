@@ -96,7 +96,7 @@ public class JobClient {
 	}
 	
 	public void addOperators(List<Operator> operators){
-        operators.addAll(operators);
+        this.operators.addAll(operators);
     }
 
 	public void addOperator(Operator operator){

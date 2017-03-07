@@ -46,13 +46,7 @@ public class SubmitTest {
     @Test
     public void submitSql(){
 
-        Map<String, Object> prop = new HashMap<>();
-        prop.put("slots", 2);
-        prop.put("engineZkAddress", "172.16.1.151:2181");
-        prop.put("jarTmpDir", "D:\\tmp");
 
-        SubmitContainer submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, prop);
-        submitContainer.start();
 
     }
 
