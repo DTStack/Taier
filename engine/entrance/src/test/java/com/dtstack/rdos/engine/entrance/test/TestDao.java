@@ -1,6 +1,10 @@
 package com.dtstack.rdos.engine.entrance.test;
 
+import com.dtstack.rdos.engine.entrance.db.dao.RdosActionLogDAO;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.entrance.db.dao.RdosTaskDAO;
+import com.dtstack.rdos.engine.entrance.db.dataobject.RdosActionLog;
+import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +22,7 @@ public class TestDao {
     private Logger logger = LoggerFactory.getLogger(TestDao.class);
 
     @Test
-    public void testRdosNodeMachineMapping(){
+    public void testRdosNodeMachineInsert(){
 
         logger.info("111");
         RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
@@ -28,4 +32,31 @@ public class TestDao {
         rdosNodeMachineDAO.insert(ip, port, machineType);
         System.out.println("-----------over--------");
     }
+
+    @Test
+    public void testRdosActionLogUpdate(){
+        RdosActionLogDAO rdosActionLogDAO = new RdosActionLogDAO();
+        String actionLogId = "123";
+        int status = 1;
+        rdosActionLogDAO.updateActionStatus(actionLogId, status);
+        System.out.println("-----------over--------");
+    }
+
+    @Test
+    public void testUpdateTaskStatus(){
+        RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+        String taskId = "123";
+        int status = 1;
+        rdosTaskDAO.updateTaskStatus(taskId, status);
+        System.out.println("-----------over--------");
+    }
+
+    @Test
+    public void testUpdateTaskEngine(){
+        RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+        String taskId = "123";
+        String engineId = "123";
+        rdosTaskDAO.updateTaskEngineId(taskId, engineId);
+    }
+
 }

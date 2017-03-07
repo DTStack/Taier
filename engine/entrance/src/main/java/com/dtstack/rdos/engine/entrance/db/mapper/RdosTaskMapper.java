@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.entrance.db.mapper;
 
+import org.apache.ibatis.annotations.Param;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -10,8 +12,8 @@ package com.dtstack.rdos.engine.entrance.db.mapper;
  */
 public interface RdosTaskMapper {
 	
-	public void updateTaskStatus(String taskId,byte stauts);
+	public void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 	
-	public void updateTaskEngineId(String taskId,String engineId);
+	public void updateTaskEngineId(@Param("taskId") String taskId,@Param("engineId") String engineId);
 
 }

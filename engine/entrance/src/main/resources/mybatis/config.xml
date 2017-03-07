@@ -32,8 +32,8 @@
        </environment>
     </environments>
     <mappers>
-       <!--<mapper resource="mybatis/mapper/RdosActionLogMapping.xml"/>-->
+       <mapper resource="mybatis/mapper/RdosActionLogMapping.xml"/>
        <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
-       <!--<mapper resource="mybatis/mapper/RdosTaskMapping.xml"/>-->
+       <mapper resource="mybatis/mapper/RdosTaskMapping.xml"/>
     </mappers>
 </configuration>
