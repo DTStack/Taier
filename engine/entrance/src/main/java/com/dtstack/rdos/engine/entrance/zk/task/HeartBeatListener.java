@@ -2,10 +2,14 @@ package com.dtstack.rdos.engine.entrance.zk.task;
 
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.entrance.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.google.common.collect.Maps;
@@ -22,16 +26,17 @@ public class HeartBeatListener implements Runnable{
 	
 	private static final Logger logger = LoggerFactory.getLogger(HeartBeatListener.class);
 	
-	private ZkDistributed zkDistributed;
+	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
 	private final static int HEATBEATCHECK = 2000;
 	
 	private final static int EXCEEDCOUNT = 3;
 	
 	private MasterListener masterListener;
+	
+	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
 
-	public HeartBeatListener(ZkDistributed zkDistributed,MasterListener masterListener){
-		this.zkDistributed = zkDistributed;
+	public HeartBeatListener(MasterListener masterListener){
 		this.masterListener = masterListener;
 	}
 	
@@ -74,8 +79,9 @@ public class HeartBeatListener implements Runnable{
 					}
 					if(brokerNodeCount.getCount() > EXCEEDCOUNT){//node died
 						BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
-					    this.zkDistributed.updateSynchronizedLocalBrokerHeartNode(disableBrokerHeartNode, false);
-						this.brokerNodeCounts.remove(node);
+					    this.zkDistributed.updateSynchronizedLocalBrokerHeartNode(node,disableBrokerHeartNode, false);
+					    rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
+					    this.brokerNodeCounts.remove(node);
 					}else{
 						brokerNodeCount.setBrokerHeartNode(brokerNode);
 						this.brokerNodeCounts.put(node, brokerNodeCount);

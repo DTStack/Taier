@@ -42,4 +42,18 @@ public class RdosTaskDAO {
 			}
 		});
 	}
+	
+	
+	public void updateTaskEngineIdAndStatus(final String taskId,final String engineId,int status){
+		
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+
+			@Override
+			public void execute(SqlSession sqlSession) throws Exception {
+				// TODO Auto-generated method stub
+				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
+				rdosTaskMapper.updateTaskEngineId(taskId, engineId);
+			}
+		});
+	}
 }

@@ -23,12 +23,8 @@ public class HeartBeat implements Runnable{
 
 	private final static int HEATBEAT = 1000;
 	
-	private ZkDistributed zkDistributed;
+	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
-	public HeartBeat(ZkDistributed zkDistributed){
-		this.zkDistributed  = zkDistributed;
-	}
-
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -39,7 +35,7 @@ public class HeartBeat implements Runnable{
 				BrokerHeartNode brokerHeartNode = BrokerHeartNode.initBrokerHeartNode();
 				brokerHeartNode.setSeq(1l);
 				brokerHeartNode.setAlive(true);
-				zkDistributed.updateSynchronizedLocalBrokerHeartNode(brokerHeartNode,false);
+				zkDistributed.updateSynchronizedLocalBrokerHeartNode(zkDistributed.getLocalAddress(),brokerHeartNode,false);
 				if(PublicUtil.count(index, 10))logger.warn("HeartBeat start again...");
 				Thread.sleep(HEATBEAT);
 			}

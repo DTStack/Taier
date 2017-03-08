@@ -14,6 +14,7 @@ public interface RdosNodeMachineMapper {
 	
 	public void insert(RdosNodeMachine rdosNodeMachine);
 	
-	public void deleteUnavaiableMasterNode();
+    public void updateMachineType(RdosNodeMachine rdosNodeMachine);
 
+	public void disableMachineNode(RdosNodeMachine rdosNodeMachine);
 }

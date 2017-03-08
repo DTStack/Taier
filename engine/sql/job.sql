@@ -24,7 +24,7 @@ CREATE TABLE `rdos_node_machine` (
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',
   PRIMARY KEY (`id`),
-  KEY `index_machine_type` (`machine_type`)
+  UNIQUE KEY `index_machine` (`ip`,`port`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

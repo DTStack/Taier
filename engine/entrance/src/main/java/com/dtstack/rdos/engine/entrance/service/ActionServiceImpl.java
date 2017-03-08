@@ -32,7 +32,7 @@ public class ActionServiceImpl{
 		if(paramAction.getRequestStart()==RequestStart.NODE.getStart()||zkDistributed.getLocalAddress().equals(address)){
 			BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
 			brokerDataNode.getMetas().put(paramAction.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
-			zkDistributed.updateSynchronizedLocalBrokerDatalock(brokerDataNode, false);
+			zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
 			zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
 			new JobClient(SqlParser.parser(paramAction)).submit();
 		}else{

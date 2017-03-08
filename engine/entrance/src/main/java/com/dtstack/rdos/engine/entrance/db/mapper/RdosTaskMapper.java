@@ -14,6 +14,8 @@ public interface RdosTaskMapper {
 	
 	public void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 	
+	public void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("status") int stauts);
+
 	public void updateTaskEngineId(@Param("taskId") String taskId,@Param("engineId") String engineId);
 
 }

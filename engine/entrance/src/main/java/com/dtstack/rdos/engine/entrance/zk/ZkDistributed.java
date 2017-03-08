@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.entrance.zk;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,9 +15,17 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.entrance.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
+import com.dtstack.rdos.engine.entrance.zk.task.AllTaskStatusListener;
+import com.dtstack.rdos.engine.entrance.zk.task.HeartBeat;
+import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
+import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
+import com.dtstack.rdos.engine.entrance.zk.task.RdosTaskStatusTaskListener;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;
@@ -67,7 +76,9 @@ public class ZkDistributed {
 
 	private InterProcessMutex brokerHeartLock;
 
-	private ExecutorService executors  = Executors.newFixedThreadPool(5);
+	private ExecutorService executors  = Executors.newFixedThreadPool(6);
+	
+	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
 
 	
 	private ZkDistributed(Map<String,Object> nodeConfig) throws Exception {
@@ -106,14 +117,23 @@ public class ZkDistributed {
 		createLocalBrokerHeartNode();
 		createLocalBrokerDataNode();
 		initMemTaskStatus();
+		registrationDB();
 		setMaster();
 		initScheduledExecutorService();
 	}
 	
 	private void initScheduledExecutorService() {
-	
+		MasterListener masterListener = new MasterListener();
+		executors.execute(new HeartBeat());
+		executors.execute(new MasterListener());
+		executors.execute(new HeartBeatListener(masterListener));
+		executors.execute(new RdosTaskStatusTaskListener());
+		executors.execute(new AllTaskStatusListener());
 	}
 	
+	private void registrationDB(){
+		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType());
+	}
 	
 	private void createLocalBrokerHeartNode() throws Exception{
 		String node = String.format("%s/%s", this.localNode,heartNode);
@@ -121,7 +141,7 @@ public class ZkDistributed {
 			zkClient.create().forPath(node,
 					objectMapper.writeValueAsBytes(BrokerHeartNode.initBrokerHeartNode()));
 		}else{
-			updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode.initBrokerHeartNode(),true);
+			updateSynchronizedLocalBrokerHeartNode(this.localAddress,BrokerHeartNode.initBrokerHeartNode(),true);
 		}
 	}
 	private void createLocalBrokerDataNode() throws Exception{
@@ -130,12 +150,12 @@ public class ZkDistributed {
 			zkClient.create().forPath(nodePath,
 					objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
 		}else{
-			updateSynchronizedLocalBrokerDatalock(BrokerDataNode.initBrokerDataNode(),true);
+			updateSynchronizedBrokerData(this.localAddress,BrokerDataNode.initBrokerDataNode(),true);
 		}
 	}
 	
-	public void updateSynchronizedLocalBrokerHeartNode(BrokerHeartNode source,boolean isCover){
-		String nodePath = String.format("%s/%s", this.localNode,heartNode);
+	public void updateSynchronizedLocalBrokerHeartNode(String localAddress,BrokerHeartNode source,boolean isCover){
+		String nodePath = String.format("%s/%s/%s", brokersNode,localAddress,heartNode);
 		try {
 			this.brokerHeartLock.acquire(30, TimeUnit.SECONDS);
 			BrokerHeartNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerHeartNode.class);
@@ -155,8 +175,8 @@ public class ZkDistributed {
 		}
 	}
 		
-	public void updateSynchronizedLocalBrokerDatalock(BrokerDataNode source,boolean isCover){
-		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
+	public void updateSynchronizedBrokerData(String localAddress,BrokerDataNode source,boolean isCover){
+		String nodePath = String.format("%s/%s/%s",this.brokersNode,this.localAddress,metaDataNode);
 		try {
 			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
 			BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
@@ -175,6 +195,36 @@ public class ZkDistributed {
 			}
 		}
 	}
+	
+	
+	public void updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(String taskId,Integer status){
+		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
+		try {
+			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
+			BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
+			Map<String,Byte> datas = target.getMetas();
+			datas.put(taskId, status.byteValue());
+			Iterator<String> keys = datas.keySet().iterator();
+			while(keys.hasNext()){
+				String key = keys.next();
+				if(RdosTaskStatus.needClean(datas.get(key))){
+					datas.remove(key);
+				}
+			}
+			zkClient.setData().forPath(nodePath,objectMapper.writeValueAsBytes(target));
+		} catch (Exception e) {
+			logger.error("{}:updateSynchronizedLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
+					ExceptionUtil.getErrorMessage(e));
+		} finally{
+			try {
+				if (this.brokerDataLock.isAcquiredInThisProcess()) this.brokerDataLock.release();
+			} catch (Exception e) {
+				logger.error("{}:updateSynchronizedLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
+						ExceptionUtil.getErrorMessage(e));
+			}
+		}
+	}
+	
 	
 	private void initNeedLock(){
 		this.masterlock = createDistributeLock(String.format(
@@ -202,6 +252,10 @@ public class ZkDistributed {
 				brokersNode.setMaster(this.localAddress);
 				this.zkClient.setData().forPath(this.brokersNode,
 						objectMapper.writeValueAsBytes(brokersNode));
+				rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
+				if(StringUtils.isNotBlank(master)){
+					rdosNodeMachineDAO.updateMachineType(master, RdosNodeMachineType.SLAVE.getType());
+				}
 				flag = true;
 			}
 		} catch (Exception e) {
@@ -209,6 +263,7 @@ public class ZkDistributed {
 		}
 		return flag;
 	}
+	
 	
 	public String isHaveMaster() throws Exception {
 		byte[] data = this.zkClient.getData().forPath(this.brokersNode);
@@ -227,6 +282,8 @@ public class ZkDistributed {
 				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
 				if(brokerHeartNode.getAlive()){
 					memTaskStatus.put(broker, getBrokerDataNode(broker));
+				}else{
+					memTaskStatus.remove(broker);
 				}
 			}
 		}

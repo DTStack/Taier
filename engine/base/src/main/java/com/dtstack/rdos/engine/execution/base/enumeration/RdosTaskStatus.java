@@ -30,4 +30,12 @@ public enum RdosTaskStatus {
     public static RdosTaskStatus getTaskStatus(String taskStatus){
 	   return RdosTaskStatus.valueOf(taskStatus);
     }
+    
+    public static boolean needClean(Byte status){
+        int sta = status.intValue(); 
+       if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.CANCELED.status||sta==RdosTaskStatus.FAILED.status){
+    	   return true;
+       }   
+    	return false;
+    }
 }
