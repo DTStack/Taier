@@ -69,4 +69,6 @@ public class PropertyConstant {
 
     public static final String SQL_DB_tableName_KEY = "tableName";
 
+    public static final String SQL_DB_SINK_PARALLELISM_KEY = "dbSinkParallelism";
+
 }

@@ -4,6 +4,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.functions.sink.OutputFormatSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.table.sinks.StreamTableSink;
@@ -44,6 +45,8 @@ public abstract class DBSink implements StreamTableSink<Row> {
     protected String[] fieldNames;
 
     private TypeInformation[] fieldTypes;
+
+    private int parallelism = -1;
 
     public RichSinkFunction createJdbcSinkFunc(){
 
@@ -108,10 +111,17 @@ public abstract class DBSink implements StreamTableSink<Row> {
         this.batchInterval = batchInterval;
     }
 
+    public void setParallelism(int parallelism){
+        this.parallelism = parallelism;
+    }
+
     @Override
     public void emitDataStream(DataStream<Row> dataStream) {
         RichSinkFunction richSinkFunction = createJdbcSinkFunc();
-        dataStream.addSink(richSinkFunction);
+        DataStreamSink dataStreamSink = dataStream.addSink(richSinkFunction);
+        if(parallelism > 0){
+            dataStreamSink.setParallelism(parallelism);
+        }
     }
 
     @Override

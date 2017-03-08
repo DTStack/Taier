@@ -1,11 +1,13 @@
 package com.dtstack.rdos.engine.execution.flink120.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.base.util.FileUtil;
 import com.dtstack.rdos.engine.execution.flink120.sink.DBSink;
+import com.dtstack.rdos.engine.execution.flink120.sink.KafkaCustomPartitioner;
 import com.dtstack.rdos.engine.execution.flink120.sink.MysqlSink;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.FlinkKafka09SourceGenr;
@@ -17,10 +19,15 @@ import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
+import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
+import org.apache.flink.table.sinks.CsvTableSink;
+import org.apache.flink.table.sinks.TableSink;
+import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,28 +223,46 @@ public class FlinkUtil {
     /**
      * 根据指定的类型构造数据源
      * 当前只支持kafka09
-     * @param sourceType
+     * @param sourceTypeStr
      * @return
      */
-    public static IStreamSourceGener getStreamSourceGener(ESourceType sourceType){
+    public static IStreamSourceGener getStreamSourceGener(String sourceTypeStr){
+
+        ESourceType sourceType = ESourceType.getSourceType(sourceTypeStr);
+
         switch (sourceType){
             case KAFKA09:
                 return new FlinkKafka09SourceGenr();
         }
 
-        throw new RdosException("not support for flink stream source type " + sourceType);
+        throw new RdosException("not support for flink stream source type: " + sourceTypeStr);
     }
 
 
     public static void writeToSink(CreateResultOperator resultOperator, Table table){
 
         String resultType = resultOperator.getType();
-        if("mysql".equalsIgnoreCase(resultType)){
-            DBSink jdbcInfo = new MysqlSink(resultOperator);
-            table.writeToSink(jdbcInfo);
-        }else{
-            throw new RdosException("not support type:" + resultType + " for sink!!!");
+        ESinkType sinkType = ESinkType.getSinkType(resultType);
+
+        switch (sinkType){
+            case MYSQL:
+                DBSink jdbcInfo = new MysqlSink(resultOperator);
+                table.writeToSink(jdbcInfo);
+                return;
+
+            case CSV://FIXME 未测试
+                String path = resultOperator.getProperties().getProperty("csvPath");
+                String delim = resultOperator.getProperties().getProperty("csvDelim", "|");
+                TableSink csvSink = new CsvTableSink(path, delim);
+                table.writeToSink(csvSink);
+                return;
+
+            case KAFKA09://FIXME 未测试
+                Kafka09JsonTableSink kafka09Sink = createKafka09JsonTableSink(resultOperator.getProperties());
+                table.writeToSink(kafka09Sink);
         }
+
+        throw new RdosException("not support sink type:" + resultType + "!!!");
     }
 
     /**
@@ -283,5 +308,16 @@ public class FlinkUtil {
 
         URLClassLoader classLoader = new URLClassLoader(urlArray);
         return classLoader;
+    }
+
+    public static Kafka09JsonTableSink createKafka09JsonTableSink(Properties properties){
+        String topic = properties.getProperty("topic");
+        String bootstrapSvrs = properties.getProperty("bootstrapServers");
+        KafkaPartitioner<Row> partitioner = new KafkaCustomPartitioner();
+
+        Properties kafkaProps = new Properties();
+        kafkaProps.put("bootstrap.servers", bootstrapSvrs);
+        Kafka09JsonTableSink tableSink = new Kafka09JsonTableSink(topic, properties, partitioner);
+        return  tableSink;
     }
 }
