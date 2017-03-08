@@ -305,8 +305,7 @@ public class FlinkClient extends AbsClient {
 
                 currStep = 1;
                 CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                ESourceType sourceType = ESourceType.getSourceType(sourceOperator.getType());
-                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(sourceType);
+                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(sourceOperator.getType());
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
                         (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
                 tableEnv.registerTableSource(sourceOperator.getName(), tableSource);

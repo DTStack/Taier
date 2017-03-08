@@ -32,6 +32,11 @@ public class MysqlSink extends DBSink {
             setBatchInterval((Integer) tmpSqlBatchSize);
         }
 
+        Object tmpSinkParallelism = properties.get(PropertyConstant.SQL_DB_SINK_PARALLELISM_KEY);
+        if(tmpSinkParallelism != null){
+            setParallelism((Integer) tmpSinkParallelism);
+        }
+
         this.driverName = "com.mysql.jdbc.Driver";
         this.dbURL = tmpDbURL;
         this.userName = tmpUserName;
