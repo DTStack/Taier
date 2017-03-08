@@ -27,6 +27,6 @@
    </update>
    
    <update id="updateTaskEngineId" parameterType="java.util.HashMap">
-	   update rdos_task set gmt_modified=now(),engine_task_id=#{engineTaskId} where task_id=#{taskId};
+	   update rdos_task set gmt_modified=now(),engine_task_id=#{engineId} where task_id=#{taskId};
    </update>
 </mapper>

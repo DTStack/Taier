@@ -16,7 +16,7 @@ import com.dtstack.rdos.engine.entrance.db.mapper.RdosActionLogMapper;
  */
 public class RdosActionLogDAO {
 
-	  public void updateActionStatus(final String actionLogId,final byte status){
+	  public void updateActionStatus(final String actionLogId,final int status){
 		  MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override

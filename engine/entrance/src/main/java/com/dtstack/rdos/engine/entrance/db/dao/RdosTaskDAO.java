@@ -16,7 +16,7 @@ import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
  */
 public class RdosTaskDAO {
 	
-	public void updateTaskStatus(final String taskId,final byte stauts){
+	public void updateTaskStatus(final String taskId,final int stauts){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 

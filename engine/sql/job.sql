@@ -10,10 +10,10 @@ CREATE TABLE `rdos_action_log` (
   `tenant_id` int(11) NOT NULL comment '租户id',
   `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
-  KEY `index_create_time` (`create_time`),
+  KEY `index_create_time` (`gmt_create`),
   KEY `index_task_id` (`task_id`,`is_deleted`),
   KEY `index_tenant_id` (`tenant_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `rdos_node_machine` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -24,8 +24,8 @@ CREATE TABLE `rdos_node_machine` (
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',
   PRIMARY KEY (`id`),
-  KEY `index_machine_type` (`machine_type`),
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+  KEY `index_machine_type` (`machine_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE `rdos_task` (
@@ -48,5 +48,16 @@ CREATE TABLE `rdos_task` (
   `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_name` (`name`),
-  KEY `index_task_id` (`task_id`,`is_deleted`),
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+  KEY `index_task_id` (`task_id`(128),`is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `rdos_server_log` (
+  `id` INT(11)  NOT NULL AUTO_INCREMENT,
+  `task_id` VARCHAR(256) COMMENT '任务id',
+  `log_info` MEDIUMTEXT NOT NULL COMMENT '错误信息',
+  `gmt_create` datetime NOT NULL comment '新增时间',
+  `gmt_modified` datetime NOT NULL comment '修改时间',
+  `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_task_id` (`task_id`(128), `is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

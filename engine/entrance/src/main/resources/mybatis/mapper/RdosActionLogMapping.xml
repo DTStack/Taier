@@ -10,7 +10,7 @@
     <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
     
-    <update id="updateActionStatus" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosActionLog">
-	   update rdos_action_log set gmt_modified=now(),status=#{status} where action_log_id=#{actionLogId};
+    <update id="updateActionStatus">
+	   update rdos_action_log set gmt_modified=now(),status=#{status} where task_id=#{actionLogId};
 	</update>
 </mapper>
