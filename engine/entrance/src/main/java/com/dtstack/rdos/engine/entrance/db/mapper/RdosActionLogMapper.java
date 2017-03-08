@@ -12,6 +12,6 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface RdosActionLogMapper {
 	
-  public void updateActionStatus(@Param("actionLogId")String actionLogId, @Param("status") int status);
+  public void updateActionStatus(@Param("actionLogId")Long actionLogId, @Param("status") int status);
 
 }

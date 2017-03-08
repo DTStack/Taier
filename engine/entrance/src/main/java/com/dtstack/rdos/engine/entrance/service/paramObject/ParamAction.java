@@ -25,6 +25,19 @@ public class ParamAction {
 	private String sqlText;
 	
 	private String taskParams;
+
+	private Long actionLogId;
+
+
+	public void setActionLogId(Long actionLogId){
+		this.actionLogId = actionLogId;
+	}
+
+
+	public Long getActionLogId(){
+		return this.actionLogId;
+	}
+
 	
 	/**
 	 * 0 是有web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择

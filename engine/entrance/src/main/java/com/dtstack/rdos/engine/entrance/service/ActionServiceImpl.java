@@ -5,6 +5,8 @@ import java.util.Map;
 import com.dtstack.rdos.common.util.HttpClient;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.common.util.UrlUtil;
+import com.dtstack.rdos.engine.entrance.db.dao.RdosActionLogDAO;
+import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.http.Urls;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
@@ -25,6 +27,8 @@ import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 public class ActionServiceImpl{
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+
+	private RdosActionLogDAO rdosActionLogDAO = new RdosActionLogDAO();
 	
 	public void start(Map<String,Object> params) throws Exception{
 		ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
@@ -44,5 +48,6 @@ public class ActionServiceImpl{
 	public void stop(Map<String,Object> params) throws Exception{
 		ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
 		JobClient.stop(paramAction.getEngineTaskId());
+		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 	}
 }
