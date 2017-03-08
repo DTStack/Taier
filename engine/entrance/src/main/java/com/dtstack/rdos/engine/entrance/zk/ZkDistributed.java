@@ -220,11 +220,14 @@ public class ZkDistributed {
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
 	
-	public  void initMemTaskStatus(){
+	public void initMemTaskStatus(){
 		synchronized(memTaskStatus){
 			List<String> brokers = getBrokersChildren();
 			for(String broker:brokers){
-				memTaskStatus.put(broker, getBrokerDataNode(broker));
+				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
+				if(brokerHeartNode.getAlive()){
+					memTaskStatus.put(broker, getBrokerDataNode(broker));
+				}
 			}
 		}
 	}

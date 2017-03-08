@@ -1,15 +1,14 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.google.common.collect.Maps;
 
 /**
  * 
@@ -21,14 +20,23 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
  */
 public class RdosTaskStatusTaskListener implements Runnable{
 	
-	private static Logger looger = LoggerFactory.getLogger(RdosTaskStatusTaskListener.class);
+	private static Logger logger = LoggerFactory.getLogger(RdosTaskStatusTaskListener.class);
 	
 	private LinkedBlockingQueue<JobClient> queue = new LinkedBlockingQueue<JobClient>();
 	
-	private ZkDistributed zkDistributed =ZkDistributed.getZkDistributed();
+	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+	
+	private Map<String,String> taskIdToEngineTaskId = Maps.newHashMap();
+	
+	private static long listener = 1000;
+	
+    private synchronized void addTaskIdToEngineTaskId(String key,String value){
+    	taskIdToEngineTaskId.put(key, value);
+    }
 	
 	public RdosTaskStatusTaskListener(){
 		JobClient.setQueue(queue);
+		new Thread(new TaskStatusTaskListener()).start();
 	}
 
 	@Override
@@ -37,9 +45,26 @@ public class RdosTaskStatusTaskListener implements Runnable{
 		while(true){
 			try {
 				JobClient jobClient  = queue.take();
+				logger.warn("{}:{} addTaskIdToEngineTaskId...",jobClient.getTaskId(),jobClient.getEngineTaskId());
+				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
+					addTaskIdToEngineTaskId(jobClient.getTaskId(),jobClient.getEngineTaskId());
+				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				looger.error("RdosTaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
+				logger.error("RdosTaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
+			}
+		}
+	}
+	
+	private class TaskStatusTaskListener implements Runnable{
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			try{
+				Thread.sleep(listener);
+				
+			}catch(Exception e){
+				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
 			}
 		}
 	}
