@@ -20,10 +20,11 @@ public class RdosActionLogDAO {
 		  MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override
-			public void execute(SqlSession sqlSession) throws Exception {
+			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
 				RdosActionLogMapper rdosActionLogMapper = sqlSession.getMapper(RdosActionLogMapper.class);
 				rdosActionLogMapper.updateActionStatus(actionLogId, status);
+				return null;
 			}
 		  }); 
 	  }

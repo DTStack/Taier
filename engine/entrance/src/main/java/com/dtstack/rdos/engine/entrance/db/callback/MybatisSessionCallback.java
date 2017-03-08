@@ -12,5 +12,5 @@ import org.apache.ibatis.session.SqlSession;
  */
 public interface MybatisSessionCallback {
 
-	void execute(SqlSession sqlSession) throws Exception;
+	Object execute(SqlSession sqlSession) throws Exception;
 }

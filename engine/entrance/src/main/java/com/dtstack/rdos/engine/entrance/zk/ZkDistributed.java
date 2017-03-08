@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.entrance.zk;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
 import com.dtstack.rdos.engine.entrance.zk.task.RdosTaskStatusTaskListener;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
@@ -382,8 +385,103 @@ public class ZkDistributed {
 		return localAddress;
 	}
 
+	public Map<String,BrokerDataNode> getMemTaskStatus(){
+		return memTaskStatus;
+	}
+	
 	public void release() {
 		// TODO Auto-generated method stub
+		disableBrokerHeartNode(this.localAddress);
+		executors.shutdown();
 	}
 
+	public void disableBrokerHeartNode(String localAddress){
+		BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
+		this.zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, false);
+	    this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
+	}
+	
+	public void dataMigration(String nodeAddress) {
+		// TODO Auto-generated method stub
+		try {
+			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
+			Map<String,Byte> datas = cleanNoNeed(nodeAddress);
+			if(datas.size() >0){
+				int total = datas.size();
+				Map<String,Map<String,Byte>> others = Maps.newConcurrentMap();
+				List<String> brokers = getBrokersChildren();
+				for(String broker:brokers){
+					BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
+					if(brokerHeartNode.getAlive()&&!nodeAddress.equals(broker)){
+						Map<String,Byte> bbs = cleanNoNeed(broker);
+						others.put(broker, bbs);
+						total = bbs.size() + total;
+					}
+				}
+				int a = total/others.size();
+				List<Map.Entry<String,Map<String,Byte>>> otherList = Lists.newArrayList();
+				A:for(Map.Entry<String,Map<String,Byte>> other:others.entrySet()){
+					otherList.add(other);
+					int index = 0;
+					int c = other.getValue().size();
+					if(c < a){
+						B:for(Map.Entry<String,Byte> data:datas.entrySet()){
+							index = index+1;
+							if(index <= a-c){
+								other.getValue().put(data.getKey(), data.getValue());
+								datas.remove(data.getKey());
+								continue B;
+							}
+							continue A;
+						}
+					}
+					
+				}
+				if(datas.size() > 0){
+					 Collections.sort(otherList,
+							  new Comparator<Map.Entry<String,Map<String,Byte>>>() {
+								  @Override
+								  public int compare(Map.Entry<String,Map<String,Byte>> o1,
+										  Map.Entry<String,Map<String,Byte>> o2) {
+									  return o1.getValue().size()
+											  - o2.getValue().size();
+								  }
+							  });
+					 int index = 0;
+					 for(Map.Entry<String, Byte> data:datas.entrySet()){
+						 otherList.get(index).getValue().put(data.getKey(), data.getValue());
+						 datas.remove(data.getKey());
+						 index = index +1;
+					 }
+				}
+				this.updateSynchronizedBrokerData(nodeAddress, BrokerDataNode.initBrokerDataNode(), true);
+				for(Map.Entry<String,Map<String,Byte>> entry:otherList){
+					BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+					brokerDataNode.getMetas().putAll(entry.getValue());
+					this.updateSynchronizedBrokerData(entry.getKey(), brokerDataNode, true);
+				}
+			}
+		} catch (Exception e) {
+          logger.error("dataMigration fail:{}",ExceptionUtil.getErrorMessage(e));
+		}finally{
+			try {
+				this.brokerDataLock.release();
+			} catch (Exception e) {
+		          logger.error("dataMigration brokerDataLock release fail:{}",ExceptionUtil.getErrorMessage(e));
+			}
+		}
+	}
+
+	
+	private Map<String,Byte> cleanNoNeed(String nodeAddress){
+		BrokerDataNode brokerDataNode = this.getBrokerDataNode(nodeAddress);
+		Map<String,Byte> datas = Maps.newConcurrentMap();
+		datas.putAll(brokerDataNode.getMetas());
+		for(Map.Entry<String, Byte> data:datas.entrySet()){
+			if(RdosTaskStatus.needClean(data.getValue())){
+				datas.remove(data.getKey());
+			}
+		}
+		return datas;
+	}
 }

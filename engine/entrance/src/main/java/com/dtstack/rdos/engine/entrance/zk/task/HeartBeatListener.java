@@ -78,10 +78,9 @@ public class HeartBeatListener implements Runnable{
 						brokerNodeCount.setCount(0);
 					}
 					if(brokerNodeCount.getCount() > EXCEEDCOUNT){//node died
-						BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
-					    this.zkDistributed.updateSynchronizedLocalBrokerHeartNode(node,disableBrokerHeartNode, false);
-					    rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
-					    this.brokerNodeCounts.remove(node);
+						this.zkDistributed.disableBrokerHeartNode(node);
+					    this.zkDistributed.dataMigration(node);
+						this.brokerNodeCounts.remove(node);
 					}else{
 						brokerNodeCount.setBrokerHeartNode(brokerNode);
 						this.brokerNodeCounts.put(node, brokerNodeCount);

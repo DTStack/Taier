@@ -2,9 +2,7 @@ package com.dtstack.rdos.engine.entrance.db.dao;
 
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallbackMethod;
-import com.dtstack.rdos.engine.entrance.db.dataobject.RdosServerLog;
 import com.dtstack.rdos.engine.entrance.db.mapper.RdosServerLogMapper;
-import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
 import org.apache.ibatis.session.SqlSession;
 
 /**
@@ -22,11 +20,11 @@ public class RdosServerLogDao {
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
             @Override
-            public void execute(SqlSession sqlSession) throws Exception {
+            public Object execute(SqlSession sqlSession) throws Exception {
                 RdosServerLogMapper mapper = sqlSession.getMapper(RdosServerLogMapper.class);
                 mapper.insertSvrLog(taskId, logInfo);
+                return null;
             }
-
         });
     }
 }

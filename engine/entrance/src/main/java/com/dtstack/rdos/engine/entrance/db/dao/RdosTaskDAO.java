@@ -4,6 +4,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallbackMethod;
+import com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask;
 import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
 
 /**
@@ -16,15 +17,30 @@ import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
  */
 public class RdosTaskDAO {
 	
+	public RdosTask getRdosTaskByTaskId(final String taskId){
+		return (RdosTask)MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				// TODO Auto-generated method stub
+				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
+				return rdosTaskMapper.getRdosTaskByTaskId(taskId);
+			}
+			
+		});
+	}
+	
+	
 	public void updateTaskStatus(final String taskId,final int stauts){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override
-			public void execute(SqlSession sqlSession) throws Exception {
+			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
 				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
 				rdosTaskMapper.updateTaskStatus(taskId, stauts);
+				return null;
 			}
 			
 		});
@@ -35,10 +51,11 @@ public class RdosTaskDAO {
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override
-			public void execute(SqlSession sqlSession) throws Exception {
+			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
 				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
 				rdosTaskMapper.updateTaskEngineId(taskId, engineId);
+				return null;
 			}
 		});
 	}
@@ -49,10 +66,11 @@ public class RdosTaskDAO {
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override
-			public void execute(SqlSession sqlSession) throws Exception {
+			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
 				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
 				rdosTaskMapper.updateTaskEngineId(taskId, engineId);
+				return null;
 			}
 		});
 	}

@@ -59,6 +59,6 @@ public class Main {
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(eHttpServer,zkDistributed).addShutDownHook();
+		new ShutDownHook(eHttpServer,zkDistributed,submitContainer).addShutDownHook();
 	}
 }

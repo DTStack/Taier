@@ -80,4 +80,9 @@ public class SubmitContainer {
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
+
+	public void release() {
+		// TODO Auto-generated method stub
+		
+	}
 }

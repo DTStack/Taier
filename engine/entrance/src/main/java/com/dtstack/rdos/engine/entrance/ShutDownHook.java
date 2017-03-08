@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.execution.base.SubmitContainer;
 
 /**
  * 
@@ -21,11 +22,14 @@ public class ShutDownHook {
 	private EHttpServer eHttpServer;
 	
 	private  ZkDistributed zkDistributed;
+	
+	private  SubmitContainer submitContainer;
 
-	public ShutDownHook(EHttpServer eHttpServer, ZkDistributed zkDistributed) {
+	public ShutDownHook(EHttpServer eHttpServer, ZkDistributed zkDistributed, SubmitContainer submitContainer) {
 		// TODO Auto-generated constructor stub
 		this.eHttpServer = eHttpServer;
 		this.zkDistributed = zkDistributed;
+		this.submitContainer = submitContainer;
 	}
 
 	public void addShutDownHook(){
@@ -45,6 +49,9 @@ public class ShutDownHook {
 			}
 			if(zkDistributed!=null){
 				zkDistributed.release();
+			}
+			if(submitContainer!=null){
+				submitContainer.release();
 			}
 		}
 	}

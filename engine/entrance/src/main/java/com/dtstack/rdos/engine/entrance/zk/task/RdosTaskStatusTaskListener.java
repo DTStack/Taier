@@ -3,18 +3,17 @@ package com.dtstack.rdos.engine.entrance.zk.task;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosTaskDAO;
+import com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.google.common.collect.Maps;
 
 /**
  * 
@@ -32,11 +31,11 @@ public class RdosTaskStatusTaskListener implements Runnable{
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
-	private volatile Map<String,String> taskIdToEngineTaskId = Maps.newConcurrentMap();
-	
 	private static long listener = 2000;
 	
 	private RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+	
+	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
 	
 	public RdosTaskStatusTaskListener(){
 		JobClient.setQueue(queue);
@@ -51,7 +50,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
 				JobClient jobClient  = queue.take();
 				logger.warn("{}:{} addTaskIdToEngineTaskId...",jobClient.getTaskId(),jobClient.getEngineTaskId());
 				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
-					taskIdToEngineTaskId.put(jobClient.getTaskId(),jobClient.getEngineTaskId());
+					rdosTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -78,22 +77,22 @@ public class RdosTaskStatusTaskListener implements Runnable{
 		}
 		
 		private void updateTaskStatus(){
-            if(taskIdToEngineTaskId.size() > 0){
-          	  Set<Map.Entry<String,String>> entrys = taskIdToEngineTaskId.entrySet();
-          	  for(Map.Entry<String,String> entry:entrys){
-          		  String taskId = entry.getKey();
-          		  String engineTaskId = entry.getValue();
-          		  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTaskId);
-          		  if(rdosTaskStatus!=null){
-          			  Integer status = rdosTaskStatus.getStatus();
-              		  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
-              		  rdosTaskDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId,status);
-          		      if(RdosTaskStatus.needClean(status.byteValue())){
-          		    	taskIdToEngineTaskId.remove(taskId);
-          		      }
+			  Set<Map.Entry<String,Byte>> entrys = brokerDatas.get(zkDistributed.getLocalAddress()).getMetas().entrySet();
+          	  for(Map.Entry<String,Byte> entry:entrys){
+          		  if(!RdosTaskStatus.needClean(entry.getValue())){
+              		  String taskId = entry.getKey();
+              		  RdosTask rdosTask = rdosTaskDAO.getRdosTaskByTaskId(taskId);
+              		  if(rdosTask!=null){
+              			  String engineTaskid = rdosTask.getEngineTaskId();
+                  		  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTaskid);
+                  		  if(rdosTaskStatus!=null){
+                  			  Integer status = rdosTaskStatus.getStatus();
+                      		  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
+                      		  rdosTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+                  		  } 
+              		  }
           		  }
           	  }
-           }	
 		}
 	}
 }

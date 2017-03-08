@@ -20,14 +20,15 @@ public class MybatisSessionCallbackMethod {
 
 	private static SqlSessionFactory sqlSessionFactory = MyBatisConnectionFactory.getSqlSessionFactory();
 	
-	public static void doCallback(MybatisSessionCallback mybatisSessionCallback){
+	public static Object doCallback(MybatisSessionCallback mybatisSessionCallback){
 		SqlSession sqlSession = sqlSessionFactory.openSession(true);
 		try{
-			mybatisSessionCallback.execute(sqlSession);
+			return mybatisSessionCallback.execute(sqlSession);
 		}catch(Exception e){
 			logger.error("MybatisSessionCallbackMethod error:{}",ExceptionUtil.getErrorMessage(e));
 		}finally{
 			if(sqlSession!=null)sqlSession.close();
 		}
+		return null;
 	}
 }
