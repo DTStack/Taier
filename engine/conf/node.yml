@@ -1,8 +1,8 @@
 slots: 1000
 engineUrl: http://127.0.0.1:8080
-engineZkAddress: 127.0.0.1/flink
-engineZkNamespace: /zkdtstack
-engineClusterId: /dtstack
-jarTmpDir: /
+engineZkAddress: 172.16.1.151
+engineZkNamespace: /flink
+engineClusterId: /default
+jarTmpDir: D:\tmp
 localAddress: 127.0.0.1:8080
-nodeZkAddress: /
+nodeZkAddress: 172.16.1.151/engine

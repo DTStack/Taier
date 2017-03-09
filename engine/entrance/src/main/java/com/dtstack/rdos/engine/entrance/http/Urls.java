@@ -10,7 +10,7 @@ package com.dtstack.rdos.engine.entrance.http;
  */
 public class Urls {
 
-	public final static String ROOT = "node";
+	public final static String ROOT = "/node";
 	
 	public final static String ACTION = String.format("%s/%s",ROOT,"action");
 	

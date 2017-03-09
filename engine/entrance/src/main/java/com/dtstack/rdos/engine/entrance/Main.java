@@ -47,7 +47,8 @@ public class Main {
 			// add hook
 			addShutDownHook();
 		} catch (Exception e) {
-			logger.error("node start error:{}",ExceptionUtil.getErrorMessage(e));
+			//logger.error("node start error:{}",ExceptionUtil.getErrorMessage(e));
+			logger.error("node start error:{}", e);
 			System.exit(-1);
 		}
 	}
