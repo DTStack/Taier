@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -39,6 +38,8 @@ public class JobClient {
     private ComputeType computeType;
 
     private JobResult jobResult;
+    
+    private Integer isRestoration;
 
     private static LinkedBlockingQueue<JobClient> queue;
 
