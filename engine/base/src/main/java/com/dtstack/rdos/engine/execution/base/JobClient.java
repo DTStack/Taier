@@ -71,10 +71,11 @@ public class JobClient {
 		
 	}
 	
-	public JobClient (List<Operator> operators,String jobName ,String taskId,EJobType jobType,ComputeType computeType,Restoration isRestoration){
+	public JobClient (List<Operator> operators,String jobName ,String taskId,String engineTaskId,EJobType jobType,ComputeType computeType,Restoration isRestoration){
 		this.operators.addAll(operators);
         this.jobName = jobName;
         this.taskId = taskId;
+        this.engineTaskId = engineTaskId;
         this.jobType = jobType;
         this.computeType = computeType;
         this.isRestoration = isRestoration;
