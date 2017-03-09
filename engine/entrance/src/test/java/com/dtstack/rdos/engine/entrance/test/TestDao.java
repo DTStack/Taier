@@ -38,7 +38,7 @@ public class TestDao {
     @Test
     public void testRdosActionLogUpdate(){
         RdosActionLogDAO rdosActionLogDAO = new RdosActionLogDAO();
-        String actionLogId = "123";
+        Long actionLogId = 123l;
         int status = 1;
         rdosActionLogDAO.updateActionStatus(actionLogId, status);
         System.out.println("-----------over--------");
