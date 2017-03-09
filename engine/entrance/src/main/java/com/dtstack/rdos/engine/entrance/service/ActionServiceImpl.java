@@ -39,6 +39,7 @@ public class ActionServiceImpl{
 			zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
 			zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
 			new JobClient(SqlParser.parser(paramAction)).submit();
+			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
 			paramAction.setRequestStart(RequestStart.NODE.getStart());
 			HttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
