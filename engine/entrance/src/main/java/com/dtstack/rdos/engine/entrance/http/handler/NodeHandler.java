@@ -59,6 +59,7 @@ public class NodeHandler extends PostHandler{
 			synchronized(NodeHandler.class){
 				if(obj == null){
 					obj = cla.newInstance();
+					objects.put(name,obj);
 				}
 			}
 		}
