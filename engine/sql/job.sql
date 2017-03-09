@@ -33,7 +33,7 @@ CREATE TABLE `rdos_task` (
   `task_id` varchar(256) NOT NULL comment '任务id',
   `engine_task_id` varchar(256) comment '执行引擎任务id',
   `name` varchar(256) NOT NULL comment '任务名称',
-  `status` tinyint(1) NOT NULL comment '任务状态 0提交，1运行，2取消，3停止，4失败',
+  `status` tinyint(1) NOT NULL comment '任务状态 	UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
   `task_type` tinyint(1) NOT NULL comment '任务类型 0 sql，1 mr',
   `compute_type` tinyint(1) NOT NULL comment '计算类型 0实时，1 离线',
   `store_location` varchar(256) NOT NULL comment '存储位置',
