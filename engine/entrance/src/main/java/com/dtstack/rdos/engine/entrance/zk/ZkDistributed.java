@@ -465,7 +465,7 @@ public class ZkDistributed {
           logger.error("dataMigration fail:{}",ExceptionUtil.getErrorMessage(e));
 		}finally{
 			try {
-				this.brokerDataLock.release();
+				if(this.brokerDataLock.isAcquiredInThisProcess())this.brokerDataLock.release();
 			} catch (Exception e) {
 		          logger.error("dataMigration brokerDataLock release fail:{}",ExceptionUtil.getErrorMessage(e));
 			}
