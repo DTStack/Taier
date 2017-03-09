@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
@@ -39,7 +40,7 @@ public class JobClient {
 
     private JobResult jobResult;
     
-    private Integer isRestoration;
+    private Restoration isRestoration;
 
     private static LinkedBlockingQueue<JobClient> queue;
 
@@ -70,8 +71,13 @@ public class JobClient {
 		
 	}
 	
-	public JobClient (List<Operator> operators){
+	public JobClient (List<Operator> operators,String jobName ,String taskId,EJobType jobType,ComputeType computeType,Restoration isRestoration){
 		this.operators.addAll(operators);
+        this.jobName = jobName;
+        this.taskId = taskId;
+        this.jobType = jobType;
+        this.computeType = computeType;
+        this.isRestoration = isRestoration;
 	}
 	
 

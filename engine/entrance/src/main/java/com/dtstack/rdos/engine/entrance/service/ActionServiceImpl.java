@@ -14,7 +14,10 @@ import com.dtstack.rdos.engine.entrance.sql.SqlParser;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 
 /**
  * 
@@ -38,7 +41,7 @@ public class ActionServiceImpl{
 			brokerDataNode.getMetas().put(paramAction.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
 			zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
 			zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
-			new JobClient(SqlParser.parser(paramAction)).submit();
+			new JobClient(SqlParser.parser(paramAction),paramAction.getName(),paramAction.getTaskId(), EJobType.getEJobType(paramAction.getTaskType()), ComputeType.getComputeType(paramAction.getComputeType()), Restoration.getRestoration(paramAction.getIsRestoration())).submit();
 			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
 			paramAction.setRequestStart(RequestStart.NODE.getStart());
