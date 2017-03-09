@@ -89,7 +89,6 @@ public class ZkDistributed {
 		this.nodeConfig  = nodeConfig;
 		checkDistributedConfig();
 		initZk();
-		zkRegistration();
 	}
 
 	public static ZkDistributed createZkDistributed(Map<String,Object> nodeConfig) throws Exception{
@@ -112,7 +111,7 @@ public class ZkDistributed {
 		logger.warn("connector zk success...");
 	}
 	
-	private void zkRegistration() throws Exception {
+	public ZkDistributed zkRegistration() throws Exception {
 		createNodeIfExists(this.distributeRootNode,"");
 		createNodeIfExists(this.brokersNode,BrokersNode.initBrokersNode());
 		createNodeIfExists(this.localNode,"");
@@ -123,6 +122,7 @@ public class ZkDistributed {
 		registrationDB();
 		setMaster();
 		initScheduledExecutorService();
+		return this;
 	}
 	
 	private void initScheduledExecutorService() {

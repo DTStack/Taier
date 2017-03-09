@@ -54,7 +54,7 @@ public class Main {
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig);
-		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
+		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 		submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, nodeConfig);
 	}
 	
