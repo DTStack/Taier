@@ -1,8 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink120.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
-
+import com.dtstack.rdos.common.util.FileUtil;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
