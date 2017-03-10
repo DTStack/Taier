@@ -75,6 +75,7 @@ public class PoolHttpClient {
 
 	public static String post(String url, Map<String, Object> bodyData) {
 		String responseBody = null;
+		CloseableHttpResponse response = null;
 		try {
 			HttpPost httPost = new HttpPost(url);
 			setConfig(httPost);
@@ -83,7 +84,7 @@ public class PoolHttpClient {
 						.writeValueAsString(bodyData)));
 			}
 			// 请求数据
-			CloseableHttpResponse response = httpClient.execute(httPost);
+			response = httpClient.execute(httPost);
 			int status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
@@ -94,6 +95,14 @@ public class PoolHttpClient {
 			}
 		} catch (Exception e) {
 			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
+		}finally{
+			if(response!=null)
+				try {
+					response.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		} 
 		return responseBody;
 	}
@@ -110,10 +119,11 @@ public class PoolHttpClient {
 	public static String get(String url) {
 		String respBody = null;
 		HttpGet httpGet = null; 
+		CloseableHttpResponse response = null;
 		try {
 			httpGet = new HttpGet(url);
 			setConfig(httpGet);
-			CloseableHttpResponse response = httpClient.execute(httpGet);
+			response = httpClient.execute(httpGet);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				respBody = EntityUtils.toString(entity, Charsets.UTF_8);
@@ -122,12 +132,21 @@ public class PoolHttpClient {
 			}
 		} catch (IOException e) {
 			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
+		}finally{
+			if(response!=null)
+				try {
+					response.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		} 
-
 		return respBody;
 	}
 	
 	public static void main(String[] args){
-		System.out.println(PoolHttpClient.get("https://www.baidu.com/"));
+		for(int i=0;i<10;i++){
+			System.out.println(PoolHttpClient.get("https://www.baidu.com/"));
+		}
 	}
 }
