@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.flink120.source.kafka;
 
-import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.google.common.base.Preconditions;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

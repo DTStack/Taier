@@ -25,13 +25,13 @@ public class SinkFactory {
 
         switch (sinkType){
             case MYSQL:
-                return new MysqlSink(resultOperator);
+                return new MysqlSink().genStreamSink(resultOperator);
 
             case CSV://FIXME 未测试
-                return new RdosCsvSink(resultOperator);
+                return new RdosCsvSink().genStreamSink(resultOperator);
 
             case KAFKA09://FIXME 未测试
-                return new RdosKafka09Sink().genStreamSource(resultOperator);
+                return new RdosKafka09Sink().genStreamSink(resultOperator);
         }
 
         throw new RdosException("not support sink type:" + resultType + "!!!");

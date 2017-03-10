@@ -10,5 +10,5 @@ import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
  */
 public interface IStreamSinkGener<T> {
 
-    T genStreamSource(CreateResultOperator resultOperator);
+    T genStreamSink(CreateResultOperator resultOperator);
 }

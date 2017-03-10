@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.flink120.sink.db.mysql;
 
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
+import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
 import com.dtstack.rdos.engine.execution.flink120.sink.db.DBSink;
 import com.google.common.base.Preconditions;
 
@@ -15,9 +16,32 @@ import java.util.Properties;
  * @ahthor xuchao
  */
 
-public class MysqlSink extends DBSink {
+public class MysqlSink extends DBSink implements IStreamSinkGener<MysqlSink>{
 
-    public MysqlSink(CreateResultOperator operator){
+    public MysqlSink(){
+    }
+
+    @Override
+    public void buildSql(String tableName, String[] fields){
+        String sqlTmp = "replace into " + tableName + " (${fields}) values (${placeholder})";
+        String fieldsStr = "";
+        String placeholder = "";
+
+        for(String fieldName : fields){
+            fieldsStr += "," + fieldName;
+            placeholder += ",?";
+        }
+
+        fieldsStr = fieldsStr.replaceFirst(",", "");
+        placeholder = placeholder.replaceFirst(",", "");
+
+        sqlTmp = sqlTmp.replace("${fields}", fieldsStr).replace("${placeholder}", placeholder);
+        this.sql = sqlTmp;
+    }
+
+
+    @Override
+    public MysqlSink genStreamSink(CreateResultOperator operator) {
         Properties properties = operator.getProperties();
         String tmpDbURL = Preconditions.checkNotNull(properties.getProperty(SQL_DB_URL_KEY),
                 "dbURL must not be null");
@@ -45,25 +69,6 @@ public class MysqlSink extends DBSink {
         this.tableName = tmpTableName;
         buildSql(tableName, operator.getFields());
         buildSqlTypes(operator.getFieldTypes());
+        return this;
     }
-
-    @Override
-    public void buildSql(String tableName, String[] fields){
-        String sqlTmp = "replace into " + tableName + " (${fields}) values (${placeholder})";
-        String fieldsStr = "";
-        String placeholder = "";
-
-        for(String fieldName : fields){
-            fieldsStr += "," + fieldName;
-            placeholder += ",?";
-        }
-
-        fieldsStr = fieldsStr.replaceFirst(",", "");
-        placeholder = placeholder.replaceFirst(",", "");
-
-        sqlTmp = sqlTmp.replace("${fields}", fieldsStr).replace("${placeholder}", placeholder);
-        this.sql = sqlTmp;
-    }
-
-
 }

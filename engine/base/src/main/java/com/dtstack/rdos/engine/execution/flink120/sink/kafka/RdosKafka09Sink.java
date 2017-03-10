@@ -19,7 +19,7 @@ import java.util.Properties;
 public class RdosKafka09Sink implements IStreamSinkGener<Kafka09JsonTableSink> {
 
     @Override
-    public Kafka09JsonTableSink genStreamSource(CreateResultOperator resultOperator) {
+    public Kafka09JsonTableSink genStreamSink(CreateResultOperator resultOperator) {
         Properties properties = resultOperator.getProperties();
         String topic = properties.getProperty("topic");
         String bootstrapSvrs = properties.getProperty("bootstrapServers");
