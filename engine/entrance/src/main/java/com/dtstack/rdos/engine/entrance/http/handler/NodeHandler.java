@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.entrance.http.callback.ApiCallbackMethod;
 import com.dtstack.rdos.engine.entrance.http.callback.ApiCallback;
 import com.google.common.collect.Maps;
 import com.sun.net.httpserver.HttpExchange;
+import com.dtstack.rdos.commom.exception.RdosException;
 
 /**
  * 
