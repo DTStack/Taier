@@ -22,6 +22,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @author sishu.yss
  *
  */
+@SuppressWarnings("restriction")
 public abstract class PostHandler implements HttpHandler{
 
 	private static String encoding = "utf-8";

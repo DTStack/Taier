@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.entrance.service;
 
 import java.util.Map;
 
-import com.dtstack.rdos.common.util.HttpClient;
+import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.common.util.UrlUtil;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosActionLogDAO;
@@ -45,7 +45,7 @@ public class ActionServiceImpl{
 			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
 			paramAction.setRequestStart(RequestStart.NODE.getStart());
-			HttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
+			PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
 		}
 	}
 	

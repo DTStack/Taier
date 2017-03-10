@@ -8,7 +8,14 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-
+/**
+ * 
+ * Reason: TODO ADD REASON(可选)
+ * Date: 2017年03月10日 下午1:16:37
+ * Company: www.dtstack.com
+ * @author sishu.yss
+ *
+ */
 public class PublicUtil {
 	
 	private static ObjectMapper objectMapper = new ObjectMapper();

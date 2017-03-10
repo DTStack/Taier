@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.entrance.http.callback.ApiCallbackMethod;
 import com.dtstack.rdos.engine.entrance.http.callback.ApiCallback;
 import com.google.common.collect.Maps;
 import com.sun.net.httpserver.HttpExchange;
+import com.dtstack.rdos.commom.exception.RdosException;
 
 /**
  * 
@@ -42,7 +43,7 @@ public class NodeHandler extends PostHandler{
 		String path = he.getRequestURI().getPath();
 		String[] paths = path.split("/");
 		if(paths.length < 2){
-			throw new Exception("url path error");
+			throw new RdosException("url path error");
 		}
 		String name = paths[paths.length-2];
 		String method = paths[paths.length-1];
@@ -59,6 +60,7 @@ public class NodeHandler extends PostHandler{
 			synchronized(NodeHandler.class){
 				if(obj == null){
 					obj = cla.newInstance();
+					objects.put(name,obj);
 				}
 			}
 		}

@@ -397,7 +397,7 @@ public class ZkDistributed {
 
 	public void disableBrokerHeartNode(String localAddress){
 		BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
-		this.zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, false);
+		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, false);
 	    this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
 	}
 	
@@ -465,7 +465,7 @@ public class ZkDistributed {
           logger.error("dataMigration fail:{}",ExceptionUtil.getErrorMessage(e));
 		}finally{
 			try {
-				this.brokerDataLock.release();
+				if(this.brokerDataLock.isAcquiredInThisProcess())this.brokerDataLock.release();
 			} catch (Exception e) {
 		          logger.error("dataMigration brokerDataLock release fail:{}",ExceptionUtil.getErrorMessage(e));
 			}
