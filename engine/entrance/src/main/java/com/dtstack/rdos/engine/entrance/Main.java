@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.entrance;
 
 import java.util.Map;
+
+import com.dtstack.rdos.engine.entrance.log.Log4jComponent;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +27,8 @@ public class Main {
 
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-	private static LogComponent logbackComponent = new LogbackComponent();
+	//private static LogComponent logComponent = new LogbackComponent();
+	private static LogComponent logComponent = new Log4jComponent();
 	
 	private static EHttpServer eHttpServer;
 	
@@ -39,7 +42,7 @@ public class Main {
 			CommandLine cmdLine = OptionsProcessor.parseArg(args);
 			CmdLineParams.setLine(cmdLine);
 			// set logger
-			logbackComponent.setupLogger();
+			logComponent.setupLogger();
 			// load config
 			Map<String,Object> nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),Map.class);
 			// init service

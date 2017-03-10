@@ -38,28 +38,12 @@
 			<artifactId>zookeeper</artifactId>
 			<groupId>org.apache.zookeeper</groupId>
 			<version>3.4.6</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>base</artifactId>
 			<version>1.0.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 	</dependencies>
