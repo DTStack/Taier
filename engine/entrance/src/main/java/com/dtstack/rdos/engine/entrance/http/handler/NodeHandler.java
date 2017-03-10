@@ -42,7 +42,7 @@ public class NodeHandler extends PostHandler{
 		String path = he.getRequestURI().getPath();
 		String[] paths = path.split("/");
 		if(paths.length < 2){
-			throw new Exception("url path error");
+			throw new RdosException("url path error");
 		}
 		String name = paths[paths.length-2];
 		String method = paths[paths.length-1];
