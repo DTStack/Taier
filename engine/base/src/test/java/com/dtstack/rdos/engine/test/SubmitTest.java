@@ -1,17 +1,12 @@
 package com.dtstack.rdos.engine.test;
 
-import com.dtstack.rdos.common.util.HttpClient;
+import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.SubmitContainer;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
-
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -54,7 +49,7 @@ public class SubmitTest {
     public void testGetJobInfo(){
 
         String reqUrl = "http://172.16.1.151:8081/jobs/ed27939c59a611fe54e256eb5b044c91";
-        String response = HttpClient.get(reqUrl);
+        String response = PoolHttpClient.get(reqUrl);
         if(response != null){
             System.out.println(response);
         }

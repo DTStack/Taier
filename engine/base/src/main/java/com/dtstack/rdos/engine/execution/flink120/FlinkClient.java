@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink120;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.util.HttpClient;
+import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
@@ -423,7 +423,7 @@ public class FlinkClient extends AbsClient {
      */
     public RdosTaskStatus getJobStatus(String jobId) {
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
-        String response = HttpClient.get(reqUrl);
+        String response = PoolHttpClient.get(reqUrl);
         if(response == null){
             return null;
         }
@@ -447,7 +447,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public String getJobDetail(String jobId) {
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
-        String response = HttpClient.get(reqUrl);
+        String response = PoolHttpClient.get(reqUrl);
         return response;
     }
 

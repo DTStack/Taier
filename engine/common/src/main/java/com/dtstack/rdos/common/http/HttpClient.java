@@ -1,4 +1,4 @@
-package com.dtstack.rdos.common.util;
+package com.dtstack.rdos.common.http;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import org.apache.commons.codec.Charsets;
@@ -41,7 +41,7 @@ public class HttpClient {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
 
-    private static CloseableHttpClient getHttpClient(){
+        private static CloseableHttpClient getHttpClient(){
         return HttpClientBuilder.create().build();  
     }
     
