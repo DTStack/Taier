@@ -1,11 +1,11 @@
 package com.dtstack.rdos.engine.execution.flink120.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.FileUtil;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
-import com.dtstack.rdos.engine.execution.base.util.FileUtil;
 import com.dtstack.rdos.engine.execution.flink120.sink.DBSink;
 import com.dtstack.rdos.engine.execution.flink120.sink.KafkaCustomPartitioner;
 import com.dtstack.rdos.engine.execution.flink120.sink.MysqlSink;
