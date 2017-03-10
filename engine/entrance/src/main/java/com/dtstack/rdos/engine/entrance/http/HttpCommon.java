@@ -14,7 +14,7 @@ public class HttpCommon {
 		Object[] object =new Object[2]; 
 		String[] la = address.split(":");
 		object[0] = la[0].trim();
-		object[1] = Integer.parseInt(la[1].trim())+1;
+		object[1] = Integer.parseInt(la[1].trim());
 		return object;
 	}
 }

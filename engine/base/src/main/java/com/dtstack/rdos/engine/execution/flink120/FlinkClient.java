@@ -10,7 +10,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
+import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
+import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
@@ -36,6 +38,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
@@ -69,6 +72,26 @@ public class FlinkClient extends AbsClient {
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static final String FLINK_JOBMGR_URL_KEY = "engineUrl";
+
+    public static final String FLINK_ZKNAMESPACE_KEY = "engineZkAddress";
+
+    public static final String FLINK_ZK_ROOT_KEY = "engineZkNamespace";
+
+    public static final String FLINK_ZK_CLUSTERID_KEY = "engineClusterId";
+
+    public static final String FLINK_JOB_JAR_PATH_KEY = "jobJarPath";
+
+    public static final String FLINK_JOB_JAR_MAINCLASS_KEY = "jobJarMainClass";
+
+    public static final String FLINK_JOB_PARALLELISM_KEY = "flinkJobParallelism";
+
+    public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
+
+    public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
+
+    public static final String FILE_TMP_PATH_KEY = "jarTmpDir";
 
     public String tmpFileDirPath;
 
@@ -139,17 +162,17 @@ public class FlinkClient extends AbsClient {
 
     public void init(Properties prop) {
 
-        String jobMgrURL = prop.getProperty(PropertyConstant.FLINK_JOBMGR_URL_KEY);
-        String zkNamespace = prop.getProperty(PropertyConstant.FLINK_ZKNAMESPACE_KEY);
-        tmpFileDirPath = prop.getProperty(PropertyConstant.FILE_TMP_PATH_KEY);
+        String jobMgrURL = prop.getProperty(FLINK_JOBMGR_URL_KEY);
+        String zkNamespace = prop.getProperty(FLINK_ZKNAMESPACE_KEY);
+        tmpFileDirPath = prop.getProperty(FILE_TMP_PATH_KEY);
 
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(jobMgrURL != null || zkNamespace != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
         if(zkNamespace != null){//优先使用zk
-            String zkRoot = prop.getProperty(PropertyConstant.FLINK_ZK_ROOT_KEY);
-            String clusterId = prop.getProperty(PropertyConstant.FLINK_ZK_CLUSTERID_KEY);
+            String zkRoot = prop.getProperty(FLINK_ZK_ROOT_KEY);
+            String clusterId = prop.getProperty(FLINK_ZK_CLUSTERID_KEY);
             initClusterClientByZK(zkNamespace, zkRoot, clusterId);
         }else{
             initClusterClientByURL(jobMgrURL);
@@ -164,7 +187,7 @@ public class FlinkClient extends AbsClient {
      */
     public JobResult submitJobWithJar(Properties properties) {
 
-        Object jarPath = properties.get(PropertyConstant.FLINK_JOB_JAR_PATH_KEY);
+        Object jarPath = properties.get(FLINK_JOB_JAR_PATH_KEY);
         if(jarPath == null){
             logger.error("can not submit a job without jarpath, please check it");
             JobResult jobResult = JobResult.newInstance(true);
@@ -174,7 +197,7 @@ public class FlinkClient extends AbsClient {
 
         PackagedProgram packagedProgram = null;
 
-        String entryPointClass = properties.getProperty(PropertyConstant.FLINK_JOB_JAR_MAINCLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
+        String entryPointClass = properties.getProperty(FLINK_JOB_JAR_MAINCLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
         String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
@@ -189,7 +212,7 @@ public class FlinkClient extends AbsClient {
         }
 
         //只有当程序本身没有指定并行度的时候该参数才生效
-        String parallelismStr = properties.getProperty(PropertyConstant.FLINK_JOB_PARALLELISM_KEY);
+        String parallelismStr = properties.getProperty(FLINK_JOB_PARALLELISM_KEY);
         Integer runParallelism = parallelismStr == null ? 1 : Integer.valueOf(parallelismStr);
         JobSubmissionResult result = null;
 
@@ -235,9 +258,9 @@ public class FlinkClient extends AbsClient {
             return SavepointRestoreSettings.none();
         }
 
-        if(properties.contains(PropertyConstant.FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
-            String savepointPath = properties.getProperty(PropertyConstant.FLINK_JOB_FROMSAVEPOINT_KEY);
-            String stateStr = properties.getProperty(PropertyConstant.FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
+        if(properties.contains(FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
+            String savepointPath = properties.getProperty(FLINK_JOB_FROMSAVEPOINT_KEY);
+            String stateStr = properties.getProperty(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             boolean allowNonRestoredState = BooleanUtils.toBoolean(stateStr);
             return SavepointRestoreSettings.forPath(savepointPath, allowNonRestoredState);
         }else{
@@ -305,7 +328,7 @@ public class FlinkClient extends AbsClient {
 
                 currStep = 1;
                 CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                IStreamSourceGener sourceGener = FlinkUtil.getStreamSourceGener(sourceOperator.getType());
+                IStreamSourceGener sourceGener = SourceFactory.getStreamSourceGener(sourceOperator.getType());
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
                         (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
                 tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
@@ -341,7 +364,8 @@ public class FlinkClient extends AbsClient {
 
                 currStep = 4;
                 CreateResultOperator resultOperator = (CreateResultOperator) operator;
-                FlinkUtil.writeToSink(resultOperator, resultTable);
+                TableSink tableSink = SinkFactory.getTableSink(resultOperator);
+                resultTable.writeToSink(tableSink);
 
             }else if(operator instanceof ParamsOperator){
                 paramsOperator = (ParamsOperator) operator;

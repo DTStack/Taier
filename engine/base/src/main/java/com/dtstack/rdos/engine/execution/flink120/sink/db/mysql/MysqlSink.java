@@ -1,7 +1,8 @@
-package com.dtstack.rdos.engine.execution.flink120.sink;
+package com.dtstack.rdos.engine.execution.flink120.sink.db.mysql;
 
 import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
+import com.dtstack.rdos.engine.execution.flink120.sink.db.DBSink;
 import com.google.common.base.Preconditions;
 
 import java.util.Properties;
@@ -18,21 +19,21 @@ public class MysqlSink extends DBSink {
 
     public MysqlSink(CreateResultOperator operator){
         Properties properties = operator.getProperties();
-        String tmpDbURL = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_URL_KEY),
+        String tmpDbURL = Preconditions.checkNotNull(properties.getProperty(SQL_DB_URL_KEY),
                 "dbURL must not be null");
-        String tmpUserName = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_USERNAME_KEY),
+        String tmpUserName = Preconditions.checkNotNull(properties.getProperty(SQL_DB_USERNAME_KEY),
                 "userName must not be null");
-        String tmpPassword = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_password_KEY),
+        String tmpPassword = Preconditions.checkNotNull(properties.getProperty(SQL_DB_password_KEY),
                 "password must not be null");
-        String tmpTableName = Preconditions.checkNotNull(properties.getProperty(PropertyConstant.SQL_DB_tableName_KEY),
+        String tmpTableName = Preconditions.checkNotNull(properties.getProperty(SQL_DB_tableName_KEY),
                 "tableName must not be null");
 
-        Object tmpSqlBatchSize = properties.get(PropertyConstant.SQL_BATCH_SIZE_KEY);
+        Object tmpSqlBatchSize = properties.get(SQL_BATCH_SIZE_KEY);
         if(tmpSqlBatchSize != null){
             setBatchInterval((Integer) tmpSqlBatchSize);
         }
 
-        Object tmpSinkParallelism = properties.get(PropertyConstant.SQL_DB_SINK_PARALLELISM_KEY);
+        Object tmpSinkParallelism = properties.get(SQL_DB_SINK_PARALLELISM_KEY);
         if(tmpSinkParallelism != null){
             setParallelism((Integer) tmpSinkParallelism);
         }

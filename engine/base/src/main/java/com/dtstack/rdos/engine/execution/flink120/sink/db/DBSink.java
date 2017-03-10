@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink120.sink;
+package com.dtstack.rdos.engine.execution.flink120.sink.db;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
@@ -24,6 +24,18 @@ import java.sql.Types;
  */
 
 public abstract class DBSink implements StreamTableSink<Row> {
+
+    public static final String SQL_BATCH_SIZE_KEY = "sqlBatchSize";
+
+    public static final String SQL_DB_URL_KEY = "dbURL";
+
+    public static final String SQL_DB_USERNAME_KEY = "userName";
+
+    public static final String SQL_DB_password_KEY = "password";
+
+    public static final String SQL_DB_tableName_KEY = "tableName";
+
+    public static final String SQL_DB_SINK_PARALLELISM_KEY = "dbSinkParallelism";
 
     protected String driverName;
 
@@ -111,16 +123,12 @@ public abstract class DBSink implements StreamTableSink<Row> {
         this.batchInterval = batchInterval;
     }
 
-    public void setParallelism(int parallelism){
-        this.parallelism = parallelism;
-    }
-
     @Override
     public void emitDataStream(DataStream<Row> dataStream) {
         RichSinkFunction richSinkFunction = createJdbcSinkFunc();
-        DataStreamSink dataStreamSink = dataStream.addSink(richSinkFunction);
+        DataStreamSink streamSink = dataStream.addSink(richSinkFunction);
         if(parallelism > 0){
-            dataStreamSink.setParallelism(parallelism);
+            streamSink.setParallelism(parallelism);
         }
     }
 
@@ -144,6 +152,10 @@ public abstract class DBSink implements StreamTableSink<Row> {
         this.fieldNames = Preconditions.checkNotNull(fieldNames, "fieldNames");
         this.fieldTypes = Preconditions.checkNotNull(fieldTypes, "fieldTypes");
         return this;
+    }
+
+    public void setParallelism(int parallelism){
+        this.parallelism = parallelism;
     }
 
     public void buildSql(String tableName, String[] fields){

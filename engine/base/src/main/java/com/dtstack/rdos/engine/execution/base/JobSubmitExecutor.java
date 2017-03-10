@@ -28,6 +28,8 @@ public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
+    public static final String SLOTS_KEY = "slots";
+
     private BlockingQueue<JobClient> submitQueue = Queues.newLinkedBlockingQueue();
 
     private int poolSize = 1;
@@ -49,7 +51,7 @@ public class JobSubmitExecutor{
 
     public void init(ClientType type, Properties clusterProp){
 
-        Object slots = clusterProp.get(PropertyConstant.SLOTS_KEY);
+        Object slots = clusterProp.get(SLOTS_KEY);
         this.poolSize = slots == null ? 1 : (int) slots;
 
         executor = Executors.newFixedThreadPool(poolSize);

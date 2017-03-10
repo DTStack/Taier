@@ -1,4 +1,4 @@
-slots: 1000
+slots: 2
 engineUrl: http://127.0.0.1:8080
 engineZkAddress: 172.16.1.151
 engineZkNamespace: /flink

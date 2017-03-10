@@ -16,6 +16,7 @@ public enum ESinkType {
     private static final Logger logger = LoggerFactory.getLogger(ESinkType.class);
 
     public static ESinkType getSinkType(String type){
+        type = type.toUpperCase();
         try{
             ESinkType sinkType = ESinkType.valueOf(type);
             return sinkType;

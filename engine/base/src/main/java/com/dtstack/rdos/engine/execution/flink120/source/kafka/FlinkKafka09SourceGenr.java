@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.flink120.source;
+package com.dtstack.rdos.engine.execution.flink120.source.kafka;
 
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
+import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.google.common.base.Preconditions;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSource;
@@ -18,6 +19,11 @@ import java.util.Properties;
 
 public class FlinkKafka09SourceGenr implements IStreamSourceGener<StreamTableSource> {
 
+    public static final String KAFKA_BOOTSTRAPSERVERS_KEY = "bootstrapServers";
+
+    public static final String KAFKA_TOPIC_KEY = "topic";
+
+    public static final String KAFKA_OFFSETRESET_KEY = "offsetReset";
 
     /**
      * 获取kafka数据源,需要提供数据字段名称,数据类型
@@ -31,14 +37,16 @@ public class FlinkKafka09SourceGenr implements IStreamSourceGener<StreamTableSou
         Preconditions.checkState(fieldNames.length == fieldTypes.length,
                 "create kafka source : fieldNames length must match fieldTypes length");
 
-        String boostrapSrvs = params.getProperty(PropertyConstant.KAFKA_BOOTSTRAPSERVERS_KEY);
-        Preconditions.checkNotNull(boostrapSrvs, "create kafka source need set params of bootstrapservers.");
+        String boostrapSrvs = params.getProperty(KAFKA_BOOTSTRAPSERVERS_KEY);
+        Preconditions.checkNotNull(boostrapSrvs,
+                "create kafka source need set params of bootstrapservers.");
 
-        String offsetReset = params.getProperty(PropertyConstant.KAFKA_OFFSETRESET_KEY);//latest, earliest
+        String offsetReset = params.getProperty(KAFKA_OFFSETRESET_KEY);//latest, earliest
         offsetReset = offsetReset == null ? "latest" : "earliest";
-        Preconditions.checkState(checkOffsetReset(offsetReset), "create kafka source need set params of offsetreset. which value in(latest, earliest)");
+        Preconditions.checkState(checkOffsetReset(offsetReset),
+                "create kafka source need set params of offsetreset. which value in(latest, earliest)");
 
-        String topicName = (String)params.get(PropertyConstant.KAFKA_TOPIC_KEY);
+        String topicName = (String)params.get(KAFKA_TOPIC_KEY);
         //flink 使用kafka partition assign 方式消费,所以不需要设置consumegroup
         //String groupId = (String) params.get("consumegroup");
 

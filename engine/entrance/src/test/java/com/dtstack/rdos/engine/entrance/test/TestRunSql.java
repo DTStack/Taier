@@ -45,7 +45,7 @@ public class TestRunSql {
                 "CREATE RESULT TABLE MyResult(\n" +
                 "message STRING, hashcode int) WITH (\n" +
                 "type='mysql',\n" +
-                "dbURL='jdbc:mysql://172.16.1.203:3306/flink_test?user=root&password=&useUnicode=true&characterEncoding=utf8',\n" +
+                "dbURL='jdbc:mysql://172.16.1.203:3306/flink_test',\n" +
                 "userName='dtstack_xc',\n" +
                 "password='dtstack_xc',\n" +
                 "tableName='flink_test'\n" +

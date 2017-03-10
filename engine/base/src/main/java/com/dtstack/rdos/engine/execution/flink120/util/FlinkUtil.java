@@ -1,16 +1,8 @@
 package com.dtstack.rdos.engine.execution.flink120.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
-import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
-import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.base.util.FileUtil;
-import com.dtstack.rdos.engine.execution.flink120.sink.DBSink;
-import com.dtstack.rdos.engine.execution.flink120.sink.KafkaCustomPartitioner;
-import com.dtstack.rdos.engine.execution.flink120.sink.MysqlSink;
-import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
-import com.dtstack.rdos.engine.execution.flink120.source.FlinkKafka09SourceGenr;
 
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
@@ -19,15 +11,9 @@ import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
-import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;
-import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
-import org.apache.flink.table.sinks.CsvTableSink;
-import org.apache.flink.table.sinks.TableSink;
-import org.apache.flink.types.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +37,18 @@ public class FlinkUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
+    public static final String FLINK_CHECKPOINT_INTERVAL_KEY = "flinkCheckpointInterval";
+
+    public static final String FLINK_CHECKPOINT_MODE_KEY = "flinkCheckpointMode";
+
+    public static final String FLINK_CHECKPOINT_TIMEOUT_KEY = "flinkCheckpointTimeout";
+
+    public static final String FLINK_MAXCONCURRENTCHECKPOINTS_KEY = "maxConcurrentCheckpoints";
+
+    public static final String FLINK_CHECKPOINT_CLEANUPMODE_KEY = "flinkCheckpointCleanupmode";
+
+    public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDataURI";
+
     private static final String URL_SPLITE = "/";
 
     private static String fileSP = File.separator;
@@ -67,15 +65,15 @@ public class FlinkUtil {
         }
 
         //设置了时间间隔才表明开启了checkpoint
-        if(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL_KEY) == null){
+        if(properties.getProperty(FLINK_CHECKPOINT_INTERVAL_KEY) == null){
             return;
         }else{
-            Long interval = Long.valueOf(properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_INTERVAL_KEY));
+            Long interval = Long.valueOf(properties.getProperty(FLINK_CHECKPOINT_INTERVAL_KEY));
             //start checkpoint every ${interval}
             env.enableCheckpointing(interval);
         }
 
-        String checkMode = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_MODE_KEY);
+        String checkMode = properties.getProperty(FLINK_CHECKPOINT_MODE_KEY);
         if(checkMode != null){
             if(checkMode.equalsIgnoreCase("EXACTLY_ONCE")){
                 env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
@@ -86,21 +84,21 @@ public class FlinkUtil {
             }
         }
 
-        String checkpointTimeoutStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_TIMEOUT_KEY);
+        String checkpointTimeoutStr = properties.getProperty(FLINK_CHECKPOINT_TIMEOUT_KEY);
         if(checkpointTimeoutStr != null){
             Long checkpointTimeout = Long.valueOf(checkpointTimeoutStr);
             //checkpoints have to complete within one min,or are discard
             env.getCheckpointConfig().setCheckpointTimeout(checkpointTimeout);
         }
 
-        String maxConcurrCheckpointsStr = properties.getProperty(PropertyConstant.FLINK_MAXCONCURRENTCHECKPOINTS_KEY);
+        String maxConcurrCheckpointsStr = properties.getProperty(FLINK_MAXCONCURRENTCHECKPOINTS_KEY);
         if(maxConcurrCheckpointsStr != null){
             Integer maxConcurrCheckpoints = Integer.valueOf(maxConcurrCheckpointsStr);
             //allow only one checkpoint to be int porgress at the same time
             env.getCheckpointConfig().setMaxConcurrentCheckpoints(maxConcurrCheckpoints);
         }
 
-        String cleanupModeStr = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_CLEANUPMODE_KEY);
+        String cleanupModeStr = properties.getProperty(FLINK_CHECKPOINT_CLEANUPMODE_KEY);
         if(cleanupModeStr != null){//设置在cancle job情况下checkpoint是否被保存
             if("true".equalsIgnoreCase(cleanupModeStr)){
                 env.getCheckpointConfig().enableExternalizedCheckpoints(
@@ -113,7 +111,7 @@ public class FlinkUtil {
             }
         }
 
-        String backendPath = properties.getProperty(PropertyConstant.FLINK_CHECKPOINT_DATAURI_KEY);
+        String backendPath = properties.getProperty(FLINK_CHECKPOINT_DATAURI_KEY);
         if(backendPath != null){
             //set checkpoint save path on file system, 根据实际的需求设定文件路径,hdfs://, file://
             env.setStateBackend(new FsStateBackend(backendPath));
@@ -208,7 +206,6 @@ public class FlinkUtil {
      */
     public static void registerTableUDF(String classPath, String funcName, StreamTableEnvironment tableEnv,
                                         ClassLoader classLoader){
-
         try {
             TableFunction udfFunc = Class.forName(classPath, false, classLoader)
                     .asSubclass(TableFunction.class).newInstance();
@@ -220,50 +217,6 @@ public class FlinkUtil {
         }
     }
 
-    /**
-     * 根据指定的类型构造数据源
-     * 当前只支持kafka09
-     * @param sourceTypeStr
-     * @return
-     */
-    public static IStreamSourceGener getStreamSourceGener(String sourceTypeStr){
-
-        ESourceType sourceType = ESourceType.getSourceType(sourceTypeStr);
-
-        switch (sourceType){
-            case KAFKA09:
-                return new FlinkKafka09SourceGenr();
-        }
-
-        throw new RdosException("not support for flink stream source type: " + sourceTypeStr);
-    }
-
-
-    public static void writeToSink(CreateResultOperator resultOperator, Table table){
-
-        String resultType = resultOperator.getType();
-        ESinkType sinkType = ESinkType.getSinkType(resultType);
-
-        switch (sinkType){
-            case MYSQL:
-                DBSink jdbcInfo = new MysqlSink(resultOperator);
-                table.writeToSink(jdbcInfo);
-                return;
-
-            case CSV://FIXME 未测试
-                String path = resultOperator.getProperties().getProperty("csvPath");
-                String delim = resultOperator.getProperties().getProperty("csvDelim", "|");
-                TableSink csvSink = new CsvTableSink(path, delim);
-                table.writeToSink(csvSink);
-                return;
-
-            case KAFKA09://FIXME 未测试
-                Kafka09JsonTableSink kafka09Sink = createKafka09JsonTableSink(resultOperator.getProperties());
-                table.writeToSink(kafka09Sink);
-        }
-
-        throw new RdosException("not support sink type:" + resultType + "!!!");
-    }
 
     /**
      *
@@ -310,14 +263,5 @@ public class FlinkUtil {
         return classLoader;
     }
 
-    public static Kafka09JsonTableSink createKafka09JsonTableSink(Properties properties){
-        String topic = properties.getProperty("topic");
-        String bootstrapSvrs = properties.getProperty("bootstrapServers");
-        KafkaPartitioner<Row> partitioner = new KafkaCustomPartitioner();
 
-        Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", bootstrapSvrs);
-        Kafka09JsonTableSink tableSink = new Kafka09JsonTableSink(topic, properties, partitioner);
-        return  tableSink;
-    }
 }

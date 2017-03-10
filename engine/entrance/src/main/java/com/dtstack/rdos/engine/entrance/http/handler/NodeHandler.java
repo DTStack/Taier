@@ -19,7 +19,7 @@ import com.sun.net.httpserver.HttpExchange;
  */
 public class NodeHandler extends PostHandler{
 	
-	private static String classNameTemplate = "com.dtstack.rdos.engine.entrance.service.impl.%sServiceImpl";
+	private static String classNameTemplate = "com.dtstack.rdos.engine.entrance.service.%sServiceImpl";
 	
 	private static Map<String,Object> objects = Maps.newConcurrentMap();
 	
