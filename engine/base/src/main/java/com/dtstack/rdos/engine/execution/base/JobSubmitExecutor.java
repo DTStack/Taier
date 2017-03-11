@@ -1,12 +1,9 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.google.common.collect.Queues;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +140,9 @@ public class JobSubmitExecutor{
                     }catch (Exception e){//捕获未处理异常,防止跳出执行线程
                         jobResult = JobResult.createErrorResult(e);
                         logger.error("get unexpected exception", e);
+                    }catch (Error e){
+                        e.printStackTrace();
+                        logger.error("job error:", e);
                     }
 
                     //FIXME 之后需要对本地异常信息做存储

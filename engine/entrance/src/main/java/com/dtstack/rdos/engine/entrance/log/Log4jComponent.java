@@ -22,7 +22,6 @@ public class Log4jComponent extends LogComponent{
 
 	@Override
 	public void setupLogger() {
-		/*
 		String file =checkFile();
 		DailyRollingFileAppender fa = new DailyRollingFileAppender();
 		fa.setName("FileLogger");
@@ -32,11 +31,10 @@ public class Log4jComponent extends LogComponent{
 		fa.setAppend(true);
 		fa.activateOptions();
 		Logger.getRootLogger().addAppender(fa);
-		*/
 	}
 	
 	public void setLevel(DailyRollingFileAppender fa){
-		/*
+
 		if (CmdLineParams.hasOptionTrace()) {
 			fa.setThreshold(Level.TRACE);
 			Logger.getRootLogger().setLevel(Level.TRACE);
@@ -51,7 +49,6 @@ public class Log4jComponent extends LogComponent{
 		}else {
 			fa.setThreshold(Level.WARN);
 		}
-		*/
 	}
 
 

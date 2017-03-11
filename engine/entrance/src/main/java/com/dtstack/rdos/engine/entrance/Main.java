@@ -27,8 +27,8 @@ public class Main {
 
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-	//private static LogComponent logComponent = new LogbackComponent();
-	private static LogComponent logComponent = new Log4jComponent();
+	private static LogComponent logComponent = new LogbackComponent();
+	//private static LogComponent logComponent = new Log4jComponent();
 	
 	private static EHttpServer eHttpServer;
 	
