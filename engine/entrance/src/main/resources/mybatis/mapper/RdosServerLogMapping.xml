@@ -4,6 +4,7 @@
     <resultMap id="rdosServerLog" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosServerLog">
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+        <result column="engine_task_id" property="engineTaskId" jdbcType="VARCHAR" />
         <result column="action_log_id" property="actionLogId" jdbcType="BIGINT" />
         <result column="log_info" property="logInfo" jdbcType="VARCHAR" />
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
@@ -11,8 +12,8 @@
         <result column="is_deleted" property="isDeleted" jdbcType="BIT"/>
     </resultMap>
 
-    <insert id="insertSvrLog" parameterType="java.util.HashMap">
-        insert into rdos_server_log(task_id, action_log_id,log_info, gmt_create, gmt_modified)
-        values(#{taskId}, #{actionLogId},#{logInfo}, now(), now());
+    <insert id="insertSvrLog">
+        insert into rdos_server_log(task_id, engine_task_id,action_log_id,log_info, gmt_create, gmt_modified)
+        values(#{taskId}, #{engineTaskId}, #{actionLogId}, #{logInfo}, now(), now());
     </insert>
 </mapper>

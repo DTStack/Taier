@@ -3,6 +3,8 @@ package com.dtstack.rdos.engine.entrance.zk.task;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import com.dtstack.rdos.engine.entrance.db.dao.RdosServerLogDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,8 @@ public class RdosTaskStatusTaskListener implements Runnable{
 	private static long listener = 2000;
 	
 	private RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+
+	private RdosServerLogDao rdosServerLogDao = new RdosServerLogDao();
 	
 	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
 	
@@ -52,6 +56,11 @@ public class RdosTaskStatusTaskListener implements Runnable{
 				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 					rdosTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 				}
+
+				//存储执行日志
+				rdosServerLogDao.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
+						jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
+
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				logger.error("RdosTaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));

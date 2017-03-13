@@ -141,13 +141,13 @@ public class JobSubmitExecutor{
                         jobResult = JobResult.createErrorResult(e);
                         logger.error("get unexpected exception", e);
                     }catch (Error e){
-                        e.printStackTrace();
-                        logger.error("job error:", e);
+                        jobResult = JobResult.createErrorResult(e);
+                        logger.error("get error, please check program!!!!", e);
                     }
 
                     //FIXME 之后需要对本地异常信息做存储
                     jobClient.setJobResult(jobResult);
-                    JobClient.getQueue().add(jobClient);//添加触发读取任务状态消息
+                    JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
                 }
             }
 

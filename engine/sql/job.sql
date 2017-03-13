@@ -54,6 +54,8 @@ CREATE TABLE `rdos_task` (
 CREATE TABLE `rdos_server_log` (
   `id` INT(11)  NOT NULL AUTO_INCREMENT,
   `task_id` VARCHAR(256) COMMENT '任务id',
+  `engine_task_id` VARCHAR(256) COMMENT '引擎任务id',
+  `action_log_id` BIGINT(20) NOT NULL COMMENT '启动关联id',
   `log_info` MEDIUMTEXT NOT NULL COMMENT '错误信息',
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',

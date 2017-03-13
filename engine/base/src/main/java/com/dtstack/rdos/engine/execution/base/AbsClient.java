@@ -40,8 +40,7 @@ public abstract class AbsClient implements IClient{
                 jobResult = submitSqlJob(jobClient);
             }catch (Exception e){
                 logger.error("", e);
-                e.printStackTrace();
-                jobResult = JobResult.createErrorResult(e.getMessage());
+                jobResult = JobResult.createErrorResult(e);
             }
         }else{
             jobResult = JobResult.createErrorResult("not support type of " + jobType);

@@ -5,18 +5,15 @@ import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.PropertyConstant;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
@@ -45,7 +42,6 @@ import org.apache.flink.util.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
@@ -246,8 +242,7 @@ public class FlinkClient extends AbsClient {
             logger.info("Job has been submitted with JobID " + result.getJobID());
         }
 
-        JobResult jobResult = JobResult.newInstance(false);
-        jobResult.setData(jobResult.JOB_ID_KEY, result.getJobID().toString());
+        JobResult jobResult = JobResult.createSuccessResult(result.getJobID().toString());
 
         return jobResult;
     }
@@ -279,7 +274,7 @@ public class FlinkClient extends AbsClient {
             case BATCH:
                 return submitSqlJobForBatch(jobClient);
             case STREAM:
-                return  submitSqlJobForStream(jobClient);
+                return submitSqlJobForStream(jobClient);
 
         }
 
@@ -390,13 +385,13 @@ public class FlinkClient extends AbsClient {
                 jobGraph.addJar(new Path(jarFileUri));
             }
 
-            JobResult jobResult = JobResult.newInstance(false);
+            JobResult jobResult;
             if(isDetact){
                 JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());
-                jobResult.setData(jobResult.JOB_ID_KEY, submissionResult.getJobID().toString());
+                jobResult = JobResult.createSuccessResult(submissionResult.getJobID().toString());
             }else{
                 JobExecutionResult jobExecutionResult = client.run(jobGraph, client.getClass().getClassLoader());
-                jobResult.setData(jobResult.JOB_ID_KEY, jobExecutionResult.getJobID().toString());
+                jobResult = JobResult.createSuccessResult(jobExecutionResult.getJobID().toString());
             }
 
             return jobResult;

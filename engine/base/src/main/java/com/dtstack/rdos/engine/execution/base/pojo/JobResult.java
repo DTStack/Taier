@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ public class JobResult {
 
     public static final String JOB_ID_KEY = "jobid";
 
+    public static final String MSG_INFO = "msg_info";
+
     private JSONObject json = new JSONObject();
 
     public static JobResult newInstance(boolean isErr){
@@ -29,15 +32,23 @@ public class JobResult {
         return  result;
     }
 
-    public static JobResult createErrorResult(Exception e){
+    public static JobResult createErrorResult(Throwable e){
         JobResult jobResult = JobResult.newInstance(true);
-        jobResult.setData("errMsg", e.getMessage());
+        String errMsg = ExceptionUtil.getErrorMessage(e);
+        jobResult.setData(MSG_INFO, errMsg);
         return jobResult;
     }
 
     public static JobResult createErrorResult(String errMsg){
         JobResult jobResult = JobResult.newInstance(true);
-        jobResult.setData("errMsg", errMsg);
+        jobResult.setData(MSG_INFO, errMsg);
+        return jobResult;
+    }
+
+    public static JobResult createSuccessResult(String taskId){
+        JobResult jobResult = JobResult.newInstance(false);
+        jobResult.setData(JOB_ID_KEY, taskId);
+        jobResult.setData(MSG_INFO, "is success");
         return jobResult;
     }
 
@@ -52,6 +63,11 @@ public class JobResult {
     }
 
     public String getData(String key){
+
+        if(!json.has(key)){
+            return null;
+        }
+
         try {
             return (String) json.get(key);
         } catch (JSONException e) {
@@ -62,6 +78,10 @@ public class JobResult {
 
     public JSONObject getJson() {
         return json;
+    }
+
+    public String getJsonStr(){
+        return json.toString();
     }
 
     public boolean isErr() {
