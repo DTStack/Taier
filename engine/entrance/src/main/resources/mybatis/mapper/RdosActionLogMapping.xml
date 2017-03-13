@@ -4,13 +4,18 @@
 	
 	<resultMap id="rdosActionLogResult" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosActionLog">
     <id column="id" property="id" jdbcType="BIGINT" />
-    <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
-    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
-    <result column="tilte" property="tilte" jdbcType="VARCHAR" />
-    <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+       <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+       <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+       <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+       <result column="status" property="status" jdbcType="INTEGER" />
+       <result column="action_type" property="actionType" jdbcType="INTEGER" />
+       <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+       <result column="is_restoration" property="isRestoration" jdbcType="INTEGER" />
+       <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
+       <result column="tenant_id" property="tenantId" jdbcType="BIGINT" />
     </resultMap>
     
-    <update id="updateActionStatus">
-	   update rdos_action_log set gmt_modified=now(),status=#{status} where id=#{actionLogId};
+    <update id="updateActionStatus" parameterType="java.util.HashMap">
+	   update rdos_action_log set gmt_modified=now(),status=#{status} where id=#{id};
 	</update>
 </mapper>

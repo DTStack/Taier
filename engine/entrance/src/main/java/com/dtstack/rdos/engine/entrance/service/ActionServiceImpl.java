@@ -41,7 +41,7 @@ public class ActionServiceImpl{
 			brokerDataNode.getMetas().put(paramAction.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
 			zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
 			zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
-			new JobClient(SqlParser.parser(paramAction),paramAction.getName(),paramAction.getTaskId(),paramAction.getEngineTaskId(), EJobType.getEJobType(paramAction.getTaskType()), ComputeType.getComputeType(paramAction.getComputeType()), Restoration.getRestoration(paramAction.getIsRestoration())).submit();
+			new JobClient(SqlParser.parser(paramAction),paramAction.getName(),paramAction.getTaskId(),paramAction.getEngineTaskId(), EJobType.getEJobType(paramAction.getTaskType()), ComputeType.getComputeType(paramAction.getComputeType()), Restoration.getRestoration(paramAction.getIsRestoration()),paramAction.getActionLogId()).submit();
 			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
 			paramAction.setRequestStart(RequestStart.NODE.getStart());

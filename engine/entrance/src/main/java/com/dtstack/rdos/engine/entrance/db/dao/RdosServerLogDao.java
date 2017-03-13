@@ -15,14 +15,14 @@ import org.apache.ibatis.session.SqlSession;
 
 public class RdosServerLogDao {
 
-    public void insertLog(final String taskId, final String logInfo){
+    public void insertLog(final String taskId, final Long actionLogId,final String logInfo){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosServerLogMapper mapper = sqlSession.getMapper(RdosServerLogMapper.class);
-                mapper.insertSvrLog(taskId, logInfo);
+                mapper.insertSvrLog(taskId,actionLogId, logInfo);
                 return null;
             }
         });

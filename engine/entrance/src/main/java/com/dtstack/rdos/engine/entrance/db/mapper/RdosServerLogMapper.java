@@ -10,5 +10,5 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface RdosServerLogMapper {
 
-    int insertSvrLog(@Param("taskId") String taskId, @Param("logInfo") String logInfo);
+    int insertSvrLog(@Param("taskId") String taskId,@Param("actionLogId") Long actionLogId, @Param("logInfo") String logInfo);
 }

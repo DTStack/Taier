@@ -66,7 +66,7 @@ public class TestDao {
         RdosServerLogDao dao = new RdosServerLogDao();
         String taskId = "first_task";
         String logInfo = "--------this is a log -------";
-        dao.insertLog(taskId, logInfo);
+        dao.insertLog(taskId,1234l, logInfo);
         System.out.println("-------over----------");
 
     }

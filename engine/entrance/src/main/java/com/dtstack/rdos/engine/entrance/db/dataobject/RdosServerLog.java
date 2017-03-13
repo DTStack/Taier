@@ -13,8 +13,18 @@ public class RdosServerLog extends DataObject{
     private String taskId;
 
     private String logInfo;
+    
+    private Long actionLogId;
+    
+    public Long getActionLogId() {
+		return actionLogId;
+	}
 
-    public String getTaskId() {
+	public void setActionLogId(Long actionLogId) {
+		this.actionLogId = actionLogId;
+	}
+
+	public String getTaskId() {
         return taskId;
     }
 
