@@ -3,7 +3,9 @@ package com.dtstack.rdos.engine.entrance.http.handler;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+
 import com.dtstack.rdos.engine.entrance.http.callback.ApiCallbackMethod;
 import com.dtstack.rdos.engine.entrance.http.callback.ApiCallback;
 import com.google.common.collect.Maps;
@@ -18,6 +20,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
  * @author sishu.yss
  *
  */
+@SuppressWarnings("restriction")
 public class NodeHandler extends PostHandler{
 	
 	private static String classNameTemplate = "com.dtstack.rdos.engine.entrance.service.%sServiceImpl";
