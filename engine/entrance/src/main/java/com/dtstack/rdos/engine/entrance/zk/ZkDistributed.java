@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.dtstack.rdos.engine.entrance.http.HttpSendClient;
+import com.dtstack.rdos.engine.entrance.zk.task.DataMigrationListener;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +134,7 @@ public class ZkDistributed {
 		executors.execute(new HeartBeatListener(masterListener));
 		executors.execute(new RdosTaskStatusTaskListener());
 		executors.execute(new AllTaskStatusListener());
+        executors.execute(new DataMigrationListener(masterListener));
 	}
 	
 	private void registrationDB(){
@@ -387,10 +390,15 @@ public class ZkDistributed {
 		return memTaskStatus;
 	}
 	
-	public void release() {
+	public void release(){
 		// TODO Auto-generated method stub
-		disableBrokerHeartNode(this.localAddress);
-		executors.shutdown();
+        try{
+            disableBrokerHeartNode(this.localAddress);
+            HttpSendClient.migration(this.localAddress);
+            executors.shutdown();
+        }catch (Throwable e){
+            logger.error("",e);
+        }
 	}
 
 	public void disableBrokerHeartNode(String localAddress){
@@ -404,13 +412,14 @@ public class ZkDistributed {
 		try {
 			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
 			Map<String,Byte> datas = cleanNoNeed(nodeAddress);
-			if(datas.size() >0){
+            BrokerHeartNode bNode = this.getBrokerHeartNode(nodeAddress);
+			if(!bNode.getAlive()&&datas.size() >0){
 				int total = datas.size();
 				Map<String,Map<String,Byte>> others = Maps.newConcurrentMap();
 				List<String> brokers = getBrokersChildren();
 				for(String broker:brokers){
 					BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-					if(brokerHeartNode.getAlive()&&!nodeAddress.equals(broker)){
+					if(brokerHeartNode.getAlive()){
 						Map<String,Byte> bbs = cleanNoNeed(broker);
 						others.put(broker, bbs);
 						total = bbs.size() + total;

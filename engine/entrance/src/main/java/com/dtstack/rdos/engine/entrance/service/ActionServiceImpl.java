@@ -2,13 +2,10 @@ package com.dtstack.rdos.engine.entrance.service;
 
 import java.util.Map;
 
-import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.common.util.UrlUtil;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosActionLogDAO;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
-import com.dtstack.rdos.engine.entrance.http.Urls;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
 import com.dtstack.rdos.engine.entrance.sql.SqlParser;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
@@ -18,6 +15,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
+import com.dtstack.rdos.engine.entrance.http.HttpSendClient;
 
 /**
  * 
@@ -45,7 +43,7 @@ public class ActionServiceImpl{
 			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
  			paramAction.setRequestStart(RequestStart.NODE.getStart());
-			PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
+            HttpSendClient.actionStart(address,paramAction);
 		}
 	}
 	

@@ -11,10 +11,14 @@ package com.dtstack.rdos.engine.entrance.http;
 public class Urls {
 
 	public final static String ROOT = "/node";
-	
+
 	public final static String ACTION = String.format("%s/%s",ROOT,"action");
-	
-	public final static String START = String.format("%s/%s", ACTION,"start");
+
+	public final static String MIGRATION = String.format("%s/%s",ROOT,"migration");
+
+    public final static String MIGRATE = String.format("%s/%s",MIGRATION,"migrate");
+
+    public final static String START = String.format("%s/%s", ACTION,"start");
 	
 	public final static String STOP = String.format("%s/%s",ACTION, "stop");
 
