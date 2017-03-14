@@ -58,10 +58,10 @@ public abstract class PostHandler implements HttpHandler{
 	@SuppressWarnings("unchecked")
 	protected Map<String,Object> parseQuery(String query) throws IOException {
 
-		Map<String,Object> parameters = Maps.newConcurrentMap();
 		if (StringUtils.isNotBlank(query)) {
-			parameters.putAll(objectMapper.readValue(query.getBytes(),Map.class));
+			return objectMapper.readValue(query.getBytes(),Map.class);
 		}
-		return parameters;
+
+		return null;
 	}
 }

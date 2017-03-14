@@ -13,7 +13,6 @@ import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.common.collect.Lists;
-import com.google.gson.JsonObject;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
@@ -448,12 +447,13 @@ public class FlinkClient extends AbsClient {
         }
 
         try{
-            JsonObject jsonObject = objectMapper.readValue(response, JsonObject.class);
-            String state = jsonObject.get("state").getAsString();
-            if(state == null){
+            Map<String, Object> statusMap = objectMapper.readValue(response, Map.class);
+            Object stateObj = statusMap.get("state");
+            if(stateObj == null){
                 return null;
             }
 
+            String state = (String) stateObj;
             state = org.apache.commons.lang3.StringUtils.upperCase(state);
             return RdosTaskStatus.getTaskStatus(state);
         }catch (Exception e){

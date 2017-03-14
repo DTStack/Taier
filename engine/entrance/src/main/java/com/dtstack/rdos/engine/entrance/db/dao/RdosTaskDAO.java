@@ -61,15 +61,14 @@ public class RdosTaskDAO {
 	}
 	
 	
-	public void updateTaskEngineIdAndStatus(final String taskId,final String engineId,int status){
+	public void updateTaskEngineIdAndStatus(final String taskId, final String engineId, final int status){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
-				// TODO Auto-generated method stub
 				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
-				rdosTaskMapper.updateTaskEngineId(taskId, engineId);
+				rdosTaskMapper.updateTaskEngineIdAndStatus(taskId, engineId, status);
 				return null;
 			}
 		});

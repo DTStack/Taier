@@ -28,7 +28,7 @@ public class BrokerDataNode {
     		if(isCover){
         		target.setMetas(source.getMetas());
     		}else{
-    			target.getMetas().putAll(target.getMetas());
+    			target.getMetas().putAll(source.getMetas());
     		}
     	}
 	}
