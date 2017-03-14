@@ -179,7 +179,7 @@ public class ZkDistributed {
 	}
 		
 	public void updateSynchronizedBrokerData(String localAddress,BrokerDataNode source,boolean isCover){
-		String nodePath = String.format("%s/%s/%s",this.brokersNode,this.localAddress,metaDataNode);
+		String nodePath = String.format("%s/%s/%s",this.brokersNode,localAddress,metaDataNode);
 		try {
 			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
 			BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
