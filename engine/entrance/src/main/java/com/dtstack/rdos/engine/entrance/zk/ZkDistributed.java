@@ -474,7 +474,9 @@ public class ZkDistributed {
 	private Map<String,Byte> cleanNoNeed(String nodeAddress){
 		BrokerDataNode brokerDataNode = this.getBrokerDataNode(nodeAddress);
 		Map<String,Byte> datas = Maps.newConcurrentMap();
-		datas.putAll(brokerDataNode.getMetas());
+		if(brokerDataNode.getMetas()!=null) {
+			datas.putAll(brokerDataNode.getMetas());
+		}
 		for(Map.Entry<String, Byte> data:datas.entrySet()){
 			if(RdosTaskStatus.needClean(data.getValue())){
 				datas.remove(data.getKey());
