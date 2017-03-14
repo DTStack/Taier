@@ -303,9 +303,6 @@ public class ZkDistributed {
 				zkClient.create().forPath(node,
 						objectMapper.writeValueAsBytes(obj));
 			}
-//			else{
-//				zkClient.setData().forPath(node, objectMapper.writeValueAsBytes(obj));
-//			}
 	}
 	
 	private void checkDistributedConfig() throws Exception {
