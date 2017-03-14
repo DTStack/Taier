@@ -20,7 +20,7 @@ public class MyBatisConnectionFactory {
  
     private static SqlSessionFactory sqlSessionFactory;
     
-    private static Logger looger = LoggerFactory.getLogger(MyBatisConnectionFactory.class);
+    private static Logger logger = LoggerFactory.getLogger(MyBatisConnectionFactory.class);
  
     static {
         try {
@@ -32,7 +32,7 @@ public class MyBatisConnectionFactory {
             }
         }
         catch (Exception e) {
-        	looger.error("MyBatisConnectionFactory error:{}",ExceptionUtil.getErrorMessage(e));
+            logger.error("MyBatisConnectionFactory error:{}",ExceptionUtil.getErrorMessage(e));
         }
     }
     public static SqlSessionFactory getSqlSessionFactory() {
