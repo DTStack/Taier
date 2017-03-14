@@ -71,6 +71,7 @@ public class HeartBeatListener implements Runnable{
 					BrokerNodeCount brokerNodeCount = brokerNodeCounts.get(node);
 					if(brokerNodeCount==null){
 						brokerNodeCount = new BrokerNodeCount(0,brokerNode);
+                        this.rdosNodeMachineDAO.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 					}
 					if(brokerNodeCount.getBrokerHeartNode().getSeq().longValue()==brokerNode.getSeq().longValue()){
 						brokerNodeCount.setCount(brokerNodeCount.getCount()+1);
@@ -87,6 +88,7 @@ public class HeartBeatListener implements Runnable{
 						this.brokerNodeCounts.put(node, brokerNodeCount);
 					}
 				}else{
+					this.rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 					this.brokerNodeCounts.remove(node);
 				}
 			}
