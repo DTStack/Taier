@@ -29,6 +29,7 @@ public class DataMigrationListener implements Runnable{
     public void run() {
         try{
             while(true){
+                Thread.sleep(listener);
                 if(masterListener.isMaster()){
                     List<String> brokers =  zkDistributed.getBrokersChildren();
                     for(String node:brokers){
@@ -40,7 +41,6 @@ public class DataMigrationListener implements Runnable{
                     }
                 }
                 logger.warn("DataMigrationListener start again...");
-                Thread.sleep(listener);
             }
         }catch(Throwable e){
             logger.error("DataMigrationListener error:",e);
