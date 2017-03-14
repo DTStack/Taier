@@ -1,5 +1,6 @@
 CREATE TABLE `rdos_action_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `action_log_id` BIGINT(22) COMMENT '启动关联id',
   `action_type` tinyint(1) NOT NULL comment '操作类型 0启动 1停止',
   `status` tinyint(1) NOT NULL default 0 comment '操作状态 0 未开始，1操作成功 2操作失败',
   `task_id` varchar(256) NOT NULL comment '任务id',

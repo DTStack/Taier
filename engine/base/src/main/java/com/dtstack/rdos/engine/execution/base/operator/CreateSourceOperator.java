@@ -57,7 +57,7 @@ public class CreateSourceOperator implements Operator{
 		this.fields = new String[strs.length];
 		this.fieldTypes = new Class<?>[strs.length];
 		for(int i=0;i<strs.length;i++){
-			String[] ss = strs[i].split("\\s+");
+			String[] ss = strs[i].trim().split("\\s+");
 			this.fields[i] = ss[0].trim();
 			this.fieldTypes[i] = ClassUtil.stringConvetClass(ss[1].trim());
 		}

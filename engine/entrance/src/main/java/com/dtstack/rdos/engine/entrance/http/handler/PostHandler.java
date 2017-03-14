@@ -12,6 +12,8 @@ import com.sun.net.httpserver.HttpHandler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -24,6 +26,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 @SuppressWarnings("restriction")
 public abstract class PostHandler implements HttpHandler{
+
+	private static Logger logger = LoggerFactory.getLogger(PostHandler.class);
 
 	private static String encoding = "utf-8";
 
@@ -53,10 +57,11 @@ public abstract class PostHandler implements HttpHandler{
 
 	@SuppressWarnings("unchecked")
 	protected Map<String,Object> parseQuery(String query) throws IOException {
-		         Map<String,Object> parameters = Maps.newConcurrentMap();
-		         if (StringUtils.isNotBlank(query)) {
-					 parameters.putAll(objectMapper.readValue(query.getBytes(),Map.class));
-		         }
-		         return parameters;
+
+		Map<String,Object> parameters = Maps.newConcurrentMap();
+		if (StringUtils.isNotBlank(query)) {
+			parameters.putAll(objectMapper.readValue(query.getBytes(),Map.class));
 		}
+		return parameters;
+	}
 }

@@ -44,7 +44,7 @@ public class ActionServiceImpl{
 			new JobClient(SqlParser.parser(paramAction),paramAction.getName(),paramAction.getTaskId(),paramAction.getEngineTaskId(), EJobType.getEJobType(paramAction.getTaskType()), ComputeType.getComputeType(paramAction.getComputeType()), Restoration.getRestoration(paramAction.getIsRestoration()),paramAction.getActionLogId()).submit();
 			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
-			paramAction.setRequestStart(RequestStart.NODE.getStart());
+ 			paramAction.setRequestStart(RequestStart.NODE.getStart());
 			PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
 		}
 	}

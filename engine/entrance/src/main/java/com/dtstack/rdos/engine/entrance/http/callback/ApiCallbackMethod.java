@@ -31,7 +31,7 @@ public class ApiCallbackMethod {
 			apiResult.setSpace(end - start);
 		} catch (Throwable e) {
 			apiResult.serverError();
-			logger.error(ExceptionUtil.getErrorMessage(e));
+			logger.error("", e);
 		}finally{
 			if(os!=null)
 				try {

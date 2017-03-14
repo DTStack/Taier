@@ -35,6 +35,6 @@
    </update>
    
    <select id="getRdosTaskByTaskId" parameterType="java.util.HashMap" resultMap="rdosTaskResult">
-       select task_id,engine_task_id,name,statusfrom rdos_task where task_id=#{taskId} and is_deleted=0;
+       select task_id,engine_task_id,name,status from rdos_task where task_id=#{taskId} and is_deleted=0;
    </select>
 </mapper>

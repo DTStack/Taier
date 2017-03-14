@@ -5,7 +5,7 @@
  
 <configuration>
     <typeAliases>
-        <typeAlias alias="RdosActionLog" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosAction"/>
+        <typeAlias alias="RdosActionLog" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosActionLog"/>
         <typeAlias alias="RdosTask" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask"/>     
         <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine"/>        
         <typeAlias alias="RdosServerLog" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosServerLog" />
