@@ -128,7 +128,7 @@ public class ZkDistributed {
 	private void initScheduledExecutorService() {
 		MasterListener masterListener = new MasterListener();
 		executors.execute(new HeartBeat());
-		executors.execute(new MasterListener());
+		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
 		executors.execute(new RdosTaskStatusTaskListener());
 		executors.execute(new AllTaskStatusListener());
