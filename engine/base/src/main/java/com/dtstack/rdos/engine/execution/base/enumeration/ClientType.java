@@ -10,5 +10,16 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
 
 public enum ClientType {
 
-    Flink;
+    Flink,Spark;
+
+    public static ClientType getClientType(String type){
+
+        switch (type.toLowerCase()){
+
+            case "flink":return ClientType.Flink;
+
+            case "spark":return ClientType.Spark;
+        }
+         return null;
+    }
 }

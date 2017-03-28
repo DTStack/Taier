@@ -1,7 +1,11 @@
-slots: 2
+#engine
+slots: 10
+localAddress: 127.0.0.1:8080
+nodeZkAddress: 172.16.1.151/engine
+clientType: flink
+#flink
 engineZkAddress: 172.16.1.151
 engineZkNamespace: /flink
 engineClusterId: /default
 jarTmpDir: D:\tmp
-localAddress: 127.0.0.1:8080
-nodeZkAddress: 172.16.1.151/engine
+#spark

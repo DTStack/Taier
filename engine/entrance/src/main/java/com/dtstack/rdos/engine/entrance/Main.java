@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.dtstack.rdos.common.util.CheckEngineAgumentsNotNull;
 
 import java.util.Map;
 
@@ -26,8 +27,7 @@ public class Main {
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private static LogComponent logComponent = new LogbackComponent();
-	//private static LogComponent logComponent = new Log4jComponent();
-	
+
 	private static EHttpServer eHttpServer;
 	
 	private static ZkDistributed zkDistributed;
@@ -43,6 +43,7 @@ public class Main {
 			logComponent.setupLogger();
 			// load config
 			Map<String,Object> nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),Map.class);
+			CheckEngineAgumentsNotNull.checkEngineAguments(nodeConfig);
 			// init service
 			initService(nodeConfig);
 			// add hook
@@ -58,7 +59,7 @@ public class Main {
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-		submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, nodeConfig);
+		submitContainer = SubmitContainer.createSubmitContainer(ClientType.getClientType((String)nodeConfig.get("clientType")), nodeConfig);
 	}
 	
 	private static void addShutDownHook(){
