@@ -49,6 +49,7 @@ public class NodeHandler extends PostHandler{
 			throw new RdosException("url path error");
 		}
 		String name = paths[paths.length-2];
+		name = upperFirstLetter(name);
 		String method = paths[paths.length-1];
 		String paramsStr = getQueryString(he);
 		Class<?> paramType = null;
@@ -69,5 +70,9 @@ public class NodeHandler extends PostHandler{
 		}
 		Method rmethod = cla.getMethod(method, paramType);
 		return rmethod.invoke(obj, paramsMap);
+	}
+
+	private String upperFirstLetter(String word){
+		return word.substring(0, 1).toUpperCase() + word.substring(1);
 	}
 }
