@@ -16,6 +16,6 @@
     </resultMap>
     
     <update id="updateActionStatus" parameterType="java.util.HashMap">
-	   update rdos_action_log set gmt_modified=now(),status=#{status} where action_log_id=#{actionLogId};
+	   update rdos_action_log set gmt_modified=now(),status=#{status} where id=#{actionLogId};
 	</update>
 </mapper>
