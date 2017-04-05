@@ -1,8 +1,9 @@
-package com.dtstack.rdos.engine.execution.base.operator;
+package com.dtstack.rdos.engine.execution.base.operator.stream;
 
 import java.util.Map;
 
 import com.dtstack.rdos.common.util.GrokUtil;
+import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 
