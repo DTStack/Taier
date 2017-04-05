@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink120.sink;
 
-import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
+
 
 /**
  * Date: 2017/3/10
