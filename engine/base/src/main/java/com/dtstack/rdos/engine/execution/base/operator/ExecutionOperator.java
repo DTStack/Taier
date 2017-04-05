@@ -33,4 +33,8 @@ public class ExecutionOperator implements Operator{
 			throw new SqlVerificationException("execution");
 		}
 	}
+
+	public static boolean verific(String sql) throws Exception{
+		return StringUtils.isNotBlank(sql)&&(sql.trim().toLowerCase().startsWith("select")||sql.trim().toLowerCase().startsWith("insert"));
+	}
 }
