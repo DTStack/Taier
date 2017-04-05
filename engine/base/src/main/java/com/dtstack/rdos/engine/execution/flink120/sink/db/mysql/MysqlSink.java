@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.db.mysql;
 
-import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
 import com.dtstack.rdos.engine.execution.flink120.sink.db.DBSink;
 import com.google.common.base.Preconditions;

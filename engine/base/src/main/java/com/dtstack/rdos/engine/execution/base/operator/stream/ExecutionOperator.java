@@ -1,6 +1,8 @@
-package com.dtstack.rdos.engine.execution.base.operator;
+package com.dtstack.rdos.engine.execution.base.operator.stream;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 /**
