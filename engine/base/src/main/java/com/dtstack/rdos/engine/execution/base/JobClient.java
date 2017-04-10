@@ -1,9 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
+import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
@@ -38,6 +35,8 @@ public class JobClient {
     
     private ComputeType computeType;
 
+    private ClientType clientType;
+
     private JobResult jobResult;
     
     private Restoration isRestoration;
@@ -47,8 +46,8 @@ public class JobClient {
     private static LinkedBlockingQueue<JobClient> queue;
 
     /***
-     * 获取Flink上job执行的状态
-     * @param engineTaskId Flink jobId
+     * 获取engine上job执行的状态
+     * @param engineTaskId engine jobId
      * @return
      */
     public static RdosTaskStatus getStatus(String engineTaskId){
@@ -169,4 +168,12 @@ public class JobClient {
 	public void setActionLogId(Long actionLogId) {
 		this.actionLogId = actionLogId;
 	}
+
+    public ClientType getClientType() {
+        return clientType;
+    }
+
+    public void setClientType(ClientType clientType) {
+        this.clientType = clientType;
+    }
 }

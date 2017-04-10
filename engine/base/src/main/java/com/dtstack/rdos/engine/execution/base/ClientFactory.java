@@ -2,6 +2,8 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.flink120.FlinkClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Reason:
@@ -13,14 +15,24 @@ import com.dtstack.rdos.engine.execution.flink120.FlinkClient;
 
 public class ClientFactory {
 
-    public static IClient getClient(ClientType type){
+    private static final Logger logger = LoggerFactory.getLogger(ClientFactory.class);
+
+    public static IClient getClient(String type){
 
         IClient client = null;
+        type = type.toLowerCase();
 
         switch (type){
-            case Flink:
+            case "flink":
                 client = new FlinkClient();
                 break;
+
+            case "spark":
+                //FIXME
+                break;
+
+                default:
+                    logger.error("not suport for client type " + type);
         }
 
         return client;
