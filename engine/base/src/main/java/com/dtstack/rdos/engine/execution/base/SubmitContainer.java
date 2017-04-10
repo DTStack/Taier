@@ -19,26 +19,23 @@ public class SubmitContainer {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmitContainer.class);
 
-    private ClientType clientType;
-
     private static SubmitContainer submitContainer;
     
-    private Properties properties = new Properties();
+    private Map<String, Object> engineConf;
     
-    public static SubmitContainer createSubmitContainer(ClientType clientType,Map<String,Object> properties){
+    public static SubmitContainer createSubmitContainer(Map<String,Object> properties){
     	if(submitContainer == null){
     		synchronized(SubmitContainer.class){
     			if(submitContainer == null){
-    				submitContainer = new SubmitContainer(clientType,properties);
+    				submitContainer = new SubmitContainer(properties);
     			}
     		}
     	}
     	return SubmitContainer.submitContainer;
     }
     
-    private SubmitContainer(ClientType clientType,Map<String,Object> properties){
-    	this.clientType = clientType;
-    	this.properties.putAll(properties);
+    private SubmitContainer(Map<String,Object> engineConf){
+    	this.engineConf = engineConf;
     	start();
     }
     
@@ -49,12 +46,11 @@ public class SubmitContainer {
     
 
     public void start(){
-        JobSubmitExecutor.getInstance().init(clientType, properties);
+        JobSubmitExecutor.getInstance().init(engineConf);
         JobSubmitExecutor.getInstance().start();
 
         logger.info("------start job container----");
-        logger.info("client_type:{}", clientType);
-        logger.info("properties:{}", properties);
+        logger.info("engine config:{}", engineConf);
         logger.info("------------------------------");
     }
 
@@ -64,25 +60,8 @@ public class SubmitContainer {
 
 
     /**********************************************/
-    public ClientType getClientType() {
-        return clientType;
-    }
-
-    public void setClientType(ClientType clientType) {
-        this.clientType = clientType;
-    }
-    
-
-	public Properties getProperties() {
-		return properties;
-	}
-
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
 
 	public void release() {
-		// TODO Auto-generated method stub
 		this.shutdown();
 	}
 }

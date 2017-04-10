@@ -1,11 +1,30 @@
 #engine
 slots: 10
 localAddress: 127.0.0.1:8080
-nodeZkAddress: 172.16.1.151/engine
-clientType: flink
+nodeZkAddress: 172.16.1.151/
+
+
+#------------old-----------
+#clientType: flink
 #flink
-engineZkAddress: 172.16.1.151
-engineZkNamespace: /flink
-engineClusterId: /default
-jarTmpDir: D:\tmp
+#engineZkAddress: 172.16.1.151
+#engineZkNamespace: /flink
+#engineClusterId: /default
+#jarTmpDir: D:\tmp
 #spark
+
+#-------------------------
+
+
+#-----------new-----------
+clientTypes:
+    -
+        typeName: flink
+        engineZkAddress: 172.16.1.151
+        engineZkNamespace: /flink
+        engineClusterId: /default
+        jarTmpDir: D:\tmp
+
+    -
+        typeName: spark
+        sparkMaster: spark://172.16.1.151:6066
