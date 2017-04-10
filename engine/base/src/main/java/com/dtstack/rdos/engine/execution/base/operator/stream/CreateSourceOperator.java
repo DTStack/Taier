@@ -1,10 +1,11 @@
-package com.dtstack.rdos.engine.execution.base.operator;
+package com.dtstack.rdos.engine.execution.base.operator.stream;
 
 import java.util.Map;
 import java.util.Properties;
 
 import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.GrokUtil;
+import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 /**
@@ -15,11 +16,10 @@ import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
  * @author sishu.yss
  *
  */
-public class CreateResultOperator implements Operator{
-	
+public class CreateSourceOperator implements Operator{
 	
 	/**
-	 *  CREATE RESULT TABLE student_stream(
+	 *  CREATE SOURCE TABLE student_stream(
      *  id BIGINT,
      *  name STRING) WITH (
      *  type='datahub',
@@ -30,7 +30,7 @@ public class CreateResultOperator implements Operator{
 	 *  topic='datahub_test'
 	 *  );
 	 */
-	private static String pattern="CREATERESULT";
+	private static String pattern ="CREATESOURCE";
 	
 	private Properties properties;
 	
@@ -70,10 +70,11 @@ public class CreateResultOperator implements Operator{
         for(int i=0;i<strs.length;i++){
         	String[] ss = strs[i].split("=");
         	String key = ss[0].trim();
+        	String value = ss[1].trim().replaceAll("'", "").trim();
         	if("type".equals(key)){
-        		this.type = ss[1].trim().replaceAll("'", "");
+        		this.type = value;
         	}else{
-        		this.properties.put(key, ss[1].trim().replaceAll("'", ""));
+        		this.properties.put(key, value);
         	}
         }
 	}
@@ -82,14 +83,14 @@ public class CreateResultOperator implements Operator{
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
 		if(GrokUtil.isSuccess(pattern, sql)){
-			throw new SqlVerificationException("create result");
+			throw new SqlVerificationException("create source");
 		}
 	}
 	
 	public static boolean verific(String sql) throws Exception{
 		return GrokUtil.isSuccess(pattern, sql);
 	}
-
+	
 	public Properties getProperties() {
 		return properties;
 	}
@@ -101,7 +102,7 @@ public class CreateResultOperator implements Operator{
 	public Class<?>[] getFieldTypes() {
 		return fieldTypes;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -109,5 +110,5 @@ public class CreateResultOperator implements Operator{
 	public String getType() {
 		return type;
 	}
-	
+
 }
