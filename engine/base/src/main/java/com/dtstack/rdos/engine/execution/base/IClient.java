@@ -28,14 +28,14 @@ public interface IClient {
     JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException;
 
     /**
-     *  提交的时候先判断下计算资源是否足够,
+     * 提交的时候先判断下计算资源是否足够,
      * 只有sql方式才能判断,jar方式计算资源在jar包里面指定,无法获取
      * @param jobClient
      * @return
      */
     JobResult submitJob(JobClient jobClient);
 
-    JobResult cancleJob(String jobId);
+    JobResult cancelJob(String jobId);
 
     RdosTaskStatus getJobStatus(String jobId);
 

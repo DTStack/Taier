@@ -128,6 +128,22 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.flink</groupId>
+            <artifactId>flink-yarn_2.11</artifactId>
+            <version>${flink.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+
+		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>common</artifactId>
 			<version>1.0.0</version>

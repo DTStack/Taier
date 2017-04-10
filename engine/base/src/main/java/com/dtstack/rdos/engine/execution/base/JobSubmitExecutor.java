@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -7,9 +8,7 @@ import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -17,7 +16,6 @@ import java.util.concurrent.*;
  * 单独起线程执行
  * Date: 2017/2/21
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 
@@ -25,7 +23,11 @@ public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
-    public static final String SLOTS_KEY = "slots";
+    private static final String CLIENT_TYPES_KEY = "clientTypes";
+
+    private static final String TYPE_NAME_KEY = "typeName";
+
+    public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
 
     private BlockingQueue<JobClient> submitQueue = Queues.newLinkedBlockingQueue();
 
@@ -39,28 +41,40 @@ public class JobSubmitExecutor{
 
     private boolean isStarted = false;
 
-    //为了获取job状态
-    private IClient client;
+    //为了获取job状态,FIXME 是否有更合适的方式?
+    private Map<ClientType, IClient> clientMap = new HashMap<>();
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
     private JobSubmitExecutor(){}
 
-    public void init(ClientType type, Properties clusterProp){
+    public void init(Map<String,Object> engineConf){
 
-        Object slots = clusterProp.get(SLOTS_KEY);
+        Object slots = engineConf.get(SLOTS_KEY);
         this.poolSize = slots == null ? 10 : (int) slots;
 
+        List<Map<String, Object>> clientParamsList = (List<Map<String, Object>>) engineConf.get(CLIENT_TYPES_KEY);
         executor = Executors.newFixedThreadPool(poolSize);
         for(int i=0; i<poolSize; i++){
-            JobSubmitProcessor processor = new JobSubmitProcessor(type, clusterProp);
+            JobSubmitProcessor processor = new JobSubmitProcessor(clientParamsList);
             processorList.add(processor);
         }
-
-        client = ClientFactory.getClient(type);
-        client.init(clusterProp);
-
+        initJobStatusClient(clientParamsList);
         hasInit = true;
+    }
+
+    private void initJobStatusClient(List<Map<String, Object>> clientParamsList){
+
+        for(Map<String, Object> params : clientParamsList){
+            String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
+            IClient client = ClientFactory.getClient(clientTypeStr);
+            Properties clusterProp = new Properties();
+            clusterProp.putAll(params);
+            client.init(clusterProp);
+
+            ClientType clientType = ClientType.getClientType(clientTypeStr);
+            clientMap.put(clientType, client);
+        }
     }
 
     public static JobSubmitExecutor getInstance(){
@@ -71,12 +85,14 @@ public class JobSubmitExecutor{
         submitQueue.add(jobClient);
     }
 
-    public RdosTaskStatus getJobStatus(String jobId){
+    public RdosTaskStatus getJobStatus(ClientType clientType, String jobId){
+        IClient client = clientMap.get(clientType);
         return client.getJobStatus(jobId);
     }
 
-    public JobResult stopJob(String jobId){
-        return client.cancleJob(jobId);
+    public JobResult stopJob(ClientType clientType, String jobId){
+        IClient client = clientMap.get(clientType);
+        return client.cancelJob(jobId);
     }
 
     public void start(){
@@ -118,11 +134,27 @@ public class JobSubmitExecutor{
 
         private boolean runnable;
 
-        private IClient clusterClient;
+        private Map<ClientType, IClient> clusterClientMap = new HashMap<>();
 
-        public JobSubmitProcessor(ClientType type, Properties clusterProp){
-            clusterClient = ClientFactory.getClient(type);
-            clusterClient.init(clusterProp);
+        public JobSubmitProcessor(List<Map<String, Object>> clientParamsList){
+            for(Map<String, Object> clientParams : clientParamsList){
+                String clientTypeStr = (String) clientParams.get(TYPE_NAME_KEY);
+                if(clientTypeStr == null){
+                    logger.error("node.yml error, client type must not be null!!!");
+                    throw new RdosException("node.yml error, client type must not be null!!!");
+                }
+
+                IClient client = ClientFactory.getClient(clientTypeStr);
+                if(client == null){
+                    throw new RdosException("not support for client type " + clientTypeStr);
+                }
+                Properties clusterProp = new Properties();
+                clusterProp.putAll(clientParams);
+                client.init(clusterProp);
+
+                ClientType clientType = ClientType.getClientType(clientTypeStr);
+                clusterClientMap.put(clientType, client);
+            }
         }
 
         @Override
@@ -131,6 +163,7 @@ public class JobSubmitExecutor{
                 JobClient jobClient = getNextJob();
 
                 if(jobClient != null){
+                    IClient clusterClient = clusterClientMap.get(jobClient.getClientType());
                     JobResult jobResult = null;
                     try{
                         jobResult = clusterClient.submitJob(jobClient);

@@ -38,6 +38,7 @@ import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
+import org.apache.flink.yarn.YarnClusterClient;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,7 @@ public class FlinkClient extends AbsClient {
     private boolean isDetact = true;
 
     /**
-     * FIXME 注意 StandaloneClusterClient 是否适用于Yarn方式
+     * 直接指定jobmanager host:port方式
      * @return
      * @throws Exception
      */
@@ -125,9 +126,16 @@ public class FlinkClient extends AbsClient {
         client = clusterClient;
     }
 
+    /**
+     * 根据yarn方式获取ClusterClient
+     */
+    public void initClusterClientByYarn(){
+        //YarnClusterClient clusterClient =
+    }
+
 
     /**
-     * 根据zk获取cluster
+     * 根据zk获取clusterclient
      * @param zkNamespace
      */
     public void initClusterClientByZK(String zkNamespace, String root, String clusterId){
@@ -404,7 +412,7 @@ public class FlinkClient extends AbsClient {
         throw new RdosException("not support flink sql job for batch type.");
     }
 
-    public JobResult cancleJob(String jobId) {
+    public JobResult cancelJob(String jobId) {
 
         JobID jobID = new JobID(StringUtils.hexStringToByte(jobId));
         FiniteDuration clientTimeout = AkkaUtils.getDefaultClientTimeout();
