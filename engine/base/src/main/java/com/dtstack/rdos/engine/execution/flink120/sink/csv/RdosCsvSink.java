@@ -1,7 +1,8 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.csv;
 
-import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
+
 import org.apache.flink.table.sinks.CsvTableSink;
 
 /**

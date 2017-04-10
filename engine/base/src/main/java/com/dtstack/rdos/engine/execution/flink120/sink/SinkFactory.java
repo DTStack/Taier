@@ -2,10 +2,11 @@ package com.dtstack.rdos.engine.execution.flink120.sink;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
-import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.csv.RdosCsvSink;
 import com.dtstack.rdos.engine.execution.flink120.sink.db.mysql.MysqlSink;
 import com.dtstack.rdos.engine.execution.flink120.sink.kafka.RdosKafka09Sink;
+
 import org.apache.flink.table.sinks.TableSink;
 
 /**

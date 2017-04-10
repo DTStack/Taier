@@ -5,8 +5,10 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
+
 import org.junit.Test;
+
 import java.util.Properties;
 
 /**
