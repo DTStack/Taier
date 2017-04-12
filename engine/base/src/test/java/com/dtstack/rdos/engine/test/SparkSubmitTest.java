@@ -2,12 +2,11 @@ package com.dtstack.rdos.engine.test;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
@@ -48,7 +47,7 @@ public class SparkSubmitTest {
     public void submitJar(){
         init();
         JobClient jobClient = new JobClient();
-        jobClient.setClientType(ClientType.Spark);
+        jobClient.setEngineType(EngineType.Spark);
         jobClient.setJobType(EJobType.MR);
         BatchAddJarOperator addJarOperator = new BatchAddJarOperator();
         addJarOperator.setJarPath("hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar");
@@ -65,7 +64,7 @@ public class SparkSubmitTest {
     public void submitSql() throws Exception {
         init();
         JobClient jobClient = new JobClient();
-        jobClient.setClientType(ClientType.Spark);
+        jobClient.setEngineType(EngineType.Spark);
         jobClient.setJobType(EJobType.SQL);
         jobClient.setComputeType(ComputeType.BATCH);
         BatchExecutionOperator executionOperator = new BatchExecutionOperator();

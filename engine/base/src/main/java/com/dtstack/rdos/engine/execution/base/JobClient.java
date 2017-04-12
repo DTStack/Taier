@@ -35,7 +35,7 @@ public class JobClient {
     
     private ComputeType computeType;
 
-    private ClientType clientType;
+    private EngineType engineType;
 
     private JobResult jobResult;
     
@@ -50,8 +50,8 @@ public class JobClient {
      * @param engineTaskId engine jobId
      * @return
      */
-    public static RdosTaskStatus getStatus(ClientType clientType, String engineTaskId){
-		return JobSubmitExecutor.getInstance().getJobStatus(clientType, engineTaskId);
+    public static RdosTaskStatus getStatus(EngineType engineType, String engineTaskId){
+		return JobSubmitExecutor.getInstance().getJobStatus(engineType, engineTaskId);
     }
 
     public static LinkedBlockingQueue<JobClient> getQueue() {
@@ -88,8 +88,8 @@ public class JobClient {
         JobSubmitExecutor.getInstance().submitJob(this);
     }
     
-    public static JobResult stop(ClientType clientType, String engineTaskId){
-    	return JobSubmitExecutor.getInstance().stopJob(clientType, engineTaskId);
+    public static JobResult stop(EngineType engineType, String engineTaskId){
+    	return JobSubmitExecutor.getInstance().stopJob(engineType, engineTaskId);
     }
 
 	public String getTaskId() {
@@ -169,11 +169,11 @@ public class JobClient {
 		this.actionLogId = actionLogId;
 	}
 
-    public ClientType getClientType() {
-        return clientType;
+    public EngineType getEngineType() {
+        return engineType;
     }
 
-    public void setClientType(ClientType clientType) {
-        this.clientType = clientType;
+    public void setEngineType(EngineType engineType) {
+        this.engineType = engineType;
     }
 }
