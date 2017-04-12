@@ -22,6 +22,12 @@ public abstract class AbsClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbsClient.class);
 
+    public static final String JOB_JAR_PATH_KEY = "job.jar.path";
+
+    public static final String JOB_MAIN_CLASS_KEY = "job.main.class";
+
+    public static final String JOB_APP_NAME_KEY = "job.name";
+
     @Override
     public JobResult submitJob(JobClient jobClient) {
 
@@ -30,7 +36,7 @@ public abstract class AbsClient implements IClient{
 
         if(EJobType.MR.equals(jobType)){
             try{
-                jobResult = adaptToJarSubmit(jobClient);
+                jobResult = submitJobWithJar(jobClient);
             }catch (Exception e){
                 logger.error("", e);
                 jobResult = JobResult.createErrorResult(e);
@@ -44,29 +50,13 @@ public abstract class AbsClient implements IClient{
                 jobResult = JobResult.createErrorResult(e);
             }
         }else{
-            jobResult = JobResult.createErrorResult("not support type of " + jobType);
+            jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
+                    " you need to set it in(MR, SQL)");
         }
 
         return jobResult;
     }
 
-    public JobResult adaptToJarSubmit(JobClient jobClient){
 
-        AddJarOperator jarOperator = null;
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof AddJarOperator){
-                jarOperator = (AddJarOperator) operator;
-                break;
-            }
-        }
-
-        if(jarOperator == null){
-            return JobResult.createErrorResult("submit type of MR need have add jar operator.");
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty("jarpath", jarOperator.getJarPath());
-        return submitJobWithJar(properties);
-    }
 
 }

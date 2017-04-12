@@ -7,9 +7,10 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 
+import com.google.common.collect.Maps;
 import org.junit.Test;
 
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Reason:
@@ -19,18 +20,30 @@ import java.util.Properties;
  * @ahthor xuchao
  */
 
-public class SubmitTest {
+public class FlinkSubmitTest {
+
+    public void init(){
+        Map<String, Object> engineConfig = new HashMap<>();
+        engineConfig.put("slots", 1);
+
+        List<Map<String, Object>> engineList = new ArrayList<>();
+        Map<String, Object> flinkEngine = Maps.newHashMap();
+        flinkEngine.put("typeName", "flink");
+        flinkEngine.put("engineZkAddress", "172.16.1.151");
+        flinkEngine.put("engineZkNamespace", "/flink");
+        flinkEngine.put("engineClusterId", "default");
+        flinkEngine.put("jarTmpDir", "D:\\tmp");
+
+        engineList.add(flinkEngine);
+        engineConfig.put("engineTypes", engineList);
+
+        JobSubmitExecutor.getInstance().init(engineConfig);
+        JobSubmitExecutor.getInstance().start();
+    }
 
     @Test
     public void submitJar(){
-
-        Properties properties = new Properties();
-        properties.setProperty("host", "172.16.1.151");
-        properties.setProperty("port", "6123");
-
-        JobSubmitExecutor.getInstance().init(ClientType.Flink, properties);
-        JobSubmitExecutor.getInstance().start();
-
+        init();
         JobClient jobClient = new JobClient();
         AddJarOperator addJarOperator = new AddJarOperator();
         addJarOperator.setJarPath("http://114.55.63.129/flinktest-1.0-SNAPSHOT.jar");
