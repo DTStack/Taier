@@ -17,7 +17,7 @@ nodeZkAddress: 172.16.1.151/
 
 
 #-----------new-----------
-clientTypes:
+engineTypes:
     -
         typeName: flink
         engineZkAddress: 172.16.1.151
@@ -28,3 +28,5 @@ clientTypes:
     -
         typeName: spark
         sparkMaster: spark://172.16.1.151:6066
+        sparkSqlProxyPath: hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
+        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy

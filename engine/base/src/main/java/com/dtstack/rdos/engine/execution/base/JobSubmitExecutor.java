@@ -23,11 +23,13 @@ public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
-    private static final String CLIENT_TYPES_KEY = "clientTypes";
+    private static final String Engine_TYPES_KEY = "engineTypes";
 
     private static final String TYPE_NAME_KEY = "typeName";
 
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
+
+    public static final int DEAFULT_SLOT_NUM = 3;
 
     private BlockingQueue<JobClient> submitQueue = Queues.newLinkedBlockingQueue();
 
@@ -51,14 +53,15 @@ public class JobSubmitExecutor{
     public void init(Map<String,Object> engineConf){
 
         Object slots = engineConf.get(SLOTS_KEY);
-        this.poolSize = slots == null ? 10 : (int) slots;
+        this.poolSize = slots == null ? DEAFULT_SLOT_NUM : (int) slots;
 
-        List<Map<String, Object>> clientParamsList = (List<Map<String, Object>>) engineConf.get(CLIENT_TYPES_KEY);
+        List<Map<String, Object>> clientParamsList = (List<Map<String, Object>>) engineConf.get(Engine_TYPES_KEY);
         executor = Executors.newFixedThreadPool(poolSize);
         for(int i=0; i<poolSize; i++){
             JobSubmitProcessor processor = new JobSubmitProcessor(clientParamsList);
             processorList.add(processor);
         }
+
         initJobStatusClient(clientParamsList);
         hasInit = true;
     }
@@ -87,7 +90,12 @@ public class JobSubmitExecutor{
 
     public RdosTaskStatus getJobStatus(ClientType clientType, String jobId){
         IClient client = clientMap.get(clientType);
-        return client.getJobStatus(jobId);
+        try{
+            return client.getJobStatus(jobId);
+        }catch (Exception e){
+            logger.error("", e);
+            return RdosTaskStatus.FAILED;//FIXME 是否应该抛出异常或者提供新的状态
+        }
     }
 
     public JobResult stopJob(ClientType clientType, String jobId){
@@ -137,17 +145,19 @@ public class JobSubmitExecutor{
         private Map<ClientType, IClient> clusterClientMap = new HashMap<>();
 
         public JobSubmitProcessor(List<Map<String, Object>> clientParamsList){
+
             for(Map<String, Object> clientParams : clientParamsList){
                 String clientTypeStr = (String) clientParams.get(TYPE_NAME_KEY);
                 if(clientTypeStr == null){
-                    logger.error("node.yml error, client type must not be null!!!");
-                    throw new RdosException("node.yml error, client type must not be null!!!");
+                    logger.error("node.yml of engineTypes setting error, typeName must not be null!!!");
+                    throw new RdosException("node.yml of engineTypes setting error, typeName must not be null!!!");
                 }
 
                 IClient client = ClientFactory.getClient(clientTypeStr);
                 if(client == null){
                     throw new RdosException("not support for client type " + clientTypeStr);
                 }
+
                 Properties clusterProp = new Properties();
                 clusterProp.putAll(clientParams);
                 client.init(clusterProp);
@@ -163,8 +173,17 @@ public class JobSubmitExecutor{
                 JobClient jobClient = getNextJob();
 
                 if(jobClient != null){
+
                     IClient clusterClient = clusterClientMap.get(jobClient.getClientType());
                     JobResult jobResult = null;
+
+                    if(clusterClient == null){
+                        jobResult = JobResult.createErrorResult("job setting client type " +
+                                "(" + jobClient.getClientType()  +") don't found.");
+                        updateJobStatus(jobClient, jobResult);
+                        continue;
+                    }
+
                     try{
                         jobResult = clusterClient.submitJob(jobClient);
                         logger.info("submit job result is:{}.", jobResult);
@@ -175,16 +194,20 @@ public class JobSubmitExecutor{
                         logger.error("get unexpected exception", e);
                     }catch (Error e){
                         jobResult = JobResult.createErrorResult(e);
-                        logger.error("get error, please check program!!!!", e);
+                        logger.error("get an error, please check program!!!!", e);
                     }
 
-                    //FIXME 之后需要对本地异常信息做存储
-                    jobClient.setJobResult(jobResult);
-                    JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
+                    updateJobStatus(jobClient, jobResult);
                 }
             }
 
             return null;
+        }
+
+        private void updateJobStatus(JobClient jobClient, JobResult jobResult){
+            //FIXME 之后需要对本地异常信息做存储
+            jobClient.setJobResult(jobResult);
+            JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
         }
 
         public boolean isRunnable() {

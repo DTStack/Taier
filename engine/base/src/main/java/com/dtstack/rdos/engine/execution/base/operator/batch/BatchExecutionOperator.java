@@ -28,6 +28,7 @@ public class BatchExecutionOperator implements Operator{
 		return sql;
 	}
 
+
 	@Override
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub

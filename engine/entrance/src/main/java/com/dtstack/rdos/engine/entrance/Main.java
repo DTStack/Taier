@@ -59,7 +59,7 @@ public class Main {
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-		submitContainer = SubmitContainer.createSubmitContainer(ClientType.getClientType((String)nodeConfig.get("clientType")), nodeConfig);
+		submitContainer = SubmitContainer.createSubmitContainer(nodeConfig);
 	}
 	
 	private static void addShutDownHook(){

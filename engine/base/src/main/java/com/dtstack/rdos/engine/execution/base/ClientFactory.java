@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.flink120.FlinkClient;
+import com.dtstack.rdos.engine.execution.spark210.SparkClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +29,11 @@ public class ClientFactory {
                 break;
 
             case "spark":
-                //FIXME
+                client = new SparkClient();
                 break;
 
                 default:
-                    logger.error("not suport for client type " + type);
+                    logger.error("not support for engine type " + type);
         }
 
         return client;

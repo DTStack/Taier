@@ -23,7 +23,7 @@ public interface IClient {
      */
     void init(Properties prop);
 
-    JobResult submitJobWithJar(Properties properties);
+    JobResult submitJobWithJar(JobClient jobClient);
 
     JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException;
 
@@ -37,7 +37,7 @@ public interface IClient {
 
     JobResult cancelJob(String jobId);
 
-    RdosTaskStatus getJobStatus(String jobId);
+    RdosTaskStatus getJobStatus(String jobId) throws IOException;
 
     String getJobDetail(String jobId);
 
