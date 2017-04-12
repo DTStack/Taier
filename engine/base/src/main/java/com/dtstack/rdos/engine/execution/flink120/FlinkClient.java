@@ -85,10 +85,6 @@ public class FlinkClient extends AbsClient {
 
     public static final String FLINK_ZK_CLUSTERID_KEY = "engineClusterId";
 
-    public static final String FLINK_JOB_JAR_PATH_KEY = "jobJarPath";
-
-    public static final String FLINK_JOB_JAR_MAINCLASS_KEY = "jobJarMainClass";
-
     public static final String FLINK_JOB_PARALLELISM_KEY = "flinkJobParallelism";
 
     public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
@@ -193,12 +189,14 @@ public class FlinkClient extends AbsClient {
 
     /***
      * 提交 job-jar 到 cluster 的方式, jobname 需要在job-jar里面指定
-     * @param properties
+     * @param jobClient
      * @return
      */
-    public JobResult submitJobWithJar(Properties properties) {
+    public JobResult submitJobWithJar(JobClient jobClient) {
 
-        Object jarPath = properties.get(FLINK_JOB_JAR_PATH_KEY);
+        Properties properties = adaptToJarSubmit(jobClient);
+
+        Object jarPath = properties.get(JOB_JAR_PATH_KEY);
         if(jarPath == null){
             logger.error("can not submit a job without jarpath, please check it");
             JobResult jobResult = JobResult.newInstance(true);
@@ -208,7 +206,7 @@ public class FlinkClient extends AbsClient {
 
         PackagedProgram packagedProgram = null;
 
-        String entryPointClass = properties.getProperty(FLINK_JOB_JAR_MAINCLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
+        String entryPointClass = properties.getProperty(JOB_MAIN_CLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
         String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
         SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
@@ -260,6 +258,26 @@ public class FlinkClient extends AbsClient {
         JobResult jobResult = JobResult.createSuccessResult(result.getJobID().toString());
 
         return jobResult;
+    }
+
+    public Properties adaptToJarSubmit(JobClient jobClient){
+
+        AddJarOperator jarOperator = null;
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof AddJarOperator){
+                jarOperator = (AddJarOperator) operator;
+                break;
+            }
+        }
+
+        if(jarOperator == null){
+            throw new RdosException("submit type of MR need to add jar operator.");
+        }
+
+        Properties properties = new Properties();
+        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
+        properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
+        return properties;
     }
 
     public SavepointRestoreSettings buildSavepointSetting(Properties properties){
