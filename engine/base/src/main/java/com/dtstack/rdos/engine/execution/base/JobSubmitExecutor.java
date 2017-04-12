@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.collect.Queues;
@@ -44,7 +44,7 @@ public class JobSubmitExecutor{
     private boolean isStarted = false;
 
     //为了获取job状态,FIXME 是否有更合适的方式?
-    private Map<ClientType, IClient> clientMap = new HashMap<>();
+    private Map<EngineType, IClient> clientMap = new HashMap<>();
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
@@ -75,8 +75,8 @@ public class JobSubmitExecutor{
             clusterProp.putAll(params);
             client.init(clusterProp);
 
-            ClientType clientType = ClientType.getClientType(clientTypeStr);
-            clientMap.put(clientType, client);
+            EngineType engineType = EngineType.getClientType(clientTypeStr);
+            clientMap.put(engineType, client);
         }
     }
 
@@ -88,8 +88,8 @@ public class JobSubmitExecutor{
         submitQueue.add(jobClient);
     }
 
-    public RdosTaskStatus getJobStatus(ClientType clientType, String jobId){
-        IClient client = clientMap.get(clientType);
+    public RdosTaskStatus getJobStatus(EngineType engineType, String jobId){
+        IClient client = clientMap.get(engineType);
         try{
             return client.getJobStatus(jobId);
         }catch (Exception e){
@@ -98,8 +98,8 @@ public class JobSubmitExecutor{
         }
     }
 
-    public JobResult stopJob(ClientType clientType, String jobId){
-        IClient client = clientMap.get(clientType);
+    public JobResult stopJob(EngineType engineType, String jobId){
+        IClient client = clientMap.get(engineType);
         return client.cancelJob(jobId);
     }
 
@@ -142,7 +142,7 @@ public class JobSubmitExecutor{
 
         private boolean runnable;
 
-        private Map<ClientType, IClient> clusterClientMap = new HashMap<>();
+        private Map<EngineType, IClient> clusterClientMap = new HashMap<>();
 
         public JobSubmitProcessor(List<Map<String, Object>> clientParamsList){
 
@@ -162,8 +162,8 @@ public class JobSubmitExecutor{
                 clusterProp.putAll(clientParams);
                 client.init(clusterProp);
 
-                ClientType clientType = ClientType.getClientType(clientTypeStr);
-                clusterClientMap.put(clientType, client);
+                EngineType engineType = EngineType.getClientType(clientTypeStr);
+                clusterClientMap.put(engineType, client);
             }
         }
 
@@ -174,12 +174,12 @@ public class JobSubmitExecutor{
 
                 if(jobClient != null){
 
-                    IClient clusterClient = clusterClientMap.get(jobClient.getClientType());
+                    IClient clusterClient = clusterClientMap.get(jobClient.getEngineType());
                     JobResult jobResult = null;
 
                     if(clusterClient == null){
                         jobResult = JobResult.createErrorResult("job setting client type " +
-                                "(" + jobClient.getClientType()  +") don't found.");
+                                "(" + jobClient.getEngineType()  +") don't found.");
                         updateJobStatus(jobClient, jobResult);
                         continue;
                     }

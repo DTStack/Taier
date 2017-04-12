@@ -11,10 +11,7 @@ import com.dtstack.rdos.engine.entrance.sql.SqlParser;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
+import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.entrance.http.HttpSendClient;
 
 /**
@@ -49,7 +46,9 @@ public class ActionServiceImpl{
 	
 	public void stop(Map<String,Object> params) throws Exception{
 		ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-		JobClient.stop(paramAction.getEngineTaskId());
+		int engineTypeVal = paramAction.getEngineType();
+		EngineType engineType = EngineType.getClientType(engineTypeVal);
+		JobClient.stop(engineType, paramAction.getEngineTaskId());
 		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 	}
 }

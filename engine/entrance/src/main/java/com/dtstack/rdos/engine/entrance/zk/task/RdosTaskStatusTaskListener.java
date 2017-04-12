@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.dtstack.rdos.engine.entrance.db.dao.RdosServerLogDao;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,9 @@ public class RdosTaskStatusTaskListener implements Runnable{
               		  RdosTask rdosTask = rdosTaskDAO.getRdosTaskByTaskId(taskId);
               		  if(rdosTask!=null){
               			  String engineTaskid = rdosTask.getEngineTaskId();
-                  		  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTaskid);
+              			  int engineTypeVal = rdosTask.getEngineType();
+                          EngineType engineType = EngineType.getClientType(engineTypeVal);
+                  		  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
                   		  if(rdosTaskStatus!=null){
                   			  Integer status = rdosTaskStatus.getStatus();
                       		  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);

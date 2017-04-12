@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.entrance.test;
 import com.dtstack.rdos.engine.entrance.sql.SqlParser;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.SubmitContainer;
-import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
@@ -30,7 +29,7 @@ public class TestRunSql {
         prop.put("engineZkAddress", "172.16.1.151:2181");
         prop.put("jarTmpDir", "D:\\tmp");
 
-        SubmitContainer submitContainer = SubmitContainer.createSubmitContainer(ClientType.Flink, prop);
+        SubmitContainer submitContainer = SubmitContainer.createSubmitContainer(prop);
 
         String sql = "ADDJAR ADD JAR WITH http://114.55.63.129/flinktest-1.0-SNAPSHOT.jar;\n" +
                 "CREATE SOURCE TABLE MyTable(\n" +

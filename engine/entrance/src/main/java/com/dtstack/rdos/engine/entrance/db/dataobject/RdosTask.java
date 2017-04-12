@@ -34,6 +34,11 @@ public class RdosTask extends DataObject{
      * 任务类型
      */
     private Byte taskType;
+
+	/**
+	 * 执行引擎类型
+	 */
+	private Byte engineType;
     
     /**
      * 计算类型
@@ -177,5 +182,13 @@ public class RdosTask extends DataObject{
 
 	public void setVersion(Long version) {
 		this.version = version;
+	}
+
+	public Byte getEngineType() {
+		return engineType;
+	}
+
+	public void setEngineType(Byte engineType) {
+		this.engineType = engineType;
 	}
 }
