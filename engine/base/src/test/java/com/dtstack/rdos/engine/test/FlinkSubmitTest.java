@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.test;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enumeration.ClientType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 

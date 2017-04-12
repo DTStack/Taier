@@ -1,18 +1,13 @@
 package com.dtstack.rdos.engine.entrance.sql;
 
-import java.util.List;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
-import com.dtstack.rdos.engine.execution.base.operator.AddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.CreateFunctionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.base.operator.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.base.operator.ExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
+
+import java.util.List;
+
 
 
 /**
@@ -29,7 +24,8 @@ public class SqlParser {
 	
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> operatorClasses = 
-			    Lists.newArrayList(AddJarOperator.class,CreateFunctionOperator.class,CreateSourceOperator.class,CreateResultOperator.class,ExecutionOperator.class);
+			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
+						CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class);
 
 	
 	@SuppressWarnings("unchecked")

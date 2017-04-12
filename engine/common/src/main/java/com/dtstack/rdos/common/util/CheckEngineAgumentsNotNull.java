@@ -3,6 +3,7 @@ package com.dtstack.rdos.common.util;
 import com.dtstack.rdos.commom.exception.EngineAgumentsException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,9 +20,9 @@ public class CheckEngineAgumentsNotNull {
         if(StringUtils.isBlank(nodeZkAddress)){
             throw new EngineAgumentsException("nodeZkAddress");
         }
-        String clientType = (String)nodeConfig.get("clientType");
-        if(StringUtils.isBlank(clientType)){
-            throw new EngineAgumentsException("clientType");
+        List clientType = (List) nodeConfig.get("engineTypes");
+        if(clientType.size() < 1){
+            throw new EngineAgumentsException("engineTypes size at least one");
         }
     }
 }
