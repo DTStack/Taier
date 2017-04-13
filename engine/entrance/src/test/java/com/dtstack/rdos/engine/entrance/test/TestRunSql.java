@@ -5,9 +5,12 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.SubmitContainer;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.google.common.collect.Maps;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +25,28 @@ import java.util.Map;
 
 public class TestRunSql {
 
+    public void initFlink(){
+        Map<String, Object> engineConfig = new HashMap<>();
+        engineConfig.put("slots", 1);
+
+        List<Map<String, Object>> engineList = new ArrayList<>();
+        Map<String, Object> flinkEngine = Maps.newHashMap();
+        flinkEngine.put("typeName", "flink");
+        flinkEngine.put("engineZkAddress", "172.16.1.151");
+        flinkEngine.put("engineZkNamespace", "/flink");
+        flinkEngine.put("engineClusterId", "default");
+        flinkEngine.put("jarTmpDir", "D:\\tmp");
+
+        engineList.add(flinkEngine);
+        engineConfig.put("engineTypes", engineList);
+
+        SubmitContainer.createSubmitContainer(engineConfig);
+    }
+
     @Test
-    public void testSubmitSql() throws Exception {
-        Map<String, Object> prop = new HashMap<>();
-        prop.put("slots", 1);
-        prop.put("engineZkAddress", "172.16.1.151:2181");
-        prop.put("jarTmpDir", "D:\\tmp");
+    public void runFlinkJob() throws Exception {
 
-        SubmitContainer submitContainer = SubmitContainer.createSubmitContainer(prop);
-
+        initFlink();
         String sql = "ADDJAR ADD JAR WITH http://114.55.63.129/flinktest-1.0-SNAPSHOT.jar;\n" +
                 "CREATE SOURCE TABLE MyTable(\n" +
                 "message STRING) WITH (\n" +
@@ -61,4 +77,41 @@ public class TestRunSql {
 
         System.out.println("---------wait----------");
     }
+
+    public void initSpark(){
+        Map<String, Object> engineConfig = new HashMap<>();
+        engineConfig.put("slots", 1);
+
+        List<Map<String, Object>> engineList = new ArrayList<>();
+        Map<String, Object> flinkEngine = Maps.newHashMap();
+        flinkEngine.put("typeName", "spark");
+        flinkEngine.put("sparkMaster", "spark://172.16.1.151:6066");
+        flinkEngine.put("sparkSqlProxyPath", "hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar");
+        flinkEngine.put("sparkSqlProxyMainClass", "com.dtstack.sql.main.SqlProxy");
+
+        engineList.add(flinkEngine);
+        engineConfig.put("engineTypes", engineList);
+
+        SubmitContainer.createSubmitContainer(engineConfig);
+    }
+
+    @Test
+    public void runSparkJob() throws Exception {
+
+        initSpark();
+        String sql = "ADD BATCH SQL WITH DROP TABLE IF EXISTS engine_test1;";
+        List<Operator> operators = SqlParser.parserSql(sql);
+        JobClient jobClient = new JobClient();
+        jobClient.setEngineType(EngineType.Spark);
+        jobClient.setJobType(EJobType.SQL);
+        jobClient.setTaskId("test_sql_job");
+        jobClient.setJobName("test_sql_job");
+        jobClient.setComputeType(ComputeType.BATCH);
+        jobClient.addOperators(operators);
+
+        jobClient.submit();
+
+        System.out.println("---------wait----------");
+    }
+
 }

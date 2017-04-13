@@ -11,10 +11,7 @@ package com.dtstack.rdos.engine.execution.base.operator;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
-
 import org.apache.commons.lang3.StringUtils;
-
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 public class ParamsOperator implements Operator{

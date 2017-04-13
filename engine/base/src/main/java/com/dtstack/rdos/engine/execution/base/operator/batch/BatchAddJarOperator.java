@@ -1,8 +1,10 @@
 package com.dtstack.rdos.engine.execution.base.operator.batch;
 
+import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
+import org.apache.parquet.Strings;
 
 import java.util.Map;
 
@@ -21,6 +23,7 @@ public class BatchAddJarOperator implements Operator{
 	 * ADD JAR WITH hdfs://xx.ff AS zbc.df.como.KKK
 	 */
 	private static String pattern = "BATCHADDJAR";
+
 	
 	private String jarPath;
 
@@ -29,7 +32,6 @@ public class BatchAddJarOperator implements Operator{
 	public String getJarPath() {
 		return jarPath;
 	}
-
 
 	public void setJarPath(String jarPath) {
 		this.jarPath = jarPath;
@@ -52,12 +54,10 @@ public class BatchAddJarOperator implements Operator{
 		return true;
 	}
 
-
 	@Override
 	public void verification(String sql) throws Exception {
-		// TODO Auto-generated method stub
 		if(GrokUtil.isSuccess(pattern,sql)){
-			throw new SqlVerificationException("add jar");
+			throw new SqlVerificationException("add batch jar");
 		}
 	}
 	
