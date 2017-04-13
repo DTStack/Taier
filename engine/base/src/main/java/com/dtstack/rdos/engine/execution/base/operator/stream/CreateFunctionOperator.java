@@ -42,7 +42,7 @@ public class CreateFunctionOperator implements Operator{
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
 		if(GrokUtil.isSuccess(pattern, sql)){
-			throw new SqlVerificationException("create function");
+			throw new SqlVerificationException("create stream function");
 		}
 	}
 	
