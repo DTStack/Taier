@@ -1,5 +1,6 @@
 ADDJAR ADD\s+JAR\s+WITH\s+(?<path>\S+)\s*
-CREATEFUNCTION CREATE\s+(?<type>\S+)\s+FUNCTION\s+(?<name>\S+)\s+WITH\s+(?<className>\S+)\s*
+CREATEFUNCTION CREATE\s+(?<type>(TABLE|SCALA))\s+FUNCTION\s+(?<name>\S+)\s+WITH\s+(?<className>\S+)\s*
+BATCHCREATEFUNCTION CREATE\s+(?<type>(\s*|TEMPORARY))\s+FUNCTION\s+(?<name>\S+)\s+AS\s+'(?<className>\S+)'\s*
 CREATESOURCE CREATE\s+SOURCE\s+TABLE\s+(?<name>\S+)\s*\((?<fields>.+)\)\s+WITH\s+\((?<properties>.+)\)\s*
 CREATERESULT CREATE\s+RESULT\s+TABLE\s+(?<name>\S+)\s*\((?<fields>.+)\)\s+WITH\s+\((?<properties>.+)\)\s*
 ADDBATCHJAR ADD\s+BATCH\s+JAR\s+WITH\s+\((?<fields>.+)\)\s*

@@ -2,12 +2,12 @@ package com.dtstack.rdos.engine.entrance.sql;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
-
+import com.dtstack.rdos.engine.execution.base.operator.batch.*;
 import java.util.List;
 
 
@@ -24,32 +24,34 @@ public class SqlParser {
 	
 //	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);
 	
-	@SuppressWarnings("unchecked")
-	private static List<Class<? extends Operator>> operatorClasses = 
+	private static List<Class<? extends Operator>> operatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
                         CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class,
                         BatchAddJarOperator.class, BatchExecutionOperator.class);
 
-	
-	@SuppressWarnings("unchecked")
-	private static List noMustOperatorClasses = Lists.newArrayList(AddJarOperator.class);
-	
+
+	private static List<Class<? extends Operator>> batchOperatorClasses =
+			Lists.newArrayList(BatchAddJarOperator.class, BatchCreateFunctionOperator.class, BatchExecutionOperator.class);
+
 	public static List<Operator> parser(ParamAction paramAction) throws Exception{
-		List<Operator> operators = parserSql(paramAction.getSqlText());
+		List<Operator> operators = null;
+        if(paramAction.getComputeType() == ComputeType.BATCH.ordinal()){
+			operators = parserSql(paramAction.getSqlText(),batchOperatorClasses);
+		}else{
+			operators = parserSql(paramAction.getSqlText(),operatorClasses);
+		}
 		operators.add(parserParams(paramAction.getTaskParams()));
 		return operators;
 	}
 	
-	public static List<Operator> parserSql(String sql) throws Exception{
+	private static List<Operator> parserSql(String sql,List<Class<? extends Operator>> operatorClasses) throws Exception{
 		sql = sql.trim();
 		String[] sqls = sql.split(";");
 		List<Operator> operators = Lists.newArrayList();
 		A:for(String cql:sqls){
 			cql = cql.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", "").trim();
 			boolean result = false;
-			Class<? extends Operator> operatorClass1 = null;
 			for(Class<? extends Operator> operatorClass :operatorClasses){
-				operatorClass1 = operatorClass;
 				result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(null, cql);
 			    if(result){
 			    	Object obj = operatorClass.newInstance();
@@ -58,7 +60,7 @@ public class SqlParser {
 			    	continue A;
 			    }
 			}
-			if(!result&&!noMustOperatorClasses.contains(operatorClass1)){
+			if(!result){
 				throw new RdosException(String.format("%s:parserSql fail",cql));
 			}
 		}

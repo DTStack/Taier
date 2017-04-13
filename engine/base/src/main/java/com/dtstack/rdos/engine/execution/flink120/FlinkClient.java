@@ -12,7 +12,7 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOper
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.ParamsOperator;
+import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
@@ -45,7 +45,6 @@ import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
-import org.apache.flink.yarn.YarnClusterClient;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
