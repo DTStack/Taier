@@ -114,7 +114,7 @@ public class SparkClient extends AbsClient {
         Properties properties = new Properties();
         properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
-        properties.setProperty(JOB_MAIN_CLASS_KEY, jobClient.getJobName());
+        properties.setProperty(JOB_MAIN_CLASS_KEY, jarOperator.getMainClass());
         return properties;
     }
 
@@ -138,21 +138,30 @@ public class SparkClient extends AbsClient {
 
     }
 
+    /**
+     * FIXME 处理udf的时候添加jar包的问题
+     * @param jobClient
+     * @return
+     */
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
 
         if(jobClient.getOperators().size() < 1){
             throw new RdosException("don't have any batch operator for spark sql job. please check it.");
         }
 
-        Operator operator = jobClient.getOperators().get(0);
-        if(!(operator instanceof BatchExecutionOperator)){
-            throw new RdosException("spark engine for sql just apply for BatchExecutionOperator. please check it.");
+        StringBuffer sb = new StringBuffer("");
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof BatchExecutionOperator){
+                String tmpSql = ((BatchExecutionOperator) operator).getSql();
+                sb.append(tmpSql)
+                  .append(";");
+            }
         }
 
-        String sql = ((BatchExecutionOperator) operator).getSql();
-
+        String sql = sb.toString();
         Map<String, String> paramsMap = new HashMap<>();
         paramsMap.put("sql", sql);
+        paramsMap.put("appName", jobClient.getJobName());
         String sqlExeJson = null;
         try{
             sqlExeJson = objMapper.writeValueAsString(paramsMap);

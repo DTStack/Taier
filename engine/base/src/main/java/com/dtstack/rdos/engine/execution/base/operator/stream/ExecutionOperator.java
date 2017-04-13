@@ -31,7 +31,7 @@ public class ExecutionOperator implements Operator{
 	@Override
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		if(!StringUtils.isNotBlank(sql)||(!sql.trim().toLowerCase().startsWith("select")&&!sql.trim().toLowerCase().startsWith("insert"))){
+		if(StringUtils.isBlank(sql)||(!sql.trim().toLowerCase().startsWith("select")||!sql.trim().toLowerCase().startsWith("insert"))){
 			throw new SqlVerificationException("execution");
 		}
 	}
