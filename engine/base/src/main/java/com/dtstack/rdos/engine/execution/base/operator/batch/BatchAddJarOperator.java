@@ -18,9 +18,9 @@ import java.util.Map;
 public class BatchAddJarOperator implements Operator{
 	
 	/**
-	 * ADD JAR WITH xx
+	 * ADD JAR WITH hdfs://xx.ff AS zbc.df.como.KKK
 	 */
-	private static String pattern = "ADDJAR";
+	private static String pattern = "BATCHADDJAR";
 	
 	private String jarPath;
 
@@ -48,6 +48,7 @@ public class BatchAddJarOperator implements Operator{
 		// TODO Auto-generated method stub
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.jarPath = (String)result.get("path");
+		this.mainClass = (String)result.get("mainClass");
 		return true;
 	}
 
