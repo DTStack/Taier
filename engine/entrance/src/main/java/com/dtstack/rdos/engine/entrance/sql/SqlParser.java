@@ -26,7 +26,8 @@ public class SqlParser {
 	
 	private static List<Class<? extends Operator>> operatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
-						CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class);
+                        CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class,
+                        BatchAddJarOperator.class, BatchExecutionOperator.class);
 
 
 	private static List<Class<? extends Operator>> batchOperatorClasses =

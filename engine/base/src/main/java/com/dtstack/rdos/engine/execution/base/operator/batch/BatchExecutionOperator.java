@@ -1,9 +1,9 @@
 package com.dtstack.rdos.engine.execution.base.operator.batch;
 
-import org.apache.commons.lang.StringUtils;
 
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 
@@ -14,7 +14,7 @@ import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
  *
  */
 public class BatchExecutionOperator implements Operator{
-	
+
 	private String sql;
 
 	@Override
@@ -28,16 +28,15 @@ public class BatchExecutionOperator implements Operator{
 		return sql;
 	}
 
-
 	@Override
 	public void verification(String sql) throws Exception {
 		// TODO Auto-generated method stub
-		if(!StringUtils.isNotBlank(sql)||(!sql.trim().toLowerCase().startsWith("select")&&!sql.trim().toLowerCase().startsWith("insert")&&!sql.trim().toLowerCase().startsWith("create"))){
-			throw new SqlVerificationException("batch execution");
+		if(StringUtils.isBlank(sql)||(!sql.trim().toLowerCase().startsWith("select")||!sql.trim().toLowerCase().startsWith("insert")||!sql.trim().toLowerCase().startsWith("create"))){
+			throw new SqlVerificationException("execution");
 		}
 	}
 
 	public static boolean verific(String sql) throws Exception{
-		return StringUtils.isNotBlank(sql)&&(sql.trim().toLowerCase().startsWith("select")||sql.trim().toLowerCase().startsWith("insert")&&!sql.trim().toLowerCase().startsWith("create"));
+		return StringUtils.isNotBlank(sql)&&(sql.trim().toLowerCase().startsWith("select")||sql.trim().toLowerCase().startsWith("insert")||!sql.trim().toLowerCase().startsWith("create"));
 	}
 }
