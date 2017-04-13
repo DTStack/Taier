@@ -1,9 +1,11 @@
 package com.dtstack.rdos.engine.execution.base.operator.batch;
 
-import org.apache.commons.lang.StringUtils;
+import com.dtstack.rdos.common.util.GrokUtil;
 
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
+
+import java.util.Map;
 
 /**
  * 
@@ -14,13 +16,16 @@ import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
  *
  */
 public class BatchExecutionOperator implements Operator{
-	
-	private String sql;
+
+    private static String pattern = "BATCHSQL";
+
+    private String sql;
 
 	@Override
 	public boolean createOperator(String sql) throws Exception{
-		// TODO Auto-generated method stub
-		this.sql = sql.trim();
+        Map<String,Object> result = GrokUtil.toMap(pattern, sql);
+        String targetSql = (String)result.get("sql");
+		this.sql = targetSql.trim();
 		return true;
 	}
 
@@ -29,15 +34,14 @@ public class BatchExecutionOperator implements Operator{
 	}
 
 
-	@Override
-	public void verification(String sql) throws Exception {
-		// TODO Auto-generated method stub
-		if(!StringUtils.isNotBlank(sql)||(!sql.trim().toLowerCase().startsWith("select")&&!sql.trim().toLowerCase().startsWith("insert")&&!sql.trim().toLowerCase().startsWith("create"))){
-			throw new SqlVerificationException("batch execution");
-		}
-	}
+    @Override
+    public void verification(String sql) throws Exception {
+        if(GrokUtil.isSuccess(pattern, sql)){
+            throw new SqlVerificationException("add batch sql");
+        }
+    }
 
-	public static boolean verific(String sql) throws Exception{
-		return StringUtils.isNotBlank(sql)&&(sql.trim().toLowerCase().startsWith("select")||sql.trim().toLowerCase().startsWith("insert")&&!sql.trim().toLowerCase().startsWith("create"));
-	}
+    public static boolean verific(String sql) throws Exception{
+        return GrokUtil.isSuccess(pattern, sql);
+    }
 }
