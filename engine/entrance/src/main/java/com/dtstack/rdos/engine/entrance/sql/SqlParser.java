@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
