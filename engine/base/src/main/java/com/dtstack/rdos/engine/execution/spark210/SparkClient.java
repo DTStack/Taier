@@ -72,6 +72,7 @@ public class SparkClient extends AbsClient {
         }
     }
 
+    //FIXME spark conf 设置细化
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
 
