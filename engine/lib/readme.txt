@@ -11,5 +11,5 @@ spark-core_2.11-2.1.2.jar
 解决:
     修改SparkContext.scala
     添加: URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory());
-注意: git上已经有提交了修改的版本。等之后出现解决的版本后升级到对应的版本。
+注意: git上已经有提交了修改的代码。等之后出现解决的版本后升级到对应的版本。
 ------------------------------
