@@ -6,9 +6,10 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunctionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -41,6 +42,14 @@ public class SparkClient extends AbsClient {
     private static final String SPARK_SQL_PROXY_JARPATH = "sparkSqlProxyPath";
 
     private static final String SPARK_SQL_PROXY_MAINCLASS = "sparkSqlProxyMainClass";
+
+    private static final String KEY_PRE_STR = "spark.";
+
+    /**默认每个处理器可以使用的内存大小*/
+    private static final String DEFAULT_EXE_MEM = "512m";
+
+    /**默认最多可以请求的CPU核心数*/
+    private static final String DEFAULT_CORES_MAX = "2";
 
     private String masterURL;
 
@@ -77,6 +86,14 @@ public class SparkClient extends AbsClient {
     public JobResult submitJobWithJar(JobClient jobClient) {
 
         Properties properties = adaptToJarSubmit(jobClient);
+        ParamsOperator paramsOperator = null;
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof ParamsOperator){
+                paramsOperator = (ParamsOperator) operator;
+                break;
+            }
+        }
+
         String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
         String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);//只支持hdfs
         String appName = properties.getProperty(JOB_APP_NAME_KEY);
@@ -85,13 +102,17 @@ public class SparkClient extends AbsClient {
             throw new RdosException("spark jar path protocol must be hdfs://");
         }
 
+        if(Strings.isNullOrEmpty(appName)){
+            throw new RdosException("spark jar must set app name!");
+        }
+
         String[] appArgs = new String[]{};//FIXME 不支持app自己的输入参数
         SparkConf sparkConf = new SparkConf();
         sparkConf.setMaster(masterURL);
         sparkConf.set("spark.submit.deployMode", deployMode);
         sparkConf.setAppName(appName);
         sparkConf.set("spark.jars", jarPath);
-        sparkConf.set("spark.driver.supervise", "false");
+        fillExtSparkConf(sparkConf, paramsOperator);
 
         SubmitRestProtocolResponse response = RestSubmissionClient.run(jarPath, mainClass,
                 appArgs, sparkConf, new scala.collection.immutable.HashMap<String, String>());
@@ -140,7 +161,7 @@ public class SparkClient extends AbsClient {
     }
 
     /**
-     * FIXME 处理udf的时候添加jar包的问题
+     * 执行spark 批处理sql
      * @param jobClient
      * @return
      */
@@ -151,18 +172,32 @@ public class SparkClient extends AbsClient {
         }
 
         StringBuffer sb = new StringBuffer("");
+        StringBuffer funcSb = new StringBuffer("");
+        ParamsOperator paramsOperator = null;
+
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof BatchExecutionOperator){
                 String tmpSql = ((BatchExecutionOperator) operator).getSql();
                 sb.append(tmpSql)
                   .append(";");
             }
+
+            if(operator instanceof BatchCreateFunctionOperator){
+                String tmpSql = ((BatchCreateFunctionOperator)operator).getSql();
+                funcSb.append(tmpSql)
+                      .append(";");
+            }
+
+            if(operator instanceof ParamsOperator){
+                paramsOperator = (ParamsOperator) operator;
+            }
         }
 
-        String sql = sb.toString();
-        Map<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("sql", sql);
+        String exeSql = funcSb.toString() + sb.toString();
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("sql", exeSql);
         paramsMap.put("appName", jobClient.getJobName());
+
         String sqlExeJson = null;
         try{
             sqlExeJson = objMapper.writeValueAsString(paramsMap);
@@ -172,7 +207,6 @@ public class SparkClient extends AbsClient {
         }
 
         String[] appArgs = new String[]{sqlExeJson};
-
         SparkConf sparkConf = new SparkConf();
         sparkConf.setMaster(masterURL);
         sparkConf.set("spark.submit.deployMode", deployMode);
@@ -180,9 +214,35 @@ public class SparkClient extends AbsClient {
         sparkConf.set("spark.jars", sqlProxyJarPath);
         sparkConf.set("spark.driver.supervise", "false");
 
+        fillExtSparkConf(sparkConf, paramsOperator);
+
         SubmitRestProtocolResponse response = RestSubmissionClient.run(sqlProxyJarPath, sqlProxyMainClass,
                 appArgs, sparkConf, new scala.collection.immutable.HashMap<String, String>());
        return processRemoteResponse(response);
+    }
+
+    /**
+     * 通过提交的paramsOperator 设置sparkConf
+     * FIXME 解析传递过来的参数是不带spark.前面缀的,如果参数和spark支持不一致的话是否需要转换
+     * @param sparkConf
+     * @param paramsOperator
+     */
+    private void fillExtSparkConf(SparkConf sparkConf, ParamsOperator paramsOperator){
+
+        sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM); //默认执行内存
+        sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);  //默认请求的cpu核心数
+        sparkConf.set("spark.driver.supervise", "false");
+
+        if(paramsOperator == null){
+            return;
+        }
+
+        for(Map.Entry<Object, Object> param : paramsOperator.getProperties().entrySet()){
+            String key = (String) param.getKey();
+            String val = (String) param.getValue();
+            key = KEY_PRE_STR + key;
+            sparkConf.set(key, val);
+        }
     }
 
     private JobResult processRemoteResponse(SubmitRestProtocolResponse response){
