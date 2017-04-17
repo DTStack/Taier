@@ -32,4 +32,11 @@ public class BatchCreateFunctionOperator implements Operator{
         return GrokUtil.isSuccess(pattern, sql);
     }
 
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
 }

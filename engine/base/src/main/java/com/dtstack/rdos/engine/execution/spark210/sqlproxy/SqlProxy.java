@@ -25,16 +25,14 @@ public class SqlProxy {
 
     private static final String DEFAULT_APP_NAME = "spark_default_name";
 
-    private static String jobMem = "512m";//默认job使用内存大小512m
-
     public void runJob(String submitSql, String appName){
 
         if(appName == null){
             appName = DEFAULT_APP_NAME;
         }
+
         SparkSession spark = SparkSession
                 .builder()
-                .config("spark.executor.memory", jobMem)
                 .appName(appName)
                 .enableHiveSupport()
                 .getOrCreate();

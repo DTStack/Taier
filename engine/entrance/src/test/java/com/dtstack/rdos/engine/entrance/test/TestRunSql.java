@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance.test;
 
+import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
 import com.dtstack.rdos.engine.entrance.sql.SqlParser;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.SubmitContainer;
@@ -7,6 +8,10 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunctionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
@@ -65,7 +70,12 @@ public class TestRunSql {
                 "password='dtstack_xc',\n" +
                 "tableName='flink_test'\n" +
                 ");";
-        List<Operator> operators = SqlParser.parserSql(sql);
+
+        ParamAction paramAction = new ParamAction();
+        paramAction.setSqlText(sql);
+        paramAction.setComputeType(ComputeType.STREAM.ordinal());
+
+        List<Operator> operators = SqlParser.parser(paramAction);
         JobClient jobClient = new JobClient();
         jobClient.setJobType(EJobType.SQL);
         jobClient.setTaskId("test_sql_job");
@@ -98,9 +108,13 @@ public class TestRunSql {
     @Test
     public void runSparkJob() throws Exception {
 
-        initSpark();
         String sql = "ADD BATCH SQL WITH DROP TABLE IF EXISTS engine_test1;";
-        List<Operator> operators = SqlParser.parserSql(sql);
+        ParamAction paramAction = new ParamAction();
+        paramAction.setSqlText(sql);
+        paramAction.setComputeType(ComputeType.BATCH.ordinal());
+
+        initSpark();
+        List<Operator> operators = SqlParser.parser(paramAction);
         JobClient jobClient = new JobClient();
         jobClient.setEngineType(EngineType.Spark);
         jobClient.setJobType(EJobType.SQL);
