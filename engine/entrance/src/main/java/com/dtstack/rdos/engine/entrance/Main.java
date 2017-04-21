@@ -5,7 +5,7 @@ import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.log.LogComponent;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.execution.base.SubmitContainer;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,6 @@ public class Main {
 	
 	private static ZkDistributed zkDistributed;
 
-	private static SubmitContainer submitContainer;
-	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
@@ -58,10 +56,10 @@ public class Main {
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
-		submitContainer = SubmitContainer.createSubmitContainer(nodeConfig);
+		JobSubmitExecutor.getInstance().init(nodeConfig);
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(eHttpServer,zkDistributed,submitContainer).addShutDownHook();
+		new ShutDownHook(eHttpServer,zkDistributed,JobSubmitExecutor.getInstance()).addShutDownHook();
 	}
 }
