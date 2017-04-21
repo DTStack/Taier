@@ -4,7 +4,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallbackMethod;
-import com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask;
+import com.dtstack.rdos.engine.entrance.db.dataobject.RdosStreamTask;
 import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
 
 /**
@@ -17,8 +17,8 @@ import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
  */
 public class RdosTaskDAO {
 	
-	public RdosTask getRdosTaskByTaskId(final String taskId){
-		return (RdosTask)MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+	public RdosStreamTask getRdosTaskByTaskId(final String taskId){
+		return (RdosStreamTask)MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
