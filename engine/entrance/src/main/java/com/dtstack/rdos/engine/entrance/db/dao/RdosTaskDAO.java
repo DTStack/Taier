@@ -5,7 +5,7 @@ import org.apache.ibatis.session.SqlSession;
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.entrance.db.dataobject.RdosStreamTask;
-import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
+import com.dtstack.rdos.engine.entrance.db.mapper.RdosStreamTaskMapper;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class RdosTaskDAO {
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
-				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
+				RdosStreamTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosStreamTaskMapper.class);
 				return rdosTaskMapper.getRdosTaskByTaskId(taskId);
 			}
 			
@@ -38,7 +38,7 @@ public class RdosTaskDAO {
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
-				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
+				RdosStreamTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosStreamTaskMapper.class);
 				rdosTaskMapper.updateTaskStatus(taskId, stauts);
 				return null;
 			}
@@ -53,7 +53,7 @@ public class RdosTaskDAO {
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
-				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
+				RdosStreamTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosStreamTaskMapper.class);
 				rdosTaskMapper.updateTaskEngineId(taskId, engineId);
 				return null;
 			}
@@ -67,7 +67,7 @@ public class RdosTaskDAO {
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
-				RdosTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosTaskMapper.class);
+				RdosStreamTaskMapper rdosTaskMapper = sqlSession.getMapper(RdosStreamTaskMapper.class);
 				rdosTaskMapper.updateTaskEngineIdAndStatus(taskId, engineId, status);
 				return null;
 			}
