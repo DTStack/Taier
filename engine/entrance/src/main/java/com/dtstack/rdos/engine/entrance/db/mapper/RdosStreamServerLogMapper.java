@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
  * Company: www.dtstack.com
  * @ahthor xuchao
  */
-public interface RdosServerLogMapper {
+public interface RdosStreamServerLogMapper {
 
     int insertSvrLog(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId,
                      @Param("actionLogId") Long actionLogId, @Param("logInfo") String logInfo);
