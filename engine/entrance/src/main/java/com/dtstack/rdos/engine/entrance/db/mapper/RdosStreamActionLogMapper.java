@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
  * @author sishu.yss
  *
  */
-public interface RdosActionLogMapper {
+public interface RdosStreamActionLogMapper {
 	
   public void updateActionStatus(@Param("actionLogId")Long actionLogId, @Param("status") int status);
 

@@ -6,7 +6,7 @@ import com.dtstack.rdos.engine.entrance.db.dao.RdosServerLogDao;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosTaskDAO;
 import com.dtstack.rdos.engine.entrance.db.dataobject.RdosStreamActionLog;
 import com.dtstack.rdos.engine.entrance.db.dataobject.RdosStreamServerLog;
-import com.dtstack.rdos.engine.entrance.db.mapper.RdosTaskMapper;
+import com.dtstack.rdos.engine.entrance.db.mapper.RdosStreamTaskMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
