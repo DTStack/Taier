@@ -20,6 +20,7 @@ import com.sun.net.httpserver.HttpServer;
  * @author sishu.yss
  *
  */
+@SuppressWarnings("restriction")
 public class EHttpServer {
 	
 	private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
