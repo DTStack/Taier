@@ -54,7 +54,7 @@ public class Main {
 			System.exit(-1);
 		}
 	}
-	
+
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
