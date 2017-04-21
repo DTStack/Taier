@@ -1,10 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.operator.batch;
 
-import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
-import org.apache.parquet.Strings;
 
 import java.util.Map;
 

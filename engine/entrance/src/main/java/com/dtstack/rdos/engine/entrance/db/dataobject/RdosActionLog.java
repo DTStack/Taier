@@ -36,18 +36,9 @@ public class RdosActionLog extends DataObject{
 	 */
 	private Long createUserId;
 	
-	/**
-	 * 租户id
-	 */
-	private Long tenantId;
-	
-	public Long getTenantId() {
-		return tenantId;
-	}
+    private Long projectId;
 
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
+
 
 	public Integer getActionType() {
 		return actionType;
