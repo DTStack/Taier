@@ -4,7 +4,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.entrance.db.callback.MybatisSessionCallbackMethod;
-import com.dtstack.rdos.engine.entrance.db.mapper.RdosActionLogMapper;
+import com.dtstack.rdos.engine.entrance.db.mapper.RdosStreamActionLogMapper;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class RdosActionLogDAO {
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
-				RdosActionLogMapper rdosActionLogMapper = sqlSession.getMapper(RdosActionLogMapper.class);
+				RdosStreamActionLogMapper rdosActionLogMapper = sqlSession.getMapper(RdosStreamActionLogMapper.class);
 				rdosActionLogMapper.updateActionStatus(actionLogId, status);
 				return null;
 			}

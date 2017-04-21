@@ -12,7 +12,7 @@ import com.dtstack.rdos.engine.entrance.db.dataobject.RdosStreamTask;
  * @author sishu.yss
  *
  */
-public interface RdosTaskMapper {
+public interface RdosStreamTaskMapper {
 	
 	public void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 	
