@@ -8,7 +8,7 @@ package com.dtstack.rdos.engine.entrance.db.dataobject;
  * @author sishu.yss
  *
  */
-public class RdosTask extends DataObject{
+public class RdosStreamTask extends TenantProjectObject{
 	
 	/**
 	 * 任务id
@@ -45,10 +45,6 @@ public class RdosTask extends DataObject{
      */
     private Byte computeType;
     
-    /**
-     * 存储位置
-     */
-    private String storeLocation;
     
     /**
      * sql 脚本
@@ -70,23 +66,7 @@ public class RdosTask extends DataObject{
      */
     private Long createUserId;
     
-    /**
-     * 租户id
-     */
-    private Long tenantId;
-    
-    /**
-     * 版本号
-     */
-    private Long version;
-
-	public Long getTenantId() {
-		return tenantId;
-	}
-
-	public void setTenantId(Long tenantId) {
-		this.tenantId = tenantId;
-	}
+    private Long version;    
 
 	public String getTaskId() {
 		return taskId;
@@ -134,14 +114,6 @@ public class RdosTask extends DataObject{
 
 	public void setComputeType(Byte computeType) {
 		this.computeType = computeType;
-	}
-
-	public String getStoreLocation() {
-		return storeLocation;
-	}
-
-	public void setStoreLocation(String storeLocation) {
-		this.storeLocation = storeLocation;
 	}
 
 	public String getSqlText() {

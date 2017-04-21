@@ -10,6 +10,8 @@
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
         <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
         <result column="is_deleted" property="isDeleted" jdbcType="BIT"/>
+        <result column="tenant_id" property="tenantId" jdbcType="BIGINT" />
+       <result column="project_id" property="projectId" jdbcType="BIGINT" />
     </resultMap>
 
     <insert id="insertSvrLog">

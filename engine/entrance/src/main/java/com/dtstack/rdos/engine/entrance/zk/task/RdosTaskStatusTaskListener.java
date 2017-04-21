@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.entrance.db.dao.RdosTaskDAO;
-import com.dtstack.rdos.engine.entrance.db.dataobject.RdosTask;
+import com.dtstack.rdos.engine.entrance.db.dataobject.RdosStreamTask;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -91,7 +91,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
           	  for(Map.Entry<String,Byte> entry:entrys){
           		  if(!RdosTaskStatus.needClean(entry.getValue())){
               		  String taskId = entry.getKey();
-              		  RdosTask rdosTask = rdosTaskDAO.getRdosTaskByTaskId(taskId);
+              		  RdosStreamTask rdosTask = rdosTaskDAO.getRdosTaskByTaskId(taskId);
               		  if(rdosTask!=null){
               			  String engineTaskid = rdosTask.getEngineTaskId();
               			  int engineTypeVal = rdosTask.getEngineType();

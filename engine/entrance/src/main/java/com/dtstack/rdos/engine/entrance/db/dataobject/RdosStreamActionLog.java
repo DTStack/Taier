@@ -8,7 +8,7 @@ package com.dtstack.rdos.engine.entrance.db.dataobject;
  * @author sishu.yss
  *
  */
-public class RdosActionLog extends DataObject{
+public class RdosStreamActionLog extends TenantProjectObject{
 	
 	/**
 	 * 操作类型
