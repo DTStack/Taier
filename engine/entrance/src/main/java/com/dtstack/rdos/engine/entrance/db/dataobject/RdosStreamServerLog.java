@@ -8,7 +8,7 @@ package com.dtstack.rdos.engine.entrance.db.dataobject;
  * @ahthor xuchao
  */
 
-public class RdosServerLog extends DataObject{
+public class RdosStreamServerLog extends TenantProjectObject{
 
     private String taskId;
 
