@@ -11,7 +11,7 @@ JAVA_OPTS="$JAVA_OPTS -Xms${HO_HEAP_SIZE}"
 
 JAVA_OPTS="$JAVA_OPTS -server"
 
-JAVA_OPTS="$JAVA_OPTS -Xloggc:../logs/jlogstash.gc"
+JAVA_OPTS="$JAVA_OPTS -Xloggc:../logs/node.gc"
 
 JAVA_OPTS="$JAVA_OPTS -XX:HeapDumpPath=../logs/heapdump.hprof"
 
