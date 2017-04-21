@@ -22,7 +22,7 @@ public enum EngineType {
         return val;
     }
 
-    public static EngineType getClientType(String type){
+    public static EngineType getEngineType(String type){
 
         switch (type.toLowerCase()){
 
@@ -33,7 +33,7 @@ public enum EngineType {
          return null;
     }
 
-    public static EngineType getClientType(int val){
+    public static EngineType getEngineType(int val){
         for(EngineType type : EngineType.values()){
             if(type.val == val){
                 return type;
