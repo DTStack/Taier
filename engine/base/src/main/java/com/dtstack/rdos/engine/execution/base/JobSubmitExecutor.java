@@ -75,7 +75,7 @@ public class JobSubmitExecutor{
             clusterProp.putAll(params);
             client.init(clusterProp);
 
-            EngineType engineType = EngineType.getClientType(clientTypeStr);
+            EngineType engineType = EngineType.getEngineType(clientTypeStr);
             clientMap.put(engineType, client);
         }
     }
@@ -162,7 +162,7 @@ public class JobSubmitExecutor{
                 clusterProp.putAll(clientParams);
                 client.init(clusterProp);
 
-                EngineType engineType = EngineType.getClientType(clientTypeStr);
+                EngineType engineType = EngineType.getEngineType(clientTypeStr);
                 clusterClientMap.put(engineType, client);
             }
         }

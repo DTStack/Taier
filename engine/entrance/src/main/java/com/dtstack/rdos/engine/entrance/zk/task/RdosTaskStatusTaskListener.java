@@ -95,7 +95,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
               		  if(rdosTask!=null){
               			  String engineTaskid = rdosTask.getEngineTaskId();
               			  int engineTypeVal = rdosTask.getEngineType();
-                          EngineType engineType = EngineType.getClientType(engineTypeVal);
+                          EngineType engineType = EngineType.getEngineType(engineTypeVal);
                   		  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
                   		  if(rdosTaskStatus!=null){
                   			  Integer status = rdosTaskStatus.getStatus();

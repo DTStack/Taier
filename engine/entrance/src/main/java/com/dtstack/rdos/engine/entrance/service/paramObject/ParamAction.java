@@ -22,7 +22,7 @@ public class ParamAction {
     
     private Integer computeType;
 	
-	private Integer isRestoration;
+	private Integer isRestoration = 0; //FIXME 调试临时给的默认值
 	
 	private String sqlText;
 	
