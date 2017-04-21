@@ -40,7 +40,7 @@ public class JobClient {
     private JobResult jobResult;
     
     private Restoration isRestoration;
-    
+
     private Long actionLogId;
 
     private static LinkedBlockingQueue<JobClient> queue;
@@ -156,16 +156,16 @@ public class JobClient {
 	}
 
 	public Restoration getIsRestoration() {
-		return isRestoration;
-	}
+        return isRestoration;
+    }
 
-	public void setIsRestoration(Restoration isRestoration) {
-		this.isRestoration = isRestoration;
-	}
+    public void setIsRestoration(Restoration isRestoration) {
+        this.isRestoration = isRestoration;
+    }
 
 	public Long getActionLogId() {
-		return actionLogId;
-	}
+        return actionLogId;
+    }
 
 	public void setActionLogId(Long actionLogId) {
 		this.actionLogId = actionLogId;

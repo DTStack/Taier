@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
+
 import java.util.List;
 
 
@@ -24,12 +25,14 @@ public class SqlParser {
 	
 //	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);
 	
+	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> operatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
                         CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class,
                         BatchAddJarOperator.class, BatchExecutionOperator.class);
 
 
+	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> batchOperatorClasses =
 			Lists.newArrayList(BatchAddJarOperator.class, BatchCreateFunctionOperator.class, BatchExecutionOperator.class);
 
