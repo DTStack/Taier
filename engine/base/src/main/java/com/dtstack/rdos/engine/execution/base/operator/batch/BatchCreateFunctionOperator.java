@@ -17,7 +17,7 @@ public class BatchCreateFunctionOperator implements Operator{
 
     @Override
     public boolean createOperator(String sql) throws Exception {
-        this.sql = sql.trim();
+        this.sql = sql;
         return true;
     }
 
@@ -33,10 +33,6 @@ public class BatchCreateFunctionOperator implements Operator{
     }
 
     public String getSql() {
-        return sql;
-    }
-
-    public void setSql(String sql) {
-        this.sql = sql;
+        return this.sql.trim();
     }
 }

@@ -26,6 +26,8 @@ public class BatchAddJarOperator implements Operator{
 	private String jarPath;
 
 	private String mainClass;
+	
+	private String sql;
 
 	public String getJarPath() {
 		return jarPath;
@@ -46,6 +48,7 @@ public class BatchAddJarOperator implements Operator{
 	@Override
 	public boolean createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
+		this.sql = sql;
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.jarPath = (String)result.get("path");
 		this.mainClass = (String)result.get("mainClass");
@@ -61,5 +64,11 @@ public class BatchAddJarOperator implements Operator{
 	
 	public static boolean verific(String sql) throws Exception{
 		return GrokUtil.isSuccess(pattern,sql);
+	}
+
+	@Override
+	public String getSql() {
+		// TODO Auto-generated method stub
+		return this.sql.trim();
 	}
 }

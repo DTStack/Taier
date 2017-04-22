@@ -11,16 +11,21 @@ package com.dtstack.rdos.engine.execution.base.operator;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+
 import org.apache.commons.lang3.StringUtils;
+
 import com.dtstack.rdos.engine.execution.exception.SqlVerificationException;
 
 public class ParamsOperator implements Operator{
+	
+	private String sql;
 	
 	private Properties properties;
 
 	@Override
 	public boolean createOperator(String sql) throws Exception {
 		// TODO Auto-generated method stub
+		this.sql =sql;
 		properties = new Properties(); 
         InputStream   inputStream   =  new  ByteArrayInputStream(sql.trim().getBytes());
         properties.load(inputStream);
@@ -37,5 +42,11 @@ public class ParamsOperator implements Operator{
 		if(!StringUtils.isNotBlank(sql)){
 			throw new SqlVerificationException("set params");
 		}
+	}
+
+	@Override
+	public String getSql() {
+		// TODO Auto-generated method stub
+		return this.sql.trim();
 	}
 }
