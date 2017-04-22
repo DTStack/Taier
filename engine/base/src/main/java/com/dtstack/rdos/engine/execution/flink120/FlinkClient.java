@@ -532,4 +532,10 @@ public class FlinkClient extends AbsClient {
         return env;
     }
 
+	@Override
+	public JobResult immediatelySubmitJob(JobClient jobClient) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
