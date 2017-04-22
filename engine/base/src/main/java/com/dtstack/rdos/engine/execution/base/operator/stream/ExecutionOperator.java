@@ -20,12 +20,12 @@ public class ExecutionOperator implements Operator{
 	@Override
 	public boolean createOperator(String sql) throws Exception{
 		// TODO Auto-generated method stub
-		this.sql = sql.trim();
+		this.sql = sql;
 		return true;
 	}
 
 	public String getSql() {
-		return sql;
+		return sql.trim();
 	}
 
 	@Override

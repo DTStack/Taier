@@ -27,10 +27,13 @@ public class CreateFunctionOperator implements Operator{
 	
 	private String type;
 	
+	private String sql;
+	
 
 	@Override
 	public boolean createOperator(String sql) throws Exception {
 		// TODO Auto-generated method stub
+		this.sql = sql;
 		Map<String,Object> result = GrokUtil.toMap(pattern, sql);
 		this.name = (String)result.get("name");
 		this.className = (String)result.get("className");
@@ -61,6 +64,10 @@ public class CreateFunctionOperator implements Operator{
 	public String getType() {
 		return type;
 	}
-	
 
+	@Override
+	public String getSql() {
+		// TODO Auto-generated method stub
+		return this.sql.trim();
+	}
 }
