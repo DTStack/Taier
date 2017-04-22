@@ -20,6 +20,8 @@ public class AddJarOperator implements Operator{
 	/**
 	 * ADD JAR WITH xx
 	 */
+	private String sql;
+	
 	private static String pattern = "ADDJAR";
 	
 	private String jarPath;
@@ -37,6 +39,7 @@ public class AddJarOperator implements Operator{
 	@Override
 	public boolean createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
+		this.sql = sql;
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.jarPath = (String)result.get("path");
 		return true;
@@ -53,5 +56,12 @@ public class AddJarOperator implements Operator{
 	
 	public static boolean verific(String sql) throws Exception{
 		return GrokUtil.isSuccess(pattern,sql);
+	}
+
+
+	@Override
+	public String getSql() {
+		// TODO Auto-generated method stub
+		return this.sql.trim();
 	}
 }

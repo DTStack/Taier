@@ -13,14 +13,17 @@ import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOpera
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.rest.RestSubmissionClient;
 import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
+import org.apache.spark.sql.SparkSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -58,6 +61,8 @@ public class SparkClient extends AbsClient {
     private String sqlProxyMainClass;
 
     private String deployMode = "cluster";
+    
+    private volatile SparkSession sparkSession;
 
     @Override
     public void init(Properties prop) {
@@ -79,6 +84,22 @@ public class SparkClient extends AbsClient {
             logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
             throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
+        initShareSparkSession();
+    }
+    
+    private void initShareSparkSession(){
+    	if(sparkSession == null){
+    		synchronized(this){
+    			if(sparkSession ==null){
+    				 SparkConf sparkConf = new SparkConf().setMaster(masterURL);
+    	        	 sparkSession = SparkSession
+    	                    .builder().config(sparkConf)
+    	                    .appName("rdos_share_job")
+    	                    .enableHiveSupport()
+    	                    .getOrCreate();
+    			}
+    		}
+    	}
     }
 
     //FIXME spark conf 设置细化
@@ -305,7 +326,6 @@ public class SparkClient extends AbsClient {
         if(Strings.isNullOrEmpty(responseStr)){
             return RdosTaskStatus.UNSUBMIT;
         }
-
         Map<String, Object> responseMap = objMapper.readValue(responseStr, Map.class);
         String state = (String) responseMap.get("driverState");
         return RdosTaskStatus.getTaskStatus(state);
@@ -316,4 +336,13 @@ public class SparkClient extends AbsClient {
         return null;
     }
 
+	@Override
+	public JobResult immediatelySubmitJob(JobClient jobClient) {
+		// TODO Auto-generated method stub
+		List<Operator> operators = jobClient.getOperators();
+		for(Operator op:operators){
+			this.sparkSession.sql(op.getSql());
+		}
+		return null;
+	}
 }
