@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.dtstack.rdos.engine.entrance.http.HttpSendClient;
 import com.dtstack.rdos.engine.entrance.zk.task.DataMigrationListener;
+
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,6 @@ import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
 import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
 import com.dtstack.rdos.engine.entrance.zk.task.RdosTaskStatusTaskListener;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;

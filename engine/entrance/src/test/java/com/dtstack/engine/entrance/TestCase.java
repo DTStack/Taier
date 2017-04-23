@@ -3,7 +3,7 @@ package com.dtstack.engine.entrance;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.flink.hadoop.shaded.com.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 public class TestCase {
 	
