@@ -39,8 +39,6 @@ public class TestRunSql {
 
         engineList.add(flinkEngine);
         engineConfig.put("engineTypes", engineList);
-
-        SubmitContainer.createSubmitContainer(engineConfig);
     }
 
     @Test
@@ -96,8 +94,6 @@ public class TestRunSql {
 
         engineList.add(flinkEngine);
         engineConfig.put("engineTypes", engineList);
-
-        SubmitContainer.createSubmitContainer(engineConfig);
     }
 
     @Test
