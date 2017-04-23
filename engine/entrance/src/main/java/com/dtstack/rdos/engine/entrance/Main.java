@@ -6,9 +6,12 @@ import com.dtstack.rdos.engine.entrance.log.LogComponent;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.dtstack.rdos.commom.exception.EngineAgumentsException;
 import com.dtstack.rdos.common.util.CheckEngineAgumentsNotNull;
 
 import java.util.Map;
@@ -31,7 +34,6 @@ public class Main {
 	
 	private static ZkDistributed zkDistributed;
 
-	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		try {
 			CommandLine cmdLine = OptionsProcessor.parseArg(args);
@@ -39,8 +41,7 @@ public class Main {
 			// set logger
 			logComponent.setupLogger();
 			// load config
-			Map<String,Object> nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),Map.class);
-			CheckEngineAgumentsNotNull.checkEngineAguments(nodeConfig);
+			Map<String,Object> nodeConfig = loadConf();
 			// init service
 			initService(nodeConfig);
 			// add hook
@@ -53,6 +54,15 @@ public class Main {
 		}
 	}
 
+	
+	@SuppressWarnings("unchecked")
+	private static Map<String,Object> loadConf() throws Exception{
+		Map<String,Object> nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),Map.class);
+		CheckEngineAgumentsNotNull.checkEngineAguments(nodeConfig);
+		return nodeConfig;
+	}
+	
+	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		eHttpServer = new EHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
