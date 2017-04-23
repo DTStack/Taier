@@ -101,7 +101,39 @@
 
 		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
-			<artifactId>base</artifactId>
+			<artifactId>base.common</artifactId>
+			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.dtstack.rdos</groupId>
+			<artifactId>base.flink</artifactId>
+			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+	  <dependency>
+			<groupId>com.dtstack.rdos</groupId>
+			<artifactId>base.spark</artifactId>
 			<version>1.0.0</version>
 			<exclusions>
 				<exclusion>
