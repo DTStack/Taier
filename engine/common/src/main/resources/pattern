@@ -4,4 +4,9 @@ CREATESOURCE CREATE\s+SOURCE\s+TABLE\s+(?<name>\S+)\s*\((?<fields>.+)\)\s+WITH\s
 CREATERESULT CREATE\s+RESULT\s+TABLE\s+(?<name>\S+)\s*\((?<fields>.+)\)\s+WITH\s+\((?<properties>.+)\)\s*
 BATCHCREATEFUNCTION CREATE\s+(?<type>(\s*|TEMPORARY))\s+FUNCTION\s+(?<name>\S+)\s+AS\s+'(?<className>\S+)'\s*
 BATCHADDJAR ADD\s+JAR\s+WITH\s+(?<path>\S+)\s+AS\s+(?<mainClass>\S+)\s*
-
+BATCHCREATEDATABASE CREATE\s+DATABASE\s+(?<name>\S+)
+BATCHCREATEDATABASEIFNOTEXISTS CREATE\s+DATABASE\s+IF\s+NOT\s+EXISTS\s+(?<name>\S+)
+BATCHCREATETABLE CREATE\s+(?<type>|EXTERNAL)\s*TABLE\s+(?<name>\S+)
+BATCHCREATETABLEIFNOTEXISTS CREATE\s+(?<type>|EXTERNAL)\s*TABLE\s+IF\s+NOT\s+EXISTS\s+(?<name>\S+)
+BATCHCREATEVIEW CREATE\s+VIEW\s+(?<name>\S+)
+BATCHCREATEVIEWIFNOTEXISTS CREATE\s+VIEW\s+IF\s+NOT\s+EXISTS\s+(?<name>\S+)

@@ -1,9 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.operator.stream;
 
 import java.util.Map;
-
 import com.dtstack.rdos.common.util.GrokUtil;
-import com.dtstack.rdos.engine.execution.base.exception.SqlVerificationException;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 
 /**
@@ -31,25 +29,17 @@ public class CreateFunctionOperator implements Operator{
 	
 
 	@Override
-	public boolean createOperator(String sql) throws Exception {
+	public void createOperator(String sql) throws Exception {
 		// TODO Auto-generated method stub
 		this.sql = sql;
 		Map<String,Object> result = GrokUtil.toMap(pattern, sql);
 		this.name = (String)result.get("name");
 		this.className = (String)result.get("className");
 		this.type = (String)result.get("type");
-		return true;
 	}
 
-	@Override
-	public void verification(String sql) throws Exception {
-		// TODO Auto-generated method stub
-		if(GrokUtil.isSuccess(pattern, sql)){
-			throw new SqlVerificationException("create stream function");
-		}
-	}
 	
-	public static boolean verific(String sql) throws Exception{
+	public  boolean verific(String sql) throws Exception{
 		return GrokUtil.isSuccess(pattern, sql);
 	}
 

@@ -25,10 +25,10 @@ public class GrokUtil {
 	private static String patternFile = "pattern";
 	
     private static Map<String,Grok> groks = Maps.newConcurrentMap();
-    
+        
 	static{
 		try {
-			Grok grok = new Grok();
+		    Grok grok = new Grok();
 			grok.addPatternFromReader(new InputStreamReader(GrokUtil.class.getClassLoader()
 					.getResourceAsStream(patternFile)));
 			Set<Map.Entry<String, String>> sets = grok.getPatterns().entrySet();
