@@ -8,6 +8,11 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -41,6 +46,8 @@ public class JobSubmitExecutor{
     private Map<EngineType, IClient> clientMap = new HashMap<>();
 
     private List<Map<String, Object>> clientParamsList;
+    
+	private static String userDir = System.getProperty("user.dir");
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
@@ -54,13 +61,12 @@ public class JobSubmitExecutor{
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>());
-            initJobStatusClient(clientParamsList);
+            initJobClient(clientParamsList);
             hasInit = true;
         }
     }
 
-    private void initJobStatusClient(List<Map<String, Object>> clientParamsList) throws Exception{
-
+    private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
             IClient client = ClientFactory.getClient(clientTypeStr);
@@ -70,8 +76,35 @@ public class JobSubmitExecutor{
 
             EngineType engineType = EngineType.getEngineType(clientTypeStr);
             clientMap.put(engineType, client);
+            loadComputerPlugin(clientTypeStr);
         }
     }
+    
+    private void loadComputerPlugin(String pluginType) throws Exception{
+    	String plugin = String.format("%s/plugin/%s", userDir,pluginType);
+		File finput = new File(plugin);
+		if(!finput.exists()){
+			throw new Exception(String.format("%s direcotry not found",plugin));
+		}
+		ClientFactory.setPluginClassLoaders(pluginType, getClassLoad(finput));
+    }
+    
+    
+	private URLClassLoader getClassLoad(File dir) throws MalformedURLException, IOException{
+		File[] files = dir.listFiles();
+		URL[] urls = new URL[files.length];
+		int index = 0;
+	    if (files!=null&&files.length>0){
+			for(File f:files){
+				String jarName = f.getName();
+				if(f.isFile()&&jarName.endsWith(".jar")){
+					urls[index] = f.toURI().toURL();
+					index = index+1;
+				}
+			}
+	    }
+    	return new URLClassLoader(urls,this.getClass().getClassLoader());
+	}
 
     public static JobSubmitExecutor getInstance(){
         return singleton;
