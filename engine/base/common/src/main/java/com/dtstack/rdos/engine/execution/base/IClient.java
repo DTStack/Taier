@@ -40,5 +40,6 @@ public interface IClient {
     RdosTaskStatus getJobStatus(String jobId) throws IOException;
 
     String getJobDetail(String jobId);
-
+    
+    public JobResult immediatelySubmitJob(JobClient jobClient);
 }
