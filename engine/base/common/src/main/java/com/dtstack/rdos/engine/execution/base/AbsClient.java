@@ -50,7 +50,5 @@ public abstract class AbsClient implements IClient{
         }
 
         return jobResult;
-    }
-    
-    public abstract JobResult immediatelySubmitJob(JobClient jobClient);
+    }    
 }
