@@ -62,8 +62,6 @@ public class SparkClient extends AbsClient {
 
     private String deployMode = "cluster";
     
-    private SparkSession sparkSession;
-
     @Override
     public void init(Properties prop) {
         masterURL = prop.getProperty(SPARK_MASTER_KEY);
@@ -84,25 +82,9 @@ public class SparkClient extends AbsClient {
             logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
             throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
-        initShareSparkSession();
     }
     
-    private void initShareSparkSession(){
-    	if(sparkSession == null){
-    		synchronized(this){
-    			if(sparkSession ==null){
-    				 SparkConf sparkConf = new SparkConf().setMaster(masterURL);
-    				 sparkConf.set("spark.executor.memory","256m"); //默认执行内存
-    			     sparkConf.set("spark.cores.max", "1");  //默认请求的cpu核心数
-    	        	 sparkSession = SparkSession
-    	                    .builder().config(sparkConf)
-    	                    .appName("rdos_share_job")
-    	                    .enableHiveSupport()
-    	                    .getOrCreate();
-    			}
-    		}
-    	}
-    }
+
 
     //FIXME spark conf 设置细化
     @Override
@@ -341,10 +323,6 @@ public class SparkClient extends AbsClient {
 	@Override
 	public synchronized JobResult immediatelySubmitJob(JobClient jobClient) {
 		// TODO Auto-generated method stub
-		List<Operator> operators = jobClient.getOperators();
-		for(Operator op:operators){
-			this.sparkSession.sql(op.getSql());
-		}
-		return null;
+        return null;
 	}
 }
