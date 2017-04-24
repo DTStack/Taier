@@ -60,6 +60,7 @@
 		   <groupId>com.dtstack.rdos</groupId>
 		   <artifactId>base.common</artifactId>
 		   <version>1.0.0</version>
+		   <scope>provided</scope>
 		</dependency>
   
 		<dependency>
