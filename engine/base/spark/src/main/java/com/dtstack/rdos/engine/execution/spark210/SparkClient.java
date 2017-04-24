@@ -62,7 +62,7 @@ public class SparkClient extends AbsClient {
 
     private String deployMode = "cluster";
     
-    private volatile SparkSession sparkSession;
+    private SparkSession sparkSession;
 
     @Override
     public void init(Properties prop) {
@@ -92,6 +92,8 @@ public class SparkClient extends AbsClient {
     		synchronized(this){
     			if(sparkSession ==null){
     				 SparkConf sparkConf = new SparkConf().setMaster(masterURL);
+    				 sparkConf.set("spark.executor.memory","256m"); //默认执行内存
+    			     sparkConf.set("spark.cores.max", "1");  //默认请求的cpu核心数
     	        	 sparkSession = SparkSession
     	                    .builder().config(sparkConf)
     	                    .appName("rdos_share_job")
@@ -337,7 +339,7 @@ public class SparkClient extends AbsClient {
     }
 
 	@Override
-	public JobResult immediatelySubmitJob(JobClient jobClient) {
+	public synchronized JobResult immediatelySubmitJob(JobClient jobClient) {
 		// TODO Auto-generated method stub
 		List<Operator> operators = jobClient.getOperators();
 		for(Operator op:operators){

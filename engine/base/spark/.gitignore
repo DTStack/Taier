@@ -4,3 +4,5 @@ target/
 .classpath
 .idea/
 *.iml
+metastore_db/
+*.log
