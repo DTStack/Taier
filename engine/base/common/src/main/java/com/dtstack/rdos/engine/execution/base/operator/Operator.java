@@ -10,9 +10,9 @@ package com.dtstack.rdos.engine.execution.base.operator;
  */
 public interface Operator {
 	
-	public boolean createOperator(String sql)throws Exception;
+	public void createOperator(String sql)throws Exception;
 	
-	public void verification(String sql)throws Exception;
+	public boolean verific (String sql) throws Exception;
 	
 	public String getSql();
 

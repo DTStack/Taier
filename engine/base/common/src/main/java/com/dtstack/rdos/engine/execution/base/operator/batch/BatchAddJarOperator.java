@@ -1,9 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.operator.batch;
 
 import com.dtstack.rdos.common.util.GrokUtil;
-import com.dtstack.rdos.engine.execution.base.exception.SqlVerificationException;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-
 import java.util.Map;
 
 
@@ -46,23 +44,15 @@ public class BatchAddJarOperator implements Operator{
 	}
 
 	@Override
-	public boolean createOperator(String sql)throws Exception {
+	public void createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
 		this.sql = sql;
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.jarPath = (String)result.get("path");
 		this.mainClass = (String)result.get("mainClass");
-		return true;
-	}
-
-	@Override
-	public void verification(String sql) throws Exception {
-		if(GrokUtil.isSuccess(pattern,sql)){
-			throw new SqlVerificationException("add batch jar");
-		}
 	}
 	
-	public static boolean verific(String sql) throws Exception{
+	public boolean verific(String sql) throws Exception{
 		return GrokUtil.isSuccess(pattern,sql);
 	}
 
