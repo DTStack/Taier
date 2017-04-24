@@ -26,11 +26,9 @@ public class SqlParser {
 //	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);
 	
 	@SuppressWarnings("unchecked")
-	private static List<Class<? extends Operator>> operatorClasses =
+	private static List<Class<? extends Operator>> streamOperatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
-                        CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class,
-                        BatchAddJarOperator.class, BatchExecutionOperator.class);
-
+                        CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class);
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> batchOperatorClasses =
@@ -41,7 +39,7 @@ public class SqlParser {
         if(paramAction.getComputeType() == ComputeType.BATCH.ordinal()){
 			operators = parserSql(paramAction.getSqlText(),batchOperatorClasses);
 		}else{
-			operators = parserSql(paramAction.getSqlText(),operatorClasses);
+			operators = parserSql(paramAction.getSqlText(),streamOperatorClasses);
 		}
 		operators.add(parserParams(paramAction.getTaskParams()));
 		return operators;
@@ -55,9 +53,9 @@ public class SqlParser {
 			cql = cql.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", "").trim();
 			boolean result = false;
 			for(Class<? extends Operator> operatorClass :operatorClasses){
-				result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(null, cql);
+		    	Object obj = operatorClass.newInstance();
+				result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(obj, cql);
 			    if(result){
-			    	Object obj = operatorClass.newInstance();
 			    	operatorClass.getMethod("createOperator", String.class).invoke(obj, cql);
 			    	operators.add((Operator) obj);
 			    	continue A;
@@ -72,7 +70,9 @@ public class SqlParser {
 	
 	public static Operator parserParams(String params) throws Exception{
 		ParamsOperator paramsOperator = new ParamsOperator();
-		paramsOperator.verification(params);
+		if(!paramsOperator.verific(params)){
+			throw new RdosException(String.format("%s:parserSql fail",params));
+		}
 		paramsOperator.createOperator(params);
 		return paramsOperator;
 	}
