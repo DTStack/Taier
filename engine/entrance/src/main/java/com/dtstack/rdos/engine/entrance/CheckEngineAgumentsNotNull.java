@@ -1,4 +1,4 @@
-package com.dtstack.rdos.common.util;
+package com.dtstack.rdos.engine.entrance;
 
 import com.dtstack.rdos.commom.exception.EngineAgumentsException;
 import org.apache.commons.lang3.StringUtils;
