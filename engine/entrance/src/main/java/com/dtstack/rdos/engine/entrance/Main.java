@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.entrance;
 
+import com.dtstack.rdos.engine.entrance.command.CmdLineParams;
+import com.dtstack.rdos.engine.entrance.command.OptionsProcessor;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.log.LogComponent;
