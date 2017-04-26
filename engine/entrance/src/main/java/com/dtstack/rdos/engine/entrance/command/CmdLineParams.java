@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance;
+package com.dtstack.rdos.engine.entrance.command;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang3.StringUtils;

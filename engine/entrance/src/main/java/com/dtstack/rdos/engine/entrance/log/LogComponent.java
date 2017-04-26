@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.entrance.log;
 
-import com.dtstack.rdos.engine.entrance.CmdLineParams;
+import com.dtstack.rdos.engine.entrance.command.CmdLineParams;
 
 /**
  * 
