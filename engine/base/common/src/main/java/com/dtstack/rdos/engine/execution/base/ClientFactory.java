@@ -30,6 +30,7 @@ public class ClientFactory {
     		initPluginClass(type,pluginClassLoader.get(type));
     		Thread.sleep(1000);
     		iClient = pluginIClient.get(type);
+    		logger.warn("{}:initPluginClass again...",type);
     	}
         return iClient;
     }
