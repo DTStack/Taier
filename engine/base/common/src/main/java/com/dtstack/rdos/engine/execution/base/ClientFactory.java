@@ -52,6 +52,7 @@ public class ClientFactory {
 			                break;
 			                
 			                default:
+			                	System.exit(-1);
 			                    logger.error("not support for engine type " + pluginType);
 			                    break;
 			        }
