@@ -86,7 +86,7 @@ public class JobSubmitExecutor{
 		if(!finput.exists()){
 			throw new Exception(String.format("%s direcotry not found",plugin));
 		}
-		ClientFactory.setPluginClassLoaders(pluginType, getClassLoad(finput));
+		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
     }
     
     
