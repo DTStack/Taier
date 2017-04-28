@@ -23,7 +23,6 @@ public class ClientFactory {
     
     private static Map<String,ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
-
     public static IClient getClient(String type) throws Exception{
     	type = type.toLowerCase();
     	IClient iClient = pluginIClient.get(type);
@@ -35,32 +34,19 @@ public class ClientFactory {
         return iClient;
     }
     
-    public static void initPluginClass(final String pluginType,ClassLoader classLoader){
+	public static void initPluginClass(final String pluginType,
+			ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
     	pluginClassLoader.put(pluginType, classLoader);
-        new Thread(new Runnable(){
-			@Override
-			public void run() {
-				try{
-					// TODO Auto-generated method stub
-					Thread.currentThread().setContextClassLoader(classLoader);
-			        switch (pluginType){
-			            case "flink":
-			            	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
-			            	break;
-			            case "spark":
-			            	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
-			                break;
-			                
-			                default:
-			                	System.exit(-1);
-			                    logger.error("not support for engine type " + pluginType);
-			                    break;
-			        }
-				}catch(Exception e){
-					System.exit(-1);
-					logger.error("init engine type:{} error:",pluginType,e);
-				}
-			}
-        }).start();
+        switch (pluginType){
+        case "flink":
+        	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
+        	break;
+        case "spark":
+        	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
+            break;
+            
+            default:
+                throw new RuntimeException("not support for engine type " + pluginType);
+        }
     }
 }
