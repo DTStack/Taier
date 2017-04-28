@@ -153,7 +153,6 @@ public class JobSubmitExecutor{
                 if(client == null){
                     throw new RdosException("not support for client type " + clientTypeStr);
                 }
-
                 Properties clusterProp = new Properties();
                 clusterProp.putAll(clientParams);
                 client.init(clusterProp);
@@ -177,6 +176,7 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try{
+                	Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
