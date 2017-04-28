@@ -34,7 +34,7 @@ public class JobSubmitExecutor{
 
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
 
-    private int minPollSize = 100;
+    private int minPollSize = 10;
 
     private int maxPoolSize = minPollSize;
 
@@ -69,14 +69,14 @@ public class JobSubmitExecutor{
     private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
+            EngineType engineType = EngineType.getEngineType(clientTypeStr);
+            loadComputerPlugin(clientTypeStr);
+
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
             client.init(clusterProp);
-
-            EngineType engineType = EngineType.getEngineType(clientTypeStr);
             clientMap.put(engineType, client);
-            loadComputerPlugin(clientTypeStr);
         }
     }
     
