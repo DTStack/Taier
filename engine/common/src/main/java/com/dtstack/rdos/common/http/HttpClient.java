@@ -1,7 +1,6 @@
 package com.dtstack.rdos.common.http;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
-import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 
@@ -39,9 +39,10 @@ public class HttpClient {
     private static Boolean SetTimeOut = true;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
+    
+	private static Charset charset = Charset.forName("UTF-8");
 
-
-        private static CloseableHttpClient getHttpClient(){
+    private static CloseableHttpClient getHttpClient(){
         return HttpClientBuilder.create().build();  
     }
     
@@ -66,7 +67,7 @@ public class HttpClient {
             if (status == HttpStatus.SC_OK) {  
                 HttpEntity entity = response.getEntity(); 
                 //FIXME 暂时不从header读取
-                responseBody = EntityUtils.toString(entity, Charsets.UTF_8); 
+                responseBody = EntityUtils.toString(entity,charset); 
             } else {
             	logger.error("url:"+url+"--->http return status error:" + status);
             }  
@@ -92,7 +93,7 @@ public class HttpClient {
             CloseableHttpResponse response = httpClient.execute(httpGet);
             if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
                 HttpEntity entity = response.getEntity();
-                respBody = EntityUtils.toString(entity, Charsets.UTF_8);
+                respBody = EntityUtils.toString(entity,charset);
             }
         } catch (IOException e) {
             logger.error("url:"+url+"--->http request error",e);
