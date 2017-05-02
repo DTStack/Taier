@@ -3,9 +3,8 @@ package com.dtstack.rdos.engine.entrance;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.web.VertxHttpServer;
 
 /**
  * 
@@ -19,15 +18,15 @@ public class ShutDownHook {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ShutDownHook.class);
 	
-	private EHttpServer eHttpServer;
+	private VertxHttpServer vertxHttpServer;
 	
 	private  ZkDistributed zkDistributed;
 
 	private JobSubmitExecutor jobSubmitExecutor;
 
-	public ShutDownHook(EHttpServer eHttpServer, ZkDistributed zkDistributed,JobSubmitExecutor jobSubmitExecutor) {
+	public ShutDownHook(VertxHttpServer eHttpServer, ZkDistributed zkDistributed,JobSubmitExecutor jobSubmitExecutor) {
 		// TODO Auto-generated constructor stub
-		this.eHttpServer = eHttpServer;
+		this.vertxHttpServer = eHttpServer;
 		this.zkDistributed = zkDistributed;
 		this.jobSubmitExecutor = jobSubmitExecutor;
 
@@ -45,8 +44,8 @@ public class ShutDownHook {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			if(eHttpServer!=null){
-				eHttpServer.release();
+			if(vertxHttpServer!=null){
+				vertxHttpServer.release();
 			}
 			if(zkDistributed!=null){
 				zkDistributed.release();

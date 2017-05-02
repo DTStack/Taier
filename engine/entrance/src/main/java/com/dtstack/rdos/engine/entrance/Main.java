@@ -3,11 +3,11 @@ package com.dtstack.rdos.engine.entrance;
 import com.dtstack.rdos.engine.entrance.command.CmdLineParams;
 import com.dtstack.rdos.engine.entrance.command.OptionsProcessor;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
-import com.dtstack.rdos.engine.entrance.http.EHttpServer;
 import com.dtstack.rdos.engine.entrance.log.LogComponent;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.web.VertxHttpServer;
 
 import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class Main {
 
 	private static LogComponent logComponent = new LogbackComponent();
 
-	private static EHttpServer eHttpServer;
+	private static VertxHttpServer vertxHttpServer;
 	
 	private static ZkDistributed zkDistributed;
 
@@ -62,12 +62,12 @@ public class Main {
 	
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
-		eHttpServer = new EHttpServer(nodeConfig);
+		vertxHttpServer = new VertxHttpServer(nodeConfig);
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 		JobSubmitExecutor.getInstance().init(nodeConfig);
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(eHttpServer,zkDistributed,JobSubmitExecutor.getInstance()).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed,JobSubmitExecutor.getInstance()).addShutDownHook();
 	}
 }
