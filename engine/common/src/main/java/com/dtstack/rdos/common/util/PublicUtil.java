@@ -40,5 +40,26 @@ public class PublicUtil {
 	public static boolean count(int index,int multiples){
 		return index%multiples==0;
 	}
+	
+	public static Object ClassConvter(Class<?> clazz,Object obj){
+		if(clazz.equals(Integer.class)||int.class.equals(clazz)){
+			obj = Integer.parseInt(obj.toString());
+		}else if(clazz.equals(Long.class)|| long.class.equals(clazz)){
+			obj = Long.parseLong(obj.toString());
+		}else if(clazz.equals(Double.class)|| double.class.equals(clazz)){
+			obj = Double.parseDouble(obj.toString());
+		}else if(clazz.equals(Float.class)|| float.class.equals(clazz)){
+			obj = Float.parseFloat(obj.toString());
+		}else if(clazz.equals(Byte.class)|| byte.class.equals(clazz)){
+			obj = Byte.parseByte(obj.toString());
+		}else if(clazz.equals(Short.class)|| short.class.equals(clazz)){
+			obj = Short.parseShort(obj.toString());
+		}else if(clazz.equals(Boolean.class)||boolean.class.equals(clazz)){
+			obj = Boolean.parseBoolean(obj.toString());
+		}else if(clazz.equals(String.class)){
+			obj = obj.toString();
+		}
+		return obj;
+	}
 
 }
