@@ -1,9 +1,9 @@
 package com.dtstack.rdos.common.http;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
-import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -56,6 +56,8 @@ public class PoolHttpClient {
 	private static ObjectMapper objectMapper = new ObjectMapper();
 	
 	private static CloseableHttpClient httpClient = getHttpClient();
+	
+	private static Charset charset = Charset.forName("UTF-8");
 
 	private static CloseableHttpClient getHttpClient() {
 		ConnectionSocketFactory plainsf = PlainConnectionSocketFactory
@@ -89,7 +91,7 @@ public class PoolHttpClient {
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				// FIXME 暂时不从header读取
-				responseBody = EntityUtils.toString(entity, Charsets.UTF_8);
+				responseBody = EntityUtils.toString(entity,charset);
 			} else {
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 			}
@@ -126,7 +128,7 @@ public class PoolHttpClient {
 			response = httpClient.execute(httpGet);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
-				respBody = EntityUtils.toString(entity, Charsets.UTF_8);
+				respBody = EntityUtils.toString(entity,charset);
 			}else{
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 			}
