@@ -26,11 +26,11 @@ LS_OPTS=""
 REMOTE_PORT="9998"
 name=jlogdistribute
 LS_HEAP_SIZE="128m"
-ls_conf=${LS_CONF_DIR}/jlogdistribute.yaml
+ls_conf=${LS_CONF_DIR}/node.yaml
 ls_log="${LS_LOG_DIR}/$name.log"
 pidfile="${CMD_HOME}/run/$name.pid"
-gc_log=${CMD_HOME}/logs/jlogdistribute.gc
-heapdump=${CMD_HOME}/jlogdistribute.hprof
+gc_log=${CMD_HOME}/logs/node.gc
+heapdump=${CMD_HOME}/node.hprof
 
 program=$CMD_HOME/bin/base.sh
 
