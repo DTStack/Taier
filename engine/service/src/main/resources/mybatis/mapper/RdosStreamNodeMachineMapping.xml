@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.rdos.engine.entrance.db.mapper.RdosNodeMachineMapper">
+<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosNodeMachineMapper">
 	
-	<resultMap id="rdosNodeMachineResult" type="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
+	<resultMap id="rdosNodeMachineResult" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine">
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
     <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
@@ -12,7 +12,7 @@
     <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
 	
-    <insert id="insert" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
+    <insert id="insert" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine">
 	replace into rdos_node_machine(gmt_create,gmt_modified,ip,port,machine_type)
 	values(now(),now(),#{ip},#{port},#{machineType})
 	<selectKey resultType="long" keyProperty="id" order="AFTER">
@@ -20,16 +20,16 @@
 	</selectKey>
 	</insert>
 	
-   <update id="updateMachineType" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
+   <update id="updateMachineType" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine">
         update rdos_node_machine set machine_type=#{machineType}, gmt_modified=now() where ip=#{ip} and port=#{port};
    </update>
    
    
-  <update id="disableMachineNode" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
+  <update id="disableMachineNode" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine">
     update rdos_node_machine set is_deleted = 1, gmt_modified=now() where ip=#{ip} and port=#{port};
   </update>
 
-    <update id="ableMachineNode" parameterType="com.dtstack.rdos.engine.entrance.db.dataobject.RdosNodeMachine">
+    <update id="ableMachineNode" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine">
         update rdos_node_machine set is_deleted = 0, gmt_modified=now() where ip=#{ip} and port=#{port};
     </update>
    
