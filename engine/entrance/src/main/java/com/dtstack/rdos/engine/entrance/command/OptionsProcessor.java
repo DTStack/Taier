@@ -44,10 +44,6 @@ public class OptionsProcessor {
 			usage();
 			System.exit(-1);
 		}
-
-		if (!cmdLine.hasOption("f")) {
-			throw new ParseException("Required -f argument to specify config file");
-		}
 		return cmdLine;
 	}
 
