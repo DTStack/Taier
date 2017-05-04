@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance;
 
+import com.dtstack.rdos.common.util.SystemPropertyUtil;
 import com.dtstack.rdos.engine.entrance.command.CmdLineParams;
 import com.dtstack.rdos.engine.entrance.command.OptionsProcessor;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
@@ -35,6 +36,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		try {
+			SystemPropertyUtil.setSystemUserDir();
 			CommandLine cmdLine = OptionsProcessor.parseArg(args);
 			CmdLineParams.setLine(cmdLine);
 			// set logger
@@ -70,4 +72,6 @@ public class Main {
 	private static void addShutDownHook(){
 		new ShutDownHook(vertxHttpServer,zkDistributed,JobSubmitExecutor.getInstance()).addShutDownHook();
 	}
+	
+	
 }
