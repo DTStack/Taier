@@ -25,7 +25,7 @@ public class CmdLineParams {
 	public static String getConfigFilePath(){
 		String configFile = line.getOptionValue("f");
 		if(StringUtils.isBlank(configFile)){
-			return String.format("%s/%s",dir,"config/node.yml");
+			return String.format("%s/%s",dir,"conf/node.yml");
 		}
 		return line.getOptionValue("f");
 	}
