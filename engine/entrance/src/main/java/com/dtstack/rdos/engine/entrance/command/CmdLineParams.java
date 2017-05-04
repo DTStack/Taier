@@ -16,6 +16,8 @@ public class CmdLineParams {
 	
 	private static CommandLine line;
 	
+	private static String  dir = System.getProperty("user.dir");
+	
 	public static void setLine(CommandLine line) {
 		CmdLineParams.line = line;
 	}
@@ -23,7 +25,7 @@ public class CmdLineParams {
 	public static String getConfigFilePath(){
 		String configFile = line.getOptionValue("f");
 		if(StringUtils.isBlank(configFile)){
-			return String.format("%s/%s", System.getProperty("user.dir"),"config/node.yml");
+			return String.format("%s/%s",dir,"config/node.yml");
 		}
 		return line.getOptionValue("f");
 	}
@@ -31,7 +33,7 @@ public class CmdLineParams {
 	public static String getLogFilePath(){
 		String logFile = line.getOptionValue("l");
 		if(StringUtils.isBlank(logFile)){
-			return String.format("%s/%s", System.getProperty("user.dir"),"logs/node.log");
+			return String.format("%s/%s",dir,"logs/node.log");
 		}
 		return logFile;
 	}
