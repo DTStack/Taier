@@ -7,7 +7,6 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -24,7 +23,7 @@ public class JobClient {
 
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
-    private List<Operator> operators = new ArrayList<Operator>();
+    private List<Operator> operators;
     
     private Properties confProperties;
     
