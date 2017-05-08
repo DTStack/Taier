@@ -215,7 +215,7 @@ public class FlinkUtil {
      * @param properties
      */
     public static int getEnvParallelism(Properties properties){
-        String parallelismStr = properties.getProperty(ConfigConstrant.ENV_PARALLELISM);
+        String parallelismStr = properties.getProperty(ConfigConstrant.SQL_ENV_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
     }
     
@@ -226,7 +226,7 @@ public class FlinkUtil {
      * @return
      */
     public static int getMaxEnvParallelism(Properties properties){
-        String parallelismStr = properties.getProperty(ConfigConstrant.MAX_ENV_PARALLELISM);
+        String parallelismStr = properties.getProperty(ConfigConstrant.SQL_MAX_ENV_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):0;
     }
     
@@ -236,7 +236,7 @@ public class FlinkUtil {
      * @return
      */
     public static int getJobParallelism(Properties properties){
-        String parallelismStr = properties.getProperty(ConfigConstrant.JOB_PARALLELISM);
+        String parallelismStr = properties.getProperty(ConfigConstrant.MR_JOB_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
     }
     
@@ -246,7 +246,7 @@ public class FlinkUtil {
      * @return
      */
     public static long getBufferTimeoutMillis(Properties properties){
-        String mills = properties.getProperty(ConfigConstrant.BUFFER_TIMEOUT_MILLIS);
+        String mills = properties.getProperty(ConfigConstrant.SQL_BUFFER_TIMEOUT_MILLIS);
         return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0l;
     }
     

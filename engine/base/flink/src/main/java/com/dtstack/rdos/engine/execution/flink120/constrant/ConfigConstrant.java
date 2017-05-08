@@ -20,12 +20,12 @@ public class ConfigConstrant {
 
     public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDataURI";
     
-    public static final String ENV_PARALLELISM = "env.parallelism";
+    public static final String SQL_ENV_PARALLELISM = "sql.env.parallelism";
     
-    public static final String MAX_ENV_PARALLELISM = "max.env.parallelism";
+    public static final String SQL_MAX_ENV_PARALLELISM = "sql.max.env.parallelism";
     
-    public static final String JOB_PARALLELISM = "job.parallelism";
+    public static final String MR_JOB_PARALLELISM = "mr.job.parallelism";
     
-    public static final String BUFFER_TIMEOUT_MILLIS = "buffer.timeout.millis";
+    public static final String SQL_BUFFER_TIMEOUT_MILLIS = "sql.buffer.timeout.millis";
 
 }
