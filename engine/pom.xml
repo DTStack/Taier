@@ -17,6 +17,7 @@
     <module>base/common</module>
     <module>base/spark</module>
     <module>base/flink</module>
+    <module>base/sync</module>
     <module>web</module>
     <module>service</module>
   </modules>
