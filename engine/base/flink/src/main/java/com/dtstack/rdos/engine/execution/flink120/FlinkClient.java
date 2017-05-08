@@ -83,8 +83,6 @@ public class FlinkClient extends AbsClient {
 
     public static final String FLINK_ZK_CLUSTERID_KEY = "engineClusterId";
 
-    public static final String FLINK_JOB_PARALLELISM_KEY = "flinkJobParallelism";
-
     public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
 
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
@@ -207,7 +205,7 @@ public class FlinkClient extends AbsClient {
         String entryPointClass = properties.getProperty(JOB_MAIN_CLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
         String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
-        SavepointRestoreSettings spSettings = buildSavepointSetting(properties);
+        SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient.getConfProperties());
 
         try{
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
@@ -219,8 +217,7 @@ public class FlinkClient extends AbsClient {
         }
 
         //只有当程序本身没有指定并行度的时候该参数才生效
-        String parallelismStr = properties.getProperty(FLINK_JOB_PARALLELISM_KEY);
-        Integer runParallelism = parallelismStr == null ? 1 : Integer.valueOf(parallelismStr);
+        Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
         JobSubmissionResult result = null;
 
         try {
@@ -331,9 +328,7 @@ public class FlinkClient extends AbsClient {
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
         URLClassLoader classLoader = null;
-
         for(Operator operator : jobClient.getOperators()){
-
             if(operator instanceof AddJarOperator){
                 if(currStep > 0){
                     throw new RdosException("sql job order setting err. cause of AddJarOperator");
@@ -504,8 +499,12 @@ public class FlinkClient extends AbsClient {
 
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
-        if(!FlinkUtil.setEnvParallelism(env,confProperties)){//默认的并行度是1
-            env.setParallelism(1);
+        env.setParallelism(FlinkUtil.getEnvParallelism(confProperties));
+        if(FlinkUtil.getMaxEnvParallelism(confProperties)!=0){
+            env.setMaxParallelism(FlinkUtil.getMaxEnvParallelism(confProperties));
+        }
+        if(FlinkUtil.getBufferTimeoutMillis(confProperties)!=0){
+            env.setBufferTimeout(FlinkUtil.getBufferTimeoutMillis(confProperties));
         }
         return env;
     }

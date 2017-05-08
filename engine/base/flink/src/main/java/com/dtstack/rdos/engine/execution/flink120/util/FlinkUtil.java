@@ -2,6 +2,9 @@ package com.dtstack.rdos.engine.execution.flink120.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.FileUtil;
+import com.dtstack.rdos.engine.execution.flink120.constrant.ConfigConstrant;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
@@ -35,18 +38,6 @@ public class FlinkUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkUtil.class);
 
-    public static final String FLINK_CHECKPOINT_INTERVAL_KEY = "flinkCheckpointInterval";
-
-    public static final String FLINK_CHECKPOINT_MODE_KEY = "flinkCheckpointMode";
-
-    public static final String FLINK_CHECKPOINT_TIMEOUT_KEY = "flinkCheckpointTimeout";
-
-    public static final String FLINK_MAXCONCURRENTCHECKPOINTS_KEY = "maxConcurrentCheckpoints";
-
-    public static final String FLINK_CHECKPOINT_CLEANUPMODE_KEY = "flinkCheckpointCleanupmode";
-
-    public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDataURI";
-
     private static final String URL_SPLITE = "/";
 
     private static String fileSP = File.separator;
@@ -63,15 +54,15 @@ public class FlinkUtil {
         }
 
         //设置了时间间隔才表明开启了checkpoint
-        if(properties.getProperty(FLINK_CHECKPOINT_INTERVAL_KEY) == null){
+        if(properties.getProperty(ConfigConstrant.FLINK_CHECKPOINT_INTERVAL_KEY) == null){
             return;
         }else{
-            Long interval = Long.valueOf(properties.getProperty(FLINK_CHECKPOINT_INTERVAL_KEY));
+            Long interval = Long.valueOf(properties.getProperty(ConfigConstrant.FLINK_CHECKPOINT_INTERVAL_KEY));
             //start checkpoint every ${interval}
             env.enableCheckpointing(interval);
         }
 
-        String checkMode = properties.getProperty(FLINK_CHECKPOINT_MODE_KEY);
+        String checkMode = properties.getProperty(ConfigConstrant.FLINK_CHECKPOINT_MODE_KEY);
         if(checkMode != null){
             if(checkMode.equalsIgnoreCase("EXACTLY_ONCE")){
                 env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
@@ -82,21 +73,21 @@ public class FlinkUtil {
             }
         }
 
-        String checkpointTimeoutStr = properties.getProperty(FLINK_CHECKPOINT_TIMEOUT_KEY);
+        String checkpointTimeoutStr = properties.getProperty(ConfigConstrant.FLINK_CHECKPOINT_TIMEOUT_KEY);
         if(checkpointTimeoutStr != null){
             Long checkpointTimeout = Long.valueOf(checkpointTimeoutStr);
             //checkpoints have to complete within one min,or are discard
             env.getCheckpointConfig().setCheckpointTimeout(checkpointTimeout);
         }
 
-        String maxConcurrCheckpointsStr = properties.getProperty(FLINK_MAXCONCURRENTCHECKPOINTS_KEY);
+        String maxConcurrCheckpointsStr = properties.getProperty(ConfigConstrant.FLINK_MAXCONCURRENTCHECKPOINTS_KEY);
         if(maxConcurrCheckpointsStr != null){
             Integer maxConcurrCheckpoints = Integer.valueOf(maxConcurrCheckpointsStr);
             //allow only one checkpoint to be int porgress at the same time
             env.getCheckpointConfig().setMaxConcurrentCheckpoints(maxConcurrCheckpoints);
         }
 
-        String cleanupModeStr = properties.getProperty(FLINK_CHECKPOINT_CLEANUPMODE_KEY);
+        String cleanupModeStr = properties.getProperty(ConfigConstrant.FLINK_CHECKPOINT_CLEANUPMODE_KEY);
         if(cleanupModeStr != null){//设置在cancle job情况下checkpoint是否被保存
             if("true".equalsIgnoreCase(cleanupModeStr)){
                 env.getCheckpointConfig().enableExternalizedCheckpoints(
@@ -109,7 +100,7 @@ public class FlinkUtil {
             }
         }
 
-        String backendPath = properties.getProperty(FLINK_CHECKPOINT_DATAURI_KEY);
+        String backendPath = properties.getProperty(ConfigConstrant.FLINK_CHECKPOINT_DATAURI_KEY);
         if(backendPath != null){
             //set checkpoint save path on file system, 根据实际的需求设定文件路径,hdfs://, file://
             env.setStateBackend(new FsStateBackend(backendPath));
@@ -223,22 +214,42 @@ public class FlinkUtil {
      * @param env
      * @param properties
      */
-    public static boolean setEnvParallelism(StreamExecutionEnvironment env, Properties properties){
-
-        if(env == null || properties == null){
-            return false;
-        }
-
-        String parallelismStr = properties.getProperty("parallelism");
-        if(parallelismStr != null){
-            Integer parallelism = Integer.valueOf(parallelismStr);
-            env.setParallelism(parallelism);
-            return true;
-        }
-
-        return false;
+    public static int getEnvParallelism(Properties properties){
+        String parallelismStr = properties.getProperty(ConfigConstrant.ENV_PARALLELISM);
+        return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
     }
-
+    
+    
+    /**
+     * 最大并发度
+     * @param properties
+     * @return
+     */
+    public static int getMaxEnvParallelism(Properties properties){
+        String parallelismStr = properties.getProperty(ConfigConstrant.MAX_ENV_PARALLELISM);
+        return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):0;
+    }
+    
+    /**
+     * 针对MR类型整个job的并发度设置
+     * @param properties
+     * @return
+     */
+    public static int getJobParallelism(Properties properties){
+        String parallelismStr = properties.getProperty(ConfigConstrant.JOB_PARALLELISM);
+        return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
+    }
+    
+    /**
+     * 
+     * @param properties
+     * @return
+     */
+    public static long getBufferTimeoutMillis(Properties properties){
+        String mills = properties.getProperty(ConfigConstrant.BUFFER_TIMEOUT_MILLIS);
+        return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0l;
+    }
+    
     public static URLClassLoader loadJar(List<URL> jarURLList){
 
         int size = 0;
