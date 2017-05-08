@@ -10,8 +10,9 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
  */
 public enum EJobType{
 	
-    SQL(0),//提交sql执行
-    MR(1);//提交 mr 任务
+    SQL(0),
+    MR(1),
+    SYNC(2);//数据同步任务
     
     private int type;
     
@@ -27,5 +28,9 @@ public enum EJobType{
     		}
     	}
     	return null;
+    }
+    
+    public int getType(){
+    	return this.type;
     }
 }

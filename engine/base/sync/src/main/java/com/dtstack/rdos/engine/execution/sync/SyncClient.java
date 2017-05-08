@@ -2,6 +2,8 @@ package com.dtstack.rdos.engine.execution.sync;
 
 import java.io.IOException;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
@@ -13,24 +15,13 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
  *
  */
 public class SyncClient extends AbsClient{
+	
+    private static final Logger logger = LoggerFactory.getLogger(SyncClient.class);
 
 	@Override
 	public void init(Properties prop) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public JobResult submitJobWithJar(JobClient jobClient) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public JobResult submitSqlJob(JobClient jobClient) throws IOException,
-			ClassNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -56,5 +47,10 @@ public class SyncClient extends AbsClient{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public JobResult submitSyncJob(JobClient jobClient){
+    	return null;
+    }
 
 }
