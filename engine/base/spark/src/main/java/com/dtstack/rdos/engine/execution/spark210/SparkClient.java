@@ -14,14 +14,11 @@ import com.google.common.base.Strings;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.rest.RestSubmissionClient;
 import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
-import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
