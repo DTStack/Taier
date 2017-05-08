@@ -28,5 +28,9 @@ public enum ComputeType {
     	}
     	return null;
     }
+    
+    public int getComputeType(){
+    	return this.type;
+    }
 
 }
