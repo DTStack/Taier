@@ -500,10 +500,10 @@ public class FlinkClient extends AbsClient {
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
         env.setParallelism(FlinkUtil.getEnvParallelism(confProperties));
-        if(FlinkUtil.getMaxEnvParallelism(confProperties)!=0){
+        if(FlinkUtil.getMaxEnvParallelism(confProperties)>0){
             env.setMaxParallelism(FlinkUtil.getMaxEnvParallelism(confProperties));
         }
-        if(FlinkUtil.getBufferTimeoutMillis(confProperties)!=0){
+        if(FlinkUtil.getBufferTimeoutMillis(confProperties)>0){
             env.setBufferTimeout(FlinkUtil.getBufferTimeoutMillis(confProperties));
         }
         return env;
