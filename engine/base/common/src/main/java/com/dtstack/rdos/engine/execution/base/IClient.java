@@ -23,10 +23,6 @@ public interface IClient {
      */
     void init(Properties prop);
 
-    JobResult submitJobWithJar(JobClient jobClient);
-
-    JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException;
-
     /**
      * 提交的时候先判断下计算资源是否足够,
      * 只有sql方式才能判断,jar方式计算资源在jar包里面指定,无法获取
