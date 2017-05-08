@@ -1,14 +1,15 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-
+import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -24,6 +25,8 @@ public class JobClient {
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
     private List<Operator> operators = new ArrayList<Operator>();
+    
+    private Properties confProperties;
     
     private String jobName;
     
@@ -72,9 +75,10 @@ public class JobClient {
 		
 	}
 	
-	public JobClient (List<Operator> operators,String jobName ,String taskId,String engineTaskId,EJobType jobType,
-                      ComputeType computeType, EngineType engineType, Restoration isRestoration,Long actionLogId){
-		this.operators.addAll(operators);
+	public JobClient (String sql,String taskParams,String jobName ,String taskId,String engineTaskId,EJobType jobType,
+                      ComputeType computeType, EngineType engineType, Restoration isRestoration,Long actionLogId) throws Exception{
+		this.operators = SqlParser.parser(computeType.getComputeType(), sql);
+		this.confProperties = PublicUtil.stringToProperties(taskParams);
         this.jobName = jobName;
         this.taskId = taskId;
         this.engineTaskId = engineTaskId;
@@ -85,7 +89,6 @@ public class JobClient {
         this.engineType = engineType;
 	}
 	
-
     public void submit() throws Exception{
         JobSubmitExecutor.getInstance().submitJob(this);
     }
@@ -178,4 +181,8 @@ public class JobClient {
     public void setEngineType(EngineType engineType) {
         this.engineType = engineType;
     }
+
+	public Properties getConfProperties() {
+		return confProperties;
+	}
 }
