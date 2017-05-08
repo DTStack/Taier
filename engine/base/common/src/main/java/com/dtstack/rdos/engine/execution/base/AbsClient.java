@@ -1,7 +1,10 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import java.util.Properties;
+
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +25,7 @@ public abstract class AbsClient implements IClient{
     public static final String JOB_MAIN_CLASS_KEY = "job.main.class";
 
     public static final String JOB_APP_NAME_KEY = "job.name";
-
+    
     @Override
     public JobResult submitJob(JobClient jobClient) {
 
@@ -50,5 +53,7 @@ public abstract class AbsClient implements IClient{
         }
 
         return jobResult;
-    }    
+    }   
+    
+    
 }

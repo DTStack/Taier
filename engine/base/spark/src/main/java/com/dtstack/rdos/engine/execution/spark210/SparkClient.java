@@ -6,13 +6,11 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunctionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.base.Strings;
-
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.rest.RestSubmissionClient;
 import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
@@ -91,13 +89,7 @@ public class SparkClient extends AbsClient {
     public JobResult submitJobWithJar(JobClient jobClient) {
 
         Properties properties = adaptToJarSubmit(jobClient);
-        ParamsOperator paramsOperator = null;
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof ParamsOperator){
-                paramsOperator = (ParamsOperator) operator;
-                break;
-            }
-        }
+        
 
         String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
         String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);//只支持hdfs
@@ -117,8 +109,7 @@ public class SparkClient extends AbsClient {
         sparkConf.set("spark.submit.deployMode", deployMode);
         sparkConf.setAppName(appName);
         sparkConf.set("spark.jars", jarPath);
-        fillExtSparkConf(sparkConf, paramsOperator);
-
+        fillExtSparkConf(sparkConf, jobClient.getConfProperties());
         SubmitRestProtocolResponse response = RestSubmissionClient.run(jarPath, mainClass,
                 appArgs, sparkConf, new scala.collection.immutable.HashMap<String, String>());
         return processRemoteResponse(response);
@@ -178,8 +169,6 @@ public class SparkClient extends AbsClient {
 
         StringBuffer sb = new StringBuffer("");
         StringBuffer funcSb = new StringBuffer("");
-        ParamsOperator paramsOperator = null;
-
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof BatchExecutionOperator){
                 String tmpSql = ((BatchExecutionOperator) operator).getSql();
@@ -191,10 +180,6 @@ public class SparkClient extends AbsClient {
                 String tmpSql = ((BatchCreateFunctionOperator)operator).getSql();
                 funcSb.append(tmpSql)
                       .append(";");
-            }
-
-            if(operator instanceof ParamsOperator){
-                paramsOperator = (ParamsOperator) operator;
             }
         }
 
@@ -218,9 +203,7 @@ public class SparkClient extends AbsClient {
         sparkConf.setAppName(jobClient.getJobName());
         sparkConf.set("spark.jars", sqlProxyJarPath);
         sparkConf.set("spark.driver.supervise", "false");
-
-        fillExtSparkConf(sparkConf, paramsOperator);
-
+        fillExtSparkConf(sparkConf, jobClient.getConfProperties());
         SubmitRestProtocolResponse response = RestSubmissionClient.run(sqlProxyJarPath, sqlProxyMainClass,
                 appArgs, sparkConf, new scala.collection.immutable.HashMap<String, String>());
        return processRemoteResponse(response);
@@ -232,17 +215,12 @@ public class SparkClient extends AbsClient {
      * @param sparkConf
      * @param paramsOperator
      */
-    private void fillExtSparkConf(SparkConf sparkConf, ParamsOperator paramsOperator){
+    private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
 
         sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM); //默认执行内存
         sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);  //默认请求的cpu核心数
         sparkConf.set("spark.driver.supervise", "false");
-
-        if(paramsOperator == null){
-            return;
-        }
-
-        for(Map.Entry<Object, Object> param : paramsOperator.getProperties().entrySet()){
+        for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
             key = KEY_PRE_STR + key;
