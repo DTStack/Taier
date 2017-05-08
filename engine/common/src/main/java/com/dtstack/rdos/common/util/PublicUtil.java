@@ -1,7 +1,9 @@
 package com.dtstack.rdos.common.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -60,6 +62,12 @@ public class PublicUtil {
 			obj = obj.toString();
 		}
 		return obj;
+	}
+	
+	public static Properties stringToProperties(String str) throws IOException{
+	   Properties properties = new Properties();
+	   properties.load(new ByteArrayInputStream(str.getBytes("UTF-8")));
+	   return properties;
 	}
 
 }

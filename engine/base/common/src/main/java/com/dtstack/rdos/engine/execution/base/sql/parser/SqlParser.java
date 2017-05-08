@@ -1,14 +1,11 @@
-package com.dtstack.rdos.engine.entrance.sql;
+package com.dtstack.rdos.engine.execution.base.sql.parser;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
-
 import java.util.List;
 
 
@@ -34,14 +31,13 @@ public class SqlParser {
 	private static List<Class<? extends Operator>> batchOperatorClasses =
 			Lists.newArrayList(BatchAddJarOperator.class, BatchCreateFunctionOperator.class, BatchExecutionOperator.class);
 
-	public static List<Operator> parser(ParamAction paramAction) throws Exception{
+	public static List<Operator> parser(int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
-        if(paramAction.getComputeType() == ComputeType.BATCH.ordinal()){
-			operators = parserSql(paramAction.getSqlText(),batchOperatorClasses);
+        if(computeType == ComputeType.BATCH.getComputeType()){
+			operators = parserSql(sql,batchOperatorClasses);
 		}else{
-			operators = parserSql(paramAction.getSqlText(),streamOperatorClasses);
+			operators = parserSql(sql,streamOperatorClasses);
 		}
-		operators.add(parserParams(paramAction.getTaskParams()));
 		return operators;
 	}
 	
@@ -67,16 +63,6 @@ public class SqlParser {
 		}
 		return operators;
 	}
-	
-	public static Operator parserParams(String params) throws Exception{
-		ParamsOperator paramsOperator = new ParamsOperator();
-		if(!paramsOperator.verific(params)){
-			throw new RdosException(String.format("%s:parserSql fail",params));
-		}
-		paramsOperator.createOperator(params);
-		return paramsOperator;
-	}
-
 	
 	public static void main(String[] args){
 		String ss = "--Stream SQL\n"+

@@ -1,13 +1,14 @@
 package com.dtstack.rdos.engine.entrance.test;
 
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
-import com.dtstack.rdos.engine.entrance.sql.SqlParser;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.collect.Maps;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class TestRunSql {
         paramAction.setSqlText(sql);
         paramAction.setComputeType(ComputeType.STREAM.ordinal());
 
-        List<Operator> operators = SqlParser.parser(paramAction);
+        List<Operator> operators = SqlParser.parser(paramAction.getComputeType(),paramAction.getSqlText());
         JobClient jobClient = new JobClient();
         jobClient.setJobType(EJobType.SQL);
         jobClient.setTaskId("test_sql_job");
@@ -105,7 +106,7 @@ public class TestRunSql {
         paramAction.setComputeType(ComputeType.BATCH.ordinal());
 
         initSpark();
-        List<Operator> operators = SqlParser.parser(paramAction);
+        List<Operator> operators = SqlParser.parser(paramAction.getComputeType(),paramAction.getSqlText());
         JobClient jobClient = new JobClient();
         jobClient.setEngineType(EngineType.Spark);
         jobClient.setJobType(EJobType.SQL);
