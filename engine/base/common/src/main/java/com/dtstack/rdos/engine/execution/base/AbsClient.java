@@ -1,10 +1,8 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import java.util.Properties;
-
+import java.io.IOException;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,7 @@ public abstract class AbsClient implements IClient{
     public static final String JOB_APP_NAME_KEY = "job.name";
     
     @Override
-    public JobResult submitJob(JobClient jobClient) {
+	public JobResult submitJob(JobClient jobClient) {
 
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult;
@@ -47,13 +45,31 @@ public abstract class AbsClient implements IClient{
                 logger.error("", e);
                 jobResult = JobResult.createErrorResult(e);
             }
+        }else if(EJobType.SYNC.equals(jobType)){
+            try{
+                jobResult = submitSyncJob(jobClient);
+            }catch (Exception e){
+                logger.error("", e);
+                jobResult = JobResult.createErrorResult(e);
+            }
         }else{
             jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
                     " you need to set it in(MR, SQL)");
         }
-
         return jobResult;
     }   
     
     
+    public JobResult submitJobWithJar(JobClient jobClient){
+    	return null;
+    }
+
+    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException{
+    	return null;
+    }
+    
+    
+    public JobResult submitSyncJob(JobClient jobClient){
+    	return null;
+    }
 }
