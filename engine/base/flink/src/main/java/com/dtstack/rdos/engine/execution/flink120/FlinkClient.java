@@ -12,7 +12,6 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOper
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.ParamsOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
@@ -89,7 +88,7 @@ public class FlinkClient extends AbsClient {
     public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
 
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
     public static final String FILE_TMP_PATH_KEY = "jarTmpDir";
 
     public String tmpFileDirPath;
@@ -324,13 +323,11 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException {
-
-        StreamExecutionEnvironment env = getStreamExeEnv(jobClient);
+    	Properties confProperties = jobClient.getConfProperties();
+        StreamExecutionEnvironment env = getStreamExeEnv(confProperties);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
         Table resultTable = null; //FIXME 注意现在只能使用一个result
-
         int currStep = 0;
-        ParamsOperator paramsOperator = null;
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
         URLClassLoader classLoader = null;
@@ -394,9 +391,6 @@ public class FlinkClient extends AbsClient {
                 TableSink tableSink = SinkFactory.getTableSink(resultOperator);
                 resultTable.writeToSink(tableSink);
 
-            }else if(operator instanceof ParamsOperator){
-                paramsOperator = (ParamsOperator) operator;
-
             }else{
                 throw new RdosException("not support operator of " + operator.getClass().getName());
             }
@@ -407,16 +401,12 @@ public class FlinkClient extends AbsClient {
             StreamGraph streamGraph = env.getStreamGraph();
             streamGraph.setJobName(jobClient.getJobName());
             JobGraph jobGraph = streamGraph.getJobGraph();
-            if(paramsOperator != null){
-                SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(paramsOperator.getProperties());
-                jobGraph.setSavepointRestoreSettings(spRestoreSetting);
-            }
-
+            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(confProperties);
+            jobGraph.setSavepointRestoreSettings(spRestoreSetting);
             for(String jarFile : jarPathList){
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
                 jobGraph.addJar(new Path(jarFileUri));
             }
-
             JobResult jobResult;
             if(isDetact){
                 JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());
@@ -512,23 +502,11 @@ public class FlinkClient extends AbsClient {
     }
 
 
-    private StreamExecutionEnvironment getStreamExeEnv(JobClient jobClient) throws IOException {
-
+    private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
-        boolean setParallelism = false;
-
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof ParamsOperator){
-                ParamsOperator paramsOperator = (ParamsOperator) operator;
-                FlinkUtil.openCheckpoint(env, paramsOperator.getProperties());
-                setParallelism = FlinkUtil.setEnvParallelism(env, paramsOperator.getProperties());
-            }
-        }
-
-        if(!setParallelism){//默认的并行度是1
+        if(!FlinkUtil.setEnvParallelism(env,confProperties)){//默认的并行度是1
             env.setParallelism(1);
         }
-
         return env;
     }
 
