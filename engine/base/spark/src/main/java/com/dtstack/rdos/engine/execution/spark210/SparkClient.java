@@ -78,6 +78,14 @@ public class SparkClient extends AbsClient {
             throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
     }
+
+    public void initByStandlone(){
+
+    }
+
+    public void initByYarn(){
+
+    }
     
 
 
