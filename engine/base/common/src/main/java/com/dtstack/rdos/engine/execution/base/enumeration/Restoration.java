@@ -22,4 +22,8 @@ public enum Restoration {
         }
         return null;
     }
+
+    public int getVal(){
+        return type;
+    }
 }
