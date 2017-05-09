@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.web.vertx;
 
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.google.common.base.Strings;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import java.io.IOException;
@@ -59,7 +61,8 @@ public class BaseVerticle {
 		if(obj == null){
 			synchronized(BaseVerticle.class){
 				if(obj == null){
-					cla = Class.forName(String.format(classNameTemplate,name));
+				    String className = upperFirstLetter(name);
+					cla = Class.forName(String.format(classNameTemplate, className));
 					obj = cla.newInstance();
 					objects.put(name,obj);
 				}
@@ -112,5 +115,19 @@ public class BaseVerticle {
 			objs[i] = obj;
 		}
 		return objs;
+	}
+
+	public String upperFirstLetter(String word){
+        if(Strings.isNullOrEmpty(word)){
+            throw new RdosException("can't upper word of empty | null");
+        }
+
+        if(word.length() == 1){
+            return word.toUpperCase();
+        }
+
+        String first = word.substring(0, 1).toUpperCase();
+        String newWord = first + word.substring(1);
+        return newWord;
 	}
 }

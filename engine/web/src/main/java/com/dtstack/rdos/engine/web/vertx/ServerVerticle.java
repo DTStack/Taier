@@ -9,6 +9,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 
 /**
@@ -37,6 +38,7 @@ public class ServerVerticle extends AbstractVerticle{
 	@Override
     public void start(Future<Void> future) throws Exception {
         Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
         router.route().handler(CorsHandler.create("*")
                 .allowedHeaders(allowHearders())
                 .allowedMethods(allowMethods()));

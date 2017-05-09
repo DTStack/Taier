@@ -250,7 +250,7 @@ public class FlinkUtil {
         return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0l;
     }
     
-    public static URLClassLoader loadJar(List<URL> jarURLList){
+    public static URLClassLoader loadJar(List<URL> jarURLList, ClassLoader superClassLoader){
 
         int size = 0;
         for(URL url : jarURLList){
@@ -268,7 +268,7 @@ public class FlinkUtil {
             }
         }
 
-        URLClassLoader classLoader = new URLClassLoader(urlArray);
+        URLClassLoader classLoader = new URLClassLoader(urlArray, superClassLoader);
         return classLoader;
     }
 
