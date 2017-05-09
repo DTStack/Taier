@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
@@ -83,8 +84,11 @@ public class FlinkClient extends AbsClient {
 
     public static final String FLINK_ZK_CLUSTERID_KEY = "engineClusterId";
 
-    public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "fromSavepoint";
+    public static final String FLINK_ENGINE_JOBID_KEY = "engineJobId";
 
+    public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "isRestoration";
+
+    //FIXME key值需要根据客户端传输名称调整
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
     public static final String FILE_TMP_PATH_KEY = "jarTmpDir";
@@ -205,8 +209,9 @@ public class FlinkClient extends AbsClient {
         String entryPointClass = properties.getProperty(JOB_MAIN_CLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
         String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
-        SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient.getConfProperties());
 
+        Properties spProp = getSpProperty(jobClient);
+        SavepointRestoreSettings spSettings = buildSavepointSetting(spProp);
         try{
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
@@ -282,7 +287,12 @@ public class FlinkClient extends AbsClient {
         }
 
         if(properties.contains(FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
-            String savepointPath = properties.getProperty(FLINK_JOB_FROMSAVEPOINT_KEY);
+            String jobId = properties.getProperty(FLINK_ENGINE_JOBID_KEY);
+            String savepointPath = getSavepointPath(jobId);
+            if(savepointPath == null){
+                throw new RdosException("can't get any savepoint path!");
+            }
+
             String stateStr = properties.getProperty(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
             boolean allowNonRestoredState = BooleanUtils.toBoolean(stateStr);
             return SavepointRestoreSettings.forPath(savepointPath, allowNonRestoredState);
@@ -361,7 +371,7 @@ public class FlinkClient extends AbsClient {
                 CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
                 //需要把字节码加载进来
                 if(classLoader == null){
-                    classLoader = FlinkUtil.loadJar(jarURList);
+                    classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
                 }
 
                 classLoader.loadClass(tmpOperator.getClassName());
@@ -396,7 +406,9 @@ public class FlinkClient extends AbsClient {
             StreamGraph streamGraph = env.getStreamGraph();
             streamGraph.setJobName(jobClient.getJobName());
             JobGraph jobGraph = streamGraph.getJobGraph();
-            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(confProperties);
+
+            Properties spProp = getSpProperty(jobClient);
+            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(spProp);
             jobGraph.setSavepointRestoreSettings(spRestoreSetting);
             for(String jarFile : jarPathList){
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
@@ -425,26 +437,10 @@ public class FlinkClient extends AbsClient {
     public JobResult cancelJob(String jobId) {
 
         JobID jobID = new JobID(StringUtils.hexStringToByte(jobId));
-        FiniteDuration clientTimeout = AkkaUtils.getDefaultClientTimeout();
-
-        ActorGateway jobManager = null;
-        Object rc = null;
-        try {
-            jobManager = client.getJobManagerGateway();
-            Future<Object> response = jobManager.ask(new JobManagerMessages.CancelJob(jobID), clientTimeout);
-            rc = Await.result(response, clientTimeout);
-        } catch (Exception e) {
-            logger.error("cancle job exception.", e);
-            return  JobResult.createErrorResult(e);
-        }
-
-        if (rc instanceof JobManagerMessages.CancellationSuccess) {
-            logger.info("cancle job {} success.", jobId);
-        } else if (rc instanceof JobManagerMessages.CancellationFailure) {
-            return JobResult.createErrorResult("Canceling the job with ID " + jobId + " failed. cause:"
-                    + ((JobManagerMessages.CancellationFailure) rc).cause());
-        } else {
-            return  JobResult.createErrorResult("Unexpected response: " + rc);
+        try{
+            client.cancel(jobID);
+        }catch (Exception e){
+            return JobResult.createErrorResult(e);
         }
 
         JobResult jobResult = JobResult.newInstance(false);
@@ -514,5 +510,56 @@ public class FlinkClient extends AbsClient {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+	public String getSavepointPath(String engineTaskId){
+        String reqUrl = getReqUrl() + "/jobs/" + engineTaskId + "/checkpoints";
+        String response = PoolHttpClient.get(reqUrl);
+        if(response == null){
+            return null;
+        }
+
+        try{
+            Map<String, Object> statusMap = objectMapper.readValue(response, Map.class);
+            Object latestObj = statusMap.get("latest");
+            if(latestObj == null){
+                return null;
+            }
+
+            Map<String, Object> latestMap = (Map<String, Object>) latestObj;
+            Object completeObj = latestMap.get("completed");
+            if(completeObj == null){
+                return null;
+            }
+
+            Map<String, Object> completeMap = (Map<String, Object>) completeObj;
+            String path = (String) completeMap.get("external_path");
+            return path;
+        }catch (Exception e){
+            logger.error("", e);
+            return null;
+        }
+    }
+
+    public Properties getSpProperty(JobClient jobClient){
+	    Properties properties = new Properties();
+
+	    if(jobClient.getIsRestoration() == Restoration.NO){
+            return properties;
+        }
+
+        properties.put(FLINK_JOB_FROMSAVEPOINT_KEY, jobClient.getIsRestoration().getVal());
+
+	    if(jobClient.getEngineTaskId() != null){
+	        properties.setProperty(FLINK_ENGINE_JOBID_KEY, jobClient.getEngineTaskId());
+        }
+
+        if(jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
+            properties.put(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY,
+                    jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY));
+        }
+
+        return properties;
+    }
 
 }

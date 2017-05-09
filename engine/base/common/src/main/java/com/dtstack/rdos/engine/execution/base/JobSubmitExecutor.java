@@ -116,6 +116,7 @@ public class JobSubmitExecutor{
 
     public RdosTaskStatus getJobStatus(EngineType engineType, String jobId){
         IClient client = clientMap.get(engineType);
+        Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         try{
             return client.getJobStatus(jobId);
         }catch (Exception e){
@@ -126,6 +127,7 @@ public class JobSubmitExecutor{
 
     public JobResult stopJob(EngineType engineType, String jobId){
         IClient client = clientMap.get(engineType);
+        Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         return client.cancelJob(jobId);
     }
 
