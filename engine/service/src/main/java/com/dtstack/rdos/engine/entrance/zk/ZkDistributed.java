@@ -376,8 +376,25 @@ public class ZkDistributed {
 			logger.error("getBrokersChildren error:{}",
 					ExceptionUtil.getErrorMessage(e));
 		}
-		return null;
+		return Lists.newArrayList();
 	}
+
+	public List<String> getAliveBrokersChildren() {
+		try {
+			List<String> brokers = zkClient.getChildren().forPath(this.brokersNode);
+			for(String broker:brokers) {
+				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
+				if (!brokerHeartNode.getAlive()) {
+					brokers.remove(broker);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("getBrokersChildren error:{}",
+					ExceptionUtil.getErrorMessage(e));
+		}
+		return Lists.newArrayList();
+	}
+
 
 	public static ZkDistributed getZkDistributed(){
 		return zkDistributed;
@@ -395,7 +412,9 @@ public class ZkDistributed {
 		// TODO Auto-generated method stub
         try{
             disableBrokerHeartNode(this.localAddress);
-            HttpSendClient.migration(this.localAddress);
+			if(getAliveBrokersChildren().size()>0){
+				HttpSendClient.migration(this.localAddress);
+			}
             executors.shutdown();
         }catch (Throwable e){
             logger.error("",e);
@@ -426,47 +445,49 @@ public class ZkDistributed {
 						total = bbs.size() + total;
 					}
 				}
-				int a = total/others.size();
-				List<Map.Entry<String,Map<String,Byte>>> otherList = Lists.newArrayList();
-				A:for(Map.Entry<String,Map<String,Byte>> other:others.entrySet()){
-					otherList.add(other);
-					int index = 0;
-					int c = other.getValue().size();
-					if(c < a){
-						B:for(Map.Entry<String,Byte> data:datas.entrySet()){
-							index = index+1;
-							if(index <= a-c){
-								other.getValue().put(data.getKey(), data.getValue());
-								datas.remove(data.getKey());
-								continue B;
+				if(others.size()>0){
+					int a = total/others.size();
+					List<Map.Entry<String,Map<String,Byte>>> otherList = Lists.newArrayList();
+					A:for(Map.Entry<String,Map<String,Byte>> other:others.entrySet()){
+						otherList.add(other);
+						int index = 0;
+						int c = other.getValue().size();
+						if(c < a){
+							B:for(Map.Entry<String,Byte> data:datas.entrySet()){
+								index = index+1;
+								if(index <= a-c){
+									other.getValue().put(data.getKey(), data.getValue());
+									datas.remove(data.getKey());
+									continue B;
+								}
+								continue A;
 							}
-							continue A;
+						}
+
+					}
+					if(datas.size() > 0){
+						Collections.sort(otherList,
+								new Comparator<Map.Entry<String,Map<String,Byte>>>() {
+									@Override
+									public int compare(Map.Entry<String,Map<String,Byte>> o1,
+													   Map.Entry<String,Map<String,Byte>> o2) {
+										return o1.getValue().size()
+												- o2.getValue().size();
+									}
+								});
+						int index = 0;
+						for(Map.Entry<String, Byte> data:datas.entrySet()){
+							otherList.get(index).getValue().put(data.getKey(), data.getValue());
+							datas.remove(data.getKey());
+							index = index +1;
 						}
 					}
-					
-				}
-				if(datas.size() > 0){
-					 Collections.sort(otherList,
-							  new Comparator<Map.Entry<String,Map<String,Byte>>>() {
-								  @Override
-								  public int compare(Map.Entry<String,Map<String,Byte>> o1,
-										  Map.Entry<String,Map<String,Byte>> o2) {
-									  return o1.getValue().size()
-											  - o2.getValue().size();
-								  }
-							  });
-					 int index = 0;
-					 for(Map.Entry<String, Byte> data:datas.entrySet()){
-						 otherList.get(index).getValue().put(data.getKey(), data.getValue());
-						 datas.remove(data.getKey());
-						 index = index +1;
-					 }
-				}
-				this.updateSynchronizedBrokerData(nodeAddress, BrokerDataNode.initBrokerDataNode(), true);
-				for(Map.Entry<String,Map<String,Byte>> entry:otherList){
-					BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-					brokerDataNode.getMetas().putAll(entry.getValue());
-					this.updateSynchronizedBrokerData(entry.getKey(), brokerDataNode, true);
+					this.updateSynchronizedBrokerData(nodeAddress, BrokerDataNode.initBrokerDataNode(), true);
+					for(Map.Entry<String,Map<String,Byte>> entry:otherList){
+						BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+						brokerDataNode.getMetas().putAll(entry.getValue());
+						this.updateSynchronizedBrokerData(entry.getKey(), brokerDataNode, true);
+					}
 				}
 			}
 		} catch (Exception e) {
