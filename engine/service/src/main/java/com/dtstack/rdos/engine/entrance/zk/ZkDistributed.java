@@ -156,8 +156,6 @@ public class ZkDistributed {
 		if (zkClient.checkExists().forPath(nodePath) == null) {
 			zkClient.create().forPath(nodePath,
 					objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
-		}else{
-			updateSynchronizedBrokerData(this.localAddress,BrokerDataNode.initBrokerDataNode(),true);
 		}
 	}
 	
