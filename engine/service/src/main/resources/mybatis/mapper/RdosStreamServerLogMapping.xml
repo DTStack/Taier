@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosServerLogMapper">
+<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosStreamServerLogMapper">
     <resultMap id="rdosServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog">
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="task_id" property="taskId" jdbcType="VARCHAR" />
@@ -15,7 +15,7 @@
     </resultMap>
 
     <insert id="insertSvrLog">
-        insert into rdos_server_log(task_id, engine_task_id,action_log_id,log_info, gmt_create, gmt_modified)
+        insert into rdos_stream_server_log(task_id, engine_task_id,action_log_id,log_info, gmt_create, gmt_modified)
         values(#{taskId}, #{engineTaskId}, #{actionLogId}, #{logInfo}, now(), now());
     </insert>
 </mapper>

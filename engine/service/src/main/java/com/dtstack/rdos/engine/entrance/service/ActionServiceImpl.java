@@ -54,6 +54,6 @@ public class ActionServiceImpl{
 		int engineTypeVal = paramAction.getEngineType();
 		EngineType engineType = EngineType.getEngineType(engineTypeVal);
 		JobClient.stop(engineType, paramAction.getEngineTaskId());
-		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
+		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.UNSTART.getStatus());
 	}	
 }
