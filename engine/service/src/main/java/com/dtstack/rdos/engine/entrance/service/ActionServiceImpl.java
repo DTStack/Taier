@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.entrance.service;
 import java.util.Map;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosActionLogDAO;
+import com.dtstack.rdos.engine.db.dataobject.RdosStreamActionLog;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
@@ -30,10 +31,17 @@ public class ActionServiceImpl{
 		ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
 		String address = zkDistributed.getExcutionNode();
 		if(paramAction.getRequestStart()==RequestStart.NODE.getStart()||zkDistributed.getLocalAddress().equals(address)){
-			BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+
+            RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
+            if(dbActionLog.getStatus() == RdosActionLogStatus.FAIL.getStatus()){//已经提交过
+                return;
+            }
+
+		    BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
 			brokerDataNode.getMetas().put(paramAction.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
 			zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
 			zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 			new JobClient(paramAction.getSqlText(),paramAction.getTaskParams(),paramAction.getName(),
 					paramAction.getTaskId(), paramAction.getEngineTaskId(),
                     EJobType.getEJobType(paramAction.getTaskType()),
@@ -42,7 +50,6 @@ public class ActionServiceImpl{
                     Restoration.getRestoration(paramAction.getIsRestoration()),
                     paramAction.getActionLogId()
             ).submit();
-			rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 		}else{
  			paramAction.setRequestStart(RequestStart.NODE.getStart());
             HttpSendClient.actionStart(address,paramAction);
@@ -55,5 +62,6 @@ public class ActionServiceImpl{
 		EngineType engineType = EngineType.getEngineType(engineTypeVal);
 		JobClient.stop(engineType, paramAction.getEngineTaskId());
 		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.UNSTART.getStatus());
-	}	
+	}
+
 }
