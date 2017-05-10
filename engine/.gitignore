@@ -9,3 +9,6 @@ engine.iml
 entrance/entrance.iml
 plugin/
 logs/
+base/sync/base.sync.iml
+web/web.iml
+service/service.iml
