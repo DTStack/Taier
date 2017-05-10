@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosActionLogMapper">
+<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosStreamActionLogMapper">
 	
 	<resultMap id="rdosActionLogResult" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamActionLog">
     <id column="id" property="id" jdbcType="BIGINT" />
@@ -17,6 +17,6 @@
     </resultMap>
     
     <update id="updateActionStatus" parameterType="java.util.HashMap">
-	   update rdos_action_log set gmt_modified=now(),status=#{status} where id=#{actionLogId};
+	   update rdos_stream_action_log set gmt_modified=now(),status=#{status} where id=#{actionLogId};
 	</update>
 </mapper>
