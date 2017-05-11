@@ -3,20 +3,24 @@
 <mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosStreamActionLogMapper">
 	
 	<resultMap id="rdosActionLogResult" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamActionLog">
-    <id column="id" property="id" jdbcType="BIGINT" />
-       <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
-       <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
-       <result column="task_id" property="taskId" jdbcType="VARCHAR" />
-       <result column="status" property="status" jdbcType="INTEGER" />
-       <result column="action_type" property="actionType" jdbcType="INTEGER" />
-       <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
-       <result column="is_restoration" property="isRestoration" jdbcType="INTEGER" />
-       <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
-       <result column="tenant_id" property="tenantId" jdbcType="BIGINT" />
-       <result column="project_id" property="projectId" jdbcType="BIGINT" />
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="action_type" property="actionType" jdbcType="INTEGER" />
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result column="is_restoration" property="isRestoration" jdbcType="INTEGER" />
+        <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
+        <result column="tenant_id" property="tenantId" jdbcType="BIGINT" />
+        <result column="project_id" property="projectId" jdbcType="BIGINT" />
     </resultMap>
     
     <update id="updateActionStatus" parameterType="java.util.HashMap">
 	   update rdos_stream_action_log set gmt_modified=now(),status=#{status} where id=#{actionLogId};
 	</update>
+
+    <select id="findActionLogById" parameterType="java.util.HashMap" resultMap="rdosActionLogResult">
+        select * from rdos_stream_action_log where id=#{actionLogId} and is_deleted=0;
+    </select>
 </mapper>
