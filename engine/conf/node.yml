@@ -1,6 +1,6 @@
 #engine
 slots: 10
-localAddress: 127.0.0.1:8080
+localAddress: 172.16.1.151:8080
 nodeZkAddress: 172.16.1.151/engine
 
 
