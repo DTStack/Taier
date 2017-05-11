@@ -74,18 +74,17 @@ public class RdosTaskStatusTaskListener implements Runnable{
 	private class TaskStatusTaskListener implements Runnable{
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
-			try{
-				  int index = 0;
-				  while(true){
-					  ++index;
-					  Thread.sleep(listener);
-					  if(PublicUtil.count(index, 5))logger.warn("TaskStatusTaskListener start again...");
-					  updateTaskStatus();
-				  }
-			}catch(Exception e){
-				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
-			}
+		  	int index = 0;
+		  	while(true){
+		  		try{
+			  		++index;
+			  		Thread.sleep(listener);
+			  		if(PublicUtil.count(index, 5))logger.warn("TaskStatusTaskListener start again...");
+			  		updateTaskStatus();
+				}catch(Exception e){
+					logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
+				}
+		    }
 		}
 		
 		private void updateTaskStatus(){
