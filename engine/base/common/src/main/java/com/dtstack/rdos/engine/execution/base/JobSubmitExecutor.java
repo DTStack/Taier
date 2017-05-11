@@ -36,7 +36,7 @@ public class JobSubmitExecutor{
 
     private int minPollSize = 10;
 
-    private int maxPoolSize = minPollSize;
+    private int maxPoolSize = Integer.MAX_VALUE;
 
     private ExecutorService executor;
 
@@ -133,7 +133,7 @@ public class JobSubmitExecutor{
 
     public void shutdown(){
         //FIXME 是否需要做同步等processor真正完成
-        if(executor!=null)executor.shutdownNow();
+        if(executor!=null)executor.shutdown();
     }
 
     class JobSubmitProcessor implements Runnable{
