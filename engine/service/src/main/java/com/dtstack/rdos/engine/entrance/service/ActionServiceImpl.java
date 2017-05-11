@@ -29,14 +29,12 @@ public class ActionServiceImpl{
 	
 	public void start(Map<String,Object> params) throws Exception{
 		ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+		RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
+		if(dbActionLog.getStatus() == RdosActionLogStatus.FAIL.getStatus()){//已经提交过
+			return;
+		}
 		String address = zkDistributed.getExcutionNode();
 		if(paramAction.getRequestStart()==RequestStart.NODE.getStart()||zkDistributed.getLocalAddress().equals(address)){
-
-            RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
-            if(dbActionLog.getStatus() == RdosActionLogStatus.FAIL.getStatus()){//已经提交过
-                return;
-            }
-
 		    BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
 			brokerDataNode.getMetas().put(paramAction.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
 			zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
