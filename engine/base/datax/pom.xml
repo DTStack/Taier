@@ -9,7 +9,7 @@
 		<version>1.0.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>base.sync</artifactId>
+	<artifactId>base.datax</artifactId>
 	<name>base.sync</name>
 	<url>http://maven.apache.org</url>
 	<properties>
