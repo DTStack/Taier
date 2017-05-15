@@ -46,6 +46,10 @@ public class ClientFactory {
         	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
             break;
             
+        case "datax":
+        	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.datax.DataxClient").newInstance());
+            break;     
+            
             default:
                 throw new RuntimeException("not support for engine type " + pluginType);
         }
