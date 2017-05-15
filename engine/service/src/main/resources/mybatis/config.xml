@@ -5,10 +5,13 @@
  
 <configuration>
     <typeAliases>
-        <typeAlias alias="RdosActionLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamActionLog"/>
-        <typeAlias alias="RdosTask" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTask"/>     
+        <typeAlias alias="RdosStreamActionLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamActionLog"/>
+        <typeAlias alias="RdosStreamServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog" />
+        <typeAlias alias="RdosStreamTask" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTask"/>
         <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>        
-        <typeAlias alias="RdosServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog" />
+        <typeAlias alias="RdosBatchServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog" />
+        <typeAlias alias="RdosBatchActionLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchActionLog"/>
+        <typeAlias alias="RdosBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchJob"/>
     </typeAliases>
  
     <environments default="production">
@@ -34,8 +37,11 @@
     </environments>
     <mappers>
         <mapper resource="mybatis/mapper/RdosStreamActionLogMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosStreamServerLogMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosStreamNodeMachineMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosStreamTaskMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosStreamServerLogMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosBatchActionLogMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosBatchServerLogMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosBatchJobMapping.xml"/>
     </mappers>
 </configuration>

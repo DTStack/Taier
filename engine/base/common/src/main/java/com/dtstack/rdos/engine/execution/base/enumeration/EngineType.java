@@ -10,7 +10,7 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
 
 public enum EngineType {
 
-    Flink(0), Spark(1);
+    Flink(0), Spark(1),Datax(2);
 
     private int val;
 
@@ -29,6 +29,8 @@ public enum EngineType {
             case "flink":return EngineType.Flink;
 
             case "spark":return EngineType.Spark;
+
+            case "datax":return EngineType.Datax;
         }
          return null;
     }
