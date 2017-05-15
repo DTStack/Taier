@@ -25,6 +25,11 @@ engineTypes:
         engineClusterId: /default
         jarTmpDir: D:\tmp
 
+    -    
+        typeName: datax
+        dataxSSHAddress: 172.16.1.155 #可以多个
+        userName: root
+        password: abc123 #可以不填 打通ssh免登陆
     -
         typeName: spark
         sparkMaster: spark://172.16.1.65:7077
