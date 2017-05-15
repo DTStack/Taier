@@ -5,10 +5,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.rdos.engine.db.dao.RdosActionLogDAO;
+import com.dtstack.rdos.engine.db.dao.RdosStreamActionLogDAO;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
-import com.dtstack.rdos.engine.db.dao.RdosServerLogDao;
-import com.dtstack.rdos.engine.db.dao.RdosTaskDAO;
+import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
 
 /**
  * Reason:
@@ -36,7 +36,7 @@ public class TestDao {
 
     @Test
     public void testRdosActionLogUpdate(){
-        RdosActionLogDAO rdosActionLogDAO = new RdosActionLogDAO();
+        RdosStreamActionLogDAO rdosActionLogDAO = new RdosStreamActionLogDAO();
         Long actionLogId = 123l;
         int status = 1;
         rdosActionLogDAO.updateActionStatus(actionLogId, status);
@@ -45,7 +45,7 @@ public class TestDao {
 
     @Test
     public void testUpdateTaskStatus(){
-        RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+        RdosStreamTaskDAO rdosTaskDAO = new RdosStreamTaskDAO();
         String taskId = "123";
         int status = 1;
         rdosTaskDAO.updateTaskStatus(taskId, status);
@@ -54,7 +54,7 @@ public class TestDao {
 
     @Test
     public void testUpdateTaskEngine(){
-        RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+        RdosStreamTaskDAO rdosTaskDAO = new RdosStreamTaskDAO();
         String taskId = "123";
         String engineId = "123";
         rdosTaskDAO.updateTaskEngineId(taskId, engineId);
@@ -62,7 +62,7 @@ public class TestDao {
 
     @Test
     public void insertSvrLog(){
-        RdosServerLogDao dao = new RdosServerLogDao();
+        RdosStreamServerLogDao dao = new RdosStreamServerLogDao();
         String taskId = null;
         String engineTaskId = "";
         String logInfo = "--------this is a log -------";
