@@ -15,7 +15,7 @@ import com.dtstack.rdos.engine.db.mapper.RdosStreamTaskMapper;
  * @author sishu.yss
  *
  */
-public class RdosTaskDAO {
+public class RdosStreamTaskDAO {
 	
 	public RdosStreamTask getRdosTaskByTaskId(final String taskId){
 		return (RdosStreamTask)MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){

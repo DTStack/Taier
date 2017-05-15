@@ -4,11 +4,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.dtstack.rdos.engine.db.dao.RdosServerLogDao;
-import com.dtstack.rdos.engine.db.dao.RdosTaskDAO;
+import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
+import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
+import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 
+import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +43,15 @@ public class RdosTaskStatusTaskListener implements Runnable{
 	
 	private static long listener = 2000;
 	
-	private RdosTaskDAO rdosTaskDAO = new RdosTaskDAO();
+	private RdosStreamTaskDAO rdosStreamTaskDAO = new RdosStreamTaskDAO();
+	
+	private RdosBatchJobDAO rdosbatchJobDAO = new RdosBatchJobDAO();
 
-	private RdosServerLogDao rdosServerLogDao = new RdosServerLogDao();
+
+	private RdosStreamServerLogDao rdosStreamServerLogDAO = new RdosStreamServerLogDao();
+	
+	private RdosBatchServerLogDao rdosBatchServerLogDAO = new RdosBatchServerLogDao();
+
 	
 	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
 	
@@ -56,13 +67,22 @@ public class RdosTaskStatusTaskListener implements Runnable{
 			try {
 				JobClient jobClient  = queue.take();
 				logger.warn("{}:{} addTaskIdToEngineTaskId...",jobClient.getTaskId(),jobClient.getEngineTaskId());
-				if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
-					rdosTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
-				}
-
 				//存储执行日志
-				rdosServerLogDao.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
-						jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
+				if(jobClient.getComputeType().getComputeType()==ComputeType.STREAM.getComputeType()){
+					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
+						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
+					}
+					rdosStreamServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
+							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
+				}else if(jobClient.getComputeType().getComputeType()==ComputeType.BATCH.getComputeType()){
+					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
+						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
+					}
+					
+					rdosBatchServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
+							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());				
+					}
+
 
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -92,20 +112,37 @@ public class RdosTaskStatusTaskListener implements Runnable{
           	  for(Map.Entry<String,Byte> entry:entrys){
           		  if(!RdosTaskStatus.needClean(entry.getValue())){
               		  String taskId = entry.getKey();
-              		  RdosStreamTask rdosTask = rdosTaskDAO.getRdosTaskByTaskId(taskId);
-              		  if(rdosTask!=null){
-              			  String engineTaskid = rdosTask.getEngineTaskId();
-              			  int engineTypeVal = rdosTask.getEngineType();
-                          EngineType engineType = EngineType.getEngineType(engineTypeVal);
-                  		  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
-                  		  if(rdosTaskStatus!=null){
-                  			  Integer status = rdosTaskStatus.getStatus();
-                      		  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
-                      		  rdosTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
-                  		  } 
-              		  }
+					  int computeType = TaskIdUtil.getComputeType(taskId);
+					  int engineTypeVal = TaskIdUtil.getEngineType(taskId);
+					  if(computeType == ComputeType.STREAM.getComputeType()){
+						  RdosStreamTask rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
+						  if(rdosTask!=null){
+							  String engineTaskid = rdosTask.getEngineTaskId();
+							  EngineType engineType = EngineType.getEngineType(engineTypeVal);
+							  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
+							  if(rdosTaskStatus!=null){
+								  Integer status = rdosTaskStatus.getStatus();
+								  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
+								  rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+							  }
+						  }
+					  }else if(computeType == ComputeType.BATCH.getComputeType()){
+						  RdosBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
+						  String engineTaskid = rdosBatchJob.getEngineJobId();
+						  EngineType engineType = EngineType.getEngineType(engineTypeVal);
+						  if(engineType.getVal()==EngineType.Datax.getVal()){
+							  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,rdosBatchJob.getStatus());
+						  }else{
+							  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
+							  if(rdosTaskStatus!=null){
+								  Integer status = rdosTaskStatus.getStatus();
+								  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
+								  rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+							  }
+						  }
+					  }
           		  }
           	  }
-		}
+		 }
 	}
 }
