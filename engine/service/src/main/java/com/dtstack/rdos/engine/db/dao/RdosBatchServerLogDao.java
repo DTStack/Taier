@@ -14,7 +14,7 @@ import org.apache.ibatis.session.SqlSession;
  * @ahthor xuchao
  */
 
-public class RdosServerLogDao {
+public class RdosBatchServerLogDao {
 
     public void insertLog(final String taskId, final String engineTaskId, final Long actionLogId, final String logInfo){
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosBatchServerLogMapper">
+    <resultMap id="rdosServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="job_id" property="jobId" jdbcType="VARCHAR" />
+        <result column="engine_task_id" property="engineTaskId" jdbcType="VARCHAR" />
+        <result column="action_log_id" property="actionLogId" jdbcType="BIGINT" />
+        <result column="log_info" property="logInfo" jdbcType="VARCHAR" />
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result column="is_deleted" property="isDeleted" jdbcType="BIT"/>
+        <result column="tenant_id" property="tenantId" jdbcType="BIGINT" />
+       <result column="project_id" property="projectId" jdbcType="BIGINT" />
+    </resultMap>
+
+    <insert id="insertSvrLog">
+        insert into rdos_batch_server_log(job_id, engine_task_id,action_log_id,log_info, gmt_create, gmt_modified)
+        values(#{jobId}, #{engineTaskId}, #{actionLogId}, #{logInfo}, now(), now());
+    </insert>
+</mapper>
