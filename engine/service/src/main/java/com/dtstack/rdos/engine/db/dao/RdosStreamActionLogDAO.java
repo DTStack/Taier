@@ -15,7 +15,7 @@ import com.dtstack.rdos.engine.db.mapper.RdosStreamActionLogMapper;
  * @author sishu.yss
  *
  */
-public class RdosActionLogDAO {
+public class RdosStreamActionLogDAO {
 
 	public void updateActionStatus(final Long actionLogId,final int status){
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){

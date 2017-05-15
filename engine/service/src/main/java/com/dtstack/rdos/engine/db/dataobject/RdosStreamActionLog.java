@@ -36,10 +36,6 @@ public class RdosStreamActionLog extends TenantProjectObject{
 	 */
 	private Long createUserId;
 	
-    private Long projectId;
-
-
-
 	public Integer getActionType() {
 		return actionType;
 	}
