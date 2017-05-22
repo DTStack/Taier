@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.db.dao;
 
+import com.dtstack.rdos.engine.entrance.enumeration.MachineAppType;
 import org.apache.ibatis.session.SqlSession;
 
 import com.dtstack.rdos.engine.db.callback.MybatisSessionCallback;
@@ -18,7 +19,7 @@ import com.dtstack.rdos.engine.db.mapper.RdosNodeMachineMapper;
 public class RdosNodeMachineDAO {
 	
 	public void insert(String ip,long port,int machineType){
-		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType);
+		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType, MachineAppType.ENGINE.getType());
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
@@ -54,7 +55,7 @@ public class RdosNodeMachineDAO {
     }
 
 	public void ableMachineNode(String ip,long port,int machineType){
-		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType);
+		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType,MachineAppType.ENGINE.getType());
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
@@ -67,7 +68,7 @@ public class RdosNodeMachineDAO {
 	}
 	
 	public void disableMachineNode(String ip,long port,int machineType){
-		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType);
+		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType,MachineAppType.ENGINE.getType());
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
@@ -81,7 +82,7 @@ public class RdosNodeMachineDAO {
 	
 	
 	public void updateMachineType(String ip,long port,int machineType){
-		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType);
+		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType,MachineAppType.ENGINE.getType());
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
