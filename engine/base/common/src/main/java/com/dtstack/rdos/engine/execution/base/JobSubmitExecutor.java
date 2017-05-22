@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,13 +116,18 @@ public class JobSubmitExecutor{
     }
 
     public RdosTaskStatus getJobStatus(EngineType engineType, String jobId){
+
+        if(Strings.isNullOrEmpty(jobId)){
+            throw new RdosException("can't get job of jobId is empty or null!");
+        }
+
         IClient client = clientMap.get(engineType);
         Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         try{
             return client.getJobStatus(jobId);
         }catch (Exception e){
             logger.error("", e);
-            return RdosTaskStatus.FAILED;//FIXME 是否应该抛出异常或者提供新的状态
+            throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
         }
     }
 
