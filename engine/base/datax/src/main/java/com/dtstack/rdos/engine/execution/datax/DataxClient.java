@@ -32,7 +32,7 @@ public class DataxClient extends AbsClient{
 		// TODO Auto-generated method stub
 		userName = prop.getProperty("userName");
 		password = prop.getProperty("password");
-		String das = prop.getProperty("dataxAddresses");
+		String das = prop.getProperty("dataxSSHAddress");
 		dataxAddresses.addAll(Arrays.asList(das.split(",")));
 	}
 
