@@ -1,8 +1,5 @@
 package com.dtstack.rdos.engine.util;
 
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-
-import java.util.UUID;
 /**
  * Created by sishu.yss on 2017/5/15.
  */
