@@ -71,13 +71,17 @@ public class RdosTaskStatusTaskListener implements Runnable{
 				if(jobClient.getComputeType().getComputeType()==ComputeType.STREAM.getComputeType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
+					}else{//设置为提交失败
+                        rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITFAILD.getStatus());
 					}
 					rdosStreamServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
 							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
 				}else if(jobClient.getComputeType().getComputeType()==ComputeType.BATCH.getComputeType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
-					}
+					}else{
+					    rdosbatchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITFAILD.getStatus());
+                    }
 					
 					rdosBatchServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
 							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());				
