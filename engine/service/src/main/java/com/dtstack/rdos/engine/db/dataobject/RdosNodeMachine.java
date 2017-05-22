@@ -25,11 +25,25 @@ public class RdosNodeMachine extends DataObject{
 	 */
 	private Integer machineType;
 
-	public RdosNodeMachine(String ip2, Long port2, Integer machineType2) {
+	/**
+	 * web(web应用),engine(执行引擎应用)
+	 */
+	private String appType;
+
+	public String getAppType() {
+		return appType;
+	}
+
+	public void setAppType(String appType) {
+		this.appType = appType;
+	}
+
+	public RdosNodeMachine(String ip2, Long port2, Integer machineType2,String appType) {
 		// TODO Auto-generated constructor stub
 		this.ip=ip2;
 		this.port = port2;
 		this.machineType = machineType2;
+		this.appType = appType;
 	}
 	
 	public RdosNodeMachine(){
