@@ -11,12 +11,15 @@ import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunction
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.base.Strings;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.rest.RestSubmissionClient;
 import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -287,6 +290,9 @@ public class SparkClient extends AbsClient {
 
     @Override
     public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    	if(StringUtils.isBlank(jobId)){
+    		return null;
+    	}
         RestSubmissionClient restSubmissionClient = new RestSubmissionClient(masterURL);
         SubmitRestProtocolResponse response = restSubmissionClient.requestSubmissionStatus(jobId, false);
         String responseStr = response.toJson();

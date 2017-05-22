@@ -454,6 +454,10 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     public RdosTaskStatus getJobStatus(String jobId) {
+    	if(jobId == null||"".equals(jobId)){
+    		return null;
+    	}
+    	
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
         String response = PoolHttpClient.get(reqUrl);
         if(response == null){
