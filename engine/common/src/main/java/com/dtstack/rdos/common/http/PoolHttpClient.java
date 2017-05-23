@@ -131,6 +131,10 @@ public class PoolHttpClient {
 				respBody = EntityUtils.toString(entity,charset);
 			}else{
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
+
+				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
+					throw new RuntimeException(HttpStatus.SC_NOT_FOUND + "");
+				}
 			}
 		} catch (IOException e) {
 			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
@@ -139,8 +143,7 @@ public class PoolHttpClient {
 				try {
 					response.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("", e);
 				}
 		} 
 		return respBody;
