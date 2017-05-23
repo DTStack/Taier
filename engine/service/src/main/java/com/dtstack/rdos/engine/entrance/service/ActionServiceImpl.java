@@ -37,12 +37,10 @@ public class ActionServiceImpl{
 	
 	public void start(Map<String,Object> params) throws Exception{
 
-
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         String jobId = null;
-
         try {
-            jobId = paramAction.getTaskId();
+			ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+			jobId = paramAction.getTaskId();
             RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
             if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
                 return;
