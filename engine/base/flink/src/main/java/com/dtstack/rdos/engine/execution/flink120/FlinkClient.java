@@ -45,13 +45,11 @@ import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
+import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import scala.concurrent.duration.FiniteDuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -460,7 +458,18 @@ public class FlinkClient extends AbsClient {
     	}
     	
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
-        String response = PoolHttpClient.get(reqUrl);
+        String response = null;
+        try{
+            response = PoolHttpClient.get(reqUrl);
+        }catch (Exception e){
+            //FIXME 如果查询不到就返回失败,因为有可能数据被flink清除了
+            if(e instanceof RdosException && (HttpStatus.SC_NOT_FOUND + "").equals(((RdosException) e).getErrorMessage())){
+                return RdosTaskStatus.CANCELED;
+            }else{
+                throw e;
+            }
+        }
+
         if(response == null){
             return null;
         }
