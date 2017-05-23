@@ -11,8 +11,8 @@ public class TaskIdUtil {
         return String.valueOf(computeType) + String.valueOf(engineType) +interval+taskId;
     }
 
-    public static String getTaskId(String taskId){
-        return taskId.substring(2,taskId.length());
+       public static String getTaskId(String taskId){
+        return taskId.substring(3,taskId.length());
     }
 
     public static int getComputeType(String zkTaskId){
@@ -25,7 +25,7 @@ public class TaskIdUtil {
 
     public static void main(String[] args){
 
-       System.out.println(getTaskId("11wrwerw"));
+       System.out.println(getTaskId("11_wrwerw"));
     }
 
 }
