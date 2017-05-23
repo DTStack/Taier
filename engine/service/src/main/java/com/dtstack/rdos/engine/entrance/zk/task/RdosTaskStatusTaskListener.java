@@ -118,6 +118,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
               		  String taskId = entry.getKey();
 					  int computeType = TaskIdUtil.getComputeType(taskId);
 					  int engineTypeVal = TaskIdUtil.getEngineType(taskId);
+					  taskId  = TaskIdUtil.getTaskId(taskId);
 					  if(computeType == ComputeType.STREAM.getComputeType()){
 						  RdosStreamTask rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
 						  if(rdosTask!=null){
