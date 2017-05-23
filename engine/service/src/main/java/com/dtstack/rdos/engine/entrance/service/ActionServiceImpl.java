@@ -46,10 +46,12 @@ public class ActionServiceImpl{
                 return;
             }
 
+            String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(),paramAction.getEngineType(),paramAction.getTaskId());
+            boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(taskId);
+
             String address = zkDistributed.getExcutionNode();
-            if(paramAction.getRequestStart()==RequestStart.NODE.getStart()||zkDistributed.getLocalAddress().equals(address)){
+            if(isAlreadyInThisNode || paramAction.getRequestStart()==RequestStart.NODE.getStart()||zkDistributed.getLocalAddress().equals(address)){
                 BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-                String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(),paramAction.getEngineType(),paramAction.getTaskId());
                 brokerDataNode.getMetas().put(taskId,RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
                 zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
                 zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
