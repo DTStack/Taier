@@ -8,7 +8,7 @@ public class TaskIdUtil {
     private static  String interval = "_";
 
     public static String getZkTaskId(int computeType,int engineType,String taskId){
-        return computeType + engineType +interval+taskId;
+        return String.valueOf(computeType) + String.valueOf(engineType) +interval+taskId;
     }
 
     public static int getComputeType(String zkTaskId){
@@ -17,6 +17,11 @@ public class TaskIdUtil {
 
     public static int getEngineType(String zkTaskId){
         return Integer.parseInt(String.valueOf(zkTaskId.charAt(1)));
+    }
+
+    public static void main(String[] args){
+
+       System.out.println(getZkTaskId(1,1,"wrwerw"));
     }
 
 }
