@@ -299,7 +299,8 @@ public class ZkDistributed {
 			memTaskStatus.get(this.getLocalAddress()).getMetas().putAll(brokerDataNode.getMetas());
 		}
 	}
-	
+
+
 	public void createNodeIfExists(String node,Object obj) throws Exception{
 			if (zkClient.checkExists().forPath(node) == null) {
 				zkClient.create().forPath(node,
@@ -365,6 +366,19 @@ public class ZkDistributed {
 			}
 		}
 		return node;
+	}
+
+	public boolean checkIsAlreadyInThisNode(String taskId){
+
+		for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
+			for(String tmpId : entry.getValue().getMetas().keySet()){
+				if(tmpId.equals(taskId)){
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 	
 	public List<String> getBrokersChildren() {
