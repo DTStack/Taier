@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.config.RequestConfig;
@@ -133,7 +134,7 @@ public class PoolHttpClient {
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
-					throw new RuntimeException(HttpStatus.SC_NOT_FOUND + "");
+					throw new RdosException(HttpStatus.SC_NOT_FOUND + "");
 				}
 			}
 		} catch (IOException e) {
