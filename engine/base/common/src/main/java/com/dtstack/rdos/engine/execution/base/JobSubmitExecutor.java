@@ -1,10 +1,12 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
+import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,7 +175,7 @@ public class JobSubmitExecutor{
         @Override
         public void run(){
             if(jobClient != null){
-
+                jobClient.getJobClientCallBack().execute();
                 IClient clusterClient = clusterClientMap.get(jobClient.getEngineType());
                 JobResult jobResult = null;
 
@@ -184,6 +186,8 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try{
+                    jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                    jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                 	Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
                     logger.info("submit job result is:{}.", jobResult);
