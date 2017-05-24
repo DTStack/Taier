@@ -115,10 +115,10 @@ public class RdosTaskStatusTaskListener implements Runnable{
 			  Set<Map.Entry<String,Byte>> entrys = brokerDatas.get(zkDistributed.getLocalAddress()).getMetas().entrySet();
           	  for(Map.Entry<String,Byte> entry:entrys){
           		  if(!RdosTaskStatus.needClean(entry.getValue())){
-              		  String taskId = entry.getKey();
-					  int computeType = TaskIdUtil.getComputeType(taskId);
-					  int engineTypeVal = TaskIdUtil.getEngineType(taskId);
-					  taskId  = TaskIdUtil.getTaskId(taskId);
+              		  String zkTaskId = entry.getKey();
+					  int computeType = TaskIdUtil.getComputeType(zkTaskId);
+					  int engineTypeVal = TaskIdUtil.getEngineType(zkTaskId);
+					  String taskId  = TaskIdUtil.getTaskId(zkTaskId);
 					  if(computeType == ComputeType.STREAM.getComputeType()){
 						  RdosStreamTask rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
 						  if(rdosTask!=null){
@@ -128,7 +128,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
 								  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
 								  if(rdosTaskStatus!=null){
 									  Integer status = rdosTaskStatus.getStatus();
-									  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
+									  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
 									  rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
 								  }
 							  }
@@ -139,12 +139,12 @@ public class RdosTaskStatusTaskListener implements Runnable{
 						  if(StringUtils.isNotBlank(engineTaskid)){
 							  EngineType engineType = EngineType.getEngineType(engineTypeVal);
 							  if(engineType.getVal()==EngineType.Datax.getVal()){
-								  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,rdosBatchJob.getStatus());
+								  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,rdosBatchJob.getStatus());
 							  }else{
 								  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
 								  if(rdosTaskStatus!=null){
 									  Integer status = rdosTaskStatus.getStatus();
-									  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
+									  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
 									  rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
 								  }
 							  }
