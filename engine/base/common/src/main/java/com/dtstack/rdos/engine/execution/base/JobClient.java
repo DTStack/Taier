@@ -21,12 +21,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class JobClient {
 
+    private JobClientCallBack jobClientCallBack;
+
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
     private List<Operator> operators;
     
     private Properties confProperties;
-    
+
+    private String sql;
+
+    private String taskParams;
+
     private String jobName;
     
     private String taskId;
@@ -76,8 +82,8 @@ public class JobClient {
 	
 	public JobClient (String sql,String taskParams,String jobName ,String taskId,String engineTaskId,EJobType jobType,
                       ComputeType computeType, EngineType engineType, Restoration isRestoration,Long actionLogId) throws Exception{
-		this.operators = SqlParser.parser(computeType.getComputeType(), sql);
-		this.confProperties = PublicUtil.stringToProperties(taskParams);
+		this.sql = sql;
+        this.taskParams = taskParams;
         this.jobName = jobName;
         this.taskId = taskId;
         this.engineTaskId = engineTaskId;
@@ -184,4 +190,28 @@ public class JobClient {
 	public Properties getConfProperties() {
 		return confProperties;
 	}
+
+    public JobClientCallBack getJobClientCallBack() {
+        return jobClientCallBack;
+    }
+
+    public void setJobClientCallBack(JobClientCallBack jobClientCallBack) {
+        this.jobClientCallBack = jobClientCallBack;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public String getTaskParams() {
+        return taskParams;
+    }
+
+    public void setConfProperties(Properties confProperties) {
+        this.confProperties = confProperties;
+    }
+
+    public void setOperators(List<Operator> operators) {
+        this.operators = operators;
+    }
 }

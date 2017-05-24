@@ -16,6 +16,7 @@ import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 
 /**
  * 
@@ -45,25 +46,32 @@ public class ActionServiceImpl{
             if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
                 return;
             }
-
+            rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
             String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(),paramAction.getEngineType(),paramAction.getTaskId());
             boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(taskId);
 
             String address = zkDistributed.getExcutionNode();
             if(isAlreadyInThisNode || paramAction.getRequestStart()==RequestStart.NODE.getStart()||zkDistributed.getLocalAddress().equals(address)){
-                BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-                brokerDataNode.getMetas().put(taskId,RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
-                zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
-                zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
-                rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
-                new JobClient(paramAction.getSqlText(),paramAction.getTaskParams(),paramAction.getName(),
+                JobClient jobClient =  new JobClient(paramAction.getSqlText(),paramAction.getTaskParams(),paramAction.getName(),
                         paramAction.getTaskId(), paramAction.getEngineTaskId(),
                         EJobType.getEJobType(paramAction.getTaskType()),
                         ComputeType.getComputeType(paramAction.getComputeType()),
                         EngineType.getEngineType(paramAction.getEngineType()),
                         Restoration.getRestoration(paramAction.getIsRestoration()),
                         paramAction.getActionLogId()
-                ).submit();
+                );
+
+                jobClient.setJobClientCallBack(new JobClientCallBack(){
+                    @Override
+                    public void execute() {
+                        BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+                        brokerDataNode.getMetas().put(taskId,RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+                        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(),brokerDataNode, false);
+                        zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+                    }
+                });
+                jobClient.submit();
+
             }else{
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 HttpSendClient.actionStart(address, paramAction);
