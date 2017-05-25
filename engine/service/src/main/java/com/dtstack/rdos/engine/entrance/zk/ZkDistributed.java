@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.	engine.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.entrance.zk.task.DataMigrationListener;
 
 import org.apache.commons.lang3.StringUtils;
@@ -208,13 +208,14 @@ public class ZkDistributed {
 			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
 			BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
 			Map<String,Byte> datas = target.getMetas();
+			if(datas == null){
+				datas = Maps.newHashMap();
+			}
 			datas.put(taskId, status.byteValue());
-			Iterator<String> keys = datas.keySet().iterator();
-
-			while(keys.hasNext()){
-				String key = keys.next();
+			Set<String> keys = datas.keySet();
+			for(String key:keys){
 				if(RdosTaskStatus.needClean(datas.get(key))){
-					keys.remove();
+					datas.remove(key);
 				}
 			}
 			zkClient.setData().forPath(nodePath,objectMapper.writeValueAsBytes(target));
