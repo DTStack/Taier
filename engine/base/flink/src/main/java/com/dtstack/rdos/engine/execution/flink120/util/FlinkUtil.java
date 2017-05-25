@@ -211,7 +211,6 @@ public class FlinkUtil {
      *
      * FIXME 仅针对sql执行方式,暂时未找到区分设置source,transform,sink 并行度的方式
      * 设置job运行的并行度
-     * @param env
      * @param properties
      */
     public static int getEnvParallelism(Properties properties){
