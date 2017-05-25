@@ -197,8 +197,7 @@ public class FlinkClient extends AbsClient {
         Object jarPath = properties.get(JOB_JAR_PATH_KEY);
         if(jarPath == null){
             logger.error("can not submit a job without jarpath, please check it");
-            JobResult jobResult = JobResult.newInstance(true);
-            jobResult.setData("errMsg", "can not submit a job without jarpath, please check it");
+            JobResult jobResult = JobResult.createErrorResult("can not submit a job without jarpath, please check it");
             return jobResult;
         }
 
@@ -213,8 +212,7 @@ public class FlinkClient extends AbsClient {
         try{
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
-            JobResult jobResult = JobResult.newInstance(true);
-            jobResult.setData("errMsg", e.getMessage());
+            JobResult jobResult = JobResult.createErrorResult(e);
             logger.error("", e);
             return jobResult;
         }
