@@ -210,10 +210,11 @@ public class ZkDistributed {
 			Map<String,Byte> datas = target.getMetas();
 			datas.put(taskId, status.byteValue());
 			Iterator<String> keys = datas.keySet().iterator();
+
 			while(keys.hasNext()){
 				String key = keys.next();
 				if(RdosTaskStatus.needClean(datas.get(key))){
-					datas.remove(key);
+					keys.remove();
 				}
 			}
 			zkClient.setData().forPath(nodePath,objectMapper.writeValueAsBytes(target));
