@@ -8,15 +8,15 @@ package com.dtstack.rdos.engine.execution.flink120.constrant;
  */
 public class ConfigConstrant {
 	
-    public static final String FLINK_CHECKPOINT_INTERVAL_KEY = "flinkCheckpointInterval";
+    public static final String FLINK_CHECKPOINT_INTERVAL_KEY = "sql.checkpoint.interval";
 
-    public static final String FLINK_CHECKPOINT_MODE_KEY = "flinkCheckpointMode";
+    public static final String FLINK_CHECKPOINT_MODE_KEY = "sql.checkpoint.mode";
 
-    public static final String FLINK_CHECKPOINT_TIMEOUT_KEY = "flinkCheckpointTimeout";
+    public static final String FLINK_CHECKPOINT_TIMEOUT_KEY = "sql.checkpoint.timeout";
 
-    public static final String FLINK_MAXCONCURRENTCHECKPOINTS_KEY = "maxConcurrentCheckpoints";
+    public static final String FLINK_MAXCONCURRENTCHECKPOINTS_KEY = "sql.max.concurrent.checkpoints";
 
-    public static final String FLINK_CHECKPOINT_CLEANUPMODE_KEY = "flinkCheckpointCleanupmode";
+    public static final String FLINK_CHECKPOINT_CLEANUPMODE_KEY = "sql.checkpoint.cleanup.mode";
 
     public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDataURI";
     

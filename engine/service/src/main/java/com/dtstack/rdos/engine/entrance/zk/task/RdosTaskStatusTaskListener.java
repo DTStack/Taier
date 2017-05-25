@@ -112,46 +112,52 @@ public class RdosTaskStatusTaskListener implements Runnable{
 		}
 		
 		private void updateTaskStatus(){
-			  Set<Map.Entry<String,Byte>> entrys = brokerDatas.get(zkDistributed.getLocalAddress()).getMetas().entrySet();
-          	  for(Map.Entry<String,Byte> entry:entrys){
-          		  if(!RdosTaskStatus.needClean(entry.getValue())){
-              		  String taskId = entry.getKey();
-					  int computeType = TaskIdUtil.getComputeType(taskId);
-					  int engineTypeVal = TaskIdUtil.getEngineType(taskId);
-					  taskId  = TaskIdUtil.getTaskId(taskId);
-					  if(computeType == ComputeType.STREAM.getComputeType()){
-						  RdosStreamTask rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
-						  if(rdosTask!=null){
-							  String engineTaskid = rdosTask.getEngineTaskId();
-							  if(StringUtils.isNotBlank(engineTaskid)){
-								  EngineType engineType = EngineType.getEngineType(engineTypeVal);
-								  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
-								  if(rdosTaskStatus!=null){
-									  Integer status = rdosTaskStatus.getStatus();
-									  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
-									  rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
-								  }
-							  }
-						  }
-					  }else if(computeType == ComputeType.BATCH.getComputeType()){
-						  RdosBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
-						  String engineTaskid = rdosBatchJob.getEngineJobId();
-						  if(StringUtils.isNotBlank(engineTaskid)){
-							  EngineType engineType = EngineType.getEngineType(engineTypeVal);
-							  if(engineType.getVal()==EngineType.Datax.getVal()){
-								  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,rdosBatchJob.getStatus());
-							  }else{
-								  RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
-								  if(rdosTaskStatus!=null){
-									  Integer status = rdosTaskStatus.getStatus();
-									  zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(taskId,status);
-									  rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
-								  }
-							  }
-						  }
-					  }
-          		  }
-          	  }
-		 }
+			Set<Map.Entry<String,Byte>> entrys = brokerDatas.get(zkDistributed.getLocalAddress()).getMetas().entrySet();
+          	for(Map.Entry<String,Byte> entry:entrys){
+
+                try{
+                    if(!RdosTaskStatus.needClean(entry.getValue())){
+                        String zkTaskId = entry.getKey();
+                        int computeType = TaskIdUtil.getComputeType(zkTaskId);
+                        int engineTypeVal = TaskIdUtil.getEngineType(zkTaskId);
+                        String taskId  = TaskIdUtil.getTaskId(zkTaskId);
+                        if(computeType == ComputeType.STREAM.getComputeType()){
+                            RdosStreamTask rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
+                            if(rdosTask!=null){
+                                String engineTaskid = rdosTask.getEngineTaskId();
+                                if(StringUtils.isNotBlank(engineTaskid)){
+                                    EngineType engineType = EngineType.getEngineType(engineTypeVal);
+                                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
+                                    if(rdosTaskStatus!=null){
+                                        Integer status = rdosTaskStatus.getStatus();
+                                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+                                        rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+                                    }
+                                }
+                            }
+                        }else if(computeType == ComputeType.BATCH.getComputeType()){
+                            RdosBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
+                            String engineTaskid = rdosBatchJob.getEngineJobId();
+                            if(StringUtils.isNotBlank(engineTaskid)){
+                                EngineType engineType = EngineType.getEngineType(engineTypeVal);
+                                if(engineType.getVal()==EngineType.Datax.getVal()){
+                                    zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,rdosBatchJob.getStatus());
+                                }else{
+                                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
+                                    if(rdosTaskStatus!=null){
+                                        Integer status = rdosTaskStatus.getStatus();
+                                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
+                                        rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    logger.error("", e);
+                }
+
+          	}
+		}
 	}
 }
