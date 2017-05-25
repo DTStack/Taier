@@ -59,7 +59,7 @@ public class SparkClient extends AbsClient {
     private String sqlProxyMainClass;
 
     private String deployMode = "cluster";
-    
+
     @Override
     public void init(Properties prop) {
         masterURL = prop.getProperty(SPARK_MASTER_KEY);
@@ -89,7 +89,7 @@ public class SparkClient extends AbsClient {
     public void initByYarn(){
 
     }
-    
+
 
 
     //FIXME spark conf 设置细化
@@ -97,7 +97,7 @@ public class SparkClient extends AbsClient {
     public JobResult submitJobWithJar(JobClient jobClient) {
 
         Properties properties = adaptToJarSubmit(jobClient);
-        
+
 
         String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
         String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);//只支持hdfs
@@ -247,7 +247,7 @@ public class SparkClient extends AbsClient {
             submitResult = (boolean) submitMap.get("success");
             if(Strings.isNullOrEmpty(submissionId)){
                 logger.info("submit job failure");
-                return JobResult.createSuccessResult("submit job get unknown error");
+                return JobResult.createErrorResult("submit job get unknown error");
             }
         } catch (IOException e) {
             logger.error("", e);
