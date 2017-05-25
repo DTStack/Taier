@@ -208,9 +208,6 @@ public class ZkDistributed {
 			this.brokerDataLock.acquire(30, TimeUnit.SECONDS);
 			BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
 			Map<String,Byte> datas = target.getMetas();
-			if(datas == null){
-				datas = Maps.newHashMap();
-			}
 			datas.put(taskId, status.byteValue());
 			Set<String> keys = datas.keySet();
 			for(String key:keys){
