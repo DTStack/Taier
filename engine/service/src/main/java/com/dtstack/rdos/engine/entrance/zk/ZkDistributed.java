@@ -211,13 +211,17 @@ public class ZkDistributed {
 			if(datas == null){
 				datas = Maps.newHashMap();
 			}
+
 			datas.put(taskId, status.byteValue());
-			Set<String> keys = datas.keySet();
-			for(String key:keys){
-				if(RdosTaskStatus.needClean(datas.get(key))){
-					datas.remove(key);
-				}
-			}
+
+			Iterator<Map.Entry<String, Byte>> iterator = datas.entrySet().iterator();
+			while(iterator.hasNext()){
+			    Byte val = iterator.next().getValue();
+                if(RdosTaskStatus.needClean(val)){
+                    iterator.remove();
+                }
+            }
+
 			zkClient.setData().forPath(nodePath,objectMapper.writeValueAsBytes(target));
 		} catch (Exception e) {
 			logger.error("{}:updateSynchronizedLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
