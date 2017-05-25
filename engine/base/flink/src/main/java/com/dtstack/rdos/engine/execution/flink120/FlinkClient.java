@@ -331,6 +331,7 @@ public class FlinkClient extends AbsClient {
     private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException {
     	Properties confProperties = jobClient.getConfProperties();
         StreamExecutionEnvironment env = getStreamExeEnv(confProperties);
+        FlinkUtil.openCheckpoint(env, confProperties);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
         Table resultTable = null; //FIXME 注意现在只能使用一个result
         int currStep = 0;
