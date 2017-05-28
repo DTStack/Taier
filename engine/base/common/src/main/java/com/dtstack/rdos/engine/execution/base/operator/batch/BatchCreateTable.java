@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.operator.batch;
 
 import java.util.Map;
+import java.util.regex.Pattern;
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 
@@ -12,8 +14,10 @@ import com.dtstack.rdos.engine.execution.base.operator.Operator;
 
 public class BatchCreateTable implements Operator{
 	
-	private static String pattern = "BATCHCREATETABLE";
-	
+	protected String pattern = "BATCHCREATETABLE";
+
+	private static Pattern tableNamePattern = Pattern.compile("^[0-9a-zA-Z-_]+$");
+
 	private String sql;
 	
 	private String name;
@@ -26,6 +30,9 @@ public class BatchCreateTable implements Operator{
 		this.sql = sql;
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
         this.name = (String)result.get("name");
+		if(tableNamePattern.matcher(this.name).find()){
+            throw  new RdosException("table name format error");
+		}
         this.type = (String)result.get("type");
 	}
 
