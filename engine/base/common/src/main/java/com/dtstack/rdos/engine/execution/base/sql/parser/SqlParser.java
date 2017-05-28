@@ -8,8 +8,6 @@ import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
 import java.util.List;
 
-
-
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -29,7 +27,7 @@ public class SqlParser {
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> batchOperatorClasses =
-			Lists.newArrayList(BatchAddJarOperator.class, BatchCreateFunctionOperator.class, BatchExecutionOperator.class);
+			Lists.newArrayList(BatchAddJarOperator.class,BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class);
 
 	public static List<Operator> parser(int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
