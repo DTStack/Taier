@@ -80,6 +80,7 @@ CREATE TABLE `rdos_stream_catalogue` (
   UNIQUE KEY `index_catologue_name` (`node_name`,`node_pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8
 
+
 CREATE TABLE `rdos_stream_resource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
