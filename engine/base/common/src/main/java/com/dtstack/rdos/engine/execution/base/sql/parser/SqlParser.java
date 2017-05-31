@@ -27,7 +27,7 @@ public class SqlParser {
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> batchOperatorClasses =
-			Lists.newArrayList(BatchAddJarOperator.class,BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class);
+			Lists.newArrayList(BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class);
 
 	public static List<Operator> parser(int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
