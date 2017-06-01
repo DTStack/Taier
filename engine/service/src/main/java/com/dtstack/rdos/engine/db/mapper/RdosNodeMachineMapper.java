@@ -19,4 +19,6 @@ public interface RdosNodeMachineMapper {
 	public void disableMachineNode(RdosNodeMachine rdosNodeMachine);
 
 	public void ableMachineNode(RdosNodeMachine rdosNodeMachine);
+
+	public void updateAllMachineToSlave();
 }
