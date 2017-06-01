@@ -93,4 +93,16 @@ public class RdosNodeMachineDAO {
 			}
 		});
 	}
+
+	public void updateAllMachineToSlave() {
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				// TODO Auto-generated method stub
+				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
+				rdosNodeMachineMapper.updateAllMachineToSlave();
+				return null;
+			}
+		});
+	}
 }

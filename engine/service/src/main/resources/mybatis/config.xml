@@ -38,7 +38,7 @@
     <mappers>
         <mapper resource="mybatis/mapper/RdosStreamActionLogMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosStreamServerLogMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosStreamNodeMachineMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosStreamTaskMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosBatchActionLogMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosBatchServerLogMapping.xml"/>
