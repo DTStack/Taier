@@ -123,7 +123,9 @@ public class ZkDistributed {
 		createLocalBrokerDataNode();
 		initMemTaskStatus();
 		registrationDB();
-		setMaster();
+		if(setMaster()){
+			rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
+		}
 		initScheduledExecutorService();
 		return this;
 	}
@@ -256,10 +258,8 @@ public class ZkDistributed {
 				brokersNode.setMaster(this.localAddress);
 				this.zkClient.setData().forPath(this.brokersNode,
 						objectMapper.writeValueAsBytes(brokersNode));
+				rdosNodeMachineDAO.updateAllMachineToSlave();
 				rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
-				if(StringUtils.isNotBlank(master)){
-					rdosNodeMachineDAO.updateMachineType(master, RdosNodeMachineType.SLAVE.getType());
-				}
 				flag = true;
 			}
 		} catch (Exception e) {
@@ -391,19 +391,20 @@ public class ZkDistributed {
 	}
 
 	public List<String> getAliveBrokersChildren() {
+		List<String> alives = Lists.newArrayList();
 		try {
 			List<String> brokers = zkClient.getChildren().forPath(this.brokersNode);
 			for(String broker:brokers) {
 				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-				if (!brokerHeartNode.getAlive()) {
-					brokers.remove(broker);
+				if (brokerHeartNode.getAlive()) {
+					alives.add(broker);
 				}
 			}
 		} catch (Exception e) {
 			logger.error("getBrokersChildren error:{}",
 					ExceptionUtil.getErrorMessage(e));
 		}
-		return Lists.newArrayList();
+		return alives;
 	}
 
 
