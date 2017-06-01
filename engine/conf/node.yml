@@ -16,6 +16,9 @@ engineTypes:
         dataxSSHAddress: 172.16.1.155 #可以多个
         userName: root
         password: abc123 #可以不填 打通ssh免登陆
+        rdosWebAddress: 172.16.1.65:9020
+        dataxBinDir: /opt/dtstack/datax/bin
+
     -
         typeName: spark
         sparkMaster: spark://172.16.1.65:7077
