@@ -41,12 +41,14 @@ public class ActionServiceImpl{
         String jobId = null;
         try {
 			ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-			jobId = paramAction.getTaskId();
-            RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
-            if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
-                return;
+            jobId = paramAction.getTaskId();
+            if(paramAction.getRequestStart()!= RequestStart.NODE.getStart()){
+                RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
+                if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
+                    return;
+                }
+                rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
             }
-            rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
             String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(),paramAction.getEngineType(),paramAction.getTaskId());
             boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(taskId);
 
@@ -75,7 +77,7 @@ public class ActionServiceImpl{
             }else{
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 HttpSendClient.actionStart(address, paramAction);
-            }
+        }
         }catch (Throwable e){
             //提交失败,修改对应的提交jobid为提交失败
             logger.error("", e);
