@@ -45,6 +45,7 @@ CREATE TABLE `rdos_stream_server_log` (
   `engine_task_id` VARCHAR(256) COMMENT '引擎任务id',
   `action_log_id` BIGINT(20) NOT NULL COMMENT '启动关联id',
   `project_id` int(11) NOT NULL comment '项目id',
+<<<<<<< HEAD
   `log_info` MEDIUMTEXT NOT NULL COMMENT '错误信息',
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',
@@ -59,6 +60,8 @@ CREATE TABLE `rdos_batch_server_log` (
   `engine_task_id` VARCHAR(256) COMMENT '引擎任务id',
   `action_log_id` BIGINT(20) NOT NULL COMMENT '启动关联id',
   `project_id` int(11) NOT NULL comment '项目id',
+=======
+>>>>>>> master
   `log_info` MEDIUMTEXT NOT NULL COMMENT '错误信息',
   `gmt_create` datetime NOT NULL comment '新增时间',
   `gmt_modified` datetime NOT NULL comment '修改时间',
@@ -67,6 +70,23 @@ CREATE TABLE `rdos_batch_server_log` (
   KEY `index_task_id` (`task_id`(128), `is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+<<<<<<< HEAD
+=======
+CREATE TABLE `rdos_batch_server_log` (
+  `id` INT(11)  NOT NULL AUTO_INCREMENT,
+  `job_id` VARCHAR(256) COMMENT '任务id',
+  `engine_task_id` VARCHAR(256) COMMENT '引擎任务id',
+  `action_log_id` BIGINT(20) NOT NULL COMMENT '启动关联id',
+  `project_id` int(11) NOT NULL comment '项目id',
+  `log_info` MEDIUMTEXT NOT NULL COMMENT '错误信息',
+  `gmt_create` datetime NOT NULL comment '新增时间',
+  `gmt_modified` datetime NOT NULL comment '修改时间',
+  `is_deleted` tinyint(1) NOT NULL default 0 comment '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `index_task_id` (`task_id`(128), `is_deleted`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+>>>>>>> master
 CREATE TABLE `rdos_stream_catalogue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `node_name` varchar(128) NOT NULL COMMENT '文件夹名称',
@@ -80,7 +100,10 @@ CREATE TABLE `rdos_stream_catalogue` (
   UNIQUE KEY `index_catologue_name` (`node_name`,`node_pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 CREATE TABLE `rdos_stream_resource` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `node_pid` int(11) NOT NULL COMMENT '父文件夹id',
@@ -97,4 +120,8 @@ CREATE TABLE `rdos_stream_resource` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_resource_name` (`resource_name`(128)),
   KEY `index_resource_type` (`resource_type`,`is_deleted`)
+<<<<<<< HEAD
 ) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8
+=======
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8
+>>>>>>> master
