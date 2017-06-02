@@ -82,6 +82,8 @@ public class ZkDistributed {
 
 	private InterProcessMutex brokerHeartLock;
 
+	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
+
 	private ExecutorService executors  = Executors.newFixedThreadPool(6);
 	
 	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
@@ -245,6 +247,11 @@ public class ZkDistributed {
 		
 		this.brokerHeartLock = createDistributeLock(String.format(
 				"%s/%s", this.distributeRootNode, "brokerheartlock"));
+
+		interProcessMutexs.add(this.masterlock);
+		interProcessMutexs.add(this.brokerDataLock);
+		interProcessMutexs.add(this.brokerHeartLock);
+
 	}
 	
 	private InterProcessMutex createDistributeLock(String nodePath){
@@ -254,10 +261,8 @@ public class ZkDistributed {
 	public boolean setMaster() {
 		boolean flag = false;
 		try {
-			String master = isHaveMaster();
-			if (this.localAddress.equals(master))return true;
 			boolean isMaster = this.masterlock.acquire(10, TimeUnit.SECONDS);
-			if(isMaster){
+				if(isMaster){
 				BrokersNode brokersNode = BrokersNode.initBrokersNode();
 				brokersNode.setMaster(this.localAddress);
 				this.zkClient.setData().forPath(this.brokersNode,
@@ -428,20 +433,26 @@ public class ZkDistributed {
 		// TODO Auto-generated method stub
         try{
             disableBrokerHeartNode(this.localAddress);
+			lockRelease();
 			List<String> nodes = getAliveBrokersChildren();
-			if(nodes.size() > 0){
-				nodes.forEach(node->{
-					try {
-						HttpSendClient.migration(node);
-					}catch (Exception e){
-						logger.error("",e);
-					}
-				});
+            if(nodes.size() > 0){
+				HttpSendClient.migration(this.localAddress,nodes.get(0));
 			}
             executors.shutdown();
         }catch (Throwable e){
             logger.error("",e);
         }
+	}
+
+
+	private void lockRelease(){
+		interProcessMutexs.forEach(lock->{
+			try{
+				if(lock.isAcquiredInThisProcess())lock.release();
+			}catch (Exception e){
+				logger.error("",e);
+			}
+		});
 	}
 
 	public void disableBrokerHeartNode(String localAddress){
