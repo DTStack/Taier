@@ -125,9 +125,6 @@ public class ZkDistributed {
 		createLocalBrokerDataNode();
 		initMemTaskStatus();
 		registrationDB();
-		if(setMaster()){
-			rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
-		}
 		initScheduledExecutorService();
 		return this;
 	}
@@ -259,22 +256,22 @@ public class ZkDistributed {
 	}
 	
 	public boolean setMaster() {
-		boolean flag = false;
 		try {
-			boolean isMaster = this.masterlock.acquire(10, TimeUnit.SECONDS);
-				if(isMaster){
-				BrokersNode brokersNode = BrokersNode.initBrokersNode();
-				brokersNode.setMaster(this.localAddress);
-				this.zkClient.setData().forPath(this.brokersNode,
-						objectMapper.writeValueAsBytes(brokersNode));
-				rdosNodeMachineDAO.updateAllMachineToSlave();
-				rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
-				flag = true;
+			if(this.masterlock.acquire(10, TimeUnit.SECONDS)){
+				if(!this.localAddress.equals(isHaveMaster())){
+					BrokersNode brokersNode = BrokersNode.initBrokersNode();
+					brokersNode.setMaster(this.localAddress);
+					this.zkClient.setData().forPath(this.brokersNode,
+							objectMapper.writeValueAsBytes(brokersNode));
+					rdosNodeMachineDAO.updateAllMachineToSlave();
+					rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
+				}
+                return true;
 			}
 		} catch (Exception e) {
 			logger.error(ExceptionUtil.getErrorMessage(e));
 		}
-		return flag;
+		return false;
 	}
 	
 	
