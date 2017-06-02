@@ -1,8 +1,7 @@
 package com.dtstack.rdos.engine.db.mapper;
 
+import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
 import org.apache.ibatis.annotations.Param;
-
-import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
 
 /**
  * 
@@ -20,6 +19,6 @@ public interface RdosBatchJobMapper {
 
 	public void updateJobEngineId(@Param("jobId") String jobId,@Param("engineId") String engineId);
 
-	public RdosStreamTask getRdosJobByJobId(@Param("jobId")String jobId);
+	public RdosBatchJob getRdosJobByJobId(@Param("jobId")String jobId);
 
 }
