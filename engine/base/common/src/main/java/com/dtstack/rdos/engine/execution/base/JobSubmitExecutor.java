@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -24,10 +25,11 @@ import java.util.concurrent.*;
  * 单独起线程执行
  * Date: 2017/2/21
  * Company: www.dtstack.com
+ *
  * @ahthor xuchao
  */
 
-public class JobSubmitExecutor{
+public class JobSubmitExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
@@ -49,17 +51,18 @@ public class JobSubmitExecutor{
     private Map<EngineType, IClient> clientMap = new HashMap<>();
 
     private List<Map<String, Object>> clientParamsList;
-    
-	private static String userDir = System.getProperty("user.dir");
+
+    private static String userDir = System.getProperty("user.dir");
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
-    private JobSubmitExecutor(){}
+    private JobSubmitExecutor() {
+    }
 
-    public void init(Map<String,Object> engineConf) throws Exception{
-        if(!hasInit){
+    public void init(Map<String, Object> engineConf) throws Exception {
+        if (!hasInit) {
             Object slots = engineConf.get(SLOTS_KEY);
-            if(slots!=null)this.maxPoolSize = (int) slots;
+            if (slots != null) this.maxPoolSize = (int) slots;
             clientParamsList = (List<Map<String, Object>>) engineConf.get(Engine_TYPES_KEY);
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
@@ -69,8 +72,8 @@ public class JobSubmitExecutor{
         }
     }
 
-    private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
-        for(Map<String, Object> params : clientParamsList){
+    private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception {
+        for (Map<String, Object> params : clientParamsList) {
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
             EngineType engineType = EngineType.getEngineType(clientTypeStr);
             loadComputerPlugin(clientTypeStr);
@@ -82,85 +85,85 @@ public class JobSubmitExecutor{
             clientMap.put(engineType, client);
         }
     }
-    
-    private void loadComputerPlugin(String pluginType) throws Exception{
-    	String plugin = String.format("%s/plugin/%s", userDir,pluginType);
-		File finput = new File(plugin);
-		if(!finput.exists()){
-			throw new Exception(String.format("%s direcotry not found",plugin));
-		}
-		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
-    }
-    
-    
-	private URLClassLoader getClassLoad(File dir) throws MalformedURLException, IOException{
-		File[] files = dir.listFiles();
-		URL[] urls = new URL[files.length];
-		int index = 0;
-	    if (files!=null&&files.length>0){
-			for(File f:files){
-				String jarName = f.getName();
-				if(f.isFile()&&jarName.endsWith(".jar")){
-					urls[index] = f.toURI().toURL();
-					index = index+1;
-				}
-			}
-	    }
-    	return new URLClassLoader(urls,this.getClass().getClassLoader());
-	}
 
-    public static JobSubmitExecutor getInstance(){
+    private void loadComputerPlugin(String pluginType) throws Exception {
+        String plugin = String.format("%s/plugin/%s", userDir, pluginType);
+        File finput = new File(plugin);
+        if (!finput.exists()) {
+            throw new Exception(String.format("%s direcotry not found", plugin));
+        }
+        ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
+    }
+
+
+    private URLClassLoader getClassLoad(File dir) throws MalformedURLException, IOException {
+        File[] files = dir.listFiles();
+        URL[] urls = new URL[files.length];
+        int index = 0;
+        if (files != null && files.length > 0) {
+            for (File f : files) {
+                String jarName = f.getName();
+                if (f.isFile() && jarName.endsWith(".jar")) {
+                    urls[index] = f.toURI().toURL();
+                    index = index + 1;
+                }
+            }
+        }
+        return new URLClassLoader(urls, this.getClass().getClassLoader());
+    }
+
+    public static JobSubmitExecutor getInstance() {
         return singleton;
     }
 
-    public void submitJob(JobClient jobClient) throws Exception{
-        executor.submit(new JobSubmitProcessor(clientParamsList,jobClient));
+    public void submitJob(JobClient jobClient) throws Exception {
+        executor.submit(new JobSubmitProcessor(clientParamsList, jobClient));
     }
 
-    public RdosTaskStatus getJobStatus(EngineType engineType, String jobId){
+    public RdosTaskStatus getJobStatus(EngineType engineType, String jobId) {
 
-        if(Strings.isNullOrEmpty(jobId)){
+        if (Strings.isNullOrEmpty(jobId)) {
             throw new RdosException("can't get job of jobId is empty or null!");
         }
 
         IClient client = clientMap.get(engineType);
         Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
-        try{
+        try {
             return client.getJobStatus(jobId);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
         }
     }
 
-    public JobResult stopJob(EngineType engineType, String jobId){
+    public JobResult stopJob(EngineType engineType, String jobId) {
         IClient client = clientMap.get(engineType);
         Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         return client.cancelJob(jobId);
     }
 
-    public void shutdown(){
+    public void shutdown() {
         //FIXME 是否需要做同步等processor真正完成
-        if(executor!=null)executor.shutdown();
+        if (executor != null) executor.shutdown();
     }
 
-    class JobSubmitProcessor implements Runnable{
+    class JobSubmitProcessor implements Runnable {
 
         private JobClient jobClient;
 
         private Map<EngineType, IClient> clusterClientMap = new HashMap<>();
 
-        public JobSubmitProcessor(List<Map<String, Object>> clientParamsList,JobClient jobClient) throws Exception{
+        public JobSubmitProcessor(List<Map<String, Object>> clientParamsList, JobClient jobClient) throws Exception {
             this.jobClient = jobClient;
-            for(Map<String, Object> clientParams : clientParamsList){
+            for (Map<String, Object> clientParams : clientParamsList) {
                 String clientTypeStr = (String) clientParams.get(TYPE_NAME_KEY);
-                if(clientTypeStr == null){
+                if (clientTypeStr == null) {
                     logger.error("node.yml of engineTypes setting error, typeName must not be null!!!");
                     throw new RdosException("node.yml of engineTypes setting error, typeName must not be null!!!");
                 }
 
                 IClient client = ClientFactory.getClient(clientTypeStr);
-                if(client == null){
+                if (client == null) {
                     throw new RdosException("not support for client type " + clientTypeStr);
                 }
                 Properties clusterProp = new Properties();
@@ -173,30 +176,32 @@ public class JobSubmitExecutor{
         }
 
         @Override
-        public void run(){
-            if(jobClient != null){
+        public void run() {
+            if (jobClient != null) {
                 jobClient.getJobClientCallBack().execute();
                 IClient clusterClient = clusterClientMap.get(jobClient.getEngineType());
                 JobResult jobResult = null;
 
-                if(clusterClient == null){
+                if (clusterClient == null) {
                     jobResult = JobResult.createErrorResult("job setting client type " +
-                            "(" + jobClient.getEngineType()  +") don't found.");
+                            "(" + jobClient.getEngineType() + ") don't found.");
                     listenerJobStatus(jobClient, jobResult);
                     return;
                 }
-                try{
-                    jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                try {
+                    if (EngineType.Datax != jobClient.getEngineType()) {
+                        jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                    }
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                	Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
+                    Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
-                }catch (Exception e){//捕获未处理异常,防止跳出执行线程
+                } catch (Exception e) {//捕获未处理异常,防止跳出执行线程
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get unexpected exception", e);
-                }catch (Error e){
+                } catch (Error e) {
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get an error, please check program!!!!", e);
                 }
@@ -205,7 +210,7 @@ public class JobSubmitExecutor{
             }
         }
 
-        private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
+        private void listenerJobStatus(JobClient jobClient, JobResult jobResult) {
             //FIXME 之后需要对本地异常信息做存储
             jobClient.setJobResult(jobResult);
             JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息

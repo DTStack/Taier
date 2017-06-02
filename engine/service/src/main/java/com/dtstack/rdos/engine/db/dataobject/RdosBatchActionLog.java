@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.db.dataobject;
 
+import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
+
 /**
  *
  * Reason: TODO ADD REASON(可选)
@@ -8,61 +10,5 @@ package com.dtstack.rdos.engine.db.dataobject;
  * @author sishu.yss
  *
  */
-public class RdosBatchActionLog extends TenantProjectObject{
-
-    /**
-     * 操作类型
-     */
-    private Integer actionType;
-
-    /**
-     * 操作状态
-     */
-    private Integer status;
-
-    /**
-     * 任务 id
-     */
-    private String jobId;
-
-
-    /**
-     * 发起操作的用户id
-     */
-    private Long createUserId;
-
-
-    public Integer getActionType() {
-        return actionType;
-    }
-
-    public void setActionType(Integer actionType) {
-        this.actionType = actionType;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-
-    public String getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(String jobId) {
-		this.jobId = jobId;
-	}
-
-	public Long getCreateUserId() {
-        return createUserId;
-    }
-
-
-    public void setCreateUserId(Long createUserId) {
-        this.createUserId = createUserId;
-    }
+public class RdosBatchActionLog extends ActionLog {
 }

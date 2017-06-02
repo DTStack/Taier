@@ -110,13 +110,15 @@ public class SSHClient {
     public static void main(String[] args) throws Exception {
 
 
-        String str = PoolHttpClient.get("http://172.16.1.12:9020/sync/batch/batchTask/1");
+        String ip = LocalIpAddressUtil.getLocalAddress() + ":9020";
+        String jobid = "1";
+        String jobUrl = "http://" + ip + "/api/batch/batchTask/1";
+        String str = PoolHttpClient.get(jobUrl);
         System.out.println(str);
 
-        String ip = LocalIpAddressUtil.getLocalAddress();
-        String jobid = "1";
-        String jobUrl = "http://172.16.1.12:9020/sync/batch/batchTask/1";
-        System.out.println(new SSHClient("root", "abc123", "172.16.1.155", 22).ssh("cd /opt/dtstack/datax/bin && nohup python dataxnew.py " + jobUrl + " --rip " + ip + " --jobid " + jobid + " &"));
+        String command = " python dataxnew.py " + jobUrl + " --rip " + ip + " --jobid " + jobid;
+        System.out.println(command);
+        System.out.println(new SSHClient("root", "abc123", "172.16.1.155", 22).ssh("cd /opt/dtstack/datax/bin && nohup " + command + " &"));
     }
 
 }

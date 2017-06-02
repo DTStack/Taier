@@ -57,7 +57,7 @@ public class RdosTaskStatusTaskListener implements Runnable{
 	
 	public RdosTaskStatusTaskListener(){
 		JobClient.setQueue(queue);
-		new Thread(new TaskStatusTaskListener()).start();
+//		new Thread(new TaskStatusTaskListener()).start();
 	}
 
 	@Override
