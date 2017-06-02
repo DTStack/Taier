@@ -49,7 +49,7 @@ public class JobSubmitExecutor{
     private Map<EngineType, IClient> clientMap = new HashMap<>();
 
     private List<Map<String, Object>> clientParamsList;
-    
+
 	private static String userDir = System.getProperty("user.dir");
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
@@ -82,7 +82,7 @@ public class JobSubmitExecutor{
             clientMap.put(engineType, client);
         }
     }
-    
+
     private void loadComputerPlugin(String pluginType) throws Exception{
     	String plugin = String.format("%s/plugin/%s", userDir,pluginType);
 		File finput = new File(plugin);
@@ -91,8 +91,8 @@ public class JobSubmitExecutor{
 		}
 		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
     }
-    
-    
+
+
 	private URLClassLoader getClassLoad(File dir) throws MalformedURLException, IOException{
 		File[] files = dir.listFiles();
 		URL[] urls = new URL[files.length];
@@ -185,8 +185,10 @@ public class JobSubmitExecutor{
                     listenerJobStatus(jobClient, jobResult);
                     return;
                 }
-                try{
-                    jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                try {
+                    if (EngineType.Datax != jobClient.getEngineType()) {
+                        jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                    }
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                 	Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
