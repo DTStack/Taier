@@ -428,8 +428,15 @@ public class ZkDistributed {
 		// TODO Auto-generated method stub
         try{
             disableBrokerHeartNode(this.localAddress);
-			if(getAliveBrokersChildren().size()>0){
-				HttpSendClient.migration(this.localAddress);
+			List<String> nodes = getAliveBrokersChildren();
+			if(nodes.size() > 0){
+				nodes.forEach(node->{
+					try {
+						HttpSendClient.migration(node);
+					}catch (Exception e){
+						logger.error("",e);
+					}
+				});
 			}
             executors.shutdown();
         }catch (Throwable e){
@@ -479,7 +486,6 @@ public class ZkDistributed {
 									continue A;
 								}
 							}
-
 						}
 						if(datas.size() > 0){
 							Collections.sort(otherList,
