@@ -21,13 +21,12 @@ public class HttpSendClient {
         PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
     }
 
-    @SuppressWarnings("serial")
-	public static void migration(final String node)throws Exception{
+	public static void migration(final String node,String target)throws Exception{
         Map<String,Object> params = new HashMap<String,Object>(){
             {
                 put("node",node);
             }
         };
-        PoolHttpClient.post(UrlUtil.getHttpUrl(zkDistributed.isHaveMaster(), Urls.MIGRATE),params);
+        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MIGRATE),params);
     }
 }

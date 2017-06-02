@@ -2,13 +2,10 @@ package com.dtstack.rdos.common.ssh;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.LocalIpAddressUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ch.ethz.ssh2.ChannelCondition;
 import ch.ethz.ssh2.Connection;
 
@@ -56,7 +53,8 @@ public class SSHClient {
                 throw new IOException("Authentication failed...");
 
             ch.ethz.ssh2.Session sess = conn.openSession();
-            sess.execCommand(command);
+//            sess.execCommand(command);
+            sess.execCommand("echo \"Huge amounts of text on STDOUT\"; echo \"Huge amounts of text on STDERR\" >&2");
 
             InputStream stdout = sess.getStdout();
             InputStream stderr = sess.getStderr();
@@ -109,14 +107,14 @@ public class SSHClient {
 
     public static void main(String[] args) throws Exception {
 
-
-        String str = PoolHttpClient.get("http://172.16.1.12:9020/sync/batch/batchTask/1");
-        System.out.println(str);
+//        String str = PoolHttpClient.get("http://172.16.1.12:9020/sync/batch/batchTask/1");
+//        System.out.println(str);
 
         String ip = LocalIpAddressUtil.getLocalAddress();
         String jobid = "1";
         String jobUrl = "http://172.16.1.12:9020/sync/batch/batchTask/1";
         System.out.println(new SSHClient("root", "abc123", "172.16.1.155", 22).ssh("cd /opt/dtstack/datax/bin && nohup python dataxnew.py " + jobUrl + " --rip " + ip + " --jobid " + jobid + " &"));
+//		System.out.println(new SSHClient("sishu.yss","ysq63712284","127.0.0.1").ssh("cd /Users/sishuyss/datax/bin;nohup python datax.py ./mysql2odps.json &"));
     }
 
 }

@@ -137,26 +137,27 @@ public class RdosTaskStatusTaskListener implements Runnable{
                             }
                         }else if(computeType == ComputeType.BATCH.getComputeType()){
                             RdosBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
-                            String engineTaskid = rdosBatchJob.getEngineJobId();
-                            if(StringUtils.isNotBlank(engineTaskid)){
-                                EngineType engineType = EngineType.getEngineType(engineTypeVal);
-                                if(engineType.getVal()==EngineType.Datax.getVal()){
-                                    zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,rdosBatchJob.getStatus());
-                                }else{
-                                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
-                                    if(rdosTaskStatus!=null){
-                                        Integer status = rdosTaskStatus.getStatus();
-                                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
-                                        rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
-                                    }
-                                }
-                            }
+							if(rdosBatchJob!=null){
+								String engineTaskid = rdosBatchJob.getEngineJobId();
+								if(StringUtils.isNotBlank(engineTaskid)){
+									EngineType engineType = EngineType.getEngineType(engineTypeVal);
+									if(engineType.getVal()==EngineType.Datax.getVal()){
+										zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,rdosBatchJob.getStatus());
+									}else{
+										RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineType, engineTaskid);
+										if(rdosTaskStatus!=null){
+											Integer status = rdosTaskStatus.getStatus();
+											zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
+											rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+										}
+									}
+								}
+							}
                         }
                     }
                 }catch (Exception e){
                     logger.error("", e);
                 }
-
           	}
 		}
 	}

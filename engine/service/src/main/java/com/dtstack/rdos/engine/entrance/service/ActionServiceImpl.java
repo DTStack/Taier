@@ -42,11 +42,13 @@ public class ActionServiceImpl{
         try {
 			ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
 			jobId = paramAction.getTaskId();
-            RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
-            if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
-                return;
+            if(paramAction.getRequestStart()!= RequestStart.NODE.getStart()){
+                RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
+                if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
+                    return;
+                }
+                rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
             }
-            rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
             String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(),paramAction.getEngineType(),paramAction.getTaskId());
             boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(taskId);
 
@@ -91,7 +93,7 @@ public class ActionServiceImpl{
 		int engineTypeVal = paramAction.getEngineType();
 		EngineType engineType = EngineType.getEngineType(engineTypeVal);
 		JobClient.stop(engineType, paramAction.getEngineTaskId());
-		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.UNSTART.getStatus());
+		rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
 	}
 
 }
