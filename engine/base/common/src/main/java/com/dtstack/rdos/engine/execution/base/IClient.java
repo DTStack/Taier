@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public interface IClient {
      */
     JobResult submitJob(JobClient jobClient);
 
-    JobResult cancelJob(String jobId);
+    JobResult cancelJob(ParamAction jobId);
 
     RdosTaskStatus getJobStatus(String jobId) throws IOException;
 

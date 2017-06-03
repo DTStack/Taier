@@ -10,6 +10,7 @@ import java.util.Random;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.ssh.SSHClient;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,7 @@ public class DataxClient extends AbsClient {
     private static final List<String> dataxAddresses = Lists.newArrayList();
 
     private static final String DATAX_JOB_COMMAND_TEMPLATE = "cd %s && nohup python dataxnew.py %s --rip %s --rjobid %s &";
+    private static final String DATAX_JOB_KILL_COMMAND_TEMPLATE = "kill `ps -ef|grep %s |grep -v grep| awk '{print  $2}'`";
 
     private String DATAX_BIN_DIR = null;
     private String USERNAME = null;
@@ -65,9 +67,22 @@ public class DataxClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
-        // TODO Auto-generated method stub
-        return null;
+    public JobResult cancelJob(ParamAction paramAction) {
+        String jobId = paramAction.getTaskId();
+        JobResult jobResult = null;
+
+        try {
+            String command = String.format(DATAX_JOB_KILL_COMMAND_TEMPLATE, jobId);
+            SSHClient sshClient = new SSHClient(USERNAME, PASSWORD, randomAddress());
+            String result = sshClient.ssh(command);
+            jobResult = JobResult.createSuccessResult(jobId);
+            logger.info(result);
+        } catch (Exception e) {
+            jobResult = JobResult.createErrorResult(e);
+            logger.error("", e);
+        }
+
+        return jobResult;
     }
 
     @Override

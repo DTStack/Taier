@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunctionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Strings;
 
 import org.apache.commons.lang3.StringUtils;
@@ -221,7 +222,7 @@ public class SparkClient extends AbsClient {
      * 通过提交的paramsOperator 设置sparkConf
      * FIXME 解析传递过来的参数是不带spark.前面缀的,如果参数和spark支持不一致的话是否需要转换
      * @param sparkConf
-     * @param paramsOperator
+     * @param confProperties
      */
     private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
 
@@ -263,7 +264,9 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(ParamAction paramAction) {
+        String jobId = paramAction.getEngineTaskId();
+
         RestSubmissionClient restSubmissionClient = new RestSubmissionClient(masterURL);
         SubmitRestProtocolResponse response = restSubmissionClient.killSubmission(jobId);
         String responseStr = response.toJson();

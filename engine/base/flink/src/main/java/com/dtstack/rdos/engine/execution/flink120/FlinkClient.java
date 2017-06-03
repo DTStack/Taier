@@ -14,6 +14,7 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperat
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
@@ -31,12 +32,9 @@ import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.runtime.akka.AkkaUtils;
-import org.apache.flink.runtime.instance.ActorGateway;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
-import org.apache.flink.runtime.messages.JobManagerMessages;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
@@ -432,7 +430,9 @@ public class FlinkClient extends AbsClient {
         throw new RdosException("not support flink sql job for batch type.");
     }
 
-    public JobResult cancelJob(String jobId) {
+    @Override
+    public JobResult cancelJob(ParamAction paramAction) {
+        String jobId = paramAction.getEngineTaskId();
 
         JobID jobID = new JobID(StringUtils.hexStringToByte(jobId));
         try{

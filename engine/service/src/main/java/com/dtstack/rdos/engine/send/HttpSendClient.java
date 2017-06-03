@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.send;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.common.util.UrlUtil;
-import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 
 import java.util.HashMap;
 import java.util.Map;

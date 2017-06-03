@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.entrance.test;
 
-import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;

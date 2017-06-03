@@ -11,7 +11,7 @@ import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
 import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
-import com.dtstack.rdos.engine.entrance.service.paramObject.ParamAction;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -59,14 +59,7 @@ public class ActionServiceImpl {
 
             String address = zkDistributed.getExcutionNode();
             if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
-                JobClient jobClient = new JobClient(paramAction.getSqlText(), paramAction.getTaskParams(), paramAction.getName(),
-                        paramAction.getTaskId(), paramAction.getEngineTaskId(),
-                        EJobType.getEJobType(paramAction.getTaskType()),
-                        ComputeType.getComputeType(paramAction.getComputeType()),
-                        EngineType.getEngineType(paramAction.getEngineType()),
-                        Restoration.getRestoration(paramAction.getIsRestoration()),
-                        paramAction.getActionLogId()
-                );
+                JobClient jobClient = new JobClient(paramAction);
 
                 jobClient.setJobClientCallBack(new JobClientCallBack() {
                     @Override
@@ -95,9 +88,7 @@ public class ActionServiceImpl {
 
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        int engineTypeVal = paramAction.getEngineType();
-        EngineType engineType = EngineType.getEngineType(engineTypeVal);
-        JobClient.stop(engineType, paramAction.getEngineTaskId());
+        JobClient.stop(paramAction);
         updateActionLogStatus(paramAction.getActionLogId(), paramAction.getComputeType(), RdosActionLogStatus.UNSTART.getStatus());
     }
 

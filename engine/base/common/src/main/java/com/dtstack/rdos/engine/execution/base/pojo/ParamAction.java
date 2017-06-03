@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.service.paramObject;
+package com.dtstack.rdos.engine.execution.base.pojo;
 
 /**
  * 

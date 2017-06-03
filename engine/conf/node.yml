@@ -1,7 +1,7 @@
 #engine
 slots: 10
-localAddress: 172.16.1.151:8080
-nodeZkAddress: 172.16.1.151:2181/engine
+localAddress: 172.16.1.12:8080
+nodeZkAddress: 172.16.1.12:2181/engine
 
 engineTypes:
     -
@@ -16,7 +16,6 @@ engineTypes:
         dataxSSHAddress: 172.16.1.155 #可以多个
         userName: root
         password: abc123 #可以不填 打通ssh免登陆
-        rdosWebAddress: 172.16.1.65:9020
         dataxBinDir: /opt/dtstack/datax/bin
 
     -

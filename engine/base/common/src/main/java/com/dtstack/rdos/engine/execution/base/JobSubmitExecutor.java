@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -133,10 +134,12 @@ public class JobSubmitExecutor{
         }
     }
 
-    public JobResult stopJob(EngineType engineType, String jobId){
+    public JobResult stopJob(ParamAction paramAction){
+        int engineTypeVal = paramAction.getEngineType();
+        EngineType engineType = EngineType.getEngineType(engineTypeVal);
         IClient client = clientMap.get(engineType);
         Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
-        return client.cancelJob(jobId);
+        return client.cancelJob(paramAction);
     }
 
     public void shutdown(){
