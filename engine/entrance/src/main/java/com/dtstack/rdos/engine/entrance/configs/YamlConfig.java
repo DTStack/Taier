@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
+
+import com.dtstack.rdos.engine.entrance.CheckEngineAgumentsNotNull;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -18,6 +21,17 @@ import org.yaml.snakeyaml.Yaml;
 public class YamlConfig implements Config{
     private static final String HTTP = "http://";
     private static final String HTTPS = "https://";
+
+    private static String configFilePath = System.getProperty("user.dir")+"/conf/node.yml";
+
+
+    @SuppressWarnings("unchecked")
+    public Map<String,Object> loadConf() throws Exception{
+        Map<String,Object> nodeConfig = new YamlConfig().parse(configFilePath,Map.class);
+        CheckEngineAgumentsNotNull.checkEngineAguments(nodeConfig);
+        return nodeConfig;
+    }
+
 
     @Override
     public <T> T parse(String filename,Class<T> classType) throws Exception{

@@ -1,19 +1,13 @@
 package com.dtstack.rdos.engine.entrance;
 
 import com.dtstack.rdos.common.util.SystemPropertyUtil;
-import com.dtstack.rdos.engine.entrance.command.CmdLineParams;
-import com.dtstack.rdos.engine.entrance.command.OptionsProcessor;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
-import com.dtstack.rdos.engine.entrance.log.LogComponent;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.web.VertxHttpServer;
-
-import org.apache.commons.cli.CommandLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 
 /**
@@ -28,8 +22,6 @@ public class Main {
 
 	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
-	private static LogComponent logComponent = new LogbackComponent();
-
 	private static VertxHttpServer vertxHttpServer;
 	
 	private static ZkDistributed zkDistributed;
@@ -37,12 +29,9 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 			SystemPropertyUtil.setSystemUserDir();
-			CommandLine cmdLine = OptionsProcessor.parseArg(args);
-			CmdLineParams.setLine(cmdLine);
-			// set logger
-			logComponent.setupLogger();
+			LogbackComponent.setupLogger();
 			// load config
-			Map<String,Object> nodeConfig = loadConf();
+			Map<String,Object> nodeConfig = new YamlConfig().loadConf();
 			// init service
 			initService(nodeConfig);
 			// add hook
@@ -54,14 +43,6 @@ public class Main {
 		}
 	}
 
-	
-	@SuppressWarnings("unchecked")
-	private static Map<String,Object> loadConf() throws Exception{
-		Map<String,Object> nodeConfig = new YamlConfig().parse(CmdLineParams.getConfigFilePath(),Map.class);
-		CheckEngineAgumentsNotNull.checkEngineAguments(nodeConfig);
-		return nodeConfig;
-	}
-	
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		vertxHttpServer = new VertxHttpServer(nodeConfig);
