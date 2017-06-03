@@ -186,11 +186,11 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try {
-                    if (EngineType.Datax != jobClient.getEngineType()) {
+                    if (EngineType.Flink == jobClient.getEngineType() || EngineType.Spark == jobClient.getEngineType()) {
                         jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     }
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                	Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
+                    Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
