@@ -75,6 +75,10 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>flink-shaded-hadoop2</artifactId>
+					<groupId>org.apache.flink</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -138,6 +142,10 @@
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>flink-shaded-hadoop2</artifactId>
+					<groupId>org.apache.flink</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
