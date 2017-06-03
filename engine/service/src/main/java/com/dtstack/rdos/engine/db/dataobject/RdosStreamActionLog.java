@@ -12,9 +12,22 @@ import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
 public class RdosStreamActionLog extends ActionLog {
 
     /**
+     * 任务 id
+     */
+    private String taskId;
+
+    /**
      * 是否恢复最近一次的点位
      */
     private Byte isRestoration;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 
     public Byte getIsRestoration() {
         return isRestoration;

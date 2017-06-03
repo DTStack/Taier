@@ -23,12 +23,6 @@ public class ActionLog extends TenantProjectObject{
     private Integer status;
 
     /**
-     * 任务 id
-     */
-    private String jobId;
-
-
-    /**
      * 发起操作的用户id
      */
     private Long createUserId;
@@ -49,15 +43,6 @@ public class ActionLog extends TenantProjectObject{
     public void setStatus(Integer status) {
         this.status = status;
     }
-
-
-    public String getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(String jobId) {
-		this.jobId = jobId;
-	}
 
 	public Long getCreateUserId() {
         return createUserId;
