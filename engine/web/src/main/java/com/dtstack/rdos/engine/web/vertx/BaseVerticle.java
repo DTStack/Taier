@@ -2,15 +2,21 @@ package com.dtstack.rdos.engine.web.vertx;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.base.Strings;
+
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
+
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -25,6 +31,8 @@ import com.google.common.collect.Maps;
  *
  */
 public class BaseVerticle {
+	
+	private static Logger logger = LoggerFactory.getLogger(BaseVerticle.class);
 	
 	private static String classNameTemplate = "com.dtstack.rdos.engine.entrance.service.%sServiceImpl";
 	
@@ -50,6 +58,7 @@ public class BaseVerticle {
 		HttpServerRequest httpServerRequest = routingContext.request();
 		Map<String,Object> params = routingContext.getBodyAsJson().getMap();
 		String path = httpServerRequest.path();
+		logger.warn("receive http request:{}:{}",path,routingContext.getBodyAsString());
 		String[] paths = path.split("/");
 		if(paths.length < 2){
 			throw new Exception("url path error,please check");

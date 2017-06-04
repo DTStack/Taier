@@ -49,9 +49,11 @@ public class ActionServiceImpl {
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             jobId = paramAction.getTaskId();
             computeType = paramAction.getComputeType();
-            ActionLog dbActionLog = getActionLog(paramAction.getActionLogId(), computeType);
-            if (dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()) {//已经提交过
-                return;
+            if(paramAction.getRequestStart()!= RequestStart.NODE.getStart()){
+            	ActionLog dbActionLog =getActionLog(paramAction.getActionLogId(),computeType);
+                if(dbActionLog!=null&&dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
+                    return;
+                }
             }
             updateActionLogStatus(paramAction.getActionLogId(), computeType, RdosActionLogStatus.SUCCESS.getStatus());
             String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
