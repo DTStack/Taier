@@ -31,6 +31,8 @@ public class VertxHttpServer {
 		logger.info("VertxHttpServer start...");
         DeploymentOptions deploymentOptions = new DeploymentOptions();
         deploymentOptions.setWorker(true);
+        deploymentOptions.setWorkerPoolSize(1000);
+        deploymentOptions.setMaxWorkerExecuteTime(2*60L * 1000 * 1000000);
         vertx = Vertx.vertx();
         vertx.deployVerticle(new ServerVerticle(this.nodeConfig), deploymentOptions);
 	}

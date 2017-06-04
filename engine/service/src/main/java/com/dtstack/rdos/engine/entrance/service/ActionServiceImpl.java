@@ -44,7 +44,7 @@ public class ActionServiceImpl{
             jobId = paramAction.getTaskId();
             if(paramAction.getRequestStart()!= RequestStart.NODE.getStart()){
                 RdosStreamActionLog dbActionLog = rdosActionLogDAO.findActionLogById(paramAction.getActionLogId());
-                if(dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
+                if(dbActionLog!=null&&dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
                     return;
                 }
                 rdosActionLogDAO.updateActionStatus(paramAction.getActionLogId(), RdosActionLogStatus.SUCCESS.getStatus());
