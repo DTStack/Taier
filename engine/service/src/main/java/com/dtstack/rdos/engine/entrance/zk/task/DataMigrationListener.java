@@ -18,7 +18,7 @@ public class DataMigrationListener implements Runnable{
 
     private static ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    Logger logger = LoggerFactory.getLogger(AllTaskStatusListener.class);
+    Logger logger = LoggerFactory.getLogger(TaskMemStatusListener.class);
 
 
     public DataMigrationListener(MasterListener masterListener){

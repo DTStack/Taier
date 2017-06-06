@@ -25,11 +25,12 @@ import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
-import com.dtstack.rdos.engine.entrance.zk.task.AllTaskStatusListener;
+import com.dtstack.rdos.engine.entrance.zk.task.TaskMemStatusListener;
 import com.dtstack.rdos.engine.entrance.zk.task.HeartBeat;
 import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
 import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
-import com.dtstack.rdos.engine.entrance.zk.task.RdosTaskStatusTaskListener;
+import com.dtstack.rdos.engine.entrance.zk.task.TaskListener;
+import com.dtstack.rdos.engine.entrance.zk.task.TaskStatusListener;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.collect.Lists;
@@ -134,8 +135,9 @@ public class ZkDistributed {
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
-		executors.execute(new RdosTaskStatusTaskListener());
-		executors.execute(new AllTaskStatusListener());
+		executors.execute(new TaskListener());
+		executors.execute(new TaskMemStatusListener());
+		executors.execute(new TaskStatusListener());
         executors.execute(new DataMigrationListener(masterListener));
 	}
 	
@@ -208,7 +210,7 @@ public class ZkDistributed {
 	public void updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(String taskId,Integer status){
 		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
 		try {
-			if(this.brokerDataLock.acquire(30, TimeUnit.SECONDS)){
+			if(this.brokerDataLock.acquire(10, TimeUnit.SECONDS)){
 				BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
 				Map<String,Byte> datas = target.getMetas();
 				datas.put(taskId, status.byteValue());
