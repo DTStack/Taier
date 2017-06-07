@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.entrance.enumeration.MachineAppType;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
@@ -142,7 +143,7 @@ public class ZkDistributed {
 	}
 	
 	private void registrationDB(){
-		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType());
+		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType(),MachineAppType.ENGINE);
 	}
 	
 	private void createLocalBrokerHeartNode() throws Exception{

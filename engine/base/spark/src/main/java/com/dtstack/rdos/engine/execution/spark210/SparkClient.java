@@ -314,4 +314,10 @@ public class SparkClient extends AbsClient {
 		// TODO Auto-generated method stub
         return null;
 	}
+
+	@Override
+	public String getJobMaster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

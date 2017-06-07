@@ -34,7 +34,8 @@ public enum RdosTaskStatus {
     
     public static boolean needClean(Byte status){
         int sta = status.intValue(); 
-       if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.CANCELED.status||sta==RdosTaskStatus.FAILED.status||sta == RdosTaskStatus.SUBMITFAILD.status){
+       //sta==RdosTaskStatus.CANCELED.status  临时取消batch分支上改
+       if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.FAILED.status||sta == RdosTaskStatus.SUBMITFAILD.status){
     	   return true;
        }   
     	return false;

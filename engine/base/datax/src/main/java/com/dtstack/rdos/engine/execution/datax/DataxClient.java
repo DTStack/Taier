@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
@@ -64,5 +66,11 @@ public class DataxClient extends AbsClient{
 	public JobResult submitSyncJob(JobClient jobClient){
     	return null;
     }
+
+	@Override
+	public String getJobMaster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

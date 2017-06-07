@@ -2,8 +2,6 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -37,5 +35,7 @@ public interface IClient {
 
     String getJobDetail(String jobId);
     
-    public JobResult immediatelySubmitJob(JobClient jobClient);
+    JobResult immediatelySubmitJob(JobClient jobClient);
+
+	String getJobMaster();
 }

@@ -19,7 +19,6 @@ import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
@@ -31,12 +30,9 @@ import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.core.fs.Path;
-import org.apache.flink.runtime.akka.AkkaUtils;
-import org.apache.flink.runtime.instance.ActorGateway;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
-import org.apache.flink.runtime.messages.JobManagerMessages;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
@@ -49,8 +45,6 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -503,6 +497,11 @@ public class FlinkClient extends AbsClient {
      */
     private String getReqUrl(){
         return client.getWebInterfaceURL();
+    }
+    
+    @Override
+    public String getJobMaster(){
+    	return getReqUrl();
     }
 
 
