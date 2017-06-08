@@ -153,7 +153,7 @@ public class FlinkClient extends AbsClient {
 
         //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
         InetSocketAddress address = clusterClient.getJobManagerAddress();
-        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getHostName());
+        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getAddress().getHostAddress());
         config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
 
         client = clusterClient;
