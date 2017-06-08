@@ -87,7 +87,7 @@ public class ZkDistributed {
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
-	private ExecutorService executors  = Executors.newFixedThreadPool(7);
+	private ExecutorService executors  = Executors.newFixedThreadPool(8);
 	
 	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
 
