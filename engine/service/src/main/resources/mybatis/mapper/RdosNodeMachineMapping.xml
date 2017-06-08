@@ -34,8 +34,8 @@
         update rdos_node_machine set is_deleted = 0, gmt_modified=now() where ip=#{ip} and port=#{port} and app_type=#{appType};
     </update>
     
-    <update id="updateAllMachineToSlave" parameterType="java.util.HashMap">
-         update rdos_node_machine set machine_type=1, gmt_modified=now() where app_type='engine';
+    <update id="updateOneTypeMachineToSlave" parameterType="java.util.HashMap">
+         update rdos_node_machine set machine_type=1, gmt_modified=now() where app_type=#{type};
     </update>
    
 </mapper>

@@ -6,7 +6,6 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.entrance.enumeration.MachineAppType;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 
 
@@ -37,6 +36,7 @@ public class OtherListener implements Runnable{
 				logger.warn("OtherListener start again...");
 				if(this.masterListener.isMaster()){
 					JobClient.getJobMaster().forEach((k,v)->{
+						rdosNodeMachineDAO.updateOneTypeMachineToSlave(k);
 						rdosNodeMachineDAO.insert(v, RdosNodeMachineType.MASTER.getType(),MachineAppType.getMachineAppType(k));
 					});
 				}

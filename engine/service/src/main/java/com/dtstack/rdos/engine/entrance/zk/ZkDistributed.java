@@ -26,6 +26,7 @@ import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
+import com.dtstack.rdos.engine.entrance.zk.task.OtherListener;
 import com.dtstack.rdos.engine.entrance.zk.task.TaskMemStatusListener;
 import com.dtstack.rdos.engine.entrance.zk.task.HeartBeat;
 import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
@@ -140,6 +141,8 @@ public class ZkDistributed {
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
         executors.execute(new DataMigrationListener(masterListener));
+        executors.execute(new OtherListener(masterListener));
+        
 	}
 	
 	private void registrationDB(){
@@ -266,7 +269,7 @@ public class ZkDistributed {
 					brokersNode.setMaster(this.localAddress);
 					this.zkClient.setData().forPath(this.brokersNode,
 							objectMapper.writeValueAsBytes(brokersNode));
-					rdosNodeMachineDAO.updateAllMachineToSlave();
+					rdosNodeMachineDAO.updateOneTypeMachineToSlave(MachineAppType.ENGINE.getType());
 					rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
 				}
                 return true;
