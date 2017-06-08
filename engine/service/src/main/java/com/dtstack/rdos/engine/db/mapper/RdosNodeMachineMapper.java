@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.db.mapper;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine;
 
 /**
@@ -20,5 +22,5 @@ public interface RdosNodeMachineMapper {
 
 	public void ableMachineNode(RdosNodeMachine rdosNodeMachine);
 
-	public void updateAllMachineToSlave();
+	public void updateOneTypeMachineToSlave(@Param("type") String type);
 }

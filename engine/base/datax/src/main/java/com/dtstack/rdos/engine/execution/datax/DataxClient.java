@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.ssh.SSHClient;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -131,5 +130,11 @@ public class DataxClient extends AbsClient {
 
         return jobResult;
     }
+
+	@Override
+	public String getJobMaster() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

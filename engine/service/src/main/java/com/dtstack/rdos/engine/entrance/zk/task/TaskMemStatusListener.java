@@ -15,11 +15,11 @@ import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
  * @author sishu.yss
  *
  */
-public class AllTaskStatusListener implements Runnable{
+public class TaskMemStatusListener implements Runnable{
 
 	private static long listener = 1000;
 	
-	Logger logger = LoggerFactory.getLogger(AllTaskStatusListener.class);
+	Logger logger = LoggerFactory.getLogger(TaskMemStatusListener.class);
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
@@ -32,7 +32,7 @@ public class AllTaskStatusListener implements Runnable{
 			try{
 				Thread.sleep(listener);
 				++index;
-				if(PublicUtil.count(index, 5))logger.warn("AllTaskStatusListener start again");
+				if(PublicUtil.count(index, 5))logger.warn("TaskMemStatusListener start again");
 				zkDistributed.initMemTaskStatus();
 			}catch(Exception e){
 				logger.error("AllTaskStatusListener error:{}",ExceptionUtil.getErrorMessage(e));

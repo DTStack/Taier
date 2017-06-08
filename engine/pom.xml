@@ -18,7 +18,6 @@
     <module>base/spark</module>
     <module>base/flink</module>
     <module>base/datax</module>
-    <module>base/kettle</module>
     <module>web</module>
     <module>service</module>
   </modules>

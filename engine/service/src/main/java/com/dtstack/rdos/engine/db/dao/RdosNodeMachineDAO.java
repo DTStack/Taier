@@ -18,8 +18,8 @@ import com.dtstack.rdos.engine.db.mapper.RdosNodeMachineMapper;
  */
 public class RdosNodeMachineDAO {
 	
-	public void insert(String ip,long port,int machineType){
-		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType, MachineAppType.ENGINE.getType());
+	public void insert(String ip,long port,int machineType,MachineAppType machineAppType){
+		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip,port,machineType, machineAppType.getType());
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
@@ -32,9 +32,9 @@ public class RdosNodeMachineDAO {
 	}
 	
 	
-	public void insert(String localAddress,int machineType){
+	public void insert(String localAddress,int machineType,MachineAppType machineAppType){
 		String[] args = localAddress.split(":");
-		insert(args[0],Integer.parseInt(args[1]),machineType);
+		insert(args[0],Integer.parseInt(args[1]),machineType,machineAppType);
 	}
 	
 	
@@ -94,13 +94,13 @@ public class RdosNodeMachineDAO {
 		});
 	}
 
-	public void updateAllMachineToSlave() {
+	public void updateOneTypeMachineToSlave(String type) {
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				// TODO Auto-generated method stub
 				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
-				rdosNodeMachineMapper.updateAllMachineToSlave();
+				rdosNodeMachineMapper.updateOneTypeMachineToSlave(type);
 				return null;
 			}
 		});

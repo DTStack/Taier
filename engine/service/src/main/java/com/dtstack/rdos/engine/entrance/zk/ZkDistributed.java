@@ -1,43 +1,46 @@
-		package com.dtstack.rdos.engine.entrance.zk;
+package com.dtstack.rdos.engine.entrance.zk;
 
-		import java.io.IOException;
-		import java.util.Collections;
-		import java.util.Comparator;
-		import java.util.Iterator;
-		import java.util.List;
-		import java.util.Map;
-		import java.util.Set;
-		import java.util.concurrent.ExecutorService;
-		import java.util.concurrent.Executors;
-		import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-		import com.dtstack.rdos.	engine.db.dao.RdosNodeMachineDAO;
-		import com.dtstack.rdos.engine.entrance.zk.task.DataMigrationListener;
+import com.dtstack.rdos.	engine.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.entrance.zk.task.DataMigrationListener;
 
-		import org.apache.commons.lang3.StringUtils;
-		import org.codehaus.jackson.map.ObjectMapper;
-		import org.slf4j.Logger;
-		import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-		import com.dtstack.rdos.commom.exception.ExceptionUtil;
-		import com.dtstack.rdos.commom.exception.RdosException;
-		import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
-		import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
-		import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
-		import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
-		import com.dtstack.rdos.engine.entrance.zk.task.AllTaskStatusListener;
-		import com.dtstack.rdos.engine.entrance.zk.task.HeartBeat;
-		import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
-		import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
-		import com.dtstack.rdos.engine.entrance.zk.task.RdosTaskStatusTaskListener;
-		import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-		import com.dtstack.rdos.engine.send.HttpSendClient;
-		import com.google.common.collect.Lists;
-		import com.google.common.collect.Maps;
-		import com.netflix.curator.framework.CuratorFramework;
-		import com.netflix.curator.framework.CuratorFrameworkFactory;
-		import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
-		import com.netflix.curator.retry.ExponentialBackoffRetry;
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.entrance.enumeration.MachineAppType;
+import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
+import com.dtstack.rdos.engine.entrance.zk.task.OtherListener;
+import com.dtstack.rdos.engine.entrance.zk.task.TaskMemStatusListener;
+import com.dtstack.rdos.engine.entrance.zk.task.HeartBeat;
+import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
+import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
+import com.dtstack.rdos.engine.entrance.zk.task.TaskListener;
+import com.dtstack.rdos.engine.entrance.zk.task.TaskStatusListener;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.send.HttpSendClient;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.netflix.curator.framework.CuratorFramework;
+import com.netflix.curator.framework.CuratorFrameworkFactory;
+import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
+import com.netflix.curator.retry.ExponentialBackoffRetry;
 
 
 /**
@@ -84,8 +87,8 @@ public class ZkDistributed {
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
-	private ExecutorService executors  = Executors.newFixedThreadPool(6);
-
+	private ExecutorService executors  = Executors.newFixedThreadPool(8);
+	
 	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
 
 
@@ -134,13 +137,15 @@ public class ZkDistributed {
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
-		executors.execute(new RdosTaskStatusTaskListener());
-		executors.execute(new AllTaskStatusListener());
-		executors.execute(new DataMigrationListener(masterListener));
+		executors.execute(new TaskListener());
+		executors.execute(new TaskMemStatusListener());
+		executors.execute(new TaskStatusListener());
+        executors.execute(new DataMigrationListener(masterListener));
+        executors.execute(new OtherListener(masterListener));
 	}
 
 	private void registrationDB(){
-		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType());
+		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType(),MachineAppType.ENGINE);
 	}
 
 	private void createLocalBrokerHeartNode() throws Exception{
@@ -208,7 +213,7 @@ public class ZkDistributed {
 	public void updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(String taskId,Integer status){
 		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
 		try {
-			if(this.brokerDataLock.acquire(30, TimeUnit.SECONDS)){
+			if(this.brokerDataLock.acquire(10, TimeUnit.SECONDS)){
 				BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
 				Map<String,Byte> datas = target.getMetas();
 				datas.put(taskId, status.byteValue());
@@ -263,7 +268,7 @@ public class ZkDistributed {
 					brokersNode.setMaster(this.localAddress);
 					this.zkClient.setData().forPath(this.brokersNode,
 							objectMapper.writeValueAsBytes(brokersNode));
-					rdosNodeMachineDAO.updateAllMachineToSlave();
+					rdosNodeMachineDAO.updateOneTypeMachineToSlave(MachineAppType.ENGINE.getType());
 					rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
 				}
 				return true;

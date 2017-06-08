@@ -5,13 +5,13 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -75,7 +75,6 @@ public class JobSubmitExecutor{
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
             EngineType engineType = EngineType.getEngineType(clientTypeStr);
             loadComputerPlugin(clientTypeStr);
-
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
@@ -119,11 +118,9 @@ public class JobSubmitExecutor{
     }
 
     public RdosTaskStatus getJobStatus(EngineType engineType, String jobId){
-
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
         }
-
         IClient client = clientMap.get(engineType);
         Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         try{
@@ -132,6 +129,17 @@ public class JobSubmitExecutor{
             logger.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
         }
+    }
+    
+    public Map<String,String> getJobMaster(){
+    	final Map<String,String> jobMasters = Maps.newConcurrentMap();
+    	clientMap.forEach((k,v)->{
+            Thread.currentThread().setContextClassLoader(v.getClass().getClassLoader());
+            if(StringUtils.isNotBlank(v.getJobMaster())){
+        		jobMasters.put(k.name().toLowerCase(),v.getJobMaster());
+            }
+    	});
+        return jobMasters;
     }
 
     public JobResult stopJob(ParamAction paramAction){
@@ -199,9 +207,11 @@ public class JobSubmitExecutor{
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
                 }catch (Exception e){//捕获未处理异常,防止跳出执行线程
+                    jobClient.setEngineTaskId(null);
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get unexpected exception", e);
                 }catch (Error e){
+                    jobClient.setEngineTaskId(null);
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get an error, please check program!!!!", e);
                 }

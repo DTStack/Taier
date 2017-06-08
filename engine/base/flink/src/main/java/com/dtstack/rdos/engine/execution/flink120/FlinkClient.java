@@ -20,7 +20,6 @@ import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
@@ -47,8 +46,6 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -504,7 +501,12 @@ public class FlinkClient extends AbsClient {
     private String getReqUrl(){
         return client.getWebInterfaceURL();
     }
-
+    
+    @Override
+    public String getJobMaster(){
+    	String url = getReqUrl();
+    	return url.split("//")[1];
+    }
 
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();

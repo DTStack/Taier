@@ -22,7 +22,7 @@
         <appender-ref ref="zkAppender" />
     </logger>
 
-    <root level="info">
+    <root level="warn">
         <appender-ref ref="allAppender" />
     </root>
 

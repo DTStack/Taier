@@ -4,10 +4,12 @@ import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -60,6 +62,15 @@ public class JobClient {
      */
     public static RdosTaskStatus getStatus(EngineType engineType, String engineTaskId) {
         return JobSubmitExecutor.getInstance().getJobStatus(engineType, engineTaskId);
+    }
+    
+    /**
+     * 获取engine上jobManager url
+     * @param engineType
+     * @return
+     */
+    public static Map<String,String>getJobMaster(){
+    	return JobSubmitExecutor.getInstance().getJobMaster();
     }
 
     public static LinkedBlockingQueue<JobClient> getQueue() {
