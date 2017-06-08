@@ -501,7 +501,8 @@ public class FlinkClient extends AbsClient {
     
     @Override
     public String getJobMaster(){
-    	return getReqUrl();
+    	InetSocketAddress inetSocketAddress = client.getJobManagerAddress();
+    	return String.format("%s:%d",inetSocketAddress.getHostName(),inetSocketAddress.getPort());
     }
 
 
