@@ -501,10 +501,9 @@ public class FlinkClient extends AbsClient {
     
     @Override
     public String getJobMaster(){
-    	InetSocketAddress inetSocketAddress = client.getJobManagerAddress();
-    	return String.format("%s:%d",inetSocketAddress.getHostName(),inetSocketAddress.getPort());
+    	String url = getReqUrl();
+    	return url.split("//")[1];
     }
-
 
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
