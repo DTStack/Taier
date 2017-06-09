@@ -53,6 +53,9 @@ public class JobClient {
 
     private Long actionLogId;
 
+    /**提交MR执行的时候附带的执行参数*/
+    private String classArgs;
+
     private static LinkedBlockingQueue<JobClient> queue;
 
     /***
@@ -102,6 +105,7 @@ public class JobClient {
         this.isRestoration = Restoration.getRestoration(paramAction.getIsRestoration());
         this.actionLogId = paramAction.getActionLogId();
         this.engineType = EngineType.getEngineType(paramAction.getEngineType());
+        this.classArgs = paramAction.getClassArgs();
     }
 
     public void submit() throws Exception {
@@ -223,5 +227,13 @@ public class JobClient {
 
     public void setOperators(List<Operator> operators) {
         this.operators = operators;
+    }
+
+    public String getClassArgs() {
+        return classArgs;
+    }
+
+    public void setClassArgs(String classArgs) {
+        this.classArgs = classArgs;
     }
 }

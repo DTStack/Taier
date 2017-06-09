@@ -23,13 +23,15 @@ public class ParamAction {
     private Integer computeType;
 
 	//实时独有
-	private Integer isRestoration = 0; //FIXME 调试临时给的默认值
+	private Integer isRestoration = 0;
 
 	private String sqlText;
 	
 	private String taskParams;
 
 	private Long actionLogId;
+
+	private String classArgs;
 
 
 	public void setActionLogId(Long actionLogId){
@@ -126,5 +128,13 @@ public class ParamAction {
 
     public void setEngineType(Integer engineType) {
         this.engineType = engineType;
+    }
+
+    public String getClassArgs() {
+        return classArgs;
+    }
+
+    public void setClassArgs(String classArgs) {
+        this.classArgs = classArgs;
     }
 }
