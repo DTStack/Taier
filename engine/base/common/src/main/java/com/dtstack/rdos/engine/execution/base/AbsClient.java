@@ -23,6 +23,8 @@ public abstract class AbsClient implements IClient{
     public static final String JOB_MAIN_CLASS_KEY = "job.main.class";
 
     public static final String JOB_APP_NAME_KEY = "job.name";
+
+    public static final String JOB_EXE_ARGS = "job.class.args";
     
     @Override
 	public JobResult submitJob(JobClient jobClient) {

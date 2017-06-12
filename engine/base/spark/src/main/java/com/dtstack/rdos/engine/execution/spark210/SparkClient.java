@@ -103,6 +103,7 @@ public class SparkClient extends AbsClient {
         String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
         String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);//只支持hdfs
         String appName = properties.getProperty(JOB_APP_NAME_KEY);
+        String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
 
         if(!jarPath.startsWith("hdfs://")){
             throw new RdosException("spark jar path protocol must be hdfs://");
@@ -112,7 +113,12 @@ public class SparkClient extends AbsClient {
             throw new RdosException("spark jar must set app name!");
         }
 
-        String[] appArgs = new String[]{};//FIXME 不支持app自己的输入参数
+
+        String[] appArgs = new String[]{};
+        if(exeArgsStr != null){
+            appArgs = exeArgsStr.split(",");
+        }
+
         SparkConf sparkConf = new SparkConf();
         sparkConf.setMaster(masterURL);
         sparkConf.set("spark.submit.deployMode", deployMode);
@@ -142,6 +148,7 @@ public class SparkClient extends AbsClient {
         properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
         properties.setProperty(JOB_MAIN_CLASS_KEY, jarOperator.getMainClass());
+        properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
         return properties;
     }
 
