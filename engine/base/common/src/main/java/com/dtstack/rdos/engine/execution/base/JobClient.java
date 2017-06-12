@@ -105,7 +105,7 @@ public class JobClient {
         this.isRestoration = Restoration.getRestoration(paramAction.getIsRestoration());
         this.actionLogId = paramAction.getActionLogId();
         this.engineType = EngineType.getEngineType(paramAction.getEngineType());
-        this.classArgs = paramAction.getClassArgs();
+        this.classArgs = paramAction.getExeArgs();
     }
 
     public void submit() throws Exception {

@@ -115,8 +115,8 @@ public class SparkClient extends AbsClient {
 
 
         String[] appArgs = new String[]{};
-        if(exeArgsStr != null){
-            appArgs = exeArgsStr.split(",");
+        if(StringUtils.isNotBlank(exeArgsStr)){
+            appArgs = exeArgsStr.split("\\s+");
         }
 
         SparkConf sparkConf = new SparkConf();

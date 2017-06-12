@@ -20,7 +20,9 @@ import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.google.common.collect.Lists;
+
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
@@ -41,11 +43,11 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
-import org.apache.flink.util.StringUtils;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -199,7 +201,11 @@ public class FlinkClient extends AbsClient {
         PackagedProgram packagedProgram = null;
 
         String entryPointClass = properties.getProperty(JOB_MAIN_CLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
-        String[] programArgs = new String[0];//FIXME 该参数设置暂时未设置
+        String[] programArgs = new String[0];
+        String args = properties.getProperty(JOB_EXE_ARGS);
+        if(StringUtils.isNotBlank(args)){
+        	programArgs = args.split("\\s+");
+        }
         List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
 
         Properties spProp = getSpProperty(jobClient);
@@ -269,6 +275,7 @@ public class FlinkClient extends AbsClient {
         Properties properties = new Properties();
         properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
+        properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
         return properties;
     }
 
@@ -431,7 +438,7 @@ public class FlinkClient extends AbsClient {
     public JobResult cancelJob(ParamAction paramAction) {
         String jobId = paramAction.getEngineTaskId();
 
-        JobID jobID = new JobID(StringUtils.hexStringToByte(jobId));
+        JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
             client.cancel(jobID);
         }catch (Exception e){

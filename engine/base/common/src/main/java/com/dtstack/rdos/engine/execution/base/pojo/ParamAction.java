@@ -31,7 +31,7 @@ public class ParamAction {
 
 	private Long actionLogId;
 
-	private String classArgs;
+	private String exeArgs;
 
 
 	public void setActionLogId(Long actionLogId){
@@ -130,11 +130,14 @@ public class ParamAction {
         this.engineType = engineType;
     }
 
-    public String getClassArgs() {
-        return classArgs;
-    }
 
-    public void setClassArgs(String classArgs) {
-        this.classArgs = classArgs;
-    }
+	public String getExeArgs() {
+		return exeArgs;
+	}
+
+
+	public void setExeArgs(String exeArgs) {
+		this.exeArgs = exeArgs;
+	}
+
 }
