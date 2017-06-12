@@ -122,6 +122,8 @@ public class DataxClient extends AbsClient {
             SSHClient sshClient = new SSHClient(USERNAME, PASSWORD, randomAddress());
             String result = sshClient.ssh(command);
             jobResult = JobResult.createSuccessResult(jobId);
+            jobResult.setData(JobResult.MSG_INFO, result);
+
             logger.info(result);
         } catch (Exception e) {
             jobResult = JobResult.createErrorResult(e);

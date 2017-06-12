@@ -4,11 +4,7 @@ target/
 .classpath
 .idea/
 base/base.iml
-common/common.iml
-engine.iml
-entrance/entrance.iml
 plugin/
 logs/
 base/datax/base.sync.iml
-web/web.iml
-service/service.iml
+*.iml
