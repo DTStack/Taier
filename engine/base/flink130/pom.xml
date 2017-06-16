@@ -6,6 +6,7 @@
     <groupId>com.dtstack.rdos</groupId>
     <artifactId>engine</artifactId>
     <version>1.0.0</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>base.flink130</artifactId>
   <name>base.flink130</name>
@@ -124,7 +125,7 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-yarn_2.11</artifactId>
 			<version>${flink.version}</version>
@@ -138,7 +139,7 @@
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency> -->
 		
 		<dependency>
 			<groupId>org.apache.flink</groupId>
