@@ -1,15 +1,16 @@
 #engine
 slots: 10
-localAddress: 172.16.1.151:8080
+localAddress: 172.16.6.232:8080
 nodeZkAddress: 172.16.1.151:2181/engine
 
 engineTypes:
     -
         typeName: flink
-        engineZkAddress: 172.16.1.151
-        engineZkNamespace: /flink
-        engineClusterId: /default
-        jarTmpDir: D:\tmp
+        flinkZkAddress: 172.16.10.135:2181,172.16.10.136:2181,172.16.10.138:2181
+        flinkZkNamespace: /flink
+        flinkClusterId: /default
+        flinkHighAvailabilityStorageDir: hdfs://172.16.10.135:9000/flink13/ha
+        jarTmpDir: ../tmp
 
     -    
         typeName: datax

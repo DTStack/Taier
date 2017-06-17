@@ -21,7 +21,7 @@ public interface IClient {
      * FIXME 根据zk做初始化的时候的操作
      * @param prop
      */
-    void init(Properties prop);
+    void init(Properties prop) throws Exception;
 
     /**
      * 提交的时候先判断下计算资源是否足够,
