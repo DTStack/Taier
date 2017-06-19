@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.com.dtstack.rdos.engine.execution.loader;
+package com.dtstack.rdos.engine.execution.loader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
