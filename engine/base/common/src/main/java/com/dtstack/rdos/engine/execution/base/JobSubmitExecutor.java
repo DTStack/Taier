@@ -199,7 +199,7 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try {
-                    if (EngineType.Flink == jobClient.getEngineType() || EngineType.Spark == jobClient.getEngineType()) {
+                    if (EngineType.Flink120 == jobClient.getEngineType() || EngineType.Flink130 == jobClient.getEngineType() ||EngineType.Spark == jobClient.getEngineType()) {
                         jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     }
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));

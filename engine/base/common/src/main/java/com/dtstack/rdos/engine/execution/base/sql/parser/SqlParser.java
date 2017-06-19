@@ -33,7 +33,7 @@ public class SqlParser {
 		List<Operator> operators = null;
         if(computeType == ComputeType.BATCH.getComputeType()){
 			operators = parserSql(sql,batchOperatorClasses);
-		}else{
+		}else if(computeType == ComputeType.STREAM.getComputeType()){
 			operators = parserSql(sql,streamOperatorClasses);
 		}
 		return operators;
