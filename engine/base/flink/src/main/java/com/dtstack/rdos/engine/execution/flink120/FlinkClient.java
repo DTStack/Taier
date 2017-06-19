@@ -19,6 +19,7 @@ import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.flink120.FlinkConfig;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -47,7 +48,6 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -70,14 +70,6 @@ public class FlinkClient extends AbsClient {
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    public static final String FLINK_JOBMGR_URL_KEY = "engineUrl";
-
-    public static final String FLINK_ZKNAMESPACE_KEY = "engineZkAddress";
-
-    public static final String FLINK_ZK_ROOT_KEY = "engineZkNamespace";
-
-    public static final String FLINK_ZK_CLUSTERID_KEY = "engineClusterId";
 
     public static final String FLINK_ENGINE_JOBID_KEY = "engineJobId";
 
@@ -162,22 +154,18 @@ public class FlinkClient extends AbsClient {
         client = clusterClient;
     }
 
-    public void init(Properties prop) {
-
-        String jobMgrURL = prop.getProperty(FLINK_JOBMGR_URL_KEY);
-        String zkNamespace = prop.getProperty(FLINK_ZKNAMESPACE_KEY);
-        tmpFileDirPath = prop.getProperty(FILE_TMP_PATH_KEY);
+    public void init(Properties prop) throws Exception {
+    	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
+        tmpFileDirPath = flinkConfig.getJarTmpDir();
 
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
-        Preconditions.checkState(jobMgrURL != null || zkNamespace != null,
+        Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
-        if(zkNamespace != null){//优先使用zk
-            String zkRoot = prop.getProperty(FLINK_ZK_ROOT_KEY);
-            String clusterId = prop.getProperty(FLINK_ZK_CLUSTERID_KEY);
-            initClusterClientByZK(zkNamespace, zkRoot, clusterId);
+        if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
+            initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId());
         }else{
-            initClusterClientByURL(jobMgrURL);
+            initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
         }
 
     }
