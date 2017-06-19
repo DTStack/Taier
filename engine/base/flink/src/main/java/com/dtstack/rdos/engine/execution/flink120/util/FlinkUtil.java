@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.util.FileUtil;
 import com.dtstack.rdos.engine.execution.flink120.constrant.ConfigConstrant;
 
 import org.apache.commons.lang3.StringUtils;
@@ -136,7 +135,7 @@ public class FlinkUtil {
 
     public static File downloadJar(String fromPath, String toPath) throws FileNotFoundException {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-        if(!FileUtil.downLoadFile(fromPath, localJarPath)){
+        if(!FlinkFileUtil120.downLoadFile(fromPath, localJarPath)){
             return null;
         }
 

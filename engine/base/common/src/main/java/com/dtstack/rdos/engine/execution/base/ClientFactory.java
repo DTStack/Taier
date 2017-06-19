@@ -40,7 +40,7 @@ public class ClientFactory {
     	pluginClassLoader.put(pluginType, classLoader);
         switch (pluginType){
         case "flink":
-        	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink.FlinkClient").newInstance());
+        	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
         	break;
         case "spark":
         	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
