@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink.sink.db;
+package com.dtstack.rdos.engine.execution.flink130.sink.db;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;

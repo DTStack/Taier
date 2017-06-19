@@ -39,9 +39,14 @@ public class ClientFactory {
 			ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
     	pluginClassLoader.put(pluginType, classLoader);
         switch (pluginType){
-        case "flink":
+        case "flink120":
         	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
         	break;
+        	
+        case "flink130":
+        	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink130.FlinkClient").newInstance());
+        	break;
+        	
         case "spark":
         	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
             break;

@@ -1,8 +1,8 @@
-package com.dtstack.rdos.engine.execution.flink.sink.db.mysql;
+package com.dtstack.rdos.engine.execution.flink130.sink.db.mysql;
 
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink.sink.IStreamSinkGener;
-import com.dtstack.rdos.engine.execution.flink.sink.db.DBSink;
+import com.dtstack.rdos.engine.execution.flink130.sink.IStreamSinkGener;
+import com.dtstack.rdos.engine.execution.flink130.sink.db.DBSink;
 import com.google.common.base.Preconditions;
 
 import java.util.Properties;

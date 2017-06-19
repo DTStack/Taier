@@ -1,6 +1,6 @@
-package com.dtstack.rdos.engine.execution.flink.source.kafka;
+package com.dtstack.rdos.engine.execution.flink130.source.kafka;
 
-import com.dtstack.rdos.engine.execution.flink.source.IStreamSourceGener;
+import com.dtstack.rdos.engine.execution.flink130.source.IStreamSourceGener;
 import com.google.common.base.Preconditions;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;

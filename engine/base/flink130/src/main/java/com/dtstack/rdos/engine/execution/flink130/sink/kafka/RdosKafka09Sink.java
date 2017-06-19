@@ -1,7 +1,7 @@
-package com.dtstack.rdos.engine.execution.flink.sink.kafka;
+package com.dtstack.rdos.engine.execution.flink130.sink.kafka;
 
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink.sink.IStreamSinkGener;
+import com.dtstack.rdos.engine.execution.flink130.sink.IStreamSinkGener;
 
 import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
 import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;

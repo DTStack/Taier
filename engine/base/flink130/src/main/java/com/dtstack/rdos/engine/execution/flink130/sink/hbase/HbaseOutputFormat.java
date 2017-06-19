@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink.sink.hbase;
+package com.dtstack.rdos.engine.execution.flink130.sink.hbase;
 
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;

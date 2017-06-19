@@ -1,7 +1,7 @@
-package com.dtstack.rdos.engine.execution.flink.sink.hbase;
+package com.dtstack.rdos.engine.execution.flink130.sink.hbase;
 
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink.sink.IStreamSinkGener;
+import com.dtstack.rdos.engine.execution.flink130.sink.IStreamSinkGener;
 
 /**
  * Created by sishu.yss on 2017/5/23.
