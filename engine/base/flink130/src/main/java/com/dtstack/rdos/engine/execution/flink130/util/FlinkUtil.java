@@ -41,6 +41,10 @@ public class FlinkUtil {
 
     private static String fileSP = File.separator;
 
+    private static String userDir = System.getProperty("user.dir");
+
+    private static String localFileDir = userDir + fileSP + "dsync";
+
     /**
      * 开启checkpoint
      * @param env
@@ -136,6 +140,12 @@ public class FlinkUtil {
     public static File downloadJar(String fromPath, String toPath) throws FileNotFoundException {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
         if(!FlinkFileUtil.downLoadFile(fromPath, localJarPath)){
+            //如果不是http 或者 hdfs协议的从本地读取
+            String localPath = localFileDir + fileSP + fromPath;
+            File localFile = new File(localPath);
+            if(localFile.exists()){
+                return localFile;
+            }
             return null;
         }
 
