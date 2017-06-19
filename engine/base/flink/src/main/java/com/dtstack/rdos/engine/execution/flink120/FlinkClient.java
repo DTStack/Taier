@@ -129,13 +129,13 @@ public class FlinkClient extends AbsClient {
      * 根据zk获取clusterclient
      * @param zkNamespace
      */
-    public void initClusterClientByZK(String zkNamespace, String root, String clusterId){
+    public void initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId){
         Configuration config = new Configuration();
         config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-        config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkNamespace);
+        config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkAddress);
 
-        if(root != null){//不设置默认值"/flink"
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, root);
+        if(zkNamespace != null){//不设置默认值"/flink"
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, zkNamespace);
         }
 
         if(clusterId != null){//不设置默认值"/default"
