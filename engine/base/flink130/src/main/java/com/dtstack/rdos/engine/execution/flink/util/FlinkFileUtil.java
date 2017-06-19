@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink120.util;
+package com.dtstack.rdos.engine.execution.flink.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.io.Files;
@@ -25,9 +25,9 @@ import java.util.regex.Pattern;
  * Company: www.dtstack.com
  * @ahthor xuchao
  */
-public class FlinkFileUtil120 {
+public class FlinkFileUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(FlinkFileUtil120.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlinkFileUtil.class);
 
     private static final int BUFFER_SIZE = 10240;
 

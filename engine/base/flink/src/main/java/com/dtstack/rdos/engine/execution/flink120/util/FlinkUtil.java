@@ -135,7 +135,7 @@ public class FlinkUtil {
 
     public static File downloadJar(String fromPath, String toPath) throws FileNotFoundException {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
-        if(!FlinkFileUtil120.downLoadFile(fromPath, localJarPath)){
+        if(!FlinkFileUtil.downLoadFile(fromPath, localJarPath)){
             return null;
         }
 
