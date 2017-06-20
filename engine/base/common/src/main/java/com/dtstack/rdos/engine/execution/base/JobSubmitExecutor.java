@@ -132,7 +132,7 @@ public class JobSubmitExecutor{
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
         }
     }
-    
+
     public Map<String,String> getJobMaster(){
     	final Map<String,String> jobMasters = Maps.newConcurrentMap();
     	clientMap.forEach((k,v)->{
@@ -199,9 +199,7 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try {
-                    if (EngineType.Flink120 == jobClient.getEngineType() || EngineType.Flink130 == jobClient.getEngineType() ||EngineType.Spark == jobClient.getEngineType()) {
-                        jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
-                    }
+                    jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                     Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
