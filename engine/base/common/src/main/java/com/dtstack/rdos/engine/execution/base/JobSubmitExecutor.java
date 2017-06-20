@@ -199,7 +199,7 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try {
-                    jobClient.setOperators(SqlParser.parser(jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType().getVal(),jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                     Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);

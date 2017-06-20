@@ -2,10 +2,12 @@ package com.dtstack.rdos.engine.execution.base.sql.parser;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
+
 import java.util.List;
 
 /**
@@ -21,20 +23,20 @@ public class SqlParser {
 //	private static Logger logger = LoggerFactory.getLogger(SqlParser.class);
 	
 	@SuppressWarnings("unchecked")
-	private static List<Class<? extends Operator>> streamOperatorClasses =
+	private static List<Class<? extends Operator>> flinkOperatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
                         CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class);
 
 	@SuppressWarnings("unchecked")
-	private static List<Class<? extends Operator>> batchOperatorClasses =
+	private static List<Class<? extends Operator>> sparkOperatorClasses =
 			Lists.newArrayList(BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class);
 
-	public static List<Operator> parser(int computeType,String sql) throws Exception{
+	public static List<Operator> parser(int engineType, int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
-        if(computeType == ComputeType.BATCH.getComputeType()){
-			operators = parserSql(sql,batchOperatorClasses);
-		}else if(computeType == ComputeType.STREAM.getComputeType()){
-			operators = parserSql(sql,streamOperatorClasses);
+        if(engineType == EngineType.Spark.getVal()){
+			operators = parserSql(sql,sparkOperatorClasses);
+		}else if(engineType == EngineType.Flink120.getVal()||engineType == EngineType.Flink130.getVal()){
+			operators = parserSql(sql,flinkOperatorClasses);
 		}
 		return operators;
 	}
