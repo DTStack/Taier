@@ -36,8 +36,9 @@ public class ApiCallbackMethod {
 			ResponseUtil.res200(context, objectMapper.writeValueAsString(apiResult));
 		} catch (Throwable e) {
 			apiResult.setCode(Code.FAIL.getType());
-			apiResult.setErrorMsg(e.getCause().toString());
-			logger.error("ApiCallbackMethod error:{}",e.getCause().toString());
+			String errMsg = e.getCause() != null ? e.getCause().toString() : e.getMessage();
+			apiResult.setErrorMsg(errMsg);
+			logger.error("ApiCallbackMethod error:{}", errMsg);
 			try {
 				ResponseUtil.res500(context, objectMapper.writeValueAsString(apiResult));
 			} catch (Throwable e1) {
