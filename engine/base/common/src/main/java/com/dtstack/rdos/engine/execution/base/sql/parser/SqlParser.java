@@ -29,7 +29,8 @@ public class SqlParser {
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> sparkOperatorClasses =
-			Lists.newArrayList(BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class);
+			Lists.newArrayList(BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class,
+					BatchAddJarOperator.class);
 
 	public static List<Operator> parser(int engineType, int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
