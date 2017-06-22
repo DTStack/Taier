@@ -36,8 +36,9 @@ public class OtherListener implements Runnable{
 				logger.warn("OtherListener start again...");
 				if(this.masterListener.isMaster()){
 					JobClient.getJobMaster().forEach((k,v)->{
-						rdosNodeMachineDAO.updateOneTypeMachineToSlave(k);
-						rdosNodeMachineDAO.insert(v, RdosNodeMachineType.MASTER.getType(),MachineAppType.getMachineAppType(k));
+						MachineAppType machineAppType = MachineAppType.getMachineAppType(k);
+						rdosNodeMachineDAO.updateOneTypeMachineToSlave(machineAppType.getType());
+						rdosNodeMachineDAO.insert(v, RdosNodeMachineType.MASTER.getType(),machineAppType);
 					});
 				}
 				Thread.sleep(listener);

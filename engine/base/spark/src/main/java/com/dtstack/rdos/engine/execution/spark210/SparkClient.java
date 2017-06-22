@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
@@ -11,13 +12,20 @@ import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunction
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.spark210.enums.Status;
 import com.google.common.base.Strings;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.rest.RestSubmissionClient;
 import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +47,11 @@ public class SparkClient extends AbsClient {
 
     private static final ObjectMapper objMapper = new ObjectMapper();
 
-    private static final String SPARK_MASTER_KEY = "sparkMaster";
-
-    private static final String SPARK_SQL_PROXY_JARPATH = "sparkSqlProxyPath";
-
-    private static final String SPARK_SQL_PROXY_MAINCLASS = "sparkSqlProxyMainClass";
+//    private static final String SPARK_MASTER_KEY = "sparkMaster";
+//
+//    private static final String SPARK_SQL_PROXY_JARPATH = "sparkSqlProxyPath";
+//
+//    private static final String SPARK_SQL_PROXY_MAINCLASS = "sparkSqlProxyMainClass";
 
     private static final String KEY_PRE_STR = "spark.";
 
@@ -53,31 +61,24 @@ public class SparkClient extends AbsClient {
     /**默认最多可以请求的CPU核心数*/
     private static final String DEFAULT_CORES_MAX = "2";
 
-    private String masterURL;
-
-    private String sqlProxyJarPath;
-
-    private String sqlProxyMainClass;
+    private SparkConfig sparkConfig;
 
     private String deployMode = "cluster";
 
     @Override
-    public void init(Properties prop) {
-        masterURL = prop.getProperty(SPARK_MASTER_KEY);
-        sqlProxyJarPath = prop.getProperty(SPARK_SQL_PROXY_JARPATH);
-        sqlProxyMainClass = prop.getProperty(SPARK_SQL_PROXY_MAINCLASS);
-
-        if(masterURL == null){
+    public void init(Properties prop) throws Exception {
+    	  sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
+        if(sparkConfig.getSparkMaster() == null){
             logger.error("you need to set sparkMaster when used spark engine.");
             throw new RdosException("you need to set sparkMaster when used spark engine.");
         }
 
-        if(sqlProxyJarPath == null){
+        if(sparkConfig.getSparkSqlProxyPath() == null){
             logger.error("you need to set sparkSqlProxyPath when used spark engine.");
             throw new RdosException("you need to set sparkSqlProxyPath when used spark engine.");
         }
 
-        if(sqlProxyMainClass == null){
+        if(sparkConfig.getSparkSqlProxyMainClass() == null){
             logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
             throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
@@ -120,7 +121,7 @@ public class SparkClient extends AbsClient {
         }
 
         SparkConf sparkConf = new SparkConf();
-        sparkConf.setMaster(masterURL);
+        sparkConf.setMaster(sparkConfig.getSparkMaster());
         sparkConf.set("spark.submit.deployMode", deployMode);
         sparkConf.setAppName(appName);
         sparkConf.set("spark.jars", jarPath);
@@ -214,13 +215,13 @@ public class SparkClient extends AbsClient {
 
         String[] appArgs = new String[]{sqlExeJson};
         SparkConf sparkConf = new SparkConf();
-        sparkConf.setMaster(masterURL);
+        sparkConf.setMaster(sparkConfig.getSparkMaster());
         sparkConf.set("spark.submit.deployMode", deployMode);
         sparkConf.setAppName(jobClient.getJobName());
-        sparkConf.set("spark.jars", sqlProxyJarPath);
+        sparkConf.set("spark.jars", sparkConfig.getSparkSqlProxyPath());
         sparkConf.set("spark.driver.supervise", "false");
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
-        SubmitRestProtocolResponse response = RestSubmissionClient.run(sqlProxyJarPath, sqlProxyMainClass,
+        SubmitRestProtocolResponse response = RestSubmissionClient.run(sparkConfig.getSparkSqlProxyPath(), sparkConfig.getSparkSqlProxyMainClass(),
                 appArgs, sparkConf, new scala.collection.immutable.HashMap<String, String>());
        return processRemoteResponse(response);
     }
@@ -274,7 +275,7 @@ public class SparkClient extends AbsClient {
     public JobResult cancelJob(ParamAction paramAction) {
         String jobId = paramAction.getEngineTaskId();
 
-        RestSubmissionClient restSubmissionClient = new RestSubmissionClient(masterURL);
+        RestSubmissionClient restSubmissionClient = new RestSubmissionClient(sparkConfig.getSparkMaster());
         SubmitRestProtocolResponse response = restSubmissionClient.killSubmission(jobId);
         String responseStr = response.toJson();
         if(Strings.isNullOrEmpty(responseStr)){
@@ -303,7 +304,7 @@ public class SparkClient extends AbsClient {
     	if(StringUtils.isBlank(jobId)){
     		return null;
     	}
-        RestSubmissionClient restSubmissionClient = new RestSubmissionClient(masterURL);
+        RestSubmissionClient restSubmissionClient = new RestSubmissionClient(sparkConfig.getSparkMaster());
         SubmitRestProtocolResponse response = restSubmissionClient.requestSubmissionStatus(jobId, false);
         String responseStr = response.toJson();
         if(Strings.isNullOrEmpty(responseStr)){
@@ -328,6 +329,24 @@ public class SparkClient extends AbsClient {
 	@Override
 	public String getJobMaster() {
 		// TODO Auto-generated method stub
+//		String webMaster = sparkConfig.getSparkWebMaster();
+		String webMaster = "172.16.10.135:8080,172.16.10.136:8080";
+		String[] webs = webMaster.split(",");
+		for(String web:webs){
+			String html = PoolHttpClient.get(String.format("http://%s", web));
+			Document doc = Jsoup.parse(html);
+			Elements unstyled = doc.getElementsByClass("unstyled");
+			Elements lis = unstyled.first().getElementsByTag("li");
+			String status = lis.last().text();
+			if(status!=null){
+				String[] ss = status.split(":");
+				if(ss.length==2){
+					if(Status.ALIVE.name().equals(ss[1].trim())){
+						return web;
+					}
+				}
+			}
+		}
 		return null;
 	}
 }

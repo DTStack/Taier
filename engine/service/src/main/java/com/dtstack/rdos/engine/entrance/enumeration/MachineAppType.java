@@ -4,7 +4,8 @@ package com.dtstack.rdos.engine.entrance.enumeration;
  * Created by sishu.yss on 2017/5/22.
  */
 public enum MachineAppType {
-    ENGINE("engine"),WEB("web"),FLINK("flink"),SPARK("spark"),DATAX("datax");
+	
+    ENGINE("engine"),WEB("web"),FLINK120("flink"),FLINK130("flink"),SPARK("spark"),DATAX("datax");
 
     private String type;
 
@@ -19,7 +20,7 @@ public enum MachineAppType {
     public static MachineAppType getMachineAppType(String type){
     	MachineAppType[] machineAppTypes = MachineAppType.values();
     	for(MachineAppType machineAppType:machineAppTypes){
-    		if(machineAppType.getType().equals(type)){
+    		if(machineAppType.name().toLowerCase().equals(type)){
     			return machineAppType;
     		}
     	}
