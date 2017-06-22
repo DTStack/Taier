@@ -93,7 +93,7 @@ public class TaskStatusListener implements Runnable{
 									if(rdosTaskStatus!=null){
 										Integer status = rdosTaskStatus.getStatus();
 										zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
-										rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+										rdosbatchJobDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
 									}
 								}
 							}

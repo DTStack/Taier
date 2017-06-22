@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import org.apache.commons.lang3.StringUtils;
 
 public class BatchCreateFunctionOperator implements Operator{
 
@@ -25,7 +26,8 @@ public class BatchCreateFunctionOperator implements Operator{
     @Override
     public void createOperator(String sql) throws Exception {
         this.sql = sql;
-		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
+        String uppserSql = StringUtils.upperCase(sql);
+		Map<String,Object> result =GrokUtil.toMap(pattern, uppserSql);
 		this.type = (String)result.get("type");
         this.name = (String)result.get("name");
         this.className = (String)result.get("className");
