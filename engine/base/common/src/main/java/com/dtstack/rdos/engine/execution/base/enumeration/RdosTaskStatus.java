@@ -38,6 +38,6 @@ public enum RdosTaskStatus {
        if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.FAILED.status||sta == RdosTaskStatus.SUBMITFAILD.status){
     	   return true;
        }   
-    	return false;
+       return false;
     }
 }
