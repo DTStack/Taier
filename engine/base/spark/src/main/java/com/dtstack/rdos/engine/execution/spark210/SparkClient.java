@@ -14,21 +14,16 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.spark210.enums.Status;
 import com.google.common.base.Strings;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.rest.RestSubmissionClient;
 import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,12 +41,6 @@ public class SparkClient extends AbsClient {
     private static final Logger logger = LoggerFactory.getLogger(SparkClient.class);
 
     private static final ObjectMapper objMapper = new ObjectMapper();
-
-//    private static final String SPARK_MASTER_KEY = "sparkMaster";
-//
-//    private static final String SPARK_SQL_PROXY_JARPATH = "sparkSqlProxyPath";
-//
-//    private static final String SPARK_SQL_PROXY_MAINCLASS = "sparkSqlProxyMainClass";
 
     private static final String KEY_PRE_STR = "spark.";
 
@@ -71,6 +60,11 @@ public class SparkClient extends AbsClient {
         if(sparkConfig.getSparkMaster() == null){
             logger.error("you need to set sparkMaster when used spark engine.");
             throw new RdosException("you need to set sparkMaster when used spark engine.");
+        }
+        
+        if(sparkConfig.getSparkWebMaster() == null){
+            logger.error("you need to set sparkWebMaster when used spark engine.");
+            throw new RdosException("you need to set sparkWebMaster when used spark engine.");
         }
 
         if(sparkConfig.getSparkSqlProxyPath() == null){
@@ -329,8 +323,7 @@ public class SparkClient extends AbsClient {
 	@Override
 	public String getJobMaster() {
 		// TODO Auto-generated method stub
-//		String webMaster = sparkConfig.getSparkWebMaster();
-		String webMaster = "172.16.10.135:8080,172.16.10.136:8080";
+		String webMaster = sparkConfig.getSparkWebMaster();
 		String[] webs = webMaster.split(",");
 		for(String web:webs){
 			String html = PoolHttpClient.get(String.format("http://%s", web));

@@ -80,7 +80,7 @@ public class DtClassLoader extends URLClassLoader {
             }
 
 
-            boolean delegateLoad = delegate || filter(name, true);
+            boolean delegateLoad = delegate; //|| filter(name, true);
 
             // (1) Delegate to our parent if requested
             if (delegateLoad) {
@@ -208,78 +208,78 @@ public class DtClassLoader extends URLClassLoader {
         if (name == null)
             return false;
 
-        char ch;
-        if (name.startsWith("javax")) {
-            /* 5 == length("javax") */
-            if (name.length() == 5) {
-                return false;
-            }
-            ch = name.charAt(5);
-            if (isClassName && ch == '.') {
-                /* 6 == length("javax.") */
-                if (name.startsWith("servlet.jsp.jstl.", 6)) {
-                    return false;
-                }
-                if (name.startsWith("el.", 6) ||
-                        name.startsWith("servlet.", 6) ||
-                        name.startsWith("websocket.", 6) ||
-                        name.startsWith("security.auth.message.", 6)) {
-                    return true;
-                }
-            } else if (!isClassName && ch == '/') {
-                /* 6 == length("javax/") */
-                if (name.startsWith("servlet/jsp/jstl/", 6)) {
-                    return false;
-                }
-                if (name.startsWith("el/", 6) ||
-                        name.startsWith("servlet/", 6) ||
-                        name.startsWith("websocket/", 6) ||
-                        name.startsWith("security/auth/message/", 6)) {
-                    return true;
-                }
-            }
-        } else if (name.startsWith("org")) {
-            /* 3 == length("org") */
-            if (name.length() == 3) {
-                return false;
-            }
-            ch = name.charAt(3);
-            if (isClassName && ch == '.') {
-                /* 4 == length("org.") */
-                if (name.startsWith("apache.", 4)) {
-                    /* 11 == length("org.apache.") */
-                    if (name.startsWith("tomcat.jdbc.", 11)) {
-                        return false;
-                    }
-                    if (name.startsWith("el.", 11) ||
-                            name.startsWith("catalina.", 11) ||
-                            name.startsWith("jasper.", 11) ||
-                            name.startsWith("juli.", 11) ||
-                            name.startsWith("tomcat.", 11) ||
-                            name.startsWith("naming.", 11) ||
-                            name.startsWith("coyote.", 11)) {
-                        return true;
-                    }
-                }
-            } else if (!isClassName && ch == '/') {
-                /* 4 == length("org/") */
-                if (name.startsWith("apache/", 4)) {
-                    /* 11 == length("org/apache/") */
-                    if (name.startsWith("tomcat/jdbc/", 11)) {
-                        return false;
-                    }
-                    if (name.startsWith("el/", 11) ||
-                            name.startsWith("catalina/", 11) ||
-                            name.startsWith("jasper/", 11) ||
-                            name.startsWith("juli/", 11) ||
-                            name.startsWith("tomcat/", 11) ||
-                            name.startsWith("naming/", 11) ||
-                            name.startsWith("coyote/", 11)) {
-                        return true;
-                    }
-                }
-            }
-        }
+//        char ch;
+//        if (name.startsWith("javax")) {
+//            /* 5 == length("javax") */
+//            if (name.length() == 5) {
+//                return false;
+//            }
+//            ch = name.charAt(5);
+//            if (isClassName && ch == '.') {
+//                /* 6 == length("javax.") */
+//                if (name.startsWith("servlet.jsp.jstl.", 6)) {
+//                    return false;
+//                }
+//                if (name.startsWith("el.", 6) ||
+//                        name.startsWith("servlet.", 6) ||
+//                        name.startsWith("websocket.", 6) ||
+//                        name.startsWith("security.auth.message.", 6)) {
+//                    return true;
+//                }
+//            } else if (!isClassName && ch == '/') {
+//                /* 6 == length("javax/") */
+//                if (name.startsWith("servlet/jsp/jstl/", 6)) {
+//                    return false;
+//                }
+//                if (name.startsWith("el/", 6) ||
+//                        name.startsWith("servlet/", 6) ||
+//                        name.startsWith("websocket/", 6) ||
+//                        name.startsWith("security/auth/message/", 6)) {
+//                    return true;
+//                }
+//            }
+//        } else if (name.startsWith("org")) {
+//            /* 3 == length("org") */
+//            if (name.length() == 3) {
+//                return false;
+//            }
+//            ch = name.charAt(3);
+//            if (isClassName && ch == '.') {
+//                /* 4 == length("org.") */
+//                if (name.startsWith("apache.", 4)) {
+//                    /* 11 == length("org.apache.") */
+//                    if (name.startsWith("tomcat.jdbc.", 11)) {
+//                        return false;
+//                    }
+//                    if (name.startsWith("el.", 11) ||
+//                            name.startsWith("catalina.", 11) ||
+//                            name.startsWith("jasper.", 11) ||
+//                            name.startsWith("juli.", 11) ||
+//                            name.startsWith("tomcat.", 11) ||
+//                            name.startsWith("naming.", 11) ||
+//                            name.startsWith("coyote.", 11)) {
+//                        return true;
+//                    }
+//                }
+//            } else if (!isClassName && ch == '/') {
+//                /* 4 == length("org/") */
+//                if (name.startsWith("apache/", 4)) {
+//                    /* 11 == length("org/apache/") */
+//                    if (name.startsWith("tomcat/jdbc/", 11)) {
+//                        return false;
+//                    }
+//                    if (name.startsWith("el/", 11) ||
+//                            name.startsWith("catalina/", 11) ||
+//                            name.startsWith("jasper/", 11) ||
+//                            name.startsWith("juli/", 11) ||
+//                            name.startsWith("tomcat/", 11) ||
+//                            name.startsWith("naming/", 11) ||
+//                            name.startsWith("coyote/", 11)) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
         return false;
     }
 

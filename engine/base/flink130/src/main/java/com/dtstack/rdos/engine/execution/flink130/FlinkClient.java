@@ -20,7 +20,6 @@ import com.dtstack.rdos.engine.execution.flink130.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink130.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink130.util.FlinkUtil;
 import com.google.common.collect.Lists;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -47,7 +46,6 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -78,8 +76,6 @@ public class FlinkClient extends AbsClient {
     //FIXME key值需要根据客户端传输名称调整
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-//    public static final String FILE_TMP_PATH_KEY = "jarTmpDir";
-
     public String tmpFileDirPath;
 
     private String jobMgrHost;
@@ -148,11 +144,11 @@ public class FlinkClient extends AbsClient {
 
         //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
         InetSocketAddress address = clusterClient.getJobManagerAddress();
-        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getAddress().getHostAddress());
-        config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
+    config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getAddress().getHostAddress());
+    config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
 
-        client = clusterClient;
-    }
+    client = clusterClient;
+}
 
     public void init(Properties prop) throws Exception {
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
@@ -454,7 +450,7 @@ public class FlinkClient extends AbsClient {
         }catch (Exception e){
             //FIXME 如果查询不到就返回失败,因为有可能数据被flink清除了
             if(e instanceof RdosException && (HttpStatus.SC_NOT_FOUND + "").equals(((RdosException) e).getErrorMessage())){
-                return RdosTaskStatus.CANCELED;
+                return RdosTaskStatus.FINISHED;
             }else{
                 throw e;
             }
