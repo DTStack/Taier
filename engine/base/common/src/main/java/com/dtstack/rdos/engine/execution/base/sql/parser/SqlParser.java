@@ -7,6 +7,7 @@ import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -51,7 +52,8 @@ public class SqlParser {
 			boolean result = false;
 			for(Class<? extends Operator> operatorClass :operatorClasses){
 		    	Object obj = operatorClass.newInstance();
-				result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(obj, cql);
+		    	String upperCQL = StringUtils.upperCase(cql);
+				result = result || (boolean) operatorClass.getMethod("verific", String.class).invoke(obj, upperCQL);
 			    if(result){
 			    	operatorClass.getMethod("createOperator", String.class).invoke(obj, cql);
 			    	operators.add((Operator) obj);

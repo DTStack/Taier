@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 
@@ -28,7 +29,8 @@ public class BatchCreateTable implements Operator{
 	public void createOperator(String sql) throws Exception {
 		// TODO Auto-generated method stub
 		this.sql = sql;
-		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
+		String uppserSql = StringUtils.upperCase(sql);
+		Map<String,Object> result =GrokUtil.toMap(pattern, uppserSql);
         this.name = (String)result.get("name");
 		if(tableNamePattern.matcher(this.name).find()){
             throw  new RdosException("table name format error");

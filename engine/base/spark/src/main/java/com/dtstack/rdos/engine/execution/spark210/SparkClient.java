@@ -179,22 +179,13 @@ public class SparkClient extends AbsClient {
         }
 
         StringBuffer sb = new StringBuffer("");
-        StringBuffer funcSb = new StringBuffer("");
         for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof BatchExecutionOperator){
-                String tmpSql = ((BatchExecutionOperator) operator).getSql();
-                sb.append(tmpSql)
-                  .append(";");
-            }
-
-            if(operator instanceof BatchCreateFunctionOperator){
-                String tmpSql = ((BatchCreateFunctionOperator)operator).getSql();
-                funcSb.append(tmpSql)
-                      .append(";");
-            }
+            String tmpSql = operator.getSql();
+            sb.append(tmpSql)
+                    .append(";");
         }
 
-        String exeSql = funcSb.toString() + sb.toString();
+        String exeSql = sb.toString();
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("sql", exeSql);
         paramsMap.put("appName", jobClient.getJobName());
