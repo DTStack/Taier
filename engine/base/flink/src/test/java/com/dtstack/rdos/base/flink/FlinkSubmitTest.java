@@ -27,10 +27,10 @@ public class FlinkSubmitTest {
 
         List<Map<String, Object>> engineList = new ArrayList<>();
         Map<String, Object> flinkEngine = Maps.newHashMap();
-        flinkEngine.put("typeName", "flink");
-        flinkEngine.put("engineZkAddress", "172.16.1.151");
-        flinkEngine.put("engineZkNamespace", "/flink");
-        flinkEngine.put("engineClusterId", "default");
+        flinkEngine.put("typeName", "flink120");
+        flinkEngine.put("flinkZkAddress", "172.16.1.151");
+        flinkEngine.put("flinkZkNamespace", "/flink");
+        flinkEngine.put("flinkClusterId", "default");
         flinkEngine.put("jarTmpDir", "D:\\tmp");
 
         engineList.add(flinkEngine);
