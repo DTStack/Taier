@@ -5,6 +5,7 @@ import java.util.Properties;
 import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 
@@ -46,7 +47,8 @@ public class CreateSourceOperator implements Operator{
 	public void createOperator(String sql) throws Exception{
 		// TODO Auto-generated method stub
 		this.sql = sql;
-		Map<String,Object> result = GrokUtil.toMap(pattern, sql);
+		String upperSql = StringUtils.upperCase(sql);
+		Map<String,Object> result = GrokUtil.toMap(pattern, upperSql);
 		this.name = (String)result.get("name");
 		setFieldsAndFieldTypes((String)result.get("fields"));
 		setTypeAndProperties((String)result.get("properties"));
@@ -80,7 +82,8 @@ public class CreateSourceOperator implements Operator{
 	}
 	
 	public boolean verific(String sql) throws Exception{
-		return GrokUtil.isSuccess(pattern, sql);
+		String uppserSql = StringUtils.upperCase(sql);
+		return GrokUtil.isSuccess(pattern, uppserSql);
 	}
 	
 	public Properties getProperties() {

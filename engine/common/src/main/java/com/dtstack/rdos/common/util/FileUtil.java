@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @ahthor xuchao
  */
 public class FileUtil {
-
+//
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     private static final int BUFFER_SIZE = 10240;

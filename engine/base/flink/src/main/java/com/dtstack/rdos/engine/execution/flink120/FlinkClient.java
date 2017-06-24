@@ -458,7 +458,7 @@ public class FlinkClient extends AbsClient {
         }catch (Exception e){
             //FIXME 如果查询不到就返回失败,因为有可能数据被flink清除了
             if(e instanceof RdosException && (HttpStatus.SC_NOT_FOUND + "").equals(((RdosException) e).getErrorMessage())){
-                return RdosTaskStatus.CANCELED;
+                return RdosTaskStatus.FINISHED;
             }else{
                 throw e;
             }
@@ -575,4 +575,9 @@ public class FlinkClient extends AbsClient {
         return properties;
     }
 
+    @Override
+    public JobResult submitSyncJob(JobClient jobClient) {
+        //使用flink作为数据同步调用的其实是提交mr--job
+        return submitJobWithJar(jobClient);
+    }
 }

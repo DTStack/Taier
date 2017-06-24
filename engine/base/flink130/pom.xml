@@ -60,6 +60,12 @@
 			<artifactId>base.common</artifactId>
 			<version>1.0.0</version>
 	        <scope>provided</scope>
+	        <exclusions>
+	        	<exclusion>
+	        		<artifactId>hadoop-common</artifactId>
+	        		<groupId>org.apache.hadoop</groupId>
+	        	</exclusion>
+	        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.flink</groupId>

@@ -19,20 +19,16 @@ import io.vertx.ext.web.handler.CorsHandler;
  */
 public class ServerVerticle extends AbstractVerticle{
 	
-	private String host="0.0.0.0";
+	private static String host = "0.0.0.0";
 	
-	private int port;
+	private static int port;
 	
-	
-	public ServerVerticle(String host, int port) {
-		// TODO Auto-generated constructor stub
-	}
-
-	public ServerVerticle(Map<String, Object> nodeConfig) {
+	public static void setHostPort(Map<String, Object> nodeConfig){
 		String localAddress = (String) nodeConfig.get("localAddress");
-		this.host = (String) HttpCommon.getUrlPort(localAddress)[0];
-		this.port  = (Integer) HttpCommon.getUrlPort(localAddress)[1];
+		host = (String) HttpCommon.getUrlPort(localAddress)[0];
+		port  = (Integer) HttpCommon.getUrlPort(localAddress)[1];
 	}
+	
 	
 
 	@Override

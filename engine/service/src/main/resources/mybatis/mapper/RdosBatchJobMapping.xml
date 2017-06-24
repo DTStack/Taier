@@ -22,7 +22,7 @@
    </update>
    
    <update id="updateJobEngineId" parameterType="java.util.HashMap">
-	   update rdos_batch_job set gmt_modified=now(),engine_job_id=#{engineId} where task_id=#{jobId};
+	   update rdos_batch_job set gmt_modified=now(),engine_job_id=#{engineId} where job_id=#{jobId};
    </update>
    
    <update id="updateJobEngineIdAndStatus" parameterType="java.util.HashMap">

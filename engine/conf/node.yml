@@ -12,15 +12,16 @@ engineTypes:
         flinkHighAvailabilityStorageDir: hdfs://172.16.10.135:9000/flink/ha
         jarTmpDir: ../tmp
 
-    -    
-        typeName: datax
-        dataxSSHAddress: 172.16.1.155 #可以多个
-        userName: root
-        password: abc123 #可以不填 打通ssh免登陆
-        dataxBinDir: /opt/dtstack/datax/bin
+ #   -    
+ #       typeName: datax
+ #       dataxSSHAddress: 172.16.1.155 #可以多个
+ #       userName: root
+ #       password: abc123 #可以不填 打通ssh免登陆
+ #       dataxBinDir: /opt/dtstack/datax/bin
 
     -
         typeName: spark
+        sparkWebMaster: 172.16.10.136:8080,172.16.10.135:8080
         sparkMaster: spark://172.16.1.65:7077
         sparkSqlProxyPath: hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
         sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
