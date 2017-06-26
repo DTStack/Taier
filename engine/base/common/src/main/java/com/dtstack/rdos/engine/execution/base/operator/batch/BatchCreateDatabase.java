@@ -30,7 +30,8 @@ public class BatchCreateDatabase implements Operator{
 	}
 
     public boolean verific(String sql) throws Exception{
-        return GrokUtil.isSuccess(pattern, sql);
+		String uppserSql = StringUtils.upperCase(sql);
+        return GrokUtil.isSuccess(pattern, uppserSql);
     }
 
 	@Override

@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.base.operator.stream;
 import java.util.Map;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 
@@ -32,7 +33,8 @@ public class CreateFunctionOperator implements Operator{
 	public void createOperator(String sql) throws Exception {
 		// TODO Auto-generated method stub
 		this.sql = sql;
-		Map<String,Object> result = GrokUtil.toMap(pattern, sql);
+		String upperSql = StringUtils.upperCase(sql);
+		Map<String,Object> result = GrokUtil.toMap(pattern, upperSql);
 		this.name = (String)result.get("name");
 		this.className = (String)result.get("className");
 		this.type = (String)result.get("type");
@@ -40,7 +42,8 @@ public class CreateFunctionOperator implements Operator{
 
 	
 	public  boolean verific(String sql) throws Exception{
-		return GrokUtil.isSuccess(pattern, sql);
+		String uppserSql = StringUtils.upperCase(sql);
+		return GrokUtil.isSuccess(pattern, uppserSql);
 	}
 
 	public String getName() {

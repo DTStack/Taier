@@ -32,7 +32,7 @@ public class BatchCreateTable implements Operator{
 		String uppserSql = StringUtils.upperCase(sql);
 		Map<String,Object> result =GrokUtil.toMap(pattern, uppserSql);
         this.name = (String)result.get("name");
-		if(tableNamePattern.matcher(this.name).find()){
+		if(!tableNamePattern.matcher(this.name).find()){
             throw  new RdosException("table name format error");
 		}
         this.type = (String)result.get("type");
@@ -40,8 +40,8 @@ public class BatchCreateTable implements Operator{
 
 	@Override
 	public boolean verific(String sql) throws Exception {
-		// TODO Auto-generated method stub
-        return GrokUtil.isSuccess(pattern, sql);
+		String uppserSql = StringUtils.upperCase(sql);
+        return GrokUtil.isSuccess(pattern, uppserSql);
 	}
 
 	@Override
