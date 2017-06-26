@@ -30,12 +30,12 @@ public class SqlParser {
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> sparkOperatorClasses =
-			Lists.newArrayList(BatchCreateTable.class,BatchCreateTableIfNotExists.class,BatchExecutionOperator.class,
+			Lists.newArrayList(BatchCanExecuteOperator.class,
 					BatchAddJarOperator.class);
 
 	public static List<Operator> parser(int engineType, int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
-        if(engineType == EngineType.Spark.getVal()){
+        if(engineType == EngineType.Spark.getVal()&&computeType ==ComputeType.BATCH.getComputeType()){
 			operators = parserSql(sql,sparkOperatorClasses);
 		}else if(engineType == EngineType.Flink120.getVal()||engineType == EngineType.Flink130.getVal()){
 			operators = parserSql(sql,flinkOperatorClasses);
