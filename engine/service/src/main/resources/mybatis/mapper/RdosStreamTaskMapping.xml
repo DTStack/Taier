@@ -6,6 +6,8 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
         <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result column="exec_start_time" property="execStartTime" jdbcType="TIMESTAMP"/>
+        <result column="exec_end_time" property="execEndTime" jdbcType="TIMESTAMP"/>
         <result column="task_id" property="taskId" jdbcType="VARCHAR" />
         <result column="engine_task_id" property="engineTaskId" jdbcType="VARCHAR" />
         <result column="name" property="name" jdbcType="VARCHAR" />
@@ -28,11 +30,11 @@
    </update>
    
    <update id="updateTaskEngineId" parameterType="java.util.HashMap">
-	   update rdos_stream_task set gmt_modified=now(),engine_task_id=#{engineId} where task_id=#{taskId};
+	   update rdos_stream_task set gmt_modified=now(),exec_start_time=now(),exec_end_time=now(),engine_task_id=#{engineId} where task_id=#{taskId};
    </update>
    
    <update id="updateTaskEngineIdAndStatus" parameterType="java.util.HashMap">
-	   update rdos_stream_task set gmt_modified=now(),engine_task_id=#{engineId},status=#{status} where task_id=#{taskId};
+	   update rdos_stream_task set gmt_modified=now(),exec_end_time=now(),engine_task_id=#{engineId},status=#{status} where task_id=#{taskId};
    </update>
    
    <select id="getRdosTaskByTaskId" parameterType="java.util.HashMap" resultMap="rdosTaskResult">

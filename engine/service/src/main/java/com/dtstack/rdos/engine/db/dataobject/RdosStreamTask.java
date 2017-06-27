@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.db.dataobject;
 
+import java.util.Date;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -66,7 +68,11 @@ public class RdosStreamTask extends TenantProjectObject{
      */
     private Long createUserId;
     
-    private Long version;    
+    private Long version;
+
+	private Date execStartTime;
+
+	private Date execEndTime;
 
 	public String getTaskId() {
 		return taskId;
@@ -162,5 +168,21 @@ public class RdosStreamTask extends TenantProjectObject{
 
 	public void setEngineType(Byte engineType) {
 		this.engineType = engineType;
+	}
+
+	public Date getExecStartTime() {
+		return execStartTime;
+	}
+
+	public void setExecStartTime(Date execStartTime) {
+		this.execStartTime = execStartTime;
+	}
+
+	public Date getExecEndTime() {
+		return execEndTime;
+	}
+
+	public void setExecEndTime(Date execEndTime) {
+		this.execEndTime = execEndTime;
 	}
 }
