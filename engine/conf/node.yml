@@ -22,6 +22,6 @@ engineTypes:
     -
         typeName: spark
         sparkWebMaster: 172.16.10.136:8080,172.16.10.135:8080
-        sparkMaster: spark://172.16.1.65:7077
+        sparkMaster: spark://172.16.10.135:6066,172.16.10.136:6066
         sparkSqlProxyPath: hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
         sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
