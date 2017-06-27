@@ -39,8 +39,7 @@ public class AddJarOperator implements Operator{
 	public void createOperator(String sql)throws Exception {
 		// TODO Auto-generated method stub
 		this.sql = sql;
-		String uppserSql = StringUtils.upperCase(sql);
-		Map<String,Object> result =GrokUtil.toMap(pattern, uppserSql);
+		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.jarPath = (String)result.get("path");
 	}
 	

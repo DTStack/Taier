@@ -24,8 +24,7 @@ public class BatchCreateDatabase implements Operator{
 	public void createOperator(String sql) throws Exception {
 
 		this.sql = sql;
-		String uppserSql = StringUtils.upperCase(sql);
-		Map<String,Object> result =GrokUtil.toMap(pattern, uppserSql);
+		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
         this.name = (String)result.get("name");
 	}
 

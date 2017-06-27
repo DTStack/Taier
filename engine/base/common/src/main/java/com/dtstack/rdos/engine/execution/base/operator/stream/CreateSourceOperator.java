@@ -47,8 +47,7 @@ public class CreateSourceOperator implements Operator{
 	public void createOperator(String sql) throws Exception{
 		// TODO Auto-generated method stub
 		this.sql = sql;
-		String upperSql = StringUtils.upperCase(sql);
-		Map<String,Object> result = GrokUtil.toMap(pattern, upperSql);
+		Map<String,Object> result = GrokUtil.toMap(pattern, sql);
 		this.name = (String)result.get("name");
 		setFieldsAndFieldTypes((String)result.get("fields"));
 		setTypeAndProperties((String)result.get("properties"));
