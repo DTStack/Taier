@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.db.dataobject;
 
 
+import java.util.Date;
+
 /**
  * 
  * @author sishu.yss
@@ -45,6 +47,10 @@ public class RdosBatchJob extends TenantProjectObject{
 	     * 业务日期 yyyymmddhhmmss
 	     */
 	    private String businessDate;
+
+		private Date execStartTime;
+
+		private Date execEndTime;
 
 		public String getJobId() {
 			return jobId;
@@ -102,4 +108,19 @@ public class RdosBatchJob extends TenantProjectObject{
 			this.businessDate = businessDate;
 		}
 
+	public Date getExecStartTime() {
+		return execStartTime;
+	}
+
+	public void setExecStartTime(Date execStartTime) {
+		this.execStartTime = execStartTime;
+	}
+
+	public Date getExecEndTime() {
+		return execEndTime;
+	}
+
+	public void setExecEndTime(Date execEndTime) {
+		this.execEndTime = execEndTime;
+	}
 }

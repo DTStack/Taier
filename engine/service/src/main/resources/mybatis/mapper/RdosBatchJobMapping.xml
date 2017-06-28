@@ -6,6 +6,8 @@
         <id column="id" property="id" jdbcType="BIGINT" />
         <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
         <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result column="exec_start_time" property="execStartTime" jdbcType="TIMESTAMP"/>
+        <result column="exec_end_time" property="execEndTime" jdbcType="TIMESTAMP"/>
         <result column="job_id" property="jobId" jdbcType="VARCHAR" />
         <result column="engine_job_id" property="engineJobId" jdbcType="VARCHAR" />
         <result column="business_date" property="businessDate" jdbcType="VARCHAR" />
@@ -22,11 +24,11 @@
    </update>
    
    <update id="updateJobEngineId" parameterType="java.util.HashMap">
-	   update rdos_batch_job set gmt_modified=now(),engine_job_id=#{engineId} where job_id=#{jobId};
+	   update rdos_batch_job set gmt_modified=now(),exec_start_time=now(),exec_end_time=now(),engine_job_id=#{engineId} where job_id=#{jobId};
    </update>
    
    <update id="updateJobEngineIdAndStatus" parameterType="java.util.HashMap">
-	   update rdos_batch_job set gmt_modified=now(),engine_job_id=#{engineId},status=#{status} where job_id=#{jobId};
+	   update rdos_batch_job set gmt_modified=now(),exec_end_time=now(),engine_job_id=#{engineId},status=#{status} where job_id=#{jobId};
    </update>
    
    <select id="getRdosJobByJobId" parameterType="java.util.HashMap" resultMap="rdosTaskResult">

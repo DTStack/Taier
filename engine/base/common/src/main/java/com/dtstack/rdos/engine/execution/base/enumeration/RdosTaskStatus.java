@@ -11,7 +11,7 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
 public enum RdosTaskStatus {
 
 	UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8), SUBMITFAILD(9),
-	SUBMITTING(10), RESTARTING(11);
+	SUBMITTING(10), RESTARTING(11), MANUALSUCCESS(12), KILLED(13);
 	
 	private int status;
 	
@@ -35,7 +35,8 @@ public enum RdosTaskStatus {
     public static boolean needClean(Byte status){
         int sta = status.intValue(); 
        //sta==RdosTaskStatus.CANCELED.status  临时取消batch分支上改
-       if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.FAILED.status||sta == RdosTaskStatus.SUBMITFAILD.status){
+       if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.FAILED.status||sta == RdosTaskStatus.SUBMITFAILD.status
+			   || sta == RdosTaskStatus.KILLED.status){
     	   return true;
        }   
        return false;

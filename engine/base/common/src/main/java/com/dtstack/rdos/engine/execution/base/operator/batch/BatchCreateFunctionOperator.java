@@ -26,8 +26,7 @@ public class BatchCreateFunctionOperator implements Operator{
     @Override
     public void createOperator(String sql) throws Exception {
         this.sql = sql;
-        String uppserSql = StringUtils.upperCase(sql);
-		Map<String,Object> result =GrokUtil.toMap(pattern, uppserSql);
+		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.type = (String)result.get("type");
         this.name = (String)result.get("name");
         this.className = (String)result.get("className");
