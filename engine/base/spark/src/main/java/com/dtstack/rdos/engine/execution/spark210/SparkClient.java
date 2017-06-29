@@ -8,8 +8,6 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateFunctionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.spark210.enums.Status;
@@ -49,6 +47,9 @@ public class SparkClient extends AbsClient {
 
     /**默认最多可以请求的CPU核心数*/
     private static final String DEFAULT_CORES_MAX = "2";
+
+    /**失败后是否重启Driver，仅限于Spark Alone模式*/
+    private static final String DEFAULT_SUPERVISE = "false";
 
     private SparkConfig sparkConfig;
 
@@ -221,7 +222,7 @@ public class SparkClient extends AbsClient {
 
         sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM); //默认执行内存
         sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);  //默认请求的cpu核心数
-        sparkConf.set("spark.driver.supervise", "false");
+        sparkConf.set("spark.driver.supervise",DEFAULT_SUPERVISE);
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
