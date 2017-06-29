@@ -15,7 +15,7 @@ public class BatchCanExecuteOperator implements Operator {
     private static List<Pattern> cantnotPatterns = Lists.newArrayList();
 
     private static List<String> cannotExecuteSql = Lists.newArrayList("CREATE\\s+DATABASE","CREATE\\s+SCHEMA",
-            "DROP\\s+DATABASE","DROP\\s+SCHEMA","ALTER\\s+SCHEMA","ALTER\\s+DATABASE","^USE\\s+","CREATE\\s+FUNCTION","DROP\\s+FUNCTION","RELOAD\\s+FUNCTION",
+            "DROP\\s+DATABASE","DROP\\s+SCHEMA","ALTER\\s+SCHEMA","ALTER\\s+DATABASE","CREATE\\s+FUNCTION","DROP\\s+FUNCTION","RELOAD\\s+FUNCTION",
             "CREATE\\s+TEMPORARY\\s+FUNCTION","DROP\\s+TEMPORARY\\s+FUNCTION");
 
 
