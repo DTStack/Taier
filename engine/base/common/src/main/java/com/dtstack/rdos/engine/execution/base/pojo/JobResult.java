@@ -48,7 +48,7 @@ public class JobResult {
     public static JobResult createSuccessResult(String taskId){
         JobResult jobResult = JobResult.newInstance(false);
         jobResult.setData(JOB_ID_KEY, taskId);
-        jobResult.setData(MSG_INFO, "is success");
+        jobResult.setData(MSG_INFO, "submit job is success");
         return jobResult;
     }
 
