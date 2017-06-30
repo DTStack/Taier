@@ -10,11 +10,15 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.protobuf.generated.FSProtos;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hdfs.util.EnumCounters;
 import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 
 /**
  * author: jingzhen@dtstack.com
@@ -25,9 +29,10 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
     private String host;
     private String port;
     private String parent;
-    private String rowkeyFormat;
+    private String[] rowkey;
     private String tableName;
-    private String columnFamily;
+    private Map<String, String> columnNameFamily;
+
 
     private org.apache.hadoop.conf.Configuration conf;
     private transient Connection conn;
@@ -59,8 +64,8 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
             e.printStackTrace();
         }
 
-
         Put put = new Put(rowkey.getBytes());
+
         put.addColumn("cf".getBytes(), "q1".getBytes(), record.getField(0).toString().getBytes());
         put.addColumn("cf".getBytes(), "q2".getBytes(), record.getField(1).toString().getBytes());
 
@@ -107,6 +112,16 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
 
         public HbaseOutputFormatBuilder setTable(String tableName) {
             format.tableName = tableName;
+            return this;
+        }
+
+        public HbaseOutputFormatBuilder setColumnNameFamily(Map<String, String> columnNameFamily) {
+            format.columnNameFamily = columnNameFamily;
+            return this;
+        }
+
+        public HbaseOutputFormatBuilder setRowkey(String[] rowkey) {
+            format.rowkey = rowkey;
             return this;
         }
 
