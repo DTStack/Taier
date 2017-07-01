@@ -9,6 +9,7 @@ import org.apache.flink.table.sinks.StreamTableSink;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.types.Row;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +56,25 @@ public abstract class HbaseSink implements StreamTableSink<Row> {
         }
         builder.setColumnNameFamily(map);
 
+        String[] inputColumnTypes = new String[fieldTypes.length];
+        for(int i = 0; i < inputColumnTypes.length; ++i) {
+            inputColumnTypes[i] = fieldTypes[i].getTypeClass().getSimpleName().toUpperCase();
+        }
+        builder.setInputColumnTypes(inputColumnTypes);
+
+        String[] columnTypes = new String[fieldTypes.length];
+        for(int i = 0; i < fieldNames.length; ++i) {
+            int j = 0;
+            for(; j < fullFieldNames.length; ++j) {
+                if(fullFieldNames[j].equalsIgnoreCase(fieldNames[i]))
+                    break;
+            }
+            columnTypes[i] = fullFieldTypes[j].getSimpleName().toUpperCase();
+        }
+
+        builder.setColumnTypes(columnTypes);
         builder.setRowkey(rowkey.split(":"));
+        builder.setColumnNames(fieldNames);
         HbaseOutputFormat outputFormat = builder.finish();
         RichSinkFunction richSinkFunction = new OutputFormatSinkFunction(outputFormat);
         dataStream.addSink(richSinkFunction);

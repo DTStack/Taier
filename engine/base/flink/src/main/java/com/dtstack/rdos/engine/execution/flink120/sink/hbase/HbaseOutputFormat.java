@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.hbase;
 
+import com.dtstack.rdos.common.util.ClassUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
@@ -18,6 +20,11 @@ import sun.misc.BASE64Encoder;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,11 +39,17 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
     private String[] rowkey;
     private String tableName;
     private Map<String, String> columnNameFamily;
+    private String[] columnNames;
+    private String[] inputColumnTypes;
+    private String[] columnTypes;
 
 
     private org.apache.hadoop.conf.Configuration conf;
     private transient Connection conn;
     private transient Table table;
+
+    public static final SimpleDateFormat ROWKEY_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    public static final SimpleDateFormat FIELD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void configure(Configuration parameters) {
@@ -55,19 +68,54 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
     @Override
     public void writeRecord(Row record) throws IOException {
 
-        String rowkey = null;
-        try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            BASE64Encoder base64en = new BASE64Encoder();
-            rowkey = base64en.encode(md5.digest(record.toString().getBytes("utf-8")));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        List<String> list = new ArrayList<>();
+        for(int i = 0; i < rowkey.length; ++i) {
+            String colName = rowkey[i];
+            int j = 0;
+            for(; j < columnNames.length; ++j) {
+                if(columnNames[j].equals(colName))
+                    break;
+            }
+            if(j != columnNames.length && record.getField(i) != null) {
+                Object field = record.getField(j);
+                if(field == null ) {
+                    list.add("null");
+                } else if (field instanceof java.util.Date){
+                    java.util.Date d = (java.util.Date)field;
+                    list.add(ROWKEY_DATE_FORMAT.format(d));
+                } else {
+                    list.add(field.toString());
+                }
+            }
         }
 
-        Put put = new Put(rowkey.getBytes());
+        String key = StringUtils.join(list, "-");
 
-        put.addColumn("cf".getBytes(), "q1".getBytes(), record.getField(0).toString().getBytes());
-        put.addColumn("cf".getBytes(), "q2".getBytes(), record.getField(1).toString().getBytes());
+        Put put = new Put(key.getBytes());
+        for(int i = 0; i < record.getArity(); ++i) {
+            Object field = record.getField(i);
+            String cf = columnNameFamily.get(columnNames[i]);
+            if(field != null) {
+                String inputColumnType = inputColumnTypes[i];
+                String columnType = columnTypes[i];
+
+                if(!inputColumnType.equalsIgnoreCase(columnType)) {
+                    field = ClassUtil.convertType(field, inputColumnType, columnType);
+                }
+
+                String value = null;
+                if(columnType.equalsIgnoreCase("DATE") || columnType.equalsIgnoreCase("TIMESTAMP")) {
+                    value = FIELD_DATE_FORMAT.format((java.util.Date)field);
+                } else {
+                    value = columnType.toString();
+                }
+
+                put.addColumn(cf.getBytes(), columnNames[i].getBytes(), value.getBytes());
+
+            } else {
+                put.addColumn(cf.getBytes(), columnNames[i].getBytes(), null);
+            }
+        }
 
         table.put(put);
 
@@ -122,6 +170,21 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
 
         public HbaseOutputFormatBuilder setRowkey(String[] rowkey) {
             format.rowkey = rowkey;
+            return this;
+        }
+
+        public HbaseOutputFormatBuilder setColumnNames(String[] columnNames) {
+            format.columnNames = columnNames;
+            return this;
+        }
+
+        public HbaseOutputFormatBuilder setColumnTypes(String[] columnTypes) {
+            format.columnTypes = columnTypes;
+            return this;
+        }
+
+        public HbaseOutputFormatBuilder setInputColumnTypes(String[] inputColumnTypes) {
+            format.inputColumnTypes = inputColumnTypes;
             return this;
         }
 

@@ -1,5 +1,6 @@
 package com.dtstack.rdos.common.util;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,7 +17,55 @@ import java.util.SimpleTimeZone;
  * @author sishu.yss
  *
  */
-public class DateUtil {	
+public class DateUtil {
+
+    static final String timeZone = "GMT+8";
+    static final String datetimeFormat = "yyyy-MM-dd HH:mm:ss";
+    static final String dateFormat = "yyyy-MM-dd";
+    static final String timeFormat = "HH:mm:ss";
+    static final SimpleDateFormat datetimeFormatter = new SimpleDateFormat(datetimeFormat);
+    static final SimpleDateFormat dateFormatter = new SimpleDateFormat(dateFormat);
+    static final SimpleDateFormat timeFormatter = new SimpleDateFormat(timeFormat);
+
+    public static java.sql.Date columnToDate(Object column) {
+        if(column instanceof String) {
+            return new java.sql.Date(stringToDate((String)column).getTime());
+        } else if (column instanceof Integer) {
+            Integer rawData = (Integer) column;
+            return new java.sql.Date(rawData.longValue());
+        } else if (column instanceof Long) {
+            Long rawData = (Long) column;
+            return new java.sql.Date(rawData.longValue());
+        } else if (column instanceof java.sql.Date) {
+            return (java.sql.Date) column;
+        } else if(column instanceof java.sql.Timestamp) {
+            Timestamp ts = (Timestamp) column;
+            return new java.sql.Date(ts.getTime());
+        }
+        throw new IllegalArgumentException("Can't convert " + column.getClass().getName() + " to Date");
+    }
+
+    public static Date stringToDate(String strDate)  {
+        if(strDate == null)
+            return null;
+        try {
+            return datetimeFormatter.parse(strDate);
+        } catch (ParseException ignored) {
+        }
+
+        try {
+            return dateFormatter.parse(strDate);
+        } catch (ParseException ignored) {
+        }
+
+        try {
+            return timeFormatter.parse(strDate);
+        } catch (ParseException ignored) {
+        }
+
+        throw new RuntimeException("can't parse date");
+    }
+
     /**
      * 获取所在日的0点的时间戳（秒值）
      * 

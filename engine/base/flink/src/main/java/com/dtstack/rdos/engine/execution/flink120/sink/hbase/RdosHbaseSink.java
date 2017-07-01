@@ -32,13 +32,11 @@ public class RdosHbaseSink extends HbaseSink implements IStreamSinkGener<RdosHba
         this.fullFieldTypes = Preconditions.checkNotNull(operator.getFieldTypes(),
                 "Should specify full field types");
 
-
         this.columnFamily = Preconditions.checkNotNull(properties.getProperty(HBASE_COLUMN_FAMILY),
                 "Should spedify columnFamily");
 
         this.rowkey = Preconditions.checkNotNull(properties.getProperty(HBASE_ROWKEY),
                 "Should specify rowKey");
-
 
         return this;
     }
