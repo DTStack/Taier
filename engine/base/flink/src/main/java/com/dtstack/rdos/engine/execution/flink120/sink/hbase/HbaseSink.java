@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.hbase;
 
+import com.dtstack.rdos.common.util.ClassUtil;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -69,8 +70,9 @@ public abstract class HbaseSink implements StreamTableSink<Row> {
                 if(fullFieldNames[j].equalsIgnoreCase(fieldNames[i]))
                     break;
             }
-            columnTypes[i] = fullFieldTypes[j].getSimpleName().toUpperCase();
+            columnTypes[i] = ClassUtil.getTypeFromClass(fullFieldTypes[j]);
         }
+
 
         builder.setColumnTypes(columnTypes);
         builder.setRowkey(rowkey.split(":"));
