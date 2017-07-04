@@ -107,7 +107,7 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
                 if(columnType.equalsIgnoreCase("DATE") || columnType.equalsIgnoreCase("TIMESTAMP")) {
                     value = FIELD_DATE_FORMAT.format((java.util.Date)field);
                 } else {
-                    value = columnType.toString();
+                    value = field.toString();
                 }
 
                 put.addColumn(cf.getBytes(), columnNames[i].getBytes(), value.getBytes());
