@@ -54,9 +54,9 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
     @Override
     public void configure(Configuration parameters) {
         conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.property.clientPort", "2181");
-        conf.set("hbase.zookeeper.quorum", "172.16.1.151");
-        conf.set("zookeeper.znode.parent", "/hbase137");
+        conf.set("hbase.zookeeper.property.clientPort", port);
+        conf.set("hbase.zookeeper.quorum", host);
+        conf.set("zookeeper.znode.parent", parent);
     }
 
     @Override
