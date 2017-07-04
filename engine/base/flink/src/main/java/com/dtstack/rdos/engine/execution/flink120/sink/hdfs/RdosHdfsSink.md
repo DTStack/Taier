@@ -4,7 +4,7 @@
 
 ```
 
-CREATE RESULT TABLE test2(col1 STRING,col2 INT,col3 TIMESTAMP) WITH (type='datahub',projectName='dtstack',host='172.16.1.151',port='2181',parent='/flink137',columnFamily='cf1[col1:col2] cf2[col3]',rowkey='col1:col2:col3')
+CREATE RESULT TABLE sb4(col1 STRING,col2 INT,col3 INT,col4 INT) WITH (type='datahub',projectName='dtstack',defaultFS='hdfs://172.16.1.151:9000',path='/hyf',fileType='text',delimiter=':')
 
 ```
 
@@ -12,11 +12,11 @@ CREATE RESULT TABLE test2(col1 STRING,col2 INT,col3 TIMESTAMP) WITH (type='datah
 
 ```
 
-RdosHbaseSink rdosHdfsSink = new RdosHbaseSink();
-rdosHbaseSink.genStreamSink(operator);
+RdosHdfsSink rdosHdfsSink = new RdosHdfsSink();
+rdosHdfsSink.genStreamSink(operator);
 
 
 Table table = tableEnv.fromDataStream(ds, "col1,col2,col3");
-table.writeToSink(rdosHbaseSink);
+table.writeToSink(rdosHdfsSink);
 
 ```

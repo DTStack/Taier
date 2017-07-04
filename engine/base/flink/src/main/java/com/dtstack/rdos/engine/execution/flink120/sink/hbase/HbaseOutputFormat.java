@@ -43,8 +43,7 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
     private String[] inputColumnTypes;
     private String[] columnTypes;
 
-
-    private org.apache.hadoop.conf.Configuration conf;
+    private transient org.apache.hadoop.conf.Configuration conf;
     private transient Connection conn;
     private transient Table table;
 

@@ -28,12 +28,11 @@ import java.util.Map;
  */
 public class TestSink {
 
-
     public static void testHbaseSink() throws Exception {
         //List<String> lines = IOUtils.readLines(new FileInputStream("/Users/softfly/Desktop/expr/sqlt.txt"));
         //String content = StringUtils.join("", lines);
         //System.out.println(content);
-        String content = "CREATE RESULT TABLE test1(col1 STRING,col2 INT,col3 TIMESTAMP) WITH (type='datahub',projectName='dtstack',host='172.16.1.151',port='2181',parent='/flink137',columnFamily='cf1[col1:col2] cf2[col3]',rowkey='col1:col2:col3')";
+        String content = "CREATE RESULT TABLE test1(col1 STRING,col2 INT,col3 TIMESTAMP) WITH (type='datahub',projectName='dtstack',host='172.16.1.151',port='2181',parent='/hbase137',columnFamily='cf1[col1:col2] cf2[col3]',rowkey='col1:col2:col3')";
         CreateResultOperator operator = new CreateResultOperator();
         operator.createOperator(content);
         RdosHbaseSink rdosHbaseSink = new RdosHbaseSink();
@@ -59,7 +58,7 @@ public class TestSink {
                     }
                 });
 
-        Table table = tableEnv.fromDataStream(ds, "col1,col2,col4");
+        Table table = tableEnv.fromDataStream(ds, "col1,col2,col3 ");
         table.writeToSink(rdosHbaseSink);
 
         env.execute();
@@ -67,7 +66,7 @@ public class TestSink {
     }
 
     public static void testHdfsSink() throws Exception {
-        String content = "CREATE RESULT TABLE sb1(col1 STRING,col2 INT,col3 INT,col4 INT) WITH (type='datahub',projectName='dtstack',defaultFS='hdfs://172.16.1.151:9000',path='/hyf',fileType='orc')";
+        String content = "CREATE RESULT TABLE sb4(col1 STRING,col2 INT,col3 INT,col4 INT) WITH (type='datahub',projectName='dtstack',defaultFS='hdfs://172.16.1.151:9000',path='/hyf',fileType='text',delimiter=':')";
         CreateResultOperator operator = new CreateResultOperator();
         operator.createOperator(content);
         RdosHdfsSink rdosHdfsSink = new RdosHdfsSink();
