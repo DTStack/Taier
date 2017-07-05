@@ -2,45 +2,40 @@ package com.dtstack.rdos.engine.execution.flink120.sink.hdfs;
 
 import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.DateUtil;
+import com.google.common.base.Preconditions;
+import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Row;
-import org.apache.hadoop.hive.ql.io.orc.OrcSerde;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.io.compress.SnappyCodec;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
+
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static jodd.datetime.JDateTimeDefault.format;
+
 /**
- * Created by softfly on 17/7/3.
+ * Created by softfly on 17/7/4.
  */
-public class HdfsOrcOutputFormat extends HdfsOutputFormat{
+public class HdfsTextOutputFormat extends HdfsOutputFormat {
 
-    private static final long serialVersionUID = 1L;
 
-    private transient OrcSerde orcSerde;
-    private transient StructObjectInspector inspector;
-    private transient List<ObjectInspector> columnTypeList;
+    public final SimpleDateFormat FIELD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     @Override
     public void configure(Configuration configuration) {
         super.configure(configuration);
-
-        this.orcSerde = new OrcSerde();
-        this.outputFormat = new org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat();
-
-
-        this.columnTypeList = new ArrayList<>();
-        for(String columnType : columnTypes) {
-            this.columnTypeList.add(HdfsUtil.columnTypeToObjectInspetor(columnType));
-        }
-        this.inspector = ObjectInspectorFactory
-                .getStandardStructObjectInspector(Arrays.asList(this.columnNames), this.columnTypeList);
+        outputFormat = new TextOutputFormat();
 
         Class<? extends CompressionCodec> codecClass = null;
         if(compress == null){
@@ -49,9 +44,6 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat{
             codecClass = org.apache.hadoop.io.compress.GzipCodec.class;
         } else if ("BZIP2".equalsIgnoreCase(compress)) {
             codecClass = org.apache.hadoop.io.compress.BZip2Codec.class;
-        } else if("SNAPPY".equalsIgnoreCase(compress)) {
-            //todo 等需求明确后支持 需要用户安装SnappyCodec
-            codecClass = org.apache.hadoop.io.compress.SnappyCodec.class;
         } else {
             throw new IllegalArgumentException("Unsupported compress format: " + compress);
         }
@@ -70,6 +62,13 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat{
             String pathStr = outputFilePath + "/" + taskNumber + "." + dateString + "." + UUID.randomUUID();
             System.out.println("pathStr=" + pathStr);
 
+            outputFormat.setOutputPath(conf, new Path(pathStr));
+
+            // 此处好像并没有什么卵用
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
+            String attempt = "attempt_"+dateFormat.format(new Date())+"_0001_m_000000_" + taskNumber;
+            conf.set("mapreduce.task.attempt.id", attempt);
+
             this.recordWriter = this.outputFormat.getRecordWriter(null, conf, pathStr, Reporter.NULL);
 
         } else {
@@ -80,7 +79,8 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat{
     @Override
     public void writeRecord(Row row) throws IOException {
 
-        Object[] record = new Object[columnNames.length];
+        String[] record = new String[columnNames.length];
+
         for(int i = 0; i < row.getArity(); ++i) {
             Object column = row.getField(i);
 
@@ -113,7 +113,7 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat{
                     break;
                 case "FLOAT":
                     field = Float.valueOf(rowData);
-;                   break;
+                    ;                   break;
                 case "DOUBLE":
                     field = Double.valueOf(rowData);
                     break;
@@ -127,21 +127,29 @@ public class HdfsOrcOutputFormat extends HdfsOutputFormat{
                     break;
                 case "DATE":
                     field = DateUtil.columnToDate(column);
+                    rowData = FIELD_DATE_FORMAT.format((Date)field);
                     break;
                 case "TIMESTAMP":
                     //recordList.add(new java.sql.Timestamp(column.asDate().getTime()));
                     java.sql.Date d = DateUtil.columnToDate(column);
                     field = new java.sql.Timestamp(d.getTime());
+                    rowData = FIELD_DATE_FORMAT.format((Date)field);
                     break;
                 default:
                     throw new IllegalArgumentException();
             }
 
-            record[columnNameIndexMap.get(columnName)] = field;
+            record[columnNameIndexMap.get(columnName)] = rowData;
 
         }
 
-        this.recordWriter.write(NullWritable.get(), this.orcSerde.serialize(Arrays.asList(record), this.inspector));
+        for(int i = 0; i < record.length; ++i) {
+            if(record[i] == null) {
+                record[i] = "";
+            }
+        }
+
+        recordWriter.write(NullWritable.get(), new Text(StringUtils.join(delimiter, record)));
     }
 
 

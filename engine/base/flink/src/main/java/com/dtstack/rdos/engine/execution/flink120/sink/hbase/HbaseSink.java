@@ -73,7 +73,6 @@ public abstract class HbaseSink implements StreamTableSink<Row> {
             columnTypes[i] = ClassUtil.getTypeFromClass(fullFieldTypes[j]);
         }
 
-
         builder.setColumnTypes(columnTypes);
         builder.setRowkey(rowkey.split(":"));
         builder.setColumnNames(fieldNames);

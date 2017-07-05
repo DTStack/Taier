@@ -20,6 +20,7 @@ public class HdfsSink implements StreamTableSink<Row> {
     public static final String HDFS_FILETYPE = "fileType";
     public static final String HDFS_PATH = "path";
     public static final String HDFS_COMPRESS = "compress";
+    public static final String HDFS_DELIMITER = "delimiter";
 
     protected String defaultFS;
     protected String path;
@@ -30,33 +31,27 @@ public class HdfsSink implements StreamTableSink<Row> {
     protected String tableName;
     protected String[] fullFieldNames;
     protected Class[] fullFieldTypes;
+    protected String delimiter;
 
     @Override
     public void emitDataStream(DataStream<Row> dataStream) {
-        OutputFormat<Row> outputFormat = null;
-
-        if(fileType.equalsIgnoreCase("orc")) {
-            HdfsOrcOutputFormat.OrcOutputFormatBuilder builder = HdfsOrcOutputFormat.buildOrcOutputFormat();
-            builder.setCompress(compress).setDefaultFS(defaultFS);
-            builder.setPath(path).setFileName(tableName).setWriteMode("APPEND");
-            builder.setColumnNames(fullFieldNames).setInputColumnNames(fieldNames);
-
-            String[] inputColumnTypes = new String[fieldTypes.length];
-            for(int i = 0; i < inputColumnTypes.length; ++i) {
-                inputColumnTypes[i] = fieldTypes[i].getTypeClass().getSimpleName().toUpperCase();
-            }
-            builder.setInputColumnTypes(inputColumnTypes);
-
-            String[] columnTypes = new String[fullFieldTypes.length];
-            for(int i = 0; i < columnTypes.length; ++i) {
-                columnTypes[i] = ClassUtil.getTypeFromClass(fullFieldTypes[i]);
-            }
-            builder.setColumnTypes(columnTypes);
-
-            outputFormat = builder.finish();
-        } else { // 默认当成文本文件处理
+        HdfsOutputFormatBuilder builder = new HdfsOutputFormatBuilder(fileType);
+        builder.setDelimiter(delimiter);
+        builder.setCompress(compress).setDefaultFS(defaultFS);
+        builder.setPath(path).setFileName(tableName).setWriteMode("APPEND");
+        builder.setColumnNames(fullFieldNames).setInputColumnNames(fieldNames);
+        String[] inputColumnTypes = new String[fieldTypes.length];
+        for(int i = 0; i < inputColumnTypes.length; ++i) {
+            inputColumnTypes[i] = fieldTypes[i].getTypeClass().getSimpleName().toUpperCase();
         }
+        builder.setInputColumnTypes(inputColumnTypes);
 
+        String[] columnTypes = new String[fullFieldTypes.length];
+        for(int i = 0; i < columnTypes.length; ++i) {
+            columnTypes[i] = ClassUtil.getTypeFromClass(fullFieldTypes[i]);
+        }
+        builder.setColumnTypes(columnTypes);
+        OutputFormat<Row> outputFormat = builder.finish();
         RichSinkFunction richSinkFunction = new OutputFormatSinkFunction(outputFormat);
         dataStream.addSink(richSinkFunction);
 

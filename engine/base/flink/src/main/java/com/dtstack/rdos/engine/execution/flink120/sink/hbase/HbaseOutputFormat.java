@@ -43,20 +43,19 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
     private String[] inputColumnTypes;
     private String[] columnTypes;
 
-
-    private org.apache.hadoop.conf.Configuration conf;
+    private transient org.apache.hadoop.conf.Configuration conf;
     private transient Connection conn;
     private transient Table table;
 
-    public static final SimpleDateFormat ROWKEY_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
-    public static final SimpleDateFormat FIELD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public final SimpleDateFormat ROWKEY_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    public final SimpleDateFormat FIELD_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public void configure(Configuration parameters) {
         conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.property.clientPort", "2181");
-        conf.set("hbase.zookeeper.quorum", "172.16.1.151");
-        conf.set("zookeeper.znode.parent", "/hbase137");
+        conf.set("hbase.zookeeper.property.clientPort", port);
+        conf.set("hbase.zookeeper.quorum", host);
+        conf.set("zookeeper.znode.parent", parent);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class HbaseOutputFormat extends RichOutputFormat<Row> {
                 if(columnType.equalsIgnoreCase("DATE") || columnType.equalsIgnoreCase("TIMESTAMP")) {
                     value = FIELD_DATE_FORMAT.format((java.util.Date)field);
                 } else {
-                    value = columnType.toString();
+                    value = field.toString();
                 }
 
                 put.addColumn(cf.getBytes(), columnNames[i].getBytes(), value.getBytes());

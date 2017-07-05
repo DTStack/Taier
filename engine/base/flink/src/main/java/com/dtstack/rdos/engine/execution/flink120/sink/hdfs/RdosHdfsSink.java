@@ -29,8 +29,9 @@ public class RdosHdfsSink extends HdfsSink implements IStreamSinkGener<RdosHdfsS
         this.fullFieldTypes = Preconditions.checkNotNull(operator.getFieldTypes(),
                 "Should specify full field types");
 
-//        this.compress = Preconditions.checkNotNull(properties.getProperty(HDFS_COMPRESS),
-//                "Should speficy hdfs compress");
+        this.delimiter = properties.getProperty(HDFS_DELIMITER);
+
+        this.compress = properties.getProperty(HDFS_COMPRESS);
 
         return this;
     }
