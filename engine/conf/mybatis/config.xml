@@ -32,6 +32,7 @@
                 <property name="url" value="jdbc:mysql://172.16.1.203:3306/spark?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true"/>
                 <property name="username" value="dtstack_xc"/>
                 <property name="password" value="dtstack_xc"/>
+                <!--<property name="poolPingEnabled" value="true"/>-->
             </dataSource>
        </environment>
     </environments>
