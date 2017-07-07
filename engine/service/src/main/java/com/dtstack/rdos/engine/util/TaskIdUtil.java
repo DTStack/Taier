@@ -11,7 +11,7 @@ public class TaskIdUtil {
         return String.valueOf(computeType) + String.valueOf(engineType) +interval+taskId;
     }
 
-       public static String getTaskId(String taskId){
+    public static String getTaskId(String taskId){
         return taskId.substring(3,taskId.length());
     }
 
