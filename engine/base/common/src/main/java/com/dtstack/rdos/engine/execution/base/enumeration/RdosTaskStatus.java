@@ -34,8 +34,8 @@ public enum RdosTaskStatus {
     
     public static boolean needClean(Byte status){
 		int sta = status.intValue();
-       if(sta==RdosTaskStatus.FINISHED.status||sta==RdosTaskStatus.FAILED.status||sta == RdosTaskStatus.SUBMITFAILD.status
-			   || sta == RdosTaskStatus.KILLED.status||sta == RdosTaskStatus.NOTFOUND.status){
+       if(sta==RdosTaskStatus.FINISHED.getStatus()||sta==RdosTaskStatus.FAILED.getStatus()||sta == RdosTaskStatus.SUBMITFAILD.getStatus()
+			   || sta == RdosTaskStatus.KILLED.getStatus()||sta == RdosTaskStatus.NOTFOUND.getStatus()){
     	   return true;
        }   
        return false;

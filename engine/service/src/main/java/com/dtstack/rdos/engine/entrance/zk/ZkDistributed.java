@@ -140,7 +140,6 @@ public class ZkDistributed {
 		executors.execute(new TaskListener());
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
-        executors.execute(new DataMigrationListener(masterListener));
         executors.execute(new OtherListener(masterListener));
 	}
 

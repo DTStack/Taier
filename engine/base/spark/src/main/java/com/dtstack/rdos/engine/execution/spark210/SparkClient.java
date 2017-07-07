@@ -294,7 +294,7 @@ public class SparkClient extends AbsClient {
         SubmitRestProtocolResponse response = restSubmissionClient.requestSubmissionStatus(jobId, false);
         String responseStr = response.toJson();
         if(Strings.isNullOrEmpty(responseStr)){
-            return RdosTaskStatus.UNSUBMIT;
+            return RdosTaskStatus.NOTFOUND;
         }
         Map<String, Object> responseMap = objMapper.readValue(responseStr, Map.class);
         String state = (String) responseMap.get("driverState");
