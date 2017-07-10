@@ -144,7 +144,10 @@ public class SparkClient extends AbsClient {
         properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
         properties.setProperty(JOB_MAIN_CLASS_KEY, jarOperator.getMainClass());
-        properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
+
+        if(jobClient.getClassArgs() != null){
+            properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
+        }
         return properties;
     }
 
