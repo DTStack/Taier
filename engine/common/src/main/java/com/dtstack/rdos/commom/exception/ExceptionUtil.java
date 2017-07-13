@@ -22,7 +22,7 @@ public class ExceptionUtil {
                                             + st.getLineNumber() + ")" + "\n");
                     }
             } else {
-                    sb.append(e.getMessage() + "\n");
+                    sb.append(e.toString() + "\n");
                     StackTraceElement[] sts = e.getStackTrace();
                     if (sts != null) {
                             for (StackTraceElement st : sts) {
