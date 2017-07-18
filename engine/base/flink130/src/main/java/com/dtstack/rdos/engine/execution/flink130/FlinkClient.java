@@ -126,6 +126,7 @@ public class FlinkClient extends AbsClient {
      * @param zkNamespace
      */
     public void initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId,String flinkHighAvailabilityStorageDir){
+
         Configuration config = new Configuration();
         config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
         config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkAddress);

@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink130.sink.db;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
@@ -153,13 +154,13 @@ public abstract class DBSink implements UpsertStreamTableSink<Row> {
 	@Override
 	public TypeInformation<Row> getRecordType() {
 		// TODO Auto-generated method stub
-		return null;
+		return new RowTypeInfo(fieldTypes, fieldNames);
 	}
 
 	@Override
 	public void setIsAppendOnly(Boolean arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

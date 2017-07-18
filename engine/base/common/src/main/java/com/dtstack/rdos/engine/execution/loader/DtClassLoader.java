@@ -2,12 +2,13 @@ package com.dtstack.rdos.engine.execution.loader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.CompoundEnumeration;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -30,6 +31,8 @@ public class DtClassLoader extends URLClassLoader {
      * The parent class loader.
      */
     protected ClassLoader parent;
+
+    private boolean hasExternalRepositories = false;
 
     private Map<String, Class<?>> resourceEntries = new HashMap<>();
 
@@ -194,6 +197,104 @@ public class DtClassLoader extends URLClassLoader {
         return "true".equalsIgnoreCase(sealed);
 
     }
+
+
+    @Override
+    public URL getResource(String name) {
+
+        if (log.isDebugEnabled())
+            log.debug("getResource(" + name + ")");
+
+        URL url = null;
+
+        //boolean delegateFirst = delegate || filter(name, false);
+        boolean delegateFirst = delegate;
+
+        // (1) Delegate to parent if requested
+        if (delegateFirst) {
+            if (log.isDebugEnabled())
+                log.debug("  Delegating to parent classloader " + parent);
+            url = parent.getResource(name);
+            if (url != null) {
+                if (log.isDebugEnabled())
+                    log.debug("  --> Returning '" + url.toString() + "'");
+                return (url);
+            }
+        }
+
+        // (2) Search local repositories
+        url = findResource(name);
+        if (url != null) {
+            if (log.isDebugEnabled())
+                log.debug("  --> Returning '" + url.toString() + "'");
+            return (url);
+        }
+
+        // (3) Delegate to parent unconditionally if not already attempted
+        if (!delegateFirst) {
+            url = parent.getResource(name);
+            if (url != null) {
+                if (log.isDebugEnabled())
+                    log.debug("  --> Returning '" + url.toString() + "'");
+                return (url);
+            }
+        }
+
+        // (4) Resource was not found
+        if (log.isDebugEnabled())
+            log.debug("  --> Resource not found, returning null");
+        return (null);
+    }
+
+    @Override
+    protected void addURL(URL url) {
+        super.addURL(url);
+        hasExternalRepositories = true;
+    }
+
+    /**
+     * FIXME 需要测试
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public Enumeration<URL> getResources(String name) throws IOException {
+        @SuppressWarnings("unchecked")
+        Enumeration<URL>[] tmp = (Enumeration<URL>[]) new Enumeration<?>[1];
+        tmp[0] = findResources(name);//优先使用当前类的资源
+
+        if(!tmp[0].hasMoreElements()){//只有子classLoader找不到任何资源才会调用原生的方法
+            return super.getResources(name);
+        }
+
+        return new CompoundEnumeration<>(tmp);
+    }
+
+    @Override
+    public Enumeration<URL> findResources(String name) throws IOException {
+
+        if (log.isDebugEnabled())
+            log.debug("    findResources(" + name + ")");
+
+        LinkedHashSet<URL> result = new LinkedHashSet<>();
+
+        Enumeration<URL> superResource = super.findResources(name);
+
+        while (superResource.hasMoreElements()){
+            result.add(superResource.nextElement());
+        }
+
+        // Adding the results of a call to the superclass
+        if (hasExternalRepositories) {
+            Enumeration<URL> otherResourcePaths = super.findResources(name);
+            while (otherResourcePaths.hasMoreElements()) {
+                result.add(otherResourcePaths.nextElement());
+            }
+        }
+
+        return Collections.enumeration(result);
+    }
+
 
     /**
      * Filter classes.
