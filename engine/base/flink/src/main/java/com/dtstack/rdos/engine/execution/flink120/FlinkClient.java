@@ -200,11 +200,6 @@ public class FlinkClient extends AbsClient {
         String args = properties.getProperty(JOB_EXE_ARGS);
 
         if(StringUtils.isNotBlank(args)){
-            try {
-                args = java.net.URLDecoder.decode(args, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
 
@@ -218,7 +213,8 @@ public class FlinkClient extends AbsClient {
         Properties spProp = getSpProperty(jobClient);
         SavepointRestoreSettings spSettings = buildSavepointSetting(spProp);
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgList.toArray(new String[programArgList.size()]), spSettings);
+            String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.createErrorResult(e);
             logger.error("", e);
