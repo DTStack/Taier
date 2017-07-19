@@ -19,7 +19,6 @@ import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
-import com.dtstack.rdos.engine.execution.flink120.FlinkConfig;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -50,14 +49,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Reason:
@@ -90,6 +87,12 @@ public class FlinkClient extends AbsClient {
 
     //默认使用异步提交
     private boolean isDetact = true;
+
+    // 同步模块在flink集群加载插件
+    private String flinkPluginRoot;
+
+    // 同步模块的monitorAddress, 用于获取错误记录数等信息
+    private String monitorAddress;
 
     /**
      * 直接指定jobmanager host:port方式
@@ -168,6 +171,9 @@ public class FlinkClient extends AbsClient {
             initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
         }
 
+        this.flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
+        this.monitorAddress = flinkConfig.getMonitorAddress();
+
     }
 
     /***
@@ -189,17 +195,30 @@ public class FlinkClient extends AbsClient {
         PackagedProgram packagedProgram = null;
 
         String entryPointClass = properties.getProperty(JOB_MAIN_CLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
-        String[] programArgs = new String[0];
+
+        List<String> programArgList = new ArrayList<>();
         String args = properties.getProperty(JOB_EXE_ARGS);
+
         if(StringUtils.isNotBlank(args)){
-        	programArgs = args.split("\\s+");
+            try {
+                args = java.net.URLDecoder.decode(args, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
-        List<URL> classpaths = new ArrayList<>();//FIXME 该参数设置暂时未设置
+
+        if(StringUtils.isNotEmpty(monitorAddress)) {
+            programArgList.add("-monitor");
+            programArgList.add(monitorAddress);
+        }
+
+        List<URL> classpaths = flinkPluginRoot != null ? FlinkUtil.getUserClassPath(programArgList, flinkPluginRoot) : new ArrayList<>();
 
         Properties spProp = getSpProperty(jobClient);
         SavepointRestoreSettings spSettings = buildSavepointSetting(spProp);
         try{
-            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgList.toArray(new String[programArgList.size()]), spSettings);
         }catch (Exception e){
             JobResult jobResult = JobResult.createErrorResult(e);
             logger.error("", e);
@@ -580,4 +599,11 @@ public class FlinkClient extends AbsClient {
         //使用flink作为数据同步调用的其实是提交mr--job
         return submitJobWithJar(jobClient);
     }
+
+    // 加工传入给flinkx的命令行参数
+    private String[] preProcessProgramArgs(final String[] programArgs) {
+
+        return null;
+    }
+
 }
