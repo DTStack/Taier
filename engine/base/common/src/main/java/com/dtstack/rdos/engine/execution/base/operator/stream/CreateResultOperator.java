@@ -69,12 +69,15 @@ public class CreateResultOperator implements Operator{
 		String[] strs = sql.trim().split(",");
 		this.properties = new Properties();
         for(int i=0;i<strs.length;i++){
-        	String[] ss = strs[i].split("=");
-        	String key = ss[0].trim();
+
+			int index = strs[i].indexOf("=");
+        	String key = strs[i].substring(0, index).trim();
+        	String val = strs[i].substring(index+1).trim();
+
         	if("type".equals(key)){
-        		this.type = ss[1].trim().replaceAll("'", "");
+        		this.type = val.replaceAll("'", "");
         	}else{
-        		this.properties.put(key, ss[1].trim().replaceAll("'", ""));
+        		this.properties.put(key, val.replaceAll("'", ""));
         	}
         }
 	}
