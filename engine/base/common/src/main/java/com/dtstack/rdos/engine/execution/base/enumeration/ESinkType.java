@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
  * Reason:
  * Date: 2017/3/8
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 public enum ESinkType {

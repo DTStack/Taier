@@ -179,5 +179,11 @@
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-connector-elasticsearch5_2.10</artifactId>
+			<version>1.3-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 </project>

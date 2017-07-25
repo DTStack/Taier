@@ -1,20 +1,16 @@
 package com.dtstack.rdos.engine.execution.flink130.sink.db;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.io.jdbc.JDBCOutputFormat;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
-import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.functions.sink.OutputFormatSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.table.sinks.AppendStreamTableSink;
 import org.apache.flink.table.sinks.TableSink;
-import org.apache.flink.table.sinks.UpsertStreamTableSink;
 import org.apache.flink.types.Row;
-import org.apache.flink.util.Preconditions;
-
-import com.dtstack.rdos.commom.exception.RdosException;
 
 import java.sql.Types;
 
@@ -25,7 +21,7 @@ import java.sql.Types;
  * @ahthor xuchao
  */
 
-public abstract class DBSink implements UpsertStreamTableSink<Row> {
+public abstract class DBSink implements AppendStreamTableSink<Row> {
 
     public static final String SQL_BATCH_SIZE_KEY = "sqlBatchSize";
 
@@ -126,7 +122,7 @@ public abstract class DBSink implements UpsertStreamTableSink<Row> {
     }
 
     @Override
-    public void emitDataStream(DataStream<Tuple2<Boolean, Row>> dataStream) {
+    public void emitDataStream(DataStream<Row> dataStream) {
         RichSinkFunction richSinkFunction = createJdbcSinkFunc();
         DataStreamSink streamSink = dataStream.addSink(richSinkFunction);
         if(parallelism > 0){
@@ -135,8 +131,15 @@ public abstract class DBSink implements UpsertStreamTableSink<Row> {
     }
 
     @Override
-    public TupleTypeInfo<Tuple2<Boolean, Row>> getOutputType() {
-        return new TupleTypeInfo(getFieldTypes());
+    public TypeInformation<Row> getOutputType() {
+        return new RowTypeInfo(getFieldTypes());
+    }
+
+    @Override
+    public TableSink<Row> configure(String[] fieldNames, TypeInformation<?>[] fieldTypes) {
+        this.fieldNames = fieldNames;
+        this.fieldTypes = fieldTypes;
+        return this;
     }
 
     @Override
@@ -148,33 +151,7 @@ public abstract class DBSink implements UpsertStreamTableSink<Row> {
     public TypeInformation<?>[] getFieldTypes() {
         return fieldTypes;
     }
-    
-    
 
-	@Override
-	public TypeInformation<Row> getRecordType() {
-		// TODO Auto-generated method stub
-		return new RowTypeInfo(fieldTypes, fieldNames);
-	}
-
-	@Override
-	public void setIsAppendOnly(Boolean arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setKeyFields(String[] arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-    @Override
-    public TableSink<Tuple2<Boolean, Row>> configure(String[] fieldNames, TypeInformation<?>[] fieldTypes) {
-        this.fieldNames = Preconditions.checkNotNull(fieldNames, "fieldNames");
-        this.fieldTypes = Preconditions.checkNotNull(fieldTypes, "fieldTypes");
-        return this;
-    }
 
     public void setParallelism(int parallelism){
         this.parallelism = parallelism;
