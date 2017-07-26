@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.db.mysql;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
 import com.dtstack.rdos.engine.execution.flink120.sink.db.DBSink;
 import com.google.common.base.Preconditions;
@@ -40,7 +40,7 @@ public class MysqlSink extends DBSink implements IStreamSinkGener<MysqlSink>{
 
 
     @Override
-    public MysqlSink genStreamSink(CreateResultOperator operator) {
+    public MysqlSink genStreamSink(BatchCreateResultOperator operator) {
         Properties properties = operator.getProperties();
         String tmpDbURL = Preconditions.checkNotNull(properties.getProperty(SQL_DB_URL_KEY),
                 "dbURL must not be null");

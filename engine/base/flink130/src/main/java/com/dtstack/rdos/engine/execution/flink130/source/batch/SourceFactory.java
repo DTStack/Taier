@@ -1,8 +1,9 @@
-package com.dtstack.rdos.engine.execution.flink130.source;
+package com.dtstack.rdos.engine.execution.flink130.source.batch;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
-import com.dtstack.rdos.engine.execution.flink130.source.kafka.FlinkKafka09SourceGenr;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.IBatchSourceGener;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.kafka.FlinkKafka09SourceGenr;
 
 /**
  * Reason:
@@ -20,13 +21,13 @@ public class SourceFactory {
      * @param sourceTypeStr
      * @return
      */
-    public static IStreamSourceGener getStreamSourceGener(String sourceTypeStr){
+    public static IBatchSourceGener getBatchSourceGener(String sourceTypeStr){
 
         ESourceType sourceType = ESourceType.getSourceType(sourceTypeStr);
 
         switch (sourceType){
-            case KAFKA09:
-                return new FlinkKafka09SourceGenr();
+            case ELASTIC5:
+                return new Elas();
         }
 
         throw new RdosException("not support for flink stream source type: " + sourceTypeStr);

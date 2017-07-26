@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  */
 public enum ESourceType {
 
-    KAFKA09;
+    KAFKA09, ELASTIC5;
 
     private static Logger logger = LoggerFactory.getLogger(ESourceType.class);
 

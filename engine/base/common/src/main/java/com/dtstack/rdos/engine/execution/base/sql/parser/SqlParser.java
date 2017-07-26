@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,7 @@ public class SqlParser {
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> flinkOperatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
-                        CreateSourceOperator.class, CreateResultOperator.class, ExecutionOperator.class);
+                        CreateSourceOperator.class, BatchCreateResultOperator.class, ExecutionOperator.class);
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> sparkOperatorClasses =

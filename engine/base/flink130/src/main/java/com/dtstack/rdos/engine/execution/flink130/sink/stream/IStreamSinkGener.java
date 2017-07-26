@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink120.sink;
+package com.dtstack.rdos.engine.execution.flink130.sink.stream;
 
 import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 

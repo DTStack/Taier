@@ -8,18 +8,14 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.*;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
 import com.dtstack.rdos.engine.execution.flink120.source.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink120.source.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
-import com.dtstack.rdos.engine.execution.flink120.FlinkConfig;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -343,7 +339,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
-                    throw new RdosException("sql job order setting err. cause of CreateSourceOperator");
+                    throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
                 }
 
                 currStep = 1;
@@ -377,13 +373,13 @@ public class FlinkClient extends AbsClient {
                 currStep = 3;
                 resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
 
-            }else if(operator instanceof CreateResultOperator){
+            }else if(operator instanceof BatchCreateResultOperator){
                 if(currStep > 4){
-                    throw new RdosException("sql job order setting err. cause of CreateResultOperator");
+                    throw new RdosException("sql job order setting err. cause of BatchCreateResultOperator");
                 }
 
                 currStep = 4;
-                CreateResultOperator resultOperator = (CreateResultOperator) operator;
+                BatchCreateResultOperator resultOperator = (BatchCreateResultOperator) operator;
                 TableSink tableSink = SinkFactory.getTableSink(resultOperator);
                 resultTable.writeToSink(tableSink);
 

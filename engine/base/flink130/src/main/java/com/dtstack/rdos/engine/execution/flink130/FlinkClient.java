@@ -8,16 +8,15 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.*;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.flink130.sink.SinkFactory;
-import com.dtstack.rdos.engine.execution.flink130.source.IStreamSourceGener;
-import com.dtstack.rdos.engine.execution.flink130.source.SourceFactory;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
+import com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch.Elastic5BatchTableSink;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.IBatchSourceGener;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.SourceFactory;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.elasticsearch.Elastic5InputFormat;
 import com.dtstack.rdos.engine.execution.flink130.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
@@ -25,22 +24,34 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
+import org.apache.flink.api.common.Plan;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
+import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.DataSet;
+import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.optimizer.DataStatistics;
+import org.apache.flink.optimizer.Optimizer;
+import org.apache.flink.optimizer.plan.OptimizedPlan;
+import org.apache.flink.optimizer.plantranslate.JobGraphGenerator;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
+import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -336,12 +347,12 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
-                    throw new RdosException("sql job order setting err. cause of CreateSourceOperator");
+                    throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
                 }
 
                 currStep = 1;
                 CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                IStreamSourceGener sourceGener = SourceFactory.getStreamSourceGener(sourceOperator.getType());
+                IBatchSourceGener sourceGener = SourceFactory.getStreamSourceGener(sourceOperator.getType());
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
                         (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
                 tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
@@ -370,14 +381,14 @@ public class FlinkClient extends AbsClient {
                 currStep = 3;
                 resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
 
-            }else if(operator instanceof CreateResultOperator){
+            }else if(operator instanceof BatchCreateResultOperator){
                 if(currStep > 4){
-                    throw new RdosException("sql job order setting err. cause of CreateResultOperator");
+                    throw new RdosException("sql job order setting err. cause of BatchCreateResultOperator");
                 }
 
                 currStep = 4;
-                CreateResultOperator resultOperator = (CreateResultOperator) operator;
-                TableSink tableSink = SinkFactory.getTableSink(resultOperator);
+                BatchCreateResultOperator resultOperator = (BatchCreateResultOperator) operator;
+                TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator);
                 resultTable.writeToSink(tableSink);
 
             }else{
@@ -414,8 +425,66 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private JobResult submitSqlJobForBatch(JobClient jobClient){
-        throw new RdosException("not support flink sql job for batch type.");
+    private JobResult submitSqlJobForBatch(JobClient jobClient) {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        BatchTableEnvironment batchTableEnvironment = BatchTableEnvironment.getTableEnvironment(env);
+        env.setParallelism(3);
+
+        Elastic5InputFormat.Elastic5InputFormatBuilder builder = Elastic5InputFormat.buildElastic5InputFormat();
+        builder.setCluster("poc_dtstack");
+        builder.setIndex("xcindex");
+        builder.setQuery("John Doe");
+        builder.setSplitNum(2);
+
+        /***----设置字段转换应该封装起来----***/
+
+        TypeInformation<?>[] fieldTypes = new TypeInformation<?>[] {
+                BasicTypeInfo.STRING_TYPE_INFO,
+                BasicTypeInfo.INT_TYPE_INFO,
+                //new MapTypeInfo(String.class, String.class),
+                BasicTypeInfo.STRING_TYPE_INFO
+
+        };
+        RowTypeInfo rowTypeInfo = new RowTypeInfo(fieldTypes);
+        builder.setRowTypeInfo(rowTypeInfo);
+        /***--------***/
+
+        builder.setRowFieldNames(new String[]{"name", "age", "xcdata.time"});
+
+        List<String> esHosts = Lists.newArrayList();
+        esHosts.add("172.16.1.232");
+        esHosts.add("172.16.1.142");
+        builder.setHosts(esHosts);
+
+        Elastic5InputFormat elastic5InputFormat = builder.finish();
+
+        DataSet<Row> dataSet = env.createInput(elastic5InputFormat);
+
+        batchTableEnvironment.registerDataSet("MyTable", dataSet, "name, age, xctime");
+        Table resultTable = batchTableEnvironment.sql("select * from MyTable");
+        //Table resultTable = batchTableEnvironment.sql("select name, sum(age) as sumAge from MyTable group by name");
+
+        //batchTableEnvironment.toDataSet(resultTable, Row.class).print();
+
+        /*--------------------------**/
+        try{
+            Elastic5BatchTableSink tableSink = new Elastic5BatchTableSink();
+            resultTable.writeToSink(tableSink);
+            Plan plan = env.createProgramPlan();
+
+            Configuration configuration = client.getFlinkConfiguration();
+            Optimizer pc = new Optimizer(new DataStatistics(), configuration);
+            OptimizedPlan op = pc.compile(plan);
+
+            JobGraphGenerator jgg = new JobGraphGenerator(configuration);
+            JobGraph jobGraph = jgg.compileJobGraph(op, plan.getJobId());
+
+            JobSubmissionResult submissionResult = client.run(jobGraph, this.getClass().getClassLoader());
+            return JobResult.createSuccessResult(submissionResult.getJobID().toString());
+        }catch (Exception e){
+            return JobResult.createErrorResult(e);
+        }
+
     }
 
     @Override

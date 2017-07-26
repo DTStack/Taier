@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink130.sink.kafka;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink130.sink.IStreamSinkGener;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.IStreamSinkGener;
 
 import org.apache.flink.streaming.connectors.kafka.Kafka09JsonTableSink;
 import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;
@@ -20,7 +20,7 @@ import java.util.Properties;
 public class RdosKafka09Sink implements IStreamSinkGener<Kafka09JsonTableSink> {
 
     @Override
-    public Kafka09JsonTableSink genStreamSink(CreateResultOperator resultOperator) {
+    public Kafka09JsonTableSink genStreamSink(BatchCreateResultOperator resultOperator) {
         Properties properties = resultOperator.getProperties();
         String topic = properties.getProperty("topic");
         String bootstrapSvrs = properties.getProperty("bootstrapServers");

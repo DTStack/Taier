@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.source.elasticsearch;
+package com.dtstack.rdos.engine.execution.flink130.source.stream.elasticsearch;
 
 import com.google.common.collect.Lists;
 import org.apache.flink.api.common.io.DefaultInputSplitAssigner;

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.source;
+package com.dtstack.rdos.engine.execution.flink130.source.batch;
 
 import java.util.Properties;
 
@@ -9,7 +9,7 @@ import java.util.Properties;
  *
  * @ahthor xuchao
  */
-public interface IStreamSourceGener<T> {
+public interface IBatchSourceGener<T> {
 
     /**
      * 获取输入源
@@ -18,5 +18,5 @@ public interface IStreamSourceGener<T> {
      * @param fieldTypes
      * @return
      */
-    T genStreamSource(Properties prop, String[] fieldNames, Class[] fieldTypes);
+    T genBatchSource(Properties prop, String[] fieldNames, Class[] fieldTypes);
 }

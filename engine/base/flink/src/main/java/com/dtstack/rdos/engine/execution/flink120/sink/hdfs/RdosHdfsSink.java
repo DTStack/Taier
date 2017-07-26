@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.hdfs;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
 import org.apache.flink.util.Preconditions;
 
@@ -12,7 +12,7 @@ import java.util.Properties;
 public class RdosHdfsSink extends HdfsSink implements IStreamSinkGener<RdosHdfsSink> {
 
     @Override
-    public RdosHdfsSink genStreamSink(CreateResultOperator operator) {
+    public RdosHdfsSink genStreamSink(BatchCreateResultOperator operator) {
         Properties properties = operator.getProperties();
         this.defaultFS = Preconditions.checkNotNull(properties.getProperty(HDFS_DEFAULT_FS),
                 "Should speficy hdfs defaultFS");

@@ -1,21 +1,22 @@
-package com.dtstack.rdos.engine.execution.base.operator.stream;
+package com.dtstack.rdos.engine.execution.base.operator.batch;
 
-import java.util.Map;
-import java.util.Properties;
 import com.dtstack.rdos.common.util.ClassUtil;
 import com.dtstack.rdos.common.util.GrokUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * 
- * Reason: TODO ADD REASON(可选)
+ * FIXME 暂未修改
  * Date: 2016年02月22日 下午1:16:37
  * Company: www.dtstack.com
  * @author sishu.yss
  *
  */
-public class CreateResultOperator implements Operator{
+public class BatchCreateResultOperator implements Operator{
 	
 	/**
 	 *  CREATE RESULT TABLE student_stream(

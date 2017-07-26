@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.hbase;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
 import org.apache.flink.util.Preconditions;
 
@@ -13,7 +13,7 @@ import java.util.Properties;
 public class RdosHbaseSink extends HbaseSink implements IStreamSinkGener<RdosHbaseSink>{
 
     @Override
-    public RdosHbaseSink genStreamSink(CreateResultOperator operator) {
+    public RdosHbaseSink genStreamSink(BatchCreateResultOperator operator) {
         Properties properties = operator.getProperties();
         this.host = Preconditions.checkNotNull(properties.getProperty(HBASE_ZOOKEEPER_QUORUM),
                 "Should speficy hbase zookeeper quorum as host");

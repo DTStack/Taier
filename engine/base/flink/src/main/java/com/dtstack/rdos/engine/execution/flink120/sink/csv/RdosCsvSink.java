@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink.csv;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.IStreamSinkGener;
 
 import org.apache.flink.table.sinks.CsvTableSink;
@@ -19,7 +19,7 @@ public class RdosCsvSink implements IStreamSinkGener<CsvTableSink>{
     }
 
     @Override
-    public CsvTableSink genStreamSink(CreateResultOperator resultOperator) {
+    public CsvTableSink genStreamSink(BatchCreateResultOperator resultOperator) {
         String csvPath = resultOperator.getProperties().getProperty("csvPath");
         String csvDelim = resultOperator.getProperties().getProperty("csvDelim", "|");
         return  new CsvTableSink(csvPath, csvDelim);
