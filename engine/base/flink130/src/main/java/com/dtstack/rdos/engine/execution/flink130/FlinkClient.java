@@ -451,7 +451,7 @@ public class FlinkClient extends AbsClient {
         }catch (Exception e){
             //FIXME 如果查询不到就返回失败,因为有可能数据被flink清除了
             if(e instanceof RdosException && (HttpStatus.SC_NOT_FOUND + "").equals(((RdosException) e).getErrorMessage())){
-                return RdosTaskStatus.FINISHED;
+                return RdosTaskStatus.NOTFOUND;
             }else{
                 throw e;
             }
