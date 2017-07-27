@@ -8,15 +8,20 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch.Elastic5BatchTableSink;
-import com.dtstack.rdos.engine.execution.flink130.source.stream.IBatchSourceGener;
+import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
+import com.dtstack.rdos.engine.execution.flink130.source.batch.IBatchSourceGener;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.IStreamSourceGener;
 import com.dtstack.rdos.engine.execution.flink130.source.stream.SourceFactory;
-import com.dtstack.rdos.engine.execution.flink130.source.stream.elasticsearch.Elastic5InputFormat;
 import com.dtstack.rdos.engine.execution.flink130.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.BooleanUtils;
@@ -26,11 +31,7 @@ import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.api.common.Plan;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
-import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
@@ -50,8 +51,8 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
+import org.apache.flink.table.sources.BatchTableSource;
 import org.apache.flink.table.sources.StreamTableSource;
-import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -328,11 +329,13 @@ public class FlinkClient extends AbsClient {
         StreamExecutionEnvironment env = getStreamExeEnv(confProperties);
         FlinkUtil.openCheckpoint(env, confProperties);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
+
         Table resultTable = null; //FIXME 注意现在只能使用一个result
         int currStep = 0;
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
         URLClassLoader classLoader = null;
+
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof AddJarOperator){
                 if(currStep > 0){
@@ -352,7 +355,7 @@ public class FlinkClient extends AbsClient {
 
                 currStep = 1;
                 CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                IBatchSourceGener sourceGener = SourceFactory.getStreamSourceGener(sourceOperator.getType());
+                IStreamSourceGener sourceGener = SourceFactory.getStreamSourceGener(sourceOperator.getType());
                 StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
                         (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
                 tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
@@ -381,13 +384,13 @@ public class FlinkClient extends AbsClient {
                 currStep = 3;
                 resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
 
-            }else if(operator instanceof BatchCreateResultOperator){
+            }else if(operator instanceof StreamCreateResultOperator){
                 if(currStep > 4){
-                    throw new RdosException("sql job order setting err. cause of BatchCreateResultOperator");
+                    throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
                 }
 
                 currStep = 4;
-                BatchCreateResultOperator resultOperator = (BatchCreateResultOperator) operator;
+                StreamCreateResultOperator resultOperator = (StreamCreateResultOperator) operator;
                 TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator);
                 resultTable.writeToSink(tableSink);
 
@@ -427,51 +430,31 @@ public class FlinkClient extends AbsClient {
 
     private JobResult submitSqlJobForBatch(JobClient jobClient) {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        BatchTableEnvironment batchTableEnvironment = BatchTableEnvironment.getTableEnvironment(env);
-        env.setParallelism(3);
+        BatchTableEnvironment tableEnv = BatchTableEnvironment.getTableEnvironment(env);
+        Table resultTable = null;
 
-        Elastic5InputFormat.Elastic5InputFormatBuilder builder = Elastic5InputFormat.buildElastic5InputFormat();
-        builder.setCluster("poc_dtstack");
-        builder.setIndex("xcindex");
-        builder.setQuery("John Doe");
-        builder.setSplitNum(2);
+        for(Operator operator : jobClient.getOperators()){
+            if(operator instanceof BatchCreateSourceOperator){
 
-        /***----设置字段转换应该封装起来----***/
+                BatchCreateSourceOperator sourceOperator = (BatchCreateSourceOperator) operator;
+                IBatchSourceGener sourceGener = BatchSourceFactory.getBatchSourceGener(sourceOperator.getType());
+                BatchTableSource tableSource = sourceGener.genBatchSource(sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
+                tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
-        TypeInformation<?>[] fieldTypes = new TypeInformation<?>[] {
-                BasicTypeInfo.STRING_TYPE_INFO,
-                BasicTypeInfo.INT_TYPE_INFO,
-                //new MapTypeInfo(String.class, String.class),
-                BasicTypeInfo.STRING_TYPE_INFO
+            }else if(operator instanceof BatchExecutionOperator){
 
-        };
-        RowTypeInfo rowTypeInfo = new RowTypeInfo(fieldTypes);
-        builder.setRowTypeInfo(rowTypeInfo);
-        /***--------***/
+                BatchExecutionOperator exeOperator = (BatchExecutionOperator) operator;
+                resultTable = tableEnv.sql(exeOperator.getSql());
 
-        builder.setRowFieldNames(new String[]{"name", "age", "xcdata.time"});
+            }else if(operator instanceof BatchCreateResultOperator){
+                BatchCreateResultOperator sinkOperator = (BatchCreateResultOperator) operator;
+                TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator);
+                resultTable.writeToSink(tableSink);
+            }
+        }
 
-        List<String> esHosts = Lists.newArrayList();
-        esHosts.add("172.16.1.232");
-        esHosts.add("172.16.1.142");
-        builder.setHosts(esHosts);
-
-        Elastic5InputFormat elastic5InputFormat = builder.finish();
-
-        DataSet<Row> dataSet = env.createInput(elastic5InputFormat);
-
-        batchTableEnvironment.registerDataSet("MyTable", dataSet, "name, age, xctime");
-        Table resultTable = batchTableEnvironment.sql("select * from MyTable");
-        //Table resultTable = batchTableEnvironment.sql("select name, sum(age) as sumAge from MyTable group by name");
-
-        //batchTableEnvironment.toDataSet(resultTable, Row.class).print();
-
-        /*--------------------------**/
         try{
-            Elastic5BatchTableSink tableSink = new Elastic5BatchTableSink();
-            resultTable.writeToSink(tableSink);
             Plan plan = env.createProgramPlan();
-
             Configuration configuration = client.getFlinkConfiguration();
             Optimizer pc = new Optimizer(new DataStatistics(), configuration);
             OptimizedPlan op = pc.compile(plan);
@@ -479,9 +462,13 @@ public class FlinkClient extends AbsClient {
             JobGraphGenerator jgg = new JobGraphGenerator(configuration);
             JobGraph jobGraph = jgg.compileJobGraph(op, plan.getJobId());
 
+            Path path = new Path("D:\\gitspace\\rdos-execution-engine\\engine\\base\\flink130\\target\\base.flink130-1.0.0-with-dependencies.jar");
+            jobGraph.addJar(path);
+
             JobSubmissionResult submissionResult = client.run(jobGraph, this.getClass().getClassLoader());
             return JobResult.createSuccessResult(submissionResult.getJobID().toString());
         }catch (Exception e){
+            logger.error("", e);
             return JobResult.createErrorResult(e);
         }
 

@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author sishu.yss
  *
  */
-public class BatchCreateResultOperator implements Operator{
+public class StreamCreateResultOperator implements Operator{
 	
 	/**
 	 *  CREATE RESULT TABLE student_stream(

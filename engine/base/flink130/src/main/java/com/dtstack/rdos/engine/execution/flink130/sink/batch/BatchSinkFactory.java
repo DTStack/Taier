@@ -7,10 +7,9 @@ import com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch.Elastic5Bat
 import org.apache.flink.table.sinks.TableSink;
 
 /**
- * Reason:
+ * 获得table sink
  * Date: 2017/7/25
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 
@@ -22,7 +21,7 @@ public class BatchSinkFactory {
         ESinkType sinkType = ESinkType.getSinkType(resultType);
 
         switch (sinkType){
-            case ELASTIC:
+            case ELASTIC5:
                 return new Elastic5BatchTableSink().genBatchSink(resultOperator);
         }
 

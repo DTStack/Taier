@@ -2,8 +2,7 @@ package com.dtstack.rdos.engine.execution.flink130.source.batch;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESourceType;
-import com.dtstack.rdos.engine.execution.flink130.source.stream.IBatchSourceGener;
-import com.dtstack.rdos.engine.execution.flink130.source.stream.kafka.FlinkKafka09SourceGenr;
+import com.dtstack.rdos.engine.execution.flink130.source.batch.elasticsearch.Elastic5SourceGenr;
 
 /**
  * Reason:
@@ -13,7 +12,7 @@ import com.dtstack.rdos.engine.execution.flink130.source.stream.kafka.FlinkKafka
  * @ahthor xuchao
  */
 
-public class SourceFactory {
+public class BatchSourceFactory {
 
     /**
      * 根据指定的类型构造数据源
@@ -27,7 +26,7 @@ public class SourceFactory {
 
         switch (sourceType){
             case ELASTIC5:
-                return new Elas();
+                return new Elastic5SourceGenr();
         }
 
         throw new RdosException("not support for flink stream source type: " + sourceTypeStr);

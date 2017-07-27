@@ -9,7 +9,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
@@ -373,13 +373,13 @@ public class FlinkClient extends AbsClient {
                 currStep = 3;
                 resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
 
-            }else if(operator instanceof BatchCreateResultOperator){
+            }else if(operator instanceof StreamCreateResultOperator){
                 if(currStep > 4){
-                    throw new RdosException("sql job order setting err. cause of BatchCreateResultOperator");
+                    throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
                 }
 
                 currStep = 4;
-                BatchCreateResultOperator resultOperator = (BatchCreateResultOperator) operator;
+                StreamCreateResultOperator resultOperator = (StreamCreateResultOperator) operator;
                 TableSink tableSink = SinkFactory.getTableSink(resultOperator);
                 resultTable.writeToSink(tableSink);
 

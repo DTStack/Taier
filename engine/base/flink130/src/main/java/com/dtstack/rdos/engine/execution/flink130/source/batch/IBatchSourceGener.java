@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink130.source.batch;
 
+import org.apache.flink.table.sources.BatchTableSource;
+
 import java.util.Properties;
 
 /**
@@ -9,7 +11,7 @@ import java.util.Properties;
  *
  * @ahthor xuchao
  */
-public interface IBatchSourceGener<T> {
+public interface IBatchSourceGener<T extends BatchTableSource> {
 
     /**
      * 获取输入源

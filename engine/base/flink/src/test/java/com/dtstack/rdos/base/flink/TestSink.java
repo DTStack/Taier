@@ -1,6 +1,6 @@
 package com.dtstack.rdos.base.flink;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink120.sink.hbase.RdosHbaseSink;
 import com.dtstack.rdos.engine.execution.flink120.sink.hdfs.RdosHdfsSink;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -26,7 +26,7 @@ public class TestSink {
         //String content = StringUtils.join("", lines);
         //System.out.println(content);
         String content = "CREATE RESULT TABLE test1(col1 STRING,col2 INT,col3 TIMESTAMP) WITH (type='datahub',projectName='dtstack',host='172.16.1.151',port='2181',parent='/hbase137',columnFamily='cf1[col1:col2] cf2[col3]',rowkey='col1:col2:col3')";
-        BatchCreateResultOperator operator = new BatchCreateResultOperator();
+        StreamCreateResultOperator operator = new StreamCreateResultOperator();
         operator.createOperator(content);
         RdosHbaseSink rdosHbaseSink = new RdosHbaseSink();
         rdosHbaseSink.genStreamSink(operator);
@@ -60,7 +60,7 @@ public class TestSink {
 
     public static void testHdfsSink() throws Exception {
         String content = "CREATE RESULT TABLE sb4(col1 STRING,col2 INT,col3 INT,col4 INT) WITH (type='datahub',projectName='dtstack',defaultFS='hdfs://172.16.1.151:9000',path='/hyf',fileType='text',delimiter=':')";
-        BatchCreateResultOperator operator = new BatchCreateResultOperator();
+        StreamCreateResultOperator operator = new StreamCreateResultOperator();
         operator.createOperator(content);
         RdosHdfsSink rdosHdfsSink = new RdosHdfsSink();
         rdosHdfsSink.genStreamSink(operator);

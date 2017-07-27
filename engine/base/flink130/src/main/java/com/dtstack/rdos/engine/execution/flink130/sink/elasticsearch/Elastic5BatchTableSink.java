@@ -113,10 +113,10 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
     @Override
     public Elastic5BatchTableSink genBatchSink(BatchCreateResultOperator resultOperator) {
 
-        Preconditions.checkState(resultOperator.getProperties().contains(CLUSTER_NAME), "need param of " + CLUSTER_NAME);
-        Preconditions.checkState(resultOperator.getProperties().contains(ES_ADDRESS), "need param of " + ES_ADDRESS);
-        Preconditions.checkState(resultOperator.getProperties().contains(ES_INDEX_NAME), "need param of " + ES_INDEX_NAME);
-        Preconditions.checkState(resultOperator.getProperties().contains(ES_TYPE), "need param of " + ES_TYPE);
+        Preconditions.checkState(resultOperator.getProperties().containsKey(CLUSTER_NAME), "need param of " + CLUSTER_NAME);
+        Preconditions.checkState(resultOperator.getProperties().containsKey(ES_ADDRESS), "need param of " + ES_ADDRESS);
+        Preconditions.checkState(resultOperator.getProperties().containsKey(ES_INDEX_NAME), "need param of " + ES_INDEX_NAME);
+        Preconditions.checkState(resultOperator.getProperties().containsKey(ES_TYPE), "need param of " + ES_TYPE);
 
         this.clusterName = resultOperator.getProperties().getProperty(CLUSTER_NAME);
         String esAddress = resultOperator.getProperties().getProperty(ES_ADDRESS);

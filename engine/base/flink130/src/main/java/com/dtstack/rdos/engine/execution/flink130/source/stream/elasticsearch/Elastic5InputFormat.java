@@ -38,9 +38,11 @@ import java.util.Map;
 
 public class Elastic5InputFormat extends RichInputFormat<Row, InputSplit> implements ResultTypeQueryable<Row> {
 
+
+
     private String cluster;
 
-    private List<String> hosts;
+    private List<String> addressList;
 
     private String index;
 
@@ -66,6 +68,7 @@ public class Elastic5InputFormat extends RichInputFormat<Row, InputSplit> implem
 
     private transient String scrollId;
 
+    /**不知道作用*/
     private transient Scroll esScroll;
 
     private transient SearchHit[] hitsArr;
@@ -79,12 +82,19 @@ public class Elastic5InputFormat extends RichInputFormat<Row, InputSplit> implem
             Settings settings = Settings.builder().put("cluster.name", cluster).build();
             client = new PreBuiltTransportClient(settings);
 
-            for(String host : hosts){
-                client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), 9300));
+            for(String address : addressList){
+                String[] addrInfo = address.split(":");
+                int port = 9300;
+                if(addrInfo.length > 1){
+                    port = Integer.valueOf(addrInfo[1]);
+                }
+
+                String host = addrInfo[0];
+                client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), port));
             }
 
         } catch (Exception e) {
-            throw new RuntimeException(String.format("init elasticsearch client error, unknown host %s", hosts), e);
+            throw new RuntimeException(String.format("init elasticsearch client error, unknown host %s", addressList), e);
         }
     }
 
@@ -116,7 +126,7 @@ public class Elastic5InputFormat extends RichInputFormat<Row, InputSplit> implem
         Settings settings = Settings.builder().put("cluster.name", cluster).build();
         client = new PreBuiltTransportClient(settings);
 
-        for(String host : hosts){
+        for(String host : addressList){
             client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), 9300));
         }
 
@@ -275,7 +285,7 @@ public class Elastic5InputFormat extends RichInputFormat<Row, InputSplit> implem
         }
 
         public Elastic5InputFormatBuilder setHosts(List<String> hosts){
-            format.hosts = hosts;
+            format.addressList = hosts;
             return this;
         }
 
@@ -306,8 +316,8 @@ public class Elastic5InputFormat extends RichInputFormat<Row, InputSplit> implem
 
         public Elastic5InputFormat finish(){
 
-            if(format.hosts == null){
-                throw new IllegalArgumentException("No hosts supplied");
+            if(format.addressList == null){
+                throw new IllegalArgumentException("No addressList supplied");
             }
 
             if(format.index == null){

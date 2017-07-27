@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink130.sink.stream;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
-import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink130.sink.csv.RdosCsvSink;
 import com.dtstack.rdos.engine.execution.flink130.sink.db.mysql.MysqlSink;
 import com.dtstack.rdos.engine.execution.flink130.sink.kafka.RdosKafka09Sink;
@@ -18,7 +18,7 @@ import org.apache.flink.table.sinks.TableSink;
 
 public class StreamSinkFactory {
 
-    public static TableSink getTableSink(BatchCreateResultOperator resultOperator){
+    public static TableSink getTableSink(StreamCreateResultOperator resultOperator){
 
         String resultType = resultOperator.getType();
         ESinkType sinkType = ESinkType.getSinkType(resultType);

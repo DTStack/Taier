@@ -20,7 +20,7 @@ public class SourceFactory {
      * @param sourceTypeStr
      * @return
      */
-    public static IBatchSourceGener getStreamSourceGener(String sourceTypeStr){
+    public static IStreamSourceGener getStreamSourceGener(String sourceTypeStr){
 
         ESourceType sourceType = ESourceType.getSourceType(sourceTypeStr);
 

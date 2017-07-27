@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @ahthor xuchao
  */
 public enum ESinkType {
-    MYSQL, CSV, ELASTIC, KAFKA09;
+    MYSQL, CSV, ELASTIC5, KAFKA09;
 
     private static final Logger logger = LoggerFactory.getLogger(ESinkType.class);
 

@@ -5,7 +5,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.operator.batch.*;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +27,11 @@ public class SqlParser {
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> flinkOperatorClasses =
 			    Lists.newArrayList(AddJarOperator.class, CreateFunctionOperator.class,
-                        CreateSourceOperator.class, BatchCreateResultOperator.class, ExecutionOperator.class);
+                        CreateSourceOperator.class, StreamCreateResultOperator.class, ExecutionOperator.class);
+
+	private static List<Class<? extends Operator>> flinkBatchSqlClasses =
+			Lists.newArrayList(BatchAddJarOperator.class,
+					BatchCreateSourceOperator.class, BatchCreateResultOperator.class, BatchExecutionOperator.class);
 
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> sparkOperatorClasses =
@@ -38,7 +42,12 @@ public class SqlParser {
         if(engineType == EngineType.Spark.getVal()&&computeType ==ComputeType.BATCH.getComputeType()){
 			operators = parserSql(sql,sparkOperatorClasses);
 		}else if(engineType == EngineType.Flink120.getVal()||engineType == EngineType.Flink130.getVal()){
-			operators = parserSql(sql,flinkOperatorClasses);
+
+        	if(computeType == ComputeType.BATCH.getComputeType()){
+                operators = parserSql(sql, flinkBatchSqlClasses);
+			}else{
+				operators = parserSql(sql,flinkOperatorClasses);
+			}
 		}
 		return operators;
 	}

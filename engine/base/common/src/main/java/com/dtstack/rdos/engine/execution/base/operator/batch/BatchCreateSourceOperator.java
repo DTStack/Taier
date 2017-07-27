@@ -21,12 +21,7 @@ public class BatchCreateSourceOperator implements Operator{
 	 *  CREATE SOURCE TABLE student_stream(
 	 *  id BIGINT,
 	 *  name STRING) WITH (
-	 *  type='ELASTIC',
-	 *  endpoint='http://dh-cn-hangzhou.aliyuncs.com',
-	 *  accessId='OERGMhXn6H2mBkhk',
-	 *  accessKey='qnuSKMKoMcY5Va97GGFtL0nvlAoLZx',
-	 *  projectName='dtstack',
-	 *  topic='datahub_test'
+	 *  type='ELASTIC'
 	 *  );
 	 */
 	private static String pattern ="CREATESOURCE";
@@ -66,7 +61,7 @@ public class BatchCreateSourceOperator implements Operator{
 	}
 
 	private void setTypeAndProperties(String sql){
-		String[] strs = sql.trim().split(",");
+		String[] strs = sql.trim().split("'\\s*,");
 		this.properties = new Properties();
 		for(int i=0;i<strs.length;i++){
 			String[] ss = strs[i].split("=");
@@ -108,7 +103,6 @@ public class BatchCreateSourceOperator implements Operator{
 
 	@Override
 	public String getSql() {
-		// TODO Auto-generated method stub
 		return this.sql.trim();
 	}
 }

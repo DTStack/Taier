@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink130.sink.hbase;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.IStreamSinkGener;
 
 /**
@@ -9,7 +9,7 @@ import com.dtstack.rdos.engine.execution.flink130.sink.stream.IStreamSinkGener;
 public class RdosHbaseSink extends HbaseSink implements IStreamSinkGener<RdosHbaseSink>{
 
     @Override
-    public RdosHbaseSink genStreamSink(BatchCreateResultOperator resultOperator) {
+    public RdosHbaseSink genStreamSink(StreamCreateResultOperator resultOperator) {
         return null;
     }
 }

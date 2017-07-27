@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink130.source.stream.kafka;
 
-import com.dtstack.rdos.engine.execution.flink130.source.stream.IBatchSourceGener;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.IStreamSourceGener;
 import com.google.common.base.Preconditions;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -19,7 +19,7 @@ import java.util.Properties;
  * @ahthor xuchao
  */
 
-public class FlinkKafka09SourceGenr implements IBatchSourceGener<StreamTableSource> {
+public class FlinkKafka09SourceGenr implements IStreamSourceGener<StreamTableSource> {
 
     public static final String KAFKA_BOOTSTRAPSERVERS_KEY = "bootstrapServers";
 

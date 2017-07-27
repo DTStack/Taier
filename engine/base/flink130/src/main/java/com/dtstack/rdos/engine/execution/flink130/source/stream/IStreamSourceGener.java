@@ -9,7 +9,7 @@ import java.util.Properties;
  *
  * @ahthor xuchao
  */
-public interface IBatchSourceGener<T> {
+public interface IStreamSourceGener<T> {
 
     /**
      * 获取输入源

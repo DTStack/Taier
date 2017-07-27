@@ -80,6 +80,11 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
+
+				<exclusion>
+					<artifactId>netty-all</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -92,10 +97,12 @@
 					<groupId>log4j</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
+
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
+
 			</exclusions>
 		</dependency>
 
@@ -160,6 +167,11 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-log4j12</artifactId>
 				</exclusion>
+
+				<exclusion>
+					<artifactId>netty-all</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		
@@ -181,8 +193,8 @@
 
 		<dependency>
 			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-connector-elasticsearch5_2.10</artifactId>
-			<version>1.3-SNAPSHOT</version>
+				<artifactId>flink-connector-elasticsearch5_2.11</artifactId>
+			<version>1.3.1</version>
 		</dependency>
 
 	</dependencies>
