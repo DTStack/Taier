@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.sink.kafka;
+package com.dtstack.rdos.engine.execution.flink130.sink.stream.kafka;
 
 import org.apache.flink.streaming.connectors.kafka.partitioner.KafkaPartitioner;
 import org.apache.flink.types.Row;

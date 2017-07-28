@@ -66,7 +66,7 @@ public class StreamCreateResultOperator implements Operator{
 	}
 	
 	private void setTypeAndProperties(String sql){
-		String[] strs = sql.trim().split(",");
+		String[] strs = sql.trim().split("'\\s*,");
 		this.properties = new Properties();
         for(int i=0;i<strs.length;i++){
 

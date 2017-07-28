@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
@@ -17,7 +18,6 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
-import com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch.Elastic5BatchTableSink;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.IBatchSourceGener;
 import com.dtstack.rdos.engine.execution.flink130.source.stream.IStreamSourceGener;
@@ -59,11 +59,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -350,7 +348,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
-                    throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
+                    throw new RdosException("sql job order setting err. cause of StreamCreateSourceOperator");
                 }
 
                 currStep = 1;
@@ -399,6 +397,7 @@ public class FlinkClient extends AbsClient {
             }
         }
 
+        //FIXME　需要提交自定义的outformat class 到 flink, --->改成插件之后提交URL到远程即可
         try {
             //这里getStreamGraph() 和 getJobGraph()均是创建新的对象,方法命名让人疑惑.
             StreamGraph streamGraph = env.getStreamGraph();
@@ -422,31 +421,80 @@ public class FlinkClient extends AbsClient {
             }
 
             return jobResult;
-
         } catch (Exception e) {
             return JobResult.createErrorResult(e);
         }
     }
 
-    private JobResult submitSqlJobForBatch(JobClient jobClient) {
+    private JobResult submitSqlJobForBatch(JobClient jobClient) throws FileNotFoundException, MalformedURLException, ClassNotFoundException {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         BatchTableEnvironment tableEnv = BatchTableEnvironment.getTableEnvironment(env);
         Table resultTable = null;
 
+        int currStep = 0;
+        List<String> jarPathList = new ArrayList<>();
+        List<URL> jarURList = Lists.newArrayList();
+        URLClassLoader classLoader = null;
+
         for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof BatchCreateSourceOperator){
+
+            if(operator instanceof BatchAddJarOperator){
+                if(currStep > 0){
+                    throw new RdosException("sql job order setting err. cause of AddJarOperator");
+                }
+
+                BatchAddJarOperator addJarOperator = (BatchAddJarOperator) operator;
+                String addFilePath = addJarOperator.getJarPath();
+                File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
+                jarURList.add(tmpFile.toURI().toURL());
+                jarPathList.add(tmpFile.getAbsolutePath());
+
+            }else if(operator instanceof BatchCreateSourceOperator){
+                if(currStep > 1){
+                    throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
+                }
+
+                currStep = 1;
 
                 BatchCreateSourceOperator sourceOperator = (BatchCreateSourceOperator) operator;
                 IBatchSourceGener sourceGener = BatchSourceFactory.getBatchSourceGener(sourceOperator.getType());
                 BatchTableSource tableSource = sourceGener.genBatchSource(sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
                 tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
+            }else if(operator instanceof CreateFunctionOperator){//注册自定义func
+                if(currStep > 2){
+                    throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
+                }
+
+                currStep = 2;
+                CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
+                //需要把字节码加载进来
+                if(classLoader == null){
+                    classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                }
+
+                classLoader.loadClass(tmpOperator.getClassName());
+                FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(),
+                        tableEnv, classLoader);
+
             }else if(operator instanceof BatchExecutionOperator){
 
+                if(currStep > 3){
+                    throw new RdosException("sql job order setting err. cause of ExecutionOperator");
+                }
+
+                currStep = 3;
                 BatchExecutionOperator exeOperator = (BatchExecutionOperator) operator;
                 resultTable = tableEnv.sql(exeOperator.getSql());
 
             }else if(operator instanceof BatchCreateResultOperator){
+
+                if(currStep > 4){
+                    throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
+                }
+
+                currStep = 4;
+
                 BatchCreateResultOperator sinkOperator = (BatchCreateResultOperator) operator;
                 TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator);
                 resultTable.writeToSink(tableSink);
@@ -466,6 +514,9 @@ public class FlinkClient extends AbsClient {
             jobGraph.addJar(path);
 
             JobSubmissionResult submissionResult = client.run(jobGraph, this.getClass().getClassLoader());
+
+            //FIXME 改成插件后使用该方式提交
+            //JobSubmissionResult submissionResult = client.run(op, libList, Lists.newArrayList(), this.getClass().getClassLoader());
             return JobResult.createSuccessResult(submissionResult.getJobID().toString());
         }catch (Exception e){
             logger.error("", e);

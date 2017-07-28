@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.sink.kafka;
+package com.dtstack.rdos.engine.execution.flink130.sink.stream.kafka;
 
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.IStreamSinkGener;

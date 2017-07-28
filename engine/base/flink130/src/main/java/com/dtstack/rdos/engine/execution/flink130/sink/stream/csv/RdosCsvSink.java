@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.sink.csv;
+package com.dtstack.rdos.engine.execution.flink130.sink.stream.csv;
 
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.IStreamSinkGener;

@@ -1,7 +1,8 @@
-package com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch;
+package com.dtstack.rdos.engine.execution.flink130.sink.batch.elasticsearch;
 
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.flink130.sink.batch.IBatchSinkGener;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.DataSet;
@@ -40,6 +41,8 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
 
     private static final String ES_TYPE = "es.type";
 
+    private static final String ES_ID_FIELDS_INDEX = "es.id.fields.index";
+
     private static final String ES_BULK_FLUSH_SIZE = "bulk.flush.max.actions";
 
     private String clusterName;
@@ -51,6 +54,8 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
     private TypeInformation[] fieldTypes;
 
     private int bulkFlushMaxActions = 1;//默认每次都提交
+
+    private List<Integer> indexList;
 
     private String indexName;
 
@@ -104,8 +109,7 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
             }
         }
 
-        ElasticsearchOutputFunction sinkFunction = new CustomerOutputFunc(indexName, esType);
-
+        ElasticsearchOutputFunction sinkFunction = new CustomerOutputFunc(indexName, esType, indexList);
         Elastic5OutputFormat elastic5OutputFormat = new Elastic5OutputFormat(userConfig, transports, sinkFunction, new NoOpFailureHandler());
         dataSet.output(elastic5OutputFormat);
     }
@@ -117,6 +121,7 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
         Preconditions.checkState(resultOperator.getProperties().containsKey(ES_ADDRESS), "need param of " + ES_ADDRESS);
         Preconditions.checkState(resultOperator.getProperties().containsKey(ES_INDEX_NAME), "need param of " + ES_INDEX_NAME);
         Preconditions.checkState(resultOperator.getProperties().containsKey(ES_TYPE), "need param of " + ES_TYPE);
+        Preconditions.checkState(resultOperator.getProperties().containsKey(ES_ID_FIELDS_INDEX), "need param of " + ES_ID_FIELDS_INDEX);
 
         this.clusterName = resultOperator.getProperties().getProperty(CLUSTER_NAME);
         String esAddress = resultOperator.getProperties().getProperty(ES_ADDRESS);
@@ -126,6 +131,7 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
 
         this.indexName = resultOperator.getProperties().getProperty(ES_INDEX_NAME);
         this.esType = resultOperator.getProperties().getProperty(ES_TYPE);
+        String fieldIndex = resultOperator.getProperties().getProperty(ES_ID_FIELDS_INDEX);
 
         String[] addressArr = esAddress.split(",");
         if(addressArr.length == 0){
@@ -133,6 +139,11 @@ public class Elastic5BatchTableSink extends ElasticBatchTableBaseSink implements
         }
 
         this.esAddressList = Arrays.asList(addressArr);
+
+        indexList = Lists.newArrayList();
+        for(String indexStr : fieldIndex.split(",")){
+            indexList.add(Integer.valueOf(indexStr.trim()));
+        }
 
         return this;
     }

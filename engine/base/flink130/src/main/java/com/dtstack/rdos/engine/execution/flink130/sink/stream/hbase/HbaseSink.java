@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.sink.hbase;
+package com.dtstack.rdos.engine.execution.flink130.sink.stream.hbase;
 
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;

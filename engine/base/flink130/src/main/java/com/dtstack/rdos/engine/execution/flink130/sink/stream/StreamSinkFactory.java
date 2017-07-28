@@ -3,9 +3,10 @@ package com.dtstack.rdos.engine.execution.flink130.sink.stream;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink130.sink.csv.RdosCsvSink;
-import com.dtstack.rdos.engine.execution.flink130.sink.db.mysql.MysqlSink;
-import com.dtstack.rdos.engine.execution.flink130.sink.kafka.RdosKafka09Sink;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.csv.RdosCsvSink;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.db.mysql.MysqlSink;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.elasticsearch.RdosElasticsearchSink;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.kafka.RdosKafka09Sink;
 
 import org.apache.flink.table.sinks.TableSink;
 
@@ -32,6 +33,9 @@ public class StreamSinkFactory {
 
             case KAFKA09://FIXME 未测试
                 return new RdosKafka09Sink().genStreamSink(resultOperator);
+
+            case ELASTIC5:
+                return new RdosElasticsearchSink().genStreamSink(resultOperator);
         }
 
         throw new RdosException("not support sink type:" + resultType + "!!!");

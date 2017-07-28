@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch;
+package com.dtstack.rdos.engine.execution.flink130.sink.batch.elasticsearch;
 
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -339,7 +339,7 @@ public class Elastic5OutputFormat extends RichOutputFormat<Row> {
     private void checkErrorAndRethrow() {
         Throwable cause = failureThrowable.get();
         if (cause != null) {
-            throw new RuntimeException("An error occurred in ElasticsearchSink.", cause);
+            throw new RuntimeException("An error occurred in RdosElasticsearchSink.", cause);
         }
     }
 

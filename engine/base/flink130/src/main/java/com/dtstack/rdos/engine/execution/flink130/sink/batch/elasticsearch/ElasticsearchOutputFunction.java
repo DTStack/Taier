@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.dtstack.rdos.engine.execution.flink130.sink.elasticsearch;
+package com.dtstack.rdos.engine.execution.flink130.sink.batch.elasticsearch;
 
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.RuntimeContext;
