@@ -3,6 +3,8 @@ package com.dtstack.rdos.engine.execution.flink120.util;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink120.constrant.ConfigConstrant;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
@@ -14,6 +16,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
+import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -279,6 +284,55 @@ public class FlinkUtil {
 
         URLClassLoader classLoader = new URLClassLoader(urlArray, superClassLoader);
         return classLoader;
+    }
+
+    // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
+    public static List<URL> getUserClassPath(List<String> programArgList, String flinkPluginRoot) {
+        List<URL> urlList = new ArrayList<>();
+        if(programArgList == null || flinkPluginRoot == null)
+            return urlList;
+
+        int i = 0;
+        for(; i < programArgList.size() - 1; ++i)
+            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job"))
+                break;
+
+        if(i == programArgList.size() - 1)
+            return urlList;
+
+        programArgList.add("-pluginRoot");
+        programArgList.add(localFileDir + fileSP + "plugins");
+
+        String job = programArgList.get(i + 1);
+
+        try {
+            job = java.net.URLDecoder.decode(job, "UTF-8");
+            programArgList.set(i + 1, job);
+            Gson gson = new Gson();
+            Map<String, Object> map = gson.fromJson(job, Map.class);
+            LinkedTreeMap jobMap = (LinkedTreeMap) map.get("job");
+
+            List<LinkedTreeMap> contentList = (List<LinkedTreeMap>) jobMap.get("content");
+            LinkedTreeMap content = contentList.get(0);
+            LinkedTreeMap reader = (LinkedTreeMap) content.get("reader");
+            String readerName = (String) reader.get("name");
+            LinkedTreeMap writer = (LinkedTreeMap) content.get("writer");
+            String writerName = (String) writer.get("name");
+
+            Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
+            Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
+
+            String readerClasspath = "file://" + flinkPluginRoot + fileSP + readerName + fileSP + readerName + ".jar";
+            String writerClasspath = "file://" + flinkPluginRoot + fileSP + writerName + fileSP + writerName + ".jar";
+
+            urlList.add(new URL(readerClasspath));
+            urlList.add(new URL(writerClasspath));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            return urlList;
+        }
+
     }
 
 

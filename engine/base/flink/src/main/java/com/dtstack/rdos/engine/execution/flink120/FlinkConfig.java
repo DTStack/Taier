@@ -20,6 +20,10 @@ public class FlinkConfig {
 	private String flinkHighAvailabilityStorageDir;
 	
 	private String jarTmpDir;
+
+	private String flinkPluginRoot;
+
+	private String monitorAddress;
 	
 	public String getFlinkZkAddress() {
 		return flinkZkAddress;
@@ -77,5 +81,21 @@ public class FlinkConfig {
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 	}
-	
+
+
+	public String getFlinkPluginRoot() {
+		return flinkPluginRoot;
+	}
+
+	public void setFlinkPluginRoot(String flinkPluginRoot) {
+		this.flinkPluginRoot = flinkPluginRoot;
+	}
+
+	public String getMonitorAddress() {
+		return monitorAddress;
+	}
+
+	public void setMonitorAddress(String monitorAddress) {
+		this.monitorAddress = monitorAddress;
+	}
 }
