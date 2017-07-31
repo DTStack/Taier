@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -260,25 +261,29 @@ public class FlinkClient extends AbsClient {
 
     public Properties adaptToJarSubmit(JobClient jobClient){
 
-        AddJarOperator jarOperator = null;
+        Properties properties = new Properties();
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof AddJarOperator){
-                jarOperator = (AddJarOperator) operator;
+                AddJarOperator addjarOperator = (AddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
+                break;
+            }else if(operator instanceof BatchAddJarOperator){
+                BatchAddJarOperator addjarOperator = (BatchAddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
                 break;
             }
         }
 
-        if(jarOperator == null){
+        if(!properties.containsKey(JOB_JAR_PATH_KEY)){
             throw new RdosException("submit type of MR need to add jar operator.");
         }
 
-        Properties properties = new Properties();
-        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
 
         if(jobClient.getClassArgs() != null){
             properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
         }
+
         return properties;
     }
 
@@ -417,6 +422,10 @@ public class FlinkClient extends AbsClient {
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
                 jobGraph.addJar(new Path(jarFileUri));
             }
+
+            //FIXME 需要添加到远程的jar路径需要添加到jobGraph 的 classpath 里面;
+            //jobGraph.getClasspaths().add();
+
             JobResult jobResult;
             if(isDetact){
                 JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());

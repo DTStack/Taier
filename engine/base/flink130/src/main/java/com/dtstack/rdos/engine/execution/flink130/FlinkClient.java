@@ -162,11 +162,14 @@ public class FlinkClient extends AbsClient {
     }
 
     public void init(Properties prop) throws Exception {
+
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
+
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
+
         if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
             Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
         	initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),flinkConfig.getFlinkHighAvailabilityStorageDir());
@@ -253,23 +256,29 @@ public class FlinkClient extends AbsClient {
     }
 
     public Properties adaptToJarSubmit(JobClient jobClient){
-
-        AddJarOperator jarOperator = null;
+        Properties properties = new Properties();
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof AddJarOperator){
-                jarOperator = (AddJarOperator) operator;
+                AddJarOperator addjarOperator = (AddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
+                break;
+            }else if(operator instanceof BatchAddJarOperator){
+                BatchAddJarOperator addjarOperator = (BatchAddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
                 break;
             }
         }
 
-        if(jarOperator == null){
+        if(!properties.containsKey(JOB_JAR_PATH_KEY)){
             throw new RdosException("submit type of MR need to add jar operator.");
         }
 
-        Properties properties = new Properties();
-        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
-        properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
+
+        if(jobClient.getClassArgs() != null){
+            properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
+        }
+
         return properties;
     }
 
