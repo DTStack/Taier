@@ -31,7 +31,6 @@ import java.util.Properties;
  * Reason:
  * Date: 2017/2/21
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 

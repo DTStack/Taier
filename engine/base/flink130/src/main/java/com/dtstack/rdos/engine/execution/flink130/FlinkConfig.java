@@ -20,6 +20,8 @@ public class FlinkConfig {
 	private String flinkHighAvailabilityStorageDir;
 	
 	private String jarTmpDir;
+
+	private String sqlPluginRootDir;
 	
 	public String getFlinkZkAddress() {
 		return flinkZkAddress;
@@ -77,5 +79,12 @@ public class FlinkConfig {
 	public void setTypeName(String typeName) {
 		this.typeName = typeName;
 	}
-	
+
+	public String getSqlPluginRootDir() {
+		return sqlPluginRootDir;
+	}
+
+	public void setSqlPluginRootDir(String sqlPluginRootDir) {
+		this.sqlPluginRootDir = sqlPluginRootDir;
+	}
 }
