@@ -247,7 +247,7 @@ public class DtClassLoader extends URLClassLoader {
     }
 
     @Override
-    protected void addURL(URL url) {
+    public void addURL(URL url) {
         super.addURL(url);
         hasExternalRepositories = true;
     }

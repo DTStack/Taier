@@ -8,11 +8,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.*;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink120.sink.SinkFactory;
@@ -263,25 +261,29 @@ public class FlinkClient extends AbsClient {
 
     public Properties adaptToJarSubmit(JobClient jobClient){
 
-        AddJarOperator jarOperator = null;
+        Properties properties = new Properties();
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof AddJarOperator){
-                jarOperator = (AddJarOperator) operator;
+                AddJarOperator addjarOperator = (AddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
+                break;
+            }else if(operator instanceof BatchAddJarOperator){
+                BatchAddJarOperator addjarOperator = (BatchAddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
                 break;
             }
         }
 
-        if(jarOperator == null){
+        if(!properties.containsKey(JOB_JAR_PATH_KEY)){
             throw new RdosException("submit type of MR need to add jar operator.");
         }
 
-        Properties properties = new Properties();
-        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
 
         if(jobClient.getClassArgs() != null){
             properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
         }
+
         return properties;
     }
 
@@ -358,7 +360,7 @@ public class FlinkClient extends AbsClient {
 
             }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
                 if(currStep > 1){
-                    throw new RdosException("sql job order setting err. cause of CreateSourceOperator");
+                    throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
                 }
 
                 currStep = 1;
@@ -392,13 +394,13 @@ public class FlinkClient extends AbsClient {
                 currStep = 3;
                 resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
 
-            }else if(operator instanceof CreateResultOperator){
+            }else if(operator instanceof StreamCreateResultOperator){
                 if(currStep > 4){
-                    throw new RdosException("sql job order setting err. cause of CreateResultOperator");
+                    throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
                 }
 
                 currStep = 4;
-                CreateResultOperator resultOperator = (CreateResultOperator) operator;
+                StreamCreateResultOperator resultOperator = (StreamCreateResultOperator) operator;
                 TableSink tableSink = SinkFactory.getTableSink(resultOperator);
                 resultTable.writeToSink(tableSink);
 
@@ -420,6 +422,10 @@ public class FlinkClient extends AbsClient {
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
                 jobGraph.addJar(new Path(jarFileUri));
             }
+
+            //FIXME 需要添加到远程的jar路径需要添加到jobGraph 的 classpath 里面;
+            //jobGraph.getClasspaths().add();
+
             JobResult jobResult;
             if(isDetact){
                 JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());

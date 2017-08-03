@@ -7,58 +7,65 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
-import com.dtstack.rdos.engine.execution.base.operator.*;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.Operator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.*;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.flink130.sink.SinkFactory;
-import com.dtstack.rdos.engine.execution.flink130.source.IStreamSourceGener;
-import com.dtstack.rdos.engine.execution.flink130.source.SourceFactory;
+import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
+import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
+import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.SourceFactory;
 import com.dtstack.rdos.engine.execution.flink130.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
+import org.apache.flink.api.common.Plan;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
+import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.*;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.core.fs.Path;
+import org.apache.flink.optimizer.DataStatistics;
+import org.apache.flink.optimizer.Optimizer;
+import org.apache.flink.optimizer.plan.OptimizedPlan;
+import org.apache.flink.optimizer.plantranslate.JobGraphGenerator;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
+import org.apache.flink.table.sources.BatchTableSource;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.net.*;
+import java.util.*;
 
 /**
- * Reason:
+ *
  * Date: 2017/2/20
  * Company: www.dtstack.com
  * @ahthor xuchao
@@ -152,11 +159,15 @@ public class FlinkClient extends AbsClient {
     }
 
     public void init(Properties prop) throws Exception {
+
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
+        PluginSourceUtil.setSourceJarRootDir(flinkConfig.getSqlPluginRootDir());
+
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
+
         if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
             Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
         	initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),flinkConfig.getFlinkHighAvailabilityStorageDir());
@@ -243,23 +254,29 @@ public class FlinkClient extends AbsClient {
     }
 
     public Properties adaptToJarSubmit(JobClient jobClient){
-
-        AddJarOperator jarOperator = null;
+        Properties properties = new Properties();
         for(Operator operator : jobClient.getOperators()){
             if(operator instanceof AddJarOperator){
-                jarOperator = (AddJarOperator) operator;
+                AddJarOperator addjarOperator = (AddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
+                break;
+            }else if(operator instanceof BatchAddJarOperator){
+                BatchAddJarOperator addjarOperator = (BatchAddJarOperator) operator;
+                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
                 break;
             }
         }
 
-        if(jarOperator == null){
+        if(!properties.containsKey(JOB_JAR_PATH_KEY)){
             throw new RdosException("submit type of MR need to add jar operator.");
         }
 
-        Properties properties = new Properties();
-        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
         properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
-        properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
+
+        if(jobClient.getClassArgs() != null){
+            properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
+        }
+
         return properties;
     }
 
@@ -312,80 +329,90 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException {
+    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException{
+
     	Properties confProperties = jobClient.getConfProperties();
         StreamExecutionEnvironment env = getStreamExeEnv(confProperties);
         FlinkUtil.openCheckpoint(env, confProperties);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
+
         Table resultTable = null; //FIXME 注意现在只能使用一个result
-        int currStep = 0;
+        URLClassLoader classLoader = null;
+
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
-        URLClassLoader classLoader = null;
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof AddJarOperator){
-                if(currStep > 0){
-                    throw new RdosException("sql job order setting err. cause of AddJarOperator");
-                }
+        Set<String> classPathSet = Sets.newHashSet();
 
-                AddJarOperator addJarOperator = (AddJarOperator) operator;
-                String addFilePath = addJarOperator.getJarPath();
-                File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
-                jarURList.add(tmpFile.toURI().toURL());
-                jarPathList.add(tmpFile.getAbsolutePath());
-
-            }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
-                if(currStep > 1){
-                    throw new RdosException("sql job order setting err. cause of CreateSourceOperator");
-                }
-
-                currStep = 1;
-                CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                IStreamSourceGener sourceGener = SourceFactory.getStreamSourceGener(sourceOperator.getType());
-                StreamTableSource tableSource = (StreamTableSource) sourceGener.genStreamSource
-                        (sourceOperator.getProperties(), sourceOperator.getFields(), sourceOperator.getFieldTypes());
-                tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
-
-            }else if(operator instanceof CreateFunctionOperator){//注册自定义func
-                if(currStep > 2){
-                    throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
-                }
-
-                currStep = 2;
-                CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
-                //需要把字节码加载进来
-                if(classLoader == null){
-                    classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
-                }
-
-                classLoader.loadClass(tmpOperator.getClassName());
-                FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(),
-                        tableEnv, classLoader);
-
-            }else if(operator instanceof ExecutionOperator){
-                if(currStep > 3){
-                    throw new RdosException("sql job order setting err. cause of ExecutionOperator");
-                }
-
-                currStep = 3;
-                resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
-
-            }else if(operator instanceof CreateResultOperator){
-                if(currStep > 4){
-                    throw new RdosException("sql job order setting err. cause of CreateResultOperator");
-                }
-
-                currStep = 4;
-                CreateResultOperator resultOperator = (CreateResultOperator) operator;
-                TableSink tableSink = SinkFactory.getTableSink(resultOperator);
-                resultTable.writeToSink(tableSink);
-
-            }else{
-                throw new RdosException("not support operator of " + operator.getClass().getName());
-            }
-        }
+        int currStep = 0;
 
         try {
+            for(Operator operator : jobClient.getOperators()){
+                if(operator instanceof AddJarOperator){
+                    if(currStep > 0){
+                        throw new RdosException("sql job order setting err. cause of AddJarOperator");
+                    }
+
+                    AddJarOperator addJarOperator = (AddJarOperator) operator;
+                    String addFilePath = addJarOperator.getJarPath();
+                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
+                    jarURList.add(tmpFile.toURI().toURL());
+                    jarPathList.add(tmpFile.getAbsolutePath());
+
+                }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
+                    if(currStep > 1){
+                        throw new RdosException("sql job order setting err. cause of StreamCreateSourceOperator");
+                    }
+
+                    currStep = 1;
+                    CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
+                    StreamTableSource tableSource = SourceFactory.getStreamSource(sourceOperator);
+                    tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
+
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceOperator.getType());
+                    classPathSet.add(remoteJarPath);
+
+                }else if(operator instanceof CreateFunctionOperator){//注册自定义func
+                    if(currStep > 2){
+                        throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
+                    }
+
+                    currStep = 2;
+                    CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
+                    //需要把字节码加载进来
+                    if(classLoader == null){
+                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                    }
+
+                    classLoader.loadClass(tmpOperator.getClassName());
+                    FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(),
+                            tableEnv, classLoader);
+
+                }else if(operator instanceof ExecutionOperator){
+                    if(currStep > 3){
+                        throw new RdosException("sql job order setting err. cause of ExecutionOperator");
+                    }
+
+                    currStep = 3;
+                    resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
+
+                }else if(operator instanceof StreamCreateResultOperator){
+                    if(currStep > 4){
+                        throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
+                    }
+
+                    currStep = 4;
+                    StreamCreateResultOperator resultOperator = (StreamCreateResultOperator) operator;
+                    TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator);
+                    resultTable.writeToSink(tableSink);
+
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(resultOperator.getType());
+                    classPathSet.add(remoteJarPath);
+
+                }else{
+                    throw new RdosException("not support operator of " + operator.getClass().getName());
+                }
+            }
+
             //这里getStreamGraph() 和 getJobGraph()均是创建新的对象,方法命名让人疑惑.
             StreamGraph streamGraph = env.getStreamGraph();
             streamGraph.setJobName(jobClient.getJobName());
@@ -398,7 +425,16 @@ public class FlinkClient extends AbsClient {
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
                 jobGraph.addJar(new Path(jarFileUri));
             }
+
+            List<URL> classPathList = Lists.newArrayList();
+            for(String remoteJarPth : classPathSet){
+                URL url = new URL(remoteJarPth);
+                classPathList.add(url);
+            }
+
+            jobGraph.setClasspaths(classPathList);
             JobResult jobResult;
+
             if(isDetact){
                 JobSubmissionResult submissionResult = client.runDetached(jobGraph, client.getClass().getClassLoader());
                 jobResult = JobResult.createSuccessResult(submissionResult.getJobID().toString());
@@ -408,14 +444,113 @@ public class FlinkClient extends AbsClient {
             }
 
             return jobResult;
-
         } catch (Exception e) {
+            logger.info("", e);
             return JobResult.createErrorResult(e);
         }
     }
 
-    private JobResult submitSqlJobForBatch(JobClient jobClient){
-        throw new RdosException("not support flink sql job for batch type.");
+    private JobResult submitSqlJobForBatch(JobClient jobClient) throws FileNotFoundException, MalformedURLException, ClassNotFoundException {
+        ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        BatchTableEnvironment tableEnv = BatchTableEnvironment.getTableEnvironment(env);
+        Table resultTable = null;
+
+        URLClassLoader classLoader = null;
+        int currStep = 0;
+        List<String> jarPathList = new ArrayList<>();
+        List<URL> jarURList = Lists.newArrayList();
+        Set<String> classPathSet = Sets.newHashSet();
+
+        try{
+            for(Operator operator : jobClient.getOperators()){
+
+                if(operator instanceof BatchAddJarOperator){
+                    if(currStep > 0){
+                        throw new RdosException("sql job order setting err. cause of AddJarOperator");
+                    }
+
+                    BatchAddJarOperator addJarOperator = (BatchAddJarOperator) operator;
+                    String addFilePath = addJarOperator.getJarPath();
+                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
+                    jarURList.add(tmpFile.toURI().toURL());
+                    jarPathList.add(tmpFile.getAbsolutePath());
+
+                }else if(operator instanceof BatchCreateSourceOperator){
+                    if(currStep > 1){
+                        throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
+                    }
+
+                    currStep = 1;
+
+                    BatchCreateSourceOperator sourceOperator = (BatchCreateSourceOperator) operator;
+                    BatchTableSource tableSource = BatchSourceFactory.getBatchSource(sourceOperator);
+                    tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
+
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceOperator.getType());
+                    classPathSet.add(remoteJarPath);
+
+                }else if(operator instanceof CreateFunctionOperator){//注册自定义func
+                    if(currStep > 2){
+                        throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
+                    }
+
+                    currStep = 2;
+                    CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
+                    //需要把字节码加载进来
+                    if(classLoader == null){
+                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                    }
+
+                    classLoader.loadClass(tmpOperator.getClassName());
+                    FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(),
+                            tableEnv, classLoader);
+
+                }else if(operator instanceof BatchExecutionOperator){
+
+                    if(currStep > 3){
+                        throw new RdosException("sql job order setting err. cause of ExecutionOperator");
+                    }
+
+                    currStep = 3;
+                    BatchExecutionOperator exeOperator = (BatchExecutionOperator) operator;
+                    resultTable = tableEnv.sql(exeOperator.getSql());
+
+                }else if(operator instanceof BatchCreateResultOperator){
+
+                    if(currStep > 4){
+                        throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
+                    }
+
+                    currStep = 4;
+
+                    BatchCreateResultOperator sinkOperator = (BatchCreateResultOperator) operator;
+                    TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator);
+                    resultTable.writeToSink(tableSink);
+
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkOperator.getType());
+                    classPathSet.add(remoteJarPath);
+                }
+            }
+
+
+            Plan plan = env.createProgramPlan();
+            Configuration configuration = client.getFlinkConfiguration();
+            Optimizer pc = new Optimizer(new DataStatistics(), configuration);
+            OptimizedPlan op = pc.compile(plan);
+
+            List<URL> classPathList = Lists.newArrayList();
+            for(String jarPath : classPathSet){
+                URL jarURL = new URL(jarPath);
+                classPathList.add(jarURL);
+            }
+
+            JobSubmissionResult submissionResult = client.run(op, jarURList, classPathList, this.getClass().getClassLoader());
+            return JobResult.createSuccessResult(submissionResult.getJobID().toString());
+        }catch (Exception e){
+            logger.error("", e);
+            return JobResult.createErrorResult(e);
+        }
+
     }
 
     @Override

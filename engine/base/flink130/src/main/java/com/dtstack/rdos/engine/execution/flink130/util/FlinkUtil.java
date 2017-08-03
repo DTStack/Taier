@@ -11,6 +11,8 @@ import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.functions.ScalarFunction;
 import org.apache.flink.table.functions.TableFunction;
@@ -29,7 +31,6 @@ import java.util.Properties;
  * Reason:
  * Date: 2017/2/21
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 
@@ -162,10 +163,11 @@ public class FlinkUtil {
     }
 
     /**
+     * FIXME 暂时不支持 UDF 实现类--有参构造方法
      * TABLE|SCALA
      * 注册UDF到table env
      */
-    public static void registerUDF(String type, String classPath, String funcName, StreamTableEnvironment tableEnv,
+    public static void registerUDF(String type, String classPath, String funcName, TableEnvironment tableEnv,
                                    ClassLoader classLoader){
         if("SCALA".equalsIgnoreCase(type)){
             registerScalaUDF(classPath, funcName, tableEnv, classLoader);
@@ -183,7 +185,7 @@ public class FlinkUtil {
      * @param funcName
      * @param tableEnv
      */
-    public static void registerScalaUDF(String classPath, String funcName, StreamTableEnvironment tableEnv,
+    public static void registerScalaUDF(String classPath, String funcName, TableEnvironment tableEnv,
                                         ClassLoader classLoader){
         try{
             ScalarFunction udfFunc = Class.forName(classPath, false, classLoader)
@@ -202,12 +204,20 @@ public class FlinkUtil {
      * @param funcName
      * @param tableEnv
      */
-    public static void registerTableUDF(String classPath, String funcName, StreamTableEnvironment tableEnv,
+    public static void registerTableUDF(String classPath, String funcName, TableEnvironment tableEnv,
                                         ClassLoader classLoader){
         try {
             TableFunction udfFunc = Class.forName(classPath, false, classLoader)
                     .asSubclass(TableFunction.class).newInstance();
-            tableEnv.registerFunction(funcName, udfFunc);
+
+            if(tableEnv instanceof StreamTableEnvironment){
+                ((StreamTableEnvironment)tableEnv).registerFunction(funcName, udfFunc);
+            }else if(tableEnv instanceof BatchTableEnvironment){
+                ((BatchTableEnvironment)tableEnv).registerFunction(funcName, udfFunc);
+            }else{
+                throw new RdosException("no support tableEnvironment class for " + tableEnv.getClass().getName());
+            }
+
             logger.info("register table function:{} success.", funcName);
         }catch (Exception e){
             logger.error("", e);

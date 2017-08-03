@@ -15,10 +15,10 @@ import org.apache.commons.lang3.StringUtils;
  * @author sishu.yss
  *
  */
-public class CreateSourceOperator implements Operator{
+public class StreamCreateResultOperator implements Operator{
 	
 	/**
-	 *  CREATE SOURCE TABLE student_stream(
+	 *  CREATE RESULT TABLE student_stream(
      *  id BIGINT,
      *  name STRING) WITH (
      *  type='datahub',
@@ -29,7 +29,7 @@ public class CreateSourceOperator implements Operator{
 	 *  topic='datahub_test'
 	 *  );
 	 */
-	private static String pattern ="CREATESOURCE";
+	private static String pattern="CREATERESULT";
 	
 	private Properties properties;
 	
@@ -69,13 +69,15 @@ public class CreateSourceOperator implements Operator{
 		String[] strs = sql.trim().split("'\\s*,");
 		this.properties = new Properties();
         for(int i=0;i<strs.length;i++){
-        	String[] ss = strs[i].split("=");
-        	String key = ss[0].trim();
-        	String value = ss[1].trim().replaceAll("'", "").trim();
+
+			int index = strs[i].indexOf("=");
+        	String key = strs[i].substring(0, index).trim();
+        	String val = strs[i].substring(index+1).trim();
+
         	if("type".equals(key)){
-        		this.type = value;
+        		this.type = val.replaceAll("'", "");
         	}else{
-        		this.properties.put(key, value);
+        		this.properties.put(key, val.replaceAll("'", ""));
         	}
         }
 	}
@@ -84,7 +86,7 @@ public class CreateSourceOperator implements Operator{
 		String uppserSql = StringUtils.upperCase(sql);
 		return GrokUtil.isSuccess(pattern, uppserSql);
 	}
-	
+
 	public Properties getProperties() {
 		return properties;
 	}
@@ -96,7 +98,7 @@ public class CreateSourceOperator implements Operator{
 	public Class<?>[] getFieldTypes() {
 		return fieldTypes;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
@@ -111,4 +113,5 @@ public class CreateSourceOperator implements Operator{
 		// TODO Auto-generated method stub
 		return this.sql.trim();
 	}
+	
 }

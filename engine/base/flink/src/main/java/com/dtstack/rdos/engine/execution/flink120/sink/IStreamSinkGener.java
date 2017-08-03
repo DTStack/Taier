@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink120.sink;
 
-import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 
 
 /**
@@ -11,5 +11,5 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.CreateResultOperat
  */
 public interface IStreamSinkGener<T> {
 
-    T genStreamSink(CreateResultOperator resultOperator);
+    T genStreamSink(StreamCreateResultOperator resultOperator);
 }
