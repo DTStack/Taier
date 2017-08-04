@@ -30,6 +30,8 @@ public class PluginSourceUtil {
 
     public static String SP = File.separator;
 
+    public static Gson gson = new Gson();
+
     public static String getJarFilePath(String sinkType){
         String jarPath = sqlRootDir + SP + sinkType + SP + sinkType + ".jar";
         File jarFile = new File(jarPath);
@@ -61,7 +63,6 @@ public class PluginSourceUtil {
         URL jsonUrl = jsonFile.toURI().toURL();
         InputStream inputStream = jsonUrl.openStream();
         Reader rd = new InputStreamReader(inputStream);
-        Gson gson = new Gson();
         Map<String, String> map = gson.fromJson(rd, Map.class);
         return  map.get(SINK_GENER_CLASS_KEY);
     }
