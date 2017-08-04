@@ -24,9 +24,9 @@ public class ApiCallbackMethod {
 			.getLogger(ApiCallbackMethod.class);
 	
 	private static ObjectMapper objectMapper = new ObjectMapper();
-	
-	public static void doCallback(ApiCallback ac,RoutingContext context) {
-		 ApiResult apiResult = new ApiResult();
+
+	public static void doCallback(ApiCallback ac, RoutingContext context) {
+		ApiResult apiResult = new ApiResult();
 		try {
 			long start = System.currentTimeMillis();
 			apiResult.setData(ac.execute());
@@ -43,8 +43,8 @@ public class ApiCallbackMethod {
 				ResponseUtil.res500(context, objectMapper.writeValueAsString(apiResult));
 			} catch (Throwable e1) {
 				// TODO Auto-generated catch block
-				logger.error("ApiCallbackMethod error:",e1);
+				logger.error("ApiCallbackMethod error:", e1);
+			}
 		}
-	}
 	}
 }

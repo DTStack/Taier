@@ -26,7 +26,7 @@ public class TestHbaseOutputFormat {
         OutputFormat<Row> outputFormat =  HbaseOutputFormat.buildHbaseOutputFormat()
                 .setHost("172.16.1.151")
                 .setPort("2181")
-                .setParent("/flink137")
+                .setParent("/hbase137")
                 .setTable("test")
                 .finish();
 

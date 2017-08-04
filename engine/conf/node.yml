@@ -1,17 +1,29 @@
 #engine
 slots: 10
-localAddress: 172.16.1.151:8080
+#localAddress: 172.16.1.151:8080
+localAddress: 172.16.1.76:8080
 nodeZkAddress: 172.16.1.151:2181/engine
 
 engineTypes:
     -
         typeName: flink120
-        flinkZkAddress: 172.16.1.151:2181
+#        flinkZkAddress: 172.16.1.151:2181
+        flinkZkAddress: 172.16.10.135:2181,172.16.10.136:2181
         flinkZkNamespace: /flink120
         flinkClusterId: /default
         flinkHighAvailabilityStorageDir: hdfs://172.16.10.135:9000/flink/ha
         jarTmpDir: ../tmp
         monitorAddress: 172.16.1.151:8011,172.16.1.203:8011
+        flinkPluginRoot: /opt/dtstack/plugins
+
+    -
+        typeName: flink130
+        flinkZkAddress: 172.16.10.135:2181
+        flinkZkNamespace: /flink130
+        flinkClusterId: /default
+        flinkHighAvailabilityStorageDir: hdfs://172.16.10.135:9000/flink13/ha
+        jarTmpDir: ../tmp130
+        monitorAddress: 172.16.10.136:8888
         flinkPluginRoot: /opt/dtstack/plugins
 
  #   -    
@@ -21,9 +33,9 @@ engineTypes:
  #       password: abc123 #可以不填 打通ssh免登陆
  #       dataxBinDir: /opt/dtstack/datax/bin
 
-    -
-        typeName: spark
-        sparkWebMaster: 172.16.10.136:8080,172.16.10.135:8080
-        sparkMaster: spark://172.16.10.135:6066,172.16.10.136
-        sparkSqlProxyPath: hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
-        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+#    -
+#        typeName: spark
+#        sparkWebMaster: 172.16.10.136:8080,172.16.10.135:8080
+#        sparkMaster: spark://172.16.10.135:6066,172.16.10.136
+#        sparkSqlProxyPath: hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
+#        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
