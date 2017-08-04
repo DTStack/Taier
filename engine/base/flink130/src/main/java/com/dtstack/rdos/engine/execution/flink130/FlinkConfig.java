@@ -27,6 +27,9 @@ public class FlinkConfig {
 
 	private String sqlPluginRootDir;
 
+	private String yarnConfPath;
+
+
 	private String remoteSqlPluginRootDir;
 
 
@@ -109,6 +112,14 @@ public class FlinkConfig {
 
 	public void setSqlPluginRootDir(String sqlPluginRootDir) {
 		this.sqlPluginRootDir = sqlPluginRootDir;
+	}
+
+	public String getYarnConfPath() {
+		return yarnConfPath;
+	}
+
+	public void setYarnConfPath(String yarnConfPath) {
+		this.yarnConfPath = yarnConfPath;
 	}
 
     public String getRemoteSqlPluginRootDir() {
