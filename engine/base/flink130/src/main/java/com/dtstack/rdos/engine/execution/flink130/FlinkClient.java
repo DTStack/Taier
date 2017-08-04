@@ -144,12 +144,9 @@ public class FlinkClient extends AbsClient {
             confField.setAccessible(true);
             org.apache.hadoop.conf.Configuration conf = (org.apache.hadoop.conf.Configuration) confField.get(clusterDescriptor);
             conf.addResource(new File(flinkConfig.getYarnConfPath()).toURI().toURL());
-        } catch (NoSuchFieldException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new RdosException(e.getMessage());
         }
 
         Configuration config = new Configuration();
@@ -163,7 +160,12 @@ public class FlinkClient extends AbsClient {
 
         // 获取applicationID
         org.apache.hadoop.conf.Configuration conf = new YarnConfiguration();
-        conf.set("yarn.resourcemanager.hostname", "172.16.10.135");
+        try {
+            conf.addResource(new File(flinkConfig.getYarnConfPath()).toURI().toURL());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            throw new RdosException(e.getMessage());
+        }
 
         YarnClient yarnClient = YarnClient.createYarnClient();
         yarnClient.init(conf);
