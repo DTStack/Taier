@@ -24,6 +24,10 @@ public class FlinkConfig {
 	private String flinkPluginRoot;
 
 	private String monitorAddress;
+
+	private String sqlPluginRootDir;
+
+	private String remoteSqlPluginRootDir;
 	
 	public String getFlinkZkAddress() {
 		return flinkZkAddress;
@@ -97,5 +101,21 @@ public class FlinkConfig {
 
 	public void setMonitorAddress(String monitorAddress) {
 		this.monitorAddress = monitorAddress;
+	}
+
+	public String getSqlPluginRootDir() {
+		return sqlPluginRootDir;
+	}
+
+	public void setSqlPluginRootDir(String sqlPluginRootDir) {
+		this.sqlPluginRootDir = sqlPluginRootDir;
+	}
+
+	public String getRemoteSqlPluginRootDir() {
+		return remoteSqlPluginRootDir;
+	}
+
+	public void setRemoteSqlPluginRootDir(String remoteSqlPluginRootDir) {
+		this.remoteSqlPluginRootDir = remoteSqlPluginRootDir;
 	}
 }

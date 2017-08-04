@@ -1,13 +1,17 @@
 package com.dtstack.rdos.engine.execution.flink120.sink;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.execution.base.enumeration.ESinkType;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink120.sink.csv.RdosCsvSink;
-import com.dtstack.rdos.engine.execution.flink120.sink.db.mysql.MysqlSink;
-import com.dtstack.rdos.engine.execution.flink120.sink.kafka.RdosKafka09Sink;
-
+import com.dtstack.rdos.engine.execution.flink120.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
 import org.apache.flink.table.sinks.TableSink;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
 
 /**
  * Reason:
@@ -19,20 +23,32 @@ import org.apache.flink.table.sinks.TableSink;
 
 public class SinkFactory {
 
-    public static TableSink getTableSink(StreamCreateResultOperator resultOperator){
+    public static String SINK_GENER_FUNC_NAME = "genStreamSink";
+
+    public static TableSink getTableSink(StreamCreateResultOperator resultOperator) throws IOException,
+            ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if(!(classLoader instanceof DtClassLoader)){
+            throw new RdosException("it's not a correct classLoader instance, it's type must be DtClassLoader!");
+        }
 
         String resultType = resultOperator.getType();
-        ESinkType sinkType = ESinkType.getSinkType(resultType);
+        String pluginJarPath = PluginSourceUtil.getJarFilePath(resultType);
+        String className = PluginSourceUtil.getClassName(resultType);
 
-        switch (sinkType){
-            case MYSQL:
-                return new MysqlSink().genStreamSink(resultOperator);
+        File pluginFile = new File(pluginJarPath);
+        URL pluginJarURL = pluginFile.toURI().toURL();
 
-            case CSV://FIXME 未测试
-                return new RdosCsvSink().genStreamSink(resultOperator);
-
-            case KAFKA09://FIXME 未测试
-                return new RdosKafka09Sink().genStreamSink(resultOperator);
+        DtClassLoader dtClassLoader = (DtClassLoader) classLoader;
+        dtClassLoader.addURL(pluginJarURL);
+        Class<?> sinkClass = dtClassLoader.loadClass(className);
+        for(Method method : sinkClass.getMethods()){
+            if(method.getName().equals(SINK_GENER_FUNC_NAME)){
+                Object object = sinkClass.newInstance();
+                Object result = method.invoke(object, PublicUtil.ObjectToMap(resultOperator));
+                return (TableSink) result;
+            }
         }
 
         throw new RdosException("not support sink type:" + resultType + "!!!");

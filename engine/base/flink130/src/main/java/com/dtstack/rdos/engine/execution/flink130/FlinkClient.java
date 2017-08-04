@@ -40,7 +40,6 @@ import org.apache.flink.core.fs.Path;
 import org.apache.flink.optimizer.DataStatistics;
 import org.apache.flink.optimizer.Optimizer;
 import org.apache.flink.optimizer.plan.OptimizedPlan;
-import org.apache.flink.optimizer.plantranslate.JobGraphGenerator;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
@@ -169,6 +168,7 @@ public class FlinkClient extends AbsClient {
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         PluginSourceUtil.setSourceJarRootDir(flinkConfig.getSqlPluginRootDir());
+        PluginSourceUtil.setRemoteSourceJarRootDir(flinkConfig.getRemoteSqlPluginRootDir());
 
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
@@ -446,7 +446,7 @@ public class FlinkClient extends AbsClient {
 
             List<URL> classPathList = Lists.newArrayList();
             for(String remoteJarPth : classPathSet){
-                URL url = new URL(remoteJarPth);
+                URL url = new URL(PluginSourceUtil.getFileURLFormat(remoteJarPth));
                 classPathList.add(url);
             }
 
@@ -558,7 +558,7 @@ public class FlinkClient extends AbsClient {
 
             List<URL> classPathList = Lists.newArrayList();
             for(String jarPath : classPathSet){
-                URL jarURL = new URL(jarPath);
+                URL jarURL = new URL(PluginSourceUtil.getFileURLFormat(jarPath));
                 classPathList.add(jarURL);
             }
 
