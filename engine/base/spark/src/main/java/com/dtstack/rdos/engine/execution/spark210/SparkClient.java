@@ -57,7 +57,7 @@ public class SparkClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-    	  sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
+        sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
         if(sparkConfig.getSparkMaster() == null){
             logger.error("you need to set sparkMaster when used spark engine.");
             throw new RdosException("you need to set sparkMaster when used spark engine.");
