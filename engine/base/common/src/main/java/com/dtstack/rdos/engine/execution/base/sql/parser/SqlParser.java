@@ -39,7 +39,7 @@ public class SqlParser {
 
 	public static List<Operator> parser(int engineType, int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
-        if(engineType == EngineType.Spark.getVal()&&computeType ==ComputeType.BATCH.getComputeType()){
+        if((engineType == EngineType.Spark.getVal() || engineType == EngineType.Sparkyarn.getVal()) &&  computeType ==ComputeType.BATCH.getComputeType()){
 			operators = parserSql(sql,sparkOperatorClasses);
 		}else if(engineType == EngineType.Flink120.getVal()||engineType == EngineType.Flink130.getVal()){
 
