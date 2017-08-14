@@ -36,26 +36,30 @@ public class ClientFactory {
     }
     
 	public static void initPluginClass(final String pluginType,
-			ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
+                                       ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
     	pluginClassLoader.put(pluginType, classLoader);
         Thread.currentThread().setContextClassLoader(classLoader);
         switch (pluginType){
-        case "flink120":
-        	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
-        	break;
-        	
-        case "flink130":
-        	pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink130.FlinkClient").newInstance());
-        	break;
-        	
-        case "spark":
-        	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
-            break;
-            
-        case "datax":
-        	pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.datax.DataxClient").newInstance());
-            break;     
-            
+            case "flink120":
+                pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
+                break;
+
+            case "flink130":
+                pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink130.FlinkClient").newInstance());
+                break;
+
+            case "spark":
+                pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
+                break;
+
+            case "datax":
+                pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.datax.DataxClient").newInstance());
+                break;
+
+            case "sparkyarn":
+                pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient").newInstance());
+                break;
+
             default:
                 throw new RuntimeException("not support for engine type " + pluginType);
         }

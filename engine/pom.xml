@@ -21,7 +21,8 @@
     <module>web</module>
     <module>service</module>
     <module>base/flink130</module>
-  </modules>
+		<module>base/spark-yarn</module>
+	</modules>
 
 	<dependencies>
 	
