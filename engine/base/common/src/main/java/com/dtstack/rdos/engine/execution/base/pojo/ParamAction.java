@@ -18,7 +18,7 @@ public class ParamAction {
 	
     private Integer taskType;
 
-    private Integer engineType;
+    private String engineType;
     
     private Integer computeType;
 
@@ -122,11 +122,11 @@ public class ParamAction {
 		this.isRestoration = isRestoration;
 	}
 
-    public Integer getEngineType() {
+    public String getEngineType() {
         return engineType;
     }
 
-    public void setEngineType(Integer engineType) {
+    public void setEngineType(String engineType) {
         this.engineType = engineType;
     }
 

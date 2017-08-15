@@ -7,25 +7,25 @@ public class TaskIdUtil {
 
     private static  String interval = "_";
 
-    public static String getZkTaskId(int computeType,int engineType,String taskId){
-        return String.valueOf(computeType) + String.valueOf(engineType) +interval+taskId;
+    public static String getZkTaskId(int computeType, String engineType, String taskId){
+        return String.valueOf(computeType) + engineType + interval + taskId;
     }
 
-    public static String getTaskId(String taskId){
-        return taskId.substring(3,taskId.length());
+    public static String getTaskId(String zkTaskId){
+        return zkTaskId.substring(zkTaskId.indexOf(interval) + 1, zkTaskId.length());
     }
 
     public static int getComputeType(String zkTaskId){
        return Integer.parseInt(String.valueOf(zkTaskId.charAt(0)));
     }
 
-    public static int getEngineType(String zkTaskId){
-        return Integer.parseInt(String.valueOf(zkTaskId.charAt(1)));
+    public static String getEngineType(String zkTaskId){
+        return zkTaskId.substring(1, zkTaskId.indexOf(interval));
     }
 
-    public static void main(String[] args){
-
-       System.out.println(getTaskId("11_wrwerw"));
+    public static void main(String[] args) {
+        String str = "1flink_dfefef";
+        System.out.println(getTaskId(str));
     }
 
 }

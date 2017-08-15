@@ -157,6 +157,10 @@ public class FlinkClient extends AbsClient {
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
         }
 
+        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
+            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+        }
+
         // 获取applicationID
         org.apache.hadoop.conf.Configuration conf = new YarnConfiguration();
         try {
@@ -203,8 +207,6 @@ public class FlinkClient extends AbsClient {
             logger.error(e.getMessage());
             throw new RdosException(e.getMessage());
         }
-
-        config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId);
 
         clusterDescriptor.setFlinkConfiguration(config);
         YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId);
@@ -312,6 +314,7 @@ public class FlinkClient extends AbsClient {
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Throwable e){
             JobResult jobResult = JobResult.createErrorResult(e);
+            e.printStackTrace();
             logger.error("", e);
             return jobResult;
         }
@@ -483,7 +486,7 @@ public class FlinkClient extends AbsClient {
                     CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
                     //需要把字节码加载进来
                     if(classLoader == null){
-                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                        classLoader = FlinkUtil.createNewClassLoader(jarURList, this.getClass().getClassLoader());
                     }
 
                     classLoader.loadClass(tmpOperator.getClassName());
@@ -550,6 +553,19 @@ public class FlinkClient extends AbsClient {
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult(e);
+        }finally {
+            //如果包含了下载下来的临时jar文件则清理
+            for(String path : jarPathList){
+                try{
+                    File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
+
+                }catch (Exception e1){
+                    logger.error("", e1);
+                }
+            }
         }
     }
 
@@ -601,7 +617,7 @@ public class FlinkClient extends AbsClient {
                     CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
                     //需要把字节码加载进来
                     if(classLoader == null){
-                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                        classLoader = FlinkUtil.createNewClassLoader(jarURList, this.getClass().getClassLoader());
                     }
 
                     classLoader.loadClass(tmpOperator.getClassName());

@@ -238,7 +238,6 @@ public class FlinkClient extends AbsClient {
             logger.error("", e);
             return JobResult.createErrorResult(e);
         }finally {
-            //FIXME 作用?
             packagedProgram.deleteExtractedLibraries();
         }
 
@@ -349,9 +348,9 @@ public class FlinkClient extends AbsClient {
         int currStep = 0;
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
-        URLClassLoader classLoader = null;
-        Set<String> classPathSet = Sets.newHashSet();
 
+        Set<String> classPathSet = Sets.newHashSet();//远程sqlplugin路径
+        URLClassLoader classLoader = null; //不直接使用当前类加载器
 
         try {
             for(Operator operator : jobClient.getOperators()){
@@ -386,9 +385,10 @@ public class FlinkClient extends AbsClient {
 
                     currStep = 2;
                     CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
+
                     //需要把字节码加载进来
                     if(classLoader == null){
-                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                        classLoader = FlinkUtil.createNewClassLoader(jarURList, this.getClass().getClassLoader());
                     }
 
                     classLoader.loadClass(tmpOperator.getClassName());
@@ -424,6 +424,7 @@ public class FlinkClient extends AbsClient {
             //这里getStreamGraph() 和 getJobGraph()均是创建新的对象,方法命名让人疑惑.
             StreamGraph streamGraph = env.getStreamGraph();
             streamGraph.setJobName(jobClient.getJobName());
+            //streamGraph.setStateBackend();
             JobGraph jobGraph = streamGraph.getJobGraph();
 
             Properties spProp = getSpProperty(jobClient);
@@ -454,6 +455,19 @@ public class FlinkClient extends AbsClient {
 
         } catch (Exception e) {
             return JobResult.createErrorResult(e);
+        }finally {
+            //如果包含了下载下来的临时jar文件则清理
+            for(String path : jarPathList){
+                try{
+                    File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
+
+                }catch (Exception e1){
+                    logger.error("", e1);
+                }
+            }
         }
     }
 

@@ -37,16 +37,16 @@ public class SqlParser {
 	private static List<Class<? extends Operator>> sparkOperatorClasses =
 			Lists.newArrayList(BatchAddJarOperator.class, BatchCanExecuteOperator.class);
 
-	public static List<Operator> parser(int engineType, int computeType,String sql) throws Exception{
+	public static List<Operator> parser(String engineType, int computeType,String sql) throws Exception{
 		List<Operator> operators = null;
-        if(engineType == EngineType.Spark.getVal()&&computeType ==ComputeType.BATCH.getComputeType()){
+        if((EngineType.isSpark(engineType) || EngineType.isSparkYarn(engineType)) &&  computeType ==ComputeType.BATCH.getComputeType()){
 			operators = parserSql(sql,sparkOperatorClasses);
-		}else if(engineType == EngineType.Flink120.getVal()||engineType == EngineType.Flink130.getVal()){
+		}else if(EngineType.isFlink(engineType)){
 
         	if(computeType == ComputeType.BATCH.getComputeType()){
                 operators = parserSql(sql, flinkBatchSqlClasses);
 			}else{
-				operators = parserSql(sql,flinkOperatorClasses);
+				operators = parserSql(sql, flinkOperatorClasses);
 			}
 		}
 		return operators;

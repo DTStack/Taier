@@ -273,8 +273,8 @@ public class FlinkUtil {
         String mills = properties.getProperty(ConfigConstrant.SQL_BUFFER_TIMEOUT_MILLIS);
         return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0l;
     }
-    
-    public static URLClassLoader loadJar(List<URL> jarURLList, ClassLoader superClassLoader){
+
+    public static URLClassLoader createNewClassLoader(List<URL> jarURLList, ClassLoader superClassLoader){
 
         int size = 0;
         for(URL url : jarURLList){

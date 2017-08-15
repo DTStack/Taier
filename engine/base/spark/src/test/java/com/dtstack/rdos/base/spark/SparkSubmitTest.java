@@ -47,7 +47,7 @@ public class SparkSubmitTest {
     public void submitJar() throws Exception{
         init();
         JobClient jobClient = new JobClient();
-        jobClient.setEngineType(EngineType.Spark);
+        jobClient.setEngineType("spark");
         jobClient.setJobType(EJobType.MR);
         BatchAddJarOperator addJarOperator = new BatchAddJarOperator();
         addJarOperator.setJarPath("hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar");
@@ -64,7 +64,7 @@ public class SparkSubmitTest {
     public void submitSql() throws Exception {
         init();
         JobClient jobClient = new JobClient();
-        jobClient.setEngineType(EngineType.Spark);
+        jobClient.setEngineType("spark");
         jobClient.setJobType(EJobType.SQL);
         jobClient.setComputeType(ComputeType.BATCH);
         BatchExecutionOperator executionOperator = new BatchExecutionOperator();
