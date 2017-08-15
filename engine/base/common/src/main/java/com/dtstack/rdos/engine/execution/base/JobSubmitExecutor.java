@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -78,6 +77,10 @@ public class JobSubmitExecutor{
     private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
+            if(clientTypeStr == null){
+                logger.error("node.yml of engineTypes setting error, typeName must not be null!!!");
+                throw new RdosException("node.yml of engineTypes setting error, typeName must not be null!!!");
+            }
             loadComputerPlugin(clientTypeStr);
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
@@ -121,7 +124,7 @@ public class JobSubmitExecutor{
     }
 
     public void submitJob(JobClient jobClient) throws Exception{
-        executor.submit(new JobSubmitProcessor(clientParamsList,jobClient));
+        executor.submit(new JobSubmitProcessor(jobClient));
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String jobId){
@@ -181,35 +184,15 @@ public class JobSubmitExecutor{
 
         private JobClient jobClient;
 
-        private Map<String, IClient> clusterClientMap = new HashMap<>();
-
-        public JobSubmitProcessor(List<Map<String, Object>> clientParamsList, JobClient jobClient) throws Exception{
+        public JobSubmitProcessor(JobClient jobClient) throws Exception{
             this.jobClient = jobClient;
-            for(Map<String, Object> clientParams : clientParamsList){
-                String clientTypeStr = (String) clientParams.get(TYPE_NAME_KEY);
-                if(clientTypeStr == null){
-                    logger.error("node.yml of engineTypes setting error, typeName must not be null!!!");
-                    throw new RdosException("node.yml of engineTypes setting error, typeName must not be null!!!");
-                }
-
-                IClient client = ClientFactory.getClient(clientTypeStr);
-                if(client == null){
-                    throw new RdosException("not support for client type " + clientTypeStr);
-                }
-                Properties clusterProp = new Properties();
-                clusterProp.putAll(clientParams);
-                client.init(clusterProp);
-
-                String clientKey = getEngineName(clientTypeStr);
-                clusterClientMap.put(clientKey, client);
-            }
         }
 
         @Override
         public void run(){
             if(jobClient != null){
                 jobClient.getJobClientCallBack().execute();
-                IClient clusterClient = clusterClientMap.get(jobClient.getEngineType());
+                IClient clusterClient = clientMap.get(jobClient.getEngineType());
                 JobResult jobResult = null;
 
                 if(clusterClient == null){
