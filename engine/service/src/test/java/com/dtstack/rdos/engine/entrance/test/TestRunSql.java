@@ -108,7 +108,7 @@ public class TestRunSql {
         initSpark();
         List<Operator> operators = SqlParser.parser(paramAction.getEngineType(),paramAction.getComputeType(),paramAction.getSqlText());
         JobClient jobClient = new JobClient();
-        jobClient.setEngineType(EngineType.Spark);
+        jobClient.setEngineType("spark");
         jobClient.setJobType(EJobType.SQL);
         jobClient.setTaskId("test_sql_job");
         jobClient.setJobName("test_sql_job");

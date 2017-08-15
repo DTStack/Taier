@@ -45,7 +45,7 @@ public class JobClient {
 
     private ComputeType computeType;
 
-    private EngineType engineType;
+    private String engineType;
 
     private JobResult jobResult;
 
@@ -63,16 +63,15 @@ public class JobClient {
      * @param engineTaskId engine jobId
      * @return
      */
-    public static RdosTaskStatus getStatus(EngineType engineType, String engineTaskId) {
+    public static RdosTaskStatus getStatus(String engineType, String engineTaskId) {
         return JobSubmitExecutor.getInstance().getJobStatus(engineType, engineTaskId);
     }
     
     /**
      * 获取engine上jobManager url
-     * @param engineType
      * @return
      */
-    public static Map<String,String>getJobMaster(){
+    public static Map<String,String> getJobMaster(){
     	return JobSubmitExecutor.getInstance().getJobMaster();
     }
 
@@ -104,7 +103,7 @@ public class JobClient {
         this.computeType = ComputeType.getComputeType(paramAction.getComputeType());
         this.isRestoration = Restoration.getRestoration(paramAction.getIsRestoration());
         this.actionLogId = paramAction.getActionLogId();
-        this.engineType = EngineType.getEngineType(paramAction.getEngineType());
+        this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
     }
 
@@ -193,11 +192,11 @@ public class JobClient {
         this.actionLogId = actionLogId;
     }
 
-    public EngineType getEngineType() {
+    public String getEngineType() {
         return engineType;
     }
 
-    public void setEngineType(EngineType engineType) {
+    public void setEngineType(String engineType) {
         this.engineType = engineType;
     }
 

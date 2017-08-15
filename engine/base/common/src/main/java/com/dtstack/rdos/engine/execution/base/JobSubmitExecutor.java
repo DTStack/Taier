@@ -20,6 +20,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 任务提交执行容器
@@ -37,6 +39,8 @@ public class JobSubmitExecutor{
 
     private static final String TYPE_NAME_KEY = "typeName";
 
+    private Pattern engineNamePattern = Pattern.compile("([a-zA-Z]*).*");
+
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
 
     private int minPollSize = 10;
@@ -48,7 +52,7 @@ public class JobSubmitExecutor{
     private boolean hasInit = false;
 
     //为了获取job状态,FIXME 是否有更合适的方式?
-    private Map<EngineType, IClient> clientMap = new HashMap<>();
+    private Map<String, IClient> clientMap = new HashMap<>();
 
     private List<Map<String, Object>> clientParamsList;
 
@@ -74,13 +78,14 @@ public class JobSubmitExecutor{
     private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
-            EngineType engineType = EngineType.getEngineType(clientTypeStr);
             loadComputerPlugin(clientTypeStr);
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
             client.init(clusterProp);
-            clientMap.put(engineType, client);
+
+            String key = getEngineName(clientTypeStr);
+            clientMap.put(key, client);
         }
     }
 
@@ -119,7 +124,7 @@ public class JobSubmitExecutor{
         executor.submit(new JobSubmitProcessor(clientParamsList,jobClient));
     }
 
-    public RdosTaskStatus getJobStatus(EngineType engineType, String jobId){
+    public RdosTaskStatus getJobStatus(String engineType, String jobId){
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
         }
@@ -133,20 +138,19 @@ public class JobSubmitExecutor{
         }
     }
 
-    public Map<String,String> getJobMaster(){
+    public Map<String, String> getJobMaster(){
     	final Map<String,String> jobMasters = Maps.newConcurrentMap();
     	clientMap.forEach((k,v)->{
             Thread.currentThread().setContextClassLoader(v.getClass().getClassLoader());
             if(StringUtils.isNotBlank(v.getJobMaster())){
-        		jobMasters.put(k.name().toLowerCase(),v.getJobMaster());
+        		jobMasters.put(k, v.getJobMaster());
             }
     	});
         return jobMasters;
     }
 
     public JobResult stopJob(ParamAction paramAction){
-        int engineTypeVal = paramAction.getEngineType();
-        EngineType engineType = EngineType.getEngineType(engineTypeVal);
+        String engineType = paramAction.getEngineType();
         IClient client = clientMap.get(engineType);
         Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         return client.cancelJob(paramAction);
@@ -157,13 +161,29 @@ public class JobSubmitExecutor{
         if(executor!=null)executor.shutdown();
     }
 
+    /**
+     * FIXME 去掉引擎版本号作为key
+     * @param clientTypeStr
+     * @return
+     */
+    public String getEngineName(String clientTypeStr){
+
+        Matcher matcher = engineNamePattern.matcher(clientTypeStr);
+        if(matcher.find()){
+            return matcher.group(1).toLowerCase();
+        }else{
+            logger.error("can't match clientTypeStr:{} by ([a-zA-Z]*).*", clientTypeStr);
+            return clientTypeStr;
+        }
+    }
+
     class JobSubmitProcessor implements Runnable{
 
         private JobClient jobClient;
 
-        private Map<EngineType, IClient> clusterClientMap = new HashMap<>();
+        private Map<String, IClient> clusterClientMap = new HashMap<>();
 
-        public JobSubmitProcessor(List<Map<String, Object>> clientParamsList,JobClient jobClient) throws Exception{
+        public JobSubmitProcessor(List<Map<String, Object>> clientParamsList, JobClient jobClient) throws Exception{
             this.jobClient = jobClient;
             for(Map<String, Object> clientParams : clientParamsList){
                 String clientTypeStr = (String) clientParams.get(TYPE_NAME_KEY);
@@ -180,8 +200,8 @@ public class JobSubmitExecutor{
                 clusterProp.putAll(clientParams);
                 client.init(clusterProp);
 
-                EngineType engineType = EngineType.getEngineType(clientTypeStr);
-                clusterClientMap.put(engineType, client);
+                String clientKey = getEngineName(clientTypeStr);
+                clusterClientMap.put(clientKey, client);
             }
         }
 
@@ -199,7 +219,7 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try {
-                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType().getVal(),jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                     Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
@@ -221,7 +241,7 @@ public class JobSubmitExecutor{
         }
 
         private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
-            //FIXME 之后需要对本地异常信息做存储
+            //FIXME 需要对本地异常信息做存储
             jobClient.setJobResult(jobResult);
             JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
         }

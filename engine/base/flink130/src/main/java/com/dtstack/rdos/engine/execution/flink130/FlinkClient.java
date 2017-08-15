@@ -483,7 +483,7 @@ public class FlinkClient extends AbsClient {
                     CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
                     //需要把字节码加载进来
                     if(classLoader == null){
-                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                        classLoader = FlinkUtil.createNewClassLoader(jarURList, this.getClass().getClassLoader());
                     }
 
                     classLoader.loadClass(tmpOperator.getClassName());
@@ -550,6 +550,19 @@ public class FlinkClient extends AbsClient {
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult(e);
+        }finally {
+            //如果包含了下载下来的临时jar文件则清理
+            for(String path : jarPathList){
+                try{
+                    File file = new File(path);
+                    if(file.exists()){
+                        file.delete();
+                    }
+
+                }catch (Exception e1){
+                    logger.error("", e1);
+                }
+            }
         }
     }
 
@@ -601,7 +614,7 @@ public class FlinkClient extends AbsClient {
                     CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
                     //需要把字节码加载进来
                     if(classLoader == null){
-                        classLoader = FlinkUtil.loadJar(jarURList, this.getClass().getClassLoader());
+                        classLoader = FlinkUtil.createNewClassLoader(jarURList, this.getClass().getClassLoader());
                     }
 
                     classLoader.loadClass(tmpOperator.getClassName());

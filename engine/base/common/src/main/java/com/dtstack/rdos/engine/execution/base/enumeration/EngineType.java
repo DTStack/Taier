@@ -49,4 +49,40 @@ public enum EngineType {
         return null;
     }
 
+    public static boolean isFlink(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("flink")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isSpark(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("spark")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isSparkYarn(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("sparkyarn")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isDataX(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("datax")){
+            return true;
+        }
+
+        return false;
+    }
+
 }
