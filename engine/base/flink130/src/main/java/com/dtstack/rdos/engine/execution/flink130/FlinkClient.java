@@ -824,4 +824,11 @@ public class FlinkClient extends AbsClient {
         return properties;
     }
 
+    @Override
+    public JobResult submitSyncJob(JobClient jobClient) {
+        //使用flink作为数据同步调用的其实是提交mr--job
+        return submitJobWithJar(jobClient);
+    }
+
+
 }

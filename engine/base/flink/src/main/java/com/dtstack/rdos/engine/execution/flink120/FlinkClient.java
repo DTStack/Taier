@@ -631,10 +631,5 @@ public class FlinkClient extends AbsClient {
         return submitJobWithJar(jobClient);
     }
 
-    // 加工传入给flinkx的命令行参数
-    private String[] preProcessProgramArgs(final String[] programArgs) {
-
-        return null;
-    }
 
 }
