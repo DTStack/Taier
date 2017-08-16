@@ -208,6 +208,8 @@ public class FlinkClient extends AbsClient {
             throw new RdosException(e.getMessage());
         }
 
+        yarnClient.stop();
+
         clusterDescriptor.setFlinkConfiguration(config);
         YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId);
         clusterClient.setDetached(isDetact);

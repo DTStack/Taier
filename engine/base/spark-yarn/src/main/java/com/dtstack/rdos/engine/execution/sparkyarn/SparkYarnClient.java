@@ -12,8 +12,16 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
+import org.apache.spark.deploy.master.ApplicationState;
+import org.apache.spark.deploy.rest.RestSubmissionClient;
+import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.apache.spark.deploy.yarn.Client;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -24,9 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.net.MalformedURLException;
+import java.util.*;
 
 /**
  * Created by softfly on 17/8/10.
@@ -42,6 +49,7 @@ public class SparkYarnClient extends AbsClient {
     private String deployMode = "cluster";
     private Configuration yarnConf = new YarnConfiguration();
     private SparkConf sparkConf = new SparkConf();
+    private YarnClient yarnClient = YarnClient.createYarnClient();
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -54,6 +62,16 @@ public class SparkYarnClient extends AbsClient {
         if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
             logger.error("you need to set sparkYarnArchive when used spark engine.");
             throw new RdosException("you need to set sparkYarnArchive when used spark engine.");
+        }
+
+        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
+            logger.error("you need to set sparkSqlProxyPath when used spark engine.");
+            throw new RdosException("you need to set sparkSqlProxyPath when used spark engine.");
+        }
+
+        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
+            logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
+            throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
 
         File[] xmlFileList = new File(sparkYarnConfig.getYarnConfDir()).listFiles(new FilenameFilter() {
@@ -77,6 +95,10 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.set("spark.master", "yarn");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.submit.deployMode", "cluster");
+
+        yarnClient.init(yarnConf);
+        yarnClient.start();
+
     }
 
     @Override
@@ -118,6 +140,59 @@ public class SparkYarnClient extends AbsClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         sparkConf.setAppName(appName);
 
+        ApplicationId appId = null;
+
+        try {
+            appId = new Client(clientArguments, yarnConf, sparkConf).submitApplication();
+            return JobResult.createSuccessResult(appId.toString());
+        } catch(Exception ex) {
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
+        }
+
+    }
+
+    /**
+     * 执行spark 批处理sql
+     * @param jobClient
+     * @return
+     */
+    private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
+
+        if(jobClient.getOperators().size() < 1){
+            throw new RdosException("don't have any batch operator for spark sql job. please check it.");
+        }
+
+        StringBuffer sb = new StringBuffer("");
+        for(Operator operator : jobClient.getOperators()){
+            String tmpSql = operator.getSql();
+            sb.append(tmpSql)
+                    .append(";");
+        }
+
+        String exeSql = sb.toString();
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("sql", exeSql);
+        paramsMap.put("appName", jobClient.getJobName());
+
+        String sqlExeJson = null;
+        try{
+            sqlExeJson = objMapper.writeValueAsString(paramsMap);
+        }catch (Exception e){
+            logger.error("", e);
+            throw new RdosException("get unexpected exception:" + e.getMessage());
+        }
+
+        List<String> argList = new ArrayList<>();
+        argList.add("--jar");
+        argList.add(sparkYarnConfig.getSparkSqlProxyPath());
+        argList.add("--class");
+        argList.add(sparkYarnConfig.getSparkSqlProxyMainClass());
+        argList.add("--arg");
+        argList.add(sqlExeJson);
+
+
+        ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
+        sparkConf.setAppName(jobClient.getJobName());
 
         ApplicationId appId = null;
 
@@ -131,13 +206,51 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(ParamAction jobId) {
-        return null;
+    public JobResult cancelJob(ParamAction paramAction) {
+        String jobId = paramAction.getEngineTaskId();
+        try {
+            ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+            yarnClient.killApplication(appId);
+            return JobResult.createSuccessResult(jobId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return JobResult.createErrorResult(e.getMessage());
+        }
     }
 
     @Override
     public RdosTaskStatus getJobStatus(String jobId) throws IOException {
-        return null;
+        if(StringUtils.isEmpty(jobId)){
+            return null;
+        }
+        ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+        try {
+            ApplicationReport report = yarnClient.getApplicationReport(appId);
+            YarnApplicationState applicationState = report.getYarnApplicationState();
+            switch(applicationState) {
+                case KILLED:
+                    return RdosTaskStatus.KILLED;
+                case NEW:
+                case NEW_SAVING:
+                    return RdosTaskStatus.CREATED;
+                case SUBMITTED:
+                    return RdosTaskStatus.SUBMITTED;
+                case ACCEPTED:
+                    return RdosTaskStatus.SCHEDULED;
+                case RUNNING:
+                    return RdosTaskStatus.RUNNING;
+                case FINISHED:
+                    return RdosTaskStatus.FINISHED;
+                case FAILED:
+                    return RdosTaskStatus.FAILED;
+                default:
+                    throw new RdosException("Unsupported application state");
+            }
+        } catch (YarnException e) {
+            logger.error("", e);
+            return RdosTaskStatus.NOTFOUND;
+        }
+
     }
 
     @Override
