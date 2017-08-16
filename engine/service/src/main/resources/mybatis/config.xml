@@ -19,9 +19,9 @@
           <transactionManager type="MANAGED"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://172.16.1.203:3306/spark?charset=utf8"/>
-                <property name="username" value="dtstack_xc"/>
-                <property name="password" value="dtstack_xc"/>
+                <property name="url" value="jdbc:mysql://rdos02:3306/rdos?charset=utf8"/>
+                <property name="username" value="dtstack"/>
+                <property name="password" value="abc123"/>
             </dataSource>
        </environment>
     </environments>
