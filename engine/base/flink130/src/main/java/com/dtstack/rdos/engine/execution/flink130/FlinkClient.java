@@ -281,7 +281,7 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     public JobResult submitJobWithJar(JobClient jobClient) {
-
+        logger.info("submitJobWithJar begin");
         Properties properties = adaptToJarSubmit(jobClient);
 
         Object jarPath = properties.get(JOB_JAR_PATH_KEY);
