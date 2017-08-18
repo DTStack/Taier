@@ -58,7 +58,7 @@ public class SparkYarnClient extends AbsClient {
     private static final String KEY_PRE_STR = "spark.";
 
     /**默认每个处理器可以使用的内存大小*/
-    private static final String DEFAULT_EXE_MEM = "128m";
+    private static final String DEFAULT_EXE_MEM = "512m";
 
     /**默认最多可以请求的CPU核心数*/
     private static final String DEFAULT_CORES_MAX = "2";
