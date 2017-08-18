@@ -48,9 +48,20 @@ public class SparkYarnClient extends AbsClient {
     private SparkYarnConfig sparkYarnConfig;
 
     private String deployMode = "cluster";
+
     private Configuration yarnConf = new YarnConfiguration();
+
     private SparkConf sparkConf = new SparkConf();
+
     private YarnClient yarnClient = YarnClient.createYarnClient();
+
+    private static final String KEY_PRE_STR = "spark.";
+
+    /**默认每个处理器可以使用的内存大小*/
+    private static final String DEFAULT_EXE_MEM = "128m";
+
+    /**默认最多可以请求的CPU核心数*/
+    private static final String DEFAULT_CORES_MAX = "2";
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -102,6 +113,24 @@ public class SparkYarnClient extends AbsClient {
 
     }
 
+    /**
+     * 通过提交的paramsOperator 设置sparkConf
+     * FIXME 解析传递过来的参数是不带spark.前面缀的,如果参数和spark支持不一致的话是否需要转换
+     * @param sparkConf
+     * @param confProperties
+     */
+    private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
+
+        sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM); //默认执行内存
+        sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);  //默认请求的cpu核心数
+        for(Map.Entry<Object, Object> param : confProperties.entrySet()){
+            String key = (String) param.getKey();
+            String val = (String) param.getValue();
+            key = KEY_PRE_STR + key;
+            sparkConf.set(key, val);
+        }
+    }
+
     @Override
     public JobResult submitJobWithJar(JobClient jobClient){
         Properties properties = adaptToJarSubmit(jobClient);
@@ -140,6 +169,7 @@ public class SparkYarnClient extends AbsClient {
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         sparkConf.setAppName(appName);
+        fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;
 
@@ -194,6 +224,7 @@ public class SparkYarnClient extends AbsClient {
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         sparkConf.setAppName(jobClient.getJobName());
+        fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;
 
