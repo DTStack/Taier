@@ -34,7 +34,7 @@ public enum EngineType {
 
             case "datax":return EngineType.Datax;
 
-            case "sparkyarn": return EngineType.Sparkyarn;
+            case "spark_yarn": return EngineType.Sparkyarn;
         }
          return null;
     }
@@ -69,7 +69,7 @@ public enum EngineType {
 
     public static boolean isSparkYarn(String engineType){
         engineType = engineType.toLowerCase();
-        if(engineType.startsWith("sparkyarn")){
+        if(engineType.startsWith("spark_yarn")){
             return true;
         }
 

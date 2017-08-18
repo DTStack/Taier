@@ -56,7 +56,7 @@ public class ClientFactory {
                 pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.datax.DataxClient").newInstance());
                 break;
 
-            case "sparkyarn":
+            case "spark_yarn":
                 pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient").newInstance());
                 break;
 

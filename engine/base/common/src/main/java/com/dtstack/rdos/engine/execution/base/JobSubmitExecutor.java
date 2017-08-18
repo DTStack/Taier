@@ -202,11 +202,9 @@ public class JobSubmitExecutor{
                     return;
                 }
                 try {
-                    logger.info("debuginfo");
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                     Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
-                    logger.info("beforesubmit");
                     jobResult = clusterClient.submitJob(jobClient);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
