@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
@@ -202,6 +203,30 @@ public class SparkYarnClient extends AbsClient {
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
         }
+
+    }
+
+    private JobResult submitSparkSqlJobForStream(JobClient jobClient){
+        throw new RdosException("not support spark sql job for stream type.");
+    }
+
+    @Override
+    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+
+        ComputeType computeType = jobClient.getComputeType();
+        if(computeType == null){
+            throw new RdosException("need to set compute type.");
+        }
+
+        switch (computeType){
+            case BATCH:
+                return submitSparkSqlJobForBatch(jobClient);
+            case STREAM:
+                return submitSparkSqlJobForStream(jobClient);
+
+        }
+
+        throw new RdosException("not support for compute type :" + computeType);
 
     }
 
