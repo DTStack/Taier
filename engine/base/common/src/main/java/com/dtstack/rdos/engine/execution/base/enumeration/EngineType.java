@@ -67,15 +67,6 @@ public enum EngineType {
         return false;
     }
 
-    public static boolean isSparkYarn(String engineType){
-        engineType = engineType.toLowerCase();
-        if(engineType.startsWith("spark_yarn")){
-            return true;
-        }
-
-        return false;
-    }
-
     public static boolean isDataX(String engineType){
         engineType = engineType.toLowerCase();
         if(engineType.startsWith("datax")){
