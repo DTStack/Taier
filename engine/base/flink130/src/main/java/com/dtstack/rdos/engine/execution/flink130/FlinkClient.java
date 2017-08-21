@@ -87,8 +87,14 @@ public class FlinkClient extends AbsClient {
 
     public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "isRestoration";
 
+    private static final String sqlPluginDirName = "sqlplugin";
+
+    private static final String syncPluginDirName = "syncplugin";
+
     //FIXME key值需要根据客户端传输名称调整
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
+
+    public static String sp = File.separator;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
     public String tmpFileDirPath;
 
@@ -102,7 +108,7 @@ public class FlinkClient extends AbsClient {
     private boolean isDetact = true;
 
     // 同步模块在flink集群加载插件
-    private String flinkPluginRoot;
+    private String flinkRemoteSyncPluginRoot;
 
     // 同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
@@ -253,8 +259,17 @@ public class FlinkClient extends AbsClient {
 
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
-        PluginSourceUtil.setSourceJarRootDir(flinkConfig.getSqlPluginRootDir());
-        PluginSourceUtil.setRemoteSourceJarRootDir(flinkConfig.getRemoteSqlPluginRootDir());
+
+        String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
+        File sqlPluginDirFile = new File(localSqlPluginDir);
+
+        if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
+            throw new RdosException("not exists flink sql dir:" + localSqlPluginDir + ", please check it!!!");
+        }
+
+        String remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
+        PluginSourceUtil.setSourceJarRootDir(localSqlPluginDir);
+        PluginSourceUtil.setRemoteSourceJarRootDir(remoteSqlPluginDir);
 
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
@@ -269,10 +284,20 @@ public class FlinkClient extends AbsClient {
             initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
         }
 
+        String localSyncPluginDir =  getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
+        FlinkUtil.setLocalSyncFileDir(localSyncPluginDir);
 
-        this.flinkPluginRoot = flinkConfig.getFlinkPluginRoot();
+        String remoteSyncPluginDir = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
+        this.flinkRemoteSyncPluginRoot = remoteSyncPluginDir;
         this.monitorAddress = flinkConfig.getMonitorAddress();
+    }
 
+    public String getSqlPluginDir(String pluginRoot){
+        return pluginRoot + sp + sqlPluginDirName;
+    }
+
+    public String getSyncPluginDir(String pluginRoot){
+        return pluginRoot + sp + syncPluginDirName;
     }
 
     /***
@@ -306,7 +331,7 @@ public class FlinkClient extends AbsClient {
             programArgList.add(monitorAddress);
         }
 
-        List<URL> classpaths = flinkPluginRoot != null ? FlinkUtil.getUserClassPath(programArgList, flinkPluginRoot) : new ArrayList<>();
+        List<URL> classpaths = flinkRemoteSyncPluginRoot != null ? FlinkUtil.getUserClassPath(programArgList, flinkRemoteSyncPluginRoot) : new ArrayList<>();
 
         Properties spProp = getSpProperty(jobClient);
         SavepointRestoreSettings spSettings = buildSavepointSetting(spProp);
