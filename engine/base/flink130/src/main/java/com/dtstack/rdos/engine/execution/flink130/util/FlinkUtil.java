@@ -319,7 +319,7 @@ public class FlinkUtil {
             return urlList;
 
         programArgList.add("-pluginRoot");
-        programArgList.add(localSyncFileDir + fileSP + "plugins");
+        programArgList.add(localSyncFileDir);
 
         String job = programArgList.get(i + 1);
 
