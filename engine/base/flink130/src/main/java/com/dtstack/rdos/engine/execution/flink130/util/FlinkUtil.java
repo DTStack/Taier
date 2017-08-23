@@ -51,9 +51,11 @@ public class FlinkUtil {
     private static String localSyncFileDir;
 
     public static void setLocalSyncFileDir(String fileDir){
-        synchronized (FlinkUtil.class){
-            if(localSyncFileDir == null){
-                localSyncFileDir = fileDir;
+        if(localSyncFileDir == null){
+            synchronized (FlinkUtil.class){
+                if(localSyncFileDir == null){
+                    localSyncFileDir = fileDir;
+                }
             }
         }
     }
