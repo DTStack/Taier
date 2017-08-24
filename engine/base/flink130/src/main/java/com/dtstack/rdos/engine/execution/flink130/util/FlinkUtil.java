@@ -51,9 +51,11 @@ public class FlinkUtil {
     private static String localSyncFileDir;
 
     public static void setLocalSyncFileDir(String fileDir){
-        synchronized (FlinkUtil.class){
-            if(localSyncFileDir == null){
-                localSyncFileDir = fileDir;
+        if(localSyncFileDir == null){
+            synchronized (FlinkUtil.class){
+                if(localSyncFileDir == null){
+                    localSyncFileDir = fileDir;
+                }
             }
         }
     }
@@ -317,7 +319,7 @@ public class FlinkUtil {
             return urlList;
 
         programArgList.add("-pluginRoot");
-        programArgList.add(localSyncFileDir + fileSP + "plugins");
+        programArgList.add(localSyncFileDir);
 
         String job = programArgList.get(i + 1);
 
