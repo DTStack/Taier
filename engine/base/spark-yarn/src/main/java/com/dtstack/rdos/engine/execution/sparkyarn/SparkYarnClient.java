@@ -65,27 +65,21 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+        String errorMessage = null;
         sparkYarnConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkYarnConfig.class);
         if(StringUtils.isEmpty(sparkYarnConfig.getYarnConfDir())){
-            logger.error("you need to set yarnConfDir when use sparkyarn engine.");
-            throw new RdosException("you need to set yarnConfDir when use sparkyarn engine.");
+            errorMessage = "you need to set yarnConfDir when use sparkyarn engine.";
+        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
+            errorMessage = "you need to set sparkYarnArchive when used spark engine.";
+        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
+            errorMessage = "you need to set sparkSqlProxyPath when used spark engine.";
+        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
+            errorMessage = "you need to set sparkSqlProxyMainClass when used spark engine.";
         }
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
-            logger.error("you need to set sparkYarnArchive when used spark engine.");
-            throw new RdosException("you need to set sparkYarnArchive when used spark engine.");
+        if(errorMessage != null){
+            logger.error(errorMessage);
+            throw new RdosException(errorMessage);
         }
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
-            logger.error("you need to set sparkSqlProxyPath when used spark engine.");
-            throw new RdosException("you need to set sparkSqlProxyPath when used spark engine.");
-        }
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
-            logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
-            throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
-        }
-
         File[] xmlFileList = new File(sparkYarnConfig.getYarnConfDir()).listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -106,7 +100,7 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.master", "yarn");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
-        sparkConf.set("spark.submit.deployMode", "cluster");
+        sparkConf.set("spark.submit.deployMode",deployMode);
 
         yarnClient.init(yarnConf);
         yarnClient.start();

@@ -57,37 +57,22 @@ public class SparkClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+        String errorMessage = null;
         sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
         if(sparkConfig.getSparkMaster() == null){
-            logger.error("you need to set sparkMaster when used spark engine.");
-            throw new RdosException("you need to set sparkMaster when used spark engine.");
+            errorMessage = "you need to set sparkMaster when used spark engine.";
+        }else if(sparkConfig.getSparkWebMaster() == null){
+            errorMessage = "you need to set sparkWebMaster when used spark engine.";
+        }else if(sparkConfig.getSparkSqlProxyPath() == null){
+            errorMessage = "you need to set sparkSqlProxyPath when used spark engine.";
+        }else if(sparkConfig.getSparkSqlProxyMainClass() == null){
+            errorMessage = "you need to set sparkSqlProxyMainClass when used spark engine.";
         }
-        
-        if(sparkConfig.getSparkWebMaster() == null){
-            logger.error("you need to set sparkWebMaster when used spark engine.");
-            throw new RdosException("you need to set sparkWebMaster when used spark engine.");
-        }
-
-        if(sparkConfig.getSparkSqlProxyPath() == null){
-            logger.error("you need to set sparkSqlProxyPath when used spark engine.");
-            throw new RdosException("you need to set sparkSqlProxyPath when used spark engine.");
-        }
-
-        if(sparkConfig.getSparkSqlProxyMainClass() == null){
-            logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
-            throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
+        if(errorMessage != null){
+            logger.error(errorMessage);
+            throw new RdosException(errorMessage);
         }
     }
-
-    public void initByStandlone(){
-
-    }
-
-    public void initByYarn(){
-
-    }
-
-
 
     //FIXME spark conf 设置细化
     @Override
