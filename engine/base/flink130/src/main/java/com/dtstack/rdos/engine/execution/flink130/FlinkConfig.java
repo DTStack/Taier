@@ -29,9 +29,9 @@ public class FlinkConfig {
 
 	private String monitorAddress;
 
-	private String yarnConfPath;
-
 	private String remotePluginRootDir;
+
+	private String clusterMode; // 集群运行模式: standalone or yarn
 
 
 	public String getFlinkZkAddress() {
@@ -112,14 +112,6 @@ public class FlinkConfig {
 		this.monitorAddress = monitorAddress;
 	}
 
-	public String getYarnConfPath() {
-		return yarnConfPath;
-	}
-
-	public void setYarnConfPath(String yarnConfPath) {
-		this.yarnConfPath = yarnConfPath;
-	}
-
     public String getRemotePluginRootDir() {
 
 	    if(remotePluginRootDir == null){
@@ -132,4 +124,13 @@ public class FlinkConfig {
     public void setRemotePluginRootDir(String remotePluginRootDir) {
         this.remotePluginRootDir = remotePluginRootDir;
     }
+
+	public String getClusterMode() {
+		return clusterMode;
+	}
+
+	public void setClusterMode(String clusterMode) {
+		this.clusterMode = clusterMode;
+	}
+
 }

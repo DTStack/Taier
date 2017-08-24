@@ -66,7 +66,7 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public void init(Properties prop) throws Exception {
         sparkYarnConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkYarnConfig.class);
-        if(StringUtils.isEmpty(sparkYarnConfig.getYarnConfDir())){
+        if(StringUtils.isEmpty(System.getenv("HADOOP_CONF_DIR"))){
             logger.error("you need to set yarnConfDir when use sparkyarn engine.");
             throw new RdosException("you need to set yarnConfDir when use sparkyarn engine.");
         }
@@ -86,7 +86,7 @@ public class SparkYarnClient extends AbsClient {
             throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
 
-        File[] xmlFileList = new File(sparkYarnConfig.getYarnConfDir()).listFiles(new FilenameFilter() {
+        File[] xmlFileList = new File(System.getenv("HADOOP_CONF_DIR")).listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 if(name.endsWith(".xml"))
@@ -108,6 +108,7 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.submit.deployMode", "cluster");
 
+        haYarnConf();
         yarnClient.init(yarnConf);
         yarnClient.start();
 
@@ -347,5 +348,25 @@ public class SparkYarnClient extends AbsClient {
             properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
         }
         return properties;
+    }
+
+    /**
+     * 处理yarn HA的配置项
+     */
+    private void haYarnConf() {
+        Iterator<Map.Entry<String, String>> iterator = yarnConf.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry<String,String> entry = iterator.next();
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if(key.startsWith("yarn.resourcemanager.hostname.")) {
+                String rm = key.substring("yarn.resourcemanager.hostname.".length());
+                String addressKey = "yarn.resourcemanager.address." + rm;
+                if(yarnConf.get(addressKey) == null) {
+                    yarnConf.set(addressKey, value + ":" + YarnConfiguration.DEFAULT_RM_PORT);
+                }
+            }
+        }
     }
 }

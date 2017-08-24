@@ -79,16 +79,6 @@ public class SparkClient extends AbsClient {
         }
     }
 
-    public void initByStandlone(){
-
-    }
-
-    public void initByYarn(){
-
-    }
-
-
-
     //FIXME spark conf 设置细化
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
@@ -337,4 +327,6 @@ public class SparkClient extends AbsClient {
 		}
 		return null;
 	}
+
+
 }

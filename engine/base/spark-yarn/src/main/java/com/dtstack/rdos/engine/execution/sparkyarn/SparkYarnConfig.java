@@ -7,8 +7,6 @@ public class SparkYarnConfig {
 
     private String typeName;
 
-    private String yarnConfDir;
-
     private String sparkYarnArchive;
 
     private String sparkSqlProxyPath;
@@ -21,14 +19,6 @@ public class SparkYarnConfig {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
-    }
-
-    public String getYarnConfDir() {
-        return yarnConfDir;
-    }
-
-    public void setYarnConfDir(String yarnConfDir) {
-        this.yarnConfDir = yarnConfDir;
     }
 
     public String getSparkYarnArchive() {
@@ -54,4 +44,5 @@ public class SparkYarnConfig {
     public void setSparkSqlProxyMainClass(String sparkSqlProxyMainClass) {
         this.sparkSqlProxyMainClass = sparkSqlProxyMainClass;
     }
+
 }
