@@ -20,9 +20,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
-import org.apache.spark.deploy.master.ApplicationState;
-import org.apache.spark.deploy.rest.RestSubmissionClient;
-import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.apache.spark.deploy.yarn.Client;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -67,32 +64,23 @@ public class SparkYarnClient extends AbsClient {
     public void init(Properties prop) throws Exception {
         String errorMessage = null;
         sparkYarnConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkYarnConfig.class);
-        if(StringUtils.isEmpty(sparkYarnConfig.getYarnConfDir())){
-            errorMessage = "you need to set yarnConfDir when use sparkyarn engine.";
+        if(StringUtils.isEmpty(System.getenv("HADOOP_CONF_DIR"))){
+            errorMessage = "you need to set HADOOP_CONF_DIR when use sparkyarn engine.";
         }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
             errorMessage = "you need to set sparkYarnArchive when used spark engine.";
         }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
             errorMessage = "you need to set sparkSqlProxyPath when used spark engine.";
-        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
+        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())) {
             errorMessage = "you need to set sparkSqlProxyMainClass when used spark engine.";
+        }
         if(StringUtils.isEmpty(System.getenv("HADOOP_CONF_DIR"))){
             logger.error("you need to set yarnConfDir when use sparkyarn engine.");
             throw new RdosException("you need to set yarnConfDir when use sparkyarn engine.");
         }
+
         if(errorMessage != null){
             logger.error(errorMessage);
             throw new RdosException(errorMessage);
-        }
-        File[] xmlFileList = new File(sparkYarnConfig.getYarnConfDir()).listFiles(new FilenameFilter() {
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
-            logger.error("you need to set sparkSqlProxyPath when used spark engine.");
-            throw new RdosException("you need to set sparkSqlProxyPath when used spark engine.");
-        }
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
-            logger.error("you need to set sparkSqlProxyMainClass when used spark engine.");
-            throw new RdosException("you need to set sparkSqlProxyMainClass when used spark engine.");
         }
 
         File[] xmlFileList = new File(System.getenv("HADOOP_CONF_DIR")).listFiles(new FilenameFilter() {
