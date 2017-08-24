@@ -46,9 +46,15 @@ public class FlinkUtil {
 
     private static String fileSP = File.separator;
 
-    private static String userDir = System.getProperty("user.dir");
+    private static String localSyncFileDir;
 
-    private static String localFileDir = userDir + fileSP + "dsync";
+    public static void setLocalSyncFileDir(String fileDir){
+        synchronized (FlinkUtil.class){
+            if(localSyncFileDir == null){
+                localSyncFileDir = fileDir;
+            }
+        }
+    }
 
     /**
      * 开启checkpoint
@@ -146,7 +152,7 @@ public class FlinkUtil {
         String localJarPath = FlinkUtil.getTmpFileName(fromPath, toPath);
         if(!FlinkFileUtil.downLoadFile(fromPath, localJarPath)){
             //如果不是http 或者 hdfs协议的从本地读取
-            String localPath = localFileDir + fileSP + fromPath;
+            String localPath = localSyncFileDir + fileSP + fromPath;
             File localFile = new File(localPath);
             if(localFile.exists()){
                 return localFile;
@@ -287,9 +293,9 @@ public class FlinkUtil {
     }
 
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
-    public static List<URL> getUserClassPath(List<String> programArgList, String flinkPluginRoot) {
+    public static List<URL> getUserClassPath(List<String> programArgList, String flinkRemoteSyncPluginRoot) {
         List<URL> urlList = new ArrayList<>();
-        if(programArgList == null || flinkPluginRoot == null)
+        if(programArgList == null || flinkRemoteSyncPluginRoot == null)
             return urlList;
 
         int i = 0;
@@ -301,7 +307,7 @@ public class FlinkUtil {
             return urlList;
 
         programArgList.add("-pluginRoot");
-        programArgList.add(localFileDir + fileSP + "plugins");
+        programArgList.add(localSyncFileDir + fileSP + "plugins");
 
         String job = programArgList.get(i + 1);
 
@@ -322,8 +328,8 @@ public class FlinkUtil {
             Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
             Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
 
-            String readerClasspath = "file://" + flinkPluginRoot + fileSP + readerName + fileSP + readerName + ".jar";
-            String writerClasspath = "file://" + flinkPluginRoot + fileSP + writerName + fileSP + writerName + ".jar";
+            String readerClasspath = "file://" + flinkRemoteSyncPluginRoot + fileSP + readerName + fileSP + readerName + ".jar";
+            String writerClasspath = "file://" + flinkRemoteSyncPluginRoot + fileSP + writerName + fileSP + writerName + ".jar";
 
             urlList.add(new URL(readerClasspath));
             urlList.add(new URL(writerClasspath));
