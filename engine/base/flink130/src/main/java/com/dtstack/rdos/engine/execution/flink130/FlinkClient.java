@@ -91,6 +91,9 @@ public class FlinkClient extends AbsClient {
 
     private static final String syncPluginDirName = "syncplugin";
 
+    /**同步数据插件jar名称*/
+    private static final String syncJarFileName = "flinkx.jar";
+
     //FIXME key值需要根据客户端传输名称调整
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
@@ -851,6 +854,10 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
+        //需要构造出add jar
+        AddJarOperator addjarOperator = new AddJarOperator();
+        addjarOperator.setJarPath(syncJarFileName);
+
         return submitJobWithJar(jobClient);
     }
 

@@ -6,7 +6,11 @@ package com.dtstack.rdos.engine.execution.flink120;
  *
  */
 public class FlinkConfig {
-	
+
+	private static String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
+
+	private static String DEFAULT_REMOTE_PLUGIN_ROOTDIR = "/opt/dtstack/flinkplugin";
+
 	private String typeName;
 
 	private String flinkZkAddress;
@@ -25,9 +29,7 @@ public class FlinkConfig {
 
 	private String monitorAddress;
 
-	private String sqlPluginRootDir;
-
-	private String remoteSqlPluginRootDir;
+	private String remotePluginRootDir;
 	
 	public String getFlinkZkAddress() {
 		return flinkZkAddress;
@@ -88,6 +90,11 @@ public class FlinkConfig {
 
 
 	public String getFlinkPluginRoot() {
+
+		if(flinkPluginRoot == null){
+			return DEFAULT_FLINK_PLUGIN_ROOT;
+		}
+
 		return flinkPluginRoot;
 	}
 
@@ -103,19 +110,17 @@ public class FlinkConfig {
 		this.monitorAddress = monitorAddress;
 	}
 
-	public String getSqlPluginRootDir() {
-		return sqlPluginRootDir;
+
+	public String getRemotePluginRootDir() {
+
+		if(remotePluginRootDir == null){
+			return DEFAULT_REMOTE_PLUGIN_ROOTDIR;
+		}
+
+		return remotePluginRootDir;
 	}
 
-	public void setSqlPluginRootDir(String sqlPluginRootDir) {
-		this.sqlPluginRootDir = sqlPluginRootDir;
-	}
-
-	public String getRemoteSqlPluginRootDir() {
-		return remoteSqlPluginRootDir;
-	}
-
-	public void setRemoteSqlPluginRootDir(String remoteSqlPluginRootDir) {
-		this.remoteSqlPluginRootDir = remoteSqlPluginRootDir;
+	public void setRemotePluginRootDir(String remotePluginRootDir) {
+		this.remotePluginRootDir = remotePluginRootDir;
 	}
 }
