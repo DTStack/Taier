@@ -85,7 +85,7 @@ public class JobSubmitExecutor{
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
-            client.init(clusterProp);
+            client.setProp(clusterProp);
 
             String key = getEngineName(clientTypeStr);
             clientMap.put(key, client);
@@ -201,10 +201,12 @@ public class JobSubmitExecutor{
                     listenerJobStatus(jobClient, jobResult);
                     return;
                 }
+
                 try {
+                    Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
+                    clusterClient.init();
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                    Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
                     jobResult = clusterClient.submitJob(jobClient);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);

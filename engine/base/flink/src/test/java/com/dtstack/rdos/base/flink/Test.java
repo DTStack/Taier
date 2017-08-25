@@ -15,6 +15,6 @@ public class Test {
 	        flinkEngine.put("flinkClusterId", "default");
 	        flinkEngine.put("jarTmpDir", "D:\\tmp");
 		    FlinkClient flinkClient = new FlinkClient();
-		    flinkClient.init(flinkEngine);
+		    flinkClient.init();
 	}
 }

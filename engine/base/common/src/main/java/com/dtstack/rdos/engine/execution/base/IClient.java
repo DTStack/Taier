@@ -19,9 +19,8 @@ public interface IClient {
 
     /**
      * FIXME 根据zk做初始化的时候的操作
-     * @param prop
      */
-    void init(Properties prop) throws Exception;
+    void init() throws Exception;
 
     /**
      * 提交的时候先判断下计算资源是否足够,
@@ -40,4 +39,6 @@ public interface IClient {
     JobResult immediatelySubmitJob(JobClient jobClient);
 
 	String getJobMaster();
+
+    void setProp(Properties prop);
 }

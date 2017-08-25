@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * spark 提交job
@@ -55,8 +56,16 @@ public class SparkClient extends AbsClient {
 
     private String deployMode = "cluster";
 
+    private AtomicBoolean hasInit = new AtomicBoolean(false);
+
     @Override
-    public void init(Properties prop) throws Exception {
+    public void init() throws Exception {
+
+        //初始化过就不再初始化
+        if(hasInit.getAndSet(true)){
+            return;
+        }
+
         String errorMessage = null;
         sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
         if(sparkConfig.getSparkMaster() == null){

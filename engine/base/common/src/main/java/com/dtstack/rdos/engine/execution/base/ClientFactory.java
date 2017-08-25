@@ -38,7 +38,7 @@ public class ClientFactory {
 	public static void initPluginClass(final String pluginType,
                                        ClassLoader classLoader) throws InstantiationException, IllegalAccessException, ClassNotFoundException{
     	pluginClassLoader.put(pluginType, classLoader);
-        Thread.currentThread().setContextClassLoader(classLoader);
+        //Thread.currentThread().setContextClassLoader(classLoader);
         switch (pluginType){
             case "flink120":
                 pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());

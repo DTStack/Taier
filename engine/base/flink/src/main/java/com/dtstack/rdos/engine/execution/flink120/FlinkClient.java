@@ -52,6 +52,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Reason:
@@ -99,6 +100,8 @@ public class FlinkClient extends AbsClient {
 
     // 同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
+
+    private AtomicBoolean hasInit = new AtomicBoolean(false);
 
     /**
      * 直接指定jobmanager host:port方式
@@ -163,8 +166,14 @@ public class FlinkClient extends AbsClient {
         client = clusterClient;
     }
 
-    public void init(Properties prop) throws Exception {
-    	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
+    public synchronized void init() throws Exception {
+
+        //初始化过就不再初始化
+        if(hasInit.getAndSet(true)){
+            return;
+        }
+
+        FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
 
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");

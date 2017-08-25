@@ -71,6 +71,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -121,7 +122,9 @@ public class FlinkClient extends AbsClient {
     // 同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
 
-    private org.apache.hadoop.conf.Configuration hadoopConf = new YarnConfiguration();
+    private AtomicBoolean hasInit = new AtomicBoolean(false);
+
+    private org.apache.hadoop.conf.Configuration hadoopConf;
 
     /**
      * 直接指定jobmanager host:port方式
@@ -153,6 +156,8 @@ public class FlinkClient extends AbsClient {
      * 根据yarn方式获取ClusterClient
      */
     public void initYarnClusterClient(FlinkConfig flinkConfig){
+
+        hadoopConf = new YarnConfiguration();
         AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor();
         try {
             Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
@@ -260,7 +265,13 @@ public class FlinkClient extends AbsClient {
         client = clusterClient;
     }
 
-    public void init(Properties prop) throws Exception {
+    public synchronized void init() throws Exception {
+
+        //初始化过就不再初始化
+        if(hasInit.getAndSet(true)){
+            return;
+        }
+
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         String clusterMode = flinkConfig.getClusterMode();
         if(StringUtils.isEmpty(clusterMode)) {

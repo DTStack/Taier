@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.ssh.SSHClient;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -44,8 +46,16 @@ public class DataxClient extends AbsClient {
 
     private final static Random random = new Random();
 
+    private AtomicBoolean hasInit = new AtomicBoolean(false);
+
     @Override
-    public void init(Properties prop) {
+    public void init() {
+
+        //初始化过就不再初始化
+        if(hasInit.getAndSet(true)){
+            return;
+        }
+
         String userName = prop.getProperty(DATAX_USERNAME_KEY);
         Preconditions.checkArgument(StringUtils.isNoneBlank(userName), "please set username for nodeyml.xml..");
         USERNAME = userName;
