@@ -24,6 +24,9 @@ public class BatchSourceFactory {
 
     public static String SOURCE_GENER_FUNC_NAME = "genBatchSource";
 
+    /**jar包后缀*/
+    public static String SUFFIX_JAR = "batchsource130";
+
     /**
      * 根据指定的类型构造数据源
      * 当前只支持kafka09
@@ -42,6 +45,7 @@ public class BatchSourceFactory {
             throw new RdosException("it's not a correct classLoader instance, it's type must be DtClassLoader!");
         }
 
+        sourceTypeStr += SUFFIX_JAR;
         String pluginJarPath = PluginSourceUtil.getJarFilePath(sourceTypeStr);
         String className = PluginSourceUtil.getClassName(sourceTypeStr);
 

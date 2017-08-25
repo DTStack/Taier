@@ -21,9 +21,11 @@ import java.util.Properties;
  * @ahthor xuchao
  */
 
-public class SourceFactory {
+public class StreamSourceFactory {
 
     public static String SINK_GENER_FUNC_NAME = "genStreamSource";
+
+    public static String SUFFIX_JAR = "streamsource120";
 
     public static StreamTableSource getStreamSource(CreateSourceOperator sourceOperator) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
@@ -37,6 +39,7 @@ public class SourceFactory {
             throw new RdosException("it's not a correct classLoader instance, it's type must be DtClassLoader!");
         }
 
+        sourceTypeStr += SUFFIX_JAR;
         String pluginJarPath = PluginSourceUtil.getJarFilePath(sourceTypeStr);
         String className = PluginSourceUtil.getClassName(sourceTypeStr);
 

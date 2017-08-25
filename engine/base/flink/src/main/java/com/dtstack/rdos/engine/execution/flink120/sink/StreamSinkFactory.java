@@ -21,9 +21,11 @@ import java.net.URL;
  * @ahthor xuchao
  */
 
-public class SinkFactory {
+public class StreamSinkFactory {
 
     public static String SINK_GENER_FUNC_NAME = "genStreamSink";
+
+    public static String SUFFIX_JAR = "streamsink120";
 
     public static TableSink getTableSink(StreamCreateResultOperator resultOperator) throws IOException,
             ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
@@ -34,6 +36,8 @@ public class SinkFactory {
         }
 
         String resultType = resultOperator.getType();
+        resultType += SUFFIX_JAR;
+
         String pluginJarPath = PluginSourceUtil.getJarFilePath(resultType);
         String className = PluginSourceUtil.getClassName(resultType);
 

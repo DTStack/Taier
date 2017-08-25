@@ -18,7 +18,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
-import com.dtstack.rdos.engine.execution.flink130.source.stream.SourceFactory;
+import com.dtstack.rdos.engine.execution.flink130.source.stream.StreamSourceFactory;
 import com.dtstack.rdos.engine.execution.flink130.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
@@ -513,10 +513,11 @@ public class FlinkClient extends AbsClient {
 
                     currStep = 1;
                     CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                    StreamTableSource tableSource = SourceFactory.getStreamSource(sourceOperator);
+                    StreamTableSource tableSource = StreamSourceFactory.getStreamSource(sourceOperator);
                     tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceOperator.getType());
+                    String sourceType = sourceOperator.getType() + StreamSourceFactory.SUFFIX_JAR;
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceType);
                     classPathSet.add(remoteJarPath);
 
                 }else if(operator instanceof CreateFunctionOperator){//注册自定义func
@@ -553,7 +554,8 @@ public class FlinkClient extends AbsClient {
                     TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator);
                     resultTable.writeToSink(tableSink);
 
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(resultOperator.getType());
+                    String sinkType = resultOperator.getType() + StreamSinkFactory.SUFFIX_JAR;
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkType);
                     classPathSet.add(remoteJarPath);
 
                 }else{
@@ -647,7 +649,8 @@ public class FlinkClient extends AbsClient {
                     BatchTableSource tableSource = BatchSourceFactory.getBatchSource(sourceOperator);
                     tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceOperator.getType());
+                    String sourceType = sourceOperator.getType() + BatchSourceFactory.SUFFIX_JAR;
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceType);
                     classPathSet.add(remoteJarPath);
 
                 }else if(operator instanceof CreateFunctionOperator){//注册自定义func
@@ -688,7 +691,8 @@ public class FlinkClient extends AbsClient {
                     TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator);
                     resultTable.writeToSink(tableSink);
 
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkOperator.getType());
+                    String sinkType = sinkOperator.getType() + BatchSinkFactory.SUFFIX_JAR;
+                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkType);
                     classPathSet.add(remoteJarPath);
                 }
             }
