@@ -758,7 +758,7 @@ public class FlinkClient extends AbsClient {
         }
 
         if(response == null){
-            return null;
+            return RdosTaskStatus.FINISHED;
         }
 
         try{
@@ -773,7 +773,7 @@ public class FlinkClient extends AbsClient {
             return RdosTaskStatus.getTaskStatus(state);
         }catch (Exception e){
             logger.error("", e);
-            return null;
+            return RdosTaskStatus.FINISHED;
         }
 
     }
