@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.*;
@@ -91,6 +92,10 @@ public class FlinkClient extends AbsClient {
 
     private static final String syncPluginDirName = "syncplugin";
 
+    private static final String YARN_CLUSTER_MODE = "yarn";
+
+    private static final String STANDALONE_CLUSTER_MODE = "standalone";
+
     /**同步数据插件jar名称*/
     private static final String syncJarFileName = "flinkx.jar";
 
@@ -115,6 +120,8 @@ public class FlinkClient extends AbsClient {
 
     // 同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
+
+    private org.apache.hadoop.conf.Configuration hadoopConf = new YarnConfiguration();
 
     /**
      * 直接指定jobmanager host:port方式
@@ -150,8 +157,8 @@ public class FlinkClient extends AbsClient {
         try {
             Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
             confField.setAccessible(true);
-            org.apache.hadoop.conf.Configuration conf = (org.apache.hadoop.conf.Configuration) confField.get(clusterDescriptor);
-            conf.addResource(new File(flinkConfig.getYarnConfPath()).toURI().toURL());
+            haYarnConf();
+            confField.set(clusterDescriptor, hadoopConf);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RdosException(e.getMessage());
@@ -162,6 +169,10 @@ public class FlinkClient extends AbsClient {
         config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
         config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
 
+        if(System.getenv("HADOOP_CONF_DIR") != null) {
+            config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
+        }
+
         if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
         }
@@ -170,17 +181,8 @@ public class FlinkClient extends AbsClient {
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
-        // 获取applicationID
-        org.apache.hadoop.conf.Configuration conf = new YarnConfiguration();
-        try {
-            conf.addResource(new File(flinkConfig.getYarnConfPath()).toURI().toURL());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new RdosException(e.getMessage());
-        }
-
         YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(conf);
+        yarnClient.init(hadoopConf);
         yarnClient.start();
         String applicationId = null;
 
@@ -259,8 +261,15 @@ public class FlinkClient extends AbsClient {
     }
 
     public void init(Properties prop) throws Exception {
-
     	FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
+        String clusterMode = flinkConfig.getClusterMode();
+        if(StringUtils.isEmpty(clusterMode)) {
+            clusterMode = STANDALONE_CLUSTER_MODE;
+        }
+        String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
+        if(StringUtils.isNotEmpty(hadoopConfDir)) {
+            loadHadoopConf(hadoopConfDir);
+        }
         tmpFileDirPath = flinkConfig.getJarTmpDir();
 
         String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
@@ -278,13 +287,17 @@ public class FlinkClient extends AbsClient {
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
-        if(StringUtils.isNotEmpty(flinkConfig.getYarnConfPath())) {
+        if(clusterMode.equals(STANDALONE_CLUSTER_MODE)) {
+            if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
+                Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
+                initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),flinkConfig.getFlinkHighAvailabilityStorageDir());
+            }else{
+                initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
+            }
+        } else if (clusterMode.equals(YARN_CLUSTER_MODE)) {
             initYarnClusterClient(flinkConfig);
-        } else if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
-            Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
-            initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),flinkConfig.getFlinkHighAvailabilityStorageDir());
-        }else{
-            initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
+        } else {
+            throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
 
         String localSyncPluginDir =  getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
@@ -861,5 +874,45 @@ public class FlinkClient extends AbsClient {
         return submitJobWithJar(jobClient);
     }
 
+    private void loadHadoopConf(String confDir) {
+        File[] xmlFileList = new File(confDir).listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                if (name.endsWith(".xml"))
+                    return true;
+                return false;
+            }
+        });
+
+        try {
+            if (xmlFileList != null) {
+                for (File xmlFile : xmlFileList) {
+                        hadoopConf.addResource(xmlFile.toURI().toURL());
+                }
+            }
+        } catch (MalformedURLException e) {
+            logger.error("", e);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 处理yarn HA的配置项
+     */
+    private void haYarnConf() {
+        Iterator<Map.Entry<String, String>> iterator = hadoopConf.iterator();
+        while(iterator.hasNext()) {
+            Map.Entry<String,String> entry = iterator.next();
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if(key.startsWith("yarn.resourcemanager.hostname.")) {
+                String rm = key.substring("yarn.resourcemanager.hostname.".length());
+                String addressKey = "yarn.resourcemanager.address." + rm;
+                if(hadoopConf.get(addressKey) == null) {
+                    hadoopConf.set(addressKey, value + ":" + YarnConfiguration.DEFAULT_RM_PORT);
+                }
+            }
+        }
+    }
 
 }

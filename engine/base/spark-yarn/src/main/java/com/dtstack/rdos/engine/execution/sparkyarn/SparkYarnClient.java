@@ -64,18 +64,13 @@ public class SparkYarnClient extends AbsClient {
     public void init(Properties prop) throws Exception {
         String errorMessage = null;
         sparkYarnConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkYarnConfig.class);
-        if(StringUtils.isEmpty(System.getenv("HADOOP_CONF_DIR"))){
-            errorMessage = "you need to set HADOOP_CONF_DIR when use sparkyarn engine.";
-        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
+
+        if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
             errorMessage = "you need to set sparkYarnArchive when used spark engine.";
         }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
             errorMessage = "you need to set sparkSqlProxyPath when used spark engine.";
         }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())) {
             errorMessage = "you need to set sparkSqlProxyMainClass when used spark engine.";
-        }
-        if(StringUtils.isEmpty(System.getenv("HADOOP_CONF_DIR"))){
-            logger.error("you need to set yarnConfDir when use sparkyarn engine.");
-            throw new RdosException("you need to set yarnConfDir when use sparkyarn engine.");
         }
 
         if(errorMessage != null){
@@ -83,20 +78,24 @@ public class SparkYarnClient extends AbsClient {
             throw new RdosException(errorMessage);
         }
 
-        File[] xmlFileList = new File(System.getenv("HADOOP_CONF_DIR")).listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                if(name.endsWith(".xml"))
-                    return true;
-                return false;
-            }
-        });
+        if(System.getenv("HADOOP_CONF_DIR") !=  null) {
+            File[] xmlFileList = new File(System.getenv("HADOOP_CONF_DIR")).listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    if(name.endsWith(".xml"))
+                        return true;
+                    return false;
+                }
+            });
 
-        if(xmlFileList != null) {
-            for(File xmlFile : xmlFileList) {
-                yarnConf.addResource(xmlFile.toURI().toURL());
+            if(xmlFileList != null) {
+                for(File xmlFile : xmlFileList) {
+                    yarnConf.addResource(xmlFile.toURI().toURL());
+                }
             }
         }
+
+
 
         System.setProperty("SPARK_YARN_MODE", "true");
         sparkConf.remove("spark.jars");
