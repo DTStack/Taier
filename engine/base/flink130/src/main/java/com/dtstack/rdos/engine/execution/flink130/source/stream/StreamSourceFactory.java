@@ -21,9 +21,12 @@ import java.util.Properties;
  * @ahthor xuchao
  */
 
-public class SourceFactory {
+public class StreamSourceFactory {
 
     public static String SINK_GENER_FUNC_NAME = "genStreamSource";
+
+    /**jar包后缀*/
+    public static String SUFFIX_JAR = "streamsource130";
 
     /**
      * 根据指定的类型构造数据源
@@ -43,6 +46,7 @@ public class SourceFactory {
             throw new RdosException("it's not a correct classLoader instance, it's type must be DtClassLoader!");
         }
 
+        sourceTypeStr += SUFFIX_JAR;
         String pluginJarPath = PluginSourceUtil.getJarFilePath(sourceTypeStr);
         String className = PluginSourceUtil.getClassName(sourceTypeStr);
 

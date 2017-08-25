@@ -32,8 +32,8 @@ public class PluginSourceUtil {
 
     public static Gson gson = new Gson();
 
-    public static String getJarFilePath(String sinkType){
-        String jarPath = sqlRootDir + SP + sinkType + SP + sinkType + ".jar";
+    public static String getJarFilePath(String type){
+        String jarPath = sqlRootDir + SP + type + SP + type + ".jar";
         File jarFile = new File(jarPath);
 
         if(!jarFile.exists() || jarFile.isDirectory()){
