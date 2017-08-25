@@ -34,7 +34,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
             <version>${spark.version}</version>
-            <exclusions>
+            <!--<exclusions>
                 <exclusion>
                     <artifactId>hadoop-hdfs</artifactId>
                     <groupId>org.apache.hadoop</groupId>
@@ -47,7 +47,7 @@
                     <artifactId>hadoop-client</artifactId>
                     <groupId>org.apache.hadoop</groupId>
                 </exclusion>
-            </exclusions>
+            </exclusions>-->
         </dependency>
 
         <dependency>
@@ -77,7 +77,7 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-yarn_2.11</artifactId>
             <version>${spark.version}</version>
-            <exclusions>
+            <!--<exclusions>
                 <exclusion>
                     <artifactId>hadoop-yarn-common</artifactId>
                     <groupId>org.apache.hadoop</groupId>
@@ -86,10 +86,10 @@
                     <artifactId>hadoop-yarn-api</artifactId>
                     <groupId>org.apache.hadoop</groupId>
                 </exclusion>
-            </exclusions>
+            </exclusions>-->
         </dependency>
 
-        <dependency>
+<!--        <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
             <version>2.7.2</version>
@@ -123,7 +123,7 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-yarn-client</artifactId>
             <version>2.7.2</version>
-        </dependency>
+        </dependency>-->
 
     </dependencies>
 
