@@ -56,8 +56,12 @@ public class SqlParser {
 		sql = sql.trim();
 		String[] sqls = sql.split(";");
 		List<Operator> operators = Lists.newArrayList();
-		A:for(String cql:sqls){
+		A:for(String cql : sqls){
 			cql = cql.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", "").trim();
+			if(cql.equals("")){
+				continue;
+			}
+
 			boolean result = false;
 			for(Class<? extends Operator> operatorClass :operatorClasses){
 		    	Object obj = operatorClass.newInstance();

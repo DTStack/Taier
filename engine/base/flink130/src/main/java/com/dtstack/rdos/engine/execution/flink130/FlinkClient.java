@@ -870,6 +870,7 @@ public class FlinkClient extends AbsClient {
         //需要构造出add jar
         AddJarOperator addjarOperator = new AddJarOperator();
         addjarOperator.setJarPath(syncJarFileName);
+        jobClient.addOperator(addjarOperator);
 
         return submitJobWithJar(jobClient);
     }

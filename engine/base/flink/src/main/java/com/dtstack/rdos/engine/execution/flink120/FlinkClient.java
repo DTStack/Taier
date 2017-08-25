@@ -69,6 +69,9 @@ public class FlinkClient extends AbsClient {
 
     private static final String syncPluginDirName = "syncplugin";
 
+    /**同步数据插件jar名称*/
+    private static final String syncJarFileName = "flinkx.jar";
+
     public static final String FLINK_ENGINE_JOBID_KEY = "engineJobId";
 
     public static final String FLINK_JOB_FROMSAVEPOINT_KEY = "isRestoration";
@@ -655,6 +658,11 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
+        //需要构造出add jar
+        AddJarOperator addjarOperator = new AddJarOperator();
+        addjarOperator.setJarPath(syncJarFileName);
+        jobClient.addOperator(addjarOperator);
+
         return submitJobWithJar(jobClient);
     }
 
