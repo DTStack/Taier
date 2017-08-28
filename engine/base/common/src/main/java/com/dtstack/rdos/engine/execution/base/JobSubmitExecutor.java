@@ -52,7 +52,6 @@ public class JobSubmitExecutor{
 
     private boolean hasInit = false;
 
-    //为了获取job状态,FIXME 是否有更合适的方式?
     private Map<String, IClient> clientMap = new HashMap<>();
 
     private List<Map<String, Object>> clientParamsList;

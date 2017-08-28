@@ -16,7 +16,7 @@ public class AppTest {
 		properties.put("flinkClusterId","/default");
 		properties.put("flinkHighAvailabilityStorageDir","hdfs://172.16.10.135:9000/flink13/ha");
 		properties.put("jarTmpDir", "../tmp");
-		flinkClient.init();
+		//flinkClient.init();
 	}
 
 }

@@ -132,6 +132,7 @@ public class FlinkClient extends AbsClient {
             clusterMode = STANDALONE_CLUSTER_MODE;
         }
         String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
+        hadoopConf = new YarnConfiguration();
         if(StringUtils.isNotEmpty(hadoopConfDir)) {
             loadHadoopConf(hadoopConfDir);
         }
@@ -207,7 +208,6 @@ public class FlinkClient extends AbsClient {
      */
     public void initYarnClusterClient(FlinkConfig flinkConfig){
 
-        hadoopConf = new YarnConfiguration();
         AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor();
         try {
             Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
