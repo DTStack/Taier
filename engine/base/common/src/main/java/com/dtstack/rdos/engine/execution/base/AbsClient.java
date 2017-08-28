@@ -28,8 +28,6 @@ public abstract class AbsClient implements IClient{
 
     public static final String JOB_EXE_ARGS = "job.class.args";
 
-    public Properties prop;
-    
     @Override
 	public JobResult submitJob(JobClient jobClient) {
 
@@ -79,8 +77,4 @@ public abstract class AbsClient implements IClient{
     	return null;
     }
 
-    @Override
-    public void setProp(Properties prop) {
-        this.prop = prop;
-    }
 }

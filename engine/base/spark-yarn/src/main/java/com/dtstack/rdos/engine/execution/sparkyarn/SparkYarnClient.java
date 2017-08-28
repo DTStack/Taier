@@ -61,17 +61,9 @@ public class SparkYarnClient extends AbsClient {
     /**默认最多可以请求的CPU核心数*/
     private static final String DEFAULT_CORES_MAX = "2";
 
-    private AtomicBoolean hasInit = new AtomicBoolean(false);
-
 
     @Override
-    public synchronized void init() throws Exception {
-
-        //初始化过就不再初始化
-        if(hasInit.getAndSet(true)){
-            return;
-        }
-
+    public void init(Properties prop) throws Exception {
         String errorMessage = null;
         sparkYarnConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkYarnConfig.class);
 
