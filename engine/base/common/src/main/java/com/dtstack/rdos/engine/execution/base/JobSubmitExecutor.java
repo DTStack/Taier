@@ -78,14 +78,17 @@ public class JobSubmitExecutor{
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
             if(clientTypeStr == null){
-                logger.error("node.yml of engineTypes setting error, typeName must not be null!!!");
-                throw new RdosException("node.yml of engineTypes setting error, typeName must not be null!!!");
+                String errorMess = "node.yml of engineTypes setting error, typeName must not be null!!!";
+                logger.error(errorMess);
+                throw new RdosException(errorMess);
             }
             loadComputerPlugin(clientTypeStr);
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
+            Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
             client.init(clusterProp);
+            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             String key = getEngineName(clientTypeStr);
             clientMap.put(key, client);
         }
@@ -115,7 +118,6 @@ public class JobSubmitExecutor{
 			}
 	    }
     	return new DtClassLoader(urls, this.getClass().getClassLoader());
-        //return new URLClassLoader(urls, this.getClass().getClassLoader());
 	}
 
     public static JobSubmitExecutor getInstance(){
