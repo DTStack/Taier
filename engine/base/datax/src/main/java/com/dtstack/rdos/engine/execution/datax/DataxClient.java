@@ -46,15 +46,8 @@ public class DataxClient extends AbsClient {
 
     private final static Random random = new Random();
 
-    private AtomicBoolean hasInit = new AtomicBoolean(false);
-
     @Override
-    public void init() {
-
-        //初始化过就不再初始化
-        if(hasInit.getAndSet(true)){
-            return;
-        }
+    public void init(Properties prop) {
 
         String userName = prop.getProperty(DATAX_USERNAME_KEY);
         Preconditions.checkArgument(StringUtils.isNoneBlank(userName), "please set username for nodeyml.xml..");
