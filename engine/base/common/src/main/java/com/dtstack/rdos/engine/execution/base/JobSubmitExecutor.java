@@ -21,6 +21,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.dtstack.rdos.engine.execution.base.com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
+import com.dtstack.rdos.engine.execution.base.com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 
 /**
  * 任务提交执行容器
@@ -59,6 +61,8 @@ public class JobSubmitExecutor{
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
+    private ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod();
+
     private JobSubmitExecutor(){}
 
     public void init(Map<String,Object> engineConf) throws Exception{
@@ -86,9 +90,13 @@ public class JobSubmitExecutor{
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
-            Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
-            client.init(clusterProp);
-            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                @Override
+                public Object execute() throws Exception {
+                    client.init(clusterProp);
+                    return null;
+                }
+            },client.getClass().getClassLoader(),null);
             String key = getEngineName(clientTypeStr);
             clientMap.put(key, client);
         }
@@ -206,9 +214,12 @@ public class JobSubmitExecutor{
                 try {
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                    Thread.currentThread().setContextClassLoader(clusterClient.getClass().getClassLoader());
-                    jobResult = clusterClient.submitJob(jobClient);
-                    Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+                    jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                        @Override
+                        public Object execute() throws Exception {
+                            return clusterClient.submitJob(jobClient);
+                        }
+                    },clusterClient.getClass().getClassLoader(),null);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
