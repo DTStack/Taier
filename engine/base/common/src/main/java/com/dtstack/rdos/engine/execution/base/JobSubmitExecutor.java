@@ -149,7 +149,7 @@ public class JobSubmitExecutor{
                 public Object execute() throws Exception {
                     return client.getJobStatus(jobId);
                 }
-            },client.getClass().getClassLoader(),null,false);
+            },client.getClass().getClassLoader(),null,true);
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
@@ -167,7 +167,7 @@ public class JobSubmitExecutor{
                           jobMasters.put(k, v.getJobMaster());
                           return null;
                       }
-                  },v.getClass().getClassLoader(),null,false);
+                  },v.getClass().getClassLoader(),null,true);
                 } catch (Exception e) {
                    logger.error("",e);
                 }
@@ -184,7 +184,7 @@ public class JobSubmitExecutor{
             public Object execute() throws Exception {
                 return client.cancelJob(paramAction);
             }
-        },client.getClass().getClassLoader(),null,false);
+        },client.getClass().getClassLoader(),null,true);
     }
 
     public void shutdown(){
@@ -238,7 +238,7 @@ public class JobSubmitExecutor{
                         public Object execute() throws Exception {
                             return clusterClient.submitJob(jobClient);
                         }
-                    },clusterClient.getClass().getClassLoader(),null,false);
+                    },clusterClient.getClass().getClassLoader(),null,true);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
