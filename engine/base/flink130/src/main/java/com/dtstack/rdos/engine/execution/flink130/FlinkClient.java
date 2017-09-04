@@ -80,7 +80,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @ahthor xuchao
  */
 public class FlinkClient extends AbsClient {
-	
+
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -104,7 +104,7 @@ public class FlinkClient extends AbsClient {
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
     public static String sp = File.separator;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+
     public String tmpFileDirPath = "./tmp";
 
     private String jobMgrHost;
@@ -750,7 +750,7 @@ public class FlinkClient extends AbsClient {
     	if(jobId == null||"".equals(jobId)){
     		return null;
     	}
-    	
+
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
         String response = null;
         try{
@@ -799,7 +799,7 @@ public class FlinkClient extends AbsClient {
     private String getReqUrl(){
         return client.getWebInterfaceURL();
     }
-    
+
     @Override
     public String getJobMaster(){
     	String url = getReqUrl();
