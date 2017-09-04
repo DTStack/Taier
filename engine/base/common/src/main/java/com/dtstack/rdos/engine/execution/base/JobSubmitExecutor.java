@@ -9,9 +9,11 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -21,8 +23,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.dtstack.rdos.engine.execution.base.com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
-import com.dtstack.rdos.engine.execution.base.com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
+
+import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
+import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 
 /**
  * 任务提交执行容器
@@ -140,9 +143,13 @@ public class JobSubmitExecutor{
             throw new RdosException("can't get job of jobId is empty or null!");
         }
         IClient client = clientMap.get(engineType);
-        Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
         try{
-            return client.getJobStatus(jobId);
+            return  (RdosTaskStatus) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                @Override
+                public Object execute() throws Exception {
+                    return client.getJobStatus(jobId);
+                }
+            },client.getClass().getClassLoader(),null);
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
@@ -151,20 +158,33 @@ public class JobSubmitExecutor{
 
     public Map<String, String> getJobMaster(){
     	final Map<String,String> jobMasters = Maps.newConcurrentMap();
-    	clientMap.forEach((k,v)->{
-            Thread.currentThread().setContextClassLoader(v.getClass().getClassLoader());
+        clientMap.forEach((k,v)->{
             if(StringUtils.isNotBlank(v.getJobMaster())){
-        		jobMasters.put(k, v.getJobMaster());
+                try {
+                    classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                      @Override
+                      public Object execute() throws Exception {
+                          jobMasters.put(k, v.getJobMaster());
+                          return null;
+                      }
+                  },v.getClass().getClassLoader(),null);
+                } catch (Exception e) {
+                   logger.error("",e);
+                }
             }
     	});
         return jobMasters;
     }
 
-    public JobResult stopJob(ParamAction paramAction){
+    public JobResult stopJob(ParamAction paramAction) throws Exception {
         String engineType = paramAction.getEngineType();
         IClient client = clientMap.get(engineType);
-        Thread.currentThread().setContextClassLoader(client.getClass().getClassLoader());
-        return client.cancelJob(paramAction);
+        return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+            @Override
+            public Object execute() throws Exception {
+                return client.cancelJob(paramAction);
+            }
+        },client.getClass().getClassLoader(),null);
     }
 
     public void shutdown(){

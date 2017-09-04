@@ -111,7 +111,7 @@ public class JobClient {
         JobSubmitExecutor.getInstance().submitJob(this);
     }
 
-    public static JobResult stop(ParamAction paramAction) {
+    public static JobResult stop(ParamAction paramAction) throws Exception {
         return JobSubmitExecutor.getInstance().stopJob(paramAction);
     }
 

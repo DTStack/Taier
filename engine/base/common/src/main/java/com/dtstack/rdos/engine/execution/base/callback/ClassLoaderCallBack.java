@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.com.dtstack.rdos.engine.execution.base.callback;
+package com.dtstack.rdos.engine.execution.base.callback;
 
 /**
  * Created by sishu.yss on 2017/8/28.
