@@ -74,6 +74,6 @@ public class ClientFactory {
                 }
                 return null;
             }
-        },classLoader,null);
+        },classLoader,null,true);
     }
 }

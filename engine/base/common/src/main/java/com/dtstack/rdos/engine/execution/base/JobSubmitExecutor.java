@@ -98,7 +98,7 @@ public class JobSubmitExecutor{
                     client.init(clusterProp);
                     return null;
                 }
-            },client.getClass().getClassLoader(),null);
+            },client.getClass().getClassLoader(),null,true);
             String key = getEngineName(clientTypeStr);
             clientMap.put(key, client);
         }
@@ -149,7 +149,7 @@ public class JobSubmitExecutor{
                 public Object execute() throws Exception {
                     return client.getJobStatus(jobId);
                 }
-            },client.getClass().getClassLoader(),null);
+            },client.getClass().getClassLoader(),null,false);
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
@@ -167,7 +167,7 @@ public class JobSubmitExecutor{
                           jobMasters.put(k, v.getJobMaster());
                           return null;
                       }
-                  },v.getClass().getClassLoader(),null);
+                  },v.getClass().getClassLoader(),null,false);
                 } catch (Exception e) {
                    logger.error("",e);
                 }
@@ -184,7 +184,7 @@ public class JobSubmitExecutor{
             public Object execute() throws Exception {
                 return client.cancelJob(paramAction);
             }
-        },client.getClass().getClassLoader(),null);
+        },client.getClass().getClassLoader(),null,false);
     }
 
     public void shutdown(){
@@ -238,7 +238,7 @@ public class JobSubmitExecutor{
                         public Object execute() throws Exception {
                             return clusterClient.submitJob(jobClient);
                         }
-                    },clusterClient.getClass().getClassLoader(),null);
+                    },clusterClient.getClass().getClassLoader(),null,false);
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);

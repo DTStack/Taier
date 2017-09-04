@@ -5,13 +5,15 @@ package com.dtstack.rdos.engine.execution.base.callback;
  */
 public class ClassLoaderCallBackMethod {
 
-    public Object callback(ClassLoaderCallBack classLoaderCallBack,ClassLoader current,ClassLoader main) throws Exception {
+    public Object callback(ClassLoaderCallBack classLoaderCallBack,ClassLoader current,ClassLoader main,boolean isSet) throws Exception {
         Thread.currentThread().setContextClassLoader(current);
         Object result = classLoaderCallBack.execute();
-        if(main == null){
-            Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
-        }else{
-            Thread.currentThread().setContextClassLoader(main);
+        if(isSet){
+            if(main == null){
+                Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+            }else{
+                Thread.currentThread().setContextClassLoader(main);
+            }
         }
         return result;
     }
