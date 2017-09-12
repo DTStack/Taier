@@ -20,6 +20,7 @@ import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.stream.StreamSourceFactory;
 import com.dtstack.rdos.engine.execution.flink130.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.flink130.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -131,13 +132,8 @@ public class FlinkClient extends AbsClient {
         if(StringUtils.isEmpty(clusterMode)) {
             clusterMode = STANDALONE_CLUSTER_MODE;
         }
-        String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
-        hadoopConf = new YarnConfiguration();
-        if(StringUtils.isNotEmpty(hadoopConfDir)) {
-            loadHadoopConf(hadoopConfDir);
-        }
-        tmpFileDirPath = flinkConfig.getJarTmpDir();
 
+        tmpFileDirPath = flinkConfig.getJarTmpDir();
         String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
         File sqlPluginDirFile = new File(localSqlPluginDir);
 
@@ -176,7 +172,6 @@ public class FlinkClient extends AbsClient {
 
 
 
-
     /**
      * 直接指定jobmanager host:port方式
      * @return
@@ -208,6 +203,7 @@ public class FlinkClient extends AbsClient {
      */
     public void initYarnClusterClient(FlinkConfig flinkConfig){
 
+        hadoopConf = HadoopConf.getYarnConfiguration();
         AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor();
         try {
             Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
@@ -886,27 +882,6 @@ public class FlinkClient extends AbsClient {
         return submitJobWithJar(jobClient);
     }
 
-    private void loadHadoopConf(String confDir) {
-        File[] xmlFileList = new File(confDir).listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                if (name.endsWith(".xml"))
-                    return true;
-                return false;
-            }
-        });
-
-        try {
-            if (xmlFileList != null) {
-                for (File xmlFile : xmlFileList) {
-                        hadoopConf.addResource(xmlFile.toURI().toURL());
-                }
-            }
-        } catch (MalformedURLException e) {
-            logger.error("", e);
-            e.printStackTrace();
-        }
-    }
 
     /**
      * 处理yarn HA的配置项

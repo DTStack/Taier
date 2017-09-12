@@ -106,7 +106,7 @@ public class FlinkFileUtil {
         String hdfsUri = pair.getLeft();
         String hdfsFilePathStr = pair.getRight();
 
-        Configuration conf = new Configuration();
+        Configuration conf = HadoopConf.getConfiguration();
         URI uri = new URI(hdfsUri);
         FileSystem fs = FileSystem.get(uri, conf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
