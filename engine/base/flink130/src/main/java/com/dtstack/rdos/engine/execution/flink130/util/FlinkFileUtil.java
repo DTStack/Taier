@@ -35,7 +35,7 @@ public class FlinkFileUtil {
 
     private static final String HDFS_PROTOCAL = "hdfs://";
 
-    private static final String HDFS_PATTERN = "(hdfs://\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d*)(.*)";
+    private static final String HDFS_PATTERN = "(hdfs://[^/]+)(.*)";
 
     private static Pattern pattern = Pattern.compile(HDFS_PATTERN);
 
