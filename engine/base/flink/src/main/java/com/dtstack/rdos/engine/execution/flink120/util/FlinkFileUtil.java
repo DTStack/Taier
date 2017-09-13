@@ -35,7 +35,7 @@ public class FlinkFileUtil {
 
     private static final String HDFS_PROTOCAL = "hdfs://";
 
-    private static final String HDFS_PATTERN = "(hdfs://\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}:\\d*)(.*)";
+    private static final String HDFS_PATTERN = "(hdfs://[^/]+)(.*)";
 
     private static Pattern pattern = Pattern.compile(HDFS_PATTERN);
 
@@ -106,7 +106,7 @@ public class FlinkFileUtil {
         String hdfsUri = pair.getLeft();
         String hdfsFilePathStr = pair.getRight();
 
-        Configuration conf = new Configuration();
+        Configuration conf = HadoopConf.getConfiguration();
         URI uri = new URI(hdfsUri);
         FileSystem fs = FileSystem.get(uri, conf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
