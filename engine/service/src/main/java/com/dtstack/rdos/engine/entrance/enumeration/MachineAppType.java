@@ -5,7 +5,7 @@ package com.dtstack.rdos.engine.entrance.enumeration;
  */
 public enum MachineAppType {
 	
-    ENGINE("engine"),WEB("web"),FLINK120("flink"),FLINK130("flink"),SPARK("spark"),DATAX("datax");
+    ENGINE("engine"),WEB("web"),FLINK("flink"),SPARK("spark"),DATAX("datax");
 
     private String type;
 
