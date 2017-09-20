@@ -42,13 +42,14 @@ public class ActionServiceImpl {
     private RdosBatchJobDAO batchJobDAO = new RdosBatchJobDAO();
 
     public void start(Map<String, Object> params) throws Exception {
-
-        String jobId = null;
-        Integer computeType = null;
+        String ajobId = null;
+        Integer acomputeType  = null;
         try {
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            jobId = paramAction.getTaskId();
-            computeType = paramAction.getComputeType();
+            String jobId = paramAction.getTaskId();
+            ajobId = jobId;
+            Integer computeType  = paramAction.getComputeType();
+            acomputeType = computeType;
             if(paramAction.getRequestStart()!= RequestStart.NODE.getStart()){
             	ActionLog dbActionLog =getActionLog(paramAction.getActionLogId(),computeType);
                 if(dbActionLog!=null&&dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
@@ -66,12 +67,12 @@ public class ActionServiceImpl {
                 jobClient.setJobClientCallBack(new JobClientCallBack() {
                     @Override
                     public void execute() {
-                        BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-                        brokerDataNode.getMetas().put(taskId, RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
-                        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
-                        zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+                        updateJobZookStatus(taskId,RdosTaskStatus.WAITCOMPUTE.getStatus());
+                        updateJobStatus(jobId, computeType, RdosTaskStatus.FAILED.getStatus());
                     }
                 });
+                updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
+                updateJobStatus(jobId, computeType, RdosTaskStatus.FAILED.getStatus());
                 jobClient.submit();
 
             } else {
@@ -81,10 +82,19 @@ public class ActionServiceImpl {
         } catch (Throwable e) {
             //提交失败,修改对应的提交jobid为提交失败
             logger.error("", e);
-            if (jobId != null) {
-                updateJobStatus(jobId, computeType, RdosTaskStatus.SUBMITFAILD.getStatus());
+            if (ajobId != null) {
+                updateJobStatus(ajobId, acomputeType, RdosTaskStatus.FAILED.getStatus());
             }
         }
+
+    }
+
+    @Forbidden
+    public void updateJobZookStatus(String taskId,Integer status){
+        BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+        brokerDataNode.getMetas().put(taskId, status.byteValue());
+        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
+        zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
 
     }
 
