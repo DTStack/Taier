@@ -68,11 +68,11 @@ public class ActionServiceImpl {
                     @Override
                     public void execute() {
                         updateJobZookStatus(taskId,RdosTaskStatus.WAITCOMPUTE.getStatus());
-                        updateJobStatus(jobId, computeType, RdosTaskStatus.FAILED.getStatus());
+                        updateJobStatus(jobId, computeType, RdosTaskStatus.WAITCOMPUTE.getStatus());
                     }
                 });
                 updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
-                updateJobStatus(jobId, computeType, RdosTaskStatus.FAILED.getStatus());
+                updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
                 jobClient.submit();
 
             } else {
