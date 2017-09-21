@@ -63,8 +63,8 @@ public class TaskListener implements Runnable{
 				if(jobClient.getComputeType().getComputeType()==ComputeType.STREAM.getComputeType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
-					}else{//设置为提交失败
-                        rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITFAILD.getStatus());
+					}else{//设置为失败
+                        rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
 					}
 					rdosStreamServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
 							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
@@ -72,7 +72,7 @@ public class TaskListener implements Runnable{
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{
-					    rdosbatchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.SUBMITFAILD.getStatus());
+					    rdosbatchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
                     }
 					
 					rdosBatchServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
