@@ -288,7 +288,14 @@ public class SparkClient extends AbsClient {
         }
         Map<String, Object> responseMap = objMapper.readValue(responseStr, Map.class);
         String state = (String) responseMap.get("driverState");
-        return RdosTaskStatus.getTaskStatus(state);
+        RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
+
+        //FIXME 特殊逻辑,所有处于已经提交的状态都认为是等待资源
+        if(status == RdosTaskStatus.SUBMITTED){
+            status = RdosTaskStatus.WAITCOMPUTE;
+        }
+
+        return status;
     }
 
     @Override
