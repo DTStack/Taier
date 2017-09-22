@@ -289,7 +289,9 @@ public class SparkYarnClient extends AbsClient {
                 case NEW_SAVING:
                     return RdosTaskStatus.CREATED;
                 case SUBMITTED:
-                    return RdosTaskStatus.SUBMITTED;
+                    //return RdosTaskStatus.SUBMITTED;
+                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                    return RdosTaskStatus.WAITCOMPUTE;
                 case ACCEPTED:
                     return RdosTaskStatus.SCHEDULED;
                 case RUNNING:

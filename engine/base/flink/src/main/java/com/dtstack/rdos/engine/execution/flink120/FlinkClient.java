@@ -560,7 +560,15 @@ public class FlinkClient extends AbsClient {
 
             String state = (String) stateObj;
             state = org.apache.commons.lang3.StringUtils.upperCase(state);
-            return RdosTaskStatus.getTaskStatus(state);
+
+            RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
+
+            //FIXME 特殊逻辑,所有重启的状态都认为是等待计算资源
+            if(status == RdosTaskStatus.RESTARTING){
+                status = RdosTaskStatus.WAITCOMPUTE;
+            }
+
+            return status;
         }catch (Exception e){
             logger.error("", e);
             return RdosTaskStatus.FINISHED;
