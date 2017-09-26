@@ -47,7 +47,9 @@ public class TaskListener implements Runnable{
 	private RdosStreamServerLogDao rdosStreamServerLogDAO = new RdosStreamServerLogDao();
 	
 	private RdosBatchServerLogDao rdosBatchServerLogDAO = new RdosBatchServerLogDao();
-	
+
+	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+
 	public TaskListener(){
 		JobClient.setQueue(queue);
 	}
@@ -65,6 +67,8 @@ public class TaskListener implements Runnable{
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{//设置为失败
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
+                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(jobClient.getTaskId(),
+                                RdosTaskStatus.FAILED.getStatus());
 					}
 					rdosStreamServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
 							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
@@ -73,6 +77,8 @@ public class TaskListener implements Runnable{
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{
 					    rdosbatchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
+                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(jobClient.getTaskId(),
+                                RdosTaskStatus.FAILED.getStatus());
                     }
 					
 					rdosBatchServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
@@ -86,6 +92,5 @@ public class TaskListener implements Runnable{
 			}
 		}
 	}
-	
 
 }
