@@ -25,6 +25,8 @@ public class AddJarOperator implements Operator{
 	
 	private String jarPath;
 
+	private String mainClass;
+
 	public String getJarPath() {
 		return jarPath;
 	}
@@ -34,13 +36,19 @@ public class AddJarOperator implements Operator{
 		this.jarPath = jarPath;
 	}
 
+    public void setMainClass(String mainClass) {
+        this.mainClass = mainClass;
+    }
 
-	@Override
+
+    @Override
 	public void createOperator(String sql)throws Exception {
-		// TODO Auto-generated method stub
 		this.sql = sql;
 		Map<String,Object> result =GrokUtil.toMap(pattern, sql);
 		this.jarPath = (String)result.get("path");
+		if(result.containsKey("mainClass") && result.get("mainClass") != null){
+            this.mainClass = (String) result.get("mainClass");
+        }
 	}
 	
 	public  boolean verific(String sql) throws Exception{
@@ -51,7 +59,10 @@ public class AddJarOperator implements Operator{
 
 	@Override
 	public String getSql() {
-		// TODO Auto-generated method stub
 		return this.sql.trim();
 	}
+
+    public String getMainClass() {
+        return mainClass;
+    }
 }
