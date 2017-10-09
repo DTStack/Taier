@@ -62,12 +62,13 @@ public class TaskListener implements Runnable{
 				JobClient jobClient  = queue.take();
 				logger.warn("{}:{} addTaskIdToEngineTaskId...",jobClient.getTaskId(),jobClient.getEngineTaskId());
 				//存储执行日志
+				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getComputeType(),jobClient.getEngineType(),jobClient.getTaskId());
 				if(jobClient.getComputeType().getComputeType()==ComputeType.STREAM.getComputeType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{//设置为失败
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
-                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(jobClient.getTaskId(),
+                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,
                                 RdosTaskStatus.FAILED.getStatus());
 					}
 					rdosStreamServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
@@ -77,7 +78,7 @@ public class TaskListener implements Runnable{
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{
 					    rdosbatchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
-                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(jobClient.getTaskId(),
+                        zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,
                                 RdosTaskStatus.FAILED.getStatus());
                     }
 					
