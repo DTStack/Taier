@@ -44,7 +44,7 @@ public class MasterListener implements Runnable{
 				}
 				Thread.sleep(MASTERCHECK);
 			}
-		}catch(Exception e){
+		}catch(Throwable e){
 			logger.error("MasterCheck error:{}",ExceptionUtil.getErrorMessage(e));
 		}
 	}

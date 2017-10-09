@@ -56,7 +56,7 @@ public class HeartBeatListener implements Runnable{
 				Thread.sleep(HEATBEATCHECK);
 			}
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// TODO Auto-generated catch block
 			logger.error(ExceptionUtil.getErrorMessage(e));
 		}

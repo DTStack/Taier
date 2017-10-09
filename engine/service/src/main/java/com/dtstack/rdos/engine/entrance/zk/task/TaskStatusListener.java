@@ -50,7 +50,7 @@ public class TaskStatusListener implements Runnable{
 		  		Thread.sleep(listener);
 		  		if(PublicUtil.count(index, 5))logger.warn("TaskStatusListener start again...");
 		  		updateTaskStatus();
-			}catch(Exception e){
+			}catch(Throwable e){
 				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
 			}
 	    }
@@ -104,7 +104,7 @@ public class TaskStatusListener implements Runnable{
 						}
                     }
                 }
-            }catch (Exception e){
+            }catch (Throwable e){
                 logger.error("", e);
             }
       	}

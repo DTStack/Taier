@@ -43,7 +43,7 @@ public class OtherListener implements Runnable{
 				}
 				Thread.sleep(listener);
 			}
-		}catch(Exception e){
+		}catch(Throwable e){
 			logger.error("OtherListener error:{}",ExceptionUtil.getErrorMessage(e));
 		}
 	}

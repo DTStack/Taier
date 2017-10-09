@@ -86,7 +86,7 @@ public class TaskListener implements Runnable{
 					}
 
 
-			} catch (InterruptedException e) {
+			} catch (Throwable e) {
 				// TODO Auto-generated catch block
 				logger.error("TaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
 			}
