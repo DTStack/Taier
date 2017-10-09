@@ -1,4 +1,4 @@
-ADDJAR (ADD|add)\s+(JAR|jar)\s+(WITH|with)\s+(?<path>\S+)\s*
+ADDJAR (ADD|add)\s+(JAR|jar)\s+(WITH|with)\s+(?<path>\S+)\s*(AS|as)?\s*(?<mainClass>\S+)?\s*
 CREATEFUNCTION (CREATE|create)\s+(?<type>(TABLE|SCALA|table|scala))\s+(FUNCTION|function)\s+(?<name>\S+)\s+(WITH|with)\s+(?<className>\S+)\s*
 CREATESOURCE (CREATE|create)\s+(SOURCE|source)\s+(TABLE|table)\s+(?<name>\S+)\s*\((?<fields>.+)\)\s+(WITH|with)\s+\((?<properties>.+)\)\s*
 CREATERESULT (CREATE|create)\s+(RESULT|result)\s+(TABLE|table)\s+(?<name>\S+)\s*\((?<fields>.+)\)\s+(WITH|with)\s+\((?<properties>.+)\)\s*

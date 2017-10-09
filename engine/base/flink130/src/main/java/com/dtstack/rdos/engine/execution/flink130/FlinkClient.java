@@ -410,6 +410,10 @@ public class FlinkClient extends AbsClient {
             if(operator instanceof AddJarOperator){
                 AddJarOperator addjarOperator = (AddJarOperator) operator;
                 properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
+
+                if(addjarOperator.getMainClass() != null){
+                    properties.setProperty(JOB_MAIN_CLASS_KEY, addjarOperator.getMainClass());
+                }
                 break;
             }else if(operator instanceof BatchAddJarOperator){
                 BatchAddJarOperator addjarOperator = (BatchAddJarOperator) operator;
