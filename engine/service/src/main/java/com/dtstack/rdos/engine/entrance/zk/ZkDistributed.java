@@ -215,7 +215,6 @@ public class ZkDistributed {
 			if(this.brokerDataLock.acquire(10, TimeUnit.SECONDS)){
 				BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
 				Map<String,Byte> datas = target.getMetas();
-				datas.put(taskId, status.byteValue());
 				Iterator<Map.Entry<String, Byte>> iterator = datas.entrySet().iterator();
 				while(iterator.hasNext()){
 					Byte val = iterator.next().getValue();
@@ -223,6 +222,7 @@ public class ZkDistributed {
 						iterator.remove();
 					}
 				}
+				datas.put(taskId, status.byteValue());
 				zkClient.setData().forPath(nodePath,objectMapper.writeValueAsBytes(target));
 			}
 		} catch (Exception e) {
