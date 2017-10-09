@@ -242,17 +242,14 @@ public class JobSubmitExecutor{
                     logger.info("submit job result is:{}.", jobResult);
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
-                }catch (Exception e){//捕获未处理异常,防止跳出执行线程
+                }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
                     e.printStackTrace();
                     jobClient.setEngineTaskId(null);
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get unexpected exception", e);
-                }catch (Error e){
-                    jobClient.setEngineTaskId(null);
-                    jobResult = JobResult.createErrorResult(e);
-                    logger.error("get an error, please check program!!!!", e);
+                }finally {
+                    listenerJobStatus(jobClient, jobResult);
                 }
-                listenerJobStatus(jobClient, jobResult);
             }
         }
 
