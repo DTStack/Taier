@@ -799,6 +799,26 @@ public class FlinkClient extends AbsClient {
         return response;
     }
 
+    @Override
+    public Map<String,Object> getAvailableTaskSlots(){
+        try{
+            String reqUrl = getReqUrl() + "/overview";
+            String response = PoolHttpClient.get(reqUrl);
+            if(StringUtils.isNotBlank(response)){
+                return  objectMapper.readValue(response,Map.class);
+            }
+        }catch (Throwable e){
+            logger.error("",e);
+        }
+        return null;
+    }
+
+    @Override
+    public String getJobMessage(String jobId){
+        String reqUrl = getReqUrl() + String.format("/jobs/%s/exceptions",jobId);
+        return  PoolHttpClient.get(reqUrl);
+    }
+
     /**
      * 获取jobMgr-web地址
      * @return

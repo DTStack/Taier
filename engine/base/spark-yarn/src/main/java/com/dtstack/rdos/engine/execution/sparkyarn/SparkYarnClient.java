@@ -325,6 +325,16 @@ public class SparkYarnClient extends AbsClient {
         return "yarn";
     }
 
+    @Override
+    public Map<String, Object> getAvailableTaskSlots() {
+        return null;
+    }
+
+    @Override
+    public String getJobMessage(String jobId) {
+        return null;
+    }
+
     public Properties adaptToJarSubmit(JobClient jobClient){
 
         BatchAddJarOperator jarOperator = null;

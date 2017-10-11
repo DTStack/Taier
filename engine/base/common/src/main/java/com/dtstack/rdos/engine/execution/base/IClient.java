@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -39,4 +40,9 @@ public interface IClient {
     JobResult immediatelySubmitJob(JobClient jobClient);
 
 	String getJobMaster();
-}
+
+    Map<String,Object> getAvailableTaskSlots();
+
+    String getJobMessage(String jobId);
+
+    }

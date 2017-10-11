@@ -331,4 +331,14 @@ public class SparkClient extends AbsClient {
 		}
 		return null;
 	}
+
+    @Override
+    public Map<String, Object> getAvailableTaskSlots() {
+        return null;
+    }
+
+    @Override
+    public String getJobMessage(String jobId) {
+        return null;
+    }
 }

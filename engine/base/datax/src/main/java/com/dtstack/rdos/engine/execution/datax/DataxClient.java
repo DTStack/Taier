@@ -3,10 +3,7 @@ package com.dtstack.rdos.engine.execution.datax;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.dtstack.rdos.commom.exception.RdosException;
@@ -141,5 +138,15 @@ public class DataxClient extends AbsClient {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public Map<String, Object> getAvailableTaskSlots() {
+        return null;
+    }
+
+    @Override
+    public String getJobMessage(String jobId) {
+        return null;
+    }
 
 }

@@ -597,6 +597,16 @@ public class FlinkClient extends AbsClient {
     	return url.split("//")[1];
     }
 
+    @Override
+    public Map<String, Object> getAvailableTaskSlots() {
+        return null;
+    }
+
+    @Override
+    public String getJobMessage(String jobId) {
+        return null;
+    }
+
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
         env.setParallelism(FlinkUtil.getEnvParallelism(confProperties));
