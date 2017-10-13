@@ -38,7 +38,7 @@ public enum RdosTaskStatus {
 
         if(Strings.isNullOrEmpty(taskStatus)){
             return null;
-        }else if("error".equalsIgnoreCase(taskStatus)){
+        }else if("error".equalsIgnoreCase(taskStatus)||"failing".equalsIgnoreCase(taskStatus)){
             taskStatus = "FAILED";
         }
 
