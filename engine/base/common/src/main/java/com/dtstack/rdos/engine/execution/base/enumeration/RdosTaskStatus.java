@@ -1,5 +1,9 @@
 package com.dtstack.rdos.engine.execution.base.enumeration;
 
+import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -14,6 +18,8 @@ public enum RdosTaskStatus {
 	SUBMITTING(10), RESTARTING(11), MANUALSUCCESS(12), KILLED(13), SUBMITTED(14),NOTFOUND(15),WAITENGINE(16),WAITCOMPUTE(17);
 	
 	private int status;
+
+	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 	
 	RdosTaskStatus(int status){
 		this.status = status;
@@ -29,7 +35,19 @@ public enum RdosTaskStatus {
      * @return
      */
     public static RdosTaskStatus getTaskStatus(String taskStatus){
-	   return RdosTaskStatus.valueOf(taskStatus);
+
+        if(Strings.isNullOrEmpty(taskStatus)){
+            return null;
+        }else if("error".equalsIgnoreCase(taskStatus)){
+            taskStatus = "FAILED";
+        }
+
+	    try {
+            return RdosTaskStatus.valueOf(taskStatus);
+        }catch (Exception e){
+            logger.info("No enum constant :" + taskStatus);
+	        return null;
+        }
     }
     
     public static boolean needClean(Byte status){
