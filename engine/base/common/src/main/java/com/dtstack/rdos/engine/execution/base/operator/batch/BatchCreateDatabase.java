@@ -28,6 +28,7 @@ public class BatchCreateDatabase implements Operator{
         this.name = (String)result.get("name");
 	}
 
+	@Override
     public boolean verific(String sql) throws Exception{
 		String uppserSql = StringUtils.upperCase(sql);
         return GrokUtil.isSuccess(pattern, uppserSql);

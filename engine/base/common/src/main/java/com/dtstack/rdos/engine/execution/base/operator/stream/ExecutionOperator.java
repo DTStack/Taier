@@ -21,11 +21,12 @@ public class ExecutionOperator implements Operator{
 		this.sql = sql;
 	}
 
+	@Override
 	public String getSql() {
 		return sql.trim();
 	}
 
-
+	@Override
 	public boolean verific(String sql) throws Exception{
 		return StringUtils.isNotBlank(sql)&&(sql.trim().toLowerCase().startsWith("select")||sql.trim().toLowerCase().startsWith("insert"));
 	}

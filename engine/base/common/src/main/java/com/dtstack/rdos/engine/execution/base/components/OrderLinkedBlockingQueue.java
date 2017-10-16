@@ -67,7 +67,7 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
      *         than zero
      */
     public OrderLinkedBlockingQueue(int capacity) {
-        if (capacity <= 0) throw new IllegalArgumentException();
+        if (capacity <= 0){ throw new IllegalArgumentException();}
         this.capacity = capacity;
         head = new Node<E>(null);
     }
@@ -117,7 +117,7 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     @Override
     public void put(E e) throws InterruptedException {
         // TODO Auto-generated method stub
-        if (e == null) throw new NullPointerException();
+        if (e == null){ throw new NullPointerException();}
         // Note: convention in all put/take/etc is to preset local var
         // holding count negative to indicate failure unless set.
         int c = -1;
@@ -139,13 +139,15 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
             }
             enqueue(node);
             c = count.getAndIncrement();
-            if (c + 1 < capacity)
+            if (c + 1 < capacity){
                 notFull.signal();
+            }
         } finally {
             putLock.unlock();
         }
-        if (c == 0)
+        if (c == 0){
             signalNotEmpty();
+        }
 
     }
 
@@ -170,13 +172,15 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
             }
             x = dequeue();
             c = count.getAndDecrement();
-            if (c > 1)
+            if (c > 1){
                 notEmpty.signal();
+            }
         } finally {
             takeLock.unlock();
         }
-        if (c == capacity)
+        if (c == capacity){
             signalNotFull();
+        }
         return x;
     }
 
@@ -295,7 +299,7 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     public boolean remove(String sign) {
-        if (StringUtils.isBlank(sign)) return false;
+        if (StringUtils.isBlank(sign)) {return false;}
         try {
             allLock.lockInterruptibly();
             for (Node<E> trail = head, p = trail.next;
@@ -312,8 +316,9 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
                     p.pre = null;
                     p.next = null;
                     p.item = null;
-                    if (count.getAndDecrement() == capacity)
+                    if (count.getAndDecrement() == capacity){
                         notFull.signal();
+                    }
                     return true;
                 }
             }

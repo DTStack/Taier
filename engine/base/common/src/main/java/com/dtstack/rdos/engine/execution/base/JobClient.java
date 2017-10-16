@@ -4,10 +4,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -21,7 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @ahthor xuchao
  */
 
-public class JobClient {
+public class JobClient extends OrderObject{
 
     private JobClientCallBack jobClientCallBack;
 

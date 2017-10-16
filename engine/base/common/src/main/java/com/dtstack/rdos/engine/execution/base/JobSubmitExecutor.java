@@ -9,21 +9,24 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ArrayBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 
@@ -49,7 +52,7 @@ public class JobSubmitExecutor{
 
     private int minPollSize = 10;
 
-    private int maxPoolSize = Integer.MAX_VALUE;
+    private int maxPoolSize = 1000;
 
     private ExecutorService executor;
 
@@ -70,11 +73,11 @@ public class JobSubmitExecutor{
     public void init(Map<String,Object> engineConf) throws Exception{
         if(!hasInit){
             Object slots = engineConf.get(SLOTS_KEY);
-            if(slots!=null)this.maxPoolSize = (int) slots;
+            if(slots!=null){this.maxPoolSize = (int) slots;}
             clientParamsList = (List<Map<String, Object>>) engineConf.get(Engine_TYPES_KEY);
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>());
+                    new ArrayBlockingQueue<Runnable>(1));
             initJobClient(clientParamsList);
             hasInit = true;
         }
@@ -189,7 +192,9 @@ public class JobSubmitExecutor{
 
     public void shutdown(){
         //FIXME 是否需要做同步等processor真正完成
-        if(executor!=null)executor.shutdown();
+        if(executor!=null){
+            executor.shutdown();
+        }
     }
 
     /**

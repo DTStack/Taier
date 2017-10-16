@@ -50,7 +50,8 @@ public class AddJarOperator implements Operator{
             this.mainClass = (String) result.get("mainClass");
         }
 	}
-	
+
+	@Override
 	public  boolean verific(String sql) throws Exception{
 		String uppserSql = StringUtils.upperCase(sql);
 		return GrokUtil.isSuccess(pattern, uppserSql);

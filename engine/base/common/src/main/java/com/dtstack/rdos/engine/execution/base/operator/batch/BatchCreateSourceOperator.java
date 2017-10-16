@@ -75,6 +75,7 @@ public class BatchCreateSourceOperator implements Operator{
 		}
 	}
 
+	@Override
 	public boolean verific(String sql) throws Exception{
 		String uppserSql = StringUtils.upperCase(sql);
 		return GrokUtil.isSuccess(pattern, uppserSql);

@@ -27,6 +27,7 @@ public class BatchCreateDatabaseIfNotExists implements Operator{
         this.name = (String)result.get("name");
 	}
 
+	@Override
     public boolean verific(String sql) throws Exception{
         return GrokUtil.isSuccess(pattern, sql);
     }

@@ -32,12 +32,13 @@ public class BatchCreateFunctionOperator implements Operator{
         this.className = (String)result.get("className");
     }
 
-
+    @Override
     public boolean verific(String sql) throws Exception{
         String uppserSql = StringUtils.upperCase(sql);
         return GrokUtil.isSuccess(pattern, uppserSql);
     }
 
+    @Override
     public String getSql() {
         return this.sql.trim();
     }

@@ -58,8 +58,9 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()){
                 log.debug("loadClass(" + name + ", " + resolve + ")");
+            }
             Class<?> clazz = null;
 
             // (0) Check our previously loaded local class cache
@@ -87,15 +88,18 @@ public class DtClassLoader extends URLClassLoader {
 
             // (1) Delegate to our parent if requested
             if (delegateLoad) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()){
                     log.debug("  Delegating to parent classloader1 " + parent);
+                }
                 try {
                     clazz = Class.forName(name, false, parent);
                     if (clazz != null) {
-                        if (log.isDebugEnabled())
+                        if (log.isDebugEnabled()){
                             log.debug("  Loading class from parent");
-                        if (resolve)
+                        }
+                        if (resolve){
                             resolveClass(clazz);
+                        }
                         return (clazz);
                     }
                 } catch (ClassNotFoundException e) {
@@ -104,15 +108,18 @@ public class DtClassLoader extends URLClassLoader {
             }
 
             // (2) Search local repositories
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()){
                 log.debug("  Searching local repositories");
+            }
             try {
                 clazz = findClass(name);
                 if (clazz != null) {
-                    if (log.isDebugEnabled())
+                    if (log.isDebugEnabled()){
                         log.debug("  Loading class from local repository");
-                    if (resolve)
+                    }
+                    if (resolve){
                         resolveClass(clazz);
+                    }
                     return (clazz);
                 }
             } catch (ClassNotFoundException e) {
@@ -121,15 +128,18 @@ public class DtClassLoader extends URLClassLoader {
 
             // (3) Delegate to parent unconditionally
             if (!delegateLoad) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()){
                     log.debug("  Delegating to parent classloader at end: " + parent);
+                }
                 try {
                     clazz = Class.forName(name, false, parent);
                     if (clazz != null) {
-                        if (log.isDebugEnabled())
+                        if (log.isDebugEnabled()){
                             log.debug("  Loading class from parent");
-                        if (resolve)
+                        }
+                        if (resolve){
                             resolveClass(clazz);
+                        }
                         return (clazz);
                     }
                 } catch (ClassNotFoundException e) {
@@ -202,8 +212,9 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     public URL getResource(String name) {
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()){
             log.debug("getResource(" + name + ")");
+        }
 
         URL url = null;
 
@@ -212,12 +223,14 @@ public class DtClassLoader extends URLClassLoader {
 
         // (1) Delegate to parent if requested
         if (delegateFirst) {
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()){
                 log.debug("  Delegating to parent classloader " + parent);
+            }
             url = parent.getResource(name);
             if (url != null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()){
                     log.debug("  --> Returning '" + url.toString() + "'");
+                }
                 return (url);
             }
         }
@@ -225,8 +238,9 @@ public class DtClassLoader extends URLClassLoader {
         // (2) Search local repositories
         url = findResource(name);
         if (url != null) {
-            if (log.isDebugEnabled())
+            if (log.isDebugEnabled()){
                 log.debug("  --> Returning '" + url.toString() + "'");
+            }
             return (url);
         }
 
@@ -234,15 +248,17 @@ public class DtClassLoader extends URLClassLoader {
         if (!delegateFirst) {
             url = parent.getResource(name);
             if (url != null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()){
                     log.debug("  --> Returning '" + url.toString() + "'");
+                }
                 return (url);
             }
         }
 
         // (4) Resource was not found
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()){
             log.debug("  --> Resource not found, returning null");
+        }
         return (null);
     }
 
@@ -258,6 +274,7 @@ public class DtClassLoader extends URLClassLoader {
      * @return
      * @throws IOException
      */
+    @Override
     public Enumeration<URL> getResources(String name) throws IOException {
         @SuppressWarnings("unchecked")
         Enumeration<URL>[] tmp = (Enumeration<URL>[]) new Enumeration<?>[1];
@@ -273,8 +290,9 @@ public class DtClassLoader extends URLClassLoader {
     @Override
     public Enumeration<URL> findResources(String name) throws IOException {
 
-        if (log.isDebugEnabled())
+        if (log.isDebugEnabled()){
             log.debug("    findResources(" + name + ")");
+        }
 
         LinkedHashSet<URL> result = new LinkedHashSet<>();
 
@@ -306,8 +324,9 @@ public class DtClassLoader extends URLClassLoader {
      */
     protected boolean filter(String name, boolean isClassName) {
 
-        if (name == null)
+        if (name == null){
             return false;
+        }
 
 //        char ch;
 //        if (name.startsWith("javax")) {
