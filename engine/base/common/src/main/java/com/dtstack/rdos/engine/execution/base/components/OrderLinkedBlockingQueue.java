@@ -1,0 +1,328 @@
+package com.dtstack.rdos.engine.execution.base.components;
+
+import java.util.AbstractQueue;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.lang3.StringUtils;
+
+
+
+/**
+ *
+ * @author sishu.yss
+ *
+ * @param <E>
+ */
+public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
+        implements BlockingQueue<E>, java.io.Serializable{
+
+    /** The capacity bound, or Integer.MAX_VALUE if none */
+    private final int capacity;
+
+    /** Current number of elements */
+    private final AtomicInteger count = new AtomicInteger();
+
+    /**
+     * Head of linked list.
+     * Invariant: head.item == null
+     */
+    transient Node<E> head;
+
+//    /**
+//     * Tail of linked list.
+//     * Invariant: last.next == null
+//     */
+//    private transient Node<E> last;
+
+    /** Lock held by take, poll, etc */
+    private final ReentrantLock allLock = new ReentrantLock();
+
+    /** Wait queue for waiting takes */
+    private final Condition notEmpty = allLock.newCondition();
+
+    /** Lock held by put, offer, etc */
+//    private final ReentrantLock putLock = new ReentrantLock();
+
+    /** Wait queue for waiting puts */
+    private final Condition notFull = allLock.newCondition();
+
+    /**
+     * Creates a {@code LinkedBlockingQueue} with a capacity of
+     * {@link Integer#MAX_VALUE}.
+     */
+    public OrderLinkedBlockingQueue() {
+        this(Integer.MAX_VALUE);
+    }
+
+    /**
+     * Creates a {@code LinkedBlockingQueue} with the given (fixed) capacity.
+     *
+     * @param capacity the capacity of this queue
+     * @throws IllegalArgumentException if {@code capacity} is not greater
+     *         than zero
+     */
+    public OrderLinkedBlockingQueue(int capacity) {
+        if (capacity <= 0) throw new IllegalArgumentException();
+        this.capacity = capacity;
+        head = new Node<E>(null);
+    }
+
+    /**
+     * Linked list node class
+     */
+    static class Node<E> {
+        E item;
+
+        /**
+         * One of:
+         * - the real successor Node
+         * - this Node, meaning the successor is head.next
+         * - null, meaning there is no successor (this is the last node)
+         */
+        Node<E> next;
+
+        Node<E> pre;
+
+        Node(E x) { item = x; }
+    }
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4798912640993489687L;
+
+    @Override
+    public E poll() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public E peek() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean offer(E e) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void put(E e) throws InterruptedException {
+        // TODO Auto-generated method stub
+        if (e == null) throw new NullPointerException();
+        // Note: convention in all put/take/etc is to preset local var
+        // holding count negative to indicate failure unless set.
+        int c = -1;
+        Node<E> node = new Node<E>(e);
+        final ReentrantLock putLock = this.allLock;
+        final AtomicInteger count = this.count;
+        putLock.lockInterruptibly();
+        try {
+            /*
+             * Note that count is used in wait guard even though it is
+             * not protected by lock. This works because count can
+             * only decrease at this point (all other puts are shut
+             * out by lock), and we (or some other waiting put) are
+             * signalled if it ever changes from capacity. Similarly
+             * for all other uses of count in other wait guards.
+             */
+            while (count.get() == capacity) {
+                notFull.await();
+            }
+            enqueue(node);
+            c = count.getAndIncrement();
+            if (c + 1 < capacity)
+                notFull.signal();
+        } finally {
+            putLock.unlock();
+        }
+        if (c == 0)
+            signalNotEmpty();
+
+    }
+
+    @Override
+    public boolean offer(E e, long timeout, TimeUnit unit)
+            throws InterruptedException {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public E take() throws InterruptedException {
+        // TODO Auto-generated method stub
+        E x;
+        int c = -1;
+        final AtomicInteger count = this.count;
+        final ReentrantLock takeLock = this.allLock;
+        takeLock.lockInterruptibly();
+        try {
+            while (count.get() == 0) {
+                notEmpty.await();
+            }
+            x = dequeue();
+            c = count.getAndDecrement();
+            if (c > 1)
+                notEmpty.signal();
+        } finally {
+            takeLock.unlock();
+        }
+        if (c == capacity)
+            signalNotFull();
+        return x;
+    }
+
+    @Override
+    public E poll(long timeout, TimeUnit unit) throws InterruptedException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int remainingCapacity() {
+        // TODO Auto-generated method stub
+        return capacity - count.get();
+    }
+
+    @Override
+    public int drainTo(Collection<? super E> c) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public int drainTo(Collection<? super E> c, int maxElements) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public Iterator<E> iterator() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int size() {
+        // TODO Auto-generated method stub
+        return count.get();
+    }
+
+    /**
+     * Removes a node from head of queue.
+     *
+     * @return the node
+     */
+    private E dequeue() {
+        // assert takeLock.isHeldByCurrentThread();
+        // assert head.item == null;
+        Node<E> h = head;
+        Node<E> first = h.next;
+        h.next = h; // help GC
+        head = first;
+        E x = first.item;
+        first.item = null;
+        return x;
+    }
+
+    /**
+     * Links node at end of queue.
+     *
+     * @param node the node
+     */
+    private void enqueue(Node<E> node) {
+        // assert putLock.isHeldByCurrentThread();
+        // assert last.next == null;
+        if(head.next == null){
+            node.pre = head;
+            head.next = node;
+        }else{
+            order(node,head.next);
+        }
+    }
+
+    private void order(Node<E> s,Node<E> t){
+        OrderObject to = (OrderObject)t.item;
+        OrderObject so = (OrderObject)s.item;
+        if((so.getPriority() > to.getPriority())||(so.getPriority() == to.getPriority()&&so.getGenerateTime()<to.getGenerateTime())){
+            s.pre = t.pre;
+            s.pre.next = s;
+            t.pre = s;
+            s.next = t;
+        }else if(so.getPriority()<to.getPriority()||(so.getPriority() == to.getPriority()&&so.getGenerateTime()>=to.getGenerateTime())){
+            if(t.next == null){
+                t.next = s;
+                s.pre = t;
+            }else{
+                order(s,t.next);
+            }
+        }
+    }
+
+    /**
+     * Signals a waiting take. Called only from put/offer (which do not
+     * otherwise ordinarily lock takeLock.)
+     */
+    private void signalNotEmpty() {
+        final ReentrantLock takeLock = this.allLock;
+        takeLock.lock();
+        try {
+            notEmpty.signal();
+        } finally {
+            takeLock.unlock();
+        }
+    }
+
+    /**
+     * Signals a waiting put. Called only from take/poll.
+     */
+    private void signalNotFull() {
+        final ReentrantLock putLock = this.allLock;
+        putLock.lock();
+        try {
+            notFull.signal();
+        } finally {
+            putLock.unlock();
+        }
+    }
+
+    public boolean remove(String sign) {
+        if (StringUtils.isBlank(sign)) return false;
+        try {
+            allLock.lockInterruptibly();
+            for (Node<E> trail = head, p = trail.next;
+                 p != null;
+                 trail = p, p = p.next) {
+                OrderObject oo = (OrderObject)p.item;
+                if (sign.equals(oo.getId())) {
+                    Node<E> pre = p.pre;
+                    Node<E> next = p.next;
+                    if(next !=null){
+                        next.pre = pre;
+                    }
+                    pre.next = next;
+                    p.pre = null;
+                    p.next = null;
+                    p.item = null;
+                    if (count.getAndDecrement() == capacity)
+                        notFull.signal();
+                    return true;
+                }
+            }
+            return false;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException(e.getCause());
+        }finally {
+            allLock.unlock();
+        }
+    }
+}
