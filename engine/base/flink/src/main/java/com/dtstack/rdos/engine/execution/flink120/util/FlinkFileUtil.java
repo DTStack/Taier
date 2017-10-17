@@ -10,15 +10,17 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.IOException;
 /**
  * http,hdfs文件下载
  * Date: 2017/2/21

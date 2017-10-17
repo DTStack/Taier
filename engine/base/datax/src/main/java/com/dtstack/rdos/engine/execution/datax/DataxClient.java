@@ -3,17 +3,21 @@ package com.dtstack.rdos.engine.execution.datax;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.ssh.SSHClient;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Preconditions;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
@@ -91,18 +95,6 @@ public class DataxClient extends AbsClient {
     }
 
     @Override
-    public String getJobDetail(String jobId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public JobResult immediatelySubmitJob(JobClient jobClient) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public JobResult submitSyncJob(JobClient jobClient) {
 
         String jobId = jobClient.getTaskId();
@@ -139,14 +131,9 @@ public class DataxClient extends AbsClient {
 		return null;
 	}
 
-    @Override
-    public Map<String, Object> getAvailableTaskSlots() {
-        return null;
-    }
-
-    @Override
-    public String getJobMessage(String jobId) {
-        return null;
-    }
-
+	@Override
+	public String getMessageByHttp(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

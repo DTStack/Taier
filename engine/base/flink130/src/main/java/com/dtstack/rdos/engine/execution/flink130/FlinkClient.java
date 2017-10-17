@@ -24,6 +24,7 @@ import com.dtstack.rdos.engine.execution.flink130.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -67,13 +68,22 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.Properties;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.EnumSet;
 /**
  *
  * Date: 2017/2/20
@@ -792,32 +802,32 @@ public class FlinkClient extends AbsClient {
 
     }
 
-    @Override
-    public String getJobDetail(String jobId) {
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
-        String response = PoolHttpClient.get(reqUrl);
-        return response;
-    }
+//    @Override
+//    public String getJobDetail(String jobId) {
+//        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+//        String response = PoolHttpClient.get(reqUrl);
+//        return response;
+//    }
 
-    @Override
-    public Map<String,Object> getAvailableTaskSlots(){
-        try{
-            String reqUrl = getReqUrl() + "/overview";
-            String response = PoolHttpClient.get(reqUrl);
-            if(StringUtils.isNotBlank(response)){
-                return  objectMapper.readValue(response,Map.class);
-            }
-        }catch (Throwable e){
-            logger.error("",e);
-        }
-        return null;
-    }
-
-    @Override
-    public String getJobMessage(String jobId){
-        String reqUrl = getReqUrl() + String.format("/jobs/%s/exceptions",jobId);
-        return  PoolHttpClient.get(reqUrl);
-    }
+//    @Override
+//    public Map<String,Object> getAvailableTaskSlots(){
+//        try{
+//            String reqUrl = getReqUrl() + "/overview";
+//            String response = PoolHttpClient.get(reqUrl);
+//            if(StringUtils.isNotBlank(response)){
+//                return  objectMapper.readValue(response,Map.class);
+//            }
+//        }catch (Throwable e){
+//            logger.error("",e);
+//        }
+//        return null;
+//    }
+//
+//    @Override
+//    public String getJobMessage(String jobId){
+//        String reqUrl = getReqUrl() + String.format("/jobs/%s/exceptions",jobId);
+//        return  PoolHttpClient.get(reqUrl);
+//    }
 
     /**
      * 获取jobMgr-web地址
@@ -844,13 +854,6 @@ public class FlinkClient extends AbsClient {
         }
         return env;
     }
-
-	@Override
-	public JobResult immediatelySubmitJob(JobClient jobClient) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 	public String getSavepointPath(String engineTaskId){
         String reqUrl = getReqUrl() + "/jobs/" + engineTaskId + "/checkpoints";
@@ -933,4 +936,12 @@ public class FlinkClient extends AbsClient {
         }
     }
 
+
+
+	@Override
+	public String getMessageByHttp(String path) {
+		// TODO Auto-generated method stub
+      String reqUrl = String.format("%s%s",getReqUrl(),path);
+      return  PoolHttpClient.get(reqUrl);
+	}
 }

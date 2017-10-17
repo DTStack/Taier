@@ -18,6 +18,7 @@ import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink120.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -51,9 +52,12 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 /**
  * Reason:
  * Date: 2017/2/20
@@ -576,12 +580,12 @@ public class FlinkClient extends AbsClient {
 
     }
 
-    @Override
-    public String getJobDetail(String jobId) {
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
-        String response = PoolHttpClient.get(reqUrl);
-        return response;
-    }
+//    @Override
+//    public String getJobDetail(String jobId) {
+//        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+//        String response = PoolHttpClient.get(reqUrl);
+//        return response;
+//    }
 
     /**
      * 获取jobMgr-web地址
@@ -597,16 +601,6 @@ public class FlinkClient extends AbsClient {
     	return url.split("//")[1];
     }
 
-    @Override
-    public Map<String, Object> getAvailableTaskSlots() {
-        return null;
-    }
-
-    @Override
-    public String getJobMessage(String jobId) {
-        return null;
-    }
-
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
         env.setParallelism(FlinkUtil.getEnvParallelism(confProperties));
@@ -618,12 +612,6 @@ public class FlinkClient extends AbsClient {
         }
         return env;
     }
-
-	@Override
-	public JobResult immediatelySubmitJob(JobClient jobClient) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 	public String getSavepointPath(String engineTaskId){
@@ -683,9 +671,13 @@ public class FlinkClient extends AbsClient {
         AddJarOperator addjarOperator = new AddJarOperator();
         addjarOperator.setJarPath(syncJarFileName);
         jobClient.addOperator(addjarOperator);
-
         return submitJobWithJar(jobClient);
     }
 
-
+	@Override
+	public String getMessageByHttp(String path) {
+		// TODO Auto-generated method stub
+	      String reqUrl = String.format("%s%s",getReqUrl(),path);
+	      return  PoolHttpClient.get(reqUrl);
+	}
 }

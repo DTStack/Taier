@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * spark 提交job
@@ -298,17 +297,6 @@ public class SparkClient extends AbsClient {
         return status;
     }
 
-    @Override
-    public String getJobDetail(String jobId) {
-        return null;
-    }
-
-	@Override
-	public synchronized JobResult immediatelySubmitJob(JobClient jobClient) {
-		// TODO Auto-generated method stub
-        return null;
-	}
-
 	@Override
 	public String getJobMaster() {
 		// TODO Auto-generated method stub
@@ -332,13 +320,10 @@ public class SparkClient extends AbsClient {
 		return null;
 	}
 
-    @Override
-    public Map<String, Object> getAvailableTaskSlots() {
-        return null;
-    }
-
-    @Override
-    public String getJobMessage(String jobId) {
-        return null;
-    }
+	@Override
+	public String getMessageByHttp(String path) {
+		// TODO Auto-generated method stub
+		String url = getJobMaster();
+		return PoolHttpClient.get(String.format("http://%s%s", url,path));
+	}
 }

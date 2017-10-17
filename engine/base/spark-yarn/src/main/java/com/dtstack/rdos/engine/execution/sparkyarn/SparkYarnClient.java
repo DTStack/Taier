@@ -26,13 +26,15 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by softfly on 17/8/10.
@@ -311,28 +313,8 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public String getJobDetail(String jobId) {
-        return null;
-    }
-
-    @Override
-    public JobResult immediatelySubmitJob(JobClient jobClient) {
-        return null;
-    }
-
-    @Override
     public String getJobMaster() {
         return "yarn";
-    }
-
-    @Override
-    public Map<String, Object> getAvailableTaskSlots() {
-        return null;
-    }
-
-    @Override
-    public String getJobMessage(String jobId) {
-        return null;
     }
 
     public Properties adaptToJarSubmit(JobClient jobClient){
@@ -379,4 +361,10 @@ public class SparkYarnClient extends AbsClient {
             }
         }
     }
+
+	@Override
+	public String getMessageByHttp(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

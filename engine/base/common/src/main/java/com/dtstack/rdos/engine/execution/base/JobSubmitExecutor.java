@@ -9,9 +9,11 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -23,13 +25,17 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ArrayBlockingQueue;
+
+import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 /**
  * 任务提交执行容器
  * 单独起线程执行
@@ -68,6 +74,8 @@ public class JobSubmitExecutor{
 
     private ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod();
 
+    private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<OrderObject>();
+
     private JobSubmitExecutor(){}
 
     public void init(Map<String,Object> engineConf) throws Exception{
@@ -79,8 +87,26 @@ public class JobSubmitExecutor{
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<Runnable>(1));
             initJobClient(clientParamsList);
+            executionJob();
             hasInit = true;
         }
+    }
+
+
+    private void executionJob(){
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                for(;;){
+                    try{
+                        JobClient jobClient = (JobClient)orderLinkedBlockingQueue.take();
+                        executor.submit(new JobSubmitProcessor(jobClient));
+                    }catch(Exception e){
+                        logger.error("",e);
+                    }
+                }
+            }
+        });
     }
 
     private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
@@ -138,7 +164,7 @@ public class JobSubmitExecutor{
     }
 
     public void submitJob(JobClient jobClient) throws Exception{
-        executor.submit(new JobSubmitProcessor(jobClient));
+        orderLinkedBlockingQueue.put(jobClient);
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String jobId){

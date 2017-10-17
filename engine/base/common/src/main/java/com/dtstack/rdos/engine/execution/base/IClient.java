@@ -3,9 +3,7 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -35,14 +33,8 @@ public interface IClient {
 
     RdosTaskStatus getJobStatus(String jobId) throws IOException;
 
-    String getJobDetail(String jobId);
-    
-    JobResult immediatelySubmitJob(JobClient jobClient);
-
 	String getJobMaster();
-
-    Map<String,Object> getAvailableTaskSlots();
-
-    String getJobMessage(String jobId);
-
+	
+	String getMessageByHttp(String path);
+	
     }
