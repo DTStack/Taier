@@ -106,14 +106,6 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
     }
 
-    public void submit() throws Exception {
-        JobSubmitExecutor.getInstance().submitJob(this);
-    }
-
-    public static JobResult stop(ParamAction paramAction) throws Exception {
-        return JobSubmitExecutor.getInstance().stopJob(paramAction);
-    }
-
     public String getTaskId() {
         return taskId;
     }

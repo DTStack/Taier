@@ -15,11 +15,14 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 
 /**
@@ -73,8 +76,7 @@ public class ActionServiceImpl {
                 });
                 updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
-                jobClient.submit();
-
+                JobSubmitExecutor.getInstance().submitJob(jobClient);
             } else {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 HttpSendClient.actionStart(address, paramAction);
@@ -100,7 +102,7 @@ public class ActionServiceImpl {
 
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient.stop(paramAction);
+        JobSubmitExecutor.getInstance().stopJob(paramAction);
         updateActionLogStatus(paramAction.getActionLogId(), paramAction.getComputeType(), RdosActionLogStatus.UNSTART.getStatus());
     }
 

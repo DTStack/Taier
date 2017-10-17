@@ -206,14 +206,17 @@ public class JobSubmitExecutor{
     }
 
     public JobResult stopJob(ParamAction paramAction) throws Exception {
-        String engineType = paramAction.getEngineType();
-        IClient client = clientMap.get(engineType);
-        return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-            @Override
-            public Object execute() throws Exception {
-                return client.cancelJob(paramAction);
-            }
-        },client.getClass().getClassLoader(),null,true);
+    	if(orderLinkedBlockingQueue.remove(paramAction.getTaskId())){
+            String engineType = paramAction.getEngineType();
+            IClient client = clientMap.get(engineType);
+            return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                @Override
+                public Object execute() throws Exception {
+                    return client.cancelJob(paramAction);
+                }
+            },client.getClass().getClassLoader(),null,true);
+    	}
+    	return JobResult.createSuccessResult(paramAction.getTaskId());
     }
     
     public Map<String,Object> getAvailbalSlots(String engineType){

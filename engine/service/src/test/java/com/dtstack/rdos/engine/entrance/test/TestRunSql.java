@@ -77,8 +77,6 @@ public class TestRunSql {
         jobClient.setComputeType(ComputeType.STREAM);
         jobClient.addOperators(operators);
 
-        jobClient.submit();
-
         System.out.println("---------wait----------");
     }
 
@@ -114,8 +112,6 @@ public class TestRunSql {
         jobClient.setJobName("test_sql_job");
         jobClient.setComputeType(ComputeType.BATCH);
         jobClient.addOperators(operators);
-
-        jobClient.submit();
 
         System.out.println("---------wait----------");
     }
