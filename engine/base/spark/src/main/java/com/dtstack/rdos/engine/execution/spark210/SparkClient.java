@@ -46,7 +46,7 @@ public class SparkClient extends AbsClient {
     private static final String DEFAULT_EXE_MEM = "512m";
 
     /**默认最多可以请求的CPU核心数*/
-    private static final String DEFAULT_CORES_MAX = "2";
+    private static final String DEFAULT_CORES_MAX = "1";
 
     /**失败后是否重启Driver，仅限于Spark Alone模式*/
     private static final String DEFAULT_SUPERVISE = "false";
@@ -285,6 +285,7 @@ public class SparkClient extends AbsClient {
         if(Strings.isNullOrEmpty(responseStr)){
             return RdosTaskStatus.NOTFOUND;
         }
+
         Map<String, Object> responseMap = objMapper.readValue(responseStr, Map.class);
         String state = (String) responseMap.get("driverState");
         RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
