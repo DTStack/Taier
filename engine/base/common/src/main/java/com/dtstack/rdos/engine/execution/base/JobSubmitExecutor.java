@@ -215,6 +215,22 @@ public class JobSubmitExecutor{
             }
         },client.getClass().getClassLoader(),null,true);
     }
+    
+    public Map<String,Object> getAvailbalSlots(String engineType){
+        IClient client = clientMap.get(engineType);
+        try{
+        	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                @Override
+                public Object execute() throws Exception {
+                    return client.getMessageByHttp("");
+                }
+            },client.getClass().getClassLoader(),null,true);
+        }catch (Exception e){
+            logger.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+        return null;
+    }
 
     public void shutdown(){
         //FIXME 是否需要做同步等processor真正完成
@@ -222,6 +238,9 @@ public class JobSubmitExecutor{
             executor.shutdown();
         }
     }
+    
+    
+    
 
     /**
      * FIXME 去掉引擎版本号作为key
