@@ -387,7 +387,6 @@ public class JobSubmitExecutor{
                 	}
             		slotNoAvailableJobClients.put(jobClient);
                 }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
-                    e.printStackTrace();
                     jobClient.setEngineTaskId(null);
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get unexpected exception", e);
