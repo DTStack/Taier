@@ -31,6 +31,9 @@ public class EngineRestParseUtil {
 		
 		public final static String EXCEPTION_INFO = "/index.html#/jobs/%s/exceptions";
 		
+		
+		public final static String NORESOURCEAVAIABLEEXCEPYION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
+		
 		public  static  Map<String,Map<String,Object>> getAvailSlots(String message){
 			
 			return null;

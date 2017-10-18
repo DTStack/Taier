@@ -12,11 +12,10 @@ import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import com.dtstack.rdos.engine.execution.base.components.Slotsjudge;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,13 +30,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
-
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
-
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 /**
@@ -86,6 +82,8 @@ public class JobSubmitExecutor{
     
     private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
     
+    private Slotsjudge slotsjudge = new Slotsjudge();
+    
     private JobSubmitExecutor(){}
 
     public void init(Map<String,Object> engineConf) throws Exception{
@@ -101,7 +99,8 @@ public class JobSubmitExecutor{
                     new ArrayBlockingQueue<Runnable>(2));
             initJobClient(clientParamsList);
             executionJob();
-            noAvailSlotsJobaddexecutionQueue();
+            noAvailSlotsJobaddExecutionQueue();
+            getEngineAvailbalSlots();
             hasInit = true;
         }
     }
@@ -123,7 +122,7 @@ public class JobSubmitExecutor{
         });
     }
     
-    private void noAvailSlotsJobaddexecutionQueue(){
+    private void noAvailSlotsJobaddExecutionQueue(){
     	queExecutor.submit(new Runnable(){
 			@Override
 			public void run() {
@@ -132,8 +131,21 @@ public class JobSubmitExecutor{
 					try {
 						Thread.sleep(10000);
 						for(JobClient job:slotNoAvailableJobClients){
-							orderLinkedBlockingQueue.add(job);
-							slotNoAvailableJobClients.remove(job);
+							if(StringUtils.isNoneBlank(job.getEngineTaskId())){
+								orderLinkedBlockingQueue.add(job);
+								slotNoAvailableJobClients.remove(job);
+							}else {
+								if(judgeSlostsAndAgainExecute(job)){
+									orderLinkedBlockingQueue.add(job);
+									slotNoAvailableJobClients.remove(job);
+								}else{
+									if(job.getAgain() > 2){
+										slotNoAvailableJobClients.remove(job);
+									}else{
+										job.setAgain(job.getAgain()+1);
+									}
+								}
+							}
 						}
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -253,38 +265,66 @@ public class JobSubmitExecutor{
     	return JobResult.createSuccessResult(paramAction.getTaskId());
     }
     
-    public Map<String,Object> getEngineAvailbalSlots(){
-    	Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
-    	for(Map.Entry<String,IClient> entry:entrys){
-            try{
-            	String key= entry.getKey();
-            	IClient client = entry.getValue();
-            	if(EngineType.isFlink(key)){
-            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                        @Override
-                        public Object execute() throws Exception {
-                            return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
-                        }
-                    },client.getClass().getClassLoader(),null,true);
-            	    slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
-            	}else if(EngineType.isSpark(key)){
-            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                        @Override
-                        public Object execute() throws Exception {
-                            return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
-                        }
-                    },client.getClass().getClassLoader(),null,true);
-            	    slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
-            	}
+    private void getEngineAvailbalSlots(){
+    	queExecutor.submit(new Runnable(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					Thread.sleep(5000);
+			    	Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
+			    	for(Map.Entry<String,IClient> entry:entrys){
+			            try{
+			            	String key= entry.getKey();
+			            	IClient client = entry.getValue();
+			            	if(EngineType.isFlink(key)){
+			            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+			                        @Override
+			                        public Object execute() throws Exception {
+			                            return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
+			                        }
+			                    },client.getClass().getClassLoader(),null,true);
+			            	    slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
+			            	}else if(EngineType.isSpark(key)){
+			            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+			                        @Override
+			                        public Object execute() throws Exception {
+			                            return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+			                        }
+			                    },client.getClass().getClassLoader(),null,true);
+			            	    slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
+			            	}
 
-        }catch (Exception e){
-            logger.error("", e);
-            throw new RdosException(e.getMessage());
-        }
-    	}
-        return null;
+			        }catch (Exception e){
+			            logger.error("", e);
+			        }
+			     }
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+		            logger.error("", e1);
+				}
+			}
+    	});
     }
-
+    
+    
+    public String  getEngineMessageByHttp(String engineType,String path){
+    	IClient client = clientMap.get(engineType);
+	    String message = "";
+		try {
+			message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+			    @Override
+			    public Object execute() throws Exception {
+			        return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+			    }
+			},client.getClass().getClassLoader(),null,true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    return message;
+    }
+    
     public void shutdown(){
         //FIXME 是否需要做同步等processor真正完成
         if(executor!=null){
@@ -310,6 +350,20 @@ public class JobSubmitExecutor{
             return clientTypeStr;
         }
     }
+    
+    
+	public boolean judgeSlostsAndAgainExecute(JobClient jobClient) {
+		// TODO Auto-generated method stub
+		if(EngineType.isFlink(jobClient.getEngineType())){
+			String message = getEngineMessageByHttp(jobClient.getEngineType(),EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO);
+			if(StringUtils.isNotBlank(message)){
+				if(message.indexOf(EngineRestParseUtil.FlinkRestParseUtil.NORESOURCEAVAIABLEEXCEPYION) >= 0){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
     class JobSubmitProcessor implements Runnable{
 
@@ -334,17 +388,20 @@ public class JobSubmitExecutor{
                 }
 
                 try {
-                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
-                    jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                    jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                        @Override
-                        public Object execute() throws Exception {
-                            return clusterClient.submitJob(jobClient);
-                        }
-                    },clusterClient.getClass().getClassLoader(),null,true);
-                    logger.info("submit job result is:{}.", jobResult);
-                    String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
-                    jobClient.setEngineTaskId(jobId);
+                	if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
+                        jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                        jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
+                        jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                            @Override
+                            public Object execute() throws Exception {
+                                return clusterClient.submitJob(jobClient);
+                            }
+                        },clusterClient.getClass().getClassLoader(),null,true);
+                        logger.info("submit job result is:{}.", jobResult);
+                        String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
+                        jobClient.setEngineTaskId(jobId);
+                	}
+            		slotNoAvailableJobClients.add(jobClient);
                 }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
                     e.printStackTrace();
                     jobClient.setEngineTaskId(null);
@@ -362,5 +419,6 @@ public class JobSubmitExecutor{
             JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
         }
     }
+
 
 }

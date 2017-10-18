@@ -3,13 +3,16 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -58,6 +61,8 @@ public class JobClient extends OrderObject{
     /**提交MR执行的时候附带的执行参数*/
     private String classArgs;
 
+    private int again = 1;
+    
     private static LinkedBlockingQueue<JobClient> queue;
 
     /***
@@ -239,4 +244,18 @@ public class JobClient extends OrderObject{
 		// TODO Auto-generated method stub
         JobSubmitExecutor.getInstance().stopJob(paramAction);
 	}
+
+	public void judgeSlostsAndAgainExecute() {
+		// TODO Auto-generated method stub
+		JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(this);
+	}
+
+	public int getAgain() {
+		return again;
+	}
+
+	public void setAgain(int again) {
+		this.again = again;
+	}
+	
 }
