@@ -10,7 +10,6 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.dtstack.rdos.engine.execution.base.components.Slotsjudge;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ArrayBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
+import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 /**
  * 任务提交执行容器
  * 单独起线程执行
@@ -78,7 +78,7 @@ public class JobSubmitExecutor{
 
     private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<OrderObject>();
 
-    private List<JobClient> slotNoAvailableJobClients = Lists.newCopyOnWriteArrayList();
+    private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
     
     private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
     
@@ -129,24 +129,8 @@ public class JobSubmitExecutor{
 				// TODO Auto-generated method stub
 				for(;;){
 					try {
-						Thread.sleep(10000);
-						for(JobClient job:slotNoAvailableJobClients){
-							if(StringUtils.isNoneBlank(job.getEngineTaskId())){
-								orderLinkedBlockingQueue.add(job);
-								slotNoAvailableJobClients.remove(job);
-							}else {
-								if(judgeSlostsAndAgainExecute(job)){
-									orderLinkedBlockingQueue.add(job);
-									slotNoAvailableJobClients.remove(job);
-								}else{
-									if(job.getAgain() > 2){
-										slotNoAvailableJobClients.remove(job);
-									}else{
-										job.setAgain(job.getAgain()+1);
-									}
-								}
-							}
-						}
+						Thread.sleep(5000);
+						slotNoAvailableJobClients.noAvailSlotsJobaddExecutionQueue(orderLinkedBlockingQueue);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -252,7 +236,7 @@ public class JobSubmitExecutor{
     }
 
     public JobResult stopJob(ParamAction paramAction) throws Exception {
-    	if(orderLinkedBlockingQueue.remove(paramAction.getTaskId())){
+    	if(orderLinkedBlockingQueue.remove(paramAction.getTaskId())||slotNoAvailableJobClients.remove(paramAction.getTaskId())){
             String engineType = paramAction.getEngineType();
             IClient client = clientMap.get(engineType);
             return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
@@ -401,7 +385,7 @@ public class JobSubmitExecutor{
                         String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                         jobClient.setEngineTaskId(jobId);
                 	}
-            		slotNoAvailableJobClients.add(jobClient);
+            		slotNoAvailableJobClients.put(jobClient);
                 }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
                     e.printStackTrace();
                     jobClient.setEngineTaskId(null);
