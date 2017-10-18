@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class EngineRestParseUtil {
 	
-	static class SparkRestParseUtil{
+	public static class SparkRestParseUtil{
 		
 		public final static String ROOT = "/";
 		
@@ -25,7 +25,7 @@ public class EngineRestParseUtil {
 		}
 	}
 	
-	static class Flink130RestParseUtil{
+	public static class FlinkRestParseUtil{
 		
 		public final static String SLOTS_INFO = "/index.html#/taskmanagers";
 		
@@ -40,24 +40,5 @@ public class EngineRestParseUtil {
 			return null;
 		}
 		
-	}
-	
-	static class Flink120RestParseUtil{
-		
-		public final static String SLOTS_INFO = "/index.html#/taskmanagers";
-		
-		public final static String EXCEPTION_INFO = "/index.html#/jobs/%s/exceptions";
-		
-		public  static  Map<String,Map<String,Object>> getAvailSlots(String message){
-			return null;
-		}
-		
-		public static String getJobMessage(String message){
-			return null;
-		}
-	}
-	
-	public static Object parseRest(String path){
-		return null;
 	}
 }

@@ -1,12 +1,15 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -226,4 +229,14 @@ public class JobClient extends OrderObject{
     public void setClassArgs(String classArgs) {
         this.classArgs = classArgs;
     }
+
+	public void submitJob() throws Exception {
+		// TODO Auto-generated method stub
+		JobSubmitExecutor.getInstance().submitJob(this);
+	}
+
+	public static void stopJob(ParamAction paramAction) throws Exception {
+		// TODO Auto-generated method stub
+        JobSubmitExecutor.getInstance().stopJob(paramAction);
+	}
 }

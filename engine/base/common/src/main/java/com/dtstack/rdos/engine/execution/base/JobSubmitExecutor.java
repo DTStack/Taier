@@ -3,11 +3,14 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
+import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +28,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -61,6 +65,8 @@ public class JobSubmitExecutor{
     private int maxPoolSize = 1000;
 
     private ExecutorService executor;
+    
+    private ExecutorService queExecutor;
 
     private boolean hasInit = false;
 
@@ -76,6 +82,10 @@ public class JobSubmitExecutor{
 
     private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<OrderObject>();
 
+    private List<JobClient> slotNoAvailableJobClients = Lists.newCopyOnWriteArrayList();
+    
+    private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
+    
     private JobSubmitExecutor(){}
 
     public void init(Map<String,Object> engineConf) throws Exception{
@@ -86,15 +96,19 @@ public class JobSubmitExecutor{
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<Runnable>(1));
+            queExecutor = new ThreadPoolExecutor(3, 3,
+                    0L, TimeUnit.MILLISECONDS,
+                    new ArrayBlockingQueue<Runnable>(2));
             initJobClient(clientParamsList);
             executionJob();
+            noAvailSlotsJobaddexecutionQueue();
             hasInit = true;
         }
     }
 
 
     private void executionJob(){
-        executor.submit(new Runnable() {
+    	queExecutor.submit(new Runnable() {
             @Override
             public void run() {
                 for(;;){
@@ -108,7 +122,28 @@ public class JobSubmitExecutor{
             }
         });
     }
-
+    
+    private void noAvailSlotsJobaddexecutionQueue(){
+    	queExecutor.submit(new Runnable(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				for(;;){
+					try {
+						Thread.sleep(10000);
+						for(JobClient job:slotNoAvailableJobClients){
+							orderLinkedBlockingQueue.add(job);
+							slotNoAvailableJobClients.remove(job);
+						}
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+    	});
+    }
+    
     private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
         for(Map<String, Object> params : clientParamsList){
             String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
@@ -141,7 +176,6 @@ public class JobSubmitExecutor{
 		}
 		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
     }
-
 
 	private URLClassLoader getClassLoad(File dir) throws MalformedURLException, IOException{
 		File[] files = dir.listFiles();
@@ -219,19 +253,35 @@ public class JobSubmitExecutor{
     	return JobResult.createSuccessResult(paramAction.getTaskId());
     }
     
-    public Map<String,Object> getAvailbalSlots(String engineType){
-        IClient client = clientMap.get(engineType);
-        try{
-        	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    return client.getMessageByHttp("");
-                }
-            },client.getClass().getClassLoader(),null,true);
+    public Map<String,Object> getEngineAvailbalSlots(){
+    	Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
+    	for(Map.Entry<String,IClient> entry:entrys){
+            try{
+            	String key= entry.getKey();
+            	IClient client = entry.getValue();
+            	if(EngineType.isFlink(key)){
+            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                        @Override
+                        public Object execute() throws Exception {
+                            return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
+                        }
+                    },client.getClass().getClassLoader(),null,true);
+            	    slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
+            	}else if(EngineType.isSpark(key)){
+            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                        @Override
+                        public Object execute() throws Exception {
+                            return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+                        }
+                    },client.getClass().getClassLoader(),null,true);
+            	    slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
+            	}
+
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException(e.getMessage());
         }
+    	}
         return null;
     }
 
@@ -240,11 +290,11 @@ public class JobSubmitExecutor{
         if(executor!=null){
             executor.shutdown();
         }
+        if(queExecutor!=null){
+        	queExecutor.shutdown();
+        }
     }
     
-    
-    
-
     /**
      * FIXME 去掉引擎版本号作为key
      * @param clientTypeStr

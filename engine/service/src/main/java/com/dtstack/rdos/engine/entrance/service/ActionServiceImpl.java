@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.entrance.service;
 
 import java.util.Map;
-
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosBatchActionLogDAO;
@@ -11,18 +10,17 @@ import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
 import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enumeration.*;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 
 /**
@@ -76,7 +74,7 @@ public class ActionServiceImpl {
                 });
                 updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
-                JobSubmitExecutor.getInstance().submitJob(jobClient);
+                jobClient.submitJob();
             } else {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 HttpSendClient.actionStart(address, paramAction);
@@ -102,7 +100,7 @@ public class ActionServiceImpl {
 
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobSubmitExecutor.getInstance().stopJob(paramAction);
+        JobClient.stopJob(paramAction);
         updateActionLogStatus(paramAction.getActionLogId(), paramAction.getComputeType(), RdosActionLogStatus.UNSTART.getStatus());
     }
 
