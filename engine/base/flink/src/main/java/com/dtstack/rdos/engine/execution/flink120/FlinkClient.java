@@ -18,7 +18,6 @@ import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink120.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -45,7 +44,6 @@ import org.apache.http.HttpStatus;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -58,6 +56,7 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -564,14 +563,7 @@ public class FlinkClient extends AbsClient {
 
             String state = (String) stateObj;
             state = org.apache.commons.lang3.StringUtils.upperCase(state);
-
             RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
-
-            //FIXME 特殊逻辑,所有重启的状态都认为是等待计算资源
-            if(status == RdosTaskStatus.RESTARTING){
-                status = RdosTaskStatus.WAITCOMPUTE;
-            }
-
             return status;
         }catch (Exception e){
             logger.error("", e);
@@ -579,13 +571,6 @@ public class FlinkClient extends AbsClient {
         }
 
     }
-
-//    @Override
-//    public String getJobDetail(String jobId) {
-//        String reqUrl = getReqUrl() + "/jobs/" + jobId;
-//        String response = PoolHttpClient.get(reqUrl);
-//        return response;
-//    }
 
     /**
      * 获取jobMgr-web地址

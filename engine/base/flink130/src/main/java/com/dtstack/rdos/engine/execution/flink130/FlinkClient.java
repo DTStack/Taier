@@ -784,16 +784,9 @@ public class FlinkClient extends AbsClient {
             if(stateObj == null){
                 return null;
             }
-
             String state = (String) stateObj;
             state = org.apache.commons.lang3.StringUtils.upperCase(state);
             RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
-
-            //FIXME 特殊逻辑,所有重启的状态都认为是等待计算资源
-            if(status == RdosTaskStatus.RESTARTING){
-                status = RdosTaskStatus.WAITCOMPUTE;
-            }
-
             return status;
         }catch (Exception e){
             logger.error("", e);
@@ -801,33 +794,6 @@ public class FlinkClient extends AbsClient {
         }
 
     }
-
-//    @Override
-//    public String getJobDetail(String jobId) {
-//        String reqUrl = getReqUrl() + "/jobs/" + jobId;
-//        String response = PoolHttpClient.get(reqUrl);
-//        return response;
-//    }
-
-//    @Override
-//    public Map<String,Object> getAvailableTaskSlots(){
-//        try{
-//            String reqUrl = getReqUrl() + "/overview";
-//            String response = PoolHttpClient.get(reqUrl);
-//            if(StringUtils.isNotBlank(response)){
-//                return  objectMapper.readValue(response,Map.class);
-//            }
-//        }catch (Throwable e){
-//            logger.error("",e);
-//        }
-//        return null;
-//    }
-//
-//    @Override
-//    public String getJobMessage(String jobId){
-//        String reqUrl = getReqUrl() + String.format("/jobs/%s/exceptions",jobId);
-//        return  PoolHttpClient.get(reqUrl);
-//    }
 
     /**
      * 获取jobMgr-web地址

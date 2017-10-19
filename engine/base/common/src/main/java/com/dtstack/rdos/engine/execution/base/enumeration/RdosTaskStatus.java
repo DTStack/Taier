@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.enumeration;
 
 import com.google.common.base.Strings;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,8 @@ public enum RdosTaskStatus {
             return null;
         }else if("error".equalsIgnoreCase(taskStatus)||"failing".equalsIgnoreCase(taskStatus)){
             taskStatus = "FAILED";
+        }else if(RdosTaskStatus.RESTARTING.name().equalsIgnoreCase(taskStatus)){
+        	taskStatus = RdosTaskStatus.WAITCOMPUTE.name();
         }
 
 	    try {
