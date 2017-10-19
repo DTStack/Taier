@@ -75,9 +75,6 @@ public class TaskStatusListener implements Runnable{
                                 if(rdosTaskStatus!=null){
                                     Integer status = rdosTaskStatus.getStatus();
                                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
-                                    if(status ==RdosTaskStatus.NOTFOUND.getStatus()){
-										status = RdosTaskStatus.FINISHED.getStatus();
-									}
 									rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
 								}
                             }
@@ -94,9 +91,6 @@ public class TaskStatusListener implements Runnable{
 									if(rdosTaskStatus!=null){
 										Integer status = rdosTaskStatus.getStatus();
 										zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
-										if(status == RdosTaskStatus.NOTFOUND.getStatus()){
-											status = RdosTaskStatus.FINISHED.getStatus();
-										}
 										rdosbatchJobDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
 									}
 								}

@@ -34,7 +34,7 @@ public class SlotNoAvailableJobClient {
 					orderLinkedBlockingQueue.add(job);
 					slotNoAvailableJobClients.remove(key);
 				}else {
-					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job)){
+					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job.getEngineType(),job.getEngineTaskId())){
 						orderLinkedBlockingQueue.add(job);
 						slotNoAvailableJobClients.remove(key);
 					}else{

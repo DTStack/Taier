@@ -336,10 +336,10 @@ public class JobSubmitExecutor{
     }
     
     
-	public boolean judgeSlostsAndAgainExecute(JobClient jobClient) {
+	public boolean judgeSlostsAndAgainExecute(String engineType,String jobId) {
 		// TODO Auto-generated method stub
-		if(EngineType.isFlink(jobClient.getEngineType())){
-			String message = getEngineMessageByHttp(jobClient.getEngineType(),EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO);
+		if(EngineType.isFlink(engineType)){
+			String message = getEngineMessageByHttp(engineType,String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO,jobId));
 			if(StringUtils.isNotBlank(message)){
 				if(message.indexOf(EngineRestParseUtil.FlinkRestParseUtil.NORESOURCEAVAIABLEEXCEPYION) >= 0){
 					return true;
