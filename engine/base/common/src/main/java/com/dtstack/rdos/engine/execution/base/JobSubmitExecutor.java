@@ -11,7 +11,7 @@ import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.dtstack.rdos.engine.execution.base.components.Slotsjudge;
+import com.dtstack.rdos.engine.execution.base.components.SlotsJudge;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +82,7 @@ public class JobSubmitExecutor{
     
     private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
     
-    private Slotsjudge slotsjudge = new Slotsjudge();
+    private SlotsJudge slotsjudge = new SlotsJudge();
     
     private JobSubmitExecutor(){}
 
