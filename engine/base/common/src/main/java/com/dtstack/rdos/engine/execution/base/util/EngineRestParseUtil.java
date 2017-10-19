@@ -2,15 +2,22 @@ package com.dtstack.rdos.engine.execution.base.util;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.Pair;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 
@@ -25,6 +32,10 @@ public class EngineRestParseUtil {
 		
 		public final static String EXCEPTION_IINFO = "";
 
+        private Pattern pattern = Pattern.compile("\\s*(\\d+\\.\\d+)\\s*([G|K|M]*B)\\s*\\((\\d+\\.\\d+)\\s*([G|K|M]*B)\\s+Used\\)");
+
+        private int MB2B = 1024 * 1024;
+
 		/**
 		 * message 为 html字符串
 		 * @param message
@@ -32,7 +43,77 @@ public class EngineRestParseUtil {
 		 */
 		public static Map<String,Map<String, Object>> getAvailSlots(String message){
 
+			Map<String, List<Map<String, String>>> appLogMap = new HashMap<>();
+			List<Map<String, String>> list = new ArrayList<>();
+			Document doc = Jsoup.parse(message);
+			Elements appLogEles = doc.getElementsMatchingOwnText("Worker Id");
+			Elements workChildEles = appLogEles.first().parent().parent().parent().child(1).children();
+			for (int i = 0; i < workChildEles.size(); i++) {
+				Element element = workChildEles.get(i);
+				String workId = element.child(1).text();
+				String addresss = element.child(2).text();
+				String state = element.child(3).text();
+				String cores = element.child(4).text();
+                String memory = element.child(5).text();
+
+                //TODO 转换数据
+			}
+
 			return null;
+		}
+
+		/**
+		 * eg: 6.8 GB (0.0 B Used)
+		 * @param capacityStr
+		 * @return
+		 */
+		public Pair<Integer, Integer> parserMemory(String capacityStr){
+			Matcher matcher = pattern.matcher(capacityStr);
+			if(matcher.find() && matcher.groupCount() == 4){
+				String total = matcher.group(1);
+				String totalUnit = matcher.group(2);
+
+				String used = matcher.group(3);
+				String usedUnit = matcher.group(4);
+
+				int totalResult = convert2MB(total, totalUnit);
+				int usedResult = convert2MB(used, usedUnit);
+				return Pair.of(totalResult, usedResult);
+			}
+
+			return null;
+		}
+
+		public int convert2MB(String capacityStr, String unit){
+			if(unit.equalsIgnoreCase("GB")){
+				return GB2MB(capacityStr);
+			}else if(unit.equalsIgnoreCase("KB")){
+				return KB2MB(capacityStr);
+			}else if(unit.equalsIgnoreCase("B")){
+				return B2MB(capacityStr);
+			}else if(unit.equalsIgnoreCase("MB")){
+				return Double.valueOf(capacityStr).intValue();
+			}else{
+				throw new RuntimeException("not support unit:" + unit);
+			}
+		}
+
+		public int GB2MB(String gbStr){
+			Double gbVal = Double.valueOf(gbStr);
+			Double mbVal = gbVal * 1024;
+			return mbVal.intValue();
+		}
+
+		public int KB2MB(String kbStr){
+			Double kbVal = Double.valueOf(kbStr);
+			Double mbVal = kbVal/1024;
+			return mbVal.intValue();
+		}
+
+		public int B2MB(String bStr){
+			Double bVal = Double.valueOf(bStr);
+			Double mbVal = bVal/MB2B;
+			return mbVal.intValue();
 		}
 
 		/**
