@@ -43,8 +43,9 @@ public enum RdosTaskStatus {
             taskStatus = "FAILED";
         }else if(RdosTaskStatus.RESTARTING.name().equalsIgnoreCase(taskStatus)){
         	taskStatus = RdosTaskStatus.WAITCOMPUTE.name();
+        }else if(RdosTaskStatus.NOTFOUND.name().equals(taskStatus)){
+        	taskStatus = RdosTaskStatus.FINISHED.name();
         }
-
 	    try {
             return RdosTaskStatus.valueOf(taskStatus);
         }catch (Exception e){
@@ -60,5 +61,9 @@ public enum RdosTaskStatus {
     	   return true;
        }   
        return false;
+    }
+    
+    public static void main(String[] args){
+    	System.out.println(RdosTaskStatus.NOTFOUND.name());
     }
 }
