@@ -323,7 +323,6 @@ public class SparkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-		// TODO Auto-generated method stub
 		String url = getJobMaster();
 		return PoolHttpClient.get(String.format("http://%s%s", url,path));
 	}

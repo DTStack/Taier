@@ -14,7 +14,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
  */
 public class SlotsJudge {
 
-	/**
+    public static final String SQL_MAX_ENV_PARALLELISM = "sql.max.env.parallelism";
+
+    /**
 	 * 判断job所依赖的执行引擎的资源是否足够
 	 * @param jobClient
 	 * @param slotsInfo
@@ -58,21 +60,26 @@ public class SlotsJudge {
 
 	/**
 	 * 必须为各个taskManager 预留1个slot
+     * FIXME 当前只对在属性中设置了parallelism的任务进行控制
 	 * @param jobClient
 	 * @param slotsInfo
 	 * @return
 	 */
 	public boolean judgeFlinkResource(JobClient jobClient, Map<String, Map<String,Object>> slotsInfo){
 
-		int avaliableSlots = 0;
-		for(Map<String, Object> value : slotsInfo.values()){
-			int freeSlots = MathUtil.getIntegerVal(value.get("freeSlots"));
-			freeSlots = freeSlots > 0 ? freeSlots -1 : 0;
-			avaliableSlots += freeSlots;
-		}
+        int avaliableSlots = 0;
+        for(Map<String, Object> value : slotsInfo.values()){
+            int freeSlots = MathUtil.getIntegerVal(value.get("freeSlots"));
+            freeSlots = freeSlots > 0 ? (freeSlots - 1) : 0;
+            avaliableSlots += freeSlots;
+        }
 
-
-		return false;
+        if(jobClient.getConfProperties().containsKey(SQL_MAX_ENV_PARALLELISM)){
+            int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(SQL_MAX_ENV_PARALLELISM));
+            return avaliableSlots >= maxParall;
+        }else{//没有填写最大并行度则返回true.
+            return true;
+        }
 	}
 
 	/**

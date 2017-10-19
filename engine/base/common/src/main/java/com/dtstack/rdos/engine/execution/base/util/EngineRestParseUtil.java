@@ -3,6 +3,9 @@ package com.dtstack.rdos.engine.execution.base.util;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +26,12 @@ public class EngineRestParseUtil {
 		public final static String EXCEPTION_IINFO = "";
 
 		/**
-		 * TODO
+		 * message 为 html字符串
 		 * @param message
 		 * @return
 		 */
-		public  static  Map<String,Map<String,Object>> getAvailSlots(String message){
-			
+		public static Map<String,Map<String, Object>> getAvailSlots(String message){
+
 			return null;
 		}
 
