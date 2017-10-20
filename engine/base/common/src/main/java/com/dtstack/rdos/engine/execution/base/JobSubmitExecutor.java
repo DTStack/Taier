@@ -377,9 +377,10 @@ public class JobSubmitExecutor{
                 }
 
                 try {
-                	if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
+                    jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
+
+                    if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
                         jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
-                        jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                         jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                             @Override
                             public Object execute() throws Exception {
