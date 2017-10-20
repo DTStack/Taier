@@ -31,11 +31,11 @@ public class SlotNoAvailableJobClient {
 				String key = iterator.next();
 				JobClient job = slotNoAvailableJobClients.get(key);
 				if(StringUtils.isNoneBlank(job.getEngineTaskId())){
-					orderLinkedBlockingQueue.add(job);
+					orderLinkedBlockingQueue.put(job);
 					slotNoAvailableJobClients.remove(key);
 				}else {
 					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job.getEngineType(),job.getEngineTaskId())){
-						orderLinkedBlockingQueue.add(job);
+						orderLinkedBlockingQueue.put(job);
 						slotNoAvailableJobClients.remove(key);
 					}else{
 						if(job.getAgain() > 2){
