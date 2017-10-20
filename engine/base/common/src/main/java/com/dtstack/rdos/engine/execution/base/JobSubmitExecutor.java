@@ -52,6 +52,8 @@ public class JobSubmitExecutor{
 
     private static final String TYPE_NAME_KEY = "typeName";
 
+    private static final int STATUS_INTERVAL = 5000;
+
     private Pattern engineNamePattern = Pattern.compile("([a-zA-Z]*).*");
 
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
@@ -253,39 +255,43 @@ public class JobSubmitExecutor{
     	queExecutor.submit(new Runnable(){
 			@Override
 			public void run() {
-				try {
-					Thread.sleep(5000);
-			    	Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
-			    	for(Map.Entry<String,IClient> entry:entrys){
-			            try{
-			            	String key= entry.getKey();
-			            	IClient client = entry.getValue();
-			            	if(EngineType.isFlink(key)){
-			            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-			                        @Override
-			                        public Object execute() throws Exception {
-			                            return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
-			                        }
-			                    },client.getClass().getClassLoader(),null,true);
-			            	    slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
-			            	}else if(EngineType.isSpark(key)){
-			            	    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-			                        @Override
-			                        public Object execute() throws Exception {
-			                            return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
-			                        }
-			                    },client.getClass().getClassLoader(),null,true);
-			            	    slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
-			            	}
 
-			        }catch (Exception e){
-			            logger.error("", e);
-			        }
-			     }
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-		            logger.error("", e1);
-				}
+			    while(true){
+
+                    try {
+                        Thread.sleep(STATUS_INTERVAL);
+                        Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
+                        for(Map.Entry<String,IClient> entry:entrys){
+                            try{
+                                String key= entry.getKey();
+                                IClient client = entry.getValue();
+                                if(EngineType.isFlink(key)){
+                                    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                                        @Override
+                                        public Object execute() throws Exception {
+                                            return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
+                                        }
+                                    },client.getClass().getClassLoader(),null,true);
+                                    slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
+                                }else if(EngineType.isSpark(key)){
+                                    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                                        @Override
+                                        public Object execute() throws Exception {
+                                            return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+                                        }
+                                    },client.getClass().getClassLoader(),null,true);
+                                    slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
+                                }
+
+                            }catch (Exception e){
+                                logger.error("", e);
+                            }
+                        }
+                    } catch (InterruptedException e1) {
+                        // TODO Auto-generated catch block
+                        logger.error("", e1);
+                    }
+                }
 			}
     	});
     }

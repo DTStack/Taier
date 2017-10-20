@@ -902,11 +902,8 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-
-
 	@Override
 	public String getMessageByHttp(String path) {
-		// TODO Auto-generated method stub
       String reqUrl = String.format("%s%s",getReqUrl(),path);
       return  PoolHttpClient.get(reqUrl);
 	}
