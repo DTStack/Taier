@@ -59,7 +59,7 @@ public class SlotsJudge {
 
 			String sparkKey = null;
 			for(String key : slotsInfo.keySet()){
-				if(EngineType.isFlink(key)){
+				if(EngineType.isSpark(key)){
 					sparkKey = key;
 					break;
 				}
