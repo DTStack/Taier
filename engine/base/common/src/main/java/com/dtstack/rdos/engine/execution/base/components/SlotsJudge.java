@@ -113,7 +113,7 @@ public class SlotsJudge {
             int workerFreeMem = (int) tmpMap.get(EngineRestParseUtil.SparkRestParseUtil.MEMORY_FREE_KEY);
             int workerFreeCpu = (int) tmpMap.get(EngineRestParseUtil.SparkRestParseUtil.CORE_FREE_KEY);
             workerFreeMem = workerFreeMem - 1024;
-            workerFreeMem = workerFreeMem > 0 ? memNum : 0;
+            workerFreeMem = workerFreeMem > 0 ? workerFreeMem : 0;
             memNum += workerFreeMem;
             coreNum += workerFreeCpu;
         }
