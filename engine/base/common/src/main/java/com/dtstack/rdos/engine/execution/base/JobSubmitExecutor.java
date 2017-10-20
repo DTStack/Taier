@@ -253,7 +253,6 @@ public class JobSubmitExecutor{
     	queExecutor.submit(new Runnable(){
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				try {
 					Thread.sleep(5000);
 			    	Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();

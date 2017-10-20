@@ -16,7 +16,7 @@ public class MathUtil {
         }
 
         if(obj instanceof String){
-            return Long.valueOf((String) obj);
+            return Long.valueOf(((String) obj).trim());
         }else if(obj instanceof Long){
             return (Long) obj;
         }else if(obj instanceof Integer){
@@ -32,9 +32,23 @@ public class MathUtil {
         }
 
         if(obj instanceof String){
-            return Integer.valueOf((String) obj);
+            return Integer.valueOf(((String) obj).trim());
         }else if(obj instanceof Integer){
             return (Integer) obj;
+        }
+
+        throw new RuntimeException("not support type of " + obj.getClass() + " convert to Integer." );
+    }
+
+    public static Double getDoubleVal(Object obj){
+        if(obj == null){
+            return null;
+        }
+
+        if(obj instanceof String){
+            return Double.valueOf(((String) obj).trim());
+        }else if(obj instanceof Double){
+            return (Double) obj;
         }
 
         throw new RuntimeException("not support type of " + obj.getClass() + " convert to Integer." );

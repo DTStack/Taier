@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.common.util.MathUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
@@ -11,8 +12,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,24 +26,41 @@ import java.util.regex.Pattern;
 public class EngineRestParseUtil {
 	
 	public static class SparkRestParseUtil{
+
+	    private static final Logger logger = LoggerFactory.getLogger(SparkRestParseUtil.class);
 		
 		public final static String ROOT = "/";
 		
-		public final static String EXCEPTION_IINFO = "";
+		public final static String EXCEPTION_INFO = "";
 
-        private Pattern pattern = Pattern.compile("\\s*(\\d+\\.\\d+)\\s*([G|K|M]*B)\\s*\\((\\d+\\.\\d+)\\s*([G|K|M]*B)\\s+Used\\)");
+		public final static String ADDRESS_KEY = "address";
 
-        private int MB2B = 1024 * 1024;
+		public final static String CORE_TOTAL_KEY = "cores.total";
+
+		public final static String CORE_USED_KEY = "cores.used";
+
+		public final static String CORE_FREE_KEY = "cores.free";
+
+		public final static String MEMORY_TOTAL_KEY = "memory.total";
+
+		public final static String MEMORY_USED_KEY = "memory.used";
+
+		public final static String MEMORY_FREE_KEY = "memory.free";
+
+        private static Pattern memPattern = Pattern.compile("\\s*(\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s*\\((\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s+Used\\)");
+
+        private static Pattern corePattern = Pattern.compile("\\s*(\\d+)\\s*\\((\\d+)\\s+Used\\)");
+
+        private static int MB2B = 1024 * 1024;
 
 		/**
 		 * message 为 html字符串
 		 * @param message
 		 * @return
 		 */
-		public static Map<String,Map<String, Object>> getAvailSlots(String message){
+		public static Map<String, Map<String, Object>> getAvailSlots(String message){
 
-			Map<String, List<Map<String, String>>> appLogMap = new HashMap<>();
-			List<Map<String, String>> list = new ArrayList<>();
+			Map<String, Map<String, Object>> availSlotMap = new HashMap<>();
 			Document doc = Jsoup.parse(message);
 			Elements appLogEles = doc.getElementsMatchingOwnText("Worker Id");
 			Elements workChildEles = appLogEles.first().parent().parent().parent().child(1).children();
@@ -56,19 +72,64 @@ public class EngineRestParseUtil {
 				String cores = element.child(4).text();
                 String memory = element.child(5).text();
 
-                //TODO 转换数据
+                //不统计dead节点信息
+                if(!state.equalsIgnoreCase("alive")){
+                    continue;
+                }
+
+                Pair<Integer, Integer> coreInfo = parserCore(cores);
+                Pair<Integer, Integer> memInfo = parserMemory(memory);
+
+                if(coreInfo == null){
+                    logger.error("parser worker's core info error {}.", cores);
+                    continue;
+                }
+
+                if(memInfo == null){
+                    logger.error("parser worker's core info error {}.", memInfo);
+                    continue;
+                }
+
+                Map<String, Object> workerInfo = Maps.newHashMap();
+                workerInfo.put(ADDRESS_KEY, addresss);
+                workerInfo.put(CORE_TOTAL_KEY, coreInfo.getLeft());
+                workerInfo.put(CORE_USED_KEY, coreInfo.getRight());
+                workerInfo.put(CORE_FREE_KEY, coreInfo.getLeft() - coreInfo.getRight());
+
+                workerInfo.put(MEMORY_TOTAL_KEY, memInfo.getLeft());
+                workerInfo.put(MEMORY_USED_KEY, memInfo.getRight());
+                workerInfo.put(MEMORY_FREE_KEY, memInfo.getLeft() - memInfo.getRight());
+
+                availSlotMap.put(workId, workerInfo);
 			}
 
-			return null;
+			return availSlotMap;
 		}
+
+        /**
+         * eg:4 (0 Used)
+         * @return
+         */
+		public static Pair<Integer, Integer> parserCore(String coresStr){
+            Matcher matcher = corePattern.matcher(coresStr);
+            if(matcher.find() && matcher.groupCount() == 2){
+                String totalStr = matcher.group(1);
+                String usedStr = matcher.group(2);
+                Integer total = MathUtil.getIntegerVal(totalStr);
+                Integer used = MathUtil.getIntegerVal(usedStr);
+                return Pair.of(total, used);
+            }
+
+            return null;
+        }
 
 		/**
 		 * eg: 6.8 GB (0.0 B Used)
-		 * @param capacityStr
+		 * @param memStr
 		 * @return
 		 */
-		public Pair<Integer, Integer> parserMemory(String capacityStr){
-			Matcher matcher = pattern.matcher(capacityStr);
+		public static Pair<Integer, Integer> parserMemory(String memStr){
+			Matcher matcher = memPattern.matcher(memStr);
 			if(matcher.find() && matcher.groupCount() == 4){
 				String total = matcher.group(1);
 				String totalUnit = matcher.group(2);
@@ -84,7 +145,7 @@ public class EngineRestParseUtil {
 			return null;
 		}
 
-		public int convert2MB(String capacityStr, String unit){
+		public static int convert2MB(String capacityStr, String unit){
 			if(unit.equalsIgnoreCase("GB")){
 				return GB2MB(capacityStr);
 			}else if(unit.equalsIgnoreCase("KB")){
@@ -98,19 +159,19 @@ public class EngineRestParseUtil {
 			}
 		}
 
-		public int GB2MB(String gbStr){
+		public static int GB2MB(String gbStr){
 			Double gbVal = Double.valueOf(gbStr);
 			Double mbVal = gbVal * 1024;
 			return mbVal.intValue();
 		}
 
-		public int KB2MB(String kbStr){
+		public static int KB2MB(String kbStr){
 			Double kbVal = Double.valueOf(kbStr);
 			Double mbVal = kbVal/1024;
 			return mbVal.intValue();
 		}
 
-		public int B2MB(String bStr){
+		public static int B2MB(String bStr){
 			Double bVal = Double.valueOf(bStr);
 			Double mbVal = bVal/MB2B;
 			return mbVal.intValue();
@@ -178,11 +239,7 @@ public class EngineRestParseUtil {
 
 		private static Logger logger = LoggerFactory.getLogger(FlinkRestParseUtil.class);
 
-		/**
-		 * TODO
-		 * @param message
-		 * @return
-		 */
+
 		public static Map<String, Map<String,Object>> getAvailSlots(String message){
 
 			if(Strings.isNullOrEmpty(message)){
