@@ -30,7 +30,7 @@ public class SlotNoAvailableJobClient {
 			while(iterator.hasNext()){
 				String key = iterator.next();
 				JobClient job = slotNoAvailableJobClients.get(key);
-				if(StringUtils.isNoneBlank(job.getEngineTaskId())){
+				if(StringUtils.isBlank(job.getEngineTaskId())){
 					orderLinkedBlockingQueue.put(job);
 					slotNoAvailableJobClients.remove(key);
 				}else {
