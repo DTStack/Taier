@@ -38,11 +38,13 @@ public class SlotNoAvailableJobClient {
 						orderLinkedBlockingQueue.put(job);
 						slotNoAvailableJobClients.remove(key);
 					}else{
-						if(job.getAgain() > 2){
-							slotNoAvailableJobClients.remove(key);
-						}else{
-							job.setAgain(job.getAgain()+1);
-						}
+//						if(job.getAgain() > 2){
+//							slotNoAvailableJobClients.remove(key);
+//						}else{
+//							job.setAgain(job.getAgain()+1);
+//						    orderLinkedBlockingQueue.put(job);
+//						}
+						slotNoAvailableJobClients.remove(key);
 					}
 				}
 			}
