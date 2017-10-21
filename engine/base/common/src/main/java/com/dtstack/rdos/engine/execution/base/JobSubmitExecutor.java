@@ -205,12 +205,16 @@ public class JobSubmitExecutor{
         }
         IClient client = clientMap.get(engineType);
         try{
-            return  (RdosTaskStatus) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    return client.getJobStatus(jobId);
-                }
-            },client.getClass().getClassLoader(),null,true);
+        	RdosTaskStatus status = (RdosTaskStatus) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                 @Override
+                 public Object execute() throws Exception {
+                     return client.getJobStatus(jobId);
+                 }
+             },client.getClass().getClassLoader(),null,true);
+        	if(status == RdosTaskStatus.FAILED){
+        		status = judgeSlostsAndAgainExecute(engineType,jobId)?RdosTaskStatus.WAITCOMPUTE:status;
+        	}
+            return status;
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
