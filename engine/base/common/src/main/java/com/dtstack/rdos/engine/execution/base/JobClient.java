@@ -240,9 +240,9 @@ public class JobClient extends OrderObject{
 		JobSubmitExecutor.getInstance().submitJob(this);
 	}
 
-	public static void stopJob(ParamAction paramAction) throws Exception {
+	public void stopJob() throws Exception {
 		// TODO Auto-generated method stub
-        JobSubmitExecutor.getInstance().stopJob(paramAction);
+        JobSubmitExecutor.getInstance().stopJob(this);
 	}
 
 	public static void judgeSlostsAndAgainExecute(String engineType,String jobId) {

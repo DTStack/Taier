@@ -99,7 +99,20 @@ public class ActionServiceImpl {
 
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        JobClient.stopJob(paramAction);
+        String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
+        String jobId = paramAction.getTaskId();
+        Integer computeType  = paramAction.getComputeType();
+        JobClient jobClient = new JobClient(paramAction);
+        jobClient.setJobClientCallBack(new JobClientCallBack(){
+			@Override
+			public void execute() {
+				// TODO Auto-generated method stub
+                updateJobZookStatus(taskId,RdosTaskStatus.CANCELED.getStatus());
+                updateJobStatus(jobId, computeType, RdosTaskStatus.CANCELED.getStatus());
+			}
+        	
+        });
+        jobClient.stopJob();
         updateActionLogStatus(paramAction.getActionLogId(), paramAction.getComputeType(), RdosActionLogStatus.UNSTART.getStatus());
     }
 

@@ -70,10 +70,8 @@ public class DataxClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(ParamAction paramAction) {
-        String jobId = paramAction.getTaskId();
+    public JobResult cancelJob(String jobId) {
         JobResult jobResult = null;
-
         try {
             String command = String.format(DATAX_JOB_KILL_COMMAND_TEMPLATE, jobId);
             SSHClient sshClient = new SSHClient(USERNAME, PASSWORD, randomAddress());

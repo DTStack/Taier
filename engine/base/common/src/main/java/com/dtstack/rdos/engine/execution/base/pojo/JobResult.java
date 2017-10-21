@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class JobResult {
 
     private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
-
+    
     private boolean isErr;
 
     public static final String JOB_ID_KEY = "jobid";

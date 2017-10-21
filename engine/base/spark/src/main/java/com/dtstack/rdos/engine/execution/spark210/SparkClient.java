@@ -247,9 +247,7 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(ParamAction paramAction) {
-        String jobId = paramAction.getEngineTaskId();
-
+    public JobResult cancelJob(String jobId) {
         RestSubmissionClient restSubmissionClient = new RestSubmissionClient(sparkConfig.getSparkMaster());
         SubmitRestProtocolResponse response = restSubmissionClient.killSubmission(jobId);
         String responseStr = response.toJson();

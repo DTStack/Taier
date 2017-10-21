@@ -29,7 +29,7 @@ public interface IClient {
      */
     JobResult submitJob(JobClient jobClient);
 
-    JobResult cancelJob(ParamAction jobId);
+    JobResult cancelJob(String jobId);
 
     RdosTaskStatus getJobStatus(String jobId) throws IOException;
 

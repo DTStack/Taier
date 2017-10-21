@@ -263,8 +263,7 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(ParamAction paramAction) {
-        String jobId = paramAction.getEngineTaskId();
+    public JobResult cancelJob(String jobId) {
         try {
             ApplicationId appId = ConverterUtils.toApplicationId(jobId);
             yarnClient.killApplication(appId);

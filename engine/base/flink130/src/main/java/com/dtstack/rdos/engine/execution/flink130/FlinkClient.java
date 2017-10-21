@@ -736,9 +736,7 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(ParamAction paramAction) {
-        String jobId = paramAction.getEngineTaskId();
-
+    public JobResult cancelJob(String jobId) {
         JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
             client.cancel(jobID);
