@@ -21,7 +21,9 @@ public class SlotsJudge {
 
     private static final Logger logger = LoggerFactory.getLogger(SlotsJudge.class);
 
-    public static final String SQL_MAX_ENV_PARALLELISM = "sql.max.env.parallelism";
+    public static final String FLINK_SQL_ENV_PARALLELISM = "sql.env.parallelism";
+
+    public static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
 
     public static final String SPARK_EXE_MEM = "executor.memory";
 
@@ -91,12 +93,18 @@ public class SlotsJudge {
             avaliableSlots += freeSlots;
         }
 
-        if(jobClient.getConfProperties().containsKey(SQL_MAX_ENV_PARALLELISM)){
-            int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(SQL_MAX_ENV_PARALLELISM));
-            return avaliableSlots >= maxParall;
-        }else{//没有填写最大并行度则返回true.
-            return true;
+        boolean result = true;
+        if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
+            int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
+            result = result && avaliableSlots >= maxParall;
         }
+
+        if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
+            int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
+            result = result && avaliableSlots >= maxParall;
+        }
+
+        return result;
 	}
 
 	/**

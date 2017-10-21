@@ -24,7 +24,7 @@ public class ConfigConstrant {
 
     /**
      * 注意如果改了该变量的话,对应的链接的地方变量也需要更改
-     * {@link com.dtstack.rdos.engine.execution.base.components.SlotsJudge#SQL_MAX_ENV_PARALLELISM}
+     * {@link com.dtstack.rdos.engine.execution.base.components.SlotsJudge#FLINK_SQL_MAX_ENV_PARALLELISM}
      */
     public static final String SQL_MAX_ENV_PARALLELISM = "sql.max.env.parallelism";
     

@@ -309,12 +309,11 @@ public class JobSubmitExecutor{
 			message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
 			    @Override
 			    public Object execute() throws Exception {
-			        return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+			        return client.getMessageByHttp(path);
 			    }
 			},client.getClass().getClassLoader(),null,true);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("", e);
 		}
 	    return message;
     }
@@ -373,6 +372,7 @@ public class JobSubmitExecutor{
                 jobClient.getJobClientCallBack().execute();
                 IClient clusterClient = clientMap.get(jobClient.getEngineType());
                 JobResult jobResult = null;
+                boolean needTaskListener = false;
 
                 if(clusterClient == null){
                     jobResult = JobResult.createErrorResult("job setting client type " +
@@ -385,6 +385,7 @@ public class JobSubmitExecutor{
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
 
                     if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
+                        needTaskListener = true;
                         jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
                         jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                             @Override
@@ -402,7 +403,9 @@ public class JobSubmitExecutor{
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get unexpected exception", e);
                 }finally {
-                    listenerJobStatus(jobClient, jobResult);
+                    if(needTaskListener){
+                        listenerJobStatus(jobClient, jobResult);
+                    }
                 }
             }
         }
