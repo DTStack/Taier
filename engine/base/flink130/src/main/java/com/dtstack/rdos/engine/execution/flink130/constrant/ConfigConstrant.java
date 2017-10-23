@@ -19,13 +19,13 @@ public class ConfigConstrant {
     public static final String FLINK_CHECKPOINT_CLEANUPMODE_KEY = "sql.checkpoint.cleanup.mode";
 
     public static final String FLINK_CHECKPOINT_DATAURI_KEY = "flinkCheckpointDataURI";
-    
-    public static final String SQL_ENV_PARALLELISM = "sql.env.parallelism";
 
     /**
      * 注意如果改了该变量的话,对应的链接的地方变量也需要更改
-     * {@link com.dtstack.rdos.engine.execution.base.components.SlotsJudge#FLINK_SQL_MAX_ENV_PARALLELISM}
+     * {@link com.dtstack.rdos.engine.execution.base.components.SlotsJudge#FLINK_SQL_ENV_PARALLELISM}
      */
+    public static final String SQL_ENV_PARALLELISM = "sql.env.parallelism";
+
     public static final String SQL_MAX_ENV_PARALLELISM = "sql.max.env.parallelism";
     
     public static final String MR_JOB_PARALLELISM = "mr.job.parallelism";

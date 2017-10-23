@@ -116,7 +116,7 @@ public class FlinkClient extends AbsClient {
 
     public static String sp = File.separator;
 
-    public final static String JOBEXCEPTION = "jobs/%s/exceptions";
+    public final static String JOBEXCEPTION = "/jobs/%s/exceptions";
 
     public String tmpFileDirPath = "./tmp";
 
@@ -910,7 +910,8 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobExceptionLog(String jobId) {
-        String excpUrl = String.format(JOBEXCEPTION, jobId);
-        return PoolHttpClient.get(excpUrl);
+        String excpPath = String.format(JOBEXCEPTION, jobId);
+        String reqUrl = String.format("%s%s",getReqUrl(), excpPath);
+        return PoolHttpClient.get(reqUrl);
     }
 }

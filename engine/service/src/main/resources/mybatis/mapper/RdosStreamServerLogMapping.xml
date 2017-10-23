@@ -16,7 +16,7 @@
     </resultMap>
 
     <insert id="insertSvrLog">
-        insert into rdos_stream_server_log(task_id, engine_task_id, action_log_id, log_info, gmt_create, gmt_modified)
+        replace into rdos_stream_server_log(task_id, engine_task_id, action_log_id, log_info, gmt_create, gmt_modified)
         values(#{taskId}, #{engineTaskId}, #{actionLogId}, #{logInfo}, now(), now());
     </insert>
 

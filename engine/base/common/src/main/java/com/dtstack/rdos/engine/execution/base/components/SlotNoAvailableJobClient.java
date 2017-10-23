@@ -31,6 +31,7 @@ public class SlotNoAvailableJobClient {
 				String key = iterator.next();
 				JobClient job = slotNoAvailableJobClients.get(key);
 				if(StringUtils.isBlank(job.getEngineTaskId())){
+					logger.info("------ job: {} add into orderLinkedBlockingQueue again.", job.getTaskId());
 					orderLinkedBlockingQueue.put(job);
 					slotNoAvailableJobClients.remove(key);
 				}else {

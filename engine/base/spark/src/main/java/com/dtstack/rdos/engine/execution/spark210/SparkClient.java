@@ -301,7 +301,6 @@ public class SparkClient extends AbsClient {
 
 	@Override
 	public String getJobMaster() {
-		// TODO Auto-generated method stub
 		String webMaster = sparkConfig.getSparkWebMaster();
 		String[] webs = webMaster.split(",");
 		for(String web:webs){
@@ -347,7 +346,7 @@ public class SparkClient extends AbsClient {
         String master = getJobMaster();
 
         try {
-            Document doc = Jsoup.connect(master).get();
+            Document doc = Jsoup.connect(String.format("http://%s", master)).get();
             Element workerEle = doc.getElementsContainingOwnText(driverId)
                     .first().parent().child(2).select("a").first();
             String workerUrl = workerEle.attr("href");
@@ -372,7 +371,7 @@ public class SparkClient extends AbsClient {
             list.add(map);
             log.put("driverLog", list);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.info("", e);
         }
         return log;
     }
@@ -395,7 +394,7 @@ public class SparkClient extends AbsClient {
             }
             appLogMap.put("appLog", list);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info("", e);
         }
         return appLogMap;
     }

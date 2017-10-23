@@ -86,6 +86,7 @@ public class TaskStatusListener implements Runnable{
                                     Integer status = rdosTaskStatus.getStatus();
                                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
 									rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
+                                    updateJobEngineLog(status, taskId, engineTaskid, engineTypeName, computeType);
 								}
                             }
                         }
@@ -102,7 +103,8 @@ public class TaskStatusListener implements Runnable{
 										Integer status = rdosTaskStatus.getStatus();
 										zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId,status);
 										rdosbatchJobDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
-									}
+                                        updateJobEngineLog(status, taskId, engineTaskid, engineTypeName, computeType);
+                                    }
 								}
 							}
 						}
@@ -120,18 +122,8 @@ public class TaskStatusListener implements Runnable{
             return;
         }
 
-        String urlPath = "";
-        if(EngineType.isFlink(engineType)){
-            urlPath = String.format(JOBEXCEPTION, engineJobId);
-        }else if(EngineType.isSpark(engineType)){
-
-        }else{
-            logger.info("----- not support engine type {}", engineType);
-            return;
-        }
-
         //从engine获取log
-        String jobLog = JobClient.getEngineLog(engineType, urlPath);
+        String jobLog = JobClient.getEngineLog(engineType, engineJobId);
 
         //写入db
         if(computeType == ComputeType.STREAM.getComputeType()){
