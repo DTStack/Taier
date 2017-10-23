@@ -75,4 +75,9 @@ public abstract class AbsClient implements IClient{
     	return null;
     }
 
+    public String getJobExceptionLog(String jobId){
+        return "not support for get job exception.";
+    }
+
+
 }

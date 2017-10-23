@@ -317,6 +317,25 @@ public class JobSubmitExecutor{
 		}
 	    return message;
     }
+
+    public String getEngineLogByHttp(String engineType, String jobId){
+        IClient client = clientMap.get(engineType);
+        String logInfo = "";
+
+        try {
+            logInfo = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                @Override
+                public Object execute() throws Exception {
+                    return client.getJobExceptionLog(jobId);
+                }
+            },client.getClass().getClassLoader(),null,true);
+
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+
+        return logInfo;
+    }
     
     public void shutdown(){
         //FIXME 是否需要做同步等processor真正完成

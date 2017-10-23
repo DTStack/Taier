@@ -13,6 +13,8 @@ public class RdosStreamServerLog extends TenantProjectObject{
     private String taskId;
 
     private String logInfo;
+
+    private String engineLog;
     
     private Long actionLogId;
     
@@ -38,5 +40,13 @@ public class RdosStreamServerLog extends TenantProjectObject{
 
     public void setLogInfo(String logInfo) {
         this.logInfo = logInfo;
+    }
+
+    public String getEngineLog() {
+        return engineLog;
+    }
+
+    public void setEngineLog(String engineLog) {
+        this.engineLog = engineLog;
     }
 }

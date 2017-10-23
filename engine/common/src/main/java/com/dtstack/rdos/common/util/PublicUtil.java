@@ -31,11 +31,15 @@ public class PublicUtil {
 	public static <T> T mapToObject(Map<String,Object> params,Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static Map<String,Object> ObjectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		
 		return objectMapper.readValue(objectMapper.writeValueAsBytes(obj), Map.class);
+	}
+
+	public static String objToString(Object obj) throws IOException {
+		return objectMapper.writeValueAsString(obj);
 	}
 	
 	

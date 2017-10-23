@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
@@ -19,13 +20,15 @@ import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.io.StringReader;
+import java.util.*;
 
 /**
  * spark 提交job
@@ -324,4 +327,87 @@ public class SparkClient extends AbsClient {
 		String url = getJobMaster();
 		return PoolHttpClient.get(String.format("http://%s%s", url,path));
 	}
+
+    @Override
+    public String getJobExceptionLog(String jobId) {
+        Map<String, List<Map<String, String>>> exceptionLog = getdriverAndAppLog(jobId);
+        try {
+            String logInfo = PublicUtil.objToString(exceptionLog);
+            return logInfo;
+        } catch (IOException e) {
+            logger.info("", e);
+            return "";
+        }
+    }
+
+    private Map<String, List<Map<String, String>>> getdriverAndAppLog(String driverId) {
+        Map<String, List<Map<String, String>>> log = null;
+        String driverLogUrlFormat = "%s/logPage/?driverId=%s&logType=stderr";
+        String driverLog = null;
+        String master = getJobMaster();
+
+        try {
+            Document doc = Jsoup.connect(master).get();
+            Element workerEle = doc.getElementsContainingOwnText(driverId)
+                    .first().parent().child(2).select("a").first();
+            String workerUrl = workerEle.attr("href");
+            driverLog = getLog(String.format(driverLogUrlFormat, workerUrl, driverId));
+            String appId = null;
+            BufferedReader reader = new BufferedReader(new StringReader(driverLog));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("Connected to Spark cluster with app ID ")) {
+                    appId = line.split("Connected to Spark cluster with app ID ")[1];
+                    break;
+                }
+            }
+            log = new HashMap<>();
+            if (appId != null) {
+                log = getAppLog(master, appId);
+            }
+            List<Map<String, String>> list = new ArrayList<>();
+            Map<String, String> map = new HashMap<>();
+            map.put("id", driverId);
+            map.put("value", driverLog);
+            list.add(map);
+            log.put("driverLog", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return log;
+    }
+
+    private Map<String, List<Map<String, String>>> getAppLog(String master, String appId) {
+        Map<String, List<Map<String, String>>> appLogMap = new HashMap<>();
+        List<Map<String, String>> list = new ArrayList<>();
+        String url = master + "/app/?appId=" + appId;
+        try {
+            Document doc = Jsoup.connect(url).get();
+            Elements appLogEles = doc.getElementsContainingOwnText("stderr");
+            for (int i = 0; i < appLogEles.size(); i++) {
+                String appLogUrl = appLogEles.get(i).attr("href");
+                String appLog = getLog(appLogUrl);
+                String workerId = appLogEles.get(i).parent().parent().child(1).text();
+                Map<String, String> map = new HashMap<>();
+                map.put("id", workerId);
+                map.put("value", appLog);
+                list.add(map);
+            }
+            appLogMap.put("appLog", list);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return appLogMap;
+    }
+
+    private String getLog(String url) {
+        String log = null;
+        try {
+            Document doc = Jsoup.connect(url).get();
+            log = doc.select("pre").text();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return log;
+    }
 }

@@ -26,4 +26,16 @@ public class RdosBatchServerLogDao {
             }
         });
     }
+
+    public void updateEngineLog(final String jobId, final String engineLog){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+                RdosBatchServerLogMapper mapper = sqlSession.getMapper(RdosBatchServerLogMapper.class);
+                mapper.updateEngineLog(jobId, engineLog);
+                return null;
+            }
+        });
+    }
 }

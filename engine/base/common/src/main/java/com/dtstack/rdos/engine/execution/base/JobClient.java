@@ -73,6 +73,10 @@ public class JobClient extends OrderObject{
     public static RdosTaskStatus getStatus(String engineType, String engineTaskId) {
         return JobSubmitExecutor.getInstance().getJobStatus(engineType, engineTaskId);
     }
+
+    public static String getEngineLog(String engineType, String jobId){
+        return JobSubmitExecutor.getInstance().getEngineLogByHttp(engineType, jobId);
+    }
     
     /**
      * 获取engine上jobManager url

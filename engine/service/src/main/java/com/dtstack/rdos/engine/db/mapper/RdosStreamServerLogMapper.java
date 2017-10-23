@@ -12,4 +12,6 @@ public interface RdosStreamServerLogMapper {
 
     int insertSvrLog(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId,
                      @Param("actionLogId") Long actionLogId, @Param("logInfo") String logInfo);
+
+    void updateEngineLog(@Param("taskId") String taskId, @Param("engineLog") String engineLog);
 }

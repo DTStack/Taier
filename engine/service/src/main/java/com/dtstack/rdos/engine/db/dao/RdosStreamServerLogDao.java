@@ -28,4 +28,17 @@ public class RdosStreamServerLogDao {
             }
         });
     }
+
+    public void updateEngineLog(final String taskId, final String engineLog){
+
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+                RdosStreamServerLogMapper mapper = sqlSession.getMapper(RdosStreamServerLogMapper.class);
+                mapper.updateEngineLog(taskId, engineLog);
+                return null;
+            }
+        });
+    }
 }

@@ -10,6 +10,8 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface RdosBatchServerLogMapper {
 
-    int insertSvrLog(@Param("jobId") String taskId, @Param("engineTaskId") String engineTaskId,
+    int insertSvrLog(@Param("jobId") String jobId, @Param("engineTaskId") String engineTaskId,
                      @Param("actionLogId") Long actionLogId, @Param("logInfo") String logInfo);
+
+    void updateEngineLog(@Param("jobId") String jobId, @Param("engineLog") String engineLog);
 }

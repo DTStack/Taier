@@ -85,6 +85,8 @@ public class FlinkClient extends AbsClient {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
     public static String sp = File.separator;
 
+    public final static String JOBEXCEPTION = "jobs/%s/exceptions";
+
     public String tmpFileDirPath = "./tmp";
 
     private String jobMgrHost;
@@ -659,8 +661,14 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-		// TODO Auto-generated method stub
 	      String reqUrl = String.format("%s%s",getReqUrl(),path);
-	      return  PoolHttpClient.get(reqUrl);
+	      return PoolHttpClient.get(reqUrl);
 	}
+
+    @Override
+    public String getJobExceptionLog(String jobId) {
+
+        String excpUrl = String.format(JOBEXCEPTION, jobId);
+        return PoolHttpClient.get(excpUrl);
+    }
 }

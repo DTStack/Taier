@@ -3,6 +3,10 @@ package com.dtstack.rdos.engine.entrance.zk.task;
 import java.util.Map;
 import java.util.Set;
 
+import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
+import com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog;
+import com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +33,10 @@ import com.dtstack.rdos.engine.util.TaskIdUtil;
 public class TaskStatusListener implements Runnable{
 	
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
-	
-	private static long listener = 2000;
+
+    public final static String JOBEXCEPTION = "jobs/%s/exceptions";
+
+    private static long listener = 2000;
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
@@ -39,6 +45,10 @@ public class TaskStatusListener implements Runnable{
 	private RdosStreamTaskDAO rdosStreamTaskDAO = new RdosStreamTaskDAO();
 	
 	private RdosBatchJobDAO rdosbatchJobDAO = new RdosBatchJobDAO();
+
+	private RdosStreamServerLogDao rdosStreamServerLogDao = new RdosStreamServerLogDao();
+
+	private RdosBatchServerLogDao rdosBatchServerLogDao = new RdosBatchServerLogDao();
 
 	
 	@Override
@@ -72,7 +82,7 @@ public class TaskStatusListener implements Runnable{
                             String engineTaskid = rdosTask.getEngineTaskId();
                             if(StringUtils.isNotBlank(engineTaskid)){
                                 RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskid);
-                                if(rdosTaskStatus!=null){
+                                if(rdosTaskStatus != null){
                                     Integer status = rdosTaskStatus.getStatus();
                                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
 									rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
@@ -103,4 +113,33 @@ public class TaskStatusListener implements Runnable{
             }
       	}
 	}
+
+	private void updateJobEngineLog(Integer status, String jobId, String engineJobId,
+                                    String engineType, int computeType){
+        if(!RdosTaskStatus.needClean(status.byteValue())){
+            return;
+        }
+
+        String urlPath = "";
+        if(EngineType.isFlink(engineType)){
+            urlPath = String.format(JOBEXCEPTION, engineJobId);
+        }else if(EngineType.isSpark(engineType)){
+
+        }else{
+            logger.info("----- not support engine type {}", engineType);
+            return;
+        }
+
+        //从engine获取log
+        String jobLog = JobClient.getEngineLog(engineType, urlPath);
+
+        //写入db
+        if(computeType == ComputeType.STREAM.getComputeType()){
+            rdosStreamServerLogDao.updateEngineLog(jobId, jobLog);
+        }else if(computeType == ComputeType.BATCH.getComputeType()){
+            rdosBatchServerLogDao.updateEngineLog(jobId, jobLog);
+        }else{
+            logger.info("----- not support compute type {}.", computeType);
+        }
+    }
 }
