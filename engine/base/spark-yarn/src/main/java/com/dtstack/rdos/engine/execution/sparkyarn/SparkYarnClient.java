@@ -216,6 +216,18 @@ public class SparkYarnClient extends AbsClient {
         argList.add("--class");
         argList.add(PYTHON_RUNNER_CLASS);
 
+        String[] appArgs = new String[]{};
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(exeArgsStr)){
+            appArgs = exeArgsStr.split("\\s+");
+        }
+
+        if(appArgs != null) {
+            for(String appArg : appArgs) {
+                argList.add("--arg");
+                argList.add(appArg);
+            }
+        }
+
         String pythonExtPath = sparkYarnConfig.getSparkPythonExtLibPath();
         if(Strings.isNullOrEmpty(pythonExtPath)){
             return JobResult.createErrorResult("engine node.yml setting error, " +
@@ -321,7 +333,7 @@ public class SparkYarnClient extends AbsClient {
             yarnClient.killApplication(appId);
             return JobResult.createSuccessResult(jobId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("", e);
             return JobResult.createErrorResult(e.getMessage());
         }
     }

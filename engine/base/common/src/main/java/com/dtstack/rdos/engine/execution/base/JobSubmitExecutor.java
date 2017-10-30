@@ -242,6 +242,11 @@ public class JobSubmitExecutor{
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
     	if(orderLinkedBlockingQueue.remove(jobClient.getTaskId())||slotNoAvailableJobClients.remove(jobClient.getTaskId())){
+
+    	    if(jobClient.getEngineTaskId() == null){
+    	        return JobResult.createSuccessResult(jobClient.getTaskId());
+            }
+
             String engineType = jobClient.getEngineType();
             IClient client = clientMap.get(engineType);
             return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){

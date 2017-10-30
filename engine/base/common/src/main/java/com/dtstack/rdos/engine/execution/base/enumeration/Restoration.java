@@ -13,7 +13,12 @@ public enum Restoration {
         this.type = type;
     }
 
-    public static Restoration getRestoration(int type){
+    public static Restoration getRestoration(Integer type){
+
+        if(type == null){
+            return NO;
+        }
+
         Restoration[] restorations = Restoration.values();
         for(Restoration restoration:restorations){
             if(restoration.type == type){
