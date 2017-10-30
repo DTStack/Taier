@@ -59,9 +59,8 @@ public abstract class AbsClient implements IClient{
                     " you need to set it in(MR, SQL)");
         }
         return jobResult;
-    }   
-    
-    
+    }
+
     public JobResult submitJobWithJar(JobClient jobClient){
     	return null;
     }
@@ -73,10 +72,6 @@ public abstract class AbsClient implements IClient{
     
     public JobResult submitSyncJob(JobClient jobClient){
     	return null;
-    }
-
-    public String getJobExceptionLog(String jobId){
-        return "not support for get job exception.";
     }
 
 

@@ -63,6 +63,7 @@ public class SparkYarnClient extends AbsClient {
     /**默认最多可以请求的CPU核心数*/
     private static final String DEFAULT_CORES_MAX = "2";
 
+    private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -178,9 +179,60 @@ public class SparkYarnClient extends AbsClient {
             appId = new Client(clientArguments, yarnConf, sparkConf).submitApplication();
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
+            logger.info("", ex);
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
         }
 
+    }
+
+    /**
+     * FIXME spark yarn参数设置
+     * @param jobClient
+     * @return
+     */
+    private JobResult submitJobWithPython(JobClient jobClient){
+
+        Properties properties = adaptToJarSubmit(jobClient);
+        String pyFilePath = properties.getProperty(JOB_JAR_PATH_KEY);//.py .egg .zip 存储的hdfs路径
+        String appName = properties.getProperty(JOB_APP_NAME_KEY);
+
+        //FIXME 包参数传递
+        String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
+
+        if(Strings.isNullOrEmpty(pyFilePath)){
+            return JobResult.createErrorResult("exe python file can't be null.");
+        }
+
+        if(Strings.isNullOrEmpty(appName)){
+            return JobResult.createErrorResult("an application name must be set in your configuration");
+        }
+
+        ApplicationId appId = null;
+
+        List<String> argList = new ArrayList<>();
+        argList.add("--primary-py-file");
+        argList.add(pyFilePath);
+
+        argList.add("--class");
+        argList.add(PYTHON_RUNNER_CLASS);
+
+        String pythonExtPath = sparkYarnConfig.getSparkPythonExtLibPath();
+        if(Strings.isNullOrEmpty(pythonExtPath)){
+            return JobResult.createErrorResult("engine node.yml setting error, " +
+                    "commit spark python job need set param of sparkPythonExtLibPath.");
+        }
+
+        sparkConf.set("spark.submit.pyFiles", pythonExtPath);
+        sparkConf.setAppName(appName);
+
+        try {
+            ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
+            appId = new Client(clientArguments, yarnConf, sparkConf).submitApplication();
+            return JobResult.createSuccessResult(appId.toString());
+        } catch(Exception ex) {
+            logger.info("", ex);
+            return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
@@ -12,6 +13,10 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +35,10 @@ public class EngineRestParseUtil {
 	    private static final Logger logger = LoggerFactory.getLogger(SparkRestParseUtil.class);
 		
 		public final static String ROOT = "/";
-		
-		public final static String EXCEPTION_INFO = "";
+
+		public static final String DRIVER_LOGURL_FORMAT = "%s/logPage/?driverId=%s&logType=stderr";
+
+		public static final String APP_LOGURL_FORMAT = "/app/?appId=%s";
 
 		public final static String ADDRESS_KEY = "address";
 
@@ -184,6 +191,66 @@ public class EngineRestParseUtil {
 		 */
 		public static String getJobMessage(String message){
 			return null;
+		}
+
+		public static String getDriverLog(String message, String engineJobId){
+
+            Document rootDoc = Jsoup.parse(message);
+            Element workerEle = rootDoc.getElementsContainingOwnText(engineJobId)
+                    .first().parent().child(2).select("a").first();
+            String workerUrl = workerEle.attr("href");
+            return getLog(String.format(DRIVER_LOGURL_FORMAT, workerUrl, engineJobId));
+        }
+
+		public static String getAppId(String driverLog){
+
+            String appId = null;
+
+			try{
+				BufferedReader reader = new BufferedReader(new StringReader(driverLog));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					if (line.contains("Connected to Spark cluster with app ID ")) {
+						appId = line.split("Connected to Spark cluster with app ID ")[1];
+						break;
+					}
+				}
+                return appId;
+			} catch (Exception e) {
+				logger.info("", e);
+			}
+
+			return null;
+		}
+
+		public static Map<String, List<Map<String, String>>> getAppLog(String appMessage) {
+			Map<String, List<Map<String, String>>> appLogMap = new HashMap<>();
+			List<Map<String, String>> list = new ArrayList<>();
+            Document doc = Jsoup.parse(appMessage);
+            Elements appLogEles = doc.getElementsContainingOwnText("stderr");
+            for (int i = 0; i < appLogEles.size(); i++) {
+                String appLogUrl = appLogEles.get(i).attr("href");
+                String appLog = getLog(appLogUrl);
+                String workerId = appLogEles.get(i).parent().parent().child(1).text();
+                Map<String, String> map = new HashMap<>();
+                map.put("id", workerId);
+                map.put("value", appLog);
+                list.add(map);
+            }
+            appLogMap.put("appLog", list);
+
+			return appLogMap;
+		}
+
+		private static String getLog(String url) {
+			String log = null;
+			try {
+				Document doc = Jsoup.connect(url).get();
+				log = doc.select("pre").text();
+			} catch (IOException e) {
+				logger.info("" ,e);
+			}
+			return log;
 		}
 	}
 	

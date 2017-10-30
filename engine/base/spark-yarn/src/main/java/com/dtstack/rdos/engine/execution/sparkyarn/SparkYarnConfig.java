@@ -13,6 +13,8 @@ public class SparkYarnConfig {
 
     private String sparkSqlProxyMainClass;
 
+    private String sparkPythonExtLibPath;
+
     public String getTypeName() {
         return typeName;
     }
@@ -45,4 +47,11 @@ public class SparkYarnConfig {
         this.sparkSqlProxyMainClass = sparkSqlProxyMainClass;
     }
 
+    public String getSparkPythonExtLibPath() {
+        return sparkPythonExtLibPath;
+    }
+
+    public void setSparkPythonExtLibPath(String sparkPythonExtLibPath) {
+        this.sparkPythonExtLibPath = sparkPythonExtLibPath;
+    }
 }

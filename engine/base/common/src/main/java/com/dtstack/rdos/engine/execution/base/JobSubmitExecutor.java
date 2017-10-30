@@ -13,6 +13,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.dtstack.rdos.engine.execution.base.components.SlotsJudge;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
@@ -20,13 +23,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
@@ -318,20 +317,67 @@ public class JobSubmitExecutor{
 	    return message;
     }
 
-    public String getEngineLogByHttp(String engineType, String jobId){
+    public String getEngineLogByHttp(String engineType, String jobId) {
         IClient client = clientMap.get(engineType);
         String logInfo = "";
 
         try {
-            logInfo = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    return client.getJobExceptionLog(jobId);
-                }
-            },client.getClass().getClassLoader(),null,true);
+            if (EngineType.isFlink(engineType)) {
+                String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
+                    @Override
+                    public Object execute() throws Exception {
+                        String excpPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO, jobId);
+                        return client.getMessageByHttp(excpPath);
+                    }
+                }, client.getClass().getClassLoader(), null, true);
+                logInfo = message;
+            } else if (EngineType.isSpark(engineType)) {
 
-        } catch (Exception e) {
+                Map<String, List<Map<String, String>>> log = null;
+                String rootMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
+                    @Override
+                    public Object execute() throws Exception {
+                        return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+                    }
+                }, client.getClass().getClassLoader(), null, true);
+
+                if (rootMessage == null) {
+                    return "can not get message from " + EngineRestParseUtil.SparkRestParseUtil.ROOT;
+                }
+
+                String driverLog = EngineRestParseUtil.SparkRestParseUtil.getDriverLog(rootMessage, jobId);
+                if (driverLog == null) {
+                    return "parse driver log message error. see the server log for detail.";
+                }
+
+                String appId = EngineRestParseUtil.SparkRestParseUtil.getAppId(driverLog);
+                if (appId == null) {
+                    return "get spark app id exception. see the server log for detail.";
+                }
+
+                String url = String.format(EngineRestParseUtil.SparkRestParseUtil.APP_LOGURL_FORMAT, appId);
+                String appMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
+                    @Override
+                    public Object execute() throws Exception {
+                        return client.getMessageByHttp(url);
+                    }
+                }, client.getClass().getClassLoader(), null, true);
+
+                log = EngineRestParseUtil.SparkRestParseUtil.getAppLog(appMessage);
+                List<Map<String, String>> list = new ArrayList<>();
+                Map<String, String> map = new HashMap<>();
+                map.put("id", jobId);
+                map.put("value", driverLog);
+                list.add(map);
+                log.put("driverLog", list);
+
+                logInfo = PublicUtil.objToString(log);
+            } else {
+                logInfo = "not support for " + engineType + " to get exception info.";
+            }
+        }catch (Exception e){
             logger.error("", e);
+            logInfo = "get engine message error," + e.getMessage();
         }
 
         return logInfo;

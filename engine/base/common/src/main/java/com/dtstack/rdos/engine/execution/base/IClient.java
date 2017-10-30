@@ -37,6 +37,4 @@ public interface IClient {
 	
 	String getMessageByHttp(String path);
 
-	String getJobExceptionLog(String jobId);
-	
     }

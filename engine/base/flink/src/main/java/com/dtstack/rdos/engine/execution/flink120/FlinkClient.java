@@ -664,12 +664,4 @@ public class FlinkClient extends AbsClient {
 	      String reqUrl = String.format("%s%s",getReqUrl(),path);
 	      return PoolHttpClient.get(reqUrl);
 	}
-
-    @Override
-    public String getJobExceptionLog(String jobId) {
-
-        String excpPath = String.format(JOBEXCEPTION, jobId);
-        String reqUrl = String.format("%s%s", getReqUrl(), excpPath);
-        return PoolHttpClient.get(reqUrl);
-    }
 }

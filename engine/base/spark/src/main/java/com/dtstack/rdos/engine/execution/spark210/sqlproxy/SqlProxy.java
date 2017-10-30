@@ -68,7 +68,7 @@ public class SqlProxy {
         }
 
         String sql = (String) argsMap.get("sql");
-        String appName = argsMap.get("appName") == null ? null : (String) argsMap.get("appName");
+        String appName = argsMap.get("appName") == null ? DEFAULT_APP_NAME : (String) argsMap.get("appName");
         sqlProxy.runJob(sql, appName);
     }
 }
