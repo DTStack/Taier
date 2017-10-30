@@ -304,6 +304,10 @@ public class SparkClient extends AbsClient {
 		String[] webs = webMaster.split(",");
 		for(String web:webs){
 			String html = PoolHttpClient.get(String.format("http://%s", web));
+            if(Strings.isNullOrEmpty(html)){
+                continue;
+            }
+
 			Document doc = Jsoup.parse(html);
 			Elements unstyled = doc.getElementsByClass("unstyled");
 			Elements lis = unstyled.first().getElementsByTag("li");

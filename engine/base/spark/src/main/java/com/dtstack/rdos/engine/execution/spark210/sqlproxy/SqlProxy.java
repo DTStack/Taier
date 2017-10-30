@@ -1,13 +1,14 @@
 package com.dtstack.rdos.engine.execution.spark210.sqlproxy;
 
-import com.dtstack.rdos.commom.exception.RdosException;
-
+import com.google.common.base.Charsets;
 import org.apache.parquet.Strings;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Map;
 
 /**
@@ -50,25 +51,29 @@ public class SqlProxy {
         spark.close();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedEncodingException {
 
         if(args.length < 1){
             logger.error("must set args for sql job!!!");
-            throw new RdosException("must set args for sql job!!!");
+            throw new RuntimeException("must set args for sql job!!!");
         }
 
         SqlProxy sqlProxy = new SqlProxy();
         String argInfo = args[0];
+        argInfo = URLDecoder.decode(argInfo, Charsets.UTF_8.name());
+        logger.info("----sql:{}", argInfo);
+
+
         Map<String, Object> argsMap = null;
         try{
             argsMap = objMapper.readValue(argInfo, Map.class);
         }catch (Exception e){
             logger.error("", e);
-            throw new RdosException("parse args json error, message " + e.getMessage());
+            throw new RuntimeException("parse args json error, message " + e.getMessage());
         }
 
         String sql = (String) argsMap.get("sql");
-        String appName = argsMap.get("appName") == null ? DEFAULT_APP_NAME : (String) argsMap.get("appName");
+        String appName = argsMap.get("appName") == null ? null : (String) argsMap.get("appName");
         sqlProxy.runJob(sql, appName);
     }
 }

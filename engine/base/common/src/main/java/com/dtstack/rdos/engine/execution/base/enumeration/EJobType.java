@@ -9,10 +9,11 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
  *
  */
 public enum EJobType{
-	
+
     SQL(0),
-    MR(1),
-    SYNC(2);//数据同步任务
+    MR(1),//默认离线MR任务---java_job
+    SYNC(2),//数据同步任务
+    PYTHON(3);//离线MR任务--python_job
     
     private int type;
     

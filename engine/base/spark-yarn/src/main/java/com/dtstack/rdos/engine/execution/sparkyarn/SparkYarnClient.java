@@ -196,7 +196,7 @@ public class SparkYarnClient extends AbsClient {
         String pyFilePath = properties.getProperty(JOB_JAR_PATH_KEY);//.py .egg .zip 存储的hdfs路径
         String appName = properties.getProperty(JOB_APP_NAME_KEY);
 
-        //FIXME 包参数传递
+        //FIXME 执行参数传递
         String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
 
         if(Strings.isNullOrEmpty(pyFilePath)){
@@ -219,7 +219,7 @@ public class SparkYarnClient extends AbsClient {
         String pythonExtPath = sparkYarnConfig.getSparkPythonExtLibPath();
         if(Strings.isNullOrEmpty(pythonExtPath)){
             return JobResult.createErrorResult("engine node.yml setting error, " +
-                    "commit spark python job need set param of sparkPythonExtLibPath.");
+                    "commit spark python job need to set param of sparkPythonExtLibPath.");
         }
 
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
