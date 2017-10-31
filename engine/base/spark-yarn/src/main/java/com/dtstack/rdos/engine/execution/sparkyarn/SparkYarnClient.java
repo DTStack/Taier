@@ -9,7 +9,6 @@ import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -50,8 +49,6 @@ public class SparkYarnClient extends AbsClient {
     private String deployMode = "cluster";
 
     private Configuration yarnConf = new YarnConfiguration();
-
-    private SparkConf sparkConf = new SparkConf();
 
     private YarnClient yarnClient = YarnClient.createYarnClient();
 
@@ -103,16 +100,29 @@ public class SparkYarnClient extends AbsClient {
 
 
         System.setProperty("SPARK_YARN_MODE", "true");
+        haYarnConf();
+        yarnClient.init(yarnConf);
+        yarnClient.start();
+
+    }
+
+    private SparkConf buildBasicSparkConf(){
+
+        SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
         sparkConf.remove("spark.files");
         sparkConf.set("spark.master", "yarn");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.submit.deployMode",deployMode);
 
-        haYarnConf();
-        yarnClient.init(yarnConf);
-        yarnClient.start();
+        //----设定spark 执行的executor数量(默认为2)
+        sparkConf.set("spark.executor.instances", "2");
+        //----设定每个executor 的cpu(默认为1)
+        sparkConf.set("spark.executor.cores", "1");
+        //----设定每个executor 的mem(默认为512m)
+        sparkConf.set("spark.executor.memory", "512m");
 
+        return sparkConf;
     }
 
     /**
@@ -170,6 +180,7 @@ public class SparkYarnClient extends AbsClient {
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
+        SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(appName);
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
@@ -195,8 +206,6 @@ public class SparkYarnClient extends AbsClient {
         Properties properties = adaptToJarSubmit(jobClient);
         String pyFilePath = properties.getProperty(JOB_JAR_PATH_KEY);//.py .egg .zip 存储的hdfs路径
         String appName = properties.getProperty(JOB_APP_NAME_KEY);
-
-        //FIXME 执行参数传递
         String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
 
         if(Strings.isNullOrEmpty(pyFilePath)){
@@ -234,8 +243,10 @@ public class SparkYarnClient extends AbsClient {
                     "commit spark python job need to set param of sparkPythonExtLibPath.");
         }
 
+        SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
+        fillExtSparkConf(sparkConf, properties);
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
@@ -288,6 +299,7 @@ public class SparkYarnClient extends AbsClient {
 
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
+        SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
@@ -425,9 +437,9 @@ public class SparkYarnClient extends AbsClient {
         }
     }
 
-	@Override
-	public String getMessageByHttp(String path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getMessageByHttp(String path) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
