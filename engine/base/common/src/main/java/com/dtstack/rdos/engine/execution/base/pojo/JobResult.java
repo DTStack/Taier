@@ -52,6 +52,14 @@ public class JobResult {
         return jobResult;
     }
 
+    public String getMsgInfo() throws JSONException {
+        if(!json.has(MSG_INFO)){
+            return "";
+        }
+
+        return json.getString(MSG_INFO);
+    }
+
     public boolean setData(String key, String value){
         try{
             json.put(key, value);

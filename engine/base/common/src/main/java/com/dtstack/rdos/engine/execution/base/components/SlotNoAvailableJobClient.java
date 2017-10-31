@@ -1,14 +1,15 @@
 package com.dtstack.rdos.engine.execution.base.components;
 
-import java.util.concurrent.locks.ReentrantLock;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.google.common.collect.Maps;
-import java.util.Iterator;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 
@@ -30,11 +31,14 @@ public class SlotNoAvailableJobClient {
 			while(iterator.hasNext()){
 				String key = iterator.next();
 				JobClient job = slotNoAvailableJobClients.get(key);
-				if(StringUtils.isBlank(job.getEngineTaskId())){
+				if(StringUtils.isBlank(job.getEngineTaskId()) && !isSubmitFail(job)){
 					logger.info("------ job: {} add into orderLinkedBlockingQueue again.", job.getTaskId());
 					orderLinkedBlockingQueue.put(job);
 					iterator.remove();
-				}else {
+				} else if(StringUtils.isBlank(job.getEngineTaskId()) && isSubmitFail(job)){
+                    //提交失败的直接返回
+				    iterator.remove();
+                }else {
 					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job.getEngineType(),job.getEngineTaskId())){
 						orderLinkedBlockingQueue.put(job);
 						iterator.remove();
@@ -56,6 +60,15 @@ public class SlotNoAvailableJobClient {
 			reentrantLock.unlock();
 		}
 	}
+
+	public boolean isSubmitFail(JobClient jobClient){
+
+	    if(jobClient.getJobResult() != null && jobClient.getJobResult().isErr()){
+            return true;
+        }
+
+        return false;
+    }
 	
 	public void put(JobClient jobClient){
 		try{
