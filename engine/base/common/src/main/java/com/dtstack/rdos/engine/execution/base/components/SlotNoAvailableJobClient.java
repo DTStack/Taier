@@ -33,11 +33,11 @@ public class SlotNoAvailableJobClient {
 				if(StringUtils.isBlank(job.getEngineTaskId())){
 					logger.info("------ job: {} add into orderLinkedBlockingQueue again.", job.getTaskId());
 					orderLinkedBlockingQueue.put(job);
-					slotNoAvailableJobClients.remove(key);
+					iterator.remove();
 				}else {
 					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job.getEngineType(),job.getEngineTaskId())){
 						orderLinkedBlockingQueue.put(job);
-						slotNoAvailableJobClients.remove(key);
+						iterator.remove();
 					}else{
 //						if(job.getAgain() > 2){
 //							slotNoAvailableJobClients.remove(key);
@@ -45,7 +45,7 @@ public class SlotNoAvailableJobClient {
 //							job.setAgain(job.getAgain()+1);
 //						    orderLinkedBlockingQueue.put(job);
 //						}
-						slotNoAvailableJobClients.remove(key);
+						iterator.remove();
 					}
 				}
 			}
