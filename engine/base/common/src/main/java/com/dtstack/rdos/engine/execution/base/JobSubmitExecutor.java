@@ -2,39 +2,44 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
+import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
+import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.components.OrderObject;
+import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
+import com.dtstack.rdos.engine.execution.base.components.SlotsJudge;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
+import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.dtstack.rdos.engine.execution.base.components.SlotsJudge;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
-import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ArrayBlockingQueue;
-import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
-import com.dtstack.rdos.engine.execution.base.components.OrderObject;
-import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 /**
  * 任务提交执行容器
  * 单独起线程执行
@@ -42,12 +47,11 @@ import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClien
  * Company: www.dtstack.com
  * @ahthor xuchao
  */
-
 public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
-    private static final String Engine_TYPES_KEY = "engineTypes";
+    private static final String ENGINE_TYPES_KEY = "engineTypes";
 
     private static final String TYPE_NAME_KEY = "typeName";
 
@@ -91,13 +95,26 @@ public class JobSubmitExecutor{
         if(!hasInit){
             Object slots = engineConf.get(SLOTS_KEY);
             if(slots!=null){this.maxPoolSize = (int) slots;}
-            clientParamsList = (List<Map<String, Object>>) engineConf.get(Engine_TYPES_KEY);
+            clientParamsList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPES_KEY);
+
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<Runnable>(1));
+                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("jobSubmitExecutor"), new RejectedExecutionHandler(){
+
+                @Override
+                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                    try{
+                        orderLinkedBlockingQueue.put((OrderObject) r);
+                    }catch (Exception e){
+                        logger.error("add job client back to orderLinkedBlockingQueue error.", e);
+                    }
+                }
+            });
+
+
             queExecutor = new ThreadPoolExecutor(3, 3,
                     0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<Runnable>(2));
+                    new ArrayBlockingQueue<Runnable>(2), new CustomThreadFactory("queExecutor"));
             initJobClient(clientParamsList);
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
@@ -133,8 +150,7 @@ public class JobSubmitExecutor{
 						Thread.sleep(5000);
 						slotNoAvailableJobClients.noAvailSlotsJobaddExecutionQueue(orderLinkedBlockingQueue);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error("", e);
 					}
 				}
 			}
@@ -486,6 +502,31 @@ public class JobSubmitExecutor{
             JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
         }
     }
+}
 
+class CustomThreadFactory implements ThreadFactory {
+    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    private final ThreadGroup group;
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final String namePrefix;
 
+    CustomThreadFactory(String name) {
+        SecurityManager s = System.getSecurityManager();
+        group = (s != null) ? s.getThreadGroup() :
+                Thread.currentThread().getThreadGroup();
+        namePrefix = "pool-" + name +
+                poolNumber.getAndIncrement() +
+                "-thread-";
+    }
+
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(group, r,
+                namePrefix + threadNumber.getAndIncrement(),
+                0);
+        if (t.isDaemon())
+            t.setDaemon(false);
+        if (t.getPriority() != Thread.NORM_PRIORITY)
+            t.setPriority(Thread.NORM_PRIORITY);
+        return t;
+    }
 }
