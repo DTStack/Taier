@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -99,17 +100,7 @@ public class JobSubmitExecutor{
 
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("jobSubmitExecutor"), new RejectedExecutionHandler(){
-
-                @Override
-                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                    try{
-                        orderLinkedBlockingQueue.put((OrderObject) r);
-                    }catch (Exception e){
-                        logger.error("add job client back to orderLinkedBlockingQueue error.", e);
-                    }
-                }
-            });
+                    new ArrayBlockingQueue<Runnable>(1));
 
 
             queExecutor = new ThreadPoolExecutor(3, 3,
@@ -129,11 +120,20 @@ public class JobSubmitExecutor{
             @Override
             public void run() {
                 for(;;){
+                    JobClient jobClient = null;
                     try{
-                        JobClient jobClient = (JobClient)orderLinkedBlockingQueue.take();
+                        jobClient = (JobClient)orderLinkedBlockingQueue.take();
                         executor.submit(new JobSubmitProcessor(jobClient));
+                    }catch (RejectedExecutionException rejectEx){
+                        //如果是添加到执行线程池失败则添加回等待队列,并等待5s
+                        try {
+                            orderLinkedBlockingQueue.put(jobClient);
+                            Thread.sleep(5 * 1000);
+                        } catch (InterruptedException e) {
+                            logger.error("", e);
+                        }
                     }catch(Exception e){
-                        logger.error("",e);
+                        logger.error("", e);
                     }
                 }
             }
@@ -514,7 +514,7 @@ class CustomThreadFactory implements ThreadFactory {
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() :
                 Thread.currentThread().getThreadGroup();
-        namePrefix = "pool-" + name +
+        namePrefix = "pool-" + name + "-" +
                 poolNumber.getAndIncrement() +
                 "-thread-";
     }
