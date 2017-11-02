@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +56,8 @@ public class JobSubmitExecutor{
     private static final String TYPE_NAME_KEY = "typeName";
 
     private static final int STATUS_INTERVAL = 5000;
+
+    private static final int THREAD_REJECT_INTERVAL = 5000;
 
     private Pattern engineNamePattern = Pattern.compile("([a-zA-Z]*).*");
 
@@ -128,7 +129,7 @@ public class JobSubmitExecutor{
                         //如果是添加到执行线程池失败则添加回等待队列,并等待5s
                         try {
                             orderLinkedBlockingQueue.put(jobClient);
-                            Thread.sleep(5 * 1000);
+                            Thread.sleep(THREAD_REJECT_INTERVAL);
                         } catch (InterruptedException e) {
                             logger.error("", e);
                         }
@@ -215,9 +216,11 @@ public class JobSubmitExecutor{
     }
 
     public RdosTaskStatus getJobStatus(String engineType, String jobId){
+
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
         }
+
         IClient client = clientMap.get(engineType);
         try{
         	RdosTaskStatus status = (RdosTaskStatus) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
@@ -226,6 +229,7 @@ public class JobSubmitExecutor{
                      return client.getJobStatus(jobId);
                  }
              },client.getClass().getClassLoader(),null,true);
+
         	if(status == RdosTaskStatus.FAILED){
         		status = judgeSlostsAndAgainExecute(engineType,jobId)?RdosTaskStatus.WAITCOMPUTE:status;
         	}
@@ -277,7 +281,9 @@ public class JobSubmitExecutor{
     }
     
     private void getEngineAvailbalSlots(){
+
     	queExecutor.submit(new Runnable(){
+
 			@Override
 			public void run() {
 
@@ -286,25 +292,33 @@ public class JobSubmitExecutor{
                     try {
                         Thread.sleep(STATUS_INTERVAL);
                         Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
-                        for(Map.Entry<String,IClient> entry:entrys){
+
+                        for(Map.Entry<String,IClient> entry : entrys){
+
                             try{
-                                String key= entry.getKey();
+                                String key = entry.getKey();
                                 IClient client = entry.getValue();
+
                                 if(EngineType.isFlink(key)){
                                     String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                                         @Override
                                         public Object execute() throws Exception {
                                             return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
                                         }
+
                                     },client.getClass().getClassLoader(),null,true);
+
                                     slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
                                 }else if(EngineType.isSpark(key)){
+
                                     String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                                         @Override
                                         public Object execute() throws Exception {
                                             return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
                                         }
+
                                     },client.getClass().getClassLoader(),null,true);
+
                                     slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
                                 }
 
@@ -313,7 +327,6 @@ public class JobSubmitExecutor{
                             }
                         }
                     } catch (InterruptedException e1) {
-                        // TODO Auto-generated catch block
                         logger.error("", e1);
                     }
                 }
@@ -431,8 +444,7 @@ public class JobSubmitExecutor{
     }
     
     
-	public boolean judgeSlostsAndAgainExecute(String engineType,String jobId) {
-		// TODO Auto-generated method stub
+	public boolean judgeSlostsAndAgainExecute(String engineType, String jobId) {
 		if(EngineType.isFlink(engineType)){
 			String message = getEngineMessageByHttp(engineType,String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO,jobId));
 			if(StringUtils.isNotBlank(message)){

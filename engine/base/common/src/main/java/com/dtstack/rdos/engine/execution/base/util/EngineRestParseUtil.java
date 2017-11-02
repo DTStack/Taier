@@ -54,9 +54,9 @@ public class EngineRestParseUtil {
 
 		public final static String MEMORY_FREE_KEY = "memory.free";
 
-        private static Pattern memPattern = Pattern.compile("\\s*(\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s*\\((\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s+Used\\)");
+        private static Pattern memPattern = Pattern.compile("\\s*(\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s*\\(([\\-]?\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s+Used\\)");
 
-        private static Pattern corePattern = Pattern.compile("\\s*(\\d+)\\s*\\((\\d+)\\s+Used\\)");
+        private static Pattern corePattern = Pattern.compile("\\s*(\\d+)\\s*\\(([\\-]?\\d+)\\s+Used\\)");
 
         private static int MB2B = 1024 * 1024;
 
@@ -74,7 +74,7 @@ public class EngineRestParseUtil {
 			for (int i = 0; i < workChildEles.size(); i++) {
 				Element element = workChildEles.get(i);
 				String workId = element.child(0).text();
-				String addresss = element.child(1).text();
+				String address = element.child(1).text();
 				String state = element.child(2).text();
 				String cores = element.child(3).text();
                 String memory = element.child(4).text();
@@ -97,8 +97,13 @@ public class EngineRestParseUtil {
                     continue;
                 }
 
+                //spark页面上的统计数据本身有问题
+                if(coreInfo.getRight() < 0 || memInfo.getRight() < 0){
+                    continue;
+                }
+
                 Map<String, Object> workerInfo = Maps.newHashMap();
-                workerInfo.put(ADDRESS_KEY, addresss);
+                workerInfo.put(ADDRESS_KEY, address);
                 workerInfo.put(CORE_TOTAL_KEY, coreInfo.getLeft());
                 workerInfo.put(CORE_USED_KEY, coreInfo.getRight());
                 workerInfo.put(CORE_FREE_KEY, coreInfo.getLeft() - coreInfo.getRight());
@@ -115,6 +120,7 @@ public class EngineRestParseUtil {
 
         /**
          * eg:4 (0 Used)
+		 * 可能的情况为:8 (-1 Used)
          * @return
          */
 		public static Pair<Integer, Integer> parserCore(String coresStr){
@@ -132,6 +138,7 @@ public class EngineRestParseUtil {
 
 		/**
 		 * eg: 6.8 GB (0.0 B Used)
+         * 可能的情况为: 14.0 GB (-1073741824.0 B Used)
 		 * @param memStr
 		 * @return
 		 */
