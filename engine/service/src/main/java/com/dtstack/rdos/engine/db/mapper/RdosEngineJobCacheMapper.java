@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.db.mapper;
 
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * Reason:
@@ -11,9 +12,9 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 
 public interface RdosEngineJobCacheMapper {
 
-    void insert(String jobId, String jobInfo);
+    int insert(@Param("jobId")String jobId, @Param("jobInfo")String jobInfo);
 
-    void delete(String jobId);
+    int delete(@Param("jobId")String jobId);
 
-    RdosEngineJobCache getOne(String jobId);
+    RdosEngineJobCache getOne(@Param("jobId")String jobId);
 }
