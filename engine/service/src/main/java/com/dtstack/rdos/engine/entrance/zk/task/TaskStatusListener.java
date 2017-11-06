@@ -1,35 +1,34 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
-import com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog;
-import com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog;
+import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
+import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
+import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.util.TaskIdUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.rdos.commom.exception.ExceptionUtil;
-import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
-import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
-import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
-import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.util.TaskIdUtil;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -60,6 +59,8 @@ public class TaskStatusListener implements Runnable{
 	private RdosStreamServerLogDao rdosStreamServerLogDao = new RdosStreamServerLogDao();
 
 	private RdosBatchServerLogDao rdosBatchServerLogDao = new RdosBatchServerLogDao();
+
+	private RdosEngineJobCacheDao rdosEngineJobCacheDao = new RdosEngineJobCacheDao();
 
 	
 	@Override
@@ -100,6 +101,8 @@ public class TaskStatusListener implements Runnable{
                                     updateJobEngineLog(status, taskId, engineTaskid, engineTypeName, computeType);
                                     dealFlinkAfterGetStatus(status, taskId);
 								}
+                            }else{
+                                dealWaitingJobForMigrationJob(zkTaskId, Integer.valueOf(entry.getValue()));
                             }
                         }
                     }else if(computeType == ComputeType.BATCH.getComputeType()){
@@ -118,7 +121,9 @@ public class TaskStatusListener implements Runnable{
                                         updateJobEngineLog(status, taskId, engineTaskid, engineTypeName, computeType);
                                     }
 								}
-							}
+							}else{
+                                dealWaitingJobForMigrationJob(zkTaskId, Integer.valueOf(entry.getValue()));
+                            }
 						}
                     }
                 }
@@ -145,6 +150,32 @@ public class TaskStatusListener implements Runnable{
         }else{
             logger.info("----- not support compute type {}.", computeType);
         }
+    }
+
+    private void dealWaitingJobForMigrationJob(String zkJobId, Integer status) throws Exception {
+        if(status != RdosTaskStatus.WAITENGINE.getStatus() && status != RdosTaskStatus.WAITCOMPUTE.getStatus()){
+            return;
+        }
+
+        if(!TaskIdUtil.isMigrationJob(zkJobId)){
+            return;
+        }
+
+        logger.info("recover job:{} from migration.", zkJobId);
+        //从数据库读取出任务信息--并提交
+        String jobId = TaskIdUtil.getTaskId(zkJobId);
+        RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDao.getJobById(jobId);
+        if(rdosEngineJobCache == null){
+            logger.error("can't not get engineJobCache from db by jobId:{}.", jobId);
+            return;
+        }
+
+        String jobInfo = rdosEngineJobCache.getJobInfo();
+        Map<String, Object> jobInfoMap = PublicUtil.ObjectToMap(jobInfo);
+        ParamAction paramAction = PublicUtil.mapToObject(jobInfoMap, ParamAction.class);
+
+        //send job and change job status
+        start(paramAction);
     }
 
     /**
@@ -194,6 +225,7 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
+    //TODO 和actionServiceImpl 整合
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
@@ -216,6 +248,7 @@ public class TaskStatusListener implements Runnable{
             }
 
         });
+
         jobClient.stopJob();
     }
 
@@ -233,6 +266,31 @@ public class TaskStatusListener implements Runnable{
         } else {
             rdosbatchJobDAO.updateJobStatus(jobId, status);
         }
+    }
+
+    //TODO 和ActionServiceImpl整合
+    public void start(ParamAction paramAction) throws Exception {
+        JobClient jobClient = new JobClient(paramAction);
+
+        jobClient.setJobClientCallBack(new JobClientCallBack() {
+
+            @Override
+            public void execute(Map<String, ? extends Object> params) {
+
+                if(!params.containsKey(JOB_STATUS)){
+                    return;
+                }
+
+                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+                updateJobZookStatus(paramAction.getTaskId(), jobStatus);
+                updateJobStatus(paramAction.getTaskId(), paramAction.getComputeType(), jobStatus);
+            }
+
+        });
+
+        updateJobZookStatus(paramAction.getTaskId(), RdosTaskStatus.WAITENGINE.getStatus());
+        updateJobStatus(paramAction.getTaskId(), paramAction.getComputeType(), RdosTaskStatus.WAITENGINE.getStatus());
+        jobClient.submitJob();
     }
 
 }

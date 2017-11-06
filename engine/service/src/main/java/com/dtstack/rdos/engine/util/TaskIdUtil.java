@@ -15,6 +15,8 @@ public class TaskIdUtil {
 
     private final static String MIGRATION_FLAG = "1";
 
+    private final static String NO_MIGRATION_FLAG = "0";
+
     public static String getZkTaskId(int computeType, String engineType, String taskId){
         return String.valueOf(computeType) + engineType + interval + taskId;
     }
@@ -30,14 +32,24 @@ public class TaskIdUtil {
     }
 
     public static String convertToMigrationJob(String zkTaskId){
+        return changeJobMigrationStatus(zkTaskId, MIGRATION_FLAG);
+    }
+
+    public static String convertToNoMigrationJob(String zkTaskId){
+        return changeJobMigrationStatus(zkTaskId, NO_MIGRATION_FLAG);
+    }
+
+    public static String changeJobMigrationStatus(String zkTaskId, String status){
         String[] splitArr = zkTaskId.split(interval);
         if(splitArr.length < 3){
-            return zkTaskId + interval + "1";
+            return zkTaskId + interval + status;
         }
 
-        splitArr[2] = MIGRATION_FLAG;
+        splitArr[2] = status;
         return String.join(interval, splitArr);
     }
+
+
 
     public static int getComputeType(String zkTaskId){
        return Integer.parseInt(String.valueOf(zkTaskId.charAt(0)));
@@ -53,7 +65,7 @@ public class TaskIdUtil {
             return false;
         }
 
-        if(MathUtil.getIntegerVal(splitArr[2]) == 0){
+        if(NO_MIGRATION_FLAG.equals(splitArr[2])){
             return false;
         }
 

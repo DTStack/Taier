@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
+import com.dtstack.rdos.common.util.PublicUtil;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -140,4 +142,15 @@ public class ParamAction {
 		this.exeArgs = exeArgs;
 	}
 
+    @Override
+    public String toString() {
+	    String jsonStr = "";
+	    try{
+            jsonStr = PublicUtil.objToString(this);
+        }catch (Exception e){
+	        //不应该发生
+        }
+
+        return jsonStr;
+    }
 }

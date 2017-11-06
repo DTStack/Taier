@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dtstack.rdos.engine.db.mapper.RdosEngineJobCacheMapper">
+	
+	<resultMap id="rdosTaskResult" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache">
+        <id column="id" property="id" jdbcType="BIGINT" />
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+        <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
+        <result column="job_id" property="jobId" jdbcType="VARCHAR" />
+        <result column="job_info" property="jobInfo" jdbcType="VARCHAR" />
+    </resultMap>
+
+</mapper>

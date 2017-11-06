@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -488,7 +489,8 @@ public class ZkDistributed {
 								B:for(Map.Entry<String,Byte> data:datas.entrySet()){
 									index = index+1;
 									if(index <= a-c){
-										other.getValue().put(data.getKey(), data.getValue());
+									    String key  = TaskIdUtil.convertToMigrationJob(data.getKey());
+										other.getValue().put(key, data.getValue());
 										datas.remove(data.getKey());
 										continue B;
 									}
@@ -507,8 +509,9 @@ public class ZkDistributed {
 										}
 									});
 							int index = 0;
-							for(Map.Entry<String, Byte> data:datas.entrySet()){
-								otherList.get(index).getValue().put(data.getKey(), data.getValue());
+							for(Map.Entry<String, Byte> data : datas.entrySet()){
+                                String key = TaskIdUtil.convertToMigrationJob(data.getKey());
+								otherList.get(index).getValue().put(key, data.getValue());
 								datas.remove(data.getKey());
 								index = index +1;
 							}

@@ -6,8 +6,10 @@ import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosBatchActionLogDAO;
 import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
+import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamActionLogDAO;
 import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
@@ -41,6 +43,7 @@ public class ActionServiceImpl {
 
     private RdosStreamTaskDAO streamTaskDAO = new RdosStreamTaskDAO();
     private RdosBatchJobDAO batchJobDAO = new RdosBatchJobDAO();
+    private RdosEngineJobCacheDao engineJobCacheDao = new RdosEngineJobCacheDao();
 
     public void start(Map<String, Object> params) throws Exception {
         String ajobId = null;
@@ -80,8 +83,10 @@ public class ActionServiceImpl {
                     }
 
                 });
+
                 updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
+                addJobCache(jobId, paramAction.toString());
                 jobClient.submitJob();
             } else {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
@@ -125,6 +130,7 @@ public class ActionServiceImpl {
 
                 updateJobZookStatus(zkTaskId, jobStatus);
                 updateJobStatus(jobId, computeType, jobStatus);
+                deleteJobCache(jobId);
 			}
         	
         });
@@ -159,6 +165,15 @@ public class ActionServiceImpl {
         } else {
             batchJobDAO.updateJobStatus(jobId, status);
         }
+    }
+
+    @Forbidden
+    public void addJobCache(String jobId, String jobInfo){
+        engineJobCacheDao.insertJob(jobId, jobInfo);
+    }
+
+    public void deleteJobCache(String jobId){
+        engineJobCacheDao.deleteJob(jobId);
     }
 
 
