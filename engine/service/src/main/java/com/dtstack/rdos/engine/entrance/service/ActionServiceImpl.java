@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.entrance.service;
 
 import java.util.Map;
 import com.dtstack.rdos.common.annotation.Forbidden;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosBatchActionLogDAO;
 import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
@@ -65,11 +66,19 @@ public class ActionServiceImpl {
                 JobClient jobClient = new JobClient(paramAction);
 
                 jobClient.setJobClientCallBack(new JobClientCallBack() {
+
                     @Override
-                    public void execute() {
-                        updateJobZookStatus(taskId,RdosTaskStatus.WAITCOMPUTE.getStatus());
-                        updateJobStatus(jobId, computeType, RdosTaskStatus.WAITCOMPUTE.getStatus());
+                    public void execute(Map<String, ? extends Object> params) {
+
+                        if(!params.containsKey(JOB_STATUS)){
+                            return;
+                        }
+
+                        int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+                        updateJobZookStatus(taskId, jobStatus);
+                        updateJobStatus(jobId, computeType, jobStatus);
                     }
+
                 });
                 updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
@@ -99,16 +108,23 @@ public class ActionServiceImpl {
 
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
+        String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
         String jobId = paramAction.getTaskId();
         Integer computeType  = paramAction.getComputeType();
         JobClient jobClient = new JobClient(paramAction);
         jobClient.setJobClientCallBack(new JobClientCallBack(){
+
 			@Override
-			public void execute() {
-				// TODO Auto-generated method stub
-                updateJobZookStatus(taskId,RdosTaskStatus.CANCELED.getStatus());
-                updateJobStatus(jobId, computeType, RdosTaskStatus.CANCELED.getStatus());
+			public void execute(Map<String, ? extends Object> parmas) {
+
+                if(!params.containsKey(JOB_STATUS)){
+                    return;
+                }
+
+                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+
+                updateJobZookStatus(zkTaskId, jobStatus);
+                updateJobStatus(jobId, computeType, jobStatus);
 			}
         	
         });

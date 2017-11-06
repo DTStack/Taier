@@ -519,6 +519,7 @@ public class ZkDistributed {
 							brokerDataNode.getMetas().putAll(entry.getValue());
 							this.updateSynchronizedBrokerData(entry.getKey(), brokerDataNode, true);
 						}
+
 					}
 				}
 			}

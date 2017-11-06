@@ -126,7 +126,7 @@ public class JobSubmitExecutor{
                         jobClient = (JobClient)orderLinkedBlockingQueue.take();
                         executor.submit(new JobSubmitProcessor(jobClient));
                     }catch (RejectedExecutionException rejectEx){
-                        //如果是添加到执行线程池失败则添加回等待队列,并等待5s
+                        //如果添加到执行线程池失败则添加回等待队列,并等待5s
                         try {
                             orderLinkedBlockingQueue.put(jobClient);
                             Thread.sleep(THREAD_REJECT_INTERVAL);
@@ -276,7 +276,11 @@ public class JobSubmitExecutor{
                 }
             },client.getClass().getClassLoader(),null,true);
     	}
-    	jobClient.getJobClientCallBack().execute();
+
+    	Map<String, Integer> jobStatus = Maps.newHashMap();
+        jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
+
+    	jobClient.getJobClientCallBack().execute(jobStatus);
     	return JobResult.createSuccessResult(jobClient.getTaskId());
     }
     
@@ -418,11 +422,11 @@ public class JobSubmitExecutor{
     }
     
     public void shutdown(){
-        //FIXME 是否需要做同步等processor真正完成
-        if(executor!=null){
+        if(executor != null){
             executor.shutdown();
         }
-        if(queExecutor!=null){
+
+        if(queExecutor != null){
         	queExecutor.shutdown();
         }
     }
@@ -467,13 +471,17 @@ public class JobSubmitExecutor{
         @Override
         public void run(){
             if(jobClient != null){
-                jobClient.getJobClientCallBack().execute();
+
+                Map<String, Integer> updateStatus = Maps.newHashMap();
+                updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.WAITCOMPUTE.getStatus());
+
+                jobClient.getJobClientCallBack().execute(updateStatus);
                 IClient clusterClient = clientMap.get(jobClient.getEngineType());
                 JobResult jobResult = null;
                 boolean needTaskListener = false;
 
                 if(clusterClient == null){
-                    jobResult = JobResult.createErrorResult("job setting client type " +
+                    jobResult = JobResult.createErrorResult("setting client type " +
                             "(" + jobClient.getEngineType()  +") don't found.");
                     listenerJobStatus(jobClient, jobResult);
                     return;
@@ -483,18 +491,24 @@ public class JobSubmitExecutor{
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
 
                     if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
+                        updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
+                        jobClient.getJobClientCallBack().execute(updateStatus);
+
                         needTaskListener = true;
                         jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+
                         jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                             @Override
                             public Object execute() throws Exception {
                                 return clusterClient.submitJob(jobClient);
                             }
                         },clusterClient.getClass().getClassLoader(),null,true);
+
                         logger.info("submit job result is:{}.", jobResult);
                         String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                         jobClient.setEngineTaskId(jobId);
                 	}
+
             		slotNoAvailableJobClients.put(jobClient);
                 }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
                     jobClient.setEngineTaskId(null);
@@ -509,7 +523,6 @@ public class JobSubmitExecutor{
         }
 
         private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
-            //FIXME 需要对本地异常信息做存储
             jobClient.setJobResult(jobResult);
             JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
         }

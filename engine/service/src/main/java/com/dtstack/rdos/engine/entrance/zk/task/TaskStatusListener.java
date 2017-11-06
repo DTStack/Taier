@@ -1,13 +1,19 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
 import com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog;
 import com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog;
+import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +42,18 @@ public class TaskStatusListener implements Runnable{
 
     public final static String JOBEXCEPTION = "jobs/%s/exceptions";
 
+    public final static int FLINK_RESTART_LIMIT_TIMES = 10;
+
     private static long listener = 2000;
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
 	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
-	
-	private RdosStreamTaskDAO rdosStreamTaskDAO = new RdosStreamTaskDAO();
+
+	/**记录job 连续某个状态的频次*/
+	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
+
+    private RdosStreamTaskDAO rdosStreamTaskDAO = new RdosStreamTaskDAO();
 	
 	private RdosBatchJobDAO rdosbatchJobDAO = new RdosBatchJobDAO();
 
@@ -87,6 +98,7 @@ public class TaskStatusListener implements Runnable{
                                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
 									rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId,engineTaskid,status);
                                     updateJobEngineLog(status, taskId, engineTaskid, engineTypeName, computeType);
+                                    dealFlinkAfterGetStatus(status, taskId);
 								}
                             }
                         }
@@ -134,4 +146,93 @@ public class TaskStatusListener implements Runnable{
             logger.info("----- not support compute type {}.", computeType);
         }
     }
+
+    /**
+     * FIXME 未测试
+     * flink 重启的状态处理
+     * @param status
+     * @param jobId
+     */
+    private void dealFlinkAfterGetStatus(Integer status, String jobId){
+
+        if(RdosTaskStatus.needClean(status.byteValue())){
+            jobStatusFrequency.remove(jobId);
+            return;
+        }
+
+        Pair<Integer, Integer> statusPair = jobStatusFrequency.get(jobId);
+        statusPair = statusPair == null ? Pair.of(status, 0) : statusPair;
+        if(statusPair.getLeft() == status){
+            statusPair.setValue(statusPair.getRight() + 1);
+        }else{
+            statusPair = Pair.of(status, 1);
+        }
+
+        jobStatusFrequency.put(jobId, statusPair);
+
+        if(statusPair.getRight() >= FLINK_RESTART_LIMIT_TIMES){
+
+            RdosStreamTask streamTask = rdosStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            if(streamTask == null){
+                return;
+            }
+
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("engineType", "flink");
+            params.put("taskId", jobId);
+            params.put("engineTaskId", streamTask.getEngineTaskId());
+            params.put("computeType", streamTask.getComputeType());
+            params.put("taskType", streamTask.getTaskType());
+
+            try {
+                stop(params);
+                logger.info("engine active stop the flink job,cause over num of restart limit");
+                jobStatusFrequency.remove(jobId);
+            } catch (Exception e) {
+                logger.error("stop job " + jobId + " active error:", e);
+            }
+        }
+    }
+
+    public void stop(Map<String, Object> params) throws Exception {
+        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
+        String jobId = paramAction.getTaskId();
+        Integer computeType  = paramAction.getComputeType();
+        JobClient jobClient = new JobClient(paramAction);
+        jobClient.setJobClientCallBack(new JobClientCallBack(){
+
+            @Override
+            public void execute(Map<String, ? extends Object> params) {
+
+                if(!params.containsKey(JOB_STATUS)){
+                    return;
+                }
+
+                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+
+                updateJobZookStatus(zkTaskId, jobStatus);
+                updateJobStatus(jobId, computeType, jobStatus);
+            }
+
+        });
+        jobClient.stopJob();
+    }
+
+    public void updateJobZookStatus(String taskId,Integer status){
+        BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+        brokerDataNode.getMetas().put(taskId, status.byteValue());
+        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
+        zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+
+    }
+
+    public void updateJobStatus(String jobId, Integer computeType, Integer status) {
+        if (ComputeType.STREAM.getComputeType().equals(computeType)) {
+            rdosStreamTaskDAO.updateTaskStatus(jobId, status);
+        } else {
+            rdosbatchJobDAO.updateJobStatus(jobId, status);
+        }
+    }
+
 }
