@@ -137,6 +137,7 @@ public class FlinkClient extends AbsClient {
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
+    @Override
     public void init(Properties prop) throws Exception {
 
         FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
@@ -259,8 +260,9 @@ public class FlinkClient extends AbsClient {
             int maxMemory = -1;
             int maxCores = -1;
             for(ApplicationReport report : reportList) {
-                if(!report.getName().startsWith("Flink session"))
+                if(!report.getName().startsWith("Flink session")){
                     continue;
+                }
 
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
                 int thisCores = report.getApplicationResourceUsageReport().getNeededResources().getVirtualCores();
@@ -468,7 +470,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-
+    @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){

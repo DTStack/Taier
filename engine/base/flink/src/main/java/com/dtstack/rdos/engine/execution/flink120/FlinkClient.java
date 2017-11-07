@@ -104,6 +104,7 @@ public class FlinkClient extends AbsClient {
     // 同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
 
+    @Override
     public void init(Properties prop) throws Exception {
 
         FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
@@ -217,6 +218,7 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
+    @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
 
         Properties properties = adaptToJarSubmit(jobClient);
@@ -345,7 +347,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-
+    @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
@@ -532,6 +534,7 @@ public class FlinkClient extends AbsClient {
      * @param jobId
      * @return
      */
+    @Override
     public RdosTaskStatus getJobStatus(String jobId) {
     	if(jobId == null||"".equals(jobId)){
     		return null;
