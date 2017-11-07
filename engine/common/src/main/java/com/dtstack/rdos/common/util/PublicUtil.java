@@ -32,6 +32,11 @@ public class PublicUtil {
 		return  objectMapper.readValue(objectMapper.writeValueAsBytes(params),clazz);
 	}
 
+	public static <T> T jsonStrToObject(String jsonStr, Class<T> clazz) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
+		return  objectMapper.readValue(jsonStr, clazz);
+	}
+
+
 	@SuppressWarnings("unchecked")
 	public static Map<String,Object> ObjectToMap(Object obj) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException{
 		

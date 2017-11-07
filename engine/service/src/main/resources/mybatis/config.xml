@@ -12,6 +12,7 @@
         <typeAlias alias="RdosBatchServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog" />
         <typeAlias alias="RdosBatchActionLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchActionLog"/>
         <typeAlias alias="RdosBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchJob"/>
+        <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache" />
     </typeAliases>
  
     <environments default="production">
@@ -33,5 +34,6 @@
         <mapper resource="mybatis/mapper/RdosBatchActionLogMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosBatchServerLogMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosBatchJobMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
     </mappers>
 </configuration>

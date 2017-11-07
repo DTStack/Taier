@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +43,9 @@ public class TaskStatusListener implements Runnable{
     public final static int FLINK_RESTART_LIMIT_TIMES = 10;
 
     private static long listener = 2000;
+
+    /**初始启动的时候需要对获取的任务做重启操作*/
+    private boolean isFirst = true;
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
@@ -74,8 +76,10 @@ public class TaskStatusListener implements Runnable{
 		  		updateTaskStatus();
 			}catch(Throwable e){
 				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
-			}
-	    }
+			}finally {
+			    isFirst = false;
+            }
+        }
 	}
 	
 	private void updateTaskStatus(){
@@ -176,7 +180,7 @@ public class TaskStatusListener implements Runnable{
             return;
         }
 
-        if(!TaskIdUtil.isMigrationJob(zkJobId)){
+        if(!isFirst && !TaskIdUtil.isMigrationJob(zkJobId)){
             return;
         }
 
@@ -190,8 +194,7 @@ public class TaskStatusListener implements Runnable{
         }
 
         String jobInfo = rdosEngineJobCache.getJobInfo();
-        Map<String, Object> jobInfoMap = PublicUtil.ObjectToMap(jobInfo);
-        ParamAction paramAction = PublicUtil.mapToObject(jobInfoMap, ParamAction.class);
+        ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
         //send job and change job status
         start(paramAction);

@@ -258,5 +258,26 @@ public class JobClient extends OrderObject{
 	public void setAgain(int again) {
 		this.again = again;
 	}
-	
+
+    @Override
+    public String toString() {
+        return "JobClient{" +
+                "jobClientCallBack=" + jobClientCallBack +
+                ", operators=" + operators +
+                ", confProperties=" + confProperties +
+                ", sql='" + sql + '\'' +
+                ", taskParams='" + taskParams + '\'' +
+                ", jobName='" + jobName + '\'' +
+                ", taskId='" + taskId + '\'' +
+                ", engineTaskId='" + engineTaskId + '\'' +
+                ", jobType=" + jobType +
+                ", computeType=" + computeType +
+                ", engineType='" + engineType + '\'' +
+                ", jobResult=" + jobResult +
+                ", isRestoration=" + isRestoration +
+                ", actionLogId=" + actionLogId +
+                ", classArgs='" + classArgs + '\'' +
+                ", again=" + again +
+                '}';
+    }
 }

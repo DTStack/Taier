@@ -491,6 +491,8 @@ public class JobSubmitExecutor{
                     jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
 
                     if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
+
+                        logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
                         updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
                         jobClient.getJobClientCallBack().execute(updateStatus);
 
@@ -518,6 +520,7 @@ public class JobSubmitExecutor{
                     if(needTaskListener){
                         listenerJobStatus(jobClient, jobResult);
                     }
+                    logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
             }
         }

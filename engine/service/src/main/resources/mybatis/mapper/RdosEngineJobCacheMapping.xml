@@ -13,15 +13,15 @@
 
     <insert id="insert">
         replace into rdos_engine_job_cache( job_id, job_info)
-        values(#{jobId}, #{job_info});
+        values(#{jobId}, #{jobInfo});
     </insert>
 
     <delete id="delete" parameterType="int">
         delete from rdos_engine_job_cache where job_id=#{jobId}
     </delete>
 
-    <select id="getOne" resultMap="rdosTaskResult">
-        select * from rdos_engine_job_cache where job_id=#{jobId} and is_deleted=0 orde by gmt_create desc limit 1;
+    <select id="getOne" resultMap="rdosEngineJobCacheResult">
+        select * from rdos_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
 
 </mapper>

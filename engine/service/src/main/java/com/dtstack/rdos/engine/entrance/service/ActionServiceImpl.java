@@ -84,9 +84,9 @@ public class ActionServiceImpl {
 
                 });
 
+                addJobCache(jobId, paramAction.toString());
                 updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
-                addJobCache(jobId, paramAction.toString());
                 jobClient.submitJob();
             } else {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());

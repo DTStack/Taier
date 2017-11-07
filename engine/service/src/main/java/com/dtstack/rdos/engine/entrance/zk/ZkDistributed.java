@@ -363,9 +363,10 @@ public class ZkDistributed {
 		int def = Integer.MAX_VALUE;
 		String node = this.localAddress;
 		if(memTaskStatus.size() > 0){
-			Set<Map.Entry<String,BrokerDataNode>> entrys  = memTaskStatus.entrySet();
-			for(Map.Entry<String,BrokerDataNode> entry:entrys){
-				int size = entry.getValue().getMetas().size();
+			Set<Map.Entry<String, BrokerDataNode>> entrys = memTaskStatus.entrySet();
+
+			for(Map.Entry<String, BrokerDataNode> entry : entrys){
+				int size = getWaitingJobCount(entry.getValue());
 				if(size < def){
 					def = size;
 					node = entry.getKey();
@@ -374,6 +375,17 @@ public class ZkDistributed {
 		}
 		return node;
 	}
+
+	public int getWaitingJobCount(BrokerDataNode brokerDataNode){
+	    int count = 0;
+        for(byte status : brokerDataNode.getMetas().values()){
+            if(status == RdosTaskStatus.WAITCOMPUTE.getStatus()
+                    || status == RdosTaskStatus.WAITENGINE.getStatus()){
+                count++;
+            }
+        }
+        return count;
+    }
 
 	public boolean checkIsAlreadyInThisNode(String taskId){
 
