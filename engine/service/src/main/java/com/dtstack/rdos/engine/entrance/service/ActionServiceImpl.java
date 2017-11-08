@@ -61,8 +61,8 @@ public class ActionServiceImpl {
                 }
             }
             updateActionLogStatus(paramAction.getActionLogId(), computeType, RdosActionLogStatus.SUCCESS.getStatus());
-            String taskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
-            boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(taskId);
+            String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
+            boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(zkTaskId);
 
             String address = zkDistributed.getExcutionNode();
             if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
@@ -78,14 +78,14 @@ public class ActionServiceImpl {
                         }
 
                         int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                        updateJobZookStatus(taskId, jobStatus);
+                        updateJobZookStatus(zkTaskId, jobStatus);
                         updateJobStatus(jobId, computeType, jobStatus);
                     }
 
                 });
 
                 addJobCache(jobId, paramAction.toString());
-                updateJobZookStatus(taskId,RdosTaskStatus.WAITENGINE.getStatus());
+                updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
                 jobClient.submitJob();
             } else {

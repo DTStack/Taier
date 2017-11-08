@@ -188,7 +188,7 @@ public class ZkDistributed {
 		try {
 			if(this.brokerDataLock.acquire(30, TimeUnit.SECONDS)){
 				BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
-				BrokerDataNode.copy(source, target,isCover);
+				BrokerDataNode.copy(source, target, isCover);
 				zkClient.setData().forPath(nodePath,
 						objectMapper.writeValueAsBytes(target));
 			}

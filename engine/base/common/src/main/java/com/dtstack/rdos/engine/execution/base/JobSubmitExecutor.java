@@ -511,7 +511,6 @@ public class JobSubmitExecutor{
                         jobClient.setEngineTaskId(jobId);
                 	}
 
-            		slotNoAvailableJobClients.put(jobClient);
                 }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
                     jobClient.setEngineTaskId(null);
                     jobResult = JobResult.createErrorResult(e);
@@ -520,6 +519,8 @@ public class JobSubmitExecutor{
                     if(needTaskListener){
                         listenerJobStatus(jobClient, jobResult);
                     }
+
+                    slotNoAvailableJobClients.put(jobClient);
                     logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
             }

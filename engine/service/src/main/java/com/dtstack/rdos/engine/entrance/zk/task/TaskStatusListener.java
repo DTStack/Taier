@@ -197,7 +197,7 @@ public class TaskStatusListener implements Runnable{
         ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
         //send job and change job status
-        start(paramAction);
+        start(paramAction, zkJobId);
     }
 
     /**
@@ -256,7 +256,6 @@ public class TaskStatusListener implements Runnable{
     }
 
 
-    //TODO 和actionServiceImpl 整合
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
@@ -283,9 +282,9 @@ public class TaskStatusListener implements Runnable{
         jobClient.stopJob();
     }
 
-    public void updateJobZookStatus(String taskId,Integer status){
+    public void updateJobZookStatus(String zkTaskId, Integer status){
         BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-        brokerDataNode.getMetas().put(taskId, status.byteValue());
+        brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
         zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
         zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
 
@@ -299,9 +298,10 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
-    //TODO 和ActionServiceImpl整合
-    public void start(ParamAction paramAction) throws Exception {
+    public void start(ParamAction paramAction, String zkTaskId) throws Exception {
+
         JobClient jobClient = new JobClient(paramAction);
+        String noMigrationJobId = TaskIdUtil.convertToNoMigrationJob(zkTaskId);
 
         jobClient.setJobClientCallBack(new JobClientCallBack() {
 
@@ -313,13 +313,13 @@ public class TaskStatusListener implements Runnable{
                 }
 
                 int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                updateJobZookStatus(paramAction.getTaskId(), jobStatus);
+                updateJobZookStatus(noMigrationJobId, jobStatus);
                 updateJobStatus(paramAction.getTaskId(), paramAction.getComputeType(), jobStatus);
             }
 
         });
 
-        updateJobZookStatus(paramAction.getTaskId(), RdosTaskStatus.WAITENGINE.getStatus());
+        updateJobZookStatus(noMigrationJobId, RdosTaskStatus.WAITENGINE.getStatus());
         updateJobStatus(paramAction.getTaskId(), paramAction.getComputeType(), RdosTaskStatus.WAITENGINE.getStatus());
         jobClient.submitJob();
     }

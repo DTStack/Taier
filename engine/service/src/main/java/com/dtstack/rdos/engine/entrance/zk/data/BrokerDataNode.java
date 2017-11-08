@@ -1,8 +1,5 @@
 package com.dtstack.rdos.engine.entrance.zk.data;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -13,17 +10,17 @@ import java.util.Map;
  */
 public class BrokerDataNode {
 	
-	private Map<String,Byte> metas ;
+	private BrokerDataTreeMap metas;
 
-	public Map<String, Byte> getMetas() {
+	public BrokerDataTreeMap getMetas() {
 		return metas;
 	}
 
-	public void setMetas(Map<String, Byte> metas) {
+	public void setMetas(BrokerDataTreeMap metas) {
 		this.metas = metas;
 	}
 	
-	public static void copy(BrokerDataNode source,BrokerDataNode target,boolean isCover){
+	public static void copy(BrokerDataNode source, BrokerDataNode target, boolean isCover){
     	if(source.getMetas()!=null){
     		if(isCover){
         		target.setMetas(source.getMetas());
@@ -35,7 +32,7 @@ public class BrokerDataNode {
 	
 	public static BrokerDataNode initBrokerDataNode(){
 		BrokerDataNode brokerNode = new BrokerDataNode();
-		brokerNode.setMetas(new HashMap<String,Byte>());
+		brokerNode.setMetas(new BrokerDataTreeMap());
 		return brokerNode;
 	}
 	
