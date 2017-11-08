@@ -16,7 +16,7 @@
         values(#{jobId}, #{jobInfo});
     </insert>
 
-    <delete id="delete" parameterType="int">
+    <delete id="delete">
         delete from rdos_engine_job_cache where job_id=#{jobId}
     </delete>
 
