@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
-import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
@@ -19,14 +18,11 @@ import org.apache.spark.deploy.rest.SubmitRestProtocolResponse;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
 /**
@@ -53,6 +49,10 @@ public class SparkClient extends AbsClient {
     /**失败后是否重启Driver，仅限于Spark Alone模式*/
     private static final String DEFAULT_SUPERVISE = "false";
 
+    private static final String DEFAULT_SPARK_SQL_PROXY_JAR_PATH = "/user/spark/spark-0.0.1-SNAPSHOT.jar";
+
+    private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
+
     private SparkConfig sparkConfig;
 
     private String deployMode = "cluster";
@@ -62,15 +62,18 @@ public class SparkClient extends AbsClient {
 
         String errorMessage = null;
         sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
-        if(sparkConfig.getSparkMaster() == null){
+        if(StringUtils.isEmpty(sparkConfig.getSparkMaster())){
             errorMessage = "you need to set sparkMaster when used spark engine.";
-        }else if(sparkConfig.getSparkWebMaster() == null){
+        }else if(StringUtils.isEmpty(sparkConfig.getSparkWebMaster())){
             errorMessage = "you need to set sparkWebMaster when used spark engine.";
-        }else if(sparkConfig.getSparkSqlProxyPath() == null){
-            errorMessage = "you need to set sparkSqlProxyPath when used spark engine.";
-        }else if(sparkConfig.getSparkSqlProxyMainClass() == null){
-            errorMessage = "you need to set sparkSqlProxyMainClass when used spark engine.";
+        }else if(StringUtils.isEmpty(sparkConfig.getSparkSqlProxyPath())){
+            logger.info("use default spark proxy jar with path:{}", DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
+            sparkConfig.setSparkSqlProxyPath(DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
+        }else if(StringUtils.isEmpty(sparkConfig.getSparkSqlProxyMainClass())){
+            logger.info("use default spark proxy jar with main class:{}", DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
+            sparkConfig.setSparkSqlProxyMainClass(DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
         }
+
         if(errorMessage != null){
             logger.error(errorMessage);
             throw new RdosException(errorMessage);

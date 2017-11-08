@@ -62,6 +62,10 @@ public class SparkYarnClient extends AbsClient {
 
     private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
 
+    private static final String DEFAULT_SPARK_SQL_PROXY_JAR_PATH = "/user/spark/spark-0.0.1-SNAPSHOT.jar";
+
+    private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
+
     @Override
     public void init(Properties prop) throws Exception {
         String errorMessage = null;
@@ -70,9 +74,11 @@ public class SparkYarnClient extends AbsClient {
         if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
             errorMessage = "you need to set sparkYarnArchive when used spark engine.";
         }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
-            errorMessage = "you need to set sparkSqlProxyPath when used spark engine.";
-        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())) {
-            errorMessage = "you need to set sparkSqlProxyMainClass when used spark engine.";
+            logger.info("use default spark proxy jar with path:{}", DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
+            sparkYarnConfig.setSparkSqlProxyPath(DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
+        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
+            logger.info("use default spark proxy jar with main class:{}", DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
+            sparkYarnConfig.setSparkSqlProxyMainClass(DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
         }
 
         if(errorMessage != null){
