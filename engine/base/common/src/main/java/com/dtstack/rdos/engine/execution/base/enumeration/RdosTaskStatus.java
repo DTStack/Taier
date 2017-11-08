@@ -41,11 +41,8 @@ public enum RdosTaskStatus {
             return null;
         }else if("error".equalsIgnoreCase(taskStatus)||"failing".equalsIgnoreCase(taskStatus)){
             taskStatus = "FAILED";
-        }else if(RdosTaskStatus.RESTARTING.name().equalsIgnoreCase(taskStatus)){
-        	taskStatus = RdosTaskStatus.WAITCOMPUTE.name();
-        }else if(RdosTaskStatus.NOTFOUND.name().equals(taskStatus)){
-        	taskStatus = RdosTaskStatus.FINISHED.name();
         }
+
 	    try {
             return RdosTaskStatus.valueOf(taskStatus);
         }catch (Exception e){
@@ -56,11 +53,12 @@ public enum RdosTaskStatus {
     
     public static boolean needClean(Byte status){
 		int sta = status.intValue();
-       if(sta==RdosTaskStatus.FINISHED.getStatus()||sta==RdosTaskStatus.FAILED.getStatus()||sta == RdosTaskStatus.SUBMITFAILD.getStatus()
-			   || sta == RdosTaskStatus.KILLED.getStatus()||sta == RdosTaskStatus.NOTFOUND.getStatus()){
-    	   return true;
-       }   
-       return false;
+
+        if(sta==RdosTaskStatus.FINISHED.getStatus()||sta==RdosTaskStatus.FAILED.getStatus()||sta == RdosTaskStatus.SUBMITFAILD.getStatus()
+			   || sta == RdosTaskStatus.KILLED.getStatus() || sta == RdosTaskStatus.CANCELED.getStatus()){
+    	    return true;
+        }
+        return false;
     }
     
     public static void main(String[] args){

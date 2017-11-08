@@ -42,6 +42,8 @@ public class TaskStatusListener implements Runnable{
 
     public final static int FLINK_RESTART_LIMIT_TIMES = 10;
 
+    public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 10;
+
     private static long listener = 2000;
 
     /**初始启动的时候需要对获取的任务做重启操作*/
@@ -122,7 +124,7 @@ public class TaskStatusListener implements Runnable{
                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
                     rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
                     updateJobEngineLog(status, taskId, engineTaskId, engineTypeName, computeType);
-                    dealFlinkAfterGetStatus(status, taskId);
+                    dealFlinkAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, engineTaskId);
                 }
             }else{
                 dealWaitingJobForMigrationJob(zkTaskId, oldStatus);
@@ -134,20 +136,20 @@ public class TaskStatusListener implements Runnable{
         RdosBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosBatchJob != null){
-            String engineTaskid = rdosBatchJob.getEngineJobId();
-            if(StringUtils.isNotBlank(engineTaskid)){
+            String engineTaskId = rdosBatchJob.getEngineJobId();
+            if(StringUtils.isNotBlank(engineTaskId)){
 
                 if(EngineType.isDataX(engineTypeName)){
                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, rdosBatchJob.getStatus());
                 }else{
-                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskid);
+                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId);
 
                     if(rdosTaskStatus != null){
                         Integer status = rdosTaskStatus.getStatus();
                         zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
-                        rdosbatchJobDAO.updateTaskEngineIdAndStatus(taskId, engineTaskid, status);
-                        updateJobEngineLog(status, taskId, engineTaskid, engineTypeName, computeType);
-                        dealSparkAfterGetStatus(status, taskId);
+                        rdosbatchJobDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
+                        updateJobEngineLog(status, taskId, engineTaskId, engineTypeName, computeType);
+                        dealSparkAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType);
                     }
                 }
             }else{
@@ -202,11 +204,12 @@ public class TaskStatusListener implements Runnable{
 
     /**
      * FIXME 未测试
-     * flink 重启的状态处理
+     * flink 重启状态/获取不任务状态--的处理
      * @param status
      * @param jobId
      */
-    private void dealFlinkAfterGetStatus(Integer status, String jobId){
+    private void dealFlinkAfterGetStatus(Integer status, String jobId, String engineTypeName, String zkTaskId,
+                                         int computeType, String engineTaskId){
 
         if(RdosTaskStatus.needClean(status.byteValue())){
             jobStatusFrequency.remove(jobId);
@@ -214,17 +217,9 @@ public class TaskStatusListener implements Runnable{
             return;
         }
 
-        Pair<Integer, Integer> statusPair = jobStatusFrequency.get(jobId);
-        statusPair = statusPair == null ? Pair.of(status, 0) : statusPair;
-        if(statusPair.getLeft() == status){
-            statusPair.setValue(statusPair.getRight() + 1);
-        }else{
-            statusPair = Pair.of(status, 1);
-        }
+        Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
-        jobStatusFrequency.put(jobId, statusPair);
-
-        if(statusPair.getRight() >= FLINK_RESTART_LIMIT_TIMES){
+        if(statusPair.getLeft() == RdosTaskStatus.RESTARTING.getStatus() && statusPair.getRight() >= FLINK_RESTART_LIMIT_TIMES){
 
             RdosStreamTask streamTask = rdosStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if(streamTask == null){
@@ -245,14 +240,61 @@ public class TaskStatusListener implements Runnable{
             } catch (Exception e) {
                 logger.error("stop job " + jobId + " active error:", e);
             }
-        }
-    }
 
-    private void dealSparkAfterGetStatus(Integer status, String jobId){
-        if(RdosTaskStatus.needClean(status.byteValue())){
+        }else if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+
+            status = RdosTaskStatus.CANCELED.getStatus();
+            zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+            rdosStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
+            updateJobEngineLog(status, jobId, engineTaskId, engineTypeName, computeType);
+
+            jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
             return;
         }
+    }
+
+    private void dealSparkAfterGetStatus(Integer status, String jobId, String zkTaskId, String engineTaskId,
+                                         String engineTypeName, int computeType){
+        if(RdosTaskStatus.needClean(status.byteValue())){
+            jobStatusFrequency.remove(jobId);
+            rdosEngineJobCacheDao.deleteJob(jobId);
+            return;
+        }
+
+        Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
+
+        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+
+            status = RdosTaskStatus.CANCELED.getStatus();
+            zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+            rdosbatchJobDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
+            updateJobEngineLog(status, jobId, engineTaskId, engineTypeName, computeType);
+
+            jobStatusFrequency.remove(jobId);
+            rdosEngineJobCacheDao.deleteJob(jobId);
+           return;
+        }
+    }
+
+    /**
+     * 更新任务状态频次
+     * @param jobId
+     * @param status
+     * @return
+     */
+    public Pair<Integer, Integer> updateJobStatusFrequency(String jobId, Integer status){
+
+        Pair<Integer, Integer> statusPair = jobStatusFrequency.get(jobId);
+        statusPair = statusPair == null ? Pair.of(status, 0) : statusPair;
+        if(statusPair.getLeft() == status){
+            statusPair.setValue(statusPair.getRight() + 1);
+        }else{
+            statusPair = Pair.of(status, 1);
+        }
+
+        jobStatusFrequency.put(jobId, statusPair);
+        return statusPair;
     }
 
 

@@ -9,7 +9,8 @@ package com.dtstack.rdos.engine.entrance.zk.data;
  *
  */
 public class BrokerDataNode {
-	
+
+    /**FIXME 如果存储的key格式发生改变--需要修改 BrokerDataTreeMap 的构造函数*/
 	private BrokerDataTreeMap metas;
 
 	public BrokerDataTreeMap getMetas() {

@@ -553,8 +553,9 @@ public class FlinkClient extends AbsClient {
             }
         }
 
+        //url 请求不到
         if(response == null){
-            return RdosTaskStatus.FINISHED;
+            return null;
         }
 
         try{

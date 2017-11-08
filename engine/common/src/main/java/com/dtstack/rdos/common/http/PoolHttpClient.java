@@ -152,7 +152,7 @@ public class PoolHttpClient {
 	
 	public static void main(String[] args){
 		for(int i=0;i<10;i++){
-			System.out.println(PoolHttpClient.get("https://www.baidu.com/"));
+			System.out.println(PoolHttpClient.get("http://172.16.8.109:8081/jobs/46a3ce65bd66c46e81dead4b11274a67"));
 		}
 	}
 }
