@@ -22,6 +22,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +40,6 @@ public class TaskStatusListener implements Runnable{
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 
     public final static String JOBEXCEPTION = "jobs/%s/exceptions";
-
-    public final static int FLINK_RESTART_LIMIT_TIMES = 10;
 
     public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 10;
 
@@ -219,29 +218,7 @@ public class TaskStatusListener implements Runnable{
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
-        if(statusPair.getLeft() == RdosTaskStatus.RESTARTING.getStatus() && statusPair.getRight() >= FLINK_RESTART_LIMIT_TIMES){
-
-            RdosStreamTask streamTask = rdosStreamTaskDAO.getRdosTaskByTaskId(jobId);
-            if(streamTask == null){
-                return;
-            }
-
-            Map<String, Object> params = Maps.newHashMap();
-            params.put("engineType", "flink");
-            params.put("taskId", jobId);
-            params.put("engineTaskId", streamTask.getEngineTaskId());
-            params.put("computeType", streamTask.getComputeType());
-            params.put("taskType", streamTask.getTaskType());
-
-            try {
-                stop(params);
-                logger.info("engine active stop the flink job,cause over num of restart limit");
-                jobStatusFrequency.remove(jobId);
-            } catch (Exception e) {
-                logger.error("stop job " + jobId + " active error:", e);
-            }
-
-        }else if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
@@ -286,42 +263,15 @@ public class TaskStatusListener implements Runnable{
     public Pair<Integer, Integer> updateJobStatusFrequency(String jobId, Integer status){
 
         Pair<Integer, Integer> statusPair = jobStatusFrequency.get(jobId);
-        statusPair = statusPair == null ? Pair.of(status, 0) : statusPair;
+        statusPair = statusPair == null ? new MutablePair<>(status, 0) : statusPair;
         if(statusPair.getLeft() == status){
             statusPair.setValue(statusPair.getRight() + 1);
         }else{
-            statusPair = Pair.of(status, 1);
+            statusPair = new MutablePair<>(status, 1);
         }
 
         jobStatusFrequency.put(jobId, statusPair);
         return statusPair;
-    }
-
-
-    public void stop(Map<String, Object> params) throws Exception {
-        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
-        String jobId = paramAction.getTaskId();
-        Integer computeType  = paramAction.getComputeType();
-        JobClient jobClient = new JobClient(paramAction);
-        jobClient.setJobClientCallBack(new JobClientCallBack(){
-
-            @Override
-            public void execute(Map<String, ? extends Object> params) {
-
-                if(!params.containsKey(JOB_STATUS)){
-                    return;
-                }
-
-                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-
-                updateJobZookStatus(zkTaskId, jobStatus);
-                updateJobStatus(jobId, computeType, jobStatus);
-            }
-
-        });
-
-        jobClient.stopJob();
     }
 
     public void updateJobZookStatus(String zkTaskId, Integer status){

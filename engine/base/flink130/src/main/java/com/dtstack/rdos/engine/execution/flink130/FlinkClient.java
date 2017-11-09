@@ -12,9 +12,12 @@ import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.*;
+import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
@@ -24,7 +27,6 @@ import com.dtstack.rdos.engine.execution.flink130.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -32,9 +34,16 @@ import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.api.common.Plan;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
-import org.apache.flink.client.program.*;
+import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.client.program.ProgramMissingJobException;
+import org.apache.flink.client.program.ProgramParametrizationException;
+import org.apache.flink.client.program.StandaloneClusterClient;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
@@ -70,20 +79,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Properties;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * Date: 2017/2/20
@@ -110,6 +121,12 @@ public class FlinkClient extends AbsClient {
 
     /**同步数据插件jar名称*/
     private static final String syncJarFileName = "flinkx.jar";
+
+    private static final int failureRate = 3;
+
+    private static final int failureInterval = 6; //min
+
+    private static final int delayInterval = 10; //sec
 
     //FIXME key值需要根据客户端传输名称调整
     public static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
@@ -814,12 +831,21 @@ public class FlinkClient extends AbsClient {
     private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
         env.setParallelism(FlinkUtil.getEnvParallelism(confProperties));
-        if(FlinkUtil.getMaxEnvParallelism(confProperties)>0){
+
+        if(FlinkUtil.getMaxEnvParallelism(confProperties) > 0){
             env.setMaxParallelism(FlinkUtil.getMaxEnvParallelism(confProperties));
         }
-        if(FlinkUtil.getBufferTimeoutMillis(confProperties)>0){
+
+        if(FlinkUtil.getBufferTimeoutMillis(confProperties) > 0){
             env.setBufferTimeout(FlinkUtil.getBufferTimeoutMillis(confProperties));
         }
+
+        env.setRestartStrategy(RestartStrategies.failureRateRestart(
+                failureRate, // 一个时间段内的最大失败次数
+                Time.of(failureInterval, TimeUnit.MINUTES), // 衡量失败次数的是时间段
+                Time.of(delayInterval, TimeUnit.SECONDS) // 间隔
+        ));
+
         return env;
     }
 
