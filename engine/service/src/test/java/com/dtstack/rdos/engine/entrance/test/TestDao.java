@@ -30,7 +30,7 @@ public class TestDao {
         String ip = "127.0.0.1";
         int port = 6123;
         byte machineType = '1';
-        rdosNodeMachineDAO.insert(ip, port, machineType,null);
+        rdosNodeMachineDAO.insert(ip, port, machineType,null, "");
         System.out.println("-----------over--------");
     }
 

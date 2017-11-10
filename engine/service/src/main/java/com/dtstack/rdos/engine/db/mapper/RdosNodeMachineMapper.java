@@ -14,13 +14,15 @@ import com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine;
  */
 public interface RdosNodeMachineMapper {
 	
-	public void insert(RdosNodeMachine rdosNodeMachine);
+	void insert(RdosNodeMachine rdosNodeMachine);
 	
-    public void updateMachineType(RdosNodeMachine rdosNodeMachine);
+    void updateMachineType(RdosNodeMachine rdosNodeMachine);
 
-	public void disableMachineNode(RdosNodeMachine rdosNodeMachine);
+	void disableMachineNode(RdosNodeMachine rdosNodeMachine);
 
-	public void ableMachineNode(RdosNodeMachine rdosNodeMachine);
+	void ableMachineNode(RdosNodeMachine rdosNodeMachine);
 
-	public void updateOneTypeMachineToSlave(@Param("type") String type);
+	void updateOneTypeMachineToSlave(@Param("type") String type);
+
+	void updateMachineToMaster(@Param("ip") String ip, @Param("appType") String appType);
 }

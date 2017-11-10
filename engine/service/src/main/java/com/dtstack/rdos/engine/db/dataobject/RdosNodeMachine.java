@@ -30,6 +30,8 @@ public class RdosNodeMachine extends DataObject{
 	 */
 	private String appType;
 
+	private String deployInfo;
+
 	public String getAppType() {
 		return appType;
 	}
@@ -38,12 +40,12 @@ public class RdosNodeMachine extends DataObject{
 		this.appType = appType;
 	}
 
-	public RdosNodeMachine(String ip2, Long port2, Integer machineType2,String appType) {
-		// TODO Auto-generated constructor stub
+	public RdosNodeMachine(String ip2, Long port2, Integer machineType2, String appType, String deployInfo) {
 		this.ip=ip2;
 		this.port = port2;
 		this.machineType = machineType2;
 		this.appType = appType;
+		this.deployInfo = deployInfo;
 	}
 	
 	public RdosNodeMachine(){
@@ -74,5 +76,11 @@ public class RdosNodeMachine extends DataObject{
 		this.machineType = machineType;
 	}
 
+	public String getDeployInfo() {
+		return deployInfo;
+	}
 
+	public void setDeployInfo(String deployInfo) {
+		this.deployInfo = deployInfo;
+	}
 }

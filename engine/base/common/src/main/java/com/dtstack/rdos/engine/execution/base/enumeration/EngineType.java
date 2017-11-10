@@ -1,5 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.enumeration;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -74,6 +77,16 @@ public enum EngineType {
         }
 
         return false;
+    }
+
+    public static String getEngineTypeWithoutVersion(String engineType){
+        Pattern pattern = Pattern.compile("([a-zA-Z]+).*");
+        Matcher matcher = pattern.matcher(engineType);
+        if(!matcher.find()){
+            return engineType;
+        }
+
+        return matcher.group(1);
     }
 
 }

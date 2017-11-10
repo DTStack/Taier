@@ -30,7 +30,6 @@ public class OtherListener implements Runnable{
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		try{
 			while(true){
 				logger.warn("OtherListener start again...");
@@ -38,7 +37,7 @@ public class OtherListener implements Runnable{
 					JobClient.getJobMaster().forEach((k,v)->{
 						MachineAppType machineAppType = MachineAppType.getMachineAppType(k);
 						rdosNodeMachineDAO.updateOneTypeMachineToSlave(machineAppType.getType());
-						rdosNodeMachineDAO.insert(v, RdosNodeMachineType.MASTER.getType(),machineAppType);
+						rdosNodeMachineDAO.updateMachineToMaster(v, machineAppType.getType());
 					});
 				}
 				Thread.sleep(listener);
