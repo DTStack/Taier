@@ -4,10 +4,12 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
+import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.components.SlotsJudge;
+import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -63,6 +65,8 @@ public class JobSubmitExecutor{
 
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
 
+    public static final String ENGINE_TYPE_KEY = "engineTypes";
+
     private int minPollSize = 10;
 
     private int maxPoolSize = 1000;
@@ -88,6 +92,8 @@ public class JobSubmitExecutor{
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
     
     private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
+
+    private EngineDeployInfo engineDeployInfo;
     
     private SlotsJudge slotsjudge = new SlotsJudge();
     
@@ -111,6 +117,10 @@ public class JobSubmitExecutor{
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
             getEngineAvailbalSlots();
+
+            List<Map<String, Object>> engineTypeList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPE_KEY);
+            engineDeployInfo = new EngineDeployInfo(engineTypeList);
+
             hasInit = true;
         }
     }
@@ -297,13 +307,16 @@ public class JobSubmitExecutor{
                         Thread.sleep(STATUS_INTERVAL);
                         Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
 
-                        for(Map.Entry<String,IClient> entry : entrys){
+                        for(Map.Entry<String, IClient> entry : entrys){
 
                             try{
                                 String key = entry.getKey();
+                                String keyWithoutVersion = EngineType.getEngineTypeWithoutVersion(key);
+                                Integer deployTypeVal = engineDeployInfo.getDeployMap().get(keyWithoutVersion);
+
                                 IClient client = entry.getValue();
 
-                                if(EngineType.isFlink(key)){
+                                if(EngineType.isFlink(key) && EDeployType.STANDALONE.getType() == deployTypeVal){
                                     String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                                         @Override
                                         public Object execute() throws Exception {
@@ -313,7 +326,7 @@ public class JobSubmitExecutor{
                                     },client.getClass().getClassLoader(),null,true);
 
                                     slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
-                                }else if(EngineType.isSpark(key)){
+                                }else if(EngineType.isSpark(key) && EDeployType.STANDALONE.getType() == deployTypeVal){
 
                                     String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                                         @Override
@@ -445,6 +458,15 @@ public class JobSubmitExecutor{
             logger.error("can't match clientTypeStr:{} by ([a-zA-Z]*).*", clientTypeStr);
             return clientTypeStr;
         }
+    }
+
+    public EDeployType getEngineDeployType(String clientTypeStr){
+        Integer type = engineDeployInfo.getDeployMap().get(clientTypeStr);
+        if(type == null){
+            return  null;
+        }
+
+        return EDeployType.getDeployType(type);
     }
     
     

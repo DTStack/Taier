@@ -35,10 +35,20 @@ public enum EDeployType {
         this.name = name;
     }
 
-    public static EDeployType getEployType(String name){
+    public static EDeployType getDeployType(String name){
         for(EDeployType eDeployType : EDeployType.values()){
             if(eDeployType.getName().equals(name.toLowerCase())){
                 return eDeployType;
+            }
+        }
+
+        return null;
+    }
+
+    public static EDeployType getDeployType(int type){
+        for(EDeployType eType : EDeployType.values()){
+            if(eType.getType() == type){
+                return eType;
             }
         }
 

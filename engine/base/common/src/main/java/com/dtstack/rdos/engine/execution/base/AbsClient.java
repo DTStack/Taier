@@ -32,31 +32,23 @@ public abstract class AbsClient implements IClient{
         EJobType jobType = jobClient.getJobType();
         JobResult jobResult;
 
-        if(EJobType.MR.equals(jobType)){
-            try{
-                jobResult = submitJobWithJar(jobClient);
-            }catch (Exception e){
-                logger.error("", e);
-                jobResult = JobResult.createErrorResult(e);
-            }
+        try{
 
-        }else if(EJobType.SQL.equals(jobType)){
-            try{
+            if(EJobType.MR.equals(jobType)){
+                jobResult = submitJobWithJar(jobClient);
+            }else if(EJobType.SQL.equals(jobType)){
                 jobResult = submitSqlJob(jobClient);
-            }catch (Exception e){
-                logger.error("", e);
-                jobResult = JobResult.createErrorResult(e);
-            }
-        }else if(EJobType.SYNC.equals(jobType)){
-            try{
+            }else if(EJobType.SYNC.equals(jobType)){
                 jobResult = submitSyncJob(jobClient);
-            }catch (Exception e){
-                logger.error("", e);
-                jobResult = JobResult.createErrorResult(e);
-            }
-        }else{
-            jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
-                    " you need to set it in(MR, SQL)");
+            }else if(EJobType.PYTHON.equals(jobType)){
+                jobResult = submitPythonJob(jobClient);
+            }else{
+                jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
+                        " you need to set it in(MR, SQL)");
+        }
+        }catch (Exception e){
+            logger.error("", e);
+            jobResult = JobResult.createErrorResult(e);
         }
         return jobResult;
     }
@@ -68,10 +60,13 @@ public abstract class AbsClient implements IClient{
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException{
     	return null;
     }
-    
-    
+
     public JobResult submitSyncJob(JobClient jobClient){
     	return null;
+    }
+
+    public JobResult submitPythonJob(JobClient jobClient){
+        return null;
     }
 
 

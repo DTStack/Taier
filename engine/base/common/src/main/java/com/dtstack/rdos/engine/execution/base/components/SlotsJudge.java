@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
 import org.slf4j.Logger;
@@ -41,9 +43,11 @@ public class SlotsJudge {
 	 * @param slotsInfo
 	 * @return
 	 */
-	public boolean judgeSlots(JobClient jobClient, Map<String,Map<String,Map<String,Object>>> slotsInfo){
+	public boolean judgeSlots(JobClient jobClient, Map<String, Map<String,Map<String,Object>>> slotsInfo){
 
-		if(EngineType.isFlink(jobClient.getEngineType())){
+        EDeployType deployType = JobSubmitExecutor.getInstance().getEngineDeployType(jobClient.getEngineType());
+
+		if(EngineType.isFlink(jobClient.getEngineType()) && deployType == EDeployType.STANDALONE){
 			String flinkKey = null;
 			for(String key : slotsInfo.keySet()){
 				if(EngineType.isFlink(key)){
@@ -57,7 +61,7 @@ public class SlotsJudge {
 			}
 
 			return judgeFlinkResource(jobClient, slotsInfo.get(flinkKey));
-		}else if(EngineType.isSpark(jobClient.getEngineType())){
+		}else if(EngineType.isSpark(jobClient.getEngineType()) && deployType == EDeployType.STANDALONE){
 
 			String sparkKey = null;
 			for(String key : slotsInfo.keySet()){
@@ -73,7 +77,8 @@ public class SlotsJudge {
 
 			return judgeSparkResource(jobClient, slotsInfo.get(sparkKey));
 		}else{
-			throw new RdosException("not support engine type:" + jobClient.getEngineType());
+			logger.info("not support engine type:{} and return default true.", jobClient.getEngineType());
+			return true;
 		}
 	}
 

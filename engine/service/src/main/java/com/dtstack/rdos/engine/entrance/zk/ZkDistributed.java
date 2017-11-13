@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
 import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
@@ -148,30 +149,10 @@ public class ZkDistributed {
 
 	private void registrationDB() throws IOException {
 
-	    Map<String, Integer> deployMap = Maps.newHashMap();
+		EngineDeployInfo deployInfo = new EngineDeployInfo(engineTypeList);
+		String deployInfoStr = PublicUtil.objToString(deployInfo.getDeployMap());
 
-		for(Map<String, Object> engineInfo : engineTypeList){
-			String typeName = (String) engineInfo.get("typeName");
-			String typeNameNoVersion = EngineType.getEngineTypeWithoutVersion(typeName);
-            EDeployType deployType = null;
-
-			if(EngineType.isFlink(typeName)){
-			    String deployMode = (String) engineInfo.get("clusterMode");
-                deployType = EDeployType.getEployType(deployMode);
-
-			}else if(EngineType.isSpark(typeName)){
-                deployType = engineInfo.containsKey("sparkYarnArchive") ? EDeployType.YARN : EDeployType.STANDALONE;
-
-            }else{
-			    logger.error("========not support engine type:{} !!!========", typeName);
-			    continue;
-            }
-
-            deployMap.put(typeNameNoVersion, deployType.getType());
-		}
-
-		String deployInfo = PublicUtil.objToString(deployMap);
-		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType(),MachineAppType.ENGINE, deployInfo);
+		rdosNodeMachineDAO.insert(this.localAddress, RdosNodeMachineType.SLAVE.getType(),MachineAppType.ENGINE, deployInfoStr);
 	}
 
 	private void createLocalBrokerHeartNode() throws Exception{
