@@ -58,7 +58,7 @@ public class SqlParser {
 		List<Operator> operators = Lists.newArrayList();
 		A:for(String cql : sqls){
 			cql = cql.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", "").trim();
-			if(cql.equals("")){
+			if("".equals(cql)){
 				continue;
 			}
 

@@ -99,14 +99,15 @@ public class PoolHttpClient {
 		} catch (Exception e) {
 			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
 		}finally{
-			if(response!=null)
+			if(response!=null){
 				try {
 					response.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-		} 
+			}
+		}
 		return responseBody;
 	}
 
@@ -140,13 +141,14 @@ public class PoolHttpClient {
 		} catch (IOException e) {
 			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
 		}finally{
-			if(response!=null)
+			if(response!=null){
 				try {
 					response.close();
 				} catch (IOException e) {
 					logger.error("", e);
 				}
-		} 
+			}
+		}
 		return respBody;
 	}
 	

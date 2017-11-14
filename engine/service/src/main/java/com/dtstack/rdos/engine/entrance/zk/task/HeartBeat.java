@@ -33,10 +33,10 @@ public class HeartBeat implements Runnable{
 			while(true){
 				++index;
 				BrokerHeartNode brokerHeartNode = BrokerHeartNode.initBrokerHeartNode();
-				brokerHeartNode.setSeq(1l);
+				brokerHeartNode.setSeq(1L);
 				brokerHeartNode.setAlive(true);
 				zkDistributed.updateSynchronizedLocalBrokerHeartNode(zkDistributed.getLocalAddress(),brokerHeartNode,false);
-				if(PublicUtil.count(index, 10))logger.warn("HeartBeat start again...");
+				if(PublicUtil.count(index, 10)){logger.warn("HeartBeat start again...");}
 				Thread.sleep(HEATBEAT);
 			}
 

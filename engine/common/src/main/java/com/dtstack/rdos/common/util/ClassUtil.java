@@ -86,27 +86,36 @@ public class ClassUtil {
 
     public static String getTypeFromClass(Class<?> clz) {
 
-        if(clz == Byte.class)
+        if(clz == Byte.class){
             return "TINYINT";
-        else if(clz == Short.class)
+        }
+        else if(clz == Short.class){
             return "SMALLINT";
-        else if(clz == Integer.class)
+        }
+        else if(clz == Integer.class){
             return "INT";
-        else if(clz == Long.class)
+        }
+        else if(clz == Long.class){
             return "BIGINT";
-        else if(clz == String.class)
+        }
+        else if(clz == String.class){
             return "STRING";
-        else if(clz == Float.class)
+        }
+        else if(clz == Float.class){
             return "FLOAT";
-        else if(clz == Double.class)
+        }
+        else if(clz == Double.class){
             return "DOUBLE";
-        else if(clz == Date.class)
+        }
+        else if(clz == Date.class){
             return "DATE";
-        else if(clz == Timestamp.class)
+        }
+        else if(clz == Timestamp.class){
             return "TIMESTAMP";
-        else if(clz == Boolean.class)
+        }
+        else if(clz == Boolean.class){
             return "BOOLEAN";
-
+        }
         throw new IllegalArgumentException("Unsupported data type: " + clz.getName());
 
     }

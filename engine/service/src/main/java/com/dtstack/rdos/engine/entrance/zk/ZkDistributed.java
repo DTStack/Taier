@@ -7,9 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
@@ -91,8 +89,10 @@ public class ZkDistributed {
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
-	private ExecutorService executors  = Executors.newFixedThreadPool(8);
-	
+	private ExecutorService executors  = new ThreadPoolExecutor(8, 8,
+			0L, TimeUnit.MILLISECONDS,
+			new LinkedBlockingQueue<Runnable>());
+
 	private RdosNodeMachineDAO rdosNodeMachineDAO = new RdosNodeMachineDAO();
 
 
@@ -186,7 +186,9 @@ public class ZkDistributed {
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (this.brokerHeartLock.isAcquiredInThisProcess()) this.brokerHeartLock.release();
+				if (this.brokerHeartLock.isAcquiredInThisProcess()) {
+					this.brokerHeartLock.release();
+				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedBrokerHeartNode error:{}", nodePath,
 						ExceptionUtil.getErrorMessage(e));
@@ -208,7 +210,9 @@ public class ZkDistributed {
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (this.brokerDataLock.isAcquiredInThisProcess()) this.brokerDataLock.release();
+				if (this.brokerDataLock.isAcquiredInThisProcess()) {
+					this.brokerDataLock.release();
+				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
 						ExceptionUtil.getErrorMessage(e));
@@ -238,7 +242,9 @@ public class ZkDistributed {
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (this.brokerDataLock.isAcquiredInThisProcess()) this.brokerDataLock.release();
+				if (this.brokerDataLock.isAcquiredInThisProcess()) {
+					this.brokerDataLock.release();
+				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
 						ExceptionUtil.getErrorMessage(e));
@@ -471,7 +477,9 @@ public class ZkDistributed {
 	private void lockRelease(){
 		interProcessMutexs.forEach(lock->{
 			try{
-				if(lock.isAcquiredInThisProcess())lock.release();
+				if(lock.isAcquiredInThisProcess()){
+					lock.release();
+				}
 			}catch (Exception e){
 				logger.error("",e);
 			}
@@ -555,7 +563,9 @@ public class ZkDistributed {
 			logger.error("dataMigration fail:{}",ExceptionUtil.getErrorMessage(e));
 		}finally{
 			try {
-				if(this.brokerDataLock.isAcquiredInThisProcess())this.brokerDataLock.release();
+				if(this.brokerDataLock.isAcquiredInThisProcess()){
+					this.brokerDataLock.release();
+				}
 			} catch (Exception e) {
 				logger.error("dataMigration brokerDataLock release fail:{}",ExceptionUtil.getErrorMessage(e));
 			}

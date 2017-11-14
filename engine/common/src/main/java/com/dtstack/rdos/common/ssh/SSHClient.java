@@ -86,14 +86,17 @@ public class SSHClient {
 
                 while (stdout.available() > 0) {
                     int len = stdout.read(buffer);
-                    if (len > 0) // this check is somewhat paranoid
+                    if (len > 0){
                         sb.append(new String(buffer, 0, len));
+                    }// this check is somewhat paranoid
+
                 }
 
                 while (stderr.available() > 0) {
                     int len = stderr.read(buffer);
-                    if (len > 0) // this check is somewhat paranoid
+                    if (len > 0){
                         sb.append(new String(buffer, 0, len));
+                    } // this check is somewhat paranoid
                 }
             }
 

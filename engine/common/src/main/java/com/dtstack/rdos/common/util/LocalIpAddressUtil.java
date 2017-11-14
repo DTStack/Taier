@@ -35,7 +35,7 @@ public class LocalIpAddressUtil {
             while (is.hasMoreElements()) {
                 InetAddress i = is.nextElement();
                 if (!i.isLoopbackAddress() && !i.isLinkLocalAddress() && !i.isMulticastAddress()
-                        && !isSpecialIp(i.getHostAddress())) addrs.add(i);
+                        && !isSpecialIp(i.getHostAddress())) {addrs.add(i);}
             }
         }
         return addrs;

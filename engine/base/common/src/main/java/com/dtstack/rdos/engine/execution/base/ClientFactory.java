@@ -15,7 +15,7 @@ import com.google.common.collect.Maps;
  * Date: 2017/2/20
  * Company: www.dtstack.com
  *
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class ClientFactory {

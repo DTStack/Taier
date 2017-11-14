@@ -133,8 +133,6 @@ public class FlinkClient extends AbsClient {
 
     public static String sp = File.separator;
 
-    public final static String JOBEXCEPTION = "/jobs/%s/exceptions";
-
     public String tmpFileDirPath = "./tmp";
 
     private String jobMgrHost;
@@ -355,6 +353,7 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
+    @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
         Properties properties = adaptToJarSubmit(jobClient);
 
@@ -775,6 +774,7 @@ public class FlinkClient extends AbsClient {
      * @param jobId
      * @return
      */
+    @Override
     public RdosTaskStatus getJobStatus(String jobId) {
     	if(jobId == null||"".equals(jobId)){
     		return null;

@@ -75,7 +75,7 @@ public class HttpClient {
         	logger.error("url:"+url+"--->http request error",e);
         } finally {  
             try {
-            	if(httpClient!=null)httpClient.close();
+            	if(httpClient!=null){httpClient.close();}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				logger.error(ExceptionUtil.getErrorMessage(e));
@@ -99,7 +99,7 @@ public class HttpClient {
             logger.error("url:"+url+"--->http request error",e);
         } finally {
             try {
-                if(httpClient!=null)httpClient.close();
+                if(httpClient!=null){httpClient.close();}
             } catch (Exception e) {
                 logger.error(ExceptionUtil.getErrorMessage(e));
             }

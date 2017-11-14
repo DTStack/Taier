@@ -46,8 +46,9 @@ public class DateUtil {
     }
 
     public static Date stringToDate(String strDate)  {
-        if(strDate == null)
+        if(strDate == null){
             return null;
+        }
         try {
             return datetimeFormatter.parse(strDate);
         } catch (ParseException ignored) {
@@ -263,10 +264,7 @@ public class DateUtil {
     
     /**
      * 根据字符串取得明天日期
-     * 
-     * @param day 时间字符串
-     * @param inFormat 传入正则
-     * @param outFormat 传出正则
+     *
      * @return Date
      * @throws ParseException
      */
@@ -395,7 +393,6 @@ public class DateUtil {
      * 根据某个日期时间戳秒值，获取上个月第一天零点的值的秒值
      * 
      * @author yumo.lck
-     * @param chooseFirstDay的boolean值为true时返回上个月第一天的秒值 ，否则返回上个月最后一天秒值 day 的单位是 s/秒
      */
 
     public static long getBeforeMonthDay(long day, boolean chooseFirstDay) {
@@ -576,7 +573,6 @@ public class DateUtil {
     /**
      * 获得指定格式的日期字符串
      * 
-     * @param Date date
      * @return 格式化后的日期
      */
     public static String getDate(Date date, String format) {
@@ -696,7 +692,6 @@ public class DateUtil {
 	/**
      * 获取传入时间分钟的时间戳（秒值）
      * 
-     * @param day Long 时间
      * @return long
      */
     public static long getMinuteStart(long time) {
@@ -716,7 +711,6 @@ public class DateUtil {
     /**
      * 获取传入时间小时的时间戳（秒值）
      * 
-     * @param day Long 时间
      * @return long
      */
     public static long getHourStart(long time) {
