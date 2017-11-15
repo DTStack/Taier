@@ -399,7 +399,6 @@ public class FlinkClient extends AbsClient {
         JobSubmissionResult result = null;
 
         try {
-            //packagedProgram.getPlanWithoutJars().getPlan().setJobName(jobClient.getJobName());
             result = client.run(packagedProgram, runParallelism);
         }catch (ProgramParametrizationException e){
             logger.error("", e);

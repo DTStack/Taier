@@ -83,7 +83,7 @@ public class SlotsJudge {
 	}
 
 	/**
-	 * 必须为各个taskManager 预留1个slot
+	 * 必须为各个taskManager
      * FIXME 当前只对在属性中设置了parallelism的任务进行控制
 	 * @param jobClient
 	 * @param slotsInfo
@@ -94,7 +94,6 @@ public class SlotsJudge {
         int avaliableSlots = 0;
         for(Map<String, Object> value : slotsInfo.values()){
             int freeSlots = MathUtil.getIntegerVal(value.get("freeSlots"));
-            freeSlots = freeSlots > 0 ? (freeSlots - 1) : 0;
             avaliableSlots += freeSlots;
         }
 
@@ -125,8 +124,6 @@ public class SlotsJudge {
 	    for(Map<String, Object> tmpMap : slotsInfo.values()){
             int workerFreeMem = (int) tmpMap.get(EngineRestParseUtil.SparkRestParseUtil.MEMORY_FREE_KEY);
             int workerFreeCpu = (int) tmpMap.get(EngineRestParseUtil.SparkRestParseUtil.CORE_FREE_KEY);
-            workerFreeMem = workerFreeMem - 1024;
-            workerFreeMem = workerFreeMem > 0 ? workerFreeMem : 0;
             memNum += workerFreeMem;
             coreNum += workerFreeCpu;
         }
