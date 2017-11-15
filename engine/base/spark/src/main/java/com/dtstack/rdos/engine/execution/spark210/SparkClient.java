@@ -236,6 +236,9 @@ public class SparkClient extends AbsClient {
             submitResult = (boolean) submitMap.get("success");
             if(Strings.isNullOrEmpty(submissionId)){
                 logger.info("submit job failure");
+                if(submitMap.containsKey("message")){
+                    return JobResult.createErrorResult((String) submitMap.get("message"));
+                }
                 return JobResult.createErrorResult("submit job get unknown error" + response.toString());
             }
         } catch (IOException e) {

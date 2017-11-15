@@ -2,6 +2,8 @@ package com.dtstack.rdos.engine.execution.base.components;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
+import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -36,19 +38,21 @@ public class SlotNoAvailableJobClient {
 					orderLinkedBlockingQueue.put(job);
 					iterator.remove();
 				} else if(StringUtils.isBlank(job.getEngineTaskId()) && isSubmitFail(job)){
-                    //提交失败的直接返回
-				    iterator.remove();
+
+                    //如果遇到由于集群不可用的情况下需要重复提交
+                    if(isSubmitFailOfEngineDown(job)){
+                        orderLinkedBlockingQueue.put(job);
+                        iterator.remove();
+                        continue;
+                    }
+
+                    //其他提交失败的直接移除
+                    iterator.remove();
                 }else {
 					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job.getEngineType(),job.getEngineTaskId())){
 						orderLinkedBlockingQueue.put(job);
 						iterator.remove();
 					}else{
-//						if(job.getAgain() > 2){
-//							slotNoAvailableJobClients.remove(key);
-//						}else{
-//							job.setAgain(job.getAgain()+1);
-//						    orderLinkedBlockingQueue.put(job);
-//						}
 						iterator.remove();
 					}
 				}
@@ -68,6 +72,25 @@ public class SlotNoAvailableJobClient {
         }
 
         return false;
+    }
+
+    public boolean isSubmitFailOfEngineDown(JobClient jobClient){
+
+	    try{
+	        if(EngineType.isFlink(jobClient.getEngineType())){
+                return EngineRestParseUtil.FlinkRestParseUtil.checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
+            }else if(EngineType.isSpark(jobClient.getEngineType())){
+                return EngineRestParseUtil.SparkRestParseUtil.checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
+            }else{
+                return false;
+            }
+
+        }catch (Exception e){
+	        logger.error("", e);
+        }
+
+        return false;
+
     }
 	
 	public void put(JobClient jobClient){

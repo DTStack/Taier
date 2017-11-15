@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.common.util.PublicUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
@@ -53,6 +52,8 @@ public class EngineRestParseUtil {
 		public final static String MEMORY_USED_KEY = "memory.used";
 
 		public final static String MEMORY_FREE_KEY = "memory.free";
+
+		public final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
         private static Pattern memPattern = Pattern.compile("\\s*(\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s*\\(([\\-]?\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s+Used\\)");
 
@@ -259,6 +260,14 @@ public class EngineRestParseUtil {
 			}
 			return log;
 		}
+
+		public static boolean checkFailureForEngineDown(String msg){
+            if(msg.contains(SPARK_ENGINE_DOWN)){
+                return true;
+            }
+
+			return false;
+		}
 	}
 	
 	public static class FlinkRestParseUtil{
@@ -293,7 +302,9 @@ public class EngineRestParseUtil {
 		public final static String EXCEPTION_INFO = "/jobs/%s/exceptions";
 		
 		
-		public final static String NORESOURCEAVAIABLEEXCEPYION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
+		public final static String NORESOURCE_AVAIABLE_EXCEPYION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
+
+		public final static String FLINK_ENGINE_DOWN = "Failed to retrieve the JobManager gateway";
 
 		private final static ObjectMapper objMapper = new ObjectMapper();
 
@@ -331,6 +342,14 @@ public class EngineRestParseUtil {
 		 */
 		public static String getJobMessage(String message){
 			return null;
+		}
+
+		public static boolean checkFailureForEngineDown(String msg){
+			if(msg.contains(FLINK_ENGINE_DOWN)){
+				return true;
+			}
+
+			return false;
 		}
 		
 	}

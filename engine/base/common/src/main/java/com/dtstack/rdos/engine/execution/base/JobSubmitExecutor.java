@@ -155,7 +155,6 @@ public class JobSubmitExecutor{
     	queExecutor.submit(new Runnable(){
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				for(;;){
 					try {
 						Thread.sleep(5000);
@@ -474,7 +473,7 @@ public class JobSubmitExecutor{
 		if(EngineType.isFlink(engineType)){
 			String message = getEngineMessageByHttp(engineType,String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO,jobId));
 			if(StringUtils.isNotBlank(message)){
-				if(message.indexOf(EngineRestParseUtil.FlinkRestParseUtil.NORESOURCEAVAIABLEEXCEPYION) >= 0){
+				if(message.indexOf(EngineRestParseUtil.FlinkRestParseUtil.NORESOURCE_AVAIABLE_EXCEPYION) >= 0){
 					return true;
 				}
 			}
