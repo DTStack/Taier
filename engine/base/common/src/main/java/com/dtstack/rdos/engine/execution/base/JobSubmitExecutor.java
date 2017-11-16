@@ -138,8 +138,8 @@ public class JobSubmitExecutor{
                     }catch (RejectedExecutionException rejectEx){
                         //如果添加到执行线程池失败则添加回等待队列,并等待5s
                         try {
-                            orderLinkedBlockingQueue.put(jobClient);
                             Thread.sleep(THREAD_REJECT_INTERVAL);
+                            orderLinkedBlockingQueue.put(jobClient);
                         } catch (InterruptedException e) {
                             logger.error("", e);
                         }
@@ -157,7 +157,7 @@ public class JobSubmitExecutor{
 			public void run() {
 				for(;;){
 					try {
-						Thread.sleep(5000);
+						Thread.sleep(THREAD_REJECT_INTERVAL);
 						slotNoAvailableJobClients.noAvailSlotsJobaddExecutionQueue(orderLinkedBlockingQueue);
 					} catch (InterruptedException e) {
 						logger.error("", e);
