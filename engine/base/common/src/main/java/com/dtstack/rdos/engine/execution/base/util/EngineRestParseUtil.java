@@ -1,8 +1,10 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -300,6 +303,10 @@ public class EngineRestParseUtil {
 		 }
 		 */
 		public final static String EXCEPTION_INFO = "/jobs/%s/exceptions";
+
+		public final static String JOB_INFO = "/jobs/%s";
+
+		public final static String JOB_ACCUMULATOR_INFO = "/jobs/%s/accumulators";
 		
 		
 		public final static String NORESOURCE_AVAIABLE_EXCEPYION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
@@ -335,13 +342,133 @@ public class EngineRestParseUtil {
 			return availSlots;
 		}
 
-		/**
-		 * TODO
-		 * @param message
-		 * @return
-		 */
-		public static String getJobMessage(String message){
-			return null;
+
+
+		public static String parseEngineLog(Map<String,String> jsonMap) throws IOException {
+
+			String except = jsonMap.get("except");
+			String accuInfo = jsonMap.get("accuInfo");
+			String jobInfo = jsonMap.get("jobInfo");
+
+			Map<String,Object> logMap = new HashMap<>();
+			Map<String,Object> perfMap = new HashMap<>();
+
+			if(StringUtils.isNotEmpty(except)) {
+				Map<String,Object> exceptMap = PublicUtil.jsonStrToObject(except, Map.class);
+				logMap.putAll(exceptMap);
+			}
+
+
+			if(StringUtils.isNotEmpty(accuInfo)) {
+				Map<String,Object> accuInfoMap = PublicUtil.jsonStrToObject(accuInfo, Map.class);
+				if(accuInfoMap != null) {
+					List<Map<String,Object>> accuList = (List)accuInfoMap.get("user-task-accumulators");
+					if(accuList != null) {
+						for(Map<String,Object> accu : accuList) {
+							String name = (String) accu.get("name");
+							String value = (String) accu.get("value");
+							if (name == null) {
+								continue;
+							}
+							if(name.equals("numRead")) {
+								perfMap.put("numRead", Integer.valueOf(value));
+							} else if(name.equals("numWrite")) {
+								perfMap.put("numWrite", Integer.valueOf(value));
+							} else if(name.equals("nErrors")) {
+								perfMap.put("numError", Integer.valueOf(value));
+							}
+						}
+					}
+				}
+			}
+
+			Map<String,Object> jobInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
+			List<Map<String,Object>> vertices = (List)jobInfoMap.get("vertices");
+			if(vertices != null && vertices.size() == 2) {
+				for(Map<String,Object> vertice : vertices) {
+					String name = (String) vertice.get("name");
+
+					if(name == null) {
+						continue;
+					}
+
+					if(name.endsWith("reader")) {
+						Integer readDuration = (Integer) vertice.get("duration");
+						perfMap.put("durationRead", readDuration);
+						Map<String,Object> readerMetrics = (Map<String, Object>) vertice.get("metrics");
+						if(readerMetrics != null) {
+							Integer byteRead = (Integer) readerMetrics.get("write-bytes");
+							perfMap.put("byteRead", byteRead);
+							try {
+								BigDecimal rd = new BigDecimal(readDuration);
+								BigDecimal br = new BigDecimal(byteRead);
+								if(rd.equals(BigDecimal.ZERO)) {
+									perfMap.put("speedRead", 0);
+								} else {
+									perfMap.put("speedRead", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
+								}
+							} catch(NumberFormatException ex) {
+								perfMap.put("speedRead", 0);
+							}
+
+
+						}
+
+					} else if(name.endsWith("writer")) {
+						Integer writeDuration = (Integer) vertice.get("duration");
+						perfMap.put("durationWrite", writeDuration);
+						Map<String,Object> writerMetrics = (Map<String, Object>) vertice.get("metrics");
+						if(writerMetrics != null) {
+							Integer byteWrite = (Integer) writerMetrics.get("read-bytes");
+							perfMap.put("byteWrite", byteWrite);
+							try {
+								BigDecimal rd = new BigDecimal(writeDuration);
+								BigDecimal br = new BigDecimal(byteWrite);
+								if(rd.equals(BigDecimal.ZERO)) {
+									perfMap.put("speedWrite", 0);
+								} else {
+									perfMap.put("speedWrite", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
+								}
+							} catch(NumberFormatException ex) {
+								perfMap.put("speedWrite", 0);
+							}
+						}
+
+					}
+				}
+			}
+
+			StringBuffer sb = new StringBuffer();
+			if(perfMap.containsKey("numRead")) {
+				sb.append("读取记录数:\t" + perfMap.get("numRead") + "\n");
+			}
+
+			if(perfMap.containsKey("byteRead")) {
+				sb.append("读取字节数:\t" + perfMap.get("byteRead") + "\n");
+			}
+
+			if(perfMap.containsKey("speedRead")) {
+				sb.append("读取速率(B/s):\t" + perfMap.get("speedRead") + "\n");
+			}
+
+			if(perfMap.containsKey("numWrite")) {
+				sb.append("写入记录数:\t" + perfMap.get("numWrite") + "\n");
+			}
+
+			if(perfMap.containsKey("byteWrite")) {
+				sb.append("写入字节数:\t" + perfMap.get("byteWrite") + "\n");
+			}
+
+			if(perfMap.containsKey("speedWrite")) {
+				sb.append("写入速率(B/s):\t" + perfMap.get("speedWrite") + "\n");
+			}
+
+			if(perfMap.containsKey("numError")) {
+				sb.append("错误记录数:\t" + perfMap.get("numError") + "\n");
+			}
+
+			logMap.put("perf", sb.toString());
+			return PublicUtil.objToString(logMap);
 		}
 
 		public static boolean checkFailureForEngineDown(String msg){

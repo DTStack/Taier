@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -367,20 +368,33 @@ public class JobSubmitExecutor{
 	    return message;
     }
 
+    public String getFlinkEngineLogByHttp(String jobId) {
+        return null;
+    }
+
     public String getEngineLogByHttp(String engineType, String jobId) {
         IClient client = clientMap.get(engineType);
         String logInfo = "";
 
         try {
             if (EngineType.isFlink(engineType)) {
-                String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
-                    @Override
-                    public Object execute() throws Exception {
-                        String excpPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-                        return client.getMessageByHttp(excpPath);
-                    }
-                }, client.getClass().getClassLoader(), null, true);
-                logInfo = message;
+                Map<String,String> logJsonMap = new ClassLoaderCallBackMethod<Map<String,String>>()
+                        .callback(()-> {
+                            String exceptPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO, jobId);
+                            String except = client.getMessageByHttp(exceptPath);
+                            String jobPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.JOB_INFO, jobId);
+                            String jobInfo = client.getMessageByHttp(jobPath);
+                            String accuPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+                            String accuInfo = client.getMessageByHttp(accuPath);
+                            Map<String,String> retMap = new HashMap<String, String>();
+                            retMap.put("except", except);
+                            retMap.put("jobInfo", jobInfo);
+                            retMap.put("accuInfo", accuInfo);
+                            return retMap;
+                        }, client.getClass().getClassLoader(), null, true);
+
+                logInfo = EngineRestParseUtil.FlinkRestParseUtil.parseEngineLog(logJsonMap);
+
             } else if (EngineType.isSpark(engineType)) {
 
                 Map<String, List<Map<String, String>>> log = null;

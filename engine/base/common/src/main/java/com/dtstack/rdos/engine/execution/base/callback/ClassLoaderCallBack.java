@@ -3,8 +3,9 @@ package com.dtstack.rdos.engine.execution.base.callback;
 /**
  * Created by sishu.yss on 2017/8/28.
  */
-public interface ClassLoaderCallBack {
+@FunctionalInterface
+public interface ClassLoaderCallBack<T> {
 
-    Object execute() throws Exception;
+    T execute() throws Exception;
 
 }

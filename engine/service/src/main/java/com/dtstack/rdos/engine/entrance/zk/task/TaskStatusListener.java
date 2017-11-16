@@ -159,9 +159,6 @@ public class TaskStatusListener implements Runnable{
 
 	private void updateJobEngineLog(Integer status, String jobId, String engineJobId,
                                     String engineType, int computeType){
-        if(!RdosTaskStatus.needClean(status.byteValue())){
-            return;
-        }
 
         //从engine获取log
         String jobLog = JobClient.getEngineLog(engineType, engineJobId);
