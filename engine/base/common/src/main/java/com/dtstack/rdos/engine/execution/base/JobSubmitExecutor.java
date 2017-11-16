@@ -526,6 +526,8 @@ public class JobSubmitExecutor{
                         logger.info("submit job result is:{}.", jobResult);
                         String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                         jobClient.setEngineTaskId(jobId);
+                        listenerJobStatus(jobClient, jobResult);
+                        return;
                 	}
 
                 }catch (Throwable e){
@@ -536,6 +538,7 @@ public class JobSubmitExecutor{
                 }finally {
                     jobClient.setJobResult(jobResult);
                     slotNoAvailableJobClients.put(jobClient);
+                    listenerJobStatus(jobClient, jobResult);
                     logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
             }
