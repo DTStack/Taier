@@ -470,11 +470,7 @@ public class JobSubmitExecutor{
 	public boolean judgeSlotsAndAgainExecute(String engineType, String jobId) {
 		if(EngineType.isFlink(engineType)){
 			String message = getEngineMessageByHttp(engineType,String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO,jobId));
-			if(StringUtils.isNotBlank(message)){
-				if(message.indexOf(EngineRestParseUtil.FlinkRestParseUtil.NORESOURCE_AVAIABLE_EXCEPYION) >= 0){
-					return true;
-				}
-			}
+            return EngineRestParseUtil.FlinkRestParseUtil.checkNoSlots(message);
 		}
 		return false;
 	}
@@ -526,8 +522,6 @@ public class JobSubmitExecutor{
                         logger.info("submit job result is:{}.", jobResult);
                         String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                         jobClient.setEngineTaskId(jobId);
-                        listenerJobStatus(jobClient, jobResult);
-                        return;
                 	}
 
                 }catch (Throwable e){

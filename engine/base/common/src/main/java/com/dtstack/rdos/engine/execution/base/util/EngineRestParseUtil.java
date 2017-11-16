@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.base.util;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jsoup.Jsoup;
@@ -345,10 +346,17 @@ public class EngineRestParseUtil {
 		}
 
 		public static boolean checkFailureForEngineDown(String msg){
-			if(msg.contains(FLINK_ENGINE_DOWN)){
+			if(StringUtils.isNotBlank(msg)&&msg.contains(FLINK_ENGINE_DOWN)){
 				return true;
 			}
 
+			return false;
+		}
+
+		public static boolean checkNoSlots(String msg){
+			if(StringUtils.isNotBlank(msg)&&msg.contains(NORESOURCE_AVAIABLE_EXCEPYION)){
+				return true;
+			}
 			return false;
 		}
 		
