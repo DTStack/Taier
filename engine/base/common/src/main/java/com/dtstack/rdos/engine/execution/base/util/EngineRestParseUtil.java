@@ -304,7 +304,7 @@ public class EngineRestParseUtil {
 		
 		public final static String NORESOURCE_AVAIABLE_EXCEPYION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
 
-		public final static String FLINK_ENGINE_DOWN = "Failed to retrieve the JobManager gateway";
+		public final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
 		private final static ObjectMapper objMapper = new ObjectMapper();
 
