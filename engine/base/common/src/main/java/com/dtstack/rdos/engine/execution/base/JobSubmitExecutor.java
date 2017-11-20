@@ -135,6 +135,7 @@ public class JobSubmitExecutor{
 
                 try {
                     processCountDownLatch.await();
+                    logger.info("----start JobSubmitProcessor-----");
                 } catch (InterruptedException e) {
                     logger.error("", e);
                 }
@@ -184,10 +185,12 @@ public class JobSubmitExecutor{
                 logger.error(errorMess);
                 throw new RdosException(errorMess);
             }
+
             loadComputerPlugin(clientTypeStr);
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
+
             classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                 @Override
                 public Object execute() throws Exception {
@@ -195,6 +198,7 @@ public class JobSubmitExecutor{
                     return null;
                 }
             },client.getClass().getClassLoader(),null,true);
+
             String key = getEngineName(clientTypeStr);
             clientMap.put(key, client);
         }
@@ -280,8 +284,8 @@ public class JobSubmitExecutor{
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
-        if(!orderLinkedBlockingQueue.remove(jobClient.getTaskId())
-                || !slotNoAvailableJobClients.remove(jobClient.getTaskId())){
+        if(orderLinkedBlockingQueue.remove(jobClient.getTaskId())
+                || slotNoAvailableJobClients.remove(jobClient.getTaskId())){
             //直接移除
             Map<String, Integer> jobStatus = Maps.newHashMap();
             jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
@@ -357,6 +361,7 @@ public class JobSubmitExecutor{
 
                             if(firstStart){
                                 processCountDownLatch.countDown();
+                                logger.info("----get available slots thread started-----");
                             }
 
                         }
