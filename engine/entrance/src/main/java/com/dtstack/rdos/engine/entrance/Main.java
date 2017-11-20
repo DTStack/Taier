@@ -45,14 +45,17 @@ public class Main {
 
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
-		vertxHttpServer = new VertxHttpServer(nodeConfig);
-		logger.warn("init http server success...");
 		
 		JobSubmitExecutor.getInstance().init(nodeConfig);
 		logger.warn("init JobSubmitExecutor success...");
 		
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 		logger.warn("init zk server success...");
+
+		vertxHttpServer = new VertxHttpServer(nodeConfig);
+		logger.warn("init http server success...");
+
+		logger.warn("start engine success...");
 
 	}
 	

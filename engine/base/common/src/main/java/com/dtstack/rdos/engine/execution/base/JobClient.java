@@ -248,7 +248,7 @@ public class JobClient extends OrderObject{
 	}
 
 	public static void judgeSlostsAndAgainExecute(String engineType,String jobId) {
-		JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(engineType,jobId);
+		JobSubmitExecutor.getInstance().judgeSlotsAndAgainExecute(engineType,jobId);
 	}
 
 	public int getAgain() {

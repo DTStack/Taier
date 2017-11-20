@@ -35,12 +35,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 /**
@@ -58,9 +57,9 @@ public class JobSubmitExecutor{
 
     private static final String TYPE_NAME_KEY = "typeName";
 
-    private static final int STATUS_INTERVAL = 5000;
+    private static final int AVAILABLE_SLOTS_INTERVAL = 5000;//mills
 
-    private static final int THREAD_REJECT_INTERVAL = 5000;
+    private static final int THREAD_REJECT_INTERVAL = 5000;//mills
 
     private Pattern engineNamePattern = Pattern.compile("([a-zA-Z]*).*");
 
@@ -95,6 +94,9 @@ public class JobSubmitExecutor{
     private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
 
     private EngineDeployInfo engineDeployInfo;
+
+    //用于控制处理任务的线程在其他条件准备好之后才能开始启动,目前有slot资源获取准备
+    final CountDownLatch processCountDownLatch = new CountDownLatch(1);
     
     private SlotsJudge slotsjudge = new SlotsJudge();
     
@@ -117,7 +119,7 @@ public class JobSubmitExecutor{
             initJobClient(clientParamsList);
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
-            getEngineAvailbalSlots();
+            getEngineAvailableSlots();
 
             List<Map<String, Object>> engineTypeList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPE_KEY);
             engineDeployInfo = new EngineDeployInfo(engineTypeList);
@@ -131,6 +133,14 @@ public class JobSubmitExecutor{
     	queExecutor.submit(new Runnable() {
             @Override
             public void run() {
+
+                try {
+                    processCountDownLatch.await();
+                    logger.info("----start JobSubmitProcessor-----");
+                } catch (InterruptedException e) {
+                    logger.error("", e);
+                }
+
                 for(;;){
                     JobClient jobClient = null;
                     try{
@@ -176,10 +186,12 @@ public class JobSubmitExecutor{
                 logger.error(errorMess);
                 throw new RdosException(errorMess);
             }
+
             loadComputerPlugin(clientTypeStr);
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
+
             classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                 @Override
                 public Object execute() throws Exception {
@@ -187,6 +199,7 @@ public class JobSubmitExecutor{
                     return null;
                 }
             },client.getClass().getClassLoader(),null,true);
+
             String key = getEngineName(clientTypeStr);
             clientMap.put(key, client);
         }
@@ -241,7 +254,7 @@ public class JobSubmitExecutor{
              },client.getClass().getClassLoader(),null,true);
 
         	if(status == RdosTaskStatus.FAILED){
-        		status = judgeSlostsAndAgainExecute(engineType,jobId)?RdosTaskStatus.WAITCOMPUTE:status;
+        		status = judgeSlotsAndAgainExecute(engineType,jobId)?RdosTaskStatus.WAITCOMPUTE:status;
         	}
             return status;
         }catch (Exception e){
@@ -271,32 +284,36 @@ public class JobSubmitExecutor{
     }
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
-    	if(orderLinkedBlockingQueue.remove(jobClient.getTaskId())||slotNoAvailableJobClients.remove(jobClient.getTaskId())){
 
-    	    if(jobClient.getEngineTaskId() == null){
-    	        return JobResult.createSuccessResult(jobClient.getTaskId());
+        if(orderLinkedBlockingQueue.remove(jobClient.getTaskId())
+                || slotNoAvailableJobClients.remove(jobClient.getTaskId())){
+            //直接移除
+            Map<String, Integer> jobStatus = Maps.newHashMap();
+            jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
+            jobClient.getJobClientCallBack().execute(jobStatus);
+        }
+
+        if(jobClient.getEngineTaskId() == null){
+            return JobResult.createSuccessResult(jobClient.getTaskId());
+        }
+
+        String engineType = jobClient.getEngineType();
+        IClient client = clientMap.get(engineType);
+        JobResult jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+            @Override
+            public Object execute() throws Exception {
+                return client.cancelJob(jobClient.getEngineTaskId());
             }
+        }, client.getClass().getClassLoader(),null,true);
 
-            String engineType = jobClient.getEngineType();
-            IClient client = clientMap.get(engineType);
-            return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    return client.cancelJob(jobClient.getEngineTaskId());
-                }
-            },client.getClass().getClassLoader(),null,true);
-    	}
-
-    	Map<String, Integer> jobStatus = Maps.newHashMap();
-        jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
-
-    	jobClient.getJobClientCallBack().execute(jobStatus);
-    	return JobResult.createSuccessResult(jobClient.getTaskId());
+    	return jobResult;
     }
     
-    private void getEngineAvailbalSlots(){
+    private void getEngineAvailableSlots(){
 
     	queExecutor.submit(new Runnable(){
+
+    	    private boolean firstStart = true;
 
 			@Override
 			public void run() {
@@ -304,7 +321,7 @@ public class JobSubmitExecutor{
 			    while(true){
 
                     try {
-                        Thread.sleep(STATUS_INTERVAL);
+                        Thread.sleep(AVAILABLE_SLOTS_INTERVAL);
                         Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
 
                         for(Map.Entry<String, IClient> entry : entrys){
@@ -342,6 +359,12 @@ public class JobSubmitExecutor{
                             }catch (Exception e){
                                 logger.error("", e);
                             }
+
+                            if(firstStart){
+                                processCountDownLatch.countDown();
+                                logger.info("----get available slots thread started-----");
+                            }
+
                         }
                     } catch (InterruptedException e1) {
                         logger.error("", e1);
@@ -483,14 +506,10 @@ public class JobSubmitExecutor{
     }
     
     
-	public boolean judgeSlostsAndAgainExecute(String engineType, String jobId) {
+	public boolean judgeSlotsAndAgainExecute(String engineType, String jobId) {
 		if(EngineType.isFlink(engineType)){
 			String message = getEngineMessageByHttp(engineType,String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO,jobId));
-			if(StringUtils.isNotBlank(message)){
-				if(message.indexOf(EngineRestParseUtil.FlinkRestParseUtil.NORESOURCE_AVAIABLE_EXCEPYION) >= 0){
-					return true;
-				}
-			}
+            return EngineRestParseUtil.FlinkRestParseUtil.checkNoSlots(message);
 		}
 		return false;
 	}
@@ -513,7 +532,6 @@ public class JobSubmitExecutor{
                 jobClient.getJobClientCallBack().execute(updateStatus);
                 IClient clusterClient = clientMap.get(jobClient.getEngineType());
                 JobResult jobResult = null;
-                boolean needTaskListener = false;
 
                 if(clusterClient == null){
                     jobResult = JobResult.createErrorResult("setting client type " +
@@ -531,7 +549,6 @@ public class JobSubmitExecutor{
                         updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
                         jobClient.getJobClientCallBack().execute(updateStatus);
 
-                        needTaskListener = true;
                         jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
 
                         jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
@@ -546,15 +563,13 @@ public class JobSubmitExecutor{
                         jobClient.setEngineTaskId(jobId);
                 	}
 
-                }catch (Throwable e){//捕获未处理异常,防止跳出执行线程
+                }catch (Throwable e){
+                    //捕获未处理异常,防止跳出执行线程
                     jobClient.setEngineTaskId(null);
                     jobResult = JobResult.createErrorResult(e);
                     logger.error("get unexpected exception", e);
                 }finally {
-                    if(needTaskListener){
-                        listenerJobStatus(jobClient, jobResult);
-                    }
-
+                    jobClient.setJobResult(jobResult);
                     slotNoAvailableJobClients.put(jobClient);
                     logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
@@ -568,31 +583,3 @@ public class JobSubmitExecutor{
     }
 }
 
-class CustomThreadFactory implements ThreadFactory {
-    private static final AtomicInteger poolNumber = new AtomicInteger(1);
-    private final ThreadGroup group;
-    private final AtomicInteger threadNumber = new AtomicInteger(1);
-    private final String namePrefix;
-
-    CustomThreadFactory(String name) {
-        SecurityManager s = System.getSecurityManager();
-        group = (s != null) ? s.getThreadGroup() :
-                Thread.currentThread().getThreadGroup();
-        namePrefix = "pool-" + name + "-" +
-                poolNumber.getAndIncrement() +
-                "-thread-";
-    }
-    @Override
-    public Thread newThread(Runnable r) {
-        Thread t = new Thread(group, r,
-                namePrefix + threadNumber.getAndIncrement(),
-                0);
-        if (t.isDaemon()){
-            t.setDaemon(false);
-        }
-        if (t.getPriority() != Thread.NORM_PRIORITY){
-            t.setPriority(Thread.NORM_PRIORITY);
-        }
-        return t;
-    }
-}

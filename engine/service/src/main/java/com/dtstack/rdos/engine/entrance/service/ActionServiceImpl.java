@@ -120,13 +120,13 @@ public class ActionServiceImpl {
         jobClient.setJobClientCallBack(new JobClientCallBack(){
 
 			@Override
-			public void execute(Map<String, ? extends Object> parmas) {
+			public void execute(Map<String, ? extends Object> exeParams) {
 
-                if(!params.containsKey(JOB_STATUS)){
+                if(!exeParams.containsKey(JOB_STATUS)){
                     return;
                 }
 
-                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+                int jobStatus = MathUtil.getIntegerVal(exeParams.get(JOB_STATUS));
 
                 updateJobZookStatus(zkTaskId, jobStatus);
                 updateJobStatus(jobId, computeType, jobStatus);

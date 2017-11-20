@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class SlotNoAvailableJobClient {
 	
-	private Logger logger =LoggerFactory.getLogger(SlotNoAvailableJobClient.class);
+	private Logger logger = LoggerFactory.getLogger(SlotNoAvailableJobClient.class);
 	
 	private ReentrantLock reentrantLock = new ReentrantLock();
 	
@@ -30,40 +30,47 @@ public class SlotNoAvailableJobClient {
 		try{
 			reentrantLock.lock();
 			Iterator<String> iterator =  slotNoAvailableJobClients.keySet().iterator();
+
 			while(iterator.hasNext()){
 				String key = iterator.next();
-				JobClient job = slotNoAvailableJobClients.get(key);
-				if(StringUtils.isBlank(job.getEngineTaskId()) && !isSubmitFail(job)){
-					logger.info("------ job: {} add into orderLinkedBlockingQueue again.", job.getTaskId());
-					orderLinkedBlockingQueue.put(job);
-					iterator.remove();
-				} else if(StringUtils.isBlank(job.getEngineTaskId()) && isSubmitFail(job)){
+				JobClient jobClient = slotNoAvailableJobClients.get(key);
 
-                    //如果遇到由于集群不可用的情况下需要重复提交
-                    if(isSubmitFailOfEngineDown(job)){
-                        orderLinkedBlockingQueue.put(job);
-                        iterator.remove();
-                        continue;
-                    }
-
-                    //其他提交失败的直接移除
+				if(checkNeedReSubmit(jobClient)){
+                    logger.info("------ job: {} add into orderLinkedBlockingQueue again.", jobClient.getTaskId());
+                    orderLinkedBlockingQueue.put(jobClient);
                     iterator.remove();
-                }else {
-					if(JobSubmitExecutor.getInstance().judgeSlostsAndAgainExecute(job.getEngineType(),job.getEngineTaskId())){
-						orderLinkedBlockingQueue.put(job);
-						iterator.remove();
-					}else{
-						iterator.remove();
-					}
-				}
+                }else{
+                    iterator.remove();
+                    listenerJobStatus(jobClient);
+                }
 			}
             
 		}catch(Throwable e){
-			logger.error("",e);
+			logger.error("", e);
 		}finally{
 			reentrantLock.unlock();
 		}
 	}
+
+	public boolean checkNeedReSubmit(JobClient jobClient){
+
+        if(jobClient.getJobResult() == null){
+            //未提交过
+            return true;
+        } else if(isSubmitFailOfEngineDown(jobClient)){
+            //因为引擎挂了,需要不断重试
+            return true;
+        }else if(StringUtils.isBlank(jobClient.getEngineTaskId()) && !isSubmitFail(jobClient)){
+            //FIXME
+            return true;
+        } else if(StringUtils.isNotBlank(jobClient.getEngineTaskId())
+                && JobSubmitExecutor.getInstance().judgeSlotsAndAgainExecute(jobClient.getEngineType(), jobClient.getEngineTaskId())){
+            //提交成功但是获取到的在服务器上出现资源不足
+            return true;
+        }
+
+        return false;
+    }
 
 	public boolean isSubmitFail(JobClient jobClient){
 
@@ -75,6 +82,10 @@ public class SlotNoAvailableJobClient {
     }
 
     public boolean isSubmitFailOfEngineDown(JobClient jobClient){
+
+	    if(!isSubmitFail(jobClient)){
+	        return false;
+        }
 
 	    try{
 	        if(EngineType.isFlink(jobClient.getEngineType())){
@@ -114,5 +125,10 @@ public class SlotNoAvailableJobClient {
 			reentrantLock.unlock();
 		}
 		return false;
+	}
+
+	private void listenerJobStatus(JobClient jobClient){
+		jobClient.setJobResult(jobClient.getJobResult());
+		JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
 	}
 }
