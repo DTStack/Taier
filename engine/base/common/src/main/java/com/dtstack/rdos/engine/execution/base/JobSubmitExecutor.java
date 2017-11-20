@@ -55,9 +55,9 @@ public class JobSubmitExecutor{
 
     private static final String TYPE_NAME_KEY = "typeName";
 
-    private static final int STATUS_INTERVAL = 5000;
+    private static final int AVAILABLE_SLOTS_INTERVAL = 5000;//mills
 
-    private static final int THREAD_REJECT_INTERVAL = 5000;
+    private static final int THREAD_REJECT_INTERVAL = 5000;//mills
 
     private Pattern engineNamePattern = Pattern.compile("([a-zA-Z]*).*");
 
@@ -301,7 +301,7 @@ public class JobSubmitExecutor{
 			    while(true){
 
                     try {
-                        Thread.sleep(STATUS_INTERVAL);
+                        Thread.sleep(AVAILABLE_SLOTS_INTERVAL);
                         Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
 
                         for(Map.Entry<String, IClient> entry : entrys){
