@@ -269,8 +269,13 @@ public class JobSubmitExecutor{
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
-        orderLinkedBlockingQueue.remove(jobClient.getTaskId());
-        slotNoAvailableJobClients.remove(jobClient.getTaskId());
+        if(!orderLinkedBlockingQueue.remove(jobClient.getTaskId())
+                || !slotNoAvailableJobClients.remove(jobClient.getTaskId())){
+            //直接移除
+            Map<String, Integer> jobStatus = Maps.newHashMap();
+            jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
+            jobClient.getJobClientCallBack().execute(jobStatus);
+        }
 
         if(jobClient.getEngineTaskId() == null){
             return JobResult.createSuccessResult(jobClient.getTaskId());
