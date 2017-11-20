@@ -534,7 +534,6 @@ public class JobSubmitExecutor{
                 }finally {
                     jobClient.setJobResult(jobResult);
                     slotNoAvailableJobClients.put(jobClient);
-                    listenerJobStatus(jobClient, jobResult);
                     logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
             }
