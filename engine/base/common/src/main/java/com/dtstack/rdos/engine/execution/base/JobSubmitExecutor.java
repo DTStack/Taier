@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -92,6 +93,9 @@ public class JobSubmitExecutor{
     private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
 
     private EngineDeployInfo engineDeployInfo;
+
+    //用于控制处理任务的线程在其他条件准备好之后才能开始启动,目前有slot资源获取准备
+    final CountDownLatch processCountDownLatch = new CountDownLatch(1);
     
     private SlotsJudge slotsjudge = new SlotsJudge();
     
@@ -114,7 +118,7 @@ public class JobSubmitExecutor{
             initJobClient(clientParamsList);
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
-            getEngineAvailbalSlots();
+            getEngineAvailableSlots();
 
             List<Map<String, Object>> engineTypeList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPE_KEY);
             engineDeployInfo = new EngineDeployInfo(engineTypeList);
@@ -128,6 +132,13 @@ public class JobSubmitExecutor{
     	queExecutor.submit(new Runnable() {
             @Override
             public void run() {
+
+                try {
+                    processCountDownLatch.await();
+                } catch (InterruptedException e) {
+                    logger.error("", e);
+                }
+
                 for(;;){
                     JobClient jobClient = null;
                     try{
@@ -293,9 +304,11 @@ public class JobSubmitExecutor{
     	return jobResult;
     }
     
-    private void getEngineAvailbalSlots(){
+    private void getEngineAvailableSlots(){
 
     	queExecutor.submit(new Runnable(){
+
+    	    private boolean firstStart = true;
 
 			@Override
 			public void run() {
@@ -341,6 +354,11 @@ public class JobSubmitExecutor{
                             }catch (Exception e){
                                 logger.error("", e);
                             }
+
+                            if(firstStart){
+                                processCountDownLatch.countDown();
+                            }
+
                         }
                     } catch (InterruptedException e1) {
                         logger.error("", e1);
