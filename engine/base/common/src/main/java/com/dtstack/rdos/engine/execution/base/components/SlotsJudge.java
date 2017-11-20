@@ -91,21 +91,21 @@ public class SlotsJudge {
 	 */
 	public boolean judgeFlinkResource(JobClient jobClient, Map<String, Map<String,Object>> slotsInfo){
 
-        int avaliableSlots = 0;
+        int availableSlots = 0;
         for(Map<String, Object> value : slotsInfo.values()){
             int freeSlots = MathUtil.getIntegerVal(value.get("freeSlots"));
-            avaliableSlots += freeSlots;
+            availableSlots += freeSlots;
         }
 
         boolean result = true;
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
             int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
-            result = result && avaliableSlots >= maxParall;
+            result = result && availableSlots >= maxParall;
         }
 
         if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
             int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
-            result = result && avaliableSlots >= maxParall;
+            result = result && availableSlots >= maxParall;
         }
 
         return result;

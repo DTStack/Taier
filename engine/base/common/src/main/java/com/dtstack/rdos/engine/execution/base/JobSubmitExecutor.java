@@ -268,27 +268,28 @@ public class JobSubmitExecutor{
     }
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
-    	if(orderLinkedBlockingQueue.remove(jobClient.getTaskId())||slotNoAvailableJobClients.remove(jobClient.getTaskId())){
 
-    	    if(jobClient.getEngineTaskId() == null){
-    	        return JobResult.createSuccessResult(jobClient.getTaskId());
+        orderLinkedBlockingQueue.remove(jobClient.getTaskId());
+        slotNoAvailableJobClients.remove(jobClient.getTaskId());
+
+        if(jobClient.getEngineTaskId() == null){
+            return JobResult.createSuccessResult(jobClient.getTaskId());
+        }
+
+        String engineType = jobClient.getEngineType();
+        IClient client = clientMap.get(engineType);
+        JobResult jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+            @Override
+            public Object execute() throws Exception {
+                return client.cancelJob(jobClient.getEngineTaskId());
             }
-
-            String engineType = jobClient.getEngineType();
-            IClient client = clientMap.get(engineType);
-            return  (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    return client.cancelJob(jobClient.getEngineTaskId());
-                }
-            },client.getClass().getClassLoader(),null,true);
-    	}
+        }, client.getClass().getClassLoader(),null,true);
 
     	Map<String, Integer> jobStatus = Maps.newHashMap();
         jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
 
     	jobClient.getJobClientCallBack().execute(jobStatus);
-    	return JobResult.createSuccessResult(jobClient.getTaskId());
+    	return jobResult;
     }
     
     private void getEngineAvailbalSlots(){
