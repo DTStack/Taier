@@ -285,10 +285,6 @@ public class JobSubmitExecutor{
             }
         }, client.getClass().getClassLoader(),null,true);
 
-    	Map<String, Integer> jobStatus = Maps.newHashMap();
-        jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
-
-    	jobClient.getJobClientCallBack().execute(jobStatus);
     	return jobResult;
     }
     
