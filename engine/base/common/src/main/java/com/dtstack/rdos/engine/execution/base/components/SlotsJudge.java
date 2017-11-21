@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.components;
 
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +34,13 @@ public class SlotsJudge {
 
     public static final String SPARK_DRIVER_CPU = "driver.cores";
 
-    public static final String SPARK_EXE_CPU = "cores.max";
+    public static final String STANDALONE_SPARK_EXECUTOR_CORES = "executor.cores";
+
+    public static final String STANDALONE_SPARK_MAX_CORES = "cores.max";
+
+    public static final int DEFAULT_EXECUTOR_CORES = 1;
+
+    public static final int DEFAULT_CORES_MAX = 1;
 
     public static final Pattern capacityPattern = Pattern.compile("(\\d+)\\s*([a-zA-Z]{1,2})");
 
@@ -128,7 +135,17 @@ public class SlotsJudge {
             coreNum += workerFreeCpu;
         }
 
-        return checkNeedMEMForSpark(jobClient, memNum) && checkNeedCPUForSpark(jobClient, coreNum);
+        Properties properties = jobClient.getConfProperties();
+        int coresMax = properties.containsKey(STANDALONE_SPARK_MAX_CORES) ?
+                (int) properties.get(STANDALONE_SPARK_MAX_CORES) : DEFAULT_CORES_MAX;
+
+        int executorCores = properties.contains(STANDALONE_SPARK_EXECUTOR_CORES) ?
+                (int) properties.get(STANDALONE_SPARK_EXECUTOR_CORES) : DEFAULT_EXECUTOR_CORES;
+
+        int executorNum = coresMax/executorCores;
+        executorNum = executorNum > 0 ? executorNum : 1;
+
+        return checkNeedMEMForSpark(jobClient, memNum, executorNum) && checkNeedCPUForSpark(jobClient, coreNum, executorNum);
 	}
 
     /**
@@ -137,7 +154,7 @@ public class SlotsJudge {
      * @param memNum
      * @return
      */
-	public boolean checkNeedMEMForSpark(JobClient jobClient, int memNum){
+	public boolean checkNeedMEMForSpark(JobClient jobClient, int memNum, int executorNum){
         int needMem = 0;
         if(jobClient.getConfProperties().containsKey(SPARK_DRIVER_MEM)) {
             String driverMem = (String) jobClient.getConfProperties().get(SPARK_DRIVER_MEM);
@@ -146,12 +163,16 @@ public class SlotsJudge {
             needMem += 512;
         }
 
+        int executorMem = 0;
         if(jobClient.getConfProperties().containsKey(SPARK_EXE_MEM)){
             String exeMem = (String) jobClient.getConfProperties().get(SPARK_EXE_MEM);
-            needMem += convert2MB(exeMem);
-        }else{//默认app内存512
-            needMem += 512;
+            executorMem = convert2MB(exeMem);
+        }else{//默认app内存512M
+            executorMem = 512;
         }
+
+        executorMem = executorMem * executorNum;
+        needMem += executorMem;
 
         if(needMem > memNum){
             return false;
@@ -166,23 +187,26 @@ public class SlotsJudge {
      * @param coreNum
      * @return
      */
-	public boolean checkNeedCPUForSpark(JobClient jobClient, int coreNum){
-        int neeCore = 0;
+	public boolean checkNeedCPUForSpark(JobClient jobClient, int coreNum, int executorNum){
+        int needCore = 0;
         if(jobClient.getConfProperties().containsKey(SPARK_DRIVER_CPU)){
             String driverCPU = (String) jobClient.getConfProperties().get(SPARK_DRIVER_CPU);
-            neeCore += MathUtil.getIntegerVal(driverCPU);
+            needCore += MathUtil.getIntegerVal(driverCPU);
         }else{
-            neeCore += 1;
+            needCore += 1;
         }
 
-        if(jobClient.getConfProperties().containsKey(SPARK_EXE_CPU)){
-            String exeCPU = (String) jobClient.getConfProperties().get(SPARK_EXE_CPU);
-            neeCore += MathUtil.getIntegerVal(exeCPU);
+        int executorCores = 0;
+        if(jobClient.getConfProperties().containsKey(STANDALONE_SPARK_MAX_CORES)){
+            String exeCPU = (String) jobClient.getConfProperties().get(STANDALONE_SPARK_MAX_CORES);
+            executorCores = MathUtil.getIntegerVal(exeCPU);
         }else{
-            neeCore += 1;
+            executorCores = 1;
         }
 
-        if(neeCore > coreNum){
+        needCore += executorCores;
+
+        if(needCore > coreNum){
             return false;
         }
         return true;
