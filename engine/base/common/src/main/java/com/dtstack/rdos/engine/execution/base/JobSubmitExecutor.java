@@ -391,10 +391,6 @@ public class JobSubmitExecutor{
 	    return message;
     }
 
-    public String getFlinkEngineLogByHttp(String jobId) {
-        return null;
-    }
-
     public String getEngineLogByHttp(String engineType, String jobId) {
         IClient client = clientMap.get(engineType);
         String logInfo = "";

@@ -39,8 +39,6 @@ public class TaskStatusListener implements Runnable{
 	
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 
-    public final static String JOBEXCEPTION = "jobs/%s/exceptions";
-
     public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 10;
 
     private static long listener = 2000;
@@ -73,7 +71,7 @@ public class TaskStatusListener implements Runnable{
 	  		try{
 		  		++index;
 		  		Thread.sleep(listener);
-		  		if(PublicUtil.count(index, 5))logger.warn("TaskStatusListener start again...");
+		  		if(PublicUtil.count(index, 5)){logger.warn("TaskStatusListener start again...");}
 		  		updateTaskStatus();
 			}catch(Throwable e){
 				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
