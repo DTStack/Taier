@@ -321,7 +321,6 @@ public class JobSubmitExecutor{
 			    while(true){
 
                     try {
-                        Thread.sleep(AVAILABLE_SLOTS_INTERVAL);
                         Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
 
                         for(Map.Entry<String, IClient> entry : entrys){
@@ -366,6 +365,7 @@ public class JobSubmitExecutor{
                             }
 
                         }
+                        Thread.sleep(AVAILABLE_SLOTS_INTERVAL);
                     } catch (InterruptedException e1) {
                         logger.error("", e1);
                     }

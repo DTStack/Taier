@@ -6,7 +6,6 @@ import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
-import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;

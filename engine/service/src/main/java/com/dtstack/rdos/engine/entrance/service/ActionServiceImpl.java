@@ -9,7 +9,6 @@ import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamActionLogDAO;
 import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
-import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
 import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;

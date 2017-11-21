@@ -51,7 +51,7 @@ public class HeartBeatListener implements Runnable{
 				++index;
 				if(this.masterListener.isMaster()){
 					healthCheck();
-					if(PublicUtil.count(index, 5))logger.warn("HeartBeatListener start check again...");
+					if(PublicUtil.count(index, 5)){logger.warn("HeartBeatListener start check again...");}
 				}
 				Thread.sleep(HEATBEATCHECK);
 			}

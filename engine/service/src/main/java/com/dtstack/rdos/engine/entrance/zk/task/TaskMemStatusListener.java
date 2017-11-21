@@ -31,7 +31,7 @@ public class TaskMemStatusListener implements Runnable{
 			try{
 				Thread.sleep(listener);
 				++index;
-				if(PublicUtil.count(index, 5))logger.warn("TaskMemStatusListener start again");
+				if(PublicUtil.count(index, 5)){logger.warn("TaskMemStatusListener start again");}
 				zkDistributed.initMemTaskStatus();
 			}catch(Throwable e){
 				logger.error("AllTaskStatusListener error:{}",ExceptionUtil.getErrorMessage(e));
