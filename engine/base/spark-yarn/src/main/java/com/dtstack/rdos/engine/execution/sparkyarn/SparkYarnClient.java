@@ -1,7 +1,9 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
+import com.clearspring.analytics.util.Lists;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
@@ -18,6 +20,7 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.apache.http.HttpStatus;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.apache.spark.deploy.yarn.Client;
@@ -42,7 +45,7 @@ public class SparkYarnClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
 
-    private static final ObjectMapper objMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private SparkYarnConfig sparkYarnConfig;
 
@@ -51,6 +54,12 @@ public class SparkYarnClient extends AbsClient {
     private Configuration yarnConf = new YarnConfiguration();
 
     private YarnClient yarnClient = YarnClient.createYarnClient();
+
+    private static final String HADOOP_CONF_DIR_KEY = "HADOOP_CONF_DIR";
+
+    private static final String XML_SUFFIX = ".xml";
+
+    private static final String HDFS_PREFIX = "hdfs://";
 
     private static final String KEY_PRE_STR = "spark.";
 
@@ -66,10 +75,18 @@ public class SparkYarnClient extends AbsClient {
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
 
+    private List<String> webAppAddrList = Lists.newArrayList();
+
+    private static final String CLUSTER_INFO_WS_FORMAT = "http://%s/ws/v1/cluster";
+
+    /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
+    private static final String ALIVE_WEB_FLAG = "clusterInfo";
+
     @Override
     public void init(Properties prop) throws Exception {
+
         String errorMessage = null;
-        sparkYarnConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkYarnConfig.class);
+        sparkYarnConfig = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsBytes(prop), SparkYarnConfig.class);
 
         if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
             errorMessage = "you need to set sparkYarnArchive when used spark engine.";
@@ -86,12 +103,13 @@ public class SparkYarnClient extends AbsClient {
             throw new RdosException(errorMessage);
         }
 
-        if(System.getenv("HADOOP_CONF_DIR") !=  null) {
-            File[] xmlFileList = new File(System.getenv("HADOOP_CONF_DIR")).listFiles(new FilenameFilter() {
+        if(System.getenv(HADOOP_CONF_DIR_KEY) !=  null) {
+            File[] xmlFileList = new File(System.getenv(HADOOP_CONF_DIR_KEY)).listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    if(name.endsWith(".xml"))
+                    if(name.endsWith(XML_SUFFIX)){
                         return true;
+                    }
                     return false;
                 }
             });
@@ -103,10 +121,8 @@ public class SparkYarnClient extends AbsClient {
             }
         }
 
-
-
         System.setProperty("SPARK_YARN_MODE", "true");
-        haYarnConf();
+        yarnConf();
         yarnClient.init(yarnConf);
         yarnClient.start();
 
@@ -119,7 +135,7 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.master", "yarn");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
-        sparkConf.set("spark.submit.deployMode",deployMode);
+        sparkConf.set("spark.submit.deployMode", deployMode);
 
         //----设定spark 执行的executor数量(默认为2)
         sparkConf.set("spark.executor.instances", "2");
@@ -139,8 +155,10 @@ public class SparkYarnClient extends AbsClient {
      */
     private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
 
-        sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM); //默认执行内存
-        sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);  //默认请求的cpu核心数
+        //默认执行内存
+        sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM);
+        //默认请求的cpu核心数
+        sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
@@ -154,12 +172,13 @@ public class SparkYarnClient extends AbsClient {
         Properties properties = adaptToJarSubmit(jobClient);
 
         String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
-        String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);//只支持hdfs
+        //只支持hdfs
+        String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);
         String appName = properties.getProperty(JOB_APP_NAME_KEY);
         String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
 
-        if(!jarPath.startsWith("hdfs://")){
-            throw new RdosException("spark jar path protocol must be hdfs://");
+        if(!jarPath.startsWith(HDFS_PREFIX)){
+            throw new RdosException("spark jar path protocol must be " + HDFS_PREFIX);
         }
 
         if(Strings.isNullOrEmpty(appName)){
@@ -211,7 +230,8 @@ public class SparkYarnClient extends AbsClient {
     public JobResult submitPythonJob(JobClient jobClient){
 
         Properties properties = adaptToJarSubmit(jobClient);
-        String pyFilePath = properties.getProperty(JOB_JAR_PATH_KEY);//.py .egg .zip 存储的hdfs路径
+        //.py .egg .zip 存储的hdfs路径
+        String pyFilePath = properties.getProperty(JOB_JAR_PATH_KEY);
         String appName = properties.getProperty(JOB_APP_NAME_KEY);
         String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
 
@@ -290,7 +310,7 @@ public class SparkYarnClient extends AbsClient {
 
         String sqlExeJson = null;
         try{
-            sqlExeJson = objMapper.writeValueAsString(paramsMap);
+            sqlExeJson = OBJECT_MAPPER.writeValueAsString(paramsMap);
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("get unexpected exception:" + e.getMessage());
@@ -338,6 +358,8 @@ public class SparkYarnClient extends AbsClient {
                 return submitSparkSqlJobForBatch(jobClient);
             case STREAM:
                 return submitSparkSqlJobForStream(jobClient);
+            default:
+                //do nothing
 
         }
 
@@ -373,7 +395,6 @@ public class SparkYarnClient extends AbsClient {
                 case NEW_SAVING:
                     return RdosTaskStatus.CREATED;
                 case SUBMITTED:
-                    //return RdosTaskStatus.SUBMITTED;
                     //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
                     return RdosTaskStatus.WAITCOMPUTE;
                 case ACCEPTED:
@@ -396,7 +417,28 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public String getJobMaster() {
-        return "yarn";
+        //解析config,获取web-address
+        String aliveWebAddr = null;
+        for(String addr : webAppAddrList){
+            String response = null;
+            String reqUrl = String.format(CLUSTER_INFO_WS_FORMAT, addr);
+            try{
+                response = PoolHttpClient.get(reqUrl);
+                if(response.contains(ALIVE_WEB_FLAG)){
+                    aliveWebAddr = addr;
+                    break;
+                }
+            }catch (Exception e){
+                continue;
+            }
+        }
+
+        if(!Strings.isNullOrEmpty(aliveWebAddr)){
+            webAppAddrList.remove(aliveWebAddr);
+            webAppAddrList.add(0, aliveWebAddr);
+        }
+
+        return aliveWebAddr;
     }
 
     public Properties adaptToJarSubmit(JobClient jobClient){
@@ -430,26 +472,38 @@ public class SparkYarnClient extends AbsClient {
     /**
      * 处理yarn HA的配置项
      */
-    private void haYarnConf() {
+    private void yarnConf() {
         Iterator<Map.Entry<String, String>> iterator = yarnConf.iterator();
+        List<String> tmpWebAppAddr = Lists.newArrayList();
+
         while(iterator.hasNext()) {
             Map.Entry<String,String> entry = iterator.next();
             String key = entry.getKey();
             String value = entry.getValue();
 
+            if(key.contains("yarn.resourcemanager.webapp.address.")){
+                tmpWebAppAddr.add(value);
+            }
+
             if(key.startsWith("yarn.resourcemanager.hostname.")) {
                 String rm = key.substring("yarn.resourcemanager.hostname.".length());
                 String addressKey = "yarn.resourcemanager.address." + rm;
+
+                webAppAddrList.add(value + ":" + YarnConfiguration.DEFAULT_RM_WEBAPP_PORT);
                 if(yarnConf.get(addressKey) == null) {
                     yarnConf.set(addressKey, value + ":" + YarnConfiguration.DEFAULT_RM_PORT);
                 }
             }
         }
+
+        if(tmpWebAppAddr.size() != 0){
+            webAppAddrList = tmpWebAppAddr;
+        }
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        // TODO Auto-generated method stub
-        return null;
+        String reqUrl = String.format("%s%s", getJobMaster(), path);
+        return PoolHttpClient.get(reqUrl);
     }
 }

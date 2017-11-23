@@ -3,7 +3,8 @@ package com.dtstack.rdos.engine.execution.base.components;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
-import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.FlinkStandaloneRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.SparkStandaloneRestParseUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -89,9 +90,9 @@ public class SlotNoAvailableJobClient {
 
 	    try{
 	        if(EngineType.isFlink(jobClient.getEngineType())){
-                return EngineRestParseUtil.FlinkRestParseUtil.checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
+                return FlinkStandaloneRestParseUtil.checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
             }else if(EngineType.isSpark(jobClient.getEngineType())){
-                return EngineRestParseUtil.SparkRestParseUtil.checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
+                return SparkStandaloneRestParseUtil.checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
             }else{
                 return false;
             }

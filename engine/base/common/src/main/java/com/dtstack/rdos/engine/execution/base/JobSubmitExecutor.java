@@ -14,7 +14,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
-import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.FlinkStandaloneRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.SparkStandaloneRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.SparkYarnRestParseUtil;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -24,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -85,7 +86,7 @@ public class JobSubmitExecutor{
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
-    private ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod();
+    private ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod<Object>();
 
     private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<OrderObject>();
 
@@ -95,7 +96,7 @@ public class JobSubmitExecutor{
 
     private EngineDeployInfo engineDeployInfo;
 
-    //用于控制处理任务的线程在其他条件准备好之后才能开始启动,目前有slot资源获取准备
+    /**用于控制处理任务的线程在其他条件准备好之后才能开始启动,目前有slot资源获取准备*/
     final CountDownLatch processCountDownLatch = new CountDownLatch(1);
     
     private SlotsJudge slotsjudge = new SlotsJudge();
@@ -336,23 +337,23 @@ public class JobSubmitExecutor{
                                     String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                                         @Override
                                         public Object execute() throws Exception {
-                                            return client.getMessageByHttp(EngineRestParseUtil.FlinkRestParseUtil.SLOTS_INFO);
+                                            return client.getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
                                         }
 
                                     },client.getClass().getClassLoader(),null,true);
 
-                                    slotsInfo.put(key, EngineRestParseUtil.FlinkRestParseUtil.getAvailSlots(message));
+                                    slotsInfo.put(key, FlinkStandaloneRestParseUtil.getAvailSlots(message));
                                 }else if(EngineType.isSpark(key) && EDeployType.STANDALONE.getType() == deployTypeVal){
 
                                     String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                                         @Override
                                         public Object execute() throws Exception {
-                                            return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+                                            return client.getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
                                         }
 
                                     },client.getClass().getClassLoader(),null,true);
 
-                                    slotsInfo.put(key, EngineRestParseUtil.SparkRestParseUtil.getAvailSlots(message));
+                                    slotsInfo.put(key, SparkStandaloneRestParseUtil.getAvailSlots(message));
                                 }
 
                             }catch (Exception e){
@@ -393,17 +394,19 @@ public class JobSubmitExecutor{
 
     public String getEngineLogByHttp(String engineType, String jobId) {
         IClient client = clientMap.get(engineType);
+        EDeployType deployType = JobSubmitExecutor.getInstance().getEngineDeployType(engineType);
+
         String logInfo = "";
 
         try {
-            if (EngineType.isFlink(engineType)) {
+            if (EngineType.isFlink(engineType) && deployType == EDeployType.STANDALONE) {
                 Map<String,String> logJsonMap = new ClassLoaderCallBackMethod<Map<String,String>>()
                         .callback(()-> {
-                            String exceptPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO, jobId);
+                            String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
                             String except = client.getMessageByHttp(exceptPath);
-                            String jobPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.JOB_INFO, jobId);
+                            String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
                             String jobInfo = client.getMessageByHttp(jobPath);
-                            String accuPath = String.format(EngineRestParseUtil.FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+                            String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
                             String accuInfo = client.getMessageByHttp(accuPath);
                             Map<String,String> retMap = new HashMap<String, String>();
                             retMap.put("except", except);
@@ -412,33 +415,34 @@ public class JobSubmitExecutor{
                             return retMap;
                         }, client.getClass().getClassLoader(), null, true);
 
-                logInfo = EngineRestParseUtil.FlinkRestParseUtil.parseEngineLog(logJsonMap);
+                logInfo = FlinkStandaloneRestParseUtil.parseEngineLog(logJsonMap);
 
-            } else if (EngineType.isSpark(engineType)) {
+            } else if (EngineType.isSpark(engineType) && deployType == EDeployType.STANDALONE) {
+                //TODO 把spark 日志整理成一个对象---当前嵌套太多,没办法阅读
 
                 Map<String, List<Map<String, String>>> log = null;
                 String rootMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
                     @Override
                     public Object execute() throws Exception {
-                        return client.getMessageByHttp(EngineRestParseUtil.SparkRestParseUtil.ROOT);
+                        return client.getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
                     }
                 }, client.getClass().getClassLoader(), null, true);
 
                 if (rootMessage == null) {
-                    return "can not get message from " + EngineRestParseUtil.SparkRestParseUtil.ROOT;
+                    return "can not get message from " + SparkStandaloneRestParseUtil.ROOT;
                 }
 
-                String driverLog = EngineRestParseUtil.SparkRestParseUtil.getDriverLog(rootMessage, jobId);
+                String driverLog = SparkStandaloneRestParseUtil.getDriverLog(rootMessage, jobId);
                 if (driverLog == null) {
                     return "parse driver log message error. see the server log for detail.";
                 }
 
-                String appId = EngineRestParseUtil.SparkRestParseUtil.getAppId(driverLog);
+                String appId = SparkStandaloneRestParseUtil.getAppId(driverLog);
                 if (appId == null) {
                     return "get spark app id exception. see the server log for detail.";
                 }
 
-                String url = String.format(EngineRestParseUtil.SparkRestParseUtil.APP_LOGURL_FORMAT, appId);
+                String url = String.format(SparkStandaloneRestParseUtil.APP_LOGURL_FORMAT, appId);
                 String appMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
                     @Override
                     public Object execute() throws Exception {
@@ -446,7 +450,7 @@ public class JobSubmitExecutor{
                     }
                 }, client.getClass().getClassLoader(), null, true);
 
-                log = EngineRestParseUtil.SparkRestParseUtil.getAppLog(appMessage);
+                log = SparkStandaloneRestParseUtil.getAppLog(appMessage);
                 List<Map<String, String>> list = new ArrayList<>();
                 Map<String, String> map = new HashMap<>();
                 map.put("id", jobId);
@@ -455,7 +459,39 @@ public class JobSubmitExecutor{
                 log.put("driverLog", list);
 
                 logInfo = PublicUtil.objToString(log);
-            } else {
+            } else if(EngineType.isSpark(engineType) && deployType == EDeployType.YARN){
+
+                String appReqUrl = String.format(SparkYarnRestParseUtil.APPLICATION_WS_FORMAT, jobId);
+                String rootMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
+                    @Override
+                    public Object execute() throws Exception {
+                        return client.getMessageByHttp(appReqUrl);
+                    }
+                }, client.getClass().getClassLoader(), null, true);
+
+                String containerLogURL = SparkYarnRestParseUtil.getContainerLogURL(rootMessage);
+                if(containerLogURL == null){
+                    return "can not get amContainerLogs by yarn webservice api.";
+                }
+
+                String appLogUrl = String.format(SparkYarnRestParseUtil.APPLICATION_LOG_URL_FORMAT, containerLogURL);
+                String logMsg = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
+                    @Override
+                    public Object execute() throws Exception {
+                        return client.getMessageByHttp(appLogUrl);
+                    }
+                }, client.getClass().getClassLoader(), null, true);
+
+                Map<String, List<Map<String, String>>> log = Maps.newHashMap();
+                List<Map<String, String>> list = new ArrayList<>();
+                Map<String, String> map = new HashMap<>();
+                map.put("id", jobId);
+                map.put("value", logMsg);
+                list.add(map);
+
+                log.put("appLog", list);
+                logInfo = PublicUtil.objToString(log);
+            }else {
                 logInfo = "not support for " + engineType + " to get exception info.";
             }
         }catch (Exception e){
@@ -504,8 +540,8 @@ public class JobSubmitExecutor{
     
 	public boolean judgeSlotsAndAgainExecute(String engineType, String jobId) {
 		if(EngineType.isFlink(engineType)){
-			String message = getEngineMessageByHttp(engineType,String.format(EngineRestParseUtil.FlinkRestParseUtil.EXCEPTION_INFO,jobId));
-            return EngineRestParseUtil.FlinkRestParseUtil.checkNoSlots(message);
+			String message = getEngineMessageByHttp(engineType,String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO,jobId));
+            return FlinkStandaloneRestParseUtil.checkNoSlots(message);
 		}
 		return false;
 	}

@@ -1,19 +1,19 @@
 package com.dtstack.rdos.engine.execution.base.components;
 
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
-import com.dtstack.rdos.engine.execution.base.util.EngineRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.SparkStandaloneRestParseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 
@@ -129,8 +129,8 @@ public class SlotsJudge {
 	    int coreNum = 0;
 	    int memNum = 0;
 	    for(Map<String, Object> tmpMap : slotsInfo.values()){
-            int workerFreeMem = (int) tmpMap.get(EngineRestParseUtil.SparkRestParseUtil.MEMORY_FREE_KEY);
-            int workerFreeCpu = (int) tmpMap.get(EngineRestParseUtil.SparkRestParseUtil.CORE_FREE_KEY);
+            int workerFreeMem = (int) tmpMap.get(SparkStandaloneRestParseUtil.MEMORY_FREE_KEY);
+            int workerFreeCpu = (int) tmpMap.get(SparkStandaloneRestParseUtil.CORE_FREE_KEY);
             memNum += workerFreeMem;
             coreNum += workerFreeCpu;
         }

@@ -21,12 +21,6 @@ public interface IClient {
      */
     void init(Properties prop) throws Exception;
 
-    /**
-     * 提交的时候先判断下计算资源是否足够,
-     * 只有sql方式才能判断,jar方式计算资源在jar包里面指定,无法获取
-     * @param jobClient
-     * @return
-     */
     JobResult submitJob(JobClient jobClient);
 
     JobResult cancelJob(String jobId);
@@ -37,4 +31,4 @@ public interface IClient {
 	
 	String getMessageByHttp(String path);
 
-    }
+}
