@@ -121,11 +121,11 @@ public class JobSubmitExecutor{
             initJobClient(clientParamsList);
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
-            getEngineAvailableSlots();
 
             List<Map<String, Object>> engineTypeList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPE_KEY);
             engineDeployInfo = new EngineDeployInfo(engineTypeList);
 
+            getEngineAvailableSlots();
             hasInit = true;
         }
     }

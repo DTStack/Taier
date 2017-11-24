@@ -61,6 +61,8 @@ public class SparkYarnClient extends AbsClient {
 
     private static final String HDFS_PREFIX = "hdfs://";
 
+    private static final String HTTP_PREFIX = "http://";
+
     private static final String KEY_PRE_STR = "spark.";
 
     /**默认每个处理器可以使用的内存大小*/
@@ -482,14 +484,15 @@ public class SparkYarnClient extends AbsClient {
             String value = entry.getValue();
 
             if(key.contains("yarn.resourcemanager.webapp.address.")){
+                if(!value.startsWith(HTTP_PREFIX)){
+                    value = HTTP_PREFIX + value.trim();
+                }
                 tmpWebAppAddr.add(value);
-            }
-
-            if(key.startsWith("yarn.resourcemanager.hostname.")) {
+            } else if(key.startsWith("yarn.resourcemanager.hostname.")) {
                 String rm = key.substring("yarn.resourcemanager.hostname.".length());
                 String addressKey = "yarn.resourcemanager.address." + rm;
 
-                webAppAddrList.add(value + ":" + YarnConfiguration.DEFAULT_RM_WEBAPP_PORT);
+                webAppAddrList.add(HTTP_PREFIX + value + ":" + YarnConfiguration.DEFAULT_RM_WEBAPP_PORT);
                 if(yarnConf.get(addressKey) == null) {
                     yarnConf.set(addressKey, value + ":" + YarnConfiguration.DEFAULT_RM_PORT);
                 }
