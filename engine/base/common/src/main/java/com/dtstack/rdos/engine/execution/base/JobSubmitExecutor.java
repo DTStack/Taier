@@ -13,6 +13,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.dtstack.rdos.engine.execution.base.util.FlinkStandaloneRestParseUtil;
 import com.dtstack.rdos.engine.execution.base.util.SparkStandaloneRestParseUtil;
@@ -418,9 +419,7 @@ public class JobSubmitExecutor{
                 logInfo = FlinkStandaloneRestParseUtil.parseEngineLog(logJsonMap);
 
             } else if (EngineType.isSpark(engineType) && deployType == EDeployType.STANDALONE) {
-                //TODO 把spark 日志整理成一个对象---当前嵌套太多,没办法阅读
 
-                Map<String, List<Map<String, String>>> log = null;
                 String rootMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
                     @Override
                     public Object execute() throws Exception {
@@ -450,15 +449,10 @@ public class JobSubmitExecutor{
                     }
                 }, client.getClass().getClassLoader(), null, true);
 
-                log = SparkStandaloneRestParseUtil.getAppLog(appMessage);
-                List<Map<String, String>> list = new ArrayList<>();
-                Map<String, String> map = new HashMap<>();
-                map.put("id", jobId);
-                map.put("value", driverLog);
-                list.add(map);
-                log.put("driverLog", list);
+                SparkJobLog sparkJobLog = SparkStandaloneRestParseUtil.getAppLog(appMessage);
+                sparkJobLog.addDriverLog(jobId, driverLog);
 
-                logInfo = PublicUtil.objToString(log);
+                logInfo = sparkJobLog.toString();
             } else if(EngineType.isSpark(engineType) && deployType == EDeployType.YARN){
 
                 String appReqUrl = String.format(SparkYarnRestParseUtil.APPLICATION_WS_FORMAT, jobId);
@@ -482,15 +476,9 @@ public class JobSubmitExecutor{
                     }
                 }, client.getClass().getClassLoader(), null, true);
 
-                Map<String, List<Map<String, String>>> log = Maps.newHashMap();
-                List<Map<String, String>> list = new ArrayList<>();
-                Map<String, String> map = new HashMap<>();
-                map.put("id", jobId);
-                map.put("value", logMsg);
-                list.add(map);
-
-                log.put("appLog", list);
-                logInfo = PublicUtil.objToString(log);
+                SparkJobLog sparkJobLog = new SparkJobLog();
+                sparkJobLog.addAppLog(jobId, logMsg);
+                logInfo = sparkJobLog.toString();
             }else {
                 logInfo = "not support for " + engineType + " to get exception info.";
             }

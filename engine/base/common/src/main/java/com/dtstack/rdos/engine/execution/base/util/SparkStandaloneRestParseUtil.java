@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
@@ -13,9 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -190,14 +189,6 @@ public class SparkStandaloneRestParseUtil {
         return mbVal.intValue();
     }
 
-    /**
-     * TODO
-     * @param message
-     * @return
-     */
-    public static String getJobMessage(String message){
-        return null;
-    }
 
     public static String getDriverLog(String message, String engineJobId){
 
@@ -229,24 +220,20 @@ public class SparkStandaloneRestParseUtil {
         return null;
     }
 
-    public static Map<String, List<Map<String, String>>> getAppLog(String appMessage) {
-        Map<String, List<Map<String, String>>> appLogMap = new HashMap<>();
-        List<Map<String, String>> list = new ArrayList<>();
+    public static SparkJobLog getAppLog(String appMessage) {
+
+        SparkJobLog sparkJobLog = new SparkJobLog();
         Document doc = Jsoup.parse(appMessage);
         Elements appLogEles = doc.getElementsContainingOwnText("stderr");
+
         for (int i = 0; i < appLogEles.size(); i++) {
             String appLogUrl = appLogEles.get(i).attr("href");
             String appLog = getLog(appLogUrl);
             String workerId = appLogEles.get(i).parent().parent().child(1).text();
-            Map<String, String> map = new HashMap<>();
-            map.put("id", workerId);
-            map.put("value", appLog);
-            list.add(map);
+            sparkJobLog.addAppLog(workerId, appLog);
         }
 
-        appLogMap.put("appLog", list);
-
-        return appLogMap;
+        return sparkJobLog;
     }
 
     private static String getLog(String url) {
