@@ -31,7 +31,7 @@ public class SparkYarnRestParseUtil {
         }
 
         Map<String, Object> appInfo = (Map<String, Object>) info.get("app");
-        if(appInfo.containsKey("amContainerLogs")){
+        if(!appInfo.containsKey("amContainerLogs")){
             return null;
         }
 
