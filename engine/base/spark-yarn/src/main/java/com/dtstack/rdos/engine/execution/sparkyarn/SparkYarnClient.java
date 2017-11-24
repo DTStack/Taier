@@ -79,7 +79,7 @@ public class SparkYarnClient extends AbsClient {
 
     private List<String> webAppAddrList = Lists.newArrayList();
 
-    private static final String CLUSTER_INFO_WS_FORMAT = "http://%s/ws/v1/cluster";
+    private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
