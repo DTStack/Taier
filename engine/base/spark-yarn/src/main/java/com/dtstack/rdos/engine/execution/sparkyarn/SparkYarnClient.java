@@ -506,7 +506,11 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s", getJobMaster(), path);
+        String reqUrl = path;
+        if(!path.startsWith(HTTP_PREFIX)){
+            reqUrl = String.format("%s%s", path);
+        }
+
         return PoolHttpClient.get(reqUrl);
     }
 }
