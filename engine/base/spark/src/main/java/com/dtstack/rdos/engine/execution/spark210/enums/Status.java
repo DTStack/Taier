@@ -9,5 +9,4 @@ package com.dtstack.rdos.engine.execution.spark210.enums;
 public enum Status {
 	
 	ALIVE,STANDBY;
-	
 }

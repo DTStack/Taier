@@ -1,23 +1,16 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
-import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
-import com.dtstack.rdos.engine.execution.base.components.SlotsJudge;
-import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
-import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
-import com.dtstack.rdos.engine.execution.base.util.FlinkStandaloneRestParseUtil;
-import com.dtstack.rdos.engine.execution.base.util.SparkStandaloneRestParseUtil;
-import com.dtstack.rdos.engine.execution.base.util.SparkYarnRestParseUtil;
+import com.dtstack.rdos.engine.execution.base.util.SlotJudge;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -27,10 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 /**
  * 任务提交执行容器
  * 单独起线程执行
@@ -63,11 +53,7 @@ public class JobSubmitExecutor{
 
     private static final int THREAD_REJECT_INTERVAL = 5000;//mills
 
-    private Pattern engineNamePattern = Pattern.compile("([a-zA-Z]*).*");
-
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
-
-    public static final String ENGINE_TYPE_KEY = "engineTypes";
 
     private int minPollSize = 10;
 
@@ -87,22 +73,22 @@ public class JobSubmitExecutor{
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
-    private ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod<Object>();
+    private ClassLoaderCallBackMethod<Object> classLoaderCallBackMethod = new ClassLoaderCallBackMethod<>();
 
-    private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<OrderObject>();
+    private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<>();
 
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
     
-    private Map<String,Map<String,Map<String,Object>>> slotsInfo = Maps.newConcurrentMap();
-
-    private EngineDeployInfo engineDeployInfo;
+    private Map<String, EngineResourceInfo> slotsInfo = Maps.newConcurrentMap();
 
     /**用于控制处理任务的线程在其他条件准备好之后才能开始启动,目前有slot资源获取准备*/
     final CountDownLatch processCountDownLatch = new CountDownLatch(1);
-    
-    private SlotsJudge slotsjudge = new SlotsJudge();
-    
+
     private JobSubmitExecutor(){}
+
+    public static JobSubmitExecutor getInstance(){
+        return singleton;
+    }
 
     public void init(Map<String,Object> engineConf) throws Exception{
         if(!hasInit){
@@ -112,18 +98,15 @@ public class JobSubmitExecutor{
 
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<Runnable>(1));
-
+                    new ArrayBlockingQueue<>(1), new CustomThreadFactory("jobExecutor"));
 
             queExecutor = new ThreadPoolExecutor(3, 3,
                     0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<Runnable>(2), new CustomThreadFactory("queExecutor"));
+                    new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
+
             initJobClient(clientParamsList);
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
-
-            List<Map<String, Object>> engineTypeList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPE_KEY);
-            engineDeployInfo = new EngineDeployInfo(engineTypeList);
 
             getEngineAvailableSlots();
             hasInit = true;
@@ -147,7 +130,7 @@ public class JobSubmitExecutor{
                     JobClient jobClient = null;
                     try{
                         jobClient = (JobClient)orderLinkedBlockingQueue.take();
-                        executor.submit(new JobSubmitProcessor(jobClient));
+                        executor.submit(new JobSubmitProcessor(jobClient, clientMap, slotsInfo, slotNoAvailableJobClients));
                     }catch (RejectedExecutionException rejectEx){
                         //如果添加到执行线程池失败则添加回等待队列,并等待5s
                         try {
@@ -171,7 +154,7 @@ public class JobSubmitExecutor{
 				for(;;){
 					try {
 						Thread.sleep(THREAD_REJECT_INTERVAL);
-						slotNoAvailableJobClients.noAvailSlotsJobaddExecutionQueue(orderLinkedBlockingQueue);
+						slotNoAvailableJobClients.noAvailSlotsJobAddExecutionQueue(orderLinkedBlockingQueue);
 					} catch (InterruptedException e) {
 						logger.error("", e);
 					}
@@ -202,13 +185,13 @@ public class JobSubmitExecutor{
                 }
             },client.getClass().getClassLoader(),null,true);
 
-            String key = getEngineName(clientTypeStr);
+            String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             clientMap.put(key, client);
         }
     }
 
     private void loadComputerPlugin(String pluginType) throws Exception{
-    	String plugin = String.format("%s/plugin/%s", userDir,pluginType);
+    	String plugin = String.format("%s/plugin/%s", userDir, pluginType);
 		File finput = new File(plugin);
 		if(!finput.exists()){
 			throw new Exception(String.format("%s direcotry not found",plugin));
@@ -216,14 +199,14 @@ public class JobSubmitExecutor{
 		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
     }
 
-	private URLClassLoader getClassLoad(File dir) throws MalformedURLException, IOException{
+	private URLClassLoader getClassLoad(File dir) throws IOException{
 		File[] files = dir.listFiles();
 		URL[] urls = new URL[files.length];
 		int index = 0;
-	    if (files!=null&&files.length>0){
-			for(File f:files){
+	    if (files!=null && files.length>0){
+			for(File f : files){
 				String jarName = f.getName();
-				if(f.isFile()&&jarName.endsWith(".jar")){
+				if(f.isFile() && jarName.endsWith(".jar")){
 					urls[index] = f.toURI().toURL();
 					index = index+1;
 				}
@@ -231,10 +214,6 @@ public class JobSubmitExecutor{
 	    }
     	return new DtClassLoader(urls, this.getClass().getClassLoader());
 	}
-
-    public static JobSubmitExecutor getInstance(){
-        return singleton;
-    }
 
     public void submitJob(JobClient jobClient) throws Exception{
         orderLinkedBlockingQueue.put(jobClient);
@@ -256,8 +235,9 @@ public class JobSubmitExecutor{
              },client.getClass().getClassLoader(),null,true);
 
         	if(status == RdosTaskStatus.FAILED){
-        		status = judgeSlotsAndAgainExecute(engineType,jobId)?RdosTaskStatus.WAITCOMPUTE:status;
+        		status = SlotJudge.judgeSlotsAndAgainExecute(engineType, jobId) ? RdosTaskStatus.WAITCOMPUTE : status;
         	}
+
             return status;
         }catch (Exception e){
             logger.error("", e);
@@ -323,49 +303,31 @@ public class JobSubmitExecutor{
 			    while(true){
 
                     try {
-                        Set<Map.Entry<String,IClient>> entrys = clientMap.entrySet();
+                        Set<Map.Entry<String,IClient>> entrySet = clientMap.entrySet();
 
-                        for(Map.Entry<String, IClient> entry : entrys){
+                        for(Map.Entry<String, IClient> entry : entrySet){
+
+                            String key = entry.getKey();
+                            IClient client = entry.getValue();
 
                             try{
-                                String key = entry.getKey();
-                                String keyWithoutVersion = EngineType.getEngineTypeWithoutVersion(key);
-                                Integer deployTypeVal = engineDeployInfo.getDeployMap().get(keyWithoutVersion);
 
-                                IClient client = entry.getValue();
+                                EngineResourceInfo slotInfo = ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<EngineResourceInfo>(){
+                                    @Override
+                                    public EngineResourceInfo execute() throws Exception {
+                                        return client.getAvailSlots();
+                                    }
+                                }, client.getClass().getClassLoader(),true);
 
-                                if(EngineType.isFlink(key) && EDeployType.STANDALONE.getType() == deployTypeVal){
-                                    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                                        @Override
-                                        public Object execute() throws Exception {
-                                            return client.getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
-                                        }
-
-                                    },client.getClass().getClassLoader(),null,true);
-
-                                    slotsInfo.put(key, FlinkStandaloneRestParseUtil.getAvailSlots(message));
-                                }else if(EngineType.isSpark(key) && EDeployType.STANDALONE.getType() == deployTypeVal){
-
-                                    String message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                                        @Override
-                                        public Object execute() throws Exception {
-                                            return client.getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
-                                        }
-
-                                    },client.getClass().getClassLoader(),null,true);
-
-                                    slotsInfo.put(key, SparkStandaloneRestParseUtil.getAvailSlots(message));
-                                }
-
+                                slotsInfo.put(key, slotInfo);
                             }catch (Exception e){
-                                logger.error("", e);
+                                logger.error("get avail slots for " + key + "error.", e);
                             }
 
                             if(firstStart){
                                 processCountDownLatch.countDown();
                                 logger.info("----get available slots thread started-----");
                             }
-
                         }
                         Thread.sleep(AVAILABLE_SLOTS_INTERVAL);
                     } catch (InterruptedException e1) {
@@ -377,7 +339,7 @@ public class JobSubmitExecutor{
     }
     
     
-    public String  getEngineMessageByHttp(String engineType,String path){
+    public String getEngineMessageByHttp(String engineType, String path){
     	IClient client = clientMap.get(engineType);
 	    String message = "";
 		try {
@@ -395,96 +357,16 @@ public class JobSubmitExecutor{
 
     public String getEngineLogByHttp(String engineType, String jobId) {
         IClient client = clientMap.get(engineType);
-        EDeployType deployType = JobSubmitExecutor.getInstance().getEngineDeployType(engineType);
-
         String logInfo = "";
-
-        try {
-            if (EngineType.isFlink(engineType) && deployType == EDeployType.STANDALONE) {
-                Map<String,String> logJsonMap = new ClassLoaderCallBackMethod<Map<String,String>>()
-                        .callback(()-> {
-                            String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
-                            String except = client.getMessageByHttp(exceptPath);
-                            String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
-                            String jobInfo = client.getMessageByHttp(jobPath);
-                            String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-                            String accuInfo = client.getMessageByHttp(accuPath);
-                            Map<String,String> retMap = new HashMap<String, String>();
-                            retMap.put("except", except);
-                            retMap.put("jobInfo", jobInfo);
-                            retMap.put("accuInfo", accuInfo);
-                            return retMap;
-                        }, client.getClass().getClassLoader(), null, true);
-
-                logInfo = FlinkStandaloneRestParseUtil.parseEngineLog(logJsonMap);
-
-            } else if (EngineType.isSpark(engineType) && deployType == EDeployType.STANDALONE) {
-
-                String rootMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
-                    @Override
-                    public Object execute() throws Exception {
-                        return client.getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
-                    }
-                }, client.getClass().getClassLoader(), null, true);
-
-                if (rootMessage == null) {
-                    return "can not get message from " + SparkStandaloneRestParseUtil.ROOT;
+        try{
+            logInfo = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+                @Override
+                public Object execute() throws Exception {
+                    return client.getJobLog(jobId);
                 }
-
-                String driverLog = SparkStandaloneRestParseUtil.getDriverLog(rootMessage, jobId);
-                if (driverLog == null) {
-                    return "parse driver log message error. see the server log for detail.";
-                }
-
-                String appId = SparkStandaloneRestParseUtil.getAppId(driverLog);
-                if (appId == null) {
-                    return "get spark app id exception. see the server log for detail.";
-                }
-
-                String url = String.format(SparkStandaloneRestParseUtil.APP_LOGURL_FORMAT, appId);
-                String appMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
-                    @Override
-                    public Object execute() throws Exception {
-                        return client.getMessageByHttp(url);
-                    }
-                }, client.getClass().getClassLoader(), null, true);
-
-                SparkJobLog sparkJobLog = SparkStandaloneRestParseUtil.getAppLog(appMessage);
-                sparkJobLog.addDriverLog(jobId, driverLog);
-
-                logInfo = sparkJobLog.toString();
-            } else if(EngineType.isSpark(engineType) && deployType == EDeployType.YARN){
-
-                String appReqUrl = String.format(SparkYarnRestParseUtil.APPLICATION_WS_FORMAT, jobId);
-                String rootMessage = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
-                    @Override
-                    public Object execute() throws Exception {
-                        return client.getMessageByHttp(appReqUrl);
-                    }
-                }, client.getClass().getClassLoader(), null, true);
-
-                String containerLogURL = SparkYarnRestParseUtil.getContainerLogURL(rootMessage);
-                if(containerLogURL == null){
-                    return "can not get amContainerLogs by yarn webservice api.";
-                }
-
-                String appLogUrl = String.format(SparkYarnRestParseUtil.APPLICATION_LOG_URL_FORMAT, containerLogURL);
-                String logMsg = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack() {
-                    @Override
-                    public Object execute() throws Exception {
-                        return client.getMessageByHttp(appLogUrl);
-                    }
-                }, client.getClass().getClassLoader(), null, true);
-
-                SparkJobLog sparkJobLog = new SparkJobLog();
-                sparkJobLog.addAppLog(jobId, logMsg);
-                logInfo = sparkJobLog.toString();
-            }else {
-                logInfo = "not support for " + engineType + " to get exception info.";
-            }
+            }, client.getClass().getClassLoader(),null,true);
         }catch (Exception e){
             logger.error("", e);
-            logInfo = "get engine message error," + e.getMessage();
         }
 
         return logInfo;
@@ -499,107 +381,6 @@ public class JobSubmitExecutor{
         	queExecutor.shutdown();
         }
     }
-    
-    /**
-     * FIXME 去掉引擎版本号作为key
-     * @param clientTypeStr
-     * @return
-     */
-    public String getEngineName(String clientTypeStr){
 
-        Matcher matcher = engineNamePattern.matcher(clientTypeStr);
-        if(matcher.find()){
-            return matcher.group(1).toLowerCase();
-        }else{
-            logger.error("can't match clientTypeStr:{} by ([a-zA-Z]*).*", clientTypeStr);
-            return clientTypeStr;
-        }
-    }
-
-    public EDeployType getEngineDeployType(String clientTypeStr){
-        Integer type = engineDeployInfo.getDeployMap().get(clientTypeStr);
-        if(type == null){
-            return  null;
-        }
-
-        return EDeployType.getDeployType(type);
-    }
-    
-    
-	public boolean judgeSlotsAndAgainExecute(String engineType, String jobId) {
-		if(EngineType.isFlink(engineType)){
-			String message = getEngineMessageByHttp(engineType,String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO,jobId));
-            return FlinkStandaloneRestParseUtil.checkNoSlots(message);
-		}
-		return false;
-	}
-
-    class JobSubmitProcessor implements Runnable{
-
-        private JobClient jobClient;
-
-        public JobSubmitProcessor(JobClient jobClient) throws Exception{
-            this.jobClient = jobClient;
-        }
-
-        @Override
-        public void run(){
-            if(jobClient != null){
-
-                Map<String, Integer> updateStatus = Maps.newHashMap();
-                updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.WAITCOMPUTE.getStatus());
-
-                jobClient.getJobClientCallBack().execute(updateStatus);
-                IClient clusterClient = clientMap.get(jobClient.getEngineType());
-                JobResult jobResult = null;
-
-                if(clusterClient == null){
-                    jobResult = JobResult.createErrorResult("setting client type " +
-                            "(" + jobClient.getEngineType()  +") don't found.");
-                    listenerJobStatus(jobClient, jobResult);
-                    return;
-                }
-
-                try {
-                    jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-
-                    if(slotsjudge.judgeSlots(jobClient, slotsInfo)){
-
-                        logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
-                        updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
-                        jobClient.getJobClientCallBack().execute(updateStatus);
-
-                        jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
-
-                        jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                            @Override
-                            public Object execute() throws Exception {
-                                return clusterClient.submitJob(jobClient);
-                            }
-                        },clusterClient.getClass().getClassLoader(),null,true);
-
-                        logger.info("submit job result is:{}.", jobResult);
-                        String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
-                        jobClient.setEngineTaskId(jobId);
-                	}
-
-                }catch (Throwable e){
-                    //捕获未处理异常,防止跳出执行线程
-                    jobClient.setEngineTaskId(null);
-                    jobResult = JobResult.createErrorResult(e);
-                    logger.error("get unexpected exception", e);
-                }finally {
-                    jobClient.setJobResult(jobResult);
-                    slotNoAvailableJobClients.put(jobClient);
-                    logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
-                }
-            }
-        }
-
-        private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
-            jobClient.setJobResult(jobResult);
-            JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
-        }
-    }
 }
 

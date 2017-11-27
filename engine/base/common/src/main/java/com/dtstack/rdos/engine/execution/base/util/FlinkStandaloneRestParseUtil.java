@@ -1,8 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -15,10 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Reason:
+ * FLINK-1.2 和 FLink-1.3 client公用
  * Date: 2017/11/23
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 
@@ -57,29 +56,32 @@ public class FlinkStandaloneRestParseUtil {
 
     public final static String JOB_ACCUMULATOR_INFO = "/jobs/%s/accumulators";
 
-    public final static String NORESOURCE_AVAIABLE_EXCEPYION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
-
-    public final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
+    public final static String NO_RESOURCE_AVAILABLE_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
 
     private final static ObjectMapper objMapper = new ObjectMapper();
 
     private static Logger logger = LoggerFactory.getLogger(FlinkStandaloneRestParseUtil.class);
 
 
-    public static Map<String, Map<String,Object>> getAvailSlots(String message){
+    /**
+     * TODO 需要EngineResourceInfo转化为 FlinkEngineResourceInfo
+     * @param message
+     * @return
+     */
+    public static EngineResourceInfo getAvailSlots(String message){
 
         if(Strings.isNullOrEmpty(message)){
             return null;
         }
 
-        Map<String, Map<String,Object>> availSlots = Maps.newHashMap();
+        EngineResourceInfo resourceInfo = new EngineResourceInfo();
 
         try{
             Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);
             if(taskManagerInfo.containsKey("taskmanagers")){
                 List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
                 for(Map<String, Object> tmp : taskManagerList){
-                    availSlots.put((String)tmp.get("id"), tmp);
+                    resourceInfo.addNodeResource((String)tmp.get("id"), tmp);
                 }
             }
         }catch (Exception e){
@@ -87,7 +89,7 @@ public class FlinkStandaloneRestParseUtil {
             return null;
         }
 
-        return availSlots;
+        return resourceInfo;
     }
 
     public static String parseEngineLog(Map<String,String> jsonMap) throws IOException {
@@ -214,16 +216,8 @@ public class FlinkStandaloneRestParseUtil {
         return PublicUtil.objToString(logMap);
     }
 
-    public static boolean checkFailureForEngineDown(String msg){
-        if(StringUtils.isNotBlank(msg)&&msg.contains(FLINK_ENGINE_DOWN)){
-            return true;
-        }
-
-        return false;
-    }
-
     public static boolean checkNoSlots(String msg){
-        if(StringUtils.isNotBlank(msg)&&msg.contains(NORESOURCE_AVAIABLE_EXCEPYION)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(NO_RESOURCE_AVAILABLE_EXCEPTION)){
             return true;
         }
         return false;

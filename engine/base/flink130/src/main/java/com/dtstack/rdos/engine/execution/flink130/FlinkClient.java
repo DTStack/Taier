@@ -17,7 +17,9 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOper
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.util.FlinkStandaloneRestParseUtil;
 import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
@@ -87,6 +89,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -934,4 +937,32 @@ public class FlinkClient extends AbsClient {
       String reqUrl = String.format("%s%s",getReqUrl(),path);
       return  PoolHttpClient.get(reqUrl);
 	}
+
+    @Override
+    public String getJobLog(String jobId) {
+        String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
+        String except = getMessageByHttp(exceptPath);
+        String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
+        String jobInfo = getMessageByHttp(jobPath);
+        String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+        String accuInfo = getMessageByHttp(accuPath);
+        Map<String,String> retMap = new HashMap<>();
+        retMap.put("except", except);
+        retMap.put("jobInfo", jobInfo);
+        retMap.put("accuInfo", accuInfo);
+
+        try {
+            return FlinkStandaloneRestParseUtil.parseEngineLog(retMap);
+        } catch (IOException e) {
+            logger.error("", e);
+            return "get engine message error," + e.getMessage();
+        }
+    }
+
+    @Override
+    public EngineResourceInfo getAvailSlots() {
+        String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
+        EngineResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
+        return resourceInfo;
+    }
 }

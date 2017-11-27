@@ -10,7 +10,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -508,9 +510,32 @@ public class SparkYarnClient extends AbsClient {
     public String getMessageByHttp(String path) {
         String reqUrl = path;
         if(!path.startsWith(HTTP_PREFIX)){
-            reqUrl = String.format("%s%s", path);
+            reqUrl = String.format("%s%s", getJobMaster(), path);
         }
 
         return PoolHttpClient.get(reqUrl);
+    }
+
+    @Override
+    public String getJobLog(String jobId) {
+        ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
+        SparkJobLog sparkJobLog = new SparkJobLog();
+
+        try {
+            ApplicationReport applicationReport = yarnClient.getApplicationReport(applicationId);
+            String msgInfo = applicationReport.getDiagnostics();
+            sparkJobLog.addAppLog(jobId, msgInfo);
+        } catch (Exception e) {
+            logger.error("", e);
+            sparkJobLog.addAppLog(jobId, "get log from yarn err:" + e.getMessage());
+        }
+
+        return sparkJobLog.toString();
+    }
+
+    @Override
+    public EngineResourceInfo getAvailSlots() {
+        //FIXME
+        return null;
     }
 }

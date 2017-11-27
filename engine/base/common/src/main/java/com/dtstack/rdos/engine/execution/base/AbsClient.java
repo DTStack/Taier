@@ -1,7 +1,10 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import java.io.IOException;
+import java.util.Map;
+
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,5 +72,13 @@ public abstract class AbsClient implements IClient{
         return null;
     }
 
+    @Override
+    public String getJobLog(String jobId) {
+        return "";
+    }
 
+    @Override
+    public EngineResourceInfo getAvailSlots() {
+        return null;
+    }
 }

@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.base.util;
+package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
@@ -14,13 +15,12 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Reason:
+ * 解析从Spark web页面获取的html
  * Date: 2017/11/23
  * Company: www.dtstack.com
  * @ahthor xuchao
@@ -50,8 +50,6 @@ public class SparkStandaloneRestParseUtil {
 
     public final static String MEMORY_FREE_KEY = "memory.free";
 
-    public final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
-
     private static Pattern memPattern = Pattern.compile("\\s*(\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s*\\(([\\-]?\\d+\\.?\\d*)\\s*([G|K|M]?B)\\s+Used\\)");
 
     private static Pattern corePattern = Pattern.compile("\\s*(\\d+)\\s*\\(([\\-]?\\d+)\\s+Used\\)");
@@ -59,13 +57,14 @@ public class SparkStandaloneRestParseUtil {
     private static int MB2B = 1024 * 1024;
 
     /**
+     * FIXME 需要返回值修改为对应的SparkResourceInfo
      * message 为 html字符串
      * @param message
      * @return
      */
-    public static Map<String, Map<String, Object>> getAvailSlots(String message){
+    public static SparkResourceInfo getAvailSlots(String message){
 
-        Map<String, Map<String, Object>> availSlotMap = new HashMap<>();
+        SparkResourceInfo engineResourceInfo = new SparkResourceInfo();
         Document doc = Jsoup.parse(message);
         Elements rootEles = doc.getElementsMatchingOwnText("Worker Id");
         Elements workChildEles = rootEles.first().parent().parent().parent().child(1).children();
@@ -110,10 +109,10 @@ public class SparkStandaloneRestParseUtil {
             workerInfo.put(MEMORY_USED_KEY, memInfo.getRight());
             workerInfo.put(MEMORY_FREE_KEY, memInfo.getLeft() - memInfo.getRight());
 
-            availSlotMap.put(workId, workerInfo);
+            engineResourceInfo.addNodeResource(workId, workerInfo);
         }
 
-        return availSlotMap;
+        return engineResourceInfo;
     }
 
     /**
@@ -247,11 +246,4 @@ public class SparkStandaloneRestParseUtil {
         return log;
     }
 
-    public static boolean checkFailureForEngineDown(String msg){
-        if(msg.contains(SPARK_ENGINE_DOWN)){
-            return true;
-        }
-
-        return false;
-    }
 }

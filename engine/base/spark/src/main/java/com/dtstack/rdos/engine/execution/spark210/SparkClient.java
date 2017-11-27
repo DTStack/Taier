@@ -8,7 +8,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.dtstack.rdos.engine.execution.spark210.enums.Status;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * spark 提交job
@@ -335,4 +339,46 @@ public class SparkClient extends AbsClient {
 		String url = getJobMaster();
 		return PoolHttpClient.get(String.format("http://%s%s", url,path));
 	}
+
+    @Override
+    public String getJobLog(String jobId) {
+
+        SparkJobLog sparkJobLog = new SparkJobLog();
+        String rootMessage = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
+
+        if (rootMessage == null) {
+            String msg = "can not get message from " + SparkStandaloneRestParseUtil.ROOT;
+            sparkJobLog.addAppLog(jobId, msg);
+            return sparkJobLog.toString();
+        }
+
+        String driverLog = SparkStandaloneRestParseUtil.getDriverLog(rootMessage, jobId);
+        if (driverLog == null) {
+            String msg = "parse driver log message error. see the server log for detail.";
+            sparkJobLog.addAppLog(jobId, msg);
+            return sparkJobLog.toString();
+        }
+
+        String appId = SparkStandaloneRestParseUtil.getAppId(driverLog);
+        if (appId == null) {
+            String msg = "get spark app id exception. see the server log for detail.";
+            sparkJobLog.addAppLog(jobId, msg);
+            return sparkJobLog.toString();
+        }
+
+        String url = String.format(SparkStandaloneRestParseUtil.APP_LOGURL_FORMAT, appId);
+        String appMessage = getMessageByHttp(url);
+
+        sparkJobLog = SparkStandaloneRestParseUtil.getAppLog(appMessage);
+        sparkJobLog.addDriverLog(jobId, driverLog);
+
+        return sparkJobLog.toString();
+    }
+
+    @Override
+    public EngineResourceInfo getAvailSlots() {
+        String rootMsg = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
+        EngineResourceInfo resourceInfo = SparkStandaloneRestParseUtil.getAvailSlots(rootMsg);
+        return resourceInfo;
+    }
 }
