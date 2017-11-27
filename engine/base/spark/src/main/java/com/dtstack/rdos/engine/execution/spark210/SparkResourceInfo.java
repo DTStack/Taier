@@ -51,10 +51,10 @@ public class SparkResourceInfo extends EngineResourceInfo {
 
         Properties properties = jobClient.getConfProperties();
         int coresMax = properties.containsKey(STANDALONE_SPARK_MAX_CORES) ?
-                (int) properties.get(STANDALONE_SPARK_MAX_CORES) : DEFAULT_CORES_MAX;
+                MathUtil.getIntegerVal(properties.get(STANDALONE_SPARK_MAX_CORES)) : DEFAULT_CORES_MAX;
 
         int executorCores = properties.contains(STANDALONE_SPARK_EXECUTOR_CORES) ?
-                (int) properties.get(STANDALONE_SPARK_EXECUTOR_CORES) : DEFAULT_EXECUTOR_CORES;
+                MathUtil.getIntegerVal(properties.get(STANDALONE_SPARK_EXECUTOR_CORES)) : DEFAULT_EXECUTOR_CORES;
 
         int executorNum = coresMax/executorCores;
         executorNum = executorNum > 0 ? executorNum : 1;
