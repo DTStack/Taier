@@ -64,6 +64,10 @@ public class SparkStandaloneRestParseUtil {
      */
     public static SparkResourceInfo getAvailSlots(String message){
 
+        if(message == null){
+            return null;
+        }
+
         SparkResourceInfo engineResourceInfo = new SparkResourceInfo();
         Document doc = Jsoup.parse(message);
         Elements rootEles = doc.getElementsMatchingOwnText("Worker Id");

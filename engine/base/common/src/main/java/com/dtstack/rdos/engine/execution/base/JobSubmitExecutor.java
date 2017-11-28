@@ -327,6 +327,7 @@ public class JobSubmitExecutor{
                             if(firstStart){
                                 processCountDownLatch.countDown();
                                 logger.info("----get available slots thread started-----");
+                                firstStart = false;
                             }
                         }
                         Thread.sleep(AVAILABLE_SLOTS_INTERVAL);

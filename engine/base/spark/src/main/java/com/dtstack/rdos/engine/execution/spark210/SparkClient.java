@@ -337,6 +337,11 @@ public class SparkClient extends AbsClient {
 	@Override
 	public String getMessageByHttp(String path) {
 		String url = getJobMaster();
+		if(url == null){
+		    logger.error("-----spark client maybe down. please check it.------");
+		    return null;
+        }
+
 		return PoolHttpClient.get(String.format("http://%s%s", url,path));
 	}
 
@@ -379,6 +384,10 @@ public class SparkClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
         String rootMsg = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
         EngineResourceInfo resourceInfo = SparkStandaloneRestParseUtil.getAvailSlots(rootMsg);
+        if(resourceInfo == null){
+            resourceInfo = new SparkResourceInfo();
+        }
+
         return resourceInfo;
     }
 }
