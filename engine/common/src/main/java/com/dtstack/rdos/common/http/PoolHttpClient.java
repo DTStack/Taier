@@ -120,7 +120,7 @@ public class PoolHttpClient {
 		}
 	}
 	
-	public static String get(String url) {
+	public static String get(String url) throws IOException {
 		String respBody = null;
 		HttpGet httpGet = null; 
 		CloseableHttpResponse response = null;
@@ -139,7 +139,8 @@ public class PoolHttpClient {
 				}
 			}
 		} catch (IOException e) {
-			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
+			logger.error("url:{}--->http request error:{}", url, ExceptionUtil.getErrorMessage(e));
+			throw e;
 		}finally{
 			if(response!=null){
 				try {
@@ -152,7 +153,7 @@ public class PoolHttpClient {
 		return respBody;
 	}
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException {
 		for(int i=0;i<10;i++){
 			System.out.println(PoolHttpClient.get("http://172.16.8.109:8081/jobs/46a3ce65bd66c46e81dead4b11274a67"));
 		}

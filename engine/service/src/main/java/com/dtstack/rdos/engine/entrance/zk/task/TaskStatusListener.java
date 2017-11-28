@@ -39,7 +39,8 @@ public class TaskStatusListener implements Runnable{
 	
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 
-    public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 10;
+	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
+    public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 300;
 
     private static long listener = 2000;
 

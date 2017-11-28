@@ -72,6 +72,7 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.http.HttpStatus;
+import org.apache.http.conn.HttpHostConnectException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -357,6 +358,13 @@ public class FlinkClient extends AbsClient {
      */
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
+
+        if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
+            if(existsJobOnFlink(jobClient.getEngineTaskId())){
+                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
+            }
+        }
+
         Properties properties = adaptToJarSubmit(jobClient);
 
         Object jarPath = properties.get(JOB_JAR_PATH_KEY);
@@ -489,6 +497,13 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+
+        if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
+            if(existsJobOnFlink(jobClient.getEngineTaskId())){
+                return JobResult.createSuccessResult(jobClient.getEngineTaskId());
+            }
+        }
+
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
             throw new RdosException("need to set compute type.");
@@ -785,17 +800,17 @@ public class FlinkClient extends AbsClient {
         String response = null;
         try{
             response = PoolHttpClient.get(reqUrl);
-        }catch (Exception e){
-            //FIXME 如果查询不到就返回失败,因为有可能数据被flink清除了
-            if(e instanceof RdosException && (HttpStatus.SC_NOT_FOUND + "").equals(((RdosException) e).getErrorMessage())){
+        } catch (RdosException e){
+            //如果查询不到有可能数据被flink清除了
+            if((HttpStatus.SC_NOT_FOUND + "").equals(e.getErrorMessage())){
                 return RdosTaskStatus.NOTFOUND;
-            }else{
-                throw e;
+            } else{
+                return null;
             }
-        }
-
-        if(response == null){
-            return RdosTaskStatus.FINISHED;
+        } catch (HttpHostConnectException e){
+            return null;
+        } catch (IOException e) {
+            return null;
         }
 
         try{
@@ -852,8 +867,10 @@ public class FlinkClient extends AbsClient {
 
 	public String getSavepointPath(String engineTaskId){
         String reqUrl = getReqUrl() + "/jobs/" + engineTaskId + "/checkpoints";
-        String response = PoolHttpClient.get(reqUrl);
-        if(response == null){
+        String response = null;
+        try{
+            response = PoolHttpClient.get(reqUrl);
+        }catch (Exception e){
             return null;
         }
 
@@ -933,9 +950,13 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-      String reqUrl = String.format("%s%s",getReqUrl(),path);
-      return  PoolHttpClient.get(reqUrl);
-	}
+        String reqUrl = String.format("%s%s",getReqUrl(),path);
+        try {
+            return PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     @Override
     public String getJobLog(String jobId) {
@@ -968,5 +989,19 @@ public class FlinkClient extends AbsClient {
         }
 
         return resourceInfo;
+    }
+
+    public boolean existsJobOnFlink(String engineJobId){
+        RdosTaskStatus taskStatus = getJobStatus(engineJobId);
+        if(taskStatus == null){
+            return false;
+        }
+
+        if(taskStatus == RdosTaskStatus.RESTARTING
+                || taskStatus == RdosTaskStatus.RUNNING){
+            return true;
+        }
+
+        return false;
     }
 }

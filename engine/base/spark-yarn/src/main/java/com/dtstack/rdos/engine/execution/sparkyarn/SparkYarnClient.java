@@ -22,14 +22,14 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-import org.apache.http.HttpStatus;
 import org.apache.spark.SparkConf;
-import org.apache.spark.deploy.yarn.ClientArguments;
 import org.apache.spark.deploy.yarn.Client;
+import org.apache.spark.deploy.yarn.ClientArguments;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -513,7 +513,11 @@ public class SparkYarnClient extends AbsClient {
             reqUrl = String.format("%s%s", getJobMaster(), path);
         }
 
-        return PoolHttpClient.get(reqUrl);
+        try {
+            return PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override

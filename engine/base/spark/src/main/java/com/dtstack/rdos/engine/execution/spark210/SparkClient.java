@@ -313,9 +313,11 @@ public class SparkClient extends AbsClient {
 		String webMaster = sparkConfig.getSparkWebMaster();
 		String[] webs = webMaster.split(",");
 		for(String web:webs){
-			String html = PoolHttpClient.get(String.format("http://%s", web));
-            if(Strings.isNullOrEmpty(html)){
-                continue;
+            String html = null;
+            try {
+                html = PoolHttpClient.get(String.format("http://%s", web));
+            } catch (IOException e) {
+               continue;
             }
 
 			Document doc = Jsoup.parse(html);
@@ -342,8 +344,12 @@ public class SparkClient extends AbsClient {
 		    return null;
         }
 
-		return PoolHttpClient.get(String.format("http://%s%s", url,path));
-	}
+        try {
+            return PoolHttpClient.get(String.format("http://%s%s", url,path));
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     @Override
     public String getJobLog(String jobId) {

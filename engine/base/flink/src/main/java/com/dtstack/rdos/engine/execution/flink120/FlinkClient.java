@@ -41,6 +41,7 @@ import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpStatus;
+import org.apache.http.conn.HttpHostConnectException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -536,7 +537,7 @@ public class FlinkClient extends AbsClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(String jobId) {
-    	if(jobId == null||"".equals(jobId)){
+    	if(jobId == null || "".equals(jobId)){
     		return null;
     	}
     	
@@ -544,17 +545,14 @@ public class FlinkClient extends AbsClient {
         String response = null;
         try{
             response = PoolHttpClient.get(reqUrl);
-        }catch (Exception e){
+        }catch (RdosException e){
             //FIXME 如果查询不到就返回完成,需要清除,因为有可能数据被flink清除了
-            if(e instanceof RdosException && (HttpStatus.SC_NOT_FOUND + "").equals(((RdosException) e).getErrorMessage())){
+            if((HttpStatus.SC_NOT_FOUND + "").equals(e.getErrorMessage())){
                 return RdosTaskStatus.NOTFOUND;
-            }else{
-                throw e;
             }
-        }
-
-        //url 请求不到
-        if(response == null){
+        }catch (HttpHostConnectException e){
+            return null;
+        } catch (IOException e) {
             return null;
         }
 
@@ -605,8 +603,10 @@ public class FlinkClient extends AbsClient {
 
 	public String getSavepointPath(String engineTaskId){
         String reqUrl = getReqUrl() + "/jobs/" + engineTaskId + "/checkpoints";
-        String response = PoolHttpClient.get(reqUrl);
-        if(response == null){
+        String response = null;
+        try {
+            response = PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
             return null;
         }
 
@@ -665,7 +665,11 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-	      String reqUrl = String.format("%s%s",getReqUrl(),path);
-	      return PoolHttpClient.get(reqUrl);
-	}
+        String reqUrl = String.format("%s%s",getReqUrl(),path);
+        try {
+            return PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
+           return null;
+        }
+    }
 }

@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -62,7 +63,12 @@ public class FlinkSubmitTest {
     public void testGetJobInfo(){
 
         String reqUrl = "http://172.16.1.151:8081/jobs/ed27939c59a611fe54e256eb5b044c91";
-        String response = PoolHttpClient.get(reqUrl);
+        String response = null;
+        try {
+            response = PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if(response != null){
             System.out.println(response);
         }

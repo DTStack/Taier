@@ -227,12 +227,18 @@ public class JobSubmitExecutor{
 
         IClient client = clientMap.get(engineType);
         try{
-        	RdosTaskStatus status = (RdosTaskStatus) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+        	Object result = classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                  @Override
                  public Object execute() throws Exception {
                      return client.getJobStatus(jobId);
                  }
              },client.getClass().getClassLoader(),null,true);
+
+        	if(result == null){
+        	    return null;
+            }
+
+            RdosTaskStatus status = (RdosTaskStatus) result;
 
         	if(status == RdosTaskStatus.FAILED){
         		status = SlotJudge.judgeSlotsAndAgainExecute(engineType, jobId) ? RdosTaskStatus.WAITCOMPUTE : status;
