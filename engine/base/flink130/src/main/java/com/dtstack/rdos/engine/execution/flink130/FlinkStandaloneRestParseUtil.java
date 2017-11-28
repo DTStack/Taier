@@ -1,7 +1,6 @@
-package com.dtstack.rdos.engine.execution.base.util;
+package com.dtstack.rdos.engine.execution.flink130;
 
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -68,13 +67,13 @@ public class FlinkStandaloneRestParseUtil {
      * @param message
      * @return
      */
-    public static EngineResourceInfo getAvailSlots(String message){
+    public static FlinkResourceInfo getAvailSlots(String message){
 
         if(Strings.isNullOrEmpty(message)){
             return null;
         }
 
-        EngineResourceInfo resourceInfo = new EngineResourceInfo();
+        FlinkResourceInfo resourceInfo = new FlinkResourceInfo();
 
         try{
             Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);

@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Reason:
  * Date: 2017/11/16
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 class CustomThreadFactory implements ThreadFactory {

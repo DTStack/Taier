@@ -19,7 +19,6 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.util.FlinkStandaloneRestParseUtil;
 import com.dtstack.rdos.engine.execution.flink130.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink130.source.batch.BatchSourceFactory;
@@ -778,7 +777,7 @@ public class FlinkClient extends AbsClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(String jobId) {
-    	if(jobId == null||"".equals(jobId)){
+    	if(jobId == null || "".equals(jobId)){
     		return null;
     	}
 
@@ -962,7 +961,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public EngineResourceInfo getAvailSlots() {
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
-        EngineResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
+        FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
         return resourceInfo;
     }
 }

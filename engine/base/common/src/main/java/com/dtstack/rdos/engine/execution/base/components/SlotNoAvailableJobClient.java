@@ -63,9 +63,6 @@ public class SlotNoAvailableJobClient {
         } else if(isSubmitFailOfEngineDown(jobClient)){
             //因为引擎挂了,需要不断重试
             return true;
-        }else if(StringUtils.isBlank(jobClient.getEngineTaskId()) && !isSubmitFail(jobClient)){
-            //FIXME
-            return true;
         } else if(StringUtils.isNotBlank(jobClient.getEngineTaskId())
                 && SlotJudge.judgeSlotsAndAgainExecute(jobClient.getEngineType(), jobClient.getEngineTaskId())){
             //提交成功但是获取到的在服务器上出现资源不足
@@ -146,7 +143,7 @@ public class SlotNoAvailableJobClient {
 
     //TODO 暂时放这里
     public static boolean checkFailureForFLinkEngineDown(String msg){
-        if(StringUtils.isNotBlank(msg)&&msg.contains(FLINK_ENGINE_DOWN)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_ENGINE_DOWN)){
             return true;
         }
 
