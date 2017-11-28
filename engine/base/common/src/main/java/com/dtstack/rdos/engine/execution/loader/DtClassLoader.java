@@ -66,20 +66,24 @@ public class DtClassLoader extends URLClassLoader {
             // (0) Check our previously loaded local class cache
             clazz = findLoadedClass0(name);
             if (clazz != null) {
-                if (log.isDebugEnabled())
-                    log.debug("  Returning class from cache");
-                if (resolve)
+                if (log.isDebugEnabled()){
+                    log.debug("Returning class from cache");
+                }
+                if (resolve){
                     resolveClass(clazz);
+                }
                 return (clazz);
             }
 
             // (0.1) Check our previously loaded class cache
             clazz = findLoadedClass(name);
             if (clazz != null) {
-                if (log.isDebugEnabled())
+                if (log.isDebugEnabled()){
                     log.debug("  Returning class from cache");
-                if (resolve)
+                }
+                if (resolve){
                     resolveClass(clazz);
+                }
                 return (clazz);
             }
 
@@ -291,7 +295,7 @@ public class DtClassLoader extends URLClassLoader {
     public Enumeration<URL> findResources(String name) throws IOException {
 
         if (log.isDebugEnabled()){
-            log.debug("    findResources(" + name + ")");
+            log.debug("findResources(" + name + ")");
         }
 
         LinkedHashSet<URL> result = new LinkedHashSet<>();
