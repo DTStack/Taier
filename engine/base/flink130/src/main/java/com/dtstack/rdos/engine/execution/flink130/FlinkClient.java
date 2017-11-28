@@ -804,7 +804,7 @@ public class FlinkClient extends AbsClient {
             //如果查询不到有可能数据被flink清除了
             if((HttpStatus.SC_NOT_FOUND + "").equals(e.getErrorMessage())){
                 return RdosTaskStatus.NOTFOUND;
-            } else{
+            } else {
                 return null;
             }
         } catch (HttpHostConnectException e){

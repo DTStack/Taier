@@ -550,6 +550,8 @@ public class FlinkClient extends AbsClient {
             if((HttpStatus.SC_NOT_FOUND + "").equals(e.getErrorMessage())){
                 return RdosTaskStatus.NOTFOUND;
             }
+
+            return null;
         }catch (HttpHostConnectException e){
             return null;
         } catch (IOException e) {

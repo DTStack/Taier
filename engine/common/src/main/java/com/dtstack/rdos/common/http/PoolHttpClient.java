@@ -136,6 +136,8 @@ public class PoolHttpClient {
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
 					throw new RdosException(HttpStatus.SC_NOT_FOUND + "");
+				}else if(response.getStatusLine().getStatusCode() == HttpStatus.SC_INTERNAL_SERVER_ERROR){
+					throw new RdosException(HttpStatus.SC_INTERNAL_SERVER_ERROR + "");
 				}
 			}
 		} catch (IOException e) {
