@@ -363,21 +363,23 @@ public class SparkClient extends AbsClient {
             return sparkJobLog.toString();
         }
 
-        String driverLog = SparkStandaloneRestParseUtil.getDriverLog(rootMessage, jobId);
+        String driverLogUrl = SparkStandaloneRestParseUtil.getDriverLogUrl(rootMessage, jobId);
+
+        String driverLog = SparkStandaloneRestParseUtil.getDriverLog(driverLogUrl);
         if (driverLog == null) {
             String msg = "parse driver log message error. see the server log for detail.";
             sparkJobLog.addAppLog(jobId, msg);
             return sparkJobLog.toString();
         }
 
-        String appId = SparkStandaloneRestParseUtil.getAppId(driverLog);
+        String appId = SparkStandaloneRestParseUtil.getAppIdNew(driverLogUrl);
         if (appId == null) {
             String msg = "get spark app id exception. see the server log for detail.";
             sparkJobLog.addAppLog(jobId, msg);
             return sparkJobLog.toString();
         }
 
-        String url = String.format(SparkStandaloneRestParseUtil.APP_LOGURL_FORMAT, appId);
+        String url = String.format(SparkStandaloneRestParseUtil.APP_LOG_URL_FORMAT, appId);
         String appMessage = getMessageByHttp(url);
 
         sparkJobLog = SparkStandaloneRestParseUtil.getAppLog(appMessage);

@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,9 +31,15 @@ public class SparkStandaloneRestParseUtil {
 
     public final static String ROOT = "/";
 
-    public static final String DRIVER_LOGURL_FORMAT = "%s/logPage/?driverId=%s&logType=stderr";
+    public static final String DRIVER_LOG_URL_FORMAT = "%s/logPage/?driverId=%s&logType=stderr";
 
-    public static final String APP_LOGURL_FORMAT = "/app/?appId=%s";
+    public static final String DRIVER_LOG_PAGE = "&offset=%s&byteLength=%s";
+
+    public static final int DRIVER_LOG_PAGE_SIZE = 10000;
+
+    public static final int DRIVER_LOG_MAX_PAGE = 10;
+
+    public static final String APP_LOG_URL_FORMAT = "/app/?appId=%s";
 
     public final static String ADDRESS_KEY = "address";
 
@@ -192,17 +197,34 @@ public class SparkStandaloneRestParseUtil {
         return mbVal.intValue();
     }
 
-
-    public static String getDriverLog(String message, String engineJobId){
-
+    public static String getDriverLogUrl(String message, String engineJobId){
         Document rootDoc = Jsoup.parse(message);
         Element workerEle = rootDoc.getElementsContainingOwnText(engineJobId)
                 .first().parent().child(2).select("a").first();
         String workerUrl = workerEle.attr("href");
-        return getLog(String.format(DRIVER_LOGURL_FORMAT, workerUrl, engineJobId));
+        return String.format(DRIVER_LOG_URL_FORMAT, workerUrl, engineJobId);
     }
 
-    public static String getAppId(String driverLog){
+    public static String getDriverLog(String driverLogUrl){
+        return getLog(driverLogUrl);
+    }
+
+    public static String getAppIdNew(String driverLogUrl){
+
+        for(int i=0; i<DRIVER_LOG_MAX_PAGE; i++){//最多只取10次
+            int offset = i * DRIVER_LOG_PAGE_SIZE;
+            String offsetSuffix = String.format(DRIVER_LOG_PAGE, offset, DRIVER_LOG_PAGE_SIZE);
+            String driverLog = getLog(driverLogUrl + offsetSuffix);
+            String appId = getAppFromDriverLog(driverLog);
+            if(appId != null){
+                return appId;
+            }
+        }
+
+        return null;
+    }
+
+    public static String getAppFromDriverLog(String driverLog){
 
         String appId = null;
 
