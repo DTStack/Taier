@@ -173,7 +173,7 @@ public class TaskStatusListener implements Runnable{
     }
 
     private void dealWaitingJobForMigrationJob(String zkJobId, Integer status) throws Exception {
-        if(status != RdosTaskStatus.WAITENGINE.getStatus() && status != RdosTaskStatus.WAITCOMPUTE.getStatus()){
+        if(status != RdosTaskStatus.WAITENGINE.getStatus().intValue() && status != RdosTaskStatus.WAITCOMPUTE.getStatus().intValue()){
             return;
         }
 
@@ -214,7 +214,7 @@ public class TaskStatusListener implements Runnable{
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
-        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
@@ -237,7 +237,7 @@ public class TaskStatusListener implements Runnable{
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
-        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
@@ -260,7 +260,7 @@ public class TaskStatusListener implements Runnable{
 
         Pair<Integer, Integer> statusPair = jobStatusFrequency.get(jobId);
         statusPair = statusPair == null ? new MutablePair<>(status, 0) : statusPair;
-        if(statusPair.getLeft() == status){
+        if(statusPair.getLeft() == status.intValue()){
             statusPair.setValue(statusPair.getRight() + 1);
         }else{
             statusPair = new MutablePair<>(status, 1);
