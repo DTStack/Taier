@@ -14,9 +14,13 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -539,7 +543,34 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public EngineResourceInfo getAvailSlots() {
-        //FIXME
-        return null;
+
+        SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+        try {
+            List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+            for(NodeReport report : nodeReports){
+                Resource capability = report.getCapability();
+                Resource used = report.getUsed();
+                int totalMem = capability.getMemory();
+                int totalCores = capability.getVirtualCores();
+
+                int usedMem = used.getMemory();
+                int usedCores = used.getVirtualCores();
+
+                Map<String, Object> workerInfo = Maps.newHashMap();
+                workerInfo.put(SparkYarnResourceInfo.CORE_TOTAL_KEY, totalCores);
+                workerInfo.put(SparkYarnResourceInfo.CORE_USED_KEY, usedCores);
+                workerInfo.put(SparkYarnResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
+
+                workerInfo.put(SparkYarnResourceInfo.MEMORY_TOTAL_KEY, totalMem);
+                workerInfo.put(SparkYarnResourceInfo.MEMORY_USED_KEY, usedMem);
+                workerInfo.put(SparkYarnResourceInfo.MEMORY_FREE_KEY, totalMem - usedMem);
+
+                resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+
+        return resourceInfo;
     }
 }
