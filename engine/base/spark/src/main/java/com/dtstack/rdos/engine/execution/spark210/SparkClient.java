@@ -53,6 +53,15 @@ public class SparkClient extends AbsClient {
     /**失败后是否重启Driver，仅限于Spark Alone模式*/
     private static final String DEFAULT_SUPERVISE = "false";
 
+    //executor 向driver 发送心跳的间隔时间
+    private static final String DEFAULT_EXECUTOR_HEARTBEARTINTERVAL="240s";
+
+    //spark 所有网络传输的超时时间
+    private static final String DEFAULT_NETWORK_TIMEOUT = "300s";
+
+    //spark 为了本地数据最长的等待时间
+    private static final String DEFAULT_LOCALITY_WAIT="10s";
+
     private static final String DEFAULT_SPARK_SQL_PROXY_JAR_PATH = "/user/spark/spark-0.0.1-SNAPSHOT.jar";
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
@@ -217,10 +226,12 @@ public class SparkClient extends AbsClient {
      * @param confProperties
      */
     private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
-
         sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM); //默认执行内存
         sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);  //默认请求的cpu核心数
         sparkConf.set("spark.driver.supervise",DEFAULT_SUPERVISE);
+        sparkConf.set("spark.network.timeout",DEFAULT_NETWORK_TIMEOUT);
+        sparkConf.set("spark.executor.heartbeatInterval",DEFAULT_EXECUTOR_HEARTBEARTINTERVAL);
+        sparkConf.set("spark.locality.wait",DEFAULT_LOCALITY_WAIT);
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
