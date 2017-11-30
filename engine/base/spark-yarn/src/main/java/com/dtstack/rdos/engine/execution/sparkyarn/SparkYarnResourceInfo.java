@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 
@@ -64,24 +65,33 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
 
     private boolean judgeCores(JobClient jobClient, int instances, int freeCore){
 
-        return true;
+        Properties properties = jobClient.getConfProperties();
+        int executorCores = properties.containsKey(EXECUTOR_CORES_KEY) ?
+                MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY)) : DEFAULT_CORES;
 
-//        Properties properties = jobClient.getConfProperties();
-//        int executorCores = properties.containsKey(EXECUTOR_CORES_KEY) ?
-//                MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY)) : DEFAULT_CORES;
-//
-//        int needCores = instances * executorCores;
-//        return needCores <= freeCore;
+        int needCores = instances * executorCores;
+        return needCores <= freeCore;
     }
 
     public boolean judgeMem(JobClient jobClient, int instances, int freeMem){
         Properties properties = jobClient.getConfProperties();
-        if(properties.containsKey(EXECUTOR_MEM_KEY)){
 
+        int oneNeedMem = DEFAULT_MEM;
+        if(properties.containsKey(EXECUTOR_MEM_KEY)){
+            String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
+            oneNeedMem = UnitConvertUtil.convert2MB(setMemStr);
         }
-//
-//        int needCores = instances * executorCores;
-//        return needCores <= freeCore;
-        return true;
+
+        int executorJvmMem = DEFAULT_MEM_OVERHEAD;
+        if(properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
+            String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
+            executorJvmMem = UnitConvertUtil.convert2MB(setMemStr);
+        }
+
+        oneNeedMem += executorJvmMem;
+
+        int needTotal = instances * oneNeedMem;
+
+        return needTotal <= freeMem;
     }
 }

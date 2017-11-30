@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import org.slf4j.Logger;
@@ -35,9 +36,6 @@ public class SparkResourceInfo extends EngineResourceInfo {
 
     public static final int DEFAULT_CORES_MAX = 1;
 
-    public static final Pattern capacityPattern = Pattern.compile("(\\d+)\\s*([a-zA-Z]{1,2})");
-
-
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         int coreNum = 0;
@@ -67,13 +65,13 @@ public class SparkResourceInfo extends EngineResourceInfo {
         int needMem = 512; //默认driver内存512
         if(jobClient.getConfProperties().containsKey(SPARK_DRIVER_MEM)) {
             String driverMem = (String) jobClient.getConfProperties().get(SPARK_DRIVER_MEM);
-            needMem = convert2MB(driverMem);
+            needMem = UnitConvertUtil.convert2MB(driverMem);
         }
 
         int executorMem = 512; //默认app内存512M
         if(jobClient.getConfProperties().containsKey(SPARK_EXE_MEM)){
             String exeMem = (String) jobClient.getConfProperties().get(SPARK_EXE_MEM);
-            executorMem = convert2MB(exeMem);
+            executorMem = UnitConvertUtil.convert2MB(exeMem);
         }
 
         executorMem = executorMem * executorNum;
@@ -113,31 +111,4 @@ public class SparkResourceInfo extends EngineResourceInfo {
         return true;
     }
 
-    /**
-     * 暂时只做kb,mb,gb转换
-     * @param memStr
-     * @return
-     */
-    public Integer convert2MB(String memStr){
-        Matcher matcher = capacityPattern.matcher(memStr);
-        if(matcher.find() && matcher.groupCount() == 2){
-            String num = matcher.group(1);
-            String unit = matcher.group(2).toLowerCase();
-            if(unit.contains("g")){
-                Double mbNum = MathUtil.getDoubleVal(num) * 1024;
-                return mbNum.intValue();
-            }else if(unit.contains("m")){
-                return MathUtil.getDoubleVal(num).intValue();
-            }else if(unit.contains("k")){
-                Double mbNum = MathUtil.getDoubleVal(num) / 1024;
-                return mbNum.intValue();
-            }else{
-                logger.error("can not convert memStr:" + memStr +", return default 512.");
-            }
-        }else{
-            logger.error("can not convert memStr:" + memStr +", return default 512.");
-        }
-
-        return 512;
-    }
 }
