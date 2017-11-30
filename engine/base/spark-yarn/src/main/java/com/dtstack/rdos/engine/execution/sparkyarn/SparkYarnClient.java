@@ -18,6 +18,7 @@ import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Resource;
@@ -410,7 +411,18 @@ public class SparkYarnClient extends AbsClient {
                 case RUNNING:
                     return RdosTaskStatus.RUNNING;
                 case FINISHED:
-                    return RdosTaskStatus.FINISHED;
+                    //state 为finished状态下需要兼顾判断finalStatus.
+                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                        return RdosTaskStatus.FAILED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                        return RdosTaskStatus.FINISHED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                        return RdosTaskStatus.KILLED;
+                    }else{
+                        return RdosTaskStatus.RUNNING;
+                    }
+
                 case FAILED:
                     return RdosTaskStatus.FAILED;
                 default:
