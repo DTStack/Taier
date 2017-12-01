@@ -67,8 +67,9 @@ public class JobSubmitProcessor implements Runnable{
                 EngineResourceInfo resourceInfo = slotsInfo.get(jobClient.getEngineType());
 
                 if(resourceInfo.judgeSlots(jobClient)){
-
-                    logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
+                    if(logger.isInfoEnabled()){
+                        logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
+                    }
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
                     jobClient.getJobClientCallBack().execute(updateStatus);
 
@@ -77,11 +78,15 @@ public class JobSubmitProcessor implements Runnable{
                     jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
                         @Override
                         public Object execute() throws Exception {
+                            if(logger.isInfoEnabled()){
+                                logger.info("-----jobInfo---->"+jobClient.toString());
+                            }
                             return clusterClient.submitJob(jobClient);
                         }
                     },clusterClient.getClass().getClassLoader(),null,true);
-
-                    logger.info("submit job result is:{}.", jobResult);
+                    if(logger.isInfoEnabled()){
+                        logger.info("submit job result is:{}.", jobResult);
+                    }
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
                 }
@@ -94,7 +99,9 @@ public class JobSubmitProcessor implements Runnable{
             }finally {
                 jobClient.setJobResult(jobResult);
                 slotNoAvailableJobClient.put(jobClient);
-                logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
+                if(logger.isInfoEnabled()){
+                    logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
+                }
             }
         }
     }
