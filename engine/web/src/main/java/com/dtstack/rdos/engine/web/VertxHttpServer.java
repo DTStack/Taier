@@ -1,15 +1,11 @@
 package com.dtstack.rdos.engine.web;
 
 import java.util.Map;
-
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.VertxOptions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.engine.web.vertx.ServerVerticle;
-
 import io.vertx.core.Vertx;
 
 
@@ -35,10 +31,11 @@ public class VertxHttpServer {
 	private void init(){
 		logger.info("VertxHttpServer start...");
 		VertxOptions vo = new VertxOptions();
+		vo.setEventLoopPoolSize(100);
         DeploymentOptions deploymentOptions = new DeploymentOptions();
-        deploymentOptions.setInstances(VertxOptions.DEFAULT_EVENT_LOOP_POOL_SIZE);
+        deploymentOptions.setInstances(100);
         deploymentOptions.setWorker(true);
-        deploymentOptions.setWorkerPoolSize(1000);
+        deploymentOptions.setWorkerPoolSize(2000);
         vertx = Vertx.vertx(vo);
         ServerVerticle.setHostPort(this.nodeConfig);
         vertx.deployVerticle(ServerVerticle.class.getName(), deploymentOptions);
