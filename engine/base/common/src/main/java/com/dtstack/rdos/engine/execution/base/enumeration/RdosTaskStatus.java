@@ -61,6 +61,15 @@ public enum RdosTaskStatus {
         return false;
     }
     
+    public static boolean canSubmitAgain(Byte status){
+		int sta = status.intValue();
+        if(sta ==RdosTaskStatus.UNSUBMIT.getStatus()||sta==RdosTaskStatus.FINISHED.getStatus()||sta==RdosTaskStatus.FAILED.getStatus()||sta == RdosTaskStatus.SUBMITFAILD.getStatus()
+			   || sta == RdosTaskStatus.KILLED.getStatus() || sta == RdosTaskStatus.CANCELED.getStatus()){
+    	    return true;
+        }
+        return false;
+    }
+    
     public static void main(String[] args){
     	System.out.println(RdosTaskStatus.NOTFOUND.name());
     }

@@ -14,6 +14,8 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
  */
 public interface RdosEngineStreamJobMapper {
 	
+    public void insert(RdosEngineStreamJob rdosEngineStreamJob);
+	
 	public void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 	
 	public void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("status") int stauts);

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.annotation.Param;
+import com.dtstack.rdos.common.util.MD5Util;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.web.callback.ApiCallback;
 import com.dtstack.rdos.engine.web.callback.ApiCallbackMethod;
@@ -38,6 +39,8 @@ public class BaseVerticle {
 	
 	private static Map<String,Object> objects = Maps.newConcurrentMap();
 	
+	private final static String CODE = "UTF-8";
+	
 	public void request(final RoutingContext routingContext){
 		
 		final BaseVerticle allRequestVerticle  = this;
@@ -56,12 +59,14 @@ public class BaseVerticle {
 	
 	protected Object reflectionMethod(RoutingContext routingContext) throws Exception{
 		HttpServerRequest httpServerRequest = routingContext.request();
+		//调用合法性验证
+		check(routingContext);
 		Map<String,Object> params = routingContext.getBodyAsJson().getMap();
 		String path = httpServerRequest.path();
 		logger.warn("receive http request:{}:{}",path,routingContext.getBodyAsString());
 		String[] paths = path.split("/");
 		if(paths.length < 2){
-			throw new Exception("url path error,please check");
+			throw new RdosException("url path error,please check");
 		}
 		String name = paths[paths.length-2];
 		String method = paths[paths.length-1];
@@ -80,7 +85,7 @@ public class BaseVerticle {
 			cla = obj.getClass();
 		}
 		if(cla.getAnnotation(Forbidden.class) != null){
-			throw new Exception("this service is forbidden");
+			throw new RdosException("this service is forbidden");
 		}
 		
 		Method[] methods = cla.getMethods();
@@ -92,13 +97,23 @@ public class BaseVerticle {
 			}
 		}
 		if(mm == null){
-			throw new Exception("this method is not exist");
+			throw new RdosException("this method is not exist");
 		}
 		if(mm.getAnnotation(Forbidden.class) != null){
-			throw new Exception("this method is forbidden");
+			throw new RdosException("this method is forbidden");
 		}
 		return mm.invoke(obj, mapToParamObjects(params,mm.getParameters(),mm.getParameterTypes()));
 	} 
+	
+	public void check(RoutingContext routingContext){
+		String body = routingContext.getBodyAsString(CODE);
+		String md5  = routingContext.request().getHeader("md5");
+		String ctime = routingContext.request().getHeader("ctime");
+		String md5other = MD5Util.getMD5String(String.format("%s:%s:%s", ctime,body,ctime));
+		if(!md5other.equals(md5)){
+			throw new RdosException("This call is unlawful");
+		}
+	}
 	
 	private Object[] mapToParamObjects(Map<String, Object> params,
 			Parameter[] parameters, Class<?>[] parameterTypes) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {

@@ -24,7 +24,7 @@ public class RdosEngineBatchJob extends DataObject{
 	     * 任务状态
 	     * UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)
 	     */
-	    private int status;
+	    private Byte status;
 
 		private Date execStartTime;
 
@@ -52,11 +52,11 @@ public class RdosEngineBatchJob extends DataObject{
 			this.engineJobId = engineJobId;
 		}
 
-		public int getStatus() {
+		public Byte getStatus() {
 			return status;
 		}
 
-		public void setStatus(int status) {
+		public void setStatus(Byte status) {
 			this.status = status;
 		}
 

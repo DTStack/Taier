@@ -1,7 +1,6 @@
 package com.dtstack.rdos.engine.db.dao;
 
 import org.apache.ibatis.session.SqlSession;
-
 import com.dtstack.rdos.engine.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
@@ -95,6 +94,20 @@ public class RdosEngineBatchJobDAO {
             public Object execute(SqlSession sqlSession) throws Exception {
             	RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
                 mapper.updateSubmitLog(jobId, submitLog);
+                return null;
+            }
+        });
+	}
+
+
+	public void insert(RdosEngineBatchJob rdosEngineBatchJob) {
+		// TODO Auto-generated method stub
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+            	RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+                mapper.insert(rdosEngineBatchJob);
                 return null;
             }
         });

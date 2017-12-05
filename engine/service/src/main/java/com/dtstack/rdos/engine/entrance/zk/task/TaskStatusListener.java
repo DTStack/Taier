@@ -132,7 +132,7 @@ public class TaskStatusListener implements Runnable{
             if(StringUtils.isNotBlank(engineTaskId)){
 
                 if(EngineType.isDataX(engineTypeName)){
-                    zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, rdosBatchJob.getStatus());
+                    zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, rdosBatchJob.getStatus().intValue());
                 }else{
                     RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId);
 

@@ -100,4 +100,18 @@ public class RdosEngineStreamJobDAO {
             }
         });
 	}
+
+
+	public void insert(RdosEngineStreamJob rdosEngineStreamJob) {
+		// TODO Auto-generated method stub
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+            	RdosEngineStreamJobMapper mapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+                mapper.insert(rdosEngineStreamJob);
+                return null;
+            }
+        });
+	}
 }
