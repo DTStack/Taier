@@ -24,4 +24,6 @@ public interface RdosEngineStreamJobMapper {
 
 	public void updateEngineLog(@Param("taskId")String taskId, @Param("engineLog")String engineLog);
 
+	public void updateSubmitLog(@Param("taskId")String taskId, @Param("submitLog")String submitLog);
+
 }

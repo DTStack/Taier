@@ -58,7 +58,7 @@ public class TaskListener implements Runnable{
                                 RdosTaskStatus.FAILED.getStatus());
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
-					rdosStreamTaskDAO.updateEngineLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
+					rdosStreamTaskDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 				}else if(jobClient.getComputeType().getComputeType()==ComputeType.BATCH.getComputeType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
@@ -68,7 +68,7 @@ public class TaskListener implements Runnable{
                                 RdosTaskStatus.FAILED.getStatus());
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
-					rdosbatchJobDAO.updateEngineLog(jobClient.getTaskId(), jobClient.getEngineTaskId());
+					rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(),jobClient.getJobResult().getJsonStr());
 				}
 
 			} catch (Throwable e) {

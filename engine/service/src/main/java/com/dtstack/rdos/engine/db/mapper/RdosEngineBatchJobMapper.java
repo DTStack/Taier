@@ -24,4 +24,6 @@ public interface RdosEngineBatchJobMapper {
 
 	public void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
 
+	public void updateSubmitLog(@Param("jobId")String jobId, @Param("submitLog")String submitLog);
+
 }
