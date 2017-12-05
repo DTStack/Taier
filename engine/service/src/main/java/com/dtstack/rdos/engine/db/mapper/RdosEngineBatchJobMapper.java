@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.db.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 
 /**
  * 
@@ -12,7 +12,7 @@ import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
  * @author sishu.yss
  *
  */
-public interface RdosBatchJobMapper {
+public interface RdosEngineBatchJobMapper {
 	
 	public void updateJobStatus(@Param("jobId") String jobId, @Param("status") int stauts);
 	
@@ -20,6 +20,8 @@ public interface RdosBatchJobMapper {
 
 	public void updateJobEngineId(@Param("jobId") String jobId,@Param("engineId") String engineId);
 
-	public RdosBatchJob getRdosJobByJobId(@Param("jobId")String jobId);
+	public RdosEngineBatchJob getRdosJobByJobId(@Param("jobId")String jobId);
+
+	public void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
 
 }

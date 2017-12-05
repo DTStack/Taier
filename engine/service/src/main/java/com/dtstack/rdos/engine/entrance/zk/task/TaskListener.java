@@ -1,11 +1,9 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
 import java.util.concurrent.LinkedBlockingQueue;
-import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
-import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
-import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
+import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -30,13 +28,9 @@ public class TaskListener implements Runnable{
 	
 	private LinkedBlockingQueue<JobClient> queue = new LinkedBlockingQueue<JobClient>();
 	
-	private RdosStreamTaskDAO rdosStreamTaskDAO = new RdosStreamTaskDAO();
+	private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
 	
-	private RdosBatchJobDAO rdosbatchJobDAO = new RdosBatchJobDAO();
-
-	private RdosStreamServerLogDao rdosStreamServerLogDAO = new RdosStreamServerLogDao();
-	
-	private RdosBatchServerLogDao rdosBatchServerLogDAO = new RdosBatchServerLogDao();
+	private RdosEngineBatchJobDAO rdosbatchJobDAO = new RdosEngineBatchJobDAO();
 
 	private RdosEngineJobCacheDao rdosEngineJobCacheDao = new RdosEngineJobCacheDao();
 
@@ -64,8 +58,7 @@ public class TaskListener implements Runnable{
                                 RdosTaskStatus.FAILED.getStatus());
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
-					rdosStreamServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
-							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());
+					rdosStreamTaskDAO.updateEngineLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 				}else if(jobClient.getComputeType().getComputeType()==ComputeType.BATCH.getComputeType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
@@ -75,11 +68,8 @@ public class TaskListener implements Runnable{
                                 RdosTaskStatus.FAILED.getStatus());
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
-					
-					rdosBatchServerLogDAO.insertLog(jobClient.getTaskId(), jobClient.getEngineTaskId(),
-							jobClient.getActionLogId(), jobClient.getJobResult().getJsonStr());				
-					}
-
+					rdosbatchJobDAO.updateEngineLog(jobClient.getTaskId(), jobClient.getEngineTaskId());
+				}
 
 			} catch (Throwable e) {
 				logger.error("TaskListener run error:{}",ExceptionUtil.getErrorMessage(e));

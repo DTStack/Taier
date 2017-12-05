@@ -3,14 +3,12 @@ package com.dtstack.rdos.engine.entrance.zk.task;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosBatchServerLogDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
-import com.dtstack.rdos.engine.db.dao.RdosStreamServerLogDao;
-import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
-import com.dtstack.rdos.engine.db.dataobject.RdosBatchJob;
+import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -54,13 +52,9 @@ public class TaskStatusListener implements Runnable{
 	/**记录job 连续某个状态的频次*/
 	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
 
-    private RdosStreamTaskDAO rdosStreamTaskDAO = new RdosStreamTaskDAO();
+    private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
 	
-	private RdosBatchJobDAO rdosbatchJobDAO = new RdosBatchJobDAO();
-
-	private RdosStreamServerLogDao rdosStreamServerLogDao = new RdosStreamServerLogDao();
-
-	private RdosBatchServerLogDao rdosBatchServerLogDao = new RdosBatchServerLogDao();
+	private RdosEngineBatchJobDAO rdosbatchJobDAO = new RdosEngineBatchJobDAO();
 
 	private RdosEngineJobCacheDao rdosEngineJobCacheDao = new RdosEngineJobCacheDao();
 
@@ -109,7 +103,7 @@ public class TaskStatusListener implements Runnable{
 	}
 
 	private void dealStreamJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
-        RdosStreamTask rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
+        RdosEngineStreamJob rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosTask != null){
             String engineTaskId = rdosTask.getEngineTaskId();
@@ -131,7 +125,7 @@ public class TaskStatusListener implements Runnable{
     }
 
     private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
-        RdosBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
+        RdosEngineBatchJob rdosBatchJob  = rdosbatchJobDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
@@ -164,9 +158,9 @@ public class TaskStatusListener implements Runnable{
 
         //写入db
         if(computeType == ComputeType.STREAM.getComputeType()){
-            rdosStreamServerLogDao.updateEngineLog(jobId, jobLog);
+        	rdosStreamTaskDAO.updateEngineLog(jobId, jobLog);
         }else if(computeType == ComputeType.BATCH.getComputeType()){
-            rdosBatchServerLogDao.updateEngineLog(jobId, jobLog);
+        	rdosbatchJobDAO.updateEngineLog(jobId, jobLog);
         }else{
             logger.info("----- not support compute type {}.", computeType);
         }

@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.db.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
-import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 
 /**
  * 
@@ -12,7 +12,7 @@ import com.dtstack.rdos.engine.db.dataobject.RdosStreamTask;
  * @author sishu.yss
  *
  */
-public interface RdosStreamTaskMapper {
+public interface RdosEngineStreamJobMapper {
 	
 	public void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 	
@@ -20,6 +20,8 @@ public interface RdosStreamTaskMapper {
 
 	public void updateTaskEngineId(@Param("taskId") String taskId,@Param("engineId") String engineId);
 
-	public RdosStreamTask getRdosTaskByTaskId(@Param("taskId")String taskId);
+	public RdosEngineStreamJob getRdosTaskByTaskId(@Param("taskId")String taskId);
+
+	public void updateEngineLog(@Param("taskId")String taskId, @Param("engineLog")String engineLog);
 
 }

@@ -4,13 +4,9 @@ import java.util.Map;
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.db.dao.RdosBatchActionLogDAO;
-import com.dtstack.rdos.engine.db.dao.RdosBatchJobDAO;
+import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
-import com.dtstack.rdos.engine.db.dao.RdosStreamActionLogDAO;
-import com.dtstack.rdos.engine.db.dao.RdosStreamTaskDAO;
-import com.dtstack.rdos.engine.db.dataobject.base.ActionLog;
-import com.dtstack.rdos.engine.entrance.enumeration.RdosActionLogStatus;
+import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
@@ -37,11 +33,10 @@ public class ActionServiceImpl {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private RdosStreamActionLogDAO streamActionLogDAO = new RdosStreamActionLogDAO();
-    private RdosBatchActionLogDAO batchActionLogDAO = new RdosBatchActionLogDAO();
-
-    private RdosStreamTaskDAO streamTaskDAO = new RdosStreamTaskDAO();
-    private RdosBatchJobDAO batchJobDAO = new RdosBatchJobDAO();
+    private RdosEngineStreamJobDAO streamTaskDAO = new RdosEngineStreamJobDAO();
+    
+    private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
+    
     private RdosEngineJobCacheDao engineJobCacheDao = new RdosEngineJobCacheDao();
 
     public void start(Map<String, Object> params) throws Exception {
@@ -53,19 +48,12 @@ public class ActionServiceImpl {
             ajobId = jobId;
             Integer computeType  = paramAction.getComputeType();
             acomputeType = computeType;
-            if(paramAction.getRequestStart()!= RequestStart.NODE.getStart()){
-            	ActionLog dbActionLog =getActionLog(paramAction.getActionLogId(),computeType);
-                if(dbActionLog!=null&&dbActionLog.getStatus() == RdosActionLogStatus.SUCCESS.getStatus()){//已经提交过
-                    return;
-                }
-            }
-            updateActionLogStatus(paramAction.getActionLogId(), computeType, RdosActionLogStatus.SUCCESS.getStatus());
             String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
             boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(zkTaskId);
-
             String address = zkDistributed.getExcutionNode();
             if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
-                JobClient jobClient = new JobClient(paramAction);
+                
+            	JobClient jobClient = new JobClient(paramAction);
 
                 jobClient.setJobClientCallBack(new JobClientCallBack() {
 
@@ -98,7 +86,6 @@ public class ActionServiceImpl {
                 updateJobStatus(ajobId, acomputeType, RdosTaskStatus.FAILED.getStatus());
             }
         }
-
     }
 
     @Forbidden
@@ -134,27 +121,6 @@ public class ActionServiceImpl {
         	
         });
         jobClient.stopJob();
-        updateActionLogStatus(paramAction.getActionLogId(), paramAction.getComputeType(), RdosActionLogStatus.UNSTART.getStatus());
-    }
-
-    @Forbidden
-    public ActionLog getActionLog(Long actionLogId, Integer computeType) {
-        ActionLog actionLog = null;
-        if (ComputeType.STREAM.getComputeType().equals(computeType)) {
-            actionLog = streamActionLogDAO.findActionLogById(actionLogId);
-        } else {
-            actionLog = batchActionLogDAO.findActionLogById(actionLogId);
-        }
-        return actionLog;
-    }
-
-    @Forbidden
-    public void updateActionLogStatus(Long actionLogId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getComputeType().equals(computeType)) {
-            streamActionLogDAO.updateActionStatus(actionLogId, status);
-        } else {
-            batchActionLogDAO.updateActionStatus(actionLogId, status);
-        }
     }
 
     @Forbidden
@@ -174,6 +140,4 @@ public class ActionServiceImpl {
     public void deleteJobCache(String jobId){
         engineJobCacheDao.deleteJob(jobId);
     }
-
-
 }
