@@ -139,6 +139,9 @@ public class ActionServiceImpl {
         		result =  true;
         	}else{
         		result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
+        		if(result){
+        			streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+        		}
         	}
         }else{
         	RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
@@ -150,6 +153,9 @@ public class ActionServiceImpl {
         		result =  true;
         	}else{
         		result = RdosTaskStatus.canSubmitAgain(rdosEngineBatchJob.getStatus());
+        		if(result){
+        			batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+        		}
         	}
         }
         return result;
