@@ -1,48 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration
-    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-config.dtd">
- 
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
 <configuration>
     <typeAliases>
-        <typeAlias alias="RdosStreamActionLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamActionLog"/>
-        <typeAlias alias="RdosStreamServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamServerLog" />
-        <typeAlias alias="RdosStreamTask" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTask"/>
-        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>        
-        <typeAlias alias="RdosBatchServerLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchServerLog" />
-        <typeAlias alias="RdosBatchActionLog" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchActionLog"/>
-        <typeAlias alias="RdosBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosBatchJob"/>
+        <typeAlias alias="RdosEngineStreamJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob"/>
+        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>
+        <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob"/>
+        <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache" />
     </typeAliases>
- 
+
     <environments default="production">
-<!--         <environment id="development">
-          <transactionManager type="JDBC"/>
-            <dataSource type="POOLED">
-                <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost:3306/hmkcode"/>
-                <property name="username" value="root"/>
-                <property name="password" value=""/>
-            </dataSource>
-       </environment> -->
-       
         <environment id="production">
-          <transactionManager type="MANAGED"/>
+            <transactionManager type="MANAGED"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://rdos02:3306/rdos_test?useUnicode=true&amp;characterEncoding=utf-8&amp;autoReconnect=true"/>
+                <property name="url" value="jdbc:mysql://rdos02:3306/rdos?charset=utf8"/>
                 <property name="username" value="dtstack"/>
                 <property name="password" value="abc123"/>
-                <!--<property name="poolPingEnabled" value="true"/>-->
             </dataSource>
-       </environment>
+        </environment>
     </environments>
     <mappers>
-        <mapper resource="mybatis/mapper/RdosStreamActionLogMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosStreamServerLogMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosStreamTaskMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosBatchActionLogMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosBatchServerLogMapping.xml"/>
-        <mapper resource="mybatis/mapper/RdosBatchJobMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineStreamJobMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineBatchJobMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
     </mappers>
 </configuration>
