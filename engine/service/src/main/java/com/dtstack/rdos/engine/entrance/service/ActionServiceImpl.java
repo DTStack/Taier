@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.entrance.service;
 
 import java.util.Map;
+
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -18,6 +20,7 @@ import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
@@ -46,6 +49,7 @@ public class ActionServiceImpl {
         Integer acomputeType  = null;
         try {
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+            checkParam(paramAction);
             if(recevieJob(paramAction)){
                 String jobId = paramAction.getTaskId();
                 ajobId = jobId;
@@ -101,6 +105,7 @@ public class ActionServiceImpl {
 
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        checkParam(paramAction);
         String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
         String jobId = paramAction.getTaskId();
         Integer computeType  = paramAction.getComputeType();
@@ -123,6 +128,23 @@ public class ActionServiceImpl {
         	
         });
         jobClient.stopJob();
+    }
+
+
+    private void checkParam(ParamAction paramAction) throws Exception{
+
+        if(StringUtils.isBlank(paramAction.getTaskId())){
+           throw new RdosException("taskId is not allow null");
+        }
+
+        if(paramAction.getComputeType()==null){
+            throw new RdosException("computeType is not allow null");
+        }
+
+        if(paramAction.getEngineType() == null){
+            throw new RdosException("engineType is not allow null");
+        }
+
     }
 
     private boolean recevieJob(ParamAction paramAction){
