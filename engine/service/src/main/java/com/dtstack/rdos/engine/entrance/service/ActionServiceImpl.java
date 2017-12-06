@@ -54,9 +54,10 @@ public class ActionServiceImpl {
                 String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
                 boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(zkTaskId);
                 String address = zkDistributed.getExcutionNode();
+                updateJobZookStatus(zkTaskId,RdosTaskStatus.SUBMITTING.getStatus());
+                updateJobStatus(jobId, computeType, RdosTaskStatus.SUBMITTING.getStatus());
                 if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
-                    updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
-                    updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());                	JobClient jobClient = new JobClient(paramAction);
+              	    JobClient jobClient = new JobClient(paramAction);
                     jobClient.setJobClientCallBack(new JobClientCallBack() {
 
                         @Override
@@ -72,6 +73,8 @@ public class ActionServiceImpl {
                         }
                     });
                     addJobCache(jobId, paramAction.toString());
+                    updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+                    updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
                     jobClient.submitJob();
                 } else {
                     paramAction.setRequestStart(RequestStart.NODE.getStart());
@@ -131,7 +134,7 @@ public class ActionServiceImpl {
         	if(rdosEngineStreamJob == null){
         		rdosEngineStreamJob = new RdosEngineStreamJob();
         		rdosEngineStreamJob.setTaskId(jobId);
-        		rdosEngineStreamJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus().byteValue());
+        		rdosEngineStreamJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
         		streamTaskDAO.insert(rdosEngineStreamJob);
         		result =  true;
         	}else{
@@ -142,7 +145,7 @@ public class ActionServiceImpl {
         	if(rdosEngineBatchJob == null){
         		rdosEngineBatchJob = new RdosEngineBatchJob();
         		rdosEngineBatchJob.setJobId(jobId);
-        		rdosEngineBatchJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus().byteValue());
+        		rdosEngineBatchJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
         		batchJobDAO.insert(rdosEngineBatchJob);
         		result =  true;
         	}else{
