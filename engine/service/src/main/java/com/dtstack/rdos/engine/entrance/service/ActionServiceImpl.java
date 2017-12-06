@@ -55,8 +55,8 @@ public class ActionServiceImpl {
                 boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(zkTaskId);
                 String address = zkDistributed.getExcutionNode();
                 if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
-                    updateJobStatus(jobId, computeType, RdosTaskStatus.SUBMITTING.getStatus());
-                	JobClient jobClient = new JobClient(paramAction);
+                    updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+                    updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());                	JobClient jobClient = new JobClient(paramAction);
                     jobClient.setJobClientCallBack(new JobClientCallBack() {
 
                         @Override
@@ -70,12 +70,8 @@ public class ActionServiceImpl {
                             updateJobZookStatus(zkTaskId, jobStatus);
                             updateJobStatus(jobId, computeType, jobStatus);
                         }
-
                     });
-
                     addJobCache(jobId, paramAction.toString());
-                    updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
-                    updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
                     jobClient.submitJob();
                 } else {
                     paramAction.setRequestStart(RequestStart.NODE.getStart());
@@ -135,7 +131,7 @@ public class ActionServiceImpl {
         	if(rdosEngineStreamJob == null){
         		rdosEngineStreamJob = new RdosEngineStreamJob();
         		rdosEngineStreamJob.setTaskId(jobId);
-        		rdosEngineStreamJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+        		rdosEngineStreamJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus().byteValue());
         		streamTaskDAO.insert(rdosEngineStreamJob);
         		result =  true;
         	}else{
@@ -146,7 +142,7 @@ public class ActionServiceImpl {
         	if(rdosEngineBatchJob == null){
         		rdosEngineBatchJob = new RdosEngineBatchJob();
         		rdosEngineBatchJob.setJobId(jobId);
-        		rdosEngineBatchJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+        		rdosEngineBatchJob.setStatus(RdosTaskStatus.SUBMITTING.getStatus().byteValue());
         		batchJobDAO.insert(rdosEngineBatchJob);
         		result =  true;
         	}else{

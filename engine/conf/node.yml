@@ -13,7 +13,7 @@ engineTypes:
         jarTmpDir: ./tmp
         flinkPluginRoot: /opt/dtstack/plugins
 #        yarnConfPath: /Users/softfly/test/hadoop/yarn-site.xml
-        flinkPluginRoot: /opt/dtstack/flinkplugin
+        flinkPluginRoot: /Users/sishuyss/ysq/dtstack/flinkplugin
         remotePluginRootDir: /opt/dtstack/flinkplugin
         monitorAddress: node02:8081,node03:8081
 

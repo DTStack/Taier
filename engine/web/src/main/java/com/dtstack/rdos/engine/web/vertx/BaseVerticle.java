@@ -60,7 +60,7 @@ public class BaseVerticle {
 	protected Object reflectionMethod(RoutingContext routingContext) throws Exception{
 		HttpServerRequest httpServerRequest = routingContext.request();
 		//调用合法性验证
-		check(routingContext);
+//		check(routingContext);
 		Map<String,Object> params = routingContext.getBodyAsJson().getMap();
 		String path = httpServerRequest.path();
 		logger.warn("receive http request:{}:{}",path,routingContext.getBodyAsString());
