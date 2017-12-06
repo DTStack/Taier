@@ -1,27 +1,29 @@
 slots: 10
-localAddress: 172.16.1.25:8080
-nodeZkAddress: 172.16.1.25:2181/engine
+localAddress: 172.16.6.153:8080
+nodeZkAddress: node01:2181,node02:2181,node03:2181/ysq_engine
 
 engineTypes:
 
     -
         typeName: flink130
-        flinkZkAddress: rdos01:2181,rdos02:2181
+        clusterMode: standalone
+        flinkZkAddress: node01:2181,node02:2181,node03:2181
         flinkZkNamespace: /flink130
-        flinkHighAvailabilityStorageDir: hdfs://node02:9000/flink130/ha
-        jarTmpDir: ../tmp130
+        flinkHighAvailabilityStorageDir: hdfs://ns1/flink130/ha
+        jarTmpDir: ./tmp
         flinkPluginRoot: /opt/dtstack/plugins
-        yarnConfPath: /Users/softfly/test/hadoop/yarn-site.xml
-        sqlPluginRootDir: /Users/softfly/test/sqlplugin
-        remoteSqlPluginRootDir: /opt/dtstack/flinkplugin/sqlplugin
+#        yarnConfPath: /Users/softfly/test/hadoop/yarn-site.xml
+        flinkPluginRoot: /opt/dtstack/flinkplugin
+        remotePluginRootDir: /opt/dtstack/flinkplugin
+        monitorAddress: node02:8081,node03:8081
 
 
-    -
-        typeName: sparkyarn
-        yarnConfDir: /Users/softfly/test/hadoop
-        sparkYarnArchive: hdfs://node02:9000/jars
-        sparkSqlProxyPath: /Users/softfly/company/rdos-execution-engine/engine/base/spark-yarn/target/base.spark-yarn-1.0.0.jar
-        sparkSqlProxyMainClass: com.dtstack.rdos.engine.execution.sparkyarn.sqlproxy.SqlProxy
+#    -
+#        typeName: sparkyarn
+#        yarnConfDir: /Users/softfly/test/hadoop
+#        sparkYarnArchive: hdfs://node02:9000/jars
+#        sparkSqlProxyPath: /Users/softfly/company/rdos-execution-engine/engine/base/spark-yarn/target/base.spark-yarn-1.0.0.jar
+#        sparkSqlProxyMainClass: com.dtstack.rdos.engine.execution.sparkyarn.sqlproxy.SqlProxy
 
  #   -    
  #       typeName: datax
