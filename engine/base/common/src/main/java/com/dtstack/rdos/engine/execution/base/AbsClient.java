@@ -46,7 +46,7 @@ public abstract class AbsClient implements IClient{
                 jobResult = submitPythonJob(jobClient);
             }else{
                 jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
-                        " you need to set it in(MR, SQL)");
+                        " you need to set it in(MR, SQL, SYNC, PYTHON)");
         }
         }catch (Exception e){
             logger.error("", e);
