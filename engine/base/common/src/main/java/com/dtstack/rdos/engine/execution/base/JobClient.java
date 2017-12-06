@@ -3,16 +3,13 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -55,8 +52,6 @@ public class JobClient extends OrderObject{
     private JobResult jobResult;
 
     private Restoration isRestoration;
-
-    private Long actionLogId;
 
     /**提交MR执行的时候附带的执行参数*/
     private String classArgs;
@@ -113,7 +108,6 @@ public class JobClient extends OrderObject{
         this.jobType = EJobType.getEJobType(paramAction.getTaskType());
         this.computeType = ComputeType.getComputeType(paramAction.getComputeType());
         this.isRestoration = Restoration.getRestoration(paramAction.getIsRestoration());
-        this.actionLogId = paramAction.getActionLogId();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
     }
@@ -185,14 +179,6 @@ public class JobClient extends OrderObject{
 
     public void setIsRestoration(Restoration isRestoration) {
         this.isRestoration = isRestoration;
-    }
-
-    public Long getActionLogId() {
-        return actionLogId;
-    }
-
-    public void setActionLogId(Long actionLogId) {
-        this.actionLogId = actionLogId;
     }
 
     public String getEngineType() {
@@ -271,7 +257,6 @@ public class JobClient extends OrderObject{
                 ", engineType='" + engineType + '\'' +
                 ", jobResult=" + jobResult +
                 ", isRestoration=" + isRestoration +
-                ", actionLogId=" + actionLogId +
                 ", classArgs='" + classArgs + '\'' +
                 ", again=" + again +
                 '}';
