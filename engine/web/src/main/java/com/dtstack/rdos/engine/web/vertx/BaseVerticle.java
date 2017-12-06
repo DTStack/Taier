@@ -118,7 +118,7 @@ public class BaseVerticle {
 	private Object[] mapToParamObjects(Map<String, Object> params,
 			Parameter[] parameters, Class<?>[] parameterTypes) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
 		// TODO Auto-generated method st
-		if(parameters==null||parameters.length==0)return new Object[]{};
+		if(parameters==null||parameters.length==0){return new Object[]{};}
 		int length = parameters.length;
 		Object[] objs  = new Object[length];
 		for(int i=0; i<parameters.length; i++){

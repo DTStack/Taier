@@ -43,10 +43,11 @@ public class ServerVerticle extends AbstractVerticle{
         .requestHandler(router::accept)
         .listen(config().getInteger("http.port", port),
                 config().getString("http.address",host), result -> {
-                    if (result.succeeded())
+                    if (result.succeeded()){
                         future.complete();
-                    else
-                        future.fail(result.cause());
+                    }else{
+                        future.complete();
+                    }
                 });
     }
 	
