@@ -14,10 +14,9 @@ import java.net.URL;
 import java.util.Properties;
 
 /**
- * Reason:
+ * 创建streamTableSource
  * Date: 2017/3/10
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 
@@ -26,7 +25,7 @@ public class StreamSourceFactory {
     public static String SINK_GENER_FUNC_NAME = "genStreamSource";
 
     /**jar包后缀*/
-    public static String SUFFIX_JAR = "streamsource130";
+    public static String SUFFIX_JAR = "streamsource140";
 
     /**
      * 根据指定的类型构造数据源

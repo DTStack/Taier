@@ -555,7 +555,12 @@ public class FlinkClient extends AbsClient {
 
                 }else if(operator instanceof ExecutionOperator){
 
-                    tableEnv.sql(operator.getSql());
+                    String sql = operator.getSql();
+                    if(sql.toLowerCase().contains("insert")){
+                        tableEnv.sqlUpdate(sql);
+                    }else{
+                        tableEnv.sql(sql);
+                    }
 
                 }else if(operator instanceof StreamCreateResultOperator){
 

@@ -36,9 +36,10 @@ public class MyBatisConnectionFactory {
             }
         }
         catch (Exception e) {
-            logger.error("MyBatisConnectionFactory error:{}",ExceptionUtil.getErrorMessage(e));
+            logger.error("MyBatisConnectionFactory error:", e);
         }
     }
+
     public static SqlSessionFactory getSqlSessionFactory() {
         return sqlSessionFactory;
     }

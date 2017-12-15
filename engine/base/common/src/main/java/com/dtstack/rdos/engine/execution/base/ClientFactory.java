@@ -14,7 +14,6 @@ import com.google.common.collect.Maps;
  * Reason:
  * Date: 2017/2/20
  * Company: www.dtstack.com
- *
  * @author xuchao
  */
 
@@ -22,11 +21,22 @@ public class ClientFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientFactory.class);
         
-    private static Map<String,IClient> pluginIClient = Maps.newConcurrentMap();
+    private static Map<String, IClient> pluginIClient = Maps.newConcurrentMap();
     
-    private static Map<String,ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
+    private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
     private static ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod();
+
+    private static Map<String, String> typeRefClassName = Maps.newHashMap();
+
+    static{
+        typeRefClassName.put("flink120", "com.dtstack.rdos.engine.execution.flink120.FlinkClient");
+        typeRefClassName.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkClient");
+        typeRefClassName.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkClient");
+        typeRefClassName.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkClient");
+        typeRefClassName.put("datax", "com.dtstack.rdos.engine.execution.datax.DataxClient");
+        typeRefClassName.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient");
+    }
 
 
     public static IClient getClient(String type) throws Exception{
@@ -48,30 +58,13 @@ public class ClientFactory {
         classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
             @Override
             public Object execute() throws Exception {
-                switch (pluginType){
-                    case "flink120":
-                        pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink120.FlinkClient").newInstance());
-                        break;
 
-                    case "flink130":
-                        pluginIClient.put(pluginType, (IClient) classLoader.loadClass("com.dtstack.rdos.engine.execution.flink130.FlinkClient").newInstance());
-                        break;
-
-                    case "spark":
-                        pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.spark210.SparkClient").newInstance());
-                        break;
-
-                    case "datax":
-                        pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.datax.DataxClient").newInstance());
-                        break;
-
-                    case "spark_yarn":
-                        pluginIClient.put(pluginType, (IClient)classLoader.loadClass("com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient").newInstance());
-                        break;
-
-                    default:
-                        throw new RuntimeException("not support for engine type " + pluginType);
+                String className = typeRefClassName.get(pluginType);
+                if(className == null){
+                    throw new RuntimeException("not support for engine type " + pluginType);
                 }
+
+                pluginIClient.put(pluginType, classLoader.loadClass(className).asSubclass(IClient.class).newInstance());
                 return null;
             }
         },classLoader,null,true);

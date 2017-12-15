@@ -25,7 +25,7 @@ public class BatchSourceFactory {
     public static String SOURCE_GENER_FUNC_NAME = "genBatchSource";
 
     /**jar包后缀*/
-    public static String SUFFIX_JAR = "batchsource130";
+    public static String SUFFIX_JAR = "batchsource140";
 
     /**
      * 根据指定的类型构造数据源

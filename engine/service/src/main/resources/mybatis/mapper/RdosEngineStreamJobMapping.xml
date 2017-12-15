@@ -45,6 +45,6 @@
     </update>
     
     <update id="updateSubmitLog">
-        update rdos_engine_stream_job set log_info = #{logInfo},gmt_modified=now() where job_id = #{jobId}
+        update rdos_engine_stream_job set log_info = #{submitLog}, gmt_modified=now() where task_id = #{taskId}
     </update>
 </mapper>

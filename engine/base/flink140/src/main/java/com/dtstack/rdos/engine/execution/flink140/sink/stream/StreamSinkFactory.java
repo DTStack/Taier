@@ -25,7 +25,7 @@ public class StreamSinkFactory {
     public static String SINK_GENER_FUNC_NAME = "genStreamSink";
 
     /**jar包后缀*/
-    public static String SUFFIX_JAR = "streamsink130";
+    public static String SUFFIX_JAR = "streamsink140";
 
     public static TableSink getTableSink(StreamCreateResultOperator resultOperator) throws IOException,
             ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {

@@ -25,7 +25,7 @@ public class BatchSinkFactory {
     public static String SINK_GENER_FUNC_NAME = "genBatchSink";
 
     /**jar包后缀*/
-    public static String SUFFIX_JAR = "batchsink130";
+    public static String SUFFIX_JAR = "batchsink140";
 
     public static TableSink getTableSink(BatchCreateResultOperator resultOperator) throws IOException,
             ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
