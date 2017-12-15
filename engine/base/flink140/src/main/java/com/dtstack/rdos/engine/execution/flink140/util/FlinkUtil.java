@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.execution.flink140.constrant.ConfigConstrant;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
@@ -350,6 +351,15 @@ public class FlinkUtil {
             return urlList;
         }
 
+    }
+
+    public static TypeInformation[] transformTypes(Class[] fieldTypes){
+        TypeInformation[] types = new TypeInformation[fieldTypes.length];
+        for(int i=0; i<fieldTypes.length; i++){
+            types[i] = TypeInformation.of(fieldTypes[i]);
+        }
+
+        return types;
     }
 
 }

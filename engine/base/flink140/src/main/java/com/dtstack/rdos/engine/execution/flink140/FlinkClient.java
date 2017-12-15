@@ -33,6 +33,7 @@ import org.apache.flink.api.common.Plan;
 import org.apache.flink.api.common.accumulators.AccumulatorHelper;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.*;
@@ -499,14 +500,13 @@ public class FlinkClient extends AbsClient {
     }
 
     /**
-     * 区分出source, transformation, sink
-     * FIXME 目前source 只支持kafka
-     * 1: 添加数据源 -- 可能多个
-     * 2: 注册udf--fuc/table -- 可能多个---必须附带jar(做校验)
-     * 3: 调用sql
-     * 4: 添加sink
+     * 1: 不再对操作顺序做限制
+     * 2：不再限制输入源数量
+     * 3：不再限制输出源数量
      * @param jobClient
      * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
      */
     private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException{
 
@@ -515,21 +515,15 @@ public class FlinkClient extends AbsClient {
         FlinkUtil.openCheckpoint(env, confProperties);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
 
-        Table resultTable = null; //FIXME 注意现在只能使用一个result
         URLClassLoader classLoader = null;
 
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
         Set<String> classPathSet = Sets.newHashSet();
 
-        int currStep = 0;
-
         try {
             for(Operator operator : jobClient.getOperators()){
                 if(operator instanceof AddJarOperator){
-                    if(currStep > 0){
-                        throw new RdosException("sql job order setting err. cause of AddJarOperator");
-                    }
 
                     AddJarOperator addJarOperator = (AddJarOperator) operator;
                     String addFilePath = addJarOperator.getJarPath();
@@ -538,11 +532,7 @@ public class FlinkClient extends AbsClient {
                     jarPathList.add(tmpFile.getAbsolutePath());
 
                 }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
-                    if(currStep > 1){
-                        throw new RdosException("sql job order setting err. cause of StreamCreateSourceOperator");
-                    }
 
-                    currStep = 1;
                     CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
                     StreamTableSource tableSource = StreamSourceFactory.getStreamSource(sourceOperator);
                     tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
@@ -552,11 +542,7 @@ public class FlinkClient extends AbsClient {
                     classPathSet.add(remoteJarPath);
 
                 }else if(operator instanceof CreateFunctionOperator){//注册自定义func
-                    if(currStep > 2){
-                        throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
-                    }
 
-                    currStep = 2;
                     CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
                     //需要把字节码加载进来
                     if(classLoader == null){
@@ -568,22 +554,16 @@ public class FlinkClient extends AbsClient {
                             tableEnv, classLoader);
 
                 }else if(operator instanceof ExecutionOperator){
-                    if(currStep > 3){
-                        throw new RdosException("sql job order setting err. cause of ExecutionOperator");
-                    }
 
-                    currStep = 3;
-                    resultTable = tableEnv.sql(((ExecutionOperator) operator).getSql());
+                    tableEnv.sql(operator.getSql());
 
                 }else if(operator instanceof StreamCreateResultOperator){
-                    if(currStep > 4){
-                        throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
-                    }
 
-                    currStep = 4;
                     StreamCreateResultOperator resultOperator = (StreamCreateResultOperator) operator;
                     TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator);
-                    resultTable.writeToSink(tableSink);
+                    //只需要注册到tableEnv即可 不再主动写入到sink中,所有操作均在sql中完成
+                    TypeInformation[] flinkTypes = FlinkUtil.transformTypes(resultOperator.getFieldTypes());
+                    tableEnv.registerTableSink(resultOperator.getName(), resultOperator.getFields(), flinkTypes, tableSink);
 
                     String sinkType = resultOperator.getType() + StreamSinkFactory.SUFFIX_JAR;
                     String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkType);
