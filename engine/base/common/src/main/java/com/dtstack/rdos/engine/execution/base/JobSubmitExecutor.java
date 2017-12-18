@@ -299,7 +299,8 @@ public class JobSubmitExecutor{
     
     private void getEngineAvailableSlots(){
 
-    	queExecutor.submit(new Runnable(){
+        //FIXME 资源定时获取--修改为任务提交的时候主动获取
+    	/*queExecutor.submit(new Runnable(){
 
     	    private boolean firstStart = true;
 
@@ -342,7 +343,7 @@ public class JobSubmitExecutor{
                     }
                 }
 			}
-    	});
+    	});*/
     }
     
     
