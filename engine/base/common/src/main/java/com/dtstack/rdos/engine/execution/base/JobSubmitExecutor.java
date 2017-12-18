@@ -18,7 +18,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -46,15 +44,9 @@ public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
-    private static final String ENGINE_TYPES_KEY = "engineTypes";
-
     private static final String TYPE_NAME_KEY = "typeName";
 
-    private static final int AVAILABLE_SLOTS_INTERVAL = 5000;//mills
-
     private static final int THREAD_REJECT_INTERVAL = 5000;//mills
-
-    public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
 
     private int minPollSize = 5;
 
@@ -94,21 +86,18 @@ public class JobSubmitExecutor{
     public void init(Map<String,Object> engineConf) throws Exception{
         if(!hasInit){
             this.maxPoolSize = ConfigParse.getSlots();
-            clientParamsList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPES_KEY);
-
-            executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
+            this.clientParamsList = ConfigParse.getEngineTypeList();
+            this.executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(1), new CustomThreadFactory("jobExecutor"));
 
-            queExecutor = new ThreadPoolExecutor(3, 3,
+            this.queExecutor = new ThreadPoolExecutor(3, 3,
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
 
-            initJobClient(clientParamsList);
+            initJobClient(this.clientParamsList);
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
-
-            getEngineAvailableSlots();
             hasInit = true;
         }
     }
