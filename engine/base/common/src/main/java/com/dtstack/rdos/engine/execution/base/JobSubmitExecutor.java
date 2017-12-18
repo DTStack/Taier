@@ -56,12 +56,12 @@ public class JobSubmitExecutor{
 
     public static final String SLOTS_KEY = "slots";//可以并行提交job的线程数
 
-    private int minPollSize = 10;
+    private int minPollSize = 5;
 
-    private int maxPoolSize = 20;
+    private int maxPoolSize = 10;
 
     private ExecutorService executor;
-    
+
     private ExecutorService queExecutor;
 
     private boolean hasInit = false;
