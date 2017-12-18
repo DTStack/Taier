@@ -108,12 +108,12 @@ public class JobSubmitExecutor{
             @Override
             public void run() {
 
-                try {
+                /*try {
                     processCountDownLatch.await();
                     logger.info("----start JobSubmitProcessor-----");
                 } catch (InterruptedException e) {
                     logger.error("", e);
-                }
+                }*/
 
                 for(;;){
                     JobClient jobClient = null;
