@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
@@ -57,7 +58,7 @@ public class JobSubmitExecutor{
 
     private int minPollSize = 10;
 
-    private int maxPoolSize = 1000;
+    private int maxPoolSize = 20;
 
     private ExecutorService executor;
     
@@ -92,8 +93,7 @@ public class JobSubmitExecutor{
 
     public void init(Map<String,Object> engineConf) throws Exception{
         if(!hasInit){
-            Object slots = engineConf.get(SLOTS_KEY);
-            if(slots!=null){this.maxPoolSize = (int) slots;}
+            this.maxPoolSize = ConfigParse.getSlots();
             clientParamsList = (List<Map<String, Object>>) engineConf.get(ENGINE_TYPES_KEY);
 
             executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,

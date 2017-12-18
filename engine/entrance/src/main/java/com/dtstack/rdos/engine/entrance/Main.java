@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance;
 
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.SystemPropertyUtil;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
@@ -32,6 +33,7 @@ public class Main {
 			LogbackComponent.setupLogger();
 			// load config
 			Map<String,Object> nodeConfig = new YamlConfig().loadConf();
+			ConfigParse.setConfigs(nodeConfig);
 			// init service
 			initService(nodeConfig);
 			// add hook

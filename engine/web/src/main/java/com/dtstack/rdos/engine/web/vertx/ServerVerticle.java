@@ -3,6 +3,8 @@ package com.dtstack.rdos.engine.web.vertx;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.send.Urls;
 import com.dtstack.rdos.engine.web.HttpCommon;
 import io.vertx.core.http.HttpMethod;
@@ -24,7 +26,7 @@ public class ServerVerticle extends AbstractVerticle{
 	private static int port;
 	
 	public static void setHostPort(Map<String, Object> nodeConfig){
-		String localAddress = (String) nodeConfig.get("localAddress");
+		String localAddress = ConfigParse.getLocalAddress();
 		host = (String) HttpCommon.getUrlPort(localAddress)[0];
 		port  = (Integer) HttpCommon.getUrlPort(localAddress)[1];
 	}
@@ -43,10 +45,11 @@ public class ServerVerticle extends AbstractVerticle{
         .requestHandler(router::accept)
         .listen(config().getInteger("http.port", port),
                 config().getString("http.address",host), result -> {
-                    if (result.succeeded())
+                    if (result.succeeded()){
                         future.complete();
-                    else
+                    }else{
                         future.fail(result.cause());
+                    }
                 });
     }
 	

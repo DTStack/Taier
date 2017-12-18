@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
@@ -333,7 +334,7 @@ public class ZkDistributed {
 	}
 
 	private void checkDistributedConfig() throws Exception {
-		this.zkAddress = (String)nodeConfig.get("nodeZkAddress");
+		this.zkAddress = ConfigParse.getNodeZkAddress();
 		if (StringUtils.isBlank(this.zkAddress)
 				|| this.zkAddress.split("/").length < 2) {
 			throw new RdosException("zkAddress is error");
@@ -341,13 +342,13 @@ public class ZkDistributed {
 		String[] zks = this.zkAddress.split("/");
 		this.zkAddress = zks[0].trim();
 		this.distributeRootNode = String.format("/%s", zks[1].trim());
-		this.localAddress = (String)nodeConfig.get("localAddress");
+		this.localAddress = ConfigParse.getLocalAddress();
 		if (StringUtils.isBlank(this.localAddress)||this.localAddress.split(":").length < 2) {
 			throw new RdosException("localAddress is error");
 		}
 		this.brokersNode = String.format("%s/brokers", this.distributeRootNode);
 		this.localNode = String.format("%s/%s", this.brokersNode,this.localAddress);
-		this.engineTypeList = (List<Map<String, Object>>) nodeConfig.get("engineTypes");
+		this.engineTypeList = ConfigParse.getEngineTypeList();
 	}
 
 	public BrokerDataNode getBrokerDataNode(String node) {
