@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
@@ -143,7 +144,7 @@ public class FlinkStandaloneRestParseUtil {
                     perfMap.put("durationRead", readDuration);
                     Map<String,Object> readerMetrics = (Map<String, Object>) vertice.get("metrics");
                     if(readerMetrics != null) {
-                        Integer byteRead = (Integer) readerMetrics.get("write-bytes");
+                        Long byteRead = MathUtil.getLongVal(readerMetrics.get("write-bytes"));
                         perfMap.put("byteRead", byteRead);
                         try {
                             BigDecimal rd = new BigDecimal(readDuration);
@@ -163,7 +164,7 @@ public class FlinkStandaloneRestParseUtil {
                     perfMap.put("durationWrite", writeDuration);
                     Map<String,Object> writerMetrics = (Map<String, Object>) vertice.get("metrics");
                     if(writerMetrics != null) {
-                        Integer byteWrite = (Integer) writerMetrics.get("read-bytes");
+                        Long byteWrite = MathUtil.getLongVal(writerMetrics.get("read-bytes"));
                         perfMap.put("byteWrite", byteWrite);
                         try {
                             BigDecimal rd = new BigDecimal(writeDuration);
