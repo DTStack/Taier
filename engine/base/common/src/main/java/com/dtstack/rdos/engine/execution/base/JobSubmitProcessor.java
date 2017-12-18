@@ -64,7 +64,9 @@ public class JobSubmitProcessor implements Runnable{
 
             try {
                 jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                EngineResourceInfo resourceInfo = slotsInfo.get(jobClient.getEngineType());
+                //FIXME 修改获取资源--每次提交之前都刷新资源状态
+                //EngineResourceInfo resourceInfo = slotsInfo.get(jobClient.getEngineType());
+                EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
 
                 if(resourceInfo.judgeSlots(jobClient)){
                     if(logger.isInfoEnabled()){
