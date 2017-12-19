@@ -43,7 +43,7 @@ public class ClientFactory {
     	type = type.toLowerCase();
     	IClient iClient = pluginIClient.get(type);
     	while(iClient == null){
-    		initPluginClass(type,pluginClassLoader.get(type));
+    		initPluginClass(type, pluginClassLoader.get(type));
     		Thread.sleep(1000);
     		iClient = pluginIClient.get(type);
     		logger.warn("{}:initPluginClass again...",type);
@@ -64,7 +64,9 @@ public class ClientFactory {
                     throw new RuntimeException("not support for engine type " + pluginType);
                 }
 
-                pluginIClient.put(pluginType, classLoader.loadClass(className).asSubclass(IClient.class).newInstance());
+                IClient client = classLoader.loadClass(className).asSubclass(IClient.class).newInstance();
+                ClientProxy proxyClient = new ClientProxy(client);
+                pluginIClient.put(pluginType, proxyClient);
                 return null;
             }
         },classLoader,null,true);

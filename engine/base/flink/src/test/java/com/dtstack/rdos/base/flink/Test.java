@@ -1,9 +1,8 @@
 package com.dtstack.rdos.base.flink;
 
-import java.util.Properties;
-
-import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.flink120.FlinkClient;
+
+import java.util.Properties;
 
 public class Test {
 

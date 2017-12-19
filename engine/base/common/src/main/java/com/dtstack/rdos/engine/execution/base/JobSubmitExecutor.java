@@ -165,14 +165,7 @@ public class JobSubmitExecutor{
             IClient client = ClientFactory.getClient(clientTypeStr);
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
-
-            classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    client.init(clusterProp);
-                    return null;
-                }
-            },client.getClass().getClassLoader(),null,true);
+            client.init(clusterProp);
 
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             clientMap.put(key, client);
@@ -216,12 +209,7 @@ public class JobSubmitExecutor{
 
         IClient client = clientMap.get(engineType);
         try{
-        	Object result = classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                 @Override
-                 public Object execute() throws Exception {
-                     return client.getJobStatus(jobId);
-                 }
-             },client.getClass().getClassLoader(),null,true);
+        	Object result = client.getJobStatus(jobId);
 
         	if(result == null){
         	    return null;
@@ -241,17 +229,11 @@ public class JobSubmitExecutor{
     }
 
     public Map<String, String> getJobMaster(){
-    	final Map<String,String> jobMasters = Maps.newConcurrentMap();
+    	final Map<String, String> jobMasters = Maps.newConcurrentMap();
         clientMap.forEach((k,v)->{
             if(StringUtils.isNotBlank(v.getJobMaster())){
                 try {
-                    classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                      @Override
-                      public Object execute() throws Exception {
-                          jobMasters.put(k, v.getJobMaster());
-                          return null;
-                      }
-                  },v.getClass().getClassLoader(),null,true);
+                    jobMasters.put(k, v.getJobMaster());
                 } catch (Exception e) {
                    logger.error("",e);
                 }
@@ -276,12 +258,7 @@ public class JobSubmitExecutor{
 
         String engineType = jobClient.getEngineType();
         IClient client = clientMap.get(engineType);
-        JobResult jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-            @Override
-            public Object execute() throws Exception {
-                return client.cancelJob(jobClient.getEngineTaskId());
-            }
-        }, client.getClass().getClassLoader(),null,true);
+        JobResult jobResult = client.cancelJob(jobClient.getEngineTaskId());
 
     	return jobResult;
     }
@@ -340,12 +317,7 @@ public class JobSubmitExecutor{
     	IClient client = clientMap.get(engineType);
 	    String message = "";
 		try {
-			message = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-			    @Override
-			    public Object execute() throws Exception {
-			        return client.getMessageByHttp(path);
-			    }
-			},client.getClass().getClassLoader(),null,true);
+			message = client.getMessageByHttp(path);
 		} catch (Exception e) {
 			logger.error("", e);
 		}
@@ -356,12 +328,7 @@ public class JobSubmitExecutor{
         IClient client = clientMap.get(engineType);
         String logInfo = "";
         try{
-            logInfo = (String) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                @Override
-                public Object execute() throws Exception {
-                    return client.getJobLog(jobId);
-                }
-            }, client.getClass().getClassLoader(),null,true);
+            logInfo = client.getJobLog(jobId);
         }catch (Exception e){
             logger.error("", e);
         }

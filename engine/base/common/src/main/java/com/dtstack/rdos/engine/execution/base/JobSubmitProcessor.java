@@ -66,34 +66,27 @@ public class JobSubmitProcessor implements Runnable{
                 jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
                 //FIXME 修改获取资源--每次提交之前都刷新资源状态
                 //EngineResourceInfo resourceInfo = slotsInfo.get(jobClient.getEngineType());
-                EngineResourceInfo resourceInfo = ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<EngineResourceInfo>(){
-                    @Override
-                    public EngineResourceInfo execute() throws Exception {
-                        return clusterClient.getAvailSlots();
-                    }
-                }, clusterClient.getClass().getClassLoader(),true);
+                EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
 
                 if(resourceInfo.judgeSlots(jobClient)){
                     if(logger.isInfoEnabled()){
                         logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
                     }
+
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
                     jobClient.getJobClientCallBack().execute(updateStatus);
-
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
 
-                    jobResult = (JobResult) classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
-                        @Override
-                        public Object execute() throws Exception {
-                            if(logger.isInfoEnabled()){
-                                logger.info("-----jobInfo---->"+jobClient.toString());
-                            }
-                            return clusterClient.submitJob(jobClient);
-                        }
-                    },clusterClient.getClass().getClassLoader(),null,true);
+                    if(logger.isInfoEnabled()){
+                        logger.info("-----jobInfo---->"+jobClient.toString());
+                    }
+
+                    jobResult = clusterClient.submitJob(jobClient);
+
                     if(logger.isInfoEnabled()){
                         logger.info("submit job result is:{}.", jobResult);
                     }
+
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
                 }
