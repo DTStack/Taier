@@ -215,7 +215,9 @@ public class TaskStatusListener implements Runnable{
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
 
-            //获取Flink的checkpoint并存储
+            //TODO 获取Flink的checkpoint并存储
+            //TODO JOBClient 需要添加对应的方法
+            //JobClient.getEngineLog()
         }
     }
 

@@ -72,6 +72,10 @@ public class JobClient extends OrderObject{
     public static String getEngineLog(String engineType, String jobId){
         return JobSubmitExecutor.getInstance().getEngineLogByHttp(engineType, jobId);
     }
+
+    public static String getInfoByHttp(String engineType, String path){
+        return JobSubmitExecutor.getInstance().getEngineMessageByHttp(engineType, path);
+    }
     
     /**
      * 获取engine上jobManager url
