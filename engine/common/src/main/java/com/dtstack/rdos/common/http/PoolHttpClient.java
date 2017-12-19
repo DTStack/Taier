@@ -39,8 +39,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
  */
 public class PoolHttpClient {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(HttpClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(PoolHttpClient.class);
 
 	private static int SocketTimeout = 10000;// 10秒
 
