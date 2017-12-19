@@ -1,8 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
-import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -18,7 +16,7 @@ import java.util.Map;
  * 发送具体任务线程
  * Date: 2017/11/27
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class JobSubmitProcessor implements Runnable{
@@ -29,11 +27,10 @@ public class JobSubmitProcessor implements Runnable{
 
     private Map<String, IClient> clientMap;
 
+    /**TODO 修改了查询资源的方式--没问题之后需要删除*/
     private Map<String, EngineResourceInfo> slotsInfo;
 
     private SlotNoAvailableJobClient slotNoAvailableJobClient;
-
-    private ClassLoaderCallBackMethod<Object> classLoaderCallBackMethod = new ClassLoaderCallBackMethod<>();
 
     public JobSubmitProcessor(JobClient jobClient, Map<String, IClient> clientMap,
                               Map<String, EngineResourceInfo> slotsInfo,
