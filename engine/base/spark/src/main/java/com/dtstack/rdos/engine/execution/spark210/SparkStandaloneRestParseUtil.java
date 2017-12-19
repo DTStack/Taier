@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
+import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.collect.Maps;
@@ -264,7 +265,8 @@ public class SparkStandaloneRestParseUtil {
     private static String getLog(String url) {
         String log = null;
         try {
-            Document doc = Jsoup.connect(url).get();
+            String msg = PoolHttpClient.get(url);
+            Document doc = Jsoup.parse(msg);
             log = doc.select("pre").text();
         } catch (IOException e) {
             logger.info("" ,e);
