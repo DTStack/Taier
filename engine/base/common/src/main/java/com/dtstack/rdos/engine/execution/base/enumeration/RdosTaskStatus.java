@@ -63,7 +63,7 @@ public enum RdosTaskStatus {
     
     public static boolean canSubmitAgain(Byte status){
 		int sta = status.intValue();
-        if(sta == RdosTaskStatus.SUBMITTING.getStatus()){
+        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()){
     	    return true;
         }
 

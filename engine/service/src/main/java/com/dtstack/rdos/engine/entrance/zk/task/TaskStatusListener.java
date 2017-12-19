@@ -200,11 +200,6 @@ public class TaskStatusListener implements Runnable{
     private void dealFlinkAfterGetStatus(Integer status, String jobId, String engineTypeName, String zkTaskId,
                                          int computeType, String engineTaskId){
 
-        if(RdosTaskStatus.needClean(status.byteValue())){
-            jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
-            return;
-        }
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
@@ -214,10 +209,13 @@ public class TaskStatusListener implements Runnable{
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
             rdosStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
             updateJobEngineLog(status, jobId, engineTaskId, engineTypeName, computeType);
+        }
 
+        if(RdosTaskStatus.needClean(status.byteValue())){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
-            return;
+
+            //获取Flink的checkpoint并存储
         }
     }
 
@@ -240,7 +238,7 @@ public class TaskStatusListener implements Runnable{
 
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
-           return;
+            return;
         }
     }
 
