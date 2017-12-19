@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public enum RdosTaskStatus {
 
 	UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELLING(6),CANCELED(7),FAILED(8), SUBMITFAILD(9),
-	SUBMITTING(10), RESTARTING(11), MANUALSUCCESS(12), KILLED(13), SUBMITTED(14),NOTFOUND(15),WAITENGINE(16),WAITCOMPUTE(17);
+	SUBMITTING(10), RESTARTING(11), MANUALSUCCESS(12), KILLED(13), SUBMITTED(14),NOTFOUND(15),WAITENGINE(16),WAITCOMPUTE(17), ENGINEACCEPTED(18);
 	
 	private int status;
 
@@ -63,10 +63,10 @@ public enum RdosTaskStatus {
     
     public static boolean canSubmitAgain(Byte status){
 		int sta = status.intValue();
-        if(sta ==RdosTaskStatus.UNSUBMIT.getStatus()||sta==RdosTaskStatus.FINISHED.getStatus()||sta==RdosTaskStatus.FAILED.getStatus()||sta == RdosTaskStatus.SUBMITFAILD.getStatus()
-			   || sta == RdosTaskStatus.KILLED.getStatus() || sta == RdosTaskStatus.CANCELED.getStatus()){
+        if(sta == RdosTaskStatus.SUBMITTING.getStatus()){
     	    return true;
         }
+
         return false;
     }
     

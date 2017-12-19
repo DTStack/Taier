@@ -162,7 +162,7 @@ public class ActionServiceImpl {
         	}else{
         		result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
         		if(result){
-        			streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+        			streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
         		}
         	}
         }else{
@@ -176,7 +176,7 @@ public class ActionServiceImpl {
         	}else{
         		result = RdosTaskStatus.canSubmitAgain(rdosEngineBatchJob.getStatus());
         		if(result){
-        			batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
+        			batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
         		}
         	}
         }
