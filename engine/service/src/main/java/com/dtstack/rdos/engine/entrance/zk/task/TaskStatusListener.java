@@ -18,6 +18,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -39,6 +40,8 @@ public class TaskStatusListener implements Runnable{
 
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
     public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 300;
+
+    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
 
     private static long listener = 2000;
 
@@ -192,7 +195,6 @@ public class TaskStatusListener implements Runnable{
     }
 
     /**
-     * FIXME 未测试
      * flink 重启状态/获取不任务状态--的处理
      * @param status
      * @param jobId
@@ -215,10 +217,25 @@ public class TaskStatusListener implements Runnable{
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
 
-            //TODO 获取Flink的checkpoint并存储
-            //TODO JOBClient 需要添加对应的方法
-            //JobClient.getEngineLog()
+            //获取Flink的checkpoint并存储
+            if(Strings.isNullOrEmpty(engineTaskId)){
+                return;
+            }
+
+            String checkPath = String.format(FLINK_CP_URL_FORMAT, engineTaskId);
+            String checkPointJsonStr = JobClient.getInfoByHttp(engineTypeName, checkPath);
+            updateStreamJobCheckPoint(jobId, checkPointJsonStr);
         }
+    }
+
+    private void updateStreamJobCheckPoint(String jobId, String checkPointJsonStr){
+
+        if(Strings.isNullOrEmpty(checkPointJsonStr)){
+            return;
+        }
+
+
+
     }
 
     private void dealSparkAfterGetStatus(Integer status, String jobId, String zkTaskId, String engineTaskId,
