@@ -480,7 +480,7 @@ public class FlinkClient extends AbsClient {
             return SavepointRestoreSettings.none();
         }
 
-        if(properties.contains(FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
+        if(properties.containsKey(FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
             String jobId = properties.getProperty(FLINK_ENGINE_JOBID_KEY);
             String savepointPath = getSavepointPath(jobId);
             if(savepointPath == null){
