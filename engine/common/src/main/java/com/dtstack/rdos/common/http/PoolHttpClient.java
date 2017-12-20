@@ -41,9 +41,9 @@ public class PoolHttpClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(PoolHttpClient.class);
 
-	private static int SocketTimeout = 10000;// 10秒
+	private static int SocketTimeout = 60000;// 10秒
 
-	private static int ConnectTimeout = 10000;// 10秒
+	private static int ConnectTimeout = 60000;// 10秒
 
 	// 将最大连接数增加到100
 	private static int maxTotal = 100;
