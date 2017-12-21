@@ -28,6 +28,6 @@
         <mapper resource="mybatis/mapper/RdosEngineStreamJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineBatchJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
-        <mapper resource="mybatis/mapper/RdosStreamTaskCheckpoint.xml" />
+        <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
     </mappers>
 </configuration>
