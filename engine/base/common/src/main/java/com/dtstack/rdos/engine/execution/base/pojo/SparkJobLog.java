@@ -47,7 +47,7 @@ public class SparkJobLog {
 
     public void addDriverLog(String key, String value){
         SparkDetailLog detailLog = new SparkDetailLog(key, value);
-        driverLogList.add(detailLog);
+        driverLogList.add(0, detailLog);
     }
 
     class SparkDetailLog{
