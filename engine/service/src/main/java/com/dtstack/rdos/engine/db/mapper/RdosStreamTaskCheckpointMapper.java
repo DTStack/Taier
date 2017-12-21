@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.db.mapper;
 
+import org.apache.ibatis.annotations.Param;
+
 /**
  *
  * Date: 2017/12/21
@@ -9,5 +11,5 @@ package com.dtstack.rdos.engine.db.mapper;
 
 public interface RdosStreamTaskCheckpointMapper {
 
-    int insert(String taskId, String engineTaskId, String checkpoint);
+    int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId, @Param("checkpoint") String checkpoint);
 }
