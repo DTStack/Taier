@@ -246,7 +246,7 @@ public class SparkClient extends AbsClient {
         sparkConf.set("spark.executor.heartbeatInterval",DEFAULT_EXECUTOR_HEARTBEARTINTERVAL);
         sparkConf.set("spark.locality.wait",DEFAULT_LOCALITY_WAIT);
         sparkConf.set("spark.speculation",DEFAULT_SPECULATION);
-        sparkConf.set("driver.memory",DEFAULT_DRIVER_MEM);
+        sparkConf.set("spark.driver.memory",DEFAULT_DRIVER_MEM);
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
