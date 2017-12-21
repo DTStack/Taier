@@ -66,7 +66,7 @@ public class SparkClient extends AbsClient {
     private static final String DEFAULT_RPC_ASK_TIMEOUT = "600s";
 
     //如果设置为 "true" , 则执行任务的推测执行. 这意味着如果一个或多个任务在一个阶段中运行缓慢, 则将重新启动它们
-    private static final String DEFAULT_SPECULATION = "true"
+    private static final String DEFAULT_SPECULATION = "true";
 
     //黑名单
     private static final String DEFAULT_BLACKLIST_ENABLED="true";
