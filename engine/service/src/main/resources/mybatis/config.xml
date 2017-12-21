@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration
-    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-config.dtd">
- 
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
 <configuration>
     <typeAliases>
         <typeAlias alias="RdosEngineStreamJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob"/>
-        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>        
+        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>
         <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob"/>
         <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache" />
+        <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTaskCheckpoint" />
     </typeAliases>
- 
+
     <environments default="production">
         <environment id="production">
-          <transactionManager type="MANAGED"/>
+            <transactionManager type="MANAGED"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
                 <property name="url" value="jdbc:mysql://172.16.10.61:3306/rdos?charset=utf8"/>
                 <property name="username" value="dtstack"/>
                 <property name="password" value="abc123"/>
             </dataSource>
-       </environment>
+        </environment>
     </environments>
     <mappers>
         <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineStreamJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineBatchJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosStreamTaskCheckpoint.xml" />
     </mappers>
 </configuration>
