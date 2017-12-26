@@ -263,14 +263,11 @@ public class TaskStatusListener implements Runnable{
 
             Long startTime = MathUtil.getLongVal(startNode.get(TRIGGER_TIMESTAMP_KEY));
             Long endTime = MathUtil.getLongVal(endNode.get(TRIGGER_TIMESTAMP_KEY));
-
-
-
+            rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointJsonStr, startTime, endTime);
         } catch (IOException e) {
             logger.error("", e);
         }
 
-        rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointJsonStr);
 
     }
 
