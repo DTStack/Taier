@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -263,7 +264,11 @@ public class TaskStatusListener implements Runnable{
 
             Long startTime = MathUtil.getLongVal(startNode.get(TRIGGER_TIMESTAMP_KEY));
             Long endTime = MathUtil.getLongVal(endNode.get(TRIGGER_TIMESTAMP_KEY));
-            rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointJsonStr, startTime, endTime);
+
+            Timestamp startTimestamp = new Timestamp(startTime);
+            Timestamp endTimestamp = new Timestamp(endTime);
+
+            rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointJsonStr, startTimestamp, endTimestamp);
         } catch (IOException e) {
             logger.error("", e);
         }

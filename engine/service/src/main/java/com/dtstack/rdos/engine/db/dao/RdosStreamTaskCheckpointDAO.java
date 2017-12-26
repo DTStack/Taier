@@ -5,6 +5,8 @@ import com.dtstack.rdos.engine.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.db.mapper.RdosStreamTaskCheckpointMapper;
 import org.apache.ibatis.session.SqlSession;
 
+import java.sql.Timestamp;
+
 /**
  * Reason:
  * Date: 2017/12/21
@@ -14,7 +16,7 @@ import org.apache.ibatis.session.SqlSession;
 
 public class RdosStreamTaskCheckpointDAO {
 
-    public void insert(String taskId, String engineTaskId, String checkpointInfo, Long startTime, Long endTime){
+    public void insert(String taskId, String engineTaskId, String checkpointInfo, Timestamp startTime, Timestamp endTime){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 

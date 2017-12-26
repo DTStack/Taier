@@ -9,8 +9,8 @@
         <result column="task_id" property="taskId" jdbcType="VARCHAR"/>
         <result column="task_engine_id" property="taskEngineId" jdbcType="VARCHAR"/>
         <result column="checkpoint" property="checkpoint" jdbcType="VARCHAR"/>
-        <result column="trigger_start" property="triggerStart" jdbcType="BIGINT"/>
-        <result column="trigger_end" property="triggerEnd" jdbcType="BIGINT"/>
+        <result column="trigger_start" property="triggerStart" jdbcType="TIMESTAMP"/>
+        <result column="trigger_end" property="triggerEnd" jdbcType="TIMESTAMP"/>
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
 

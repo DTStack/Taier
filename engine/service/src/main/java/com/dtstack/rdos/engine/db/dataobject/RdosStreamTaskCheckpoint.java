@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.db.dataobject;
 
+import java.sql.Timestamp;
+
 /**
  * stream checkpoint 对象
  * Date: 2017/12/21
@@ -15,9 +17,9 @@ public class RdosStreamTaskCheckpoint extends DataObject {
 
     private String checkpoint;
 
-    private Long triggerStart;
+    private Timestamp triggerStart;
 
-    private Long triggerEnd;
+    private Timestamp triggerEnd;
 
     public String getTaskId() {
         return taskId;
@@ -43,19 +45,19 @@ public class RdosStreamTaskCheckpoint extends DataObject {
         this.checkpoint = checkpoint;
     }
 
-    public Long getTriggerStart() {
+    public Timestamp getTriggerStart() {
         return triggerStart;
     }
 
-    public void setTriggerStart(Long triggerStart) {
+    public void setTriggerStart(Timestamp triggerStart) {
         this.triggerStart = triggerStart;
     }
 
-    public Long getTriggerEnd() {
+    public Timestamp getTriggerEnd() {
         return triggerEnd;
     }
 
-    public void setTriggerEnd(Long triggerEnd) {
+    public void setTriggerEnd(Timestamp triggerEnd) {
         this.triggerEnd = triggerEnd;
     }
 }
