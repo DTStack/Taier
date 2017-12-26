@@ -15,6 +15,10 @@ public class RdosStreamTaskCheckpoint extends DataObject {
 
     private String checkpoint;
 
+    private Long triggerStart;
+
+    private Long triggerEnd;
+
     public String getTaskId() {
         return taskId;
     }
@@ -37,5 +41,21 @@ public class RdosStreamTaskCheckpoint extends DataObject {
 
     public void setCheckpoint(String checkpoint) {
         this.checkpoint = checkpoint;
+    }
+
+    public Long getTriggerStart() {
+        return triggerStart;
+    }
+
+    public void setTriggerStart(Long triggerStart) {
+        this.triggerStart = triggerStart;
+    }
+
+    public Long getTriggerEnd() {
+        return triggerEnd;
+    }
+
+    public void setTriggerEnd(Long triggerEnd) {
+        this.triggerEnd = triggerEnd;
     }
 }

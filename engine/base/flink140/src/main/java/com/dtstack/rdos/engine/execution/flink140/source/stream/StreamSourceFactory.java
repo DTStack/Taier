@@ -22,7 +22,7 @@ import java.util.Properties;
 
 public class StreamSourceFactory {
 
-    public static String SINK_GENER_FUNC_NAME = "genStreamSource";
+    public static String SOURCE_GENER_FUNC_NAME = "genStreamSource";
 
     /**jar包后缀*/
     public static String SUFFIX_JAR = "streamsource140";
@@ -54,10 +54,10 @@ public class StreamSourceFactory {
 
         DtClassLoader dtClassLoader = (DtClassLoader) classLoader;
         dtClassLoader.addURL(pluginJarURL);
-        Class<?> sinkClass = dtClassLoader.loadClass(className);
-        for(Method method : sinkClass.getMethods()){
-            if(method.getName().equals(SINK_GENER_FUNC_NAME)){
-                Object object = sinkClass.newInstance();
+        Class<?> sourceClass = dtClassLoader.loadClass(className);
+        for(Method method : sourceClass.getMethods()){
+            if(method.getName().equals(SOURCE_GENER_FUNC_NAME)){
+                Object object = sourceClass.newInstance();
                 Object result = method.invoke(object, properties, fields, fieldTypes);
                 return (StreamTableSource) result;
             }

@@ -25,7 +25,7 @@ public class ParamAction {
     private Integer computeType;
 
 	//实时独有
-	private Integer isRestoration = 0;
+	private String externalPath;
 
 	private String sqlText;
 	
@@ -103,15 +103,15 @@ public class ParamAction {
 		this.engineTaskId = engineTaskId;
 	}
 
-	public Integer getIsRestoration() {
-		return isRestoration;
+	public String getExternalPath() {
+		return externalPath;
 	}
 
-	public void setIsRestoration(Integer isRestoration) {
-		this.isRestoration = isRestoration;
+	public void setExternalPath(String externalPath) {
+		this.externalPath = externalPath;
 	}
 
-    public String getEngineType() {
+	public String getEngineType() {
         return engineType;
     }
 

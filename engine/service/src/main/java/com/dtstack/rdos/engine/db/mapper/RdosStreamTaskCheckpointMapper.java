@@ -11,5 +11,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface RdosStreamTaskCheckpointMapper {
 
-    int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId, @Param("checkpoint") String checkpoint);
+    int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId,
+               @Param("checkpoint") String checkpoint, @Param("triggerStart") Long triggerStart,
+               @Param("triggerEnd") Long triggerEnd);
 }

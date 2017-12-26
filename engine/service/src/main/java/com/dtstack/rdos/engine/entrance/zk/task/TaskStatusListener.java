@@ -22,12 +22,15 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +47,10 @@ public class TaskStatusListener implements Runnable{
     public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 300;
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
+
+    public final static String FLINK_CP_HISTORY_KEY = "history";
+
+    public final static String TRIGGER_TIMESTAMP_KEY = "trigger_timestamp";
 
     private static long listener = 2000;
 
@@ -237,6 +244,30 @@ public class TaskStatusListener implements Runnable{
         if(Strings.isNullOrEmpty(checkpointJsonStr)){
             logger.info(String.format("taskId %s engineTaskId %s can't get checkpoint info.", taskId, engineTaskId));
             return;
+        }
+
+        //获取checkpointJsonStr 的第一个存储的触发时间,最后一个存储的触发时间
+        try {
+            Map<String, Object> cpJson = PublicUtil.jsonStrToObject(checkpointJsonStr, Map.class);
+            if(!cpJson.containsKey(FLINK_CP_HISTORY_KEY)){
+                return;
+            }
+
+            List<Map<String, Object>> cpList = (List<Map<String, Object>>) cpJson.get(FLINK_CP_HISTORY_KEY);
+            if(CollectionUtils.isEmpty(cpList)){
+                return;
+            }
+
+            Map<String, Object> startNode = cpList.get(0);
+            Map<String, Object> endNode = cpList.get(cpList.size() - 1);
+
+            Long startTime = MathUtil.getLongVal(startNode.get(TRIGGER_TIMESTAMP_KEY));
+            Long endTime = MathUtil.getLongVal(endNode.get(TRIGGER_TIMESTAMP_KEY));
+
+
+
+        } catch (IOException e) {
+            logger.error("", e);
         }
 
         rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointJsonStr);

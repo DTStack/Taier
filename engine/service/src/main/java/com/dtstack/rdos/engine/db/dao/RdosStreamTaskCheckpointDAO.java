@@ -14,14 +14,14 @@ import org.apache.ibatis.session.SqlSession;
 
 public class RdosStreamTaskCheckpointDAO {
 
-    public void insert(String taskId, String engineTaskId, String checkpointInfo){
+    public void insert(String taskId, String engineTaskId, String checkpointInfo, Long startTime, Long endTime){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                taskCheckpointMapper.insert(taskId, engineTaskId, checkpointInfo);
+                taskCheckpointMapper.insert(taskId, engineTaskId, checkpointInfo, startTime, endTime);
                 return null;
             }
         });
