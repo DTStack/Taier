@@ -51,7 +51,8 @@ public class JobClient extends OrderObject{
 
     private JobResult jobResult;
 
-    private Restoration isRestoration;
+    /**externalPath 不为null则为从保存点恢复*/
+    private String externalPath;
 
     /**提交MR执行的时候附带的执行参数*/
     private String classArgs;
@@ -111,7 +112,7 @@ public class JobClient extends OrderObject{
         this.engineTaskId = paramAction.getEngineTaskId();
         this.jobType = EJobType.getEJobType(paramAction.getTaskType());
         this.computeType = ComputeType.getComputeType(paramAction.getComputeType());
-        this.isRestoration = Restoration.getRestoration(paramAction.getIsRestoration());
+        this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
     }
@@ -177,14 +178,6 @@ public class JobClient extends OrderObject{
         this.computeType = computeType;
     }
 
-    public Restoration getIsRestoration() {
-        return isRestoration;
-    }
-
-    public void setIsRestoration(Restoration isRestoration) {
-        this.isRestoration = isRestoration;
-    }
-
     public String getEngineType() {
         return engineType;
     }
@@ -245,6 +238,22 @@ public class JobClient extends OrderObject{
 		this.again = again;
 	}
 
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public void setTaskParams(String taskParams) {
+        this.taskParams = taskParams;
+    }
+
+    public String getExternalPath() {
+        return externalPath;
+    }
+
+    public void setExternalPath(String externalPath) {
+        this.externalPath = externalPath;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -260,7 +269,7 @@ public class JobClient extends OrderObject{
                 ", computeType=" + computeType +
                 ", engineType='" + engineType + '\'' +
                 ", jobResult=" + jobResult +
-                ", isRestoration=" + isRestoration +
+                ", externalPath=" + externalPath +
                 ", classArgs='" + classArgs + '\'' +
                 ", again=" + again +
                 '}';

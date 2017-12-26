@@ -392,8 +392,7 @@ public class FlinkClient extends AbsClient {
 
         List<URL> classpaths = flinkRemoteSyncPluginRoot != null ? FlinkUtil.getUserClassPath(programArgList, flinkRemoteSyncPluginRoot) : new ArrayList<>();
 
-        Properties spProp = getSpProperty(jobClient);
-        SavepointRestoreSettings spSettings = buildSavepointSetting(spProp);
+        SavepointRestoreSettings spSettings = buildSavepointSetting(jobClient);
         try{
             String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
@@ -474,25 +473,20 @@ public class FlinkClient extends AbsClient {
         return properties;
     }
 
-    public SavepointRestoreSettings buildSavepointSetting(Properties properties){
+    public SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
 
-        if(properties == null){
+        if(jobClient.getExternalPath() == null){
             return SavepointRestoreSettings.none();
         }
 
-        if(properties.containsKey(FLINK_JOB_FROMSAVEPOINT_KEY)){ //有指定savepoint
-            String jobId = properties.getProperty(FLINK_ENGINE_JOBID_KEY);
-            String savepointPath = getSavepointPath(jobId);
-            if(savepointPath == null){
-                throw new RdosException("can't get any savepoint path!");
-            }
-
-            String stateStr = properties.getProperty(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
-            boolean allowNonRestoredState = BooleanUtils.toBoolean(stateStr);
-            return SavepointRestoreSettings.forPath(savepointPath, allowNonRestoredState);
-        }else{
-            return SavepointRestoreSettings.none();
+        String externalPath = jobClient.getExternalPath();
+        boolean allowNonRestoredState = false;
+        if(jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
+            String allowNonRestored = (String) jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY);
+            allowNonRestoredState = BooleanUtils.toBoolean(allowNonRestored);
         }
+
+        return SavepointRestoreSettings.forPath(externalPath, allowNonRestoredState);
     }
 
     @Override
@@ -621,8 +615,7 @@ public class FlinkClient extends AbsClient {
             streamGraph.setJobName(jobClient.getJobName());
             JobGraph jobGraph = streamGraph.getJobGraph();
 
-            Properties spProp = getSpProperty(jobClient);
-            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(spProp);
+            SavepointRestoreSettings spRestoreSetting = buildSavepointSetting(jobClient);
             jobGraph.setSavepointRestoreSettings(spRestoreSetting);
             for(String jarFile : jarPathList){
                 URI jarFileUri = new File(jarFile).getAbsoluteFile().toURI();
@@ -896,26 +889,6 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public Properties getSpProperty(JobClient jobClient){
-	    Properties properties = new Properties();
-
-	    if(jobClient.getIsRestoration() == Restoration.NO){
-            return properties;
-        }
-
-        properties.put(FLINK_JOB_FROMSAVEPOINT_KEY, jobClient.getIsRestoration().getVal());
-
-	    if(jobClient.getEngineTaskId() != null){
-	        properties.setProperty(FLINK_ENGINE_JOBID_KEY, jobClient.getEngineTaskId());
-        }
-
-        if(jobClient.getConfProperties().containsKey(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY)){
-            properties.put(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY,
-                    jobClient.getConfProperties().get(FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY));
-        }
-
-        return properties;
-    }
 
     @Override
     public JobResult submitSyncJob(JobClient jobClient) {
