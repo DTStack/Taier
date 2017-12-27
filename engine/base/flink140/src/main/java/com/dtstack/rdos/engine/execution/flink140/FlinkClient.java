@@ -210,18 +210,8 @@ public class FlinkClient extends AbsClient {
      * 根据yarn方式获取ClusterClient
      */
     public void initYarnClusterClient(FlinkConfig flinkConfig){
-        /*
+
         hadoopConf = HadoopConf.getYarnConfiguration();
-        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor();
-        try {
-            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
-            confField.setAccessible(true);
-            haYarnConf();
-            confField.set(clusterDescriptor, hadoopConf);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RdosException(e.getMessage());
-        }
 
         Configuration config = new Configuration();
         config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
@@ -281,12 +271,22 @@ public class FlinkClient extends AbsClient {
 
         yarnClient.stop();
 
-        clusterDescriptor.setFlinkConfiguration(config);
+        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, ".");
+        try {
+            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
+            confField.setAccessible(true);
+            haYarnConf();
+            confField.set(clusterDescriptor, hadoopConf);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RdosException(e.getMessage());
+        }
+
         YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId);
         clusterClient.setDetached(isDetact);
 
         client = clusterClient;
-        */
+
     }
 
 
