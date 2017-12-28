@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.base.pojo.SparkJobLog;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
