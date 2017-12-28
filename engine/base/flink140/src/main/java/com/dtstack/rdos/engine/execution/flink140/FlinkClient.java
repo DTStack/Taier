@@ -47,6 +47,7 @@ import org.apache.flink.optimizer.plan.OptimizedPlan;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
@@ -55,6 +56,7 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.BatchTableSource;
 import org.apache.flink.table.sources.StreamTableSource;
+import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -526,8 +528,8 @@ public class FlinkClient extends AbsClient {
                 }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
 
                     CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                    StreamTableSource tableSource = StreamSourceFactory.getStreamSource(sourceOperator);
-                    tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
+                    Table table = StreamSourceFactory.getStreamSource(sourceOperator, env, tableEnv);
+                    tableEnv.registerTable(sourceOperator.getName(), table);
 
                     String sourceType = sourceOperator.getType() + StreamSourceFactory.SUFFIX_JAR;
                     String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceType);

@@ -26,7 +26,8 @@ public class CreateSourceOperator implements Operator{
 	 *  accessId='OERGMhXn6H2mBkhk',
 	 *  accessKey='qnuSKMKoMcY5Va97GGFtL0nvlAoLZx',
 	 *  projectName='dtstack',
-	 *  topic='datahub_test'
+	 *  topic='datahub_test',
+	 *  eventTime='fieldName:type:dateFormat'
 	 *  );
 	 */
 	private static String pattern ="CREATESOURCE";
