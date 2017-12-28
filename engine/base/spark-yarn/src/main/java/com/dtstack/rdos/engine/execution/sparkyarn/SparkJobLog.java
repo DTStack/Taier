@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.pojo;
+package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.google.common.collect.Lists;
