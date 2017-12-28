@@ -365,6 +365,9 @@ public class FlinkClient extends AbsClient {
         if(StringUtils.isNotEmpty(monitorAddress)) {
             programArgList.add("-monitor");
             programArgList.add(monitorAddress);
+        } else {
+            programArgList.add("-monitor");
+            programArgList.add(getReqUrl());
         }
 
         List<URL> classpaths = flinkRemoteSyncPluginRoot != null ? FlinkUtil.getUserClassPath(programArgList, flinkRemoteSyncPluginRoot) : new ArrayList<>();
