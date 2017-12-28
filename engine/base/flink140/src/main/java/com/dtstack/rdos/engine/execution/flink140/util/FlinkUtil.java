@@ -11,6 +11,7 @@ import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.TableEnvironment;
@@ -124,6 +125,31 @@ public class FlinkUtil {
             env.setStateBackend(new FsStateBackend(backendPath));
         }
 
+    }
+
+    /**
+     * #ProcessingTime(默认),IngestionTime,EventTime
+     * @param env
+     * @param properties
+     */
+    public static void setStreamTimeCharacteristic(StreamExecutionEnvironment env, Properties properties){
+        if(!properties.containsKey(ConfigConstrant.FLINK_TIME_CHARACTERISTIC_KEY)){
+            //走默认值
+            return;
+        }
+
+        String characteristicStr = properties.getProperty(ConfigConstrant.FLINK_TIME_CHARACTERISTIC_KEY);
+        Boolean flag = false;
+        for(TimeCharacteristic tmp : TimeCharacteristic.values()){
+            if(characteristicStr.equalsIgnoreCase(tmp.toString())){
+                env.setStreamTimeCharacteristic(tmp);
+                flag = true;
+            }
+        }
+
+        if(!flag){
+            throw new RdosException("illegal property :" + ConfigConstrant.FLINK_TIME_CHARACTERISTIC_KEY);
+        }
     }
 
 

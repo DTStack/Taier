@@ -509,11 +509,12 @@ public class FlinkClient extends AbsClient {
 
     	Properties confProperties = jobClient.getConfProperties();
         StreamExecutionEnvironment env = getStreamExeEnv(confProperties);
+        FlinkUtil.setStreamTimeCharacteristic(env, confProperties);
         FlinkUtil.openCheckpoint(env, confProperties);
+
         StreamTableEnvironment tableEnv = StreamTableEnvironment.getTableEnvironment(env);
 
         URLClassLoader classLoader = null;
-
         List<String> jarPathList = new ArrayList<>();
         List<URL> jarURList = Lists.newArrayList();
         Set<String> classPathSet = Sets.newHashSet();
