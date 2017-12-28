@@ -75,7 +75,7 @@ public class StreamSourceFactory {
             if(method.getName().equals(SOURCE_GENER_FUNC_NAME)){
                 Object object = sourceClass.newInstance();
                 Object[] extParam = new Object[]{env};
-                Object result = method.invoke(object, properties, fields, fieldTypes, new Object[]{extParam});
+                Object result = method.invoke(object, properties, fields, fieldTypes, extParam);
 
                 return assignWaterMarker((DataStream<Row>) result, sourceOperator, tableEnv);
             }
