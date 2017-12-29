@@ -19,9 +19,9 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
-public class Main {
+public class EngineMain {
 
-	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Logger logger = LoggerFactory.getLogger(EngineMain.class);
 
 	private static VertxHttpServer vertxHttpServer;
 	
