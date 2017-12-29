@@ -15,7 +15,7 @@ public class ExceptionUtil {
             StringBuffer sb = new StringBuffer();
             Throwable next = e.getCause();
             if (next != null) {
-                    sb.append(next.getMessage() + "\n");
+                    sb.append(next.toString() + "\n");
                     StackTraceElement[] nexts = next.getStackTrace();
                     for (StackTraceElement st : nexts) {
                             sb.append(st.getClassName() + "." + st.getMethodName() + "("
