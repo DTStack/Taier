@@ -19,15 +19,14 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Reason:
  * Date: 2017/2/21
  * Company: www.dtstack.com
- *
  * @ahthor xuchao
  */
 
 public class JobClient extends OrderObject{
 
-    private JobClientCallBack jobClientCallBack;
-
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
+
+    private JobClientCallBack jobClientCallBack;
 
     private List<Operator> operators;
 
@@ -59,7 +58,6 @@ public class JobClient extends OrderObject{
 
     private int again = 1;
     
-    private static LinkedBlockingQueue<JobClient> queue;
 
     /***
      * 获取engine上job执行的状态
@@ -77,28 +75,7 @@ public class JobClient extends OrderObject{
     public static String getInfoByHttp(String engineType, String path){
         return JobSubmitExecutor.getInstance().getEngineMessageByHttp(engineType, path);
     }
-    
-    /**
-     * 获取engine上jobManager url
-     * @return
-     */
-    public static Map<String,String> getJobMaster(){
-    	return JobSubmitExecutor.getInstance().getJobMaster();
-    }
 
-    public static LinkedBlockingQueue<JobClient> getQueue() {
-        return queue;
-    }
-
-    public static void setQueue(LinkedBlockingQueue<JobClient> queue) {
-        if (JobClient.queue == null) {
-            synchronized (JobClient.class) {
-                if (JobClient.queue == null) {
-                    JobClient.queue = queue;
-                }
-            }
-        }
-    }
 
     public JobClient() {
 
@@ -115,6 +92,21 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
+    }
+
+    public ParamAction getParamAction(){
+        ParamAction action = new ParamAction();
+        action.setSqlText(sql);
+        action.setTaskParams(taskParams);
+        action.setName(jobName);
+        action.setTaskId(taskId);
+        action.setEngineTaskId(engineTaskId);
+        action.setTaskType(jobType.getType());
+        action.setComputeType(computeType.getComputeType());
+        action.setExternalPath(externalPath);
+        action.setEngineType(engineType);
+        action.setExeArgs(classArgs);
+        return action;
     }
 
     public String getTaskId() {

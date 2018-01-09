@@ -29,11 +29,15 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ *
+ * TODO 是否可以接受提交任务的判断是 slotNoAvailableJobClients 和 orderLinkedBlockingQueue总和
+ * TODO 执行等待队列区分flink和spark
  * 任务提交执行容器
  * 单独起线程执行
  * Date: 2017/2/21
@@ -44,13 +48,19 @@ public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
-    private static final String TYPE_NAME_KEY = "typeName";
+    public static final String TYPE_NAME_KEY = "typeName";
 
     private static final int THREAD_REJECT_INTERVAL = 5000;//mills
 
-    private int minPollSize = 5;
+    private static int minPollSize = 5;
 
-    private int maxPoolSize = 10;
+    private static int maxPoolSize = 10;
+
+    private static int maxOrderLinkedSize = 10;
+
+    private static String userDir = System.getProperty("user.dir");
+
+    private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
     private ExecutorService executor;
 
@@ -62,20 +72,14 @@ public class JobSubmitExecutor{
 
     private List<Map<String, Object>> clientParamsList;
 
-	private static String userDir = System.getProperty("user.dir");
-
-    private static JobSubmitExecutor singleton = new JobSubmitExecutor();
-
-    private ClassLoaderCallBackMethod<Object> classLoaderCallBackMethod = new ClassLoaderCallBackMethod<>();
-
     private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<>();
 
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
     
     private Map<String, EngineResourceInfo> slotsInfo = Maps.newConcurrentMap();
 
-    /**用于控制处理任务的线程在其他条件准备好之后才能开始启动,目前有slot资源获取准备*/
-    final CountDownLatch processCountDownLatch = new CountDownLatch(1);
+    /**用于taskListener处理*/
+    private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();;
 
     private JobSubmitExecutor(){}
 
@@ -107,13 +111,6 @@ public class JobSubmitExecutor{
     	queExecutor.submit(new Runnable() {
             @Override
             public void run() {
-
-                /*try {
-                    processCountDownLatch.await();
-                    logger.info("----start JobSubmitProcessor-----");
-                } catch (InterruptedException e) {
-                    logger.error("", e);
-                }*/
 
                 for(;;){
                     JobClient jobClient = null;
@@ -263,55 +260,6 @@ public class JobSubmitExecutor{
     	return jobResult;
     }
     
-    private void getEngineAvailableSlots(){
-
-        //FIXME 资源定时获取--修改为任务提交的时候主动获取
-    	/*queExecutor.submit(new Runnable(){
-
-    	    private boolean firstStart = true;
-
-			@Override
-			public void run() {
-
-			    while(true){
-
-                    try {
-                        Set<Map.Entry<String,IClient>> entrySet = clientMap.entrySet();
-
-                        for(Map.Entry<String, IClient> entry : entrySet){
-
-                            String key = entry.getKey();
-                            IClient client = entry.getValue();
-
-                            try{
-
-                                EngineResourceInfo slotInfo = ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<EngineResourceInfo>(){
-                                    @Override
-                                    public EngineResourceInfo execute() throws Exception {
-                                        return client.getAvailSlots();
-                                    }
-                                }, client.getClass().getClassLoader(),true);
-
-                                slotsInfo.put(key, slotInfo);
-                            }catch (Exception e){
-                                logger.error("get avail slots for " + key + "error.", e);
-                            }
-
-                            if(firstStart){
-                                processCountDownLatch.countDown();
-                                logger.info("----get available slots thread started-----");
-                                firstStart = false;
-                            }
-                        }
-                        Thread.sleep(AVAILABLE_SLOTS_INTERVAL);
-                    } catch (InterruptedException e1) {
-                        logger.error("", e1);
-                    }
-                }
-			}
-    	});*/
-    }
-    
     
     public String getEngineMessageByHttp(String engineType, String path){
     	IClient client = clientMap.get(engineType);
@@ -344,6 +292,22 @@ public class JobSubmitExecutor{
         if(queExecutor != null){
         	queExecutor.shutdown();
         }
+    }
+
+    public LinkedBlockingQueue<JobClient> getQueueForTaskListener(){
+        return queueForTaskListener;
+    }
+
+    public void addJobForTaskQueue(JobClient jobClient){
+        queueForTaskListener.offer(jobClient);
+    }
+
+    public boolean checkCanAddToWaitQueue(){
+        if( orderLinkedBlockingQueue.size() >= maxOrderLinkedSize){
+            return false;
+        }
+
+        return true;
     }
 
 }

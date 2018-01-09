@@ -6,13 +6,16 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.*;
+import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateFunctionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
+import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink140.sink.batch.BatchSinkFactory;
@@ -22,6 +25,7 @@ import com.dtstack.rdos.engine.execution.flink140.source.stream.StreamSourceFact
 import com.dtstack.rdos.engine.execution.flink140.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink140.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.BooleanUtils;
@@ -30,13 +34,17 @@ import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
 import org.apache.flink.api.common.Plan;
-import org.apache.flink.api.common.accumulators.AccumulatorHelper;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
-import org.apache.flink.client.program.*;
+import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.client.program.ProgramMissingJobException;
+import org.apache.flink.client.program.ProgramParametrizationException;
+import org.apache.flink.client.program.StandaloneClusterClient;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
@@ -47,7 +55,6 @@ import org.apache.flink.optimizer.plan.OptimizedPlan;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.graph.StreamGraph;
 import org.apache.flink.table.api.Table;
@@ -55,8 +62,6 @@ import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.BatchTableSource;
-import org.apache.flink.table.sources.StreamTableSource;
-import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -75,8 +80,21 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.*;
-import java.util.*;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -90,8 +108,6 @@ public class FlinkClient extends AbsClient {
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    public static final String FLINK_ENGINE_JOBID_KEY = "engineJobId";
 
     private static final String sqlPluginDirName = "sqlplugin";
 
@@ -752,7 +768,7 @@ public class FlinkClient extends AbsClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(String jobId) {
-    	if(jobId == null || "".equals(jobId)){
+    	if(Strings.isNullOrEmpty(jobId)){
     		return null;
     	}
 
@@ -779,6 +795,7 @@ public class FlinkClient extends AbsClient {
             if(stateObj == null){
                 return null;
             }
+
             String state = (String) stateObj;
             state = StringUtils.upperCase(state);
             RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);

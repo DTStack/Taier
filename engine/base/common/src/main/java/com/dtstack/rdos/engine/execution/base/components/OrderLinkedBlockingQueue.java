@@ -98,25 +98,21 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public E poll() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("不支持poll方法");
     }
 
     @Override
     public E peek() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("不支持peek方法");
     }
 
     @Override
     public boolean offer(E e) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("不支持offer方法");
     }
 
     @Override
     public void put(E e) throws InterruptedException {
-        // TODO Auto-generated method stub
         if (e == null){ throw new NullPointerException();}
         // Note: convention in all put/take/etc is to preset local var
         // holding count negative to indicate failure unless set.
@@ -154,8 +150,7 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     @Override
     public boolean offer(E e, long timeout, TimeUnit unit)
             throws InterruptedException {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("不支持offer方法");
     }
 
     @Override
@@ -186,19 +181,16 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("不支持 poll 方法");
     }
 
     @Override
     public int remainingCapacity() {
-        // TODO Auto-generated method stub
         return capacity - count.get();
     }
 
     @Override
     public int drainTo(Collection<? super E> c) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -210,13 +202,11 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public Iterator<E> iterator() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("不支持iterator方法");
     }
 
     @Override
     public int size() {
-        // TODO Auto-generated method stub
         return count.get();
     }
 

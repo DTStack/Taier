@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
 import com.dtstack.rdos.common.util.PublicUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -11,6 +13,8 @@ import com.dtstack.rdos.common.util.PublicUtil;
  *
  */
 public class ParamAction {
+
+    private static Logger logger = LoggerFactory.getLogger(ParamAction.class);
 
 	private String taskId;
 	
@@ -34,7 +38,7 @@ public class ParamAction {
 	private String exeArgs;
 
 	/**
-	 * 0 是有web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
+	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
 	 */
 	private Integer requestStart = 0;
 	
@@ -136,6 +140,7 @@ public class ParamAction {
             jsonStr = PublicUtil.objToString(this);
         }catch (Exception e){
 	        //不应该发生
+            logger.error("", e);
         }
 
         return jsonStr;

@@ -1,5 +1,7 @@
 package com.dtstack.rdos.common.util;
 
+import com.dtstack.rdos.commom.exception.RdosException;
+
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -20,6 +22,7 @@ public class ClassUtil {
                 return Integer.class;
 
             case "bigint":
+            case "long":
                 return Long.class;
 
             case "tinyint":
@@ -48,7 +51,8 @@ public class ClassUtil {
                 return Timestamp.class;
 
         }
-        return null;
+
+        throw new RdosException("not support for type " + str);
     }
 
     public static Object convertType(Object field, String fromType, String toType) {
