@@ -9,11 +9,9 @@ import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.enumeration.Restoration;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Reason:
@@ -88,7 +86,7 @@ public class JobClient extends OrderObject{
         this.taskId = paramAction.getTaskId();
         this.engineTaskId = paramAction.getEngineTaskId();
         this.jobType = EJobType.getEJobType(paramAction.getTaskType());
-        this.computeType = ComputeType.getComputeType(paramAction.getComputeType());
+        this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
@@ -102,7 +100,7 @@ public class JobClient extends OrderObject{
         action.setTaskId(taskId);
         action.setEngineTaskId(engineTaskId);
         action.setTaskType(jobType.getType());
-        action.setComputeType(computeType.getComputeType());
+        action.setComputeType(computeType.getType());
         action.setExternalPath(externalPath);
         action.setEngineType(engineType);
         action.setExeArgs(classArgs);

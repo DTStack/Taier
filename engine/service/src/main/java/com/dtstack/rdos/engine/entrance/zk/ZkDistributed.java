@@ -73,13 +73,15 @@ public class ZkDistributed {
 
 	private CuratorFramework zkClient;
 
+    private MasterListener masterListener;
+
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	private static ZkDistributed zkDistributed;
 
 	private Map<String,BrokerDataNode> memTaskStatus = Maps.newHashMap();
 
-	private InterProcessMutex masterlock;
+	private InterProcessMutex masterLock;
 
 	private InterProcessMutex brokerDataLock;
 
@@ -95,7 +97,6 @@ public class ZkDistributed {
 
 
 	private ZkDistributed(Map<String,Object> nodeConfig) throws Exception {
-		// TODO Auto-generated constructor stub
 		this.nodeConfig  = nodeConfig;
 		checkDistributedConfig();
 		initZk();
@@ -135,7 +136,7 @@ public class ZkDistributed {
 	}
 
 	private void initScheduledExecutorService() {
-		MasterListener masterListener = new MasterListener();
+        masterListener = new MasterListener();
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
@@ -143,6 +144,10 @@ public class ZkDistributed {
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
 	}
+
+	public boolean localIsMaster(){
+        return masterListener.isMaster();
+    }
 
 	private void registrationDB() throws IOException {
 
@@ -251,8 +256,8 @@ public class ZkDistributed {
 
 
 	private void initNeedLock(){
-		this.masterlock = createDistributeLock(String.format(
-				"%s/%s", this.distributeRootNode, "masterlock"));
+		this.masterLock = createDistributeLock(String.format(
+				"%s/%s", this.distributeRootNode, "masterLock"));
 
 		this.brokerDataLock = createDistributeLock(String.format(
 				"%s/%s", this.distributeRootNode, "brokerdatalock"));
@@ -260,7 +265,7 @@ public class ZkDistributed {
 		this.brokerHeartLock = createDistributeLock(String.format(
 				"%s/%s", this.distributeRootNode, "brokerheartlock"));
 
-		interProcessMutexs.add(this.masterlock);
+		interProcessMutexs.add(this.masterLock);
 		interProcessMutexs.add(this.brokerDataLock);
 		interProcessMutexs.add(this.brokerHeartLock);
 
@@ -272,7 +277,7 @@ public class ZkDistributed {
 
 	public boolean setMaster() {
 		try {
-			if(this.masterlock.acquire(10, TimeUnit.SECONDS)){
+			if(this.masterLock.acquire(10, TimeUnit.SECONDS)){
 				if(!this.localAddress.equals(isHaveMaster())){
 					BrokersNode brokersNode = BrokersNode.initBrokersNode();
 					brokersNode.setMaster(this.localAddress);
@@ -373,10 +378,9 @@ public class ZkDistributed {
 		return null;
 	}
 
-
-	public String getExcutionNode(){
+	public String getExecutionNode(List<String> excludeNodes){
 		int def = Integer.MAX_VALUE;
-		String node = this.localAddress;
+		String node = null;
 		if(memTaskStatus.size() > 0){
 			Set<Map.Entry<String, BrokerDataNode>> entrys = memTaskStatus.entrySet();
 
@@ -385,6 +389,11 @@ public class ZkDistributed {
 				if(size < def){
 					def = size;
 					node = entry.getKey();
+					if(excludeNodes.contains(node)){
+                        continue;
+					}
+
+					break;
 				}
 			}
 		}

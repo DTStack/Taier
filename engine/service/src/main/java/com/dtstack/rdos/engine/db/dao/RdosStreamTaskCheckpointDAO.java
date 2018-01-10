@@ -11,14 +11,14 @@ import java.sql.Timestamp;
  * Reason:
  * Date: 2017/12/21
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class RdosStreamTaskCheckpointDAO {
 
     public void insert(String taskId, String engineTaskId, String checkpointInfo, Timestamp startTime, Timestamp endTime){
 
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {

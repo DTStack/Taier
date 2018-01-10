@@ -59,7 +59,7 @@ public class RdosNodeMachineDAO {
 		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip, port, machineType,
 				MachineAppType.ENGINE.getType(), "");
 
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
@@ -73,7 +73,7 @@ public class RdosNodeMachineDAO {
 		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip, port, machineType,
 				MachineAppType.ENGINE.getType(), "");
 
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
@@ -88,7 +88,7 @@ public class RdosNodeMachineDAO {
 		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip, port, machineType,
 				MachineAppType.ENGINE.getType(), "");
 
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
@@ -99,7 +99,7 @@ public class RdosNodeMachineDAO {
 	}
 
 	public void updateOneTypeMachineToSlave(String type) {
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
@@ -110,7 +110,7 @@ public class RdosNodeMachineDAO {
 	}
 
     public void updateMachineToMaster(String ip, String appType) {
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);

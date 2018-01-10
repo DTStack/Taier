@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.node.MasterNode;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
@@ -56,6 +57,7 @@ public class ActionServiceImpl {
      * @param params
      * @throws Exception
      */
+    /*
     public void start(Map<String, Object> params) throws Exception {
         String ajobId = null;
         Integer acomputeType  = null;
@@ -107,13 +109,14 @@ public class ActionServiceImpl {
             }
         }
     }
+    */
 
     /**
      * 接受来自客户端的请求, 目的是在master节点上组织成一个优先级队列
      * TODO 处理 重复发送的问题，rdos-web端的发送需要修改为向master节点发送--避免转发
      * @param params
      */
-    public void start2(Map<String, Object> params){
+    public void start(Map<String, Object> params){
 
         try{
 
@@ -156,14 +159,15 @@ public class ActionServiceImpl {
         Integer computeType = null;
 
         try{
-            //判断等待队列是否满了
-            if(!JobSubmitExecutor.getInstance().checkCanAddToWaitQueue()){
-                result.put("send", false);
-                return result;
-            }
 
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
+
+            //判断等待队列是否满了
+            if(!JobSubmitExecutor.getInstance().checkCanAddToWaitQueue(paramAction.getEngineType())){
+                result.put("send", false);
+                return result;
+            }
 
             jobId = paramAction.getTaskId();
             computeType = paramAction.getComputeType();
@@ -190,7 +194,7 @@ public class ActionServiceImpl {
                 }
             });
 
-            addJobCache(jobId, paramAction.toString());
+            addJobCache(jobId, paramAction.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), paramAction.toString());
             updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
             jobClient.submitJob();
@@ -209,6 +213,14 @@ public class ActionServiceImpl {
             result.put("send", true);
             return result;
         }
+    }
+
+    /**
+     * TODO 检查是否可以下发任务
+     * @param params
+     */
+    public void checkCanSend(Map<String, Object> params){
+
     }
 
     @Forbidden
@@ -268,7 +280,7 @@ public class ActionServiceImpl {
     	boolean result = false;
     	String jobId = paramAction.getTaskId();
     	Integer computerType = paramAction.getComputeType();
-        if (ComputeType.STREAM.getComputeType().equals(computerType)) {
+        if (ComputeType.STREAM.getType().equals(computerType)) {
         	RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
         	if(rdosEngineStreamJob == null){
         		rdosEngineStreamJob = new RdosEngineStreamJob();
@@ -302,7 +314,7 @@ public class ActionServiceImpl {
     
     @Forbidden
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getComputeType().equals(computeType)) {
+        if (ComputeType.STREAM.getType().equals(computeType)) {
             streamTaskDAO.updateTaskStatus(jobId, status);
         } else {
             batchJobDAO.updateJobStatus(jobId, status);
@@ -310,8 +322,8 @@ public class ActionServiceImpl {
     }
 
     @Forbidden
-    public void addJobCache(String jobId, String jobInfo){
-        engineJobCacheDao.insertJob(jobId, jobInfo);
+    public void addJobCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+        engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
     }
 
     public void deleteJobCache(String jobId){

@@ -4,6 +4,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,7 @@ public class TaskListener implements Runnable{
 	
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 	
-	private LinkedBlockingQueue<JobClient> queue = new LinkedBlockingQueue<JobClient>();
+	private LinkedBlockingQueue<JobClient> queue;
 	
 	private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
 	
@@ -37,19 +38,18 @@ public class TaskListener implements Runnable{
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
 	public TaskListener(){
-		JobClient.setQueue(queue);
+		queue = JobSubmitExecutor.getInstance().getQueueForTaskListener();
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		while(true){
 			try {
 				JobClient jobClient  = queue.take();
 				logger.warn("{}:{} addTaskIdToEngineTaskId...",jobClient.getTaskId(),jobClient.getEngineTaskId());
 				//存储执行日志
-				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getComputeType(),jobClient.getEngineType(),jobClient.getTaskId());
-				if(jobClient.getComputeType().getComputeType()==ComputeType.STREAM.getComputeType()){
+				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(),jobClient.getEngineType(),jobClient.getTaskId());
+				if(jobClient.getComputeType().getType()==ComputeType.STREAM.getType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{//设置为失败
@@ -59,7 +59,7 @@ public class TaskListener implements Runnable{
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
 					rdosStreamTaskDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
-				}else if(jobClient.getComputeType().getComputeType()==ComputeType.BATCH.getComputeType()){
+				}else if(jobClient.getComputeType().getType()==ComputeType.BATCH.getType()){
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{

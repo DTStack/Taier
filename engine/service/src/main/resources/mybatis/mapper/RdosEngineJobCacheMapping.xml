@@ -9,11 +9,14 @@
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
         <result column="job_id" property="jobId" jdbcType="VARCHAR" />
         <result column="job_info" property="jobInfo" jdbcType="VARCHAR" />
+        <result column="engine_type" property="engineType" jdbcType="VARCHAR"/>
+        <result column="compute_type" property="computeType" jdbcType="INTEGER"/>
+        <result column="stage" property="stage" jdbcType="INTEGER"/>
     </resultMap>
 
     <insert id="insert">
-        replace into rdos_engine_job_cache( job_id, job_info)
-        values(#{jobId}, #{jobInfo});
+        replace into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info)
+        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo});
     </insert>
 
     <delete id="delete">
@@ -22,6 +25,10 @@
 
     <select id="getOne" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
+    </select>
+
+    <select id="listByStage" resultMap="rdosEngineJobCacheResult">
+        select * from rdos_engine_job_cache where stage = #{stage} and engine_type = #{engine_type} and is_deleted=0 order by gmt_create asc;
     </select>
 
 </mapper>

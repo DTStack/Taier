@@ -20,7 +20,7 @@ public class MybatisSessionCallbackMethod {
 
 	private static SqlSessionFactory sqlSessionFactory = MyBatisConnectionFactory.getSqlSessionFactory();
 	
-	public static Object doCallback(MybatisSessionCallback mybatisSessionCallback){
+	public static <M> M doCallback(MybatisSessionCallback<M> mybatisSessionCallback){
 		SqlSession sqlSession = sqlSessionFactory.openSession(true);
 		try{
 			return mybatisSessionCallback.execute(sqlSession);

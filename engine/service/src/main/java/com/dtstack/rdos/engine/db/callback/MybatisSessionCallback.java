@@ -10,7 +10,7 @@ import org.apache.ibatis.session.SqlSession;
  * @author sishu.yss
  *
  */
-public interface MybatisSessionCallback {
+public interface MybatisSessionCallback<T> {
 
-	Object execute(SqlSession sqlSession) throws Exception;
+	T execute(SqlSession sqlSession) throws Exception;
 }

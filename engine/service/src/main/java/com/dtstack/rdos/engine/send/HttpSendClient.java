@@ -25,19 +25,38 @@ public class HttpSendClient {
 
     /**
      * 返回数据格式{"send":true}
+     * TODO 是否需要做两阶段提交---确保数据已经提交了。只是返回的时候网络异常
      * @param address
      * @param paramAction
      * @return
      * @throws IOException
      */
     public static boolean actionSubmit(String address, ParamAction paramAction) throws IOException {
-        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
+        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.SUBMIT), PublicUtil.ObjectToMap(paramAction));
+        if(dataJson == null){
+            return false;
+        }
+
         Map<String, Object> resultMap = PublicUtil.jsonStrToObject(dataJson, Map.class);
         if(!resultMap.containsKey("send")){
             return false;
         }
 
         return MathUtil.getBoolean(resultMap.get("send"));
+    }
+
+    public static boolean actionCheck(String address, Map<String, Object> paramMap) throws IOException {
+        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.CHECK), paramMap);
+        if(dataJson == null){
+            return false;
+        }
+
+        Map<String, Object> resultMap = PublicUtil.jsonStrToObject(dataJson, Map.class);
+        if(!resultMap.containsKey("result")){
+            return false;
+        }
+
+        return MathUtil.getBoolean(resultMap.get("result"));
     }
 
 	public static void migration(final String node,String target)throws Exception{

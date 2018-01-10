@@ -13,7 +13,7 @@ import java.util.Map;
  * 执行引擎的部署方式.standalone, yarn
  * Date: 2017/11/13
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class EngineDeployInfo {

@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.components;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.util.SlotJudge;
 import com.google.common.collect.Maps;
@@ -23,7 +24,7 @@ public class SlotNoAvailableJobClient {
 	
 	private ReentrantLock reentrantLock = new ReentrantLock();
 	
-	private volatile Map<String,JobClient> slotNoAvailableJobClients = Maps.newLinkedHashMap();
+	private volatile Map<String, JobClient> slotNoAvailableJobClients = Maps.newLinkedHashMap();
 
 	public final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
@@ -129,7 +130,7 @@ public class SlotNoAvailableJobClient {
 
 	private void listenerJobStatus(JobClient jobClient){
 		jobClient.setJobResult(jobClient.getJobResult());
-		JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
+		JobSubmitExecutor.getInstance().addJobForTaskQueue(jobClient);//添加触发读取任务状态消息
 	}
 
 	//TODO 暂时放这里

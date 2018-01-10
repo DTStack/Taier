@@ -27,17 +27,14 @@ public class JobSubmitProcessor implements Runnable{
 
     private Map<String, IClient> clientMap;
 
-    /**TODO 修改了查询资源的方式--没问题之后需要删除*/
-    private Map<String, EngineResourceInfo> slotsInfo;
-
     private SlotNoAvailableJobClient slotNoAvailableJobClient;
+
 
     public JobSubmitProcessor(JobClient jobClient, Map<String, IClient> clientMap,
                               Map<String, EngineResourceInfo> slotsInfo,
                               SlotNoAvailableJobClient slotNoAvailableJobClient) throws Exception{
         this.jobClient = jobClient;
         this.clientMap = clientMap;
-        this.slotsInfo = slotsInfo;
         this.slotNoAvailableJobClient = slotNoAvailableJobClient;
     }
 
@@ -72,7 +69,7 @@ public class JobSubmitProcessor implements Runnable{
 
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
                     jobClient.getJobClientCallBack().execute(updateStatus);
-                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getComputeType(), jobClient.getSql()));
+                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
 
                     if(logger.isInfoEnabled()){
                         logger.info("-----jobInfo---->"+jobClient.toString());
@@ -105,6 +102,6 @@ public class JobSubmitProcessor implements Runnable{
 
     private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
         jobClient.setJobResult(jobResult);
-        JobClient.getQueue().offer(jobClient);//添加触发读取任务状态消息
+        JobSubmitExecutor.getInstance().addJobForTaskQueue(jobClient);//添加触发读取任务状态消息
     }
 }

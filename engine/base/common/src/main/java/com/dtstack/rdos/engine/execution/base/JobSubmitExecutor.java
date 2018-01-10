@@ -302,7 +302,12 @@ public class JobSubmitExecutor{
         queueForTaskListener.offer(jobClient);
     }
 
-    public boolean checkCanAddToWaitQueue(){
+    /**
+     * TODO 修改等待队列区分flink,spark
+     * @param engineType
+     * @return
+     */
+    public boolean checkCanAddToWaitQueue(String engineType){
         if( orderLinkedBlockingQueue.size() >= maxOrderLinkedSize){
             return false;
         }

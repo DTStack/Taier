@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
@@ -34,7 +35,7 @@ public class OtherListener implements Runnable{
 			while(true){
 				logger.warn("OtherListener start again...");
 				if(this.masterListener.isMaster()){
-					JobClient.getJobMaster().forEach((k,v)->{
+					JobSubmitExecutor.getInstance().getJobMaster().forEach((k, v)->{
 						MachineAppType machineAppType = MachineAppType.getMachineAppType(k);
 						rdosNodeMachineDAO.updateOneTypeMachineToSlave(machineAppType.getType());
 						rdosNodeMachineDAO.updateMachineToMaster(v, machineAppType.getType());

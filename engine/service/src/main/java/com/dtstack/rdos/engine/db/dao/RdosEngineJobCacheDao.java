@@ -6,24 +6,25 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.db.mapper.RdosEngineJobCacheMapper;
 import org.apache.ibatis.session.SqlSession;
 
+import java.util.List;
+
 /**
  * Reason:
  * Date: 2017/11/6
  * Company: www.dtstack.com
- *
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class RdosEngineJobCacheDao {
 
-    public void insertJob(String jobId, String jobInfo){
+    public void insertJob(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
 
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.insert(jobId, jobInfo);
+                mapper.insert(jobId, engineType, computeType, stage, jobInfo);
                 return null;
             }
         });
@@ -31,7 +32,7 @@ public class RdosEngineJobCacheDao {
 
     public void deleteJob(String jobId){
 
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
@@ -44,12 +45,23 @@ public class RdosEngineJobCacheDao {
 
     public RdosEngineJobCache getJobById(String jobId){
 
-        return (RdosEngineJobCache) MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineJobCache>(){
 
             @Override
-            public Object execute(SqlSession sqlSession) throws Exception {
+            public RdosEngineJobCache execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
                 return mapper.getOne(jobId);
+            }
+        });
+    }
+
+    public List<RdosEngineJobCache> getJobForPriorityQueue(int stage, String engineType){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
+
+            @Override
+            public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.listByStage(stage, engineType);
             }
         });
     }

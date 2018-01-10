@@ -10,7 +10,6 @@ import com.dtstack.rdos.engine.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.db.dataobject.RdosStreamTaskCheckpoint;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -105,9 +104,9 @@ public class TaskStatusListener implements Runnable{
                     String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
                     String taskId  = TaskIdUtil.getTaskId(zkTaskId);
 
-                    if(computeType == ComputeType.STREAM.getComputeType()){
+                    if(computeType == ComputeType.STREAM.getType()){
                         dealStreamJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
-                    }else if(computeType == ComputeType.BATCH.getComputeType()){
+                    }else if(computeType == ComputeType.BATCH.getType()){
                         dealBatchJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
                     }
                 }
@@ -172,9 +171,9 @@ public class TaskStatusListener implements Runnable{
         String jobLog = JobClient.getEngineLog(engineType, engineJobId);
 
         //写入db
-        if(computeType == ComputeType.STREAM.getComputeType()){
+        if(computeType == ComputeType.STREAM.getType()){
         	rdosStreamTaskDAO.updateEngineLog(jobId, jobLog);
-        }else if(computeType == ComputeType.BATCH.getComputeType()){
+        }else if(computeType == ComputeType.BATCH.getType()){
         	rdosBatchJobDAO.updateEngineLog(jobId, jobLog);
         }else{
             logger.info("----- not support compute type {}.", computeType);
@@ -328,13 +327,19 @@ public class TaskStatusListener implements Runnable{
     }
 
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getComputeType().equals(computeType)) {
+        if (ComputeType.STREAM.getType().equals(computeType)) {
             rdosStreamTaskDAO.updateTaskStatus(jobId, status);
         } else {
             rdosBatchJobDAO.updateJobStatus(jobId, status);
         }
     }
 
+    /**
+     * FIXME 是否需要修改为将任务重新发送到master节点的等待队列中
+     * @param paramAction
+     * @param zkTaskId
+     * @throws Exception
+     */
     public void start(ParamAction paramAction, String zkTaskId) throws Exception {
 
         JobClient jobClient = new JobClient(paramAction);

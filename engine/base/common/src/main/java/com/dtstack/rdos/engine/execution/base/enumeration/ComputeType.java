@@ -18,7 +18,7 @@ public enum ComputeType {
         this.type = type;
     }
 
-    public static ComputeType getComputeType(int type) {
+    public static ComputeType getType(int type) {
         ComputeType[] computeTypes = ComputeType.values();
         for (ComputeType computeType : computeTypes) {
             if (computeType.type == type) {
@@ -28,8 +28,16 @@ public enum ComputeType {
         return null;
     }
 
-    public Integer getComputeType() {
+    public Integer getType() {
         return this.type;
+    }
+
+    public boolean typeEqual(Integer targetType){
+        if(type.equals(targetType)){
+            return true;
+        }
+
+        return false;
     }
 
 }

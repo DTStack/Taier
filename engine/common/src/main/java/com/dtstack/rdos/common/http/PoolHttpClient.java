@@ -85,25 +85,25 @@ public class PoolHttpClient {
 				httPost.setEntity(new StringEntity(objectMapper
 						.writeValueAsString(bodyData)));
 			}
+
 			// 请求数据
 			response = httpClient.execute(httPost);
 			int status = response.getStatusLine().getStatusCode();
 			if (status == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
 				// FIXME 暂时不从header读取
-				responseBody = EntityUtils.toString(entity,charset);
+				responseBody = EntityUtils.toString(entity, charset);
 			} else {
-				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
+				logger.warn("request url:{} fail:{}", url, response.getStatusLine().getStatusCode());
 			}
 		} catch (Exception e) {
-			logger.error("url:{}--->http request error:{}",url,ExceptionUtil.getErrorMessage(e));
+			logger.error("url:{}--->http request error:{}", url, ExceptionUtil.getErrorMessage(e));
 		}finally{
-			if(response!=null){
+			if(response != null){
 				try {
 					response.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("", e);
 				}
 			}
 		}

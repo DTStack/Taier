@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.entrance.zk.task;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.dtstack.rdos.engine.entrance.node.MasterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
@@ -30,13 +32,14 @@ public class MasterListener implements Runnable{
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		try{
 			int index=0;
 			while(true){
 				++index;
 				isMaster.getAndSet(zkDistributed.setMaster());
-				if(PublicUtil.count(index,15)){
+                MasterNode.getInstance().setIsMaster(isMaster.get());
+
+                if(PublicUtil.count(index,15)){
 					logger.warn("MasterListener start again...");
 					if(isMaster()){
 						logger.warn("i am is master...");

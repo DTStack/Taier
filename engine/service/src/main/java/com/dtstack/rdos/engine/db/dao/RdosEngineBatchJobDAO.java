@@ -17,11 +17,10 @@ import com.dtstack.rdos.engine.db.mapper.RdosEngineBatchJobMapper;
 public class RdosEngineBatchJobDAO {
 	
 	public RdosEngineBatchJob getRdosTaskByTaskId(final String jobId){
-		return (RdosEngineBatchJob)MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineBatchJob>(){
 
 			@Override
-			public Object execute(SqlSession sqlSession) throws Exception {
-				// TODO Auto-generated method stub
+			public RdosEngineBatchJob execute(SqlSession sqlSession) throws Exception {
 				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
 				return rdosTaskMapper.getRdosJobByJobId(jobId);
 			}
@@ -32,11 +31,10 @@ public class RdosEngineBatchJobDAO {
 	
 	public void updateJobStatus(final String jobId,final int stauts){
 		
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
-				// TODO Auto-generated method stub
 				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
 				rdosTaskMapper.updateJobStatus(jobId, stauts);
 				return null;
@@ -47,11 +45,10 @@ public class RdosEngineBatchJobDAO {
 	
 	public void updateJobEngineId(final String jobId,final String engineId){
 		
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
-				// TODO Auto-generated method stub
 				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
 				rdosTaskMapper.updateJobEngineId(jobId, engineId);
 				return null;
@@ -62,7 +59,7 @@ public class RdosEngineBatchJobDAO {
 	
 	public void updateTaskEngineIdAndStatus(final String jobId, final String engineId, final int status){
 		
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
@@ -74,7 +71,7 @@ public class RdosEngineBatchJobDAO {
 	}
 	
     public void updateEngineLog(final String jobId, final String engineLog){
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
@@ -87,8 +84,7 @@ public class RdosEngineBatchJobDAO {
 
 
 	public void updateSubmitLog(String jobId, String submitLog) {
-		// TODO Auto-generated method stub
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
@@ -101,8 +97,7 @@ public class RdosEngineBatchJobDAO {
 
 
 	public void insert(RdosEngineBatchJob rdosEngineBatchJob) {
-		// TODO Auto-generated method stub
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
