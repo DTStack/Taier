@@ -24,6 +24,9 @@ public class ExeQueueMgr {
 
     private static final String DEFAULT_GROUP_NAME = "default";
 
+    /**TODO 修改成外部可配置*/
+    private static final int MAX_QUEUE_LENGTH = 5;
+
     /***需要改成根据时间排序的队列*/
     private Map<String, GroupExeQueue> groupExeQueueMap = Maps.newHashMap();
 
@@ -44,7 +47,7 @@ public class ExeQueueMgr {
         return exeQueueMgr;
     }
 
-    public void addJob(JobClient jobClient){
+    public void add(JobClient jobClient){
         String groupName = jobClient.getGroupName();
         groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
@@ -56,6 +59,21 @@ public class ExeQueueMgr {
         exeQueue.addJobClient(jobClient);
         //重新更新下队列的排序
         groupExeQueueSet.add(exeQueue);
+    }
+
+    public boolean remove(String groupName, String taskId){
+
+        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
+        if(exeQueue == null){
+            return false;
+        }
+
+        return exeQueue.remove(taskId);
+    }
+
+    public Set<GroupExeQueue> getGroupExeQueue(){
+        return groupExeQueueSet;
     }
 
     public void updateZkGroupPriorityInfo(){

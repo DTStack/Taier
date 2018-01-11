@@ -37,10 +37,14 @@ public class GroupExeQueue {
         }
     }
 
-    public JobClient removeTop(){
-        JobClient result = orderList.remove();
+    public JobClient remove(){
+        JobClient result = orderList.poll();
         //更新时间
         maxTime = 0;
+        if(result == null){
+            return null;
+        }
+
         orderList.forEach(jobClient -> {
             if(jobClient.getGenerateTime() > maxTime){
                 maxTime = jobClient.getGenerateTime();
@@ -48,5 +52,13 @@ public class GroupExeQueue {
         });
 
         return result;
+    }
+
+    public JobClient getTop(){
+        return orderList.getTop();
+    }
+
+    public boolean remove(String taskId){
+        return orderList.remove(taskId);
     }
 }

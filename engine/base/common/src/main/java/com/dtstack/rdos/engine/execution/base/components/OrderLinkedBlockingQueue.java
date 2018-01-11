@@ -98,7 +98,26 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public E poll() {
-        throw new UnsupportedOperationException("不支持poll方法");
+        final AtomicInteger count = this.count;
+        if (count.get() == 0)
+            return null;
+        E x = null;
+        int c = -1;
+        final ReentrantLock takeLock = this.allLock;
+        takeLock.lock();
+        try {
+            if (count.get() > 0) {
+                x = dequeue();
+                c = count.getAndDecrement();
+                if (c > 1)
+                    notEmpty.signal();
+            }
+        } finally {
+            takeLock.unlock();
+        }
+        if (c == capacity)
+            signalNotFull();
+        return x;
     }
 
     @Override
@@ -319,5 +338,35 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }finally {
             allLock.unlock();
         }
+    }
+
+    /**
+     * 获取元素但是不移除
+     * @return
+     */
+    public E getTop(){
+        final AtomicInteger count = this.count;
+        if (count.get() == 0)
+            return null;
+        E x = null;
+        int c = -1;
+        final ReentrantLock takeLock = this.allLock;
+        takeLock.lock();
+        try {
+            if (count.get() > 0) {
+                Node<E> h = head;
+                Node<E> first = h.next;
+                h.next = h; // help GC
+                head = first;
+                x = first.item;
+                if (c > 1)
+                    notEmpty.signal();
+            }
+        } finally {
+            takeLock.unlock();
+        }
+        if (c == capacity)
+            signalNotFull();
+        return x;
     }
 }

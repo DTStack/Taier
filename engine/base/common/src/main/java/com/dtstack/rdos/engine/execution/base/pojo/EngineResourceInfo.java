@@ -28,6 +28,7 @@ public class EngineResourceInfo {
 
     /**
      * FIXME 注意是否会有多线程问题
+     * 默认返回true, 需要子类自定义
      * @param jobClient
      * @return
      *

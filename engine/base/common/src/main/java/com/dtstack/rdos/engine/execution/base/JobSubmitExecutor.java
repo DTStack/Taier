@@ -2,18 +2,14 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
-import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.util.SlotJudge;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
-import com.google.common.base.Strings;
+import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  * 单独起线程执行
  * Date: 2017/2/21
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 public class JobSubmitExecutor{
 
@@ -48,13 +44,12 @@ public class JobSubmitExecutor{
 
     public static final String TYPE_NAME_KEY = "typeName";
 
-    private static final int THREAD_REJECT_INTERVAL = 5000;//mills
+    /**循环任务等待队列的间隔时间：mills*/
+    private static final int CHECK_INTERVAL = 2000;
 
-    private static int minPollSize = 5;
+    private int minPollSize = 5;
 
-    private static int maxPoolSize = 10;
-
-    private static int maxOrderLinkedSize = 10;
+    private int maxPoolSize = 10;
 
     private static String userDir = System.getProperty("user.dir");
 
@@ -68,12 +63,10 @@ public class JobSubmitExecutor{
 
     private List<Map<String, Object>> clientParamsList;
 
-    private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<>();
-
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
 
     /**用于taskListener处理*/
-    private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();;
+    private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
@@ -105,25 +98,48 @@ public class JobSubmitExecutor{
 
 
     private void executionJob(){
-    	queExecutor.submit(new Runnable() {
+        queExecutor.submit(new Runnable() {
             @Override
             public void run() {
 
-                for(;;){
-                    JobClient jobClient = null;
+                while (true){
                     try{
-                        jobClient = (JobClient)orderLinkedBlockingQueue.take();
-                        executor.submit(new JobSubmitProcessor(jobClient, clientMap, slotNoAvailableJobClients));
-                    }catch (RejectedExecutionException rejectEx){
-                        //如果添加到执行线程池失败则添加回等待队列,并等待5s
+                        ExeQueueMgr.getInstance().getGroupExeQueue().forEach(gq ->{
+
+                            //TODO 判断该队列在集群里面是不是出于可以执行的--->防止出现某个group 队列阻塞其他队列正常执行
+
+                            JobClient jobClient = gq.getTop();
+                            if(jobClient == null){
+                                return;
+                            }
+
+                            //判断资源是否满足
+                            IClient clusterClient = clientMap.get(jobClient.getEngineType());
+                            EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
+                            if(!resourceInfo.judgeSlots(jobClient)){
+                                return;
+                            }
+
+                            JobClient jobClientToExe = gq.remove();
+                            try {
+                                executor.submit(new JobSubmitProcessor(jobClientToExe, clientMap, slotNoAvailableJobClients));
+                            } catch (RejectedExecutionException e) {
+                                //如果添加到执行线程池失败则添加回等待队列
+                                ExeQueueMgr.getInstance().add(jobClient);
+                            } catch (Exception e){
+                                logger.error("", e);
+                            }
+
+                        });
+                    }catch (Throwable e){
+                        //防止退出循环
+                        logger.error("----提交任务返回异常----", e);
+                    }finally {
                         try {
-                            Thread.sleep(THREAD_REJECT_INTERVAL);
-                            orderLinkedBlockingQueue.put(jobClient);
+                            Thread.sleep(CHECK_INTERVAL);
                         } catch (InterruptedException e) {
                             logger.error("", e);
                         }
-                    }catch(Exception e){
-                        logger.error("", e);
                     }
                 }
             }
@@ -136,8 +152,8 @@ public class JobSubmitExecutor{
 			public void run() {
 				for(;;){
 					try {
-						Thread.sleep(THREAD_REJECT_INTERVAL);
-						slotNoAvailableJobClients.noAvailSlotsJobAddExecutionQueue(orderLinkedBlockingQueue);
+						Thread.sleep(CHECK_INTERVAL);
+						slotNoAvailableJobClients.noAvailSlotsJobAddExecutionQueue();
 					} catch (InterruptedException e) {
 						logger.error("", e);
 					}
@@ -192,13 +208,13 @@ public class JobSubmitExecutor{
 	}
 
     public void submitJob(JobClient jobClient) throws Exception{
-        orderLinkedBlockingQueue.put(jobClient);
+        ExeQueueMgr.getInstance().add(jobClient);
     }
 
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
-        if(orderLinkedBlockingQueue.remove(jobClient.getTaskId())
+        if(ExeQueueMgr.getInstance().remove(jobClient.getGroupName(), jobClient.getTaskId())
                 || slotNoAvailableJobClients.remove(jobClient.getTaskId())){
             //直接移除
             Map<String, Integer> jobStatus = Maps.newHashMap();
@@ -241,11 +257,7 @@ public class JobSubmitExecutor{
      * @return
      */
     public boolean checkCanAddToWaitQueue(String engineType){
-        if( orderLinkedBlockingQueue.size() >= maxOrderLinkedSize){
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     public Map<String, IClient> getClientMap() {

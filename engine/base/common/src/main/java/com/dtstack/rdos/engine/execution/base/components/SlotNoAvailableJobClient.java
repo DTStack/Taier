@@ -4,6 +4,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.util.SlotJudge;
+import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class SlotNoAvailableJobClient {
 
     public final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
-    public void noAvailSlotsJobAddExecutionQueue(OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue){
+    public void noAvailSlotsJobAddExecutionQueue(){
 		try{
 			reentrantLock.lock();
 			Iterator<String> iterator = slotNoAvailableJobClients.keySet().iterator();
@@ -41,7 +42,7 @@ public class SlotNoAvailableJobClient {
 
 				if(checkNeedReSubmit(jobClient)){
                     logger.info("------ job: {} add into orderLinkedBlockingQueue again.", jobClient.getTaskId());
-                    orderLinkedBlockingQueue.put(jobClient);
+                    ExeQueueMgr.getInstance().add(jobClient);
                     iterator.remove();
                 }else{
                     iterator.remove();
