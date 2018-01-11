@@ -35,6 +35,8 @@ public class MathUtil {
             return Integer.valueOf(((String) obj).trim());
         }else if(obj instanceof Integer){
             return (Integer) obj;
+        }else if(obj instanceof Long){
+            return ((Long)obj).intValue();
         }
 
         throw new RuntimeException("not support type of " + obj.getClass() + " convert to Integer." );

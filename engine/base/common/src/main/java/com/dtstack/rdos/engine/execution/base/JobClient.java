@@ -55,6 +55,8 @@ public class JobClient extends OrderObject{
     private String classArgs;
 
     private int again = 1;
+
+    private String groupName;
     
 
     /***
@@ -63,15 +65,15 @@ public class JobClient extends OrderObject{
      * @return
      */
     public static RdosTaskStatus getStatus(String engineType, String engineTaskId) {
-        return JobSubmitExecutor.getInstance().getJobStatus(engineType, engineTaskId);
+        return ClientOperator.getInstance().getJobStatus(engineType, engineTaskId);
     }
 
     public static String getEngineLog(String engineType, String jobId){
-        return JobSubmitExecutor.getInstance().getEngineLogByHttp(engineType, jobId);
+        return ClientOperator.getInstance().getEngineLogByHttp(engineType, jobId);
     }
 
     public static String getInfoByHttp(String engineType, String path){
-        return JobSubmitExecutor.getInstance().getEngineMessageByHttp(engineType, path);
+        return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path);
     }
 
 
@@ -90,6 +92,7 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
+
     }
 
     public ParamAction getParamAction(){
@@ -244,24 +247,33 @@ public class JobClient extends OrderObject{
         this.externalPath = externalPath;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
                 "jobClientCallBack=" + jobClientCallBack +
                 ", operators=" + operators +
                 ", confProperties=" + confProperties +
-                ", sql='" + sql + '\'' +
-                ", taskParams='" + taskParams + '\'' +
-                ", jobName='" + jobName + '\'' +
-                ", taskId='" + taskId + '\'' +
-                ", engineTaskId='" + engineTaskId + '\'' +
+                ", sql='" + sql +
+                ", taskParams='" + taskParams +
+                ", jobName='" + jobName+
+                ", taskId='" + taskId +
+                ", engineTaskId='" + engineTaskId +
                 ", jobType=" + jobType +
                 ", computeType=" + computeType +
-                ", engineType='" + engineType + '\'' +
+                ", engineType='" + engineType +
                 ", jobResult=" + jobResult +
                 ", externalPath=" + externalPath +
-                ", classArgs='" + classArgs + '\'' +
+                ", classArgs='" + classArgs +
                 ", again=" + again +
+                ", groupName=" + groupName +
                 '}';
     }
 }

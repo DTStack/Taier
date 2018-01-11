@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
+import com.dtstack.rdos.engine.execution.base.ClientOperator;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import org.apache.commons.lang3.StringUtils;
@@ -19,10 +20,8 @@ public class SlotJudge {
 
     public static boolean judgeSlotsAndAgainExecute(String engineType, String jobId) {
 
-        JobSubmitExecutor executor = JobSubmitExecutor.getInstance();
-
         if(EngineType.isFlink(engineType)){
-            String message = executor.getEngineMessageByHttp(engineType,String.format(FLINK_EXCEPTION_URL, jobId));
+            String message = ClientOperator.getInstance().getEngineMessageByHttp(engineType,String.format(FLINK_EXCEPTION_URL, jobId));
             return checkFlinkNoSlots(message);
         }
 

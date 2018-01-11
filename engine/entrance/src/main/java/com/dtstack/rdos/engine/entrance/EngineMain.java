@@ -48,7 +48,7 @@ public class EngineMain {
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 		
-		JobSubmitExecutor.getInstance().init(nodeConfig);
+		JobSubmitExecutor.getInstance().init();
 		logger.warn("init JobSubmitExecutor success...");
 		
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();

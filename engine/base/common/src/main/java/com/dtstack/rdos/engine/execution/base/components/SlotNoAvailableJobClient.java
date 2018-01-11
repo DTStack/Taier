@@ -130,7 +130,7 @@ public class SlotNoAvailableJobClient {
 
 	private void listenerJobStatus(JobClient jobClient){
 		jobClient.setJobResult(jobClient.getJobResult());
-		JobSubmitExecutor.getInstance().addJobForTaskQueue(jobClient);//添加触发读取任务状态消息
+		JobSubmitExecutor.getInstance().addJobForTaskListenerQueue(jobClient);//添加触发读取任务状态消息
 	}
 
 	//TODO 暂时放这里

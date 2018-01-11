@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Reason:
  * Date: 2017/11/16
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 class CustomThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNumber = new AtomicInteger(1);

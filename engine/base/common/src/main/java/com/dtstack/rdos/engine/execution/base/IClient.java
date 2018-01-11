@@ -11,7 +11,7 @@ import java.util.Properties;
  * FIXME 添加新的方法的时候注意要对{@link ClientProxy}一起修改
  * Date: 2017/2/20
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public interface IClient {

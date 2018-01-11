@@ -16,7 +16,7 @@ import java.util.Properties;
  * 代理IClient实现类的proxy
  * Date: 2017/12/19
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class ClientProxy implements IClient{

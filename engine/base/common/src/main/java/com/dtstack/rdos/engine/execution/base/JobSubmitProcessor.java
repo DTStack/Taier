@@ -31,7 +31,6 @@ public class JobSubmitProcessor implements Runnable{
 
 
     public JobSubmitProcessor(JobClient jobClient, Map<String, IClient> clientMap,
-                              Map<String, EngineResourceInfo> slotsInfo,
                               SlotNoAvailableJobClient slotNoAvailableJobClient) throws Exception{
         this.jobClient = jobClient;
         this.clientMap = clientMap;
@@ -58,8 +57,6 @@ public class JobSubmitProcessor implements Runnable{
 
             try {
                 jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
-                //FIXME 修改获取资源--每次提交之前都刷新资源状态
-                //EngineResourceInfo resourceInfo = slotsInfo.get(jobClient.getEngineType());
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
 
                 if(resourceInfo.judgeSlots(jobClient)){
@@ -102,6 +99,6 @@ public class JobSubmitProcessor implements Runnable{
 
     private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
         jobClient.setJobResult(jobResult);
-        JobSubmitExecutor.getInstance().addJobForTaskQueue(jobClient);//添加触发读取任务状态消息
+        JobSubmitExecutor.getInstance().addJobForTaskListenerQueue(jobClient);//添加触发读取任务状态消息
     }
 }

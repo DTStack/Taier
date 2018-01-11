@@ -69,6 +69,7 @@ public class MasterNode {
     private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
 
     /**key: 执行引擎的名称*/
+    //TODO 需要引入group概念
     private Map<String, OrderLinkedBlockingQueue<JobClient>> priorityQueueMap = Maps.newHashMap();
 
     private Map<String, SendDealer> sendDealerMap = Maps.newHashMap();

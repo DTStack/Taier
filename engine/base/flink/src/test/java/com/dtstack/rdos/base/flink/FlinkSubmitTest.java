@@ -37,7 +37,7 @@ public class FlinkSubmitTest {
         engineList.add(flinkEngine);
         engineConfig.put("engineTypes", engineList);
 
-        JobSubmitExecutor.getInstance().init(engineConfig);
+        JobSubmitExecutor.getInstance().init();
     }
 
     @Test

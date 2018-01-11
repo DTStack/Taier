@@ -2,8 +2,6 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
-import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
@@ -18,6 +16,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -60,8 +58,6 @@ public class JobSubmitExecutor{
 
     private static String userDir = System.getProperty("user.dir");
 
-    private static JobSubmitExecutor singleton = new JobSubmitExecutor();
-
     private ExecutorService executor;
 
     private ExecutorService queExecutor;
@@ -75,19 +71,20 @@ public class JobSubmitExecutor{
     private OrderLinkedBlockingQueue<OrderObject> orderLinkedBlockingQueue = new OrderLinkedBlockingQueue<>();
 
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
-    
-    private Map<String, EngineResourceInfo> slotsInfo = Maps.newConcurrentMap();
 
     /**用于taskListener处理*/
     private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();;
 
-    private JobSubmitExecutor(){}
+    private static JobSubmitExecutor singleton = new JobSubmitExecutor();
+
+    private JobSubmitExecutor(){
+    }
 
     public static JobSubmitExecutor getInstance(){
         return singleton;
     }
 
-    public void init(Map<String,Object> engineConf) throws Exception{
+    public void init() throws Exception{
         if(!hasInit){
             this.maxPoolSize = ConfigParse.getSlots();
             this.clientParamsList = ConfigParse.getEngineTypeList();
@@ -116,7 +113,7 @@ public class JobSubmitExecutor{
                     JobClient jobClient = null;
                     try{
                         jobClient = (JobClient)orderLinkedBlockingQueue.take();
-                        executor.submit(new JobSubmitProcessor(jobClient, clientMap, slotsInfo, slotNoAvailableJobClients));
+                        executor.submit(new JobSubmitProcessor(jobClient, clientMap, slotNoAvailableJobClients));
                     }catch (RejectedExecutionException rejectEx){
                         //如果添加到执行线程池失败则添加回等待队列,并等待5s
                         try {
@@ -198,46 +195,6 @@ public class JobSubmitExecutor{
         orderLinkedBlockingQueue.put(jobClient);
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String jobId){
-
-        if(Strings.isNullOrEmpty(jobId)){
-            throw new RdosException("can't get job of jobId is empty or null!");
-        }
-
-        IClient client = clientMap.get(engineType);
-        try{
-        	Object result = client.getJobStatus(jobId);
-
-        	if(result == null){
-        	    return null;
-            }
-
-            RdosTaskStatus status = (RdosTaskStatus) result;
-
-        	if(status == RdosTaskStatus.FAILED){
-        		status = SlotJudge.judgeSlotsAndAgainExecute(engineType, jobId) ? RdosTaskStatus.WAITCOMPUTE : status;
-        	}
-
-            return status;
-        }catch (Exception e){
-            logger.error("", e);
-            throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
-        }
-    }
-
-    public Map<String, String> getJobMaster(){
-    	final Map<String, String> jobMasters = Maps.newConcurrentMap();
-        clientMap.forEach((k,v)->{
-            if(StringUtils.isNotBlank(v.getJobMaster())){
-                try {
-                    jobMasters.put(k, v.getJobMaster());
-                } catch (Exception e) {
-                   logger.error("",e);
-                }
-            }
-    	});
-        return jobMasters;
-    }
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
@@ -260,30 +217,6 @@ public class JobSubmitExecutor{
     	return jobResult;
     }
     
-    
-    public String getEngineMessageByHttp(String engineType, String path){
-    	IClient client = clientMap.get(engineType);
-	    String message = "";
-		try {
-			message = client.getMessageByHttp(path);
-		} catch (Exception e) {
-			logger.error("", e);
-		}
-	    return message;
-    }
-
-    public String getEngineLogByHttp(String engineType, String jobId) {
-        IClient client = clientMap.get(engineType);
-        String logInfo = "";
-        try{
-            logInfo = client.getJobLog(jobId);
-        }catch (Exception e){
-            logger.error("", e);
-        }
-
-        return logInfo;
-    }
-    
     public void shutdown(){
         if(executor != null){
             executor.shutdown();
@@ -298,7 +231,7 @@ public class JobSubmitExecutor{
         return queueForTaskListener;
     }
 
-    public void addJobForTaskQueue(JobClient jobClient){
+    public void addJobForTaskListenerQueue(JobClient jobClient){
         queueForTaskListener.offer(jobClient);
     }
 
@@ -315,5 +248,8 @@ public class JobSubmitExecutor{
         return true;
     }
 
+    public Map<String, IClient> getClientMap() {
+        return clientMap;
+    }
 }
 

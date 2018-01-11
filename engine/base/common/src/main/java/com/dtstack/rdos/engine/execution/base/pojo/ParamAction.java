@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ParamAction {
 
-    private static Logger logger = LoggerFactory.getLogger(ParamAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(ParamAction.class);
 
 	private String taskId;
 	
@@ -36,6 +36,8 @@ public class ParamAction {
 	private String taskParams;
 
 	private String exeArgs;
+
+	private String groupName;
 
 	/**
 	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
@@ -133,7 +135,15 @@ public class ParamAction {
 		this.exeArgs = exeArgs;
 	}
 
-	@Override
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    @Override
     public String toString() {
 	    String jsonStr = "";
 	    try{
