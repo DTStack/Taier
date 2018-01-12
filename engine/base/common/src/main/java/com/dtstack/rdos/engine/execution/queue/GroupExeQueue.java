@@ -18,8 +18,63 @@ public class GroupExeQueue {
 
     private long maxTime = 0;
 
+    private Integer maxPriority = 0;
+
     public GroupExeQueue(String groupName){
         this.groupName = groupName;
+    }
+
+
+    public void addJobClient(JobClient jobClient){
+        orderList.add(jobClient);
+        if(jobClient.getGenerateTime() > maxTime){
+            maxTime = jobClient.getGenerateTime();
+        }
+
+        if(jobClient.getPriority() > maxPriority){
+            maxPriority = jobClient.getPriority();
+        }
+    }
+
+    public JobClient remove(){
+        JobClient result = orderList.poll();
+        updateExtInfo();
+        return result;
+    }
+
+    /**
+     * 只是返回第一个元素并不移除
+     * @return
+     */
+    public JobClient getTop(){
+        return orderList.getTop();
+    }
+
+
+    public boolean remove(String taskId){
+        boolean result = orderList.remove(taskId);
+        updateExtInfo();
+        return result;
+    }
+
+    private void updateExtInfo(){
+        //更新时间
+        maxTime = 0;
+        maxPriority = 0;
+
+        orderList.forEach(jobClient -> {
+            if(jobClient.getGenerateTime() > maxTime){
+                maxTime = jobClient.getGenerateTime();
+            }
+
+            if(jobClient.getPriority() > maxPriority){
+                maxPriority = jobClient.getPriority();
+            }
+        });
+    }
+
+    public int size(){
+        return orderList.size();
     }
 
     public String getGroupName() {
@@ -30,35 +85,7 @@ public class GroupExeQueue {
         return maxTime;
     }
 
-    public void addJobClient(JobClient jobClient){
-        orderList.add(jobClient);
-        if(jobClient.getGenerateTime() > maxTime){
-            maxTime = jobClient.getGenerateTime();
-        }
-    }
-
-    public JobClient remove(){
-        JobClient result = orderList.poll();
-        //更新时间
-        maxTime = 0;
-        if(result == null){
-            return null;
-        }
-
-        orderList.forEach(jobClient -> {
-            if(jobClient.getGenerateTime() > maxTime){
-                maxTime = jobClient.getGenerateTime();
-            }
-        });
-
-        return result;
-    }
-
-    public JobClient getTop(){
-        return orderList.getTop();
-    }
-
-    public boolean remove(String taskId){
-        return orderList.remove(taskId);
+    public Integer getMaxPriority() {
+        return maxPriority;
     }
 }

@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *
- * TODO 是否可以接受提交任务的判断是 slotNoAvailableJobClients 和 orderLinkedBlockingQueue总和
  * TODO 执行等待队列区分flink和spark
  * 任务提交执行容器
  * 单独起线程执行
@@ -53,6 +52,8 @@ public class JobSubmitExecutor{
 
     private static String userDir = System.getProperty("user.dir");
 
+    private String localAddress;
+
     private ExecutorService executor;
 
     private ExecutorService queExecutor;
@@ -67,6 +68,8 @@ public class JobSubmitExecutor{
 
     /**用于taskListener处理*/
     private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();
+
+    private ExeQueueMgr exeQueueMgr = ExeQueueMgr.getInstance();
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
@@ -88,6 +91,7 @@ public class JobSubmitExecutor{
             this.queExecutor = new ThreadPoolExecutor(3, 3,
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
+            this.localAddress = ConfigParse.getLocalAddress();
 
             initJobClient(this.clientParamsList);
             executionJob();
@@ -104,9 +108,12 @@ public class JobSubmitExecutor{
 
                 while (true){
                     try{
-                        ExeQueueMgr.getInstance().getGroupExeQueue().forEach(gq ->{
+                        exeQueueMgr.getGroupExeQueue().forEach(gq ->{
 
-                            //TODO 判断该队列在集群里面是不是出于可以执行的--->防止出现某个group 队列阻塞其他队列正常执行
+                            //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
+                            if(exeQueueMgr.checkLocalPriorityIsMax(gq.getGroupName(), localAddress)){
+                                return;
+                            }
 
                             JobClient jobClient = gq.getTop();
                             if(jobClient == null){

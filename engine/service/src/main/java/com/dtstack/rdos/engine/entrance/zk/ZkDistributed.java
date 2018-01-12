@@ -10,6 +10,8 @@ import java.util.Set;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
+import com.dtstack.rdos.engine.entrance.zk.task.OtherListener;
 import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -69,6 +71,8 @@ public class ZkDistributed {
 
 	private String metaDataNode = "data";
 
+	private String queueNode = "queue";
+
 	private List<Map<String, Object>> engineTypeList;
 
 	private CuratorFramework zkClient;
@@ -86,6 +90,8 @@ public class ZkDistributed {
 	private InterProcessMutex brokerDataLock;
 
 	private InterProcessMutex brokerHeartLock;
+
+	private InterProcessMutex brokerQueueLock;
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
@@ -143,6 +149,7 @@ public class ZkDistributed {
 		executors.execute(new TaskListener());
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
+		executors.execute(new OtherListener());
 	}
 
 	public boolean localIsMaster(){
@@ -197,6 +204,30 @@ public class ZkDistributed {
 			}
 		}
 	}
+
+
+	public void updateSynchronizedLocalQueueNode(String localAddress, BrokerQueueNode source){
+        String nodePath = String.format("%s/%s/%s", brokersNode,localAddress,heartNode);
+        try{
+            if(this.brokerQueueLock.acquire(30, TimeUnit.SECONDS)){
+                zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(source));
+            }
+        }catch (Exception e){
+            logger.error("{} updateSynchronizedLocalQueueNode error:{}", nodePath,
+                    ExceptionUtil.getErrorMessage(e));
+        }finally {
+
+            try{
+                if(this.brokerQueueLock.isAcquiredInThisProcess()){
+                    this.brokerQueueLock.release();
+                }
+            } catch (Exception e) {
+                logger.error("{}:updateSynchronizedLocalQueueNode error:{}", nodePath,
+                        ExceptionUtil.getErrorMessage(e));
+            }
+
+        }
+    }
 
 	public void updateSynchronizedBrokerData(String localAddress,BrokerDataNode source,boolean isCover){
 		String nodePath = String.format("%s/%s/%s",this.brokersNode,localAddress,metaDataNode);
@@ -265,9 +296,13 @@ public class ZkDistributed {
 		this.brokerHeartLock = createDistributeLock(String.format(
 				"%s/%s", this.distributeRootNode, "brokerheartlock"));
 
+		this.brokerQueueLock = createDistributeLock(String.format(
+                "%s/%s", this.distributeRootNode, "brokerqueuelock"));
+
 		interProcessMutexs.add(this.masterLock);
 		interProcessMutexs.add(this.brokerDataLock);
 		interProcessMutexs.add(this.brokerHeartLock);
+        interProcessMutexs.add(this.brokerQueueLock);
 
 	}
 
@@ -377,6 +412,30 @@ public class ZkDistributed {
 		}
 		return null;
 	}
+
+	public Map<String, BrokerQueueNode> getAllBrokerQueueNode(){
+        List<String> brokerList = getBrokersChildren();
+        Map<String, BrokerQueueNode> queueNodeMap = Maps.newHashMap();
+
+        for(String broker : brokerList){
+            BrokerQueueNode queueNode = getBrokerQueueNode(broker);
+            queueNodeMap.put(broker, queueNode);
+        }
+
+        return queueNodeMap;
+    }
+
+    public BrokerQueueNode getBrokerQueueNode(String node){
+	    try{
+            String nodePath = String.format("%s/%s/%s", this.brokersNode, node, this.queueNode);
+            BrokerQueueNode queueNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerQueueNode.class);
+            return queueNode;
+        }catch (Exception e){
+            logger.error("{} getBrokerQueueNode error:{}", node, ExceptionUtil.getErrorMessage(e));
+        }
+
+        return null;
+    }
 
 	public String getExecutionNode(List<String> excludeNodes){
 		int def = Integer.MAX_VALUE;

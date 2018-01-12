@@ -21,7 +21,7 @@ public class HeartBeat implements Runnable{
 
 	private static final Logger logger = LoggerFactory.getLogger(HeartBeat.class);
 
-	private final static int HEATBEAT = 1000;
+	private final static int HEARTBEAT = 1000;
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
@@ -37,7 +37,7 @@ public class HeartBeat implements Runnable{
 				brokerHeartNode.setAlive(true);
 				zkDistributed.updateSynchronizedLocalBrokerHeartNode(zkDistributed.getLocalAddress(),brokerHeartNode,false);
 				if(PublicUtil.count(index, 10)){logger.warn("HeartBeat start again...");}
-				Thread.sleep(HEATBEAT);
+				Thread.sleep(HEARTBEAT);
 			}
 
 		} catch (Throwable e) {
