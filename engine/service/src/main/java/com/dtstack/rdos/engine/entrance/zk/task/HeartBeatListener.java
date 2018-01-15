@@ -83,6 +83,7 @@ public class HeartBeatListener implements Runnable{
 						this.zkDistributed.dataMigration(node);
 						this.rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 						this.brokerNodeCounts.remove(node);
+						//TODO 清理broker-queue节点信息
 					}else{
 						brokerNodeCount.setBrokerHeartNode(brokerNode);
 						this.brokerNodeCounts.put(node, brokerNodeCount);

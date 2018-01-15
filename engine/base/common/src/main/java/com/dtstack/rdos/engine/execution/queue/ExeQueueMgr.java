@@ -138,7 +138,13 @@ public class ExeQueueMgr {
     }
 
 
-    public boolean checkCanAddToWaitQueue(String groupName){
+    public boolean checkCanAddToWaitQueue(String engineType, String groupName){
+        if(engineType == null){
+            return false;
+        }
+
+        //TODO 先根据engineType获取map, 再根据groupName获取具体的队列
+
         groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
 

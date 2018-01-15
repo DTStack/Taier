@@ -21,6 +21,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import com.google.common.collect.Maps;
@@ -113,16 +114,23 @@ public class ActionServiceImpl {
 
     /**
      * 接受来自客户端的请求, 目的是在master节点上组织成一个优先级队列
-     * TODO 处理 重复发送的问题，rdos-web端的发送需要修改为向master节点发送--避免转发
+     * TODO 1：处理 重复发送的问题 2：rdos-web端的发送需要修改为向master节点发送--避免转发
      * @param params
      */
     public void start(Map<String, Object> params){
 
         try{
-
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            //判断localAddr 是否 == masterAddr
+
+            checkParam(paramAction);
+
+            //判断localAddr == masterAddr ?
             if(zkDistributed.localIsMaster()){
+
+                if(receiveJob(paramAction)){
+                    return;
+                }
+
                 //1: 直接提交到本地master的优先级队列
                 JobClient jobClient = new JobClient(paramAction);
                 masterNode.addTask(jobClient);
@@ -149,6 +157,7 @@ public class ActionServiceImpl {
 
     /**
      * 执行从master上下发的任务
+     * 不需要判断等待队列是否满了，由master节点主动判断
      * TODO 处理重复发送的问题
      * @param params
      * @return
@@ -162,10 +171,8 @@ public class ActionServiceImpl {
 
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
-
-            //判断等待队列是否满了
-            if(!JobSubmitExecutor.getInstance().checkCanAddToWaitQueue(paramAction.getEngineType())){
-                result.put("send", false);
+            if(checkSubmitted(paramAction)){
+                result.put("send", true);
                 return result;
             }
 
@@ -173,8 +180,8 @@ public class ActionServiceImpl {
             computeType = paramAction.getComputeType();
 
             String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
-            updateJobZookStatus(zkTaskId,RdosTaskStatus.SUBMITTING.getStatus());
-            updateJobStatus(jobId, computeType, RdosTaskStatus.SUBMITTING.getStatus());
+            updateJobZookStatus(zkTaskId, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
+            updateJobStatus(jobId, computeType, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
 
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobId;
@@ -216,15 +223,21 @@ public class ActionServiceImpl {
     }
 
     /**
-     * TODO 检查是否可以下发任务
+     * 检查是否可以下发任务
      * @param params
      */
-    public void checkCanSend(Map<String, Object> params){
+    public Map<String, Object> checkCanDistribute(Map<String, Object> params){
+        Map<String, Object> resultMap = Maps.newHashMap();
+        String groupName = MathUtil.getString(params.get("groupName"));
+        String engineType = MathUtil.getString(params.get("engineType"));
 
+        Boolean canAdd = ExeQueueMgr.getInstance().checkCanAddToWaitQueue(engineType, groupName);
+        resultMap.put("result", canAdd);
+        return resultMap;
     }
 
     @Forbidden
-    public void updateJobZookStatus(String taskId,Integer status){
+    public void updateJobZookStatus(String taskId, Integer status){
         BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
         brokerDataNode.getMetas().put(taskId, status.byteValue());
         zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
@@ -232,6 +245,11 @@ public class ActionServiceImpl {
 
     }
 
+    /**
+     * TODO 判断任务是否是否是在本台机器上
+     * @param params
+     * @throws Exception
+     */
     public void stop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         checkParam(paramAction);
@@ -273,11 +291,42 @@ public class ActionServiceImpl {
         if(paramAction.getEngineType() == null){
             throw new RdosException("engineType is not allow null");
         }
-
     }
 
+    private boolean checkSubmitted(ParamAction paramAction){
+        boolean result;
+        String jobId = paramAction.getTaskId();
+        Integer computerType = paramAction.getComputeType();
+        if (ComputeType.STREAM.getType().equals(computerType)) {
+            RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            if(rdosEngineStreamJob == null){
+                logger.error("can't find job from engineStreamJob:" + paramAction);
+                return false;
+            }
+
+            result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
+        }else{
+            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if(rdosEngineBatchJob == null){
+                logger.error("can't find job from engineBatchJob:" + paramAction);
+                return false;
+            }
+
+            result = RdosTaskStatus.canSubmitAgain(rdosEngineBatchJob.getStatus());
+
+        }
+
+        return result;
+    }
+
+    /**
+     * master节点接收到任务，修改任务状态
+     * 同时处理重复提交的问题
+     * @param paramAction
+     * @return
+     */
     private boolean receiveJob(ParamAction paramAction){
-    	boolean result = false;
+    	boolean result;
     	String jobId = paramAction.getTaskId();
     	Integer computerType = paramAction.getComputeType();
         if (ComputeType.STREAM.getType().equals(computerType)) {
@@ -289,7 +338,7 @@ public class ActionServiceImpl {
         		streamTaskDAO.insert(rdosEngineStreamJob);
         		result =  true;
         	}else{
-        		result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
+        		result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
         		if(result){
         			streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
         		}
@@ -303,7 +352,7 @@ public class ActionServiceImpl {
         		batchJobDAO.insert(rdosEngineBatchJob);
         		result =  true;
         	}else{
-        		result = RdosTaskStatus.canSubmitAgain(rdosEngineBatchJob.getStatus());
+        		result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
         		if(result){
         			batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
         		}

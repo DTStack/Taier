@@ -70,7 +70,7 @@ public class MasterNode {
 
     /**key: 执行引擎的名称*/
     //TODO 需要引入group概念
-    private Map<String, OrderLinkedBlockingQueue<JobClient>> priorityQueueMap = Maps.newHashMap();
+    private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newHashMap();
 
     private Map<String, SendDealer> sendDealerMap = Maps.newHashMap();
 
@@ -91,7 +91,7 @@ public class MasterNode {
         for(Map<String, Object> params : ConfigParse.getEngineTypeList()) {
             String clientTypeStr = (String) params.get(JobSubmitExecutor.TYPE_NAME_KEY);
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            priorityQueueMap.put(key, new OrderLinkedBlockingQueue<>());
+            priorityQueueMap.put(key, new GroupPriorityQueue());
         }
 
         senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
@@ -109,12 +109,12 @@ public class MasterNode {
         jobClient.setPriority(priorityVal);
 
         try{
-            OrderLinkedBlockingQueue queue = priorityQueueMap.get(jobClient.getEngineType());
-            if(queue == null){
+            GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
+            if(groupQueue == null){
                 throw new RdosException("not support for engine type:" + jobClient.getEngineType());
             }
 
-            queue.put(jobClient);
+            groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
             dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
@@ -131,8 +131,7 @@ public class MasterNode {
                 senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
             }
 
-            //TODO 需要从数据库load出来队列priorityQueue数据
-            for(Map.Entry<String, OrderLinkedBlockingQueue<JobClient>> entry : priorityQueueMap.entrySet()){
+            for(Map.Entry<String, GroupPriorityQueue> entry : priorityQueueMap.entrySet()){
                 SendDealer sendDealer = new SendDealer(entry.getKey(), entry.getValue());
                 sendDealerMap.put(entry.getKey(), sendDealer);
                 senderExecutor.submit(sendDealer);
@@ -164,7 +163,7 @@ public class MasterNode {
         }
 
         //不做严格的队列长度限制,只要请求的时候返回true就认为可以发送
-        if(!checkCanSend(address, jobClient.getEngineType())){
+        if(!checkCanSend(address, jobClient.getEngineType(), jobClient.getGroupName())){
             excludeNodes.add(address);
             sendTask(jobClient, retryNum, excludeNodes);
         }
@@ -217,14 +216,15 @@ public class MasterNode {
     /**
      * 在发送失败之后向slave询问是否可以发送任务请求
      */
-    public boolean checkCanSend(String address, String engineType){
+    public boolean checkCanSend(String address, String engineType, String groupName){
         if(address.equals(localAddress)){
             JobSubmitExecutor.getInstance().checkCanAddToWaitQueue(engineType);
         }else{
             Map<String, Object> param = Maps.newHashMap();
             param.put("engineType", engineType);
+            param.put("groupName", groupName);
             try{
-                HttpSendClient.actionCheck(localAddress, param);
+                return HttpSendClient.actionCheck(localAddress, param);
             }catch (Exception e){
                 LOG.error("", e);
                 return false;
@@ -264,16 +264,16 @@ public class MasterNode {
      * TODO 修改rdos_engine_job_cache表添加engine_type字段
      * 如果不修改当前的已经停止机器的任务恢复的话，需要修改rdos_engine_job_cache添加字段stage:用于标识任务是否已经下发。
      * @param engineType
-     * @param queue
+     * @param groupQueue
      */
-    public void loadQueueFromDB(String engineType, OrderLinkedBlockingQueue<JobClient> queue){
+    public void loadQueueFromDB(String engineType, GroupPriorityQueue groupQueue){
         List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
         jobCaches.forEach(jobCache ->{
 
             try{
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
-                queue.add(jobClient);
+                groupQueue.add(jobClient);
             }catch (Exception e){
                 //数据转换异常--打日志
                 LOG.error("", e);
@@ -295,33 +295,24 @@ public class MasterNode {
 
         private String name;
 
-        private OrderLinkedBlockingQueue<JobClient> priorityQueue;
+        private GroupPriorityQueue groupQueue;
 
         private boolean isRun = true;
 
-        public SendDealer(String name, OrderLinkedBlockingQueue<JobClient> priorityQueue){
+        public SendDealer(String name, GroupPriorityQueue groupQueue){
             this.name = name;
-            this.priorityQueue = priorityQueue;
+            this.groupQueue = groupQueue;
         }
 
         @Override
         public void run() {
             LOG.info("-----{}:优先级队列触发开始执行----", name);
-
-            loadQueueFromDB(name, priorityQueue);
+            loadQueueFromDB(name, groupQueue);
 
             while (isRun){
                 try{
-                    for(JobClient jobClient : priorityQueue) {
-                        //发送任务
-                        List<String> excludeNodes = Lists.newArrayList();
-                        if (sendTask(jobClient, 0, excludeNodes)) {
-                            priorityQueue.remove(jobClient);
-                        } else {
-                            //更新剩余任务的优先级数据
-                            updateQueuePriority();
-                            break;
-                        }
+                    for(OrderLinkedBlockingQueue queue : groupQueue.getOrderList()) {
+                        sendJobClient(queue);
                     }
 
                 }catch (Exception e){
@@ -343,9 +334,29 @@ public class MasterNode {
         }
 
         /**
+         * 循环group优先级队列发送任务--直到不能发送
+         * @param priorityQueue
+         */
+        public void sendJobClient(OrderLinkedBlockingQueue<JobClient> priorityQueue){
+
+            for(JobClient jobClient : priorityQueue){
+                List<String> excludeNodes = Lists.newArrayList();
+                if (sendTask(jobClient, 0, excludeNodes)) {
+                    priorityQueue.remove(jobClient);
+                } else {
+                    break;
+                }
+            }
+
+            //更新剩余任务的优先级数据
+            updateQueuePriority(priorityQueue);
+
+        }
+
+        /**
          * 每次判断过后对剩下的任务的priority值加上一个固定值
          */
-        public void updateQueuePriority(){
+        public void updateQueuePriority(OrderLinkedBlockingQueue<JobClient> priorityQueue){
 
             for(JobClient jobClient: priorityQueue){
                 int currPriority = jobClient.getPriority();

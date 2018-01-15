@@ -24,7 +24,7 @@ public class Urls {
 
 	public final static String SUBMIT = String.format("%s/%s",ACTION, "submit");
 
-	public final static String CHECK = String.format("%s/%s",ACTION, "checkCanSend");
+	public final static String CHECK = String.format("%s/%s",ACTION, "checkCanDistribute");
 
 
 

@@ -30,6 +30,8 @@ public class RdosEngineStreamJob extends DataObject{
 	private Date execStartTime;
 
 	private Date execEndTime;
+
+	private Long exeTime;
 	
     private String logInfo;
 
@@ -90,5 +92,12 @@ public class RdosEngineStreamJob extends DataObject{
 	public void setEngineLog(String engineLog) {
 		this.engineLog = engineLog;
 	}
-	
+
+    public Long getExeTime() {
+        return exeTime;
+    }
+
+    public void setExeTime(Long exeTime) {
+        this.exeTime = exeTime;
+    }
 }

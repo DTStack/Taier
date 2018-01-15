@@ -69,4 +69,17 @@ public class MathUtil {
 
         throw new RuntimeException("not support type of " + obj.getClass() + " convert to Boolean." );
     }
+
+    public static String getString(Object obj){
+        if(obj == null){
+            return null;
+        }
+
+        if(obj instanceof String){
+            return (String) obj;
+        }else{
+            return obj.toString();
+        }
+
+    }
 }
