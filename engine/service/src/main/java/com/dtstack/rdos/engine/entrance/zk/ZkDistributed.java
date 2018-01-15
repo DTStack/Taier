@@ -557,6 +557,11 @@ public class ZkDistributed {
 		this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
 	}
 
+	public void removeBrokerQueueNode(String address){
+		BrokerQueueNode brokerQueueNode = new BrokerQueueNode();
+		zkDistributed.updateSynchronizedLocalQueueNode(localAddress, brokerQueueNode);
+	}
+
 	public void dataMigration(String nodeAddress) {
 		// TODO Auto-generated method stub
 		try {

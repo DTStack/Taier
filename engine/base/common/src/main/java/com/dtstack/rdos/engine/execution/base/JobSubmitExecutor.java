@@ -8,7 +8,9 @@ import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.queue.EngineTypeQueue;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
+import com.dtstack.rdos.engine.execution.queue.GroupExeQueue;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +42,6 @@ import java.util.concurrent.TimeUnit;
 public class JobSubmitExecutor{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
-
-    public static final String TYPE_NAME_KEY = "typeName";
 
     /**循环任务等待队列的间隔时间：mills*/
     private static final int CHECK_INTERVAL = 2000;
@@ -108,36 +108,46 @@ public class JobSubmitExecutor{
 
                 while (true){
                     try{
-                        exeQueueMgr.getGroupExeQueue().forEach(gq ->{
 
-                            //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
-                            if(exeQueueMgr.checkLocalPriorityIsMax(gq.getGroupName(), localAddress)){
-                                return;
-                            }
+                        //TODO 是否需要先判断executor是否满
 
-                            JobClient jobClient = gq.getTop();
-                            if(jobClient == null){
-                                return;
-                            }
+                        for(EngineTypeQueue engineTypeQueue : exeQueueMgr.getEngineTypeQueueMap().values()){
 
-                            //判断资源是否满足
-                            IClient clusterClient = clientMap.get(jobClient.getEngineType());
-                            EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-                            if(!resourceInfo.judgeSlots(jobClient)){
-                                return;
-                            }
+                            String engineType = engineTypeQueue.getEngineType();
+                            Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
+                            engineTypeQueueMap.values().forEach(gq ->{
 
-                            JobClient jobClientToExe = gq.remove();
-                            try {
-                                executor.submit(new JobSubmitProcessor(jobClientToExe, clientMap, slotNoAvailableJobClients));
-                            } catch (RejectedExecutionException e) {
-                                //如果添加到执行线程池失败则添加回等待队列
-                                ExeQueueMgr.getInstance().add(jobClient);
-                            } catch (Exception e){
-                                logger.error("", e);
-                            }
+                                //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
+                                if(exeQueueMgr.checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
+                                    return;
+                                }
 
-                        });
+                                JobClient jobClient = gq.getTop();
+                                if(jobClient == null){
+                                    return;
+                                }
+
+                                //判断资源是否满足
+                                IClient clusterClient = clientMap.get(jobClient.getEngineType());
+                                EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
+                                if(!resourceInfo.judgeSlots(jobClient)){
+                                    return;
+                                }
+
+                                JobClient jobClientToExe = gq.remove();
+                                try {
+                                    executor.submit(new JobSubmitProcessor(jobClientToExe, clientMap, slotNoAvailableJobClients));
+                                } catch (RejectedExecutionException e) {
+                                    //如果添加到执行线程池失败则添加回等待队列
+                                    ExeQueueMgr.getInstance().add(jobClient);
+                                } catch (Exception e){
+                                    logger.error("", e);
+                                }
+
+                            });
+                        }
+
+
                     }catch (Throwable e){
                         //防止退出循环
                         logger.error("----提交任务返回异常----", e);
@@ -171,7 +181,7 @@ public class JobSubmitExecutor{
     
     private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
         for(Map<String, Object> params : clientParamsList){
-            String clientTypeStr = (String) params.get(TYPE_NAME_KEY);
+            String clientTypeStr = (String) params.get(ConfigParse.TYPE_NAME_KEY);
             if(clientTypeStr == null){
                 String errorMess = "node.yml of engineTypes setting error, typeName must not be null!!!";
                 logger.error(errorMess);
@@ -221,7 +231,7 @@ public class JobSubmitExecutor{
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
-        if(ExeQueueMgr.getInstance().remove(jobClient.getGroupName(), jobClient.getTaskId())
+        if(ExeQueueMgr.getInstance().remove(jobClient.getEngineType(), jobClient.getGroupName(), jobClient.getTaskId())
                 || slotNoAvailableJobClients.remove(jobClient.getTaskId())){
             //直接移除
             Map<String, Integer> jobStatus = Maps.newHashMap();

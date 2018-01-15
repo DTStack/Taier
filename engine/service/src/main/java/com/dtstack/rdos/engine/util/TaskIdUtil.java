@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.util;
 
-import com.dtstack.rdos.common.util.MathUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,6 @@ public class TaskIdUtil {
         splitArr[2] = status;
         return String.join(interval, splitArr);
     }
-
 
 
     public static int getComputeType(String zkTaskId){

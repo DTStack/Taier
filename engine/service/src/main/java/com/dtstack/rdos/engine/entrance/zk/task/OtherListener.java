@@ -37,13 +37,13 @@ public class OtherListener implements Runnable{
 
 			    //更新当前节点的queue
                 Map<String, BrokerQueueNode> queueNodeMap = zkDistributed.getAllBrokerQueueNode();
-                Map<String, Map<String, Integer>> queueInfo = Maps.newHashMap();
+                Map<String, Map<String, Map<String, Integer>>> queueInfo = Maps.newHashMap();
                 queueNodeMap.forEach( (address, queueNode) -> queueInfo.put(address, queueNode.getGroupQueueInfo()));
 
                 ExeQueueMgr.getInstance().updateZkGroupPriorityInfo(queueInfo);
 
                 //获取所有节点的queue 信息
-                Map<String, Integer>  localQueueSet = ExeQueueMgr.getInstance().getZkGroupPriorityInfo();
+                Map<String, Map<String, Integer>>  localQueueSet = ExeQueueMgr.getInstance().getZkGroupPriorityInfo();
                 String localAddr = zkDistributed.getLocalAddress();
                 BrokerQueueNode localQueueNode = new BrokerQueueNode();
                 localQueueNode.setGroupQueueInfo(localQueueSet);

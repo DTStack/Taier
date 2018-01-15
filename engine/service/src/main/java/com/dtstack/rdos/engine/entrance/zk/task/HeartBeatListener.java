@@ -40,7 +40,7 @@ public class HeartBeatListener implements Runnable{
 		this.masterListener = masterListener;
 	}
 	
-	public Map<String,BrokerNodeCount> brokerNodeCounts =  Maps.newConcurrentMap();
+	public Map<String, BrokerNodeCount> brokerNodeCounts =  Maps.newConcurrentMap();
 	
 	@Override
 	public void run() {
@@ -81,9 +81,10 @@ public class HeartBeatListener implements Runnable{
 					if(brokerNodeCount.getCount() > EXCEEDCOUNT){//node died
 						this.zkDistributed.disableBrokerHeartNode(node);
 						this.zkDistributed.dataMigration(node);
+						this.zkDistributed.removeBrokerQueueNode(node);
 						this.rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 						this.brokerNodeCounts.remove(node);
-						//TODO 清理broker-queue节点信息
+
 					}else{
 						brokerNodeCount.setBrokerHeartNode(brokerNode);
 						this.brokerNodeCounts.put(node, brokerNodeCount);

@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
 /**
  * 处理任务优先级队列
  * 1--n 数值越大表明优先级越高
- * TODO 区分flinK 优先级队列和spark优先级队列---根据配置文件的信息生成
+ * 优先级队列和spark优先级队列---根据配置文件的信息生成
  * Date: 2018/1/8
  * Company: www.dtstack.com
  * @author xuchao
@@ -89,7 +89,7 @@ public class MasterNode {
     private MasterNode(){
 
         for(Map<String, Object> params : ConfigParse.getEngineTypeList()) {
-            String clientTypeStr = (String) params.get(JobSubmitExecutor.TYPE_NAME_KEY);
+            String clientTypeStr = (String) params.get(ConfigParse.TYPE_NAME_KEY);
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             priorityQueueMap.put(key, new GroupPriorityQueue());
         }

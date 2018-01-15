@@ -7,6 +7,8 @@ import java.util.List;
  */
 public class ConfigParse {
 
+    public static final String TYPE_NAME_KEY = "typeName";
+
     private static Map<String,Object> configs = null;
 
     public static void setConfigs(Map<String,Object> config){
