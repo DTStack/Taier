@@ -47,7 +47,7 @@ public class EngineTypeQueue {
         groupExeQueueMap.put(defaultQueue.getGroupName(), defaultQueue);
     }
 
-    public void add(JobClient jobClient) {
+    public void add(JobClient jobClient) throws InterruptedException {
         String groupName = jobClient.getGroupName();
         groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);

@@ -28,7 +28,7 @@
     </select>
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
-        select * from rdos_engine_job_cache where stage = #{stage} and engine_type = #{engine_type} and is_deleted=0 order by gmt_create asc;
+        select * from rdos_engine_job_cache where stage = #{stage} and engine_type = #{engineType} and is_deleted=0 order by gmt_create asc;
     </select>
 
 </mapper>

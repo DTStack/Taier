@@ -3,7 +3,9 @@ package com.dtstack.rdos.engine.execution.base.components;
 import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
@@ -221,7 +223,102 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public Iterator<E> iterator() {
-        throw new UnsupportedOperationException("不支持iterator方法");
+        return new Itr();
+    }
+
+    private class Itr implements Iterator<E> {
+        /*
+         * Basic weakly-consistent iterator.  At all times hold the next
+         * item to hand out so that if hasNext() reports true, we will
+         * still have it to return even if lost race with a take etc.
+         */
+
+        private Node<E> current;
+        private Node<E> lastRet;
+        private E currentElement;
+
+        Itr() {
+            allLock.lock();
+            try {
+                current = head.next;
+                if (current != null)
+                    currentElement = current.item;
+            } finally {
+                allLock.unlock();
+            }
+        }
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        /**
+         * Returns the next live successor of p, or null if no such.
+         *
+         * Unlike other traversal methods, iterators need to handle both:
+         * - dequeued nodes (p.next == p)
+         * - (possibly multiple) interior removed nodes (p.item == null)
+         */
+        private Node<E> nextNode(Node<E> p) {
+            for (;;) {
+                Node<E> s = p.next;
+                if (s == p)
+                    return head.next;
+                if (s == null || s.item != null)
+                    return s;
+                p = s;
+            }
+        }
+
+        public E next() {
+            allLock.lock();
+            try {
+                if (current == null)
+                    throw new NoSuchElementException();
+                E x = currentElement;
+                lastRet = current;
+                current = nextNode(current);
+                currentElement = (current == null) ? null : current.item;
+                return x;
+            } finally {
+                allLock.unlock();
+            }
+        }
+
+        public void remove() {
+            if (lastRet == null)
+                throw new IllegalStateException();
+            allLock.lock();
+            try {
+                Node<E> node = lastRet;
+                lastRet = null;
+                for (Node<E> trail = head, p = trail.next;
+                     p != null;
+                     trail = p, p = p.next) {
+                    if (p == node) {
+                        unlink(p);
+                        break;
+                    }
+                }
+            } finally {
+                allLock.unlock();
+            }
+        }
+    }
+
+    void unlink(Node<E> p) {
+        Node<E> pre = p.pre;
+        Node<E> next = p.next;
+        if(next !=null){
+            next.pre = pre;
+        }
+        pre.next = next;
+        p.pre = null;
+        p.next = null;
+        p.item = null;
+        if (count.getAndDecrement() == capacity){
+            notFull.signal();
+        }
     }
 
     @Override
@@ -314,21 +411,21 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
             for (Node<E> trail = head, p = trail.next;
                  p != null;
                  trail = p, p = p.next) {
-                OrderObject oo = (OrderObject)p.item;
-                if (sign.equals(oo.getId())) {
-                    Node<E> pre = p.pre;
-                    Node<E> next = p.next;
-                    if(next !=null){
+                 OrderObject oo = (OrderObject)p.item;
+                 if (sign.equals(oo.getId())) {
+                     Node<E> pre = p.pre;
+                     Node<E> next = p.next;
+                     if(next !=null){
                         next.pre = pre;
-                    }
-                    pre.next = next;
-                    p.pre = null;
-                    p.next = null;
-                    p.item = null;
-                    if (count.getAndDecrement() == capacity){
+                     }
+                     pre.next = next;
+                     p.pre = null;
+                     p.next = null;
+                     p.item = null;
+                     if (count.getAndDecrement() == capacity){
                         notFull.signal();
-                    }
-                    return true;
+                     }
+                     return true;
                 }
             }
             return false;
@@ -349,24 +446,17 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         if (count.get() == 0)
             return null;
         E x = null;
-        int c = -1;
         final ReentrantLock takeLock = this.allLock;
         takeLock.lock();
         try {
             if (count.get() > 0) {
                 Node<E> h = head;
                 Node<E> first = h.next;
-                h.next = h; // help GC
-                head = first;
                 x = first.item;
-                if (c > 1)
-                    notEmpty.signal();
             }
         } finally {
             takeLock.unlock();
         }
-        if (c == capacity)
-            signalNotFull();
         return x;
     }
 }

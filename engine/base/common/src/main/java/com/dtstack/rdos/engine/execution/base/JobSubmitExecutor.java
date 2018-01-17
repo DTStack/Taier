@@ -139,14 +139,17 @@ public class JobSubmitExecutor{
                                     executor.submit(new JobSubmitProcessor(jobClientToExe, clientMap, slotNoAvailableJobClients));
                                 } catch (RejectedExecutionException e) {
                                     //如果添加到执行线程池失败则添加回等待队列
-                                    ExeQueueMgr.getInstance().add(jobClient);
+                                    try {
+                                        ExeQueueMgr.getInstance().add(jobClient);
+                                    } catch (InterruptedException e1) {
+                                        logger.error("add jobClient back to queue error:", e1);
+                                    }
                                 } catch (Exception e){
                                     logger.error("", e);
                                 }
 
                             });
                         }
-
 
                     }catch (Throwable e){
                         //防止退出循环

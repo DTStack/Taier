@@ -25,13 +25,13 @@ public class GroupPriorityQueue {
         groupPriorityQueueMap.put(DEFAULT_GROUP_NAME, new OrderLinkedBlockingQueue<>());
     }
 
-    public void add(JobClient jobClient){
+    public void add(JobClient jobClient) throws InterruptedException {
         String groupName = jobClient.getGroupName();
         groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(groupName,
                 k -> new OrderLinkedBlockingQueue<>());
 
-        queue.add(jobClient);
+        queue.put(jobClient);
     }
 
     public Map<String, OrderLinkedBlockingQueue<JobClient>> getGroupPriorityQueueMap() {

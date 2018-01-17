@@ -127,7 +127,7 @@ public class ActionServiceImpl {
             //判断localAddr == masterAddr ?
             if(zkDistributed.localIsMaster()){
 
-                if(receiveJob(paramAction)){
+                if(!receiveJob(paramAction)){
                     return;
                 }
 

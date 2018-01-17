@@ -22,6 +22,7 @@ import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class MasterNode {
 
         //获取priority值
         Properties properties = jobClient.getConfProperties();
-        String valStr = properties.getProperty(CUSTOMER_PRIORITY_VAL);
+        String valStr = properties == null ? null : properties.getProperty(CUSTOMER_PRIORITY_VAL);
         int priorityVal = valStr == null ? DEFAULT_PRIORITY_VALUE : MathUtil.getIntegerVal(valStr);
         priorityVal = priorityVal * PRIORITY_LEVEL_WEIGHT;
         jobClient.setPriority(priorityVal);
@@ -268,6 +269,10 @@ public class MasterNode {
      */
     public void loadQueueFromDB(String engineType, GroupPriorityQueue groupQueue){
         List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+        if(CollectionUtils.isEmpty(jobCaches)){
+            return;
+        }
+
         jobCaches.forEach(jobCache ->{
 
             try{
@@ -307,7 +312,12 @@ public class MasterNode {
         @Override
         public void run() {
             LOG.info("-----{}:优先级队列触发开始执行----", name);
-            loadQueueFromDB(name, groupQueue);
+
+            try{
+                loadQueueFromDB(name, groupQueue);
+            }catch (Exception e){
+                LOG.error("----load data from DB error:", e);
+            }
 
             while (isRun){
                 try{

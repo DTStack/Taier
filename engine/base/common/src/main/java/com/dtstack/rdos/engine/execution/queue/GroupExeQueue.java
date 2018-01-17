@@ -25,8 +25,8 @@ public class GroupExeQueue {
     }
 
 
-    public void addJobClient(JobClient jobClient){
-        orderList.add(jobClient);
+    public void addJobClient(JobClient jobClient) throws InterruptedException {
+        orderList.put(jobClient);
         if(jobClient.getGenerateTime() > maxTime){
             maxTime = jobClient.getGenerateTime();
         }

@@ -43,6 +43,7 @@ public class ExeQueueMgr {
         List<String> typeList = Lists.newArrayList();
         ConfigParse.getEngineTypeList().forEach( info ->{
             String clientTypeStr = (String) info.get(ConfigParse.TYPE_NAME_KEY);
+            clientTypeStr = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             typeList.add(clientTypeStr);
             engineTypeQueueMap.put(clientTypeStr, new EngineTypeQueue(clientTypeStr));
         });
@@ -54,7 +55,7 @@ public class ExeQueueMgr {
         return exeQueueMgr;
     }
 
-    public void add(JobClient jobClient){
+    public void add(JobClient jobClient) throws InterruptedException {
         EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(jobClient.getEngineType());
         if(engineTypeQueue == null){
             throw new RdosException("not support engineType:" + jobClient.getEngineType());
