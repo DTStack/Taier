@@ -27,6 +27,10 @@
         select * from rdos_engine_job_cache where job_id=#{jobId} and is_deleted=0 order by gmt_create desc limit 1;
     </select>
 
+    <update id="updateStage">
+        update rdos_engine_job_cache set stage = #{stage} where job_id = #{jobId}
+    </update>
+
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache where stage = #{stage} and engine_type = #{engineType} and is_deleted=0 order by gmt_create asc;
     </select>

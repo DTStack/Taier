@@ -169,10 +169,12 @@ public class MasterNode {
             sendTask(jobClient, retryNum, excludeNodes);
         }
 
+        /*
         //如果是目标节点就是当前节点--直接加入等待队列
         if(address.equals(localAddress)){
 
             try{
+                //TODO 需要和actionImpl的submit一样对zk和db进行修改
                 jobClient.submitJob();
             }catch (Exception e){
                 LOG.error("", e);
@@ -181,7 +183,7 @@ public class MasterNode {
             }
 
             return true;
-        }
+        }*/
 
         ParamAction paramAction = jobClient.getParamAction();
         paramAction.setRequestStart(RequestStart.NODE.getStart());
@@ -189,10 +191,11 @@ public class MasterNode {
             if(HttpSendClient.actionSubmit(address, paramAction)){
                 return true;
             }else{
-                //TODO 处理发送失败的情况(比如网络失败,或者slave主动返回失败)
+                //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
                 if(retryNum >= DISPATCH_RETRY_LIMIT){
                     return false;
                 }
+
                 retryNum++;
                 return sendTask(jobClient, retryNum, excludeNodes);
             }

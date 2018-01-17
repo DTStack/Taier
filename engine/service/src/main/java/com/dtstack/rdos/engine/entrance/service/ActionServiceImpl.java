@@ -13,7 +13,6 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.node.MasterNode;
-import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
@@ -74,7 +73,7 @@ public class ActionServiceImpl {
                 boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(zkTaskId);
                 String address = zkDistributed.getExecutionNode();
 
-                updateJobZookStatus(zkTaskId,RdosTaskStatus.SUBMITTING.getStatus());
+                updateJobZKStatus(zkTaskId,RdosTaskStatus.SUBMITTING.getStatus());
                 updateJobStatus(jobId, computeType, RdosTaskStatus.SUBMITTING.getStatus());
 
                 if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
@@ -89,12 +88,12 @@ public class ActionServiceImpl {
                             }
 
                             int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                            updateJobZookStatus(zkTaskId, jobStatus);
+                            updateJobZKStatus(zkTaskId, jobStatus);
                             updateJobStatus(jobId, computeType, jobStatus);
                         }
                     });
                     addJobCache(jobId, paramAction.toString());
-                    updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+                    updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
                     updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
                     jobClient.submitJob();
                 } else {
@@ -180,7 +179,7 @@ public class ActionServiceImpl {
             computeType = paramAction.getComputeType();
 
             String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
-            updateJobZookStatus(zkTaskId, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
+            updateJobZKStatus(zkTaskId, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
 
             JobClient jobClient = new JobClient(paramAction);
@@ -196,13 +195,13 @@ public class ActionServiceImpl {
                     }
 
                     int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                    updateJobZookStatus(zkTaskId, jobStatus);
+                    updateJobZKStatus(zkTaskId, jobStatus);
                     updateJobStatus(finalJobId, finalComputeType, jobStatus);
                 }
             });
 
             addJobCache(jobId, paramAction.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), paramAction.toString());
-            updateJobZookStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+            updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
             jobClient.submitJob();
 
@@ -237,7 +236,7 @@ public class ActionServiceImpl {
     }
 
     @Forbidden
-    public void updateJobZookStatus(String taskId, Integer status){
+    public void updateJobZKStatus(String taskId, Integer status){
         BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
         brokerDataNode.getMetas().put(taskId, status.byteValue());
         zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
@@ -268,7 +267,7 @@ public class ActionServiceImpl {
 
                 int jobStatus = MathUtil.getIntegerVal(exeParams.get(JOB_STATUS));
 
-                updateJobZookStatus(zkTaskId, jobStatus);
+                updateJobZKStatus(zkTaskId, jobStatus);
                 updateJobStatus(jobId, computeType, jobStatus);
                 deleteJobCache(jobId);
 			}
@@ -370,9 +369,21 @@ public class ActionServiceImpl {
         }
     }
 
+    /**
+     * TODO  master接受到任务的时候也需要将数据缓存
+     * @param jobId
+     * @param engineType
+     * @param computeType
+     * @param stage
+     * @param jobInfo
+     */
     @Forbidden
     public void addJobCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
-        engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
+        if(engineJobCacheDao.getJobById(jobId) != null){
+            engineJobCacheDao.updateJobStage(jobId, stage);
+        }else{
+            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
+        }
     }
 
     public void deleteJobCache(String jobId){

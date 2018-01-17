@@ -30,6 +30,19 @@ public class RdosEngineJobCacheDao {
         });
     }
 
+    public void updateJobStage(String jobId, int stage){
+
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                mapper.updateStage(jobId, stage);
+                return null;
+            }
+        });
+    }
+
     public void deleteJob(String jobId){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){

@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -92,6 +93,7 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
+        this.confProperties = PublicUtil.stringToProperties(taskParams);
 
     }
 
@@ -197,10 +199,6 @@ public class JobClient extends OrderObject{
 
     public String getTaskParams() {
         return taskParams;
-    }
-
-    public void setConfProperties(Properties confProperties) {
-        this.confProperties = confProperties;
     }
 
     public void setOperators(List<Operator> operators) {

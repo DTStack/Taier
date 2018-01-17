@@ -56,7 +56,7 @@ public class JobSubmitProcessor implements Runnable{
             }
 
             try {
-                jobClient.setConfProperties(PublicUtil.stringToProperties(jobClient.getTaskParams()));
+
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
 
                 if(resourceInfo.judgeSlots(jobClient)){

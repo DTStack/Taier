@@ -38,11 +38,17 @@ public class HttpSendClient {
         }
 
         Map<String, Object> resultMap = PublicUtil.jsonStrToObject(dataJson, Map.class);
-        if(!resultMap.containsKey("send")){
+        if(!resultMap.containsKey("data")){
             return false;
         }
 
-        return MathUtil.getBoolean(resultMap.get("send"));
+        Map<String, Object> sendData = (Map<String, Object>) resultMap.get("data");
+
+        if(!sendData.containsKey("send")){
+            return false;
+        }
+
+        return MathUtil.getBoolean(sendData.get("send"));
     }
 
     public static boolean actionCheck(String address, Map<String, Object> paramMap) throws IOException {
@@ -52,11 +58,17 @@ public class HttpSendClient {
         }
 
         Map<String, Object> resultMap = PublicUtil.jsonStrToObject(dataJson, Map.class);
-        if(!resultMap.containsKey("result")){
+        if(!resultMap.containsKey("data")){
             return false;
         }
 
-        return MathUtil.getBoolean(resultMap.get("result"));
+        Map<String, Object> sendData = (Map<String, Object>) resultMap.get("data");
+
+        if(!sendData.containsKey("result")){
+            return false;
+        }
+
+        return MathUtil.getBoolean(sendData.get("result"));
     }
 
 	public static void migration(final String node,String target)throws Exception{
