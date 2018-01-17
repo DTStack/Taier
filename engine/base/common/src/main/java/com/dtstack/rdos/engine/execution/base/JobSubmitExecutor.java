@@ -271,14 +271,6 @@ public class JobSubmitExecutor{
         queueForTaskListener.offer(jobClient);
     }
 
-    /**
-     * TODO 修改等待队列区分flink,spark
-     * @param engineType
-     * @return
-     */
-    public boolean checkCanAddToWaitQueue(String engineType){
-        return false;
-    }
 
     public Map<String, IClient> getClientMap() {
         return clientMap;

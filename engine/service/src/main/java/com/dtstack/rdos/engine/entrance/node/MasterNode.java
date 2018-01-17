@@ -18,6 +18,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -169,22 +170,6 @@ public class MasterNode {
             sendTask(jobClient, retryNum, excludeNodes);
         }
 
-        /*
-        //如果是目标节点就是当前节点--直接加入等待队列
-        if(address.equals(localAddress)){
-
-            try{
-                //TODO 需要和actionImpl的submit一样对zk和db进行修改
-                jobClient.submitJob();
-            }catch (Exception e){
-                LOG.error("", e);
-                //更新任务状态 && 删除任务cache
-                dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
-            }
-
-            return true;
-        }*/
-
         ParamAction paramAction = jobClient.getParamAction();
         paramAction.setRequestStart(RequestStart.NODE.getStart());
         try {
@@ -222,7 +207,7 @@ public class MasterNode {
      */
     public boolean checkCanSend(String address, String engineType, String groupName){
         if(address.equals(localAddress)){
-            JobSubmitExecutor.getInstance().checkCanAddToWaitQueue(engineType);
+            return ExeQueueMgr.getInstance().checkCanAddToWaitQueue(engineType, groupName);
         }else{
             Map<String, Object> param = Maps.newHashMap();
             param.put("engineType", engineType);
@@ -234,8 +219,6 @@ public class MasterNode {
                 return false;
             }
         }
-
-        return true;
     }
 
 
