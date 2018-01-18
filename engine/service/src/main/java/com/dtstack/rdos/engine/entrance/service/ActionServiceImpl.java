@@ -397,14 +397,14 @@ public class ActionServiceImpl {
 
         if(jobClient.getEngineTaskId() == null){
             //从数据库补齐数据
-            if(ComputeType.STREAM.getType().equals(computeType)){
+            if(ComputeType.STREAM.equals(computeType)){
                 RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
                 if(streamJob != null){
                     jobClient.setEngineTaskId(streamJob.getEngineTaskId());
                 }
             }
 
-            if(ComputeType.BATCH.getType().equals(computeType)){
+            if(ComputeType.BATCH.equals(computeType)){
                 RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
                 if(batchJob != null){
                     jobClient.setEngineTaskId(batchJob.getEngineJobId());
