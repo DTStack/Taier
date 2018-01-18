@@ -118,7 +118,7 @@ public class JobSubmitExecutor{
                             engineTypeQueueMap.values().forEach(gq ->{
 
                                 //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
-                                if(exeQueueMgr.checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
+                                if(!exeQueueMgr.checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
                                     return;
                                 }
 

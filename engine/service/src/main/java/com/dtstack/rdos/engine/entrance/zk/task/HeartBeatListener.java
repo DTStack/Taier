@@ -44,22 +44,26 @@ public class HeartBeatListener implements Runnable{
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		try {
-			int index = 0;
-			while(true){
-				++index;
-				if(this.masterListener.isMaster()){
-					healthCheck();
-					if(PublicUtil.count(index, 5)){logger.warn("HeartBeatListener start check again...");}
-				}
-				Thread.sleep(HEATBEATCHECK);
-			}
 
-		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			logger.error(ExceptionUtil.getErrorMessage(e));
-		}
+		int index = 0;
+		while(true){
+
+			try {
+                ++index;
+                if(this.masterListener.isMaster()){
+                    healthCheck();
+                    if(PublicUtil.count(index, 5)){logger.warn("HeartBeatListener start check again...");}
+                }
+			} catch (Throwable e) {
+				logger.error(ExceptionUtil.getErrorMessage(e));
+			}finally {
+                try {
+                    Thread.sleep(HEATBEATCHECK);
+                } catch (InterruptedException e1) {
+                    logger.error("", e1);
+                }
+            }
+        }
 	}
 	
 	private void healthCheck(){

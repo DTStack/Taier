@@ -32,24 +32,31 @@ public class MasterListener implements Runnable{
 	
 	@Override
 	public void run() {
-		try{
-			int index=0;
-			while(true){
-				++index;
-				isMaster.getAndSet(zkDistributed.setMaster());
+
+		int index=0;
+		while(true){
+			try{
+                ++index;
+                isMaster.getAndSet(zkDistributed.setMaster());
                 MasterNode.getInstance().setIsMaster(isMaster.get());
 
                 if(PublicUtil.count(index,15)){
-					logger.warn("MasterListener start again...");
-					if(isMaster()){
-						logger.warn("i am is master...");
-					}
-				}
-				Thread.sleep(MASTERCHECK);
-			}
-		}catch(Throwable e){
-			logger.error("MasterCheck error:{}",ExceptionUtil.getErrorMessage(e));
-		}
+                    logger.warn("MasterListener start again...");
+                    if(isMaster()){
+                        logger.warn("i am is master...");
+                    }
+                }
+			}catch(Throwable e){
+				logger.error("MasterCheck error:{}",ExceptionUtil.getErrorMessage(e));
+			}finally {
+                try {
+                    Thread.sleep(MASTERCHECK);
+                } catch (InterruptedException e1) {
+                    logger.error("", e1);
+                }
+            }
+        }
+
 	}
 
 	public boolean isMaster() {

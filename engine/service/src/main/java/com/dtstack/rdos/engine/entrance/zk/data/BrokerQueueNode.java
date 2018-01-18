@@ -23,4 +23,9 @@ public class BrokerQueueNode {
     public void setGroupQueueInfo(Map<String, Map<String, Integer>> groupQueueInfo) {
         this.groupQueueInfo = groupQueueInfo;
     }
+
+    public static BrokerQueueNode initBrokerQueueNode(){
+        BrokerQueueNode queueNode = new BrokerQueueNode();
+        return queueNode;
+    }
 }

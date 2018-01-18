@@ -112,6 +112,9 @@ public class ExeQueueMgr {
         }
 
         ClusterQueueZKInfo.EngineTypeQueueZKInfo zkInfo = clusterQueueInfo.getEngineTypeQueueZkInfo(engineType);
+        if(zkInfo == null){
+            return true;
+        }
 
         EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(engineType);
         if(engineTypeQueue == null){

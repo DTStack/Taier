@@ -20,7 +20,9 @@ public class ClusterQueueZKInfo {
     public ClusterQueueZKInfo(Map<String, Map<String, Map<String, Integer>>> clusterQueueInfo){
         clusterQueueInfo.forEach((address, engineTypeZkInfo) -> {
             engineTypeZkInfo.forEach((engineType, groupQueueInfo) -> {
-                EngineTypeQueueZKInfo engineTypeQueueZKInfo = infoMap.putIfAbsent(engineType, new EngineTypeQueueZKInfo(engineType));
+                infoMap.putIfAbsent(engineType, new EngineTypeQueueZKInfo(engineType));
+                EngineTypeQueueZKInfo engineTypeQueueZKInfo = infoMap.get(engineType);
+
                 engineTypeQueueZKInfo.put(address, groupQueueInfo);
             });
         });

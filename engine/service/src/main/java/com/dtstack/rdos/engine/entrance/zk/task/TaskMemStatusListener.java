@@ -18,15 +18,15 @@ public class TaskMemStatusListener implements Runnable{
 
 	private static long listener = 1000;
 	
-	Logger logger = LoggerFactory.getLogger(TaskMemStatusListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaskMemStatusListener.class);
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
 	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		int index = 0;
+
 		while(true){
 			try{
 				Thread.sleep(listener);

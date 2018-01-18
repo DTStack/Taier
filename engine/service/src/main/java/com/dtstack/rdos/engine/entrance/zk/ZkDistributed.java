@@ -135,6 +135,7 @@ public class ZkDistributed {
 		initNeedLock();
 		createLocalBrokerHeartNode();
 		createLocalBrokerDataNode();
+		createLocalBrokerQueueNode();
 		initMemTaskStatus();
 		registrationDB();
 		initScheduledExecutorService();
@@ -181,7 +182,16 @@ public class ZkDistributed {
 		}
 	}
 
-	public void updateSynchronizedLocalBrokerHeartNode(String localAddress,BrokerHeartNode source,boolean isCover){
+    private void createLocalBrokerQueueNode() throws Exception{
+        String nodePath = String.format("%s/%s", this.localNode, queueNode);
+        if (zkClient.checkExists().forPath(nodePath) == null) {
+            zkClient.create().forPath(nodePath,
+                    objectMapper.writeValueAsBytes(BrokerQueueNode.initBrokerQueueNode()));
+        }
+    }
+
+
+    public void updateSynchronizedLocalBrokerHeartNode(String localAddress,BrokerHeartNode source,boolean isCover){
 		String nodePath = String.format("%s/%s/%s", brokersNode,localAddress,heartNode);
 		try {
 			if(this.brokerHeartLock.acquire(30, TimeUnit.SECONDS)){
@@ -207,7 +217,7 @@ public class ZkDistributed {
 
 
 	public void updateSynchronizedLocalQueueNode(String localAddress, BrokerQueueNode source){
-        String nodePath = String.format("%s/%s/%s", brokersNode,localAddress,heartNode);
+        String nodePath = String.format("%s/%s/%s", brokersNode, localAddress, queueNode);
         try{
             if(this.brokerQueueLock.acquire(30, TimeUnit.SECONDS)){
                 zkClient.setData().forPath(nodePath, objectMapper.writeValueAsBytes(source));

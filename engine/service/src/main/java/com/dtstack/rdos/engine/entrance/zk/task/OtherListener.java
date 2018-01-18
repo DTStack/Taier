@@ -31,11 +31,12 @@ public class OtherListener implements Runnable{
 	
 	@Override
 	public void run() {
-		try{
-			logger.warn("OtherListener start ....");
-			while(true){
 
-			    //更新当前节点的queue
+        logger.warn("OtherListener start ....");
+        while(true){
+
+            try{
+                //更新当前节点的queue
                 Map<String, BrokerQueueNode> queueNodeMap = zkDistributed.getAllBrokerQueueNode();
                 Map<String, Map<String, Map<String, Integer>>> queueInfo = Maps.newHashMap();
                 queueNodeMap.forEach( (address, queueNode) -> queueInfo.put(address, queueNode.getGroupQueueInfo()));
@@ -49,11 +50,17 @@ public class OtherListener implements Runnable{
                 localQueueNode.setGroupQueueInfo(localQueueSet);
                 zkDistributed.updateSynchronizedLocalQueueNode(localAddr, localQueueNode);
 
-				Thread.sleep(listener);
-			}
-		}catch(Throwable e){
-			logger.error("OtherListener error:{}",ExceptionUtil.getErrorMessage(e));
-		}
+            }catch(Throwable e){
+                logger.error("OtherListener error:{}",ExceptionUtil.getErrorMessage(e));
+            }finally {
+                try {
+                    Thread.sleep(listener);
+                } catch (InterruptedException e1) {
+                    logger.error("", e1);
+                }
+            }
+        }
+
 	}
 
 }
