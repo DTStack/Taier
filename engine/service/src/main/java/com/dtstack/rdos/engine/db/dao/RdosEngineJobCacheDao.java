@@ -68,6 +68,12 @@ public class RdosEngineJobCacheDao {
         });
     }
 
+    /**
+     * 根据阶段信息加载: stage 1:处于master-queue阶段， 2: 处于worker-exe-queue阶段
+     * @param stage
+     * @param engineType
+     * @return
+     */
     public List<RdosEngineJobCache> getJobForPriorityQueue(int stage, String engineType){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 

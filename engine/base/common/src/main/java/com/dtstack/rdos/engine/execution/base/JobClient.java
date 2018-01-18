@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -12,6 +13,7 @@ import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -185,8 +187,12 @@ public class JobClient extends OrderObject{
         return confProperties;
     }
 
-    public JobClientCallBack getJobClientCallBack() {
-        return jobClientCallBack;
+    public void doJobClientCallBack(Map<String, ? extends Object> param){
+        if(jobClientCallBack == null){
+            throw new RdosException("not set jobClientCallBak...");
+        }
+
+        jobClientCallBack.execute(param);
     }
 
     public void setJobClientCallBack(JobClientCallBack jobClientCallBack) {

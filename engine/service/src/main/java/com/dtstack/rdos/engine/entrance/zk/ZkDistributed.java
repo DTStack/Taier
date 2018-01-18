@@ -519,9 +519,22 @@ public class ZkDistributed {
 		return localAddress;
 	}
 
-	public Map<String,BrokerDataNode> getMemTaskStatus(){
+	public Map<String, BrokerDataNode> getMemTaskStatus(){
 		return memTaskStatus;
 	}
+
+	public String getJobLocationAddr(String zkTaskId){
+
+        for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
+            String addr = entry.getKey();
+            BrokerDataNode dataNode = entry.getValue();
+            if(dataNode.getMetas().containsKey(zkTaskId)){
+                return addr;
+            }
+        }
+
+        return null;
+    }
 
 	public void release(){
 		// TODO Auto-generated method stub

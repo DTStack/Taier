@@ -41,4 +41,10 @@ public class GroupPriorityQueue {
     public Collection<OrderLinkedBlockingQueue<JobClient>> getOrderList(){
         return groupPriorityQueueMap.values();
     }
+
+    public boolean remove(String groupName, String jobId){
+        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
+        return queue.remove(jobId);
+    }
 }

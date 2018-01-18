@@ -20,11 +20,13 @@ public class Urls {
 
     public final static String START = String.format("%s/%s", ACTION,"start");
 	
-	public final static String STOP = String.format("%s/%s",ACTION, "stop");
+	public final static String STOP = String.format("%s/%s", ACTION, "stop");
 
-	public final static String SUBMIT = String.format("%s/%s",ACTION, "submit");
+	public final static String SUBMIT = String.format("%s/%s", ACTION, "submit");
 
-	public final static String CHECK = String.format("%s/%s",ACTION, "checkCanDistribute");
+	public final static String CHECK = String.format("%s/%s", ACTION, "checkCanDistribute");
+
+	public final static String MASTER_SEND_STOP = String.format("%s/%s", ACTION, "masterSendStop");
 
 
 

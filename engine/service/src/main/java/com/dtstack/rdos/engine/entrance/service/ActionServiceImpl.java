@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance.service;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.dtstack.rdos.commom.exception.RdosException;
@@ -142,6 +143,7 @@ public class ActionServiceImpl {
 
             if(masterAddr == null){
                 //TODO 如果遇到master 地址为null 应该如果处理
+                logger.error("---------serious error can't get master address-------");
                 return;
             }
 
@@ -236,30 +238,82 @@ public class ActionServiceImpl {
     }
 
     @Forbidden
-    public void updateJobZKStatus(String taskId, Integer status){
+    public void updateJobZKStatus(String zkTaskId, Integer status){
         BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-        brokerDataNode.getMetas().put(taskId, status.byteValue());
+        brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
         zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
         zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
 
     }
 
     /**
-     * TODO 判断任务是否是否是在本台机器上
+     * 只允许发到master节点上
+     * 1: 在master等待队列中查找
+     * 2: 在worker-exe等待队列里面查找
+     * 3：在worker-status监听队列里面查找（可以直接在master节点上直接发送消息到对应的引擎）
+     *
      * @param params
      * @throws Exception
      */
     public void stop(Map<String, Object> params) throws Exception {
+
+        if(!zkDistributed.localIsMaster()){
+            String masterAddr = zkDistributed.isHaveMaster();
+
+            if(masterAddr == null){
+                //如果遇到master 地址为null 应该如果处理
+                logger.error("---------serious error can't get master address-------");
+                return;
+            }
+        }
+
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         checkParam(paramAction);
-        String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
+        String jobId = paramAction.getTaskId();
+
+        //在master等待队列中查找
+        if(masterNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), jobId)){
+            logger.info("stop job:{} success." + paramAction.getTaskId());
+            return;
+        }
+
+        //cache记录被删除说明已经在引擎上执行了,往对应的引擎发送停止任务指令
+        if(engineJobCacheDao.getJobById(jobId) == null){
+            stopJob(paramAction);
+            logger.info("stop job:{} success." + paramAction.getTaskId());
+            return;
+        }
+
+        //在zk上查找任务所在的worker-address
+        Integer computeType  = paramAction.getComputeType();
+        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
+        String addr = zkDistributed.getJobLocationAddr(zkTaskId);
+        if(addr == null){
+            logger.info("can't get info from engine zk for jobId:" + jobId);
+            return;
+        }
+
+        paramAction.setRequestStart(RequestStart.NODE.getStart());
+        HttpSendClient.actionStopJobToWorker(addr, params);
+    }
+
+    public void masterSendStop(Map<String, Object> params) throws Exception {
+        ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        stopJob(paramAction);
+        logger.info("stop job:{} success." + paramAction.getTaskId());
+    }
+
+    private void stopJob(ParamAction paramAction ) throws Exception {
+
         String jobId = paramAction.getTaskId();
         Integer computeType  = paramAction.getComputeType();
+        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
+
         JobClient jobClient = new JobClient(paramAction);
         jobClient.setJobClientCallBack(new JobClientCallBack(){
 
-			@Override
-			public void execute(Map<String, ? extends Object> exeParams) {
+            @Override
+            public void execute(Map<String, ? extends Object> exeParams) {
 
                 if(!exeParams.containsKey(JOB_STATUS)){
                     return;
@@ -270,9 +324,10 @@ public class ActionServiceImpl {
                 updateJobZKStatus(zkTaskId, jobStatus);
                 updateJobStatus(jobId, computeType, jobStatus);
                 deleteJobCache(jobId);
-			}
-        	
+            }
+
         });
+
         jobClient.stopJob();
     }
 
@@ -280,15 +335,15 @@ public class ActionServiceImpl {
     private void checkParam(ParamAction paramAction) throws Exception{
 
         if(StringUtils.isBlank(paramAction.getTaskId())){
-           throw new RdosException("taskId is not allow null");
+           throw new RdosException("param taskId is not allow null");
         }
 
         if(paramAction.getComputeType()==null){
-            throw new RdosException("computeType is not allow null");
+            throw new RdosException("param computeType is not allow null");
         }
 
         if(paramAction.getEngineType() == null){
-            throw new RdosException("engineType is not allow null");
+            throw new RdosException("param engineType is not allow null");
         }
     }
 
@@ -296,6 +351,7 @@ public class ActionServiceImpl {
         boolean result;
         String jobId = paramAction.getTaskId();
         Integer computerType = paramAction.getComputeType();
+
         if (ComputeType.STREAM.getType().equals(computerType)) {
             RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
             if(rdosEngineStreamJob == null){
@@ -304,6 +360,7 @@ public class ActionServiceImpl {
             }
 
             result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
+
         }else{
             RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
             if(rdosEngineBatchJob == null){
@@ -328,6 +385,7 @@ public class ActionServiceImpl {
     	boolean result;
     	String jobId = paramAction.getTaskId();
     	Integer computerType = paramAction.getComputeType();
+
         if (ComputeType.STREAM.getType().equals(computerType)) {
         	RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
         	if(rdosEngineStreamJob == null){
@@ -370,7 +428,7 @@ public class ActionServiceImpl {
     }
 
     /**
-     * TODO  master接受到任务的时候也需要将数据缓存
+     * master接受到任务的时候也需要将数据缓存
      * @param jobId
      * @param engineType
      * @param computeType

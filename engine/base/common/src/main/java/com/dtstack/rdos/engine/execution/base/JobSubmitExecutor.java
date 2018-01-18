@@ -239,7 +239,7 @@ public class JobSubmitExecutor{
             //直接移除
             Map<String, Integer> jobStatus = Maps.newHashMap();
             jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
-            jobClient.getJobClientCallBack().execute(jobStatus);
+            jobClient.doJobClientCallBack(jobStatus);
         }
 
         if(jobClient.getEngineTaskId() == null){

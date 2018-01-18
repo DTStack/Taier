@@ -71,6 +71,14 @@ public class HttpSendClient {
         return MathUtil.getBoolean(sendData.get("result"));
     }
 
+    public static void actionStopJob(String address, Map<String, Object> paramMap) throws IOException {
+        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.STOP), PublicUtil.ObjectToMap(paramMap));
+    }
+
+    public static void actionStopJobToWorker(String address, Map<String, Object> paramMap) throws IOException {
+        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.MASTER_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
+    }
+
 	public static void migration(final String node,String target)throws Exception{
         Map<String,Object> params = new HashMap<String,Object>(){
             {

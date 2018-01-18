@@ -71,7 +71,6 @@ public class MasterNode {
     private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
 
     /**key: 执行引擎的名称*/
-    //TODO 需要引入group概念
     private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newHashMap();
 
     private Map<String, SendDealer> sendDealerMap = Maps.newHashMap();
@@ -99,8 +98,6 @@ public class MasterNode {
         senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
     }
 
-
-
     public void addTask(JobClient jobClient){
 
         //获取priority值
@@ -124,6 +121,27 @@ public class MasterNode {
         }
 
         saveCache(jobClient.getParamAction());
+    }
+
+    /**
+     * TODO 需要和send Task线程做同步
+     * @param engineType
+     * @param groupName
+     * @param jobId
+     * @return
+     */
+    public boolean stopTaskIfExists(String engineType, String groupName, String jobId){
+        GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(engineType);
+        if(groupPriorityQueue == null){
+            throw new RdosException("not support engine type:" + engineType);
+        }
+
+        boolean result = groupPriorityQueue.remove(groupName, jobId);
+        if(result){
+            engineJobCacheDao.deleteJob(jobId);
+        }
+
+        return result;
     }
 
     public void setIsMaster(boolean isMaster){

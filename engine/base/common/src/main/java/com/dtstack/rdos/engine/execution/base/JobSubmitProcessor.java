@@ -44,7 +44,7 @@ public class JobSubmitProcessor implements Runnable{
             Map<String, Integer> updateStatus = Maps.newHashMap();
             updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.WAITCOMPUTE.getStatus());
 
-            jobClient.getJobClientCallBack().execute(updateStatus);
+            jobClient.doJobClientCallBack(updateStatus);
             IClient clusterClient = clientMap.get(jobClient.getEngineType());
             JobResult jobResult = null;
 
@@ -65,7 +65,7 @@ public class JobSubmitProcessor implements Runnable{
                     }
 
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
-                    jobClient.getJobClientCallBack().execute(updateStatus);
+                    jobClient.doJobClientCallBack(updateStatus);
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
 
                     if(logger.isInfoEnabled()){

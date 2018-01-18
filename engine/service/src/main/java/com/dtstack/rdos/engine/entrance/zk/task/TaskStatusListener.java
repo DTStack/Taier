@@ -201,7 +201,7 @@ public class TaskStatusListener implements Runnable{
         String jobInfo = rdosEngineJobCache.getJobInfo();
         ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
-        //send job and change job status
+        //add job to exeQueue and change job status
         start(paramAction, zkJobId);
     }
 
@@ -335,7 +335,7 @@ public class TaskStatusListener implements Runnable{
     }
 
     /**
-     * FIXME 是否需要修改为将任务重新发送到master节点的等待队列中
+     * 从其他节点恢复的任务直接恢复到执行队列
      * @param paramAction
      * @param zkTaskId
      * @throws Exception
