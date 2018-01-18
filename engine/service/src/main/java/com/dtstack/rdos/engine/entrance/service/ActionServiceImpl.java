@@ -1,8 +1,5 @@
 package com.dtstack.rdos.engine.entrance.service;
 
-import java.io.IOException;
-import java.util.Map;
-
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -14,13 +11,14 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.node.MasterNode;
+import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
-import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
@@ -28,7 +26,8 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
+
+import java.util.Map;
 
 /**
  * Reason: TODO ADD REASON(可选)
@@ -52,67 +51,6 @@ public class ActionServiceImpl {
     private MasterNode masterNode = MasterNode.getInstance();
 
     /**
-     * TODO 拆分成两个方法,注意做判断,防止由于网络问题导致出现提交多次的问题
-     * 1: 获取从web端发送过来的任务，然后转发到master节点
-     * 2: 获取从master下发的任务, 并返回json:{"send":true/false}
-     * @param params
-     * @throws Exception
-     */
-    /*
-    public void start(Map<String, Object> params) throws Exception {
-        String ajobId = null;
-        Integer acomputeType  = null;
-        try {
-            ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-            checkParam(paramAction);
-            if(receiveJob(paramAction)){
-                String jobId = paramAction.getTaskId();
-                ajobId = jobId;
-                Integer computeType  = paramAction.getComputeType();
-                acomputeType = computeType;
-                String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
-                boolean isAlreadyInThisNode = zkDistributed.checkIsAlreadyInThisNode(zkTaskId);
-                String address = zkDistributed.getExecutionNode();
-
-                updateJobZKStatus(zkTaskId,RdosTaskStatus.SUBMITTING.getStatus());
-                updateJobStatus(jobId, computeType, RdosTaskStatus.SUBMITTING.getStatus());
-
-                if (isAlreadyInThisNode || paramAction.getRequestStart() == RequestStart.NODE.getStart() || zkDistributed.getLocalAddress().equals(address)) {
-              	    JobClient jobClient = new JobClient(paramAction);
-                    jobClient.setJobClientCallBack(new JobClientCallBack() {
-
-                        @Override
-                        public void execute(Map<String, ? extends Object> params) {
-
-                            if(!params.containsKey(JOB_STATUS)){
-                                return;
-                            }
-
-                            int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                            updateJobZKStatus(zkTaskId, jobStatus);
-                            updateJobStatus(jobId, computeType, jobStatus);
-                        }
-                    });
-                    addJobCache(jobId, paramAction.toString());
-                    updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
-                    updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
-                    jobClient.submitJob();
-                } else {
-                    paramAction.setRequestStart(RequestStart.NODE.getStart());
-                    HttpSendClient.actionStart(address, paramAction);
-                }
-            }
-        } catch (Throwable e) {
-            //提交失败,修改对应的提交jobid为提交失败
-            logger.error("", e);
-            if (ajobId != null) {
-                updateJobStatus(ajobId, acomputeType, RdosTaskStatus.FAILED.getStatus());
-            }
-        }
-    }
-    */
-
-    /**
      * 接受来自客户端的请求, 目的是在master节点上组织成一个优先级队列
      * TODO 1：处理 重复发送的问题 2：rdos-web端的发送需要修改为向master节点发送--避免转发
      * @param params
@@ -124,7 +62,7 @@ public class ActionServiceImpl {
 
             checkParam(paramAction);
 
-            //判断localAddr == masterAddr ?
+            //判断当前节点是不是master
             if(zkDistributed.localIsMaster()){
 
                 if(!receiveJob(paramAction)){
@@ -303,13 +241,15 @@ public class ActionServiceImpl {
         logger.info("stop job:{} success." + paramAction.getTaskId());
     }
 
-    private void stopJob(ParamAction paramAction ) throws Exception {
+    private void stopJob(ParamAction paramAction) throws Exception {
 
         String jobId = paramAction.getTaskId();
         Integer computeType  = paramAction.getComputeType();
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
 
         JobClient jobClient = new JobClient(paramAction);
+        fillJobClientEngineId(jobClient);
+
         jobClient.setJobClientCallBack(new JobClientCallBack(){
 
             @Override
@@ -446,5 +386,32 @@ public class ActionServiceImpl {
 
     public void deleteJobCache(String jobId){
         engineJobCacheDao.deleteJob(jobId);
+    }
+
+    /**
+     * 根据taskId 补齐engineTaskId
+     * @param jobClient
+     */
+    public void fillJobClientEngineId(JobClient jobClient){
+        ComputeType computeType = jobClient.getComputeType();
+        String jobId = jobClient.getTaskId();
+
+        if(jobClient.getEngineTaskId() == null){
+            //从数据库补齐数据
+            if(ComputeType.STREAM.getType().equals(computeType)){
+                RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+                if(streamJob != null){
+                    jobClient.setEngineTaskId(streamJob.getEngineTaskId());
+                }
+            }
+
+            if(ComputeType.BATCH.getType().equals(computeType)){
+                RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+                if(batchJob != null){
+                    jobClient.setEngineTaskId(batchJob.getEngineJobId());
+                }
+            }
+        }
+
     }
 }

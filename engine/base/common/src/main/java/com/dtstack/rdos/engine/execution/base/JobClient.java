@@ -95,7 +95,9 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
-        this.confProperties = PublicUtil.stringToProperties(taskParams);
+        if(taskParams != null){
+            this.confProperties = PublicUtil.stringToProperties(taskParams);
+        }
 
     }
 
