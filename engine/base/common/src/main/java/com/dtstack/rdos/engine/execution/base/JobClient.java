@@ -1,7 +1,9 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -20,12 +22,18 @@ import java.util.Properties;
  * Reason:
  * Date: 2017/2/21
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class JobClient extends OrderObject{
 
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
+
+    /**默认的优先级*/
+    private static final int DEFAULT_PRIORITY_LEVEL_VALUE = 1;
+
+    /**用户填写的优先级占的比重*/
+    private static final int PRIORITY_LEVEL_WEIGHT = 10;
 
     private JobClientCallBack jobClientCallBack;
 
@@ -60,7 +68,8 @@ public class JobClient extends OrderObject{
     private int again = 1;
 
     private String groupName;
-    
+
+    private int priorityLevel = 0;
 
     /***
      * 获取engine上job执行的状态
@@ -97,6 +106,11 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
+            String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstrant.CUSTOMER_PRIORITY_VAL);
+            int val = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
+            this.priorityLevel = val;
+            //获取priority值
+            this.priority =  priorityLevel * PRIORITY_LEVEL_WEIGHT;
         }
 
         //将任务id 标识为对象id
@@ -262,6 +276,14 @@ public class JobClient extends OrderObject{
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public int getPriorityLevel() {
+        return priorityLevel;
+    }
+
+    public void setPriorityLevel(int priorityLevel) {
+        this.priorityLevel = priorityLevel;
     }
 
     @Override

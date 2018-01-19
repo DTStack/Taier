@@ -60,16 +60,18 @@ public class ActionServiceImpl {
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
 
-            if(!receiveStartJob(paramAction)){
-                return;
-            }
+            boolean canAccepted = receiveStartJob(paramAction);
 
             //判断当前节点是不是master
             if(zkDistributed.localIsMaster()){
 
-                //直接提交到本地master的优先级队列
+                //直接提交到本地master的优先级队列,会对重复数据做校验
                 JobClient jobClient = new JobClient(paramAction);
                 masterNode.addTask(jobClient);
+                return;
+            }
+
+            if(canAccepted){
                 return;
             }
 
@@ -105,7 +107,7 @@ public class ActionServiceImpl {
         try{
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
-            if(checkSubmitted(paramAction)){
+            if(!checkSubmitted(paramAction)){
                 result.put("send", true);
                 return result;
             }

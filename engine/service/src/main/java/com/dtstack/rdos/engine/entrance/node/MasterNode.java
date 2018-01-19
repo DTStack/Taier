@@ -13,6 +13,7 @@ import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
@@ -46,11 +47,6 @@ public class MasterNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
 
-    private static final int DEFAULT_PRIORITY_VALUE = 1;
-
-    /**用户填写的优先级占的比重*/
-    private static final int PRIORITY_LEVEL_WEIGHT = 10;
-
     /**经过每轮的判断之后剩下的job优先级数值增量*/
     private static final int PRIORITY_ADD_VAL = 1;
 
@@ -59,8 +55,6 @@ public class MasterNode {
 
     /**任务分发到执行engine上最多重试3次*/
     private static final int DISPATCH_RETRY_LIMIT = 3;
-
-    private static final String CUSTOMER_PRIORITY_VAL = "job.priority";
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
@@ -99,13 +93,6 @@ public class MasterNode {
     }
 
     public void addTask(JobClient jobClient){
-
-        //获取priority值
-        Properties properties = jobClient.getConfProperties();
-        String valStr = properties == null ? null : properties.getProperty(CUSTOMER_PRIORITY_VAL);
-        int priorityVal = valStr == null ? DEFAULT_PRIORITY_VALUE : MathUtil.getIntegerVal(valStr);
-        priorityVal = priorityVal * PRIORITY_LEVEL_WEIGHT;
-        jobClient.setPriority(priorityVal);
 
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
