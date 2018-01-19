@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *
- * TODO 执行等待队列区分flink和spark
+ * TODO 功能太多,考虑拆分
  * 任务提交执行容器
  * 单独起线程执行
  * Date: 2017/2/21
@@ -109,12 +109,12 @@ public class JobSubmitExecutor{
                 while (true){
                     try{
 
-                        //TODO 是否需要先判断executor是否满
-
                         for(EngineTypeQueue engineTypeQueue : exeQueueMgr.getEngineTypeQueueMap().values()){
 
                             String engineType = engineTypeQueue.getEngineType();
                             Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
+                            final boolean[] needBreak = {false};
+
                             engineTypeQueueMap.values().forEach(gq ->{
 
                                 //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
@@ -140,6 +140,7 @@ public class JobSubmitExecutor{
                                 } catch (RejectedExecutionException e) {
                                     //如果添加到执行线程池失败则添加回等待队列
                                     try {
+                                        needBreak[0] = true;
                                         ExeQueueMgr.getInstance().add(jobClient);
                                     } catch (InterruptedException e1) {
                                         logger.error("add jobClient back to queue error:", e1);
@@ -149,6 +150,10 @@ public class JobSubmitExecutor{
                                 }
 
                             });
+
+                            if(needBreak[0]){
+                                break;
+                            }
                         }
 
                     }catch (Throwable e){

@@ -404,6 +404,19 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
+    public boolean contains(Object o) {
+        if (o == null) return false;
+        allLock.lock();
+        try {
+            for (Node<E> p = head.next; p != null; p = p.next)
+                if (o.equals(p.item))
+                    return true;
+            return false;
+        } finally {
+            allLock.unlock();
+        }
+    }
+
     public boolean remove(String sign) {
         if (StringUtils.isBlank(sign)) {return false;}
         try {

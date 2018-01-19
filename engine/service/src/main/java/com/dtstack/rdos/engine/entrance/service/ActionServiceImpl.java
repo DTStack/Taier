@@ -58,39 +58,36 @@ public class ActionServiceImpl {
 
         try{
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-
             checkParam(paramAction);
+
+            if(!receiveStartJob(paramAction)){
+                return;
+            }
 
             //判断当前节点是不是master
             if(zkDistributed.localIsMaster()){
 
-                if(!receiveJob(paramAction)){
-                    return;
-                }
-
-                //1: 直接提交到本地master的优先级队列
+                //直接提交到本地master的优先级队列
                 JobClient jobClient = new JobClient(paramAction);
                 masterNode.addTask(jobClient);
                 return;
             }
 
-            //2: 发送到master节点
-            // ----获取master地址
+            //转发送到master节点
             String masterAddr = zkDistributed.isHaveMaster();
-
             if(masterAddr == null){
-                //TODO 如果遇到master 地址为null 应该如果处理
+                //如果遇到master 地址为null --- 直接将job 缓存到cache.
+                addJobCache(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
+                        EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
                 logger.error("---------serious error can't get master address-------");
                 return;
             }
 
-            //---提交任务
             paramAction.setRequestStart(RequestStart.NODE.getStart());
             HttpSendClient.actionStart(masterAddr, paramAction);
         }catch (Exception e){
             logger.info("", e);
         }
-
     }
 
     /**
@@ -106,7 +103,6 @@ public class ActionServiceImpl {
         Integer computeType = null;
 
         try{
-
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
             if(checkSubmitted(paramAction)){
@@ -315,47 +311,48 @@ public class ActionServiceImpl {
     }
 
     /**
-     * master节点接收到任务，修改任务状态
-     * 同时处理重复提交的问题
+     * 处理从客户的发送过来的任务
+     * 修改任务状态为已经接收
      * @param paramAction
      * @return
      */
-    private boolean receiveJob(ParamAction paramAction){
-    	boolean result;
-    	String jobId = paramAction.getTaskId();
-    	Integer computerType = paramAction.getComputeType();
+    public boolean receiveStartJob(ParamAction paramAction){
+        boolean result;
+        String jobId = paramAction.getTaskId();
+        Integer computerType = paramAction.getComputeType();
 
         if (ComputeType.STREAM.getType().equals(computerType)) {
-        	RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
-        	if(rdosEngineStreamJob == null){
-        		rdosEngineStreamJob = new RdosEngineStreamJob();
-        		rdosEngineStreamJob.setTaskId(jobId);
-        		rdosEngineStreamJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
-        		streamTaskDAO.insert(rdosEngineStreamJob);
-        		result =  true;
-        	}else{
-        		result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
-        		if(result){
-        			streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-        		}
-        	}
+            RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            if(rdosEngineStreamJob == null){
+                rdosEngineStreamJob = new RdosEngineStreamJob();
+                rdosEngineStreamJob.setTaskId(jobId);
+                rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                streamTaskDAO.insert(rdosEngineStreamJob);
+                result =  true;
+            }else{
+                result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
+                if(result){
+                    streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                }
+            }
         }else{
-        	RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-        	if(rdosEngineBatchJob == null){
-        		rdosEngineBatchJob = new RdosEngineBatchJob();
-        		rdosEngineBatchJob.setJobId(jobId);
-        		rdosEngineBatchJob.setStatus(RdosTaskStatus.UNSUBMIT.getStatus().byteValue());
-        		batchJobDAO.insert(rdosEngineBatchJob);
-        		result =  true;
-        	}else{
-        		result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
-        		if(result){
-        			batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-        		}
-        	}
+            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if(rdosEngineBatchJob == null){
+                rdosEngineBatchJob = new RdosEngineBatchJob();
+                rdosEngineBatchJob.setJobId(jobId);
+                rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                batchJobDAO.insert(rdosEngineBatchJob);
+                result =  true;
+            }else{
+                result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
+                if(result){
+                    batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                }
+            }
         }
         return result;
     }
+
     
     @Forbidden
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {

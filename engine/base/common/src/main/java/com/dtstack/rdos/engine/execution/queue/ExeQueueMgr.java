@@ -170,7 +170,7 @@ public class ExeQueueMgr {
 
                                 if(entry.getValue() >= FAILURE_RATE){
                                     String groupName = entry.getKey();
-                                    GroupExeQueue groupExeQueue = engineTypeQueue.remove(groupName);
+                                    engineTypeQueue.remove(groupName);
                                     iterator.remove();
                                 }
                             }

@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.enumeration;
 
 /**
- * Reason:
+ * 区分engine接收到任务之后所处的阶段,用于在master切换之后主动恢复队列数据
  * Date: 2018/1/10
  * Company: www.dtstack.com
  * @author xuchao

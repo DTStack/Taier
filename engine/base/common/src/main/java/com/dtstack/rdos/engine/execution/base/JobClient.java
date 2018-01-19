@@ -99,6 +99,9 @@ public class JobClient extends OrderObject{
             this.confProperties = PublicUtil.stringToProperties(taskParams);
         }
 
+        //将任务id 标识为对象id
+        this.id = taskId;
+
     }
 
     public ParamAction getParamAction(){

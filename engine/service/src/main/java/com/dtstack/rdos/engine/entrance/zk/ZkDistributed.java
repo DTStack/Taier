@@ -424,7 +424,7 @@ public class ZkDistributed {
 	}
 
 	public Map<String, BrokerQueueNode> getAllBrokerQueueNode(){
-        List<String> brokerList = getBrokersChildren();
+        List<String> brokerList = getAliveBrokersChildren();
         Map<String, BrokerQueueNode> queueNodeMap = Maps.newHashMap();
 
         for(String broker : brokerList){
@@ -457,11 +457,12 @@ public class ZkDistributed {
 				int size = getWaitingJobCount(entry.getValue());
 				if(size < def){
 					def = size;
-					node = entry.getKey();
-					if(excludeNodes.contains(node)){
+					String targetNode = entry.getKey();
+					if(excludeNodes.contains(targetNode)){
                         continue;
 					}
 
+					node = targetNode;
 					break;
 				}
 			}
@@ -582,7 +583,7 @@ public class ZkDistributed {
 
 	public void removeBrokerQueueNode(String address){
 		BrokerQueueNode brokerQueueNode = new BrokerQueueNode();
-		zkDistributed.updateSynchronizedLocalQueueNode(localAddress, brokerQueueNode);
+		zkDistributed.updateSynchronizedLocalQueueNode(address, brokerQueueNode);
 	}
 
 	public void dataMigration(String nodeAddress) {

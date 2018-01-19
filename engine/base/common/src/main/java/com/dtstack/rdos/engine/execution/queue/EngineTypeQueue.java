@@ -26,7 +26,7 @@ public class EngineTypeQueue {
     /**
      * TODO 修改成外部可配置
      */
-    private static final int MAX_QUEUE_LENGTH = 5;
+    private static final int MAX_QUEUE_LENGTH = 1;
 
     private String engineType;
 

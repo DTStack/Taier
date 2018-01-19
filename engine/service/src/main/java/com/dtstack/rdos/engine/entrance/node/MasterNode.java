@@ -185,7 +185,7 @@ public class MasterNode {
         //不做严格的队列长度限制,只要请求的时候返回true就认为可以发送
         if(!checkCanSend(address, jobClient.getEngineType(), jobClient.getGroupName())){
             excludeNodes.add(address);
-            sendTask(jobClient, retryNum, excludeNodes);
+            return sendTask(jobClient, retryNum, excludeNodes);
         }
 
         ParamAction paramAction = jobClient.getParamAction();
@@ -216,8 +216,13 @@ public class MasterNode {
      * cache的移除在任务发送完毕之后
      */
     public void saveCache(ParamAction paramAction){
-        engineJobCacheDao.insertJob(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
-                EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
+        if(engineJobCacheDao.getJobById(paramAction.getTaskId()) != null){
+            engineJobCacheDao.updateJobStage(paramAction.getTaskId(), EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+        }else{
+            engineJobCacheDao.insertJob(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
+                    EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
+        }
+
     }
 
     /**

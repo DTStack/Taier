@@ -31,6 +31,10 @@ public class GroupPriorityQueue {
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(groupName,
                 k -> new OrderLinkedBlockingQueue<>());
 
+        if(queue.contains(jobClient)){
+            return;
+        }
+
         queue.put(jobClient);
     }
 
