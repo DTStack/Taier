@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstrant;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -106,7 +106,7 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
-            String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstrant.CUSTOMER_PRIORITY_VAL);
+            String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
             int val = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             this.priorityLevel = val;
             //获取priority值

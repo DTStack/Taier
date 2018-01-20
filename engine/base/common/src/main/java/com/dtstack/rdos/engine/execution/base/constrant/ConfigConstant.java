@@ -7,8 +7,10 @@ package com.dtstack.rdos.engine.execution.base.constrant;
  * @author xuchao
  */
 
-public class ConfigConstrant {
+public class ConfigConstant {
 
     public static final String CUSTOMER_PRIORITY_VAL = "job.priority";
+
+    public static final String DEFAULT_GROUP_NAME = "default";
 
 }

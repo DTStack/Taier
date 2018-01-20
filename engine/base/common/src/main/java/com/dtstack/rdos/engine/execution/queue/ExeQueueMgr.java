@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.queue;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -167,9 +168,13 @@ public class ExeQueueMgr {
                             Iterator<Map.Entry<String, Integer>> iterator = engineTypeCache.entrySet().iterator();
                             for( ;iterator.hasNext(); ){
                                 Map.Entry<String, Integer> entry = iterator.next();
+                                String groupName = entry.getKey();
+                                if(groupName.equals(ConfigConstant.DEFAULT_GROUP_NAME)){
+                                    continue;
+                                }
 
                                 if(entry.getValue() >= FAILURE_RATE){
-                                    String groupName = entry.getKey();
+
                                     engineTypeQueue.remove(groupName);
                                     iterator.remove();
                                 }

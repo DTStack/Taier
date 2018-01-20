@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.queue;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Reason:
+ * 指定引擎类型对应的执行等待队列
  * Date: 2018/1/15
  * Company: www.dtstack.com
  * @author xuchao
@@ -21,10 +22,8 @@ public class EngineTypeQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(EngineTypeQueue.class);
 
-    private static final String DEFAULT_GROUP_NAME = "default";
-
     /**
-     * TODO 修改成外部可配置
+     * TODO 修改成外部可配置--最大允许等待的队列长度
      */
     private static final int MAX_QUEUE_LENGTH = 1;
 
@@ -43,13 +42,13 @@ public class EngineTypeQueue {
     public EngineTypeQueue(String engineType) {
         this.engineType = engineType;
         groupExeQueueSet = Sets.newTreeSet((gq1, gq2) -> MathUtil.getIntegerVal(gq1.getMaxTime() - gq2.getMaxTime()));
-        GroupExeQueue defaultQueue = new GroupExeQueue(DEFAULT_GROUP_NAME);
+        GroupExeQueue defaultQueue = new GroupExeQueue(ConfigConstant.DEFAULT_GROUP_NAME);
         groupExeQueueMap.put(defaultQueue.getGroupName(), defaultQueue);
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
         String groupName = jobClient.getGroupName();
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        groupName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
         if (exeQueue == null) {
             exeQueue = new GroupExeQueue(groupName);
@@ -64,7 +63,7 @@ public class EngineTypeQueue {
 
     public boolean remove(String groupName, String taskId) {
 
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        groupName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
         if (exeQueue == null) {
             return false;
@@ -79,11 +78,7 @@ public class EngineTypeQueue {
                                            ClusterQueueZKInfo.EngineTypeQueueZKInfo zkInfo) {
 
         Integer localPriority = groupMaxPriority.get(groupName);
-        if (localPriority == null) {
-            //不可能发生的
-            LOG.error("it is not impossible. groupMaxPriority don't have info of :{}", groupName);
-            return true;
-        }
+        localPriority = localPriority == null ? 0 : localPriority;
 
         boolean result = true;
         for(Map.Entry<String, ClusterQueueZKInfo.GroupQueueZkInfo> zkInfoEntry : zkInfo.getGroupQueueZkInfoMap().entrySet()){
@@ -107,7 +102,7 @@ public class EngineTypeQueue {
 
     public boolean checkCanAddToWaitQueue(String groupName) {
 
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        groupName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
 
         if (exeQueue == null) {
