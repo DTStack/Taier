@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.queue;
 
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
@@ -22,10 +23,7 @@ public class EngineTypeQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(EngineTypeQueue.class);
 
-    /**
-     * TODO 修改成外部可配置--最大允许等待的队列长度
-     */
-    private static final int MAX_QUEUE_LENGTH = 1;
+    private static int MAX_QUEUE_LENGTH = 1;
 
     private String engineType;
 
@@ -44,6 +42,9 @@ public class EngineTypeQueue {
         groupExeQueueSet = Sets.newTreeSet((gq1, gq2) -> MathUtil.getIntegerVal(gq1.getMaxTime() - gq2.getMaxTime()));
         GroupExeQueue defaultQueue = new GroupExeQueue(ConfigConstant.DEFAULT_GROUP_NAME);
         groupExeQueueMap.put(defaultQueue.getGroupName(), defaultQueue);
+        MAX_QUEUE_LENGTH = ConfigParse.getExeQueueSize();
+
+        LOG.info("instance {} with queue size:{}", engineType, MAX_QUEUE_LENGTH);
     }
 
     public void add(JobClient jobClient) throws InterruptedException {

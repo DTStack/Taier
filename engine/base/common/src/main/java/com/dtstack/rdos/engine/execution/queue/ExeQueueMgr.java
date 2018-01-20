@@ -29,7 +29,7 @@ public class ExeQueueMgr {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExeQueueMgr.class);
 
-    /**所有集群的队列信息*/
+    /**所有集群的队列信息(各个groupName对应的最大优先数值)*/
     private ClusterQueueZKInfo clusterQueueInfo;
 
     private Map<String, EngineTypeQueue> engineTypeQueueMap = Maps.newConcurrentMap();
@@ -43,10 +43,10 @@ public class ExeQueueMgr {
         //根据配置的引擎类型初始化engineTypeQueueMap
         List<String> typeList = Lists.newArrayList();
         ConfigParse.getEngineTypeList().forEach( info ->{
-            String clientTypeStr = (String) info.get(ConfigParse.TYPE_NAME_KEY);
-            clientTypeStr = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            typeList.add(clientTypeStr);
-            engineTypeQueueMap.put(clientTypeStr, new EngineTypeQueue(clientTypeStr));
+            String engineTypeStr = (String) info.get(ConfigParse.TYPE_NAME_KEY);
+            engineTypeStr = EngineType.getEngineTypeWithoutVersion(engineTypeStr);
+            typeList.add(engineTypeStr);
+            engineTypeQueueMap.put(engineTypeStr, new EngineTypeQueue(engineTypeStr));
         });
 
         executorService.submit(new TimerClear(typeList));
