@@ -18,6 +18,7 @@ public class RdosException extends RuntimeException {
     public RdosException(String errorMessage){
         super(errorMessage);
         this.errorMessage = errorMessage;
+        this.errorCode = ErrorCode.UNKNOWN_ERROR;
     }
 
     public RdosException(ErrorCode errorCode){
@@ -44,11 +45,11 @@ public class RdosException extends RuntimeException {
         setErrorMessage(message);
     }
 
-    private void setErrorMessage(String errorMessage){
-        if(StringUtils.isEmpty(errorMessage)){
+    private void setErrorMessage(String extMsg){
+        if(StringUtils.isEmpty(extMsg)){
             this.errorMessage = errorCode.getDescription();
         }else{
-            this.errorMessage = errorCode.getDescription() + "，" + errorMessage;
+            this.errorMessage = errorCode.getDescription() + "-" + extMsg;
         }
     }
 

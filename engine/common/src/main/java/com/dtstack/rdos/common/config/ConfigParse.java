@@ -61,4 +61,9 @@ public class ConfigParse {
         return exeQueueSize == null ? 2 : MathUtil.getIntegerVal(exeQueueSize);
     }
 
+    public static boolean isDebug(){
+        Object isDebug = configs.get("isDebug");
+        return isDebug == null ? false : MathUtil.getBoolean(isDebug);
+    }
+
 }

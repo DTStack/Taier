@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.web.vertx;
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.google.common.base.Strings;
 
 import io.vertx.core.http.HttpServerRequest;
@@ -65,8 +67,9 @@ public class BaseVerticle {
 		logger.warn("receive http request:{}:{}",path,routingContext.getBodyAsString());
 		String[] paths = path.split("/");
 		if(paths.length < 2){
-			throw new RdosException("url path error,please check");
+			throw new RdosException("请求地址异常", ErrorCode.SERVICE_NOT_EXIST);
 		}
+
 		String name = paths[paths.length-2];
 		String method = paths[paths.length-1];
 		Class<?> cla = null;
@@ -84,7 +87,7 @@ public class BaseVerticle {
 			cla = obj.getClass();
 		}
 		if(cla.getAnnotation(Forbidden.class) != null){
-			throw new RdosException("this service is forbidden");
+			throw new RdosException(ErrorCode.SERVICE_FORBIDDEN);
 		}
 		
 		Method[] methods = cla.getMethods();
@@ -96,10 +99,10 @@ public class BaseVerticle {
 			}
 		}
 		if(mm == null){
-			throw new RdosException("this method is not exist");
+			throw new RdosException(ErrorCode.METHOD_NOT_EXIST);
 		}
 		if(mm.getAnnotation(Forbidden.class) != null){
-			throw new RdosException("this method is forbidden");
+			throw new RdosException(ErrorCode.METHOD_FORBIDDEN);
 		}
 		return mm.invoke(obj, mapToParamObjects(params,mm.getParameters(),mm.getParameterTypes()));
 	} 
@@ -109,8 +112,8 @@ public class BaseVerticle {
 		String md5  = routingContext.request().getHeader("md5");
 		String ctime = routingContext.request().getHeader("ctime");
 		String md5other = MD5Util.getMD5String(String.format("%s:%s:%s", ctime,body,ctime));
-		if(!md5other.equals(md5)){
-			throw new RdosException("This call is unlawful");
+		if(!ConfigParse.isDebug() && !md5other.equals(md5)){
+			throw new RdosException(ErrorCode.CALL_UNLAWFUL);
 		}
 	}
 	
@@ -141,7 +144,7 @@ public class BaseVerticle {
 
 	public String upperFirstLetter(String word){
         if(Strings.isNullOrEmpty(word)){
-            throw new RdosException("can't upper word of empty | null");
+            throw new RdosException("can't upper word of empty | null", ErrorCode.INVALID_PARAMETERS);
         }
 
         if(word.length() == 1){

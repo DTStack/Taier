@@ -15,6 +15,7 @@ public enum ErrorCode {
     SUCCESS(1, "执行成功"),
     PERMISSION_LIMIT(3, "没有权限"),
 
+    UNKNOWN_ERROR(10, "未定义异常"),
     SERVER_EXCEPTION(11, "服务内部错误"),
 
     UNSUPPORTED_OPERATION(12, "不支持的操作"),
@@ -28,6 +29,7 @@ public enum ErrorCode {
     SERVICE_FORBIDDEN(48, "该服务禁止请求"),
     METHOD_NOT_EXIST(49, "方法不存在"),
     METHOD_FORBIDDEN(50, "该方法禁止被调用"),
+    CALL_UNLAWFUL(51, "请求非法"),
 
 
     /***----------------end 公共模块错误码 end ----------------------------------------****/
