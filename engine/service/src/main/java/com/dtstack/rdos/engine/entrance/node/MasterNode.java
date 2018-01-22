@@ -33,7 +33,9 @@ import java.util.concurrent.Executors;
 /**
  * 处理任务优先级队列
  * 1--n 数值越大表明优先级越高
- * 优先级队列和spark优先级队列---根据配置文件的信息生成
+ * flink优先级队列和spark优先级队列---根据配置文件的信息生成
+ *
+ * 任务停止队列
  * Date: 2018/1/8
  * Company: www.dtstack.com
  * @author xuchao
@@ -67,6 +69,8 @@ public class MasterNode {
 
     private String localAddress = ConfigParse.getLocalAddress();
 
+    private JobStopQueue jobStopQueue;
+
     private ExecutorService senderExecutor;
 
     private static MasterNode singleton = new MasterNode();
@@ -86,9 +90,11 @@ public class MasterNode {
         }
 
         senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
+        jobStopQueue = new JobStopQueue(this);
+        jobStopQueue.start();
     }
 
-    public void addTask(JobClient jobClient){
+    public void addStartJob(JobClient jobClient){
 
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
@@ -104,6 +110,10 @@ public class MasterNode {
         }
 
         saveCache(jobClient.getParamAction());
+    }
+
+    public void addStopJob(ParamAction paramAction){
+        jobStopQueue.addJob(paramAction);
     }
 
     /**

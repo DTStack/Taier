@@ -681,4 +681,12 @@ public class ZkDistributed {
 		return datas;
 	}
 
+	public void updateJobZKStatus(String zkTaskId, Integer status){
+		BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
+		brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
+		zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
+		zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+
+	}
+
 }
