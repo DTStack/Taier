@@ -93,6 +93,8 @@ public class ZkDistributed {
 
 	private InterProcessMutex brokerQueueLock;
 
+	private String masterAddrCache = "";
+
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
 	private ExecutorService executors  = new ThreadPoolExecutor(8, 8,
@@ -323,13 +325,15 @@ public class ZkDistributed {
 	public boolean setMaster() {
 		try {
 			if(this.masterLock.acquire(10, TimeUnit.SECONDS)){
-				if(!this.localAddress.equals(isHaveMaster())){
+                String zkMasterAddr = isHaveMaster();
+				if(!this.localAddress.equals(zkMasterAddr) || !masterAddrCache.equals(zkMasterAddr)){
 					BrokersNode brokersNode = BrokersNode.initBrokersNode();
 					brokersNode.setMaster(this.localAddress);
 					this.zkClient.setData().forPath(this.brokersNode,
 							objectMapper.writeValueAsBytes(brokersNode));
 					rdosNodeMachineDAO.updateOneTypeMachineToSlave(MachineAppType.ENGINE.getType());
 					rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
+                    masterAddrCache = zkMasterAddr;
 				}
 				return true;
 			}
@@ -548,7 +552,6 @@ public class ZkDistributed {
     }
 
 	public void release(){
-		// TODO Auto-generated method stub
 		try{
 			disableBrokerHeartNode(this.localAddress);
 			lockRelease();

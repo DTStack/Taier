@@ -21,7 +21,7 @@ public class RdosNodeMachineDAO {
 	public void insert(String ip, long port, int machineType, MachineAppType machineAppType, String deployInfo){
 		final RdosNodeMachine rdosNodeMachine = new RdosNodeMachine(ip, port, machineType, machineAppType.getType(), deployInfo);
 
-		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback(){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
