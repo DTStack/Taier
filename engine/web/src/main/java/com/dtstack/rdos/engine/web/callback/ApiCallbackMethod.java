@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.web.callback;
 
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.RdosException;
 import io.vertx.ext.web.RoutingContext;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -30,19 +32,35 @@ public class ApiCallbackMethod {
 		try {
 			long start = System.currentTimeMillis();
 			apiResult.setData(ac.execute());
-			apiResult.setCode(Code.NORMAL.getType());
+			apiResult.setCode(ErrorCode.SUCCESS.getCode());
 			long end = System.currentTimeMillis();
 			apiResult.setSpace(end - start);
 			ResponseUtil.res200(context, objectMapper.writeValueAsString(apiResult));
 		} catch (Throwable e) {
-			apiResult.setCode(Code.FAIL.getType());
+
+            ErrorCode errorCode;
+            String errorMsg;
+            RdosException rdosDefineException = null;
+			if (e.getCause() instanceof RdosException) {
+				rdosDefineException = ((RdosException)e.getCause());
+				errorCode = rdosDefineException.getErrorCode();
+				errorMsg = rdosDefineException.getErrorMsg();
+			} else if (e instanceof RdosException) {
+				rdosDefineException = ((RdosException)e);
+				errorCode = rdosDefineException.getErrorCode();
+				errorMsg = rdosDefineException.getErrorMsg();
+			}else{
+				errorCode = ErrorCode.SERVER_EXCEPTION;
+				errorMsg = ErrorCode.SERVER_EXCEPTION.getDescription();
+			}
+
+			apiResult.setCode(errorCode.getCode());
 			String errMsg = e.getCause() != null ? e.getCause().toString() : e.getMessage();
 			apiResult.setErrorMsg(errMsg);
 			logger.error("ApiCallbackMethod error:", e);
 			try {
-				ResponseUtil.res500(context, objectMapper.writeValueAsString(apiResult));
+                ResponseUtil.res500(context, ApiResult.createErrorResultJsonStr(errorCode.getCode(), errorMsg));
 			} catch (Throwable e1) {
-				// TODO Auto-generated catch block
 				logger.error("ApiCallbackMethod error:", e1);
 			}
 		}

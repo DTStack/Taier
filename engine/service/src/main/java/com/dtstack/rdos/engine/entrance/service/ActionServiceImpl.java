@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance.service;
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -85,7 +86,7 @@ public class ActionServiceImpl {
                 addJobCache(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
                         EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
                 logger.error("---------serious error can't get master address-------");
-                return;
+                throw new RdosException(ErrorCode.NO_MASTER_NODE);
             }
 
             paramAction.setRequestStart(RequestStart.NODE.getStart());
@@ -98,7 +99,6 @@ public class ActionServiceImpl {
     /**
      * 执行从master上下发的任务
      * 不需要判断等待队列是否满了，由master节点主动判断
-     * TODO 处理重复发送的问题
      * @param params
      * @return
      */
@@ -205,7 +205,7 @@ public class ActionServiceImpl {
             if(masterAddr == null){
                 //如果遇到master 地址为null
                 logger.error("---------serious error can't get master address-------");
-                return;
+                throw new RdosException(ErrorCode.NO_MASTER_NODE);
             }
 
             //转发给master
@@ -230,15 +230,15 @@ public class ActionServiceImpl {
     private void checkParam(ParamAction paramAction) throws Exception{
 
         if(StringUtils.isBlank(paramAction.getTaskId())){
-           throw new RdosException("param taskId is not allow null");
+           throw new RdosException("param taskId is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        if(paramAction.getComputeType()==null){
-            throw new RdosException("param computeType is not allow null");
+        if(paramAction.getComputeType() == null){
+            throw new RdosException("param computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
         if(paramAction.getEngineType() == null){
-            throw new RdosException("param engineType is not allow null");
+            throw new RdosException("param engineType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
     }
 

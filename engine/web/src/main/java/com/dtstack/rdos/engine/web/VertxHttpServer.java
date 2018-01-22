@@ -44,7 +44,6 @@ public class VertxHttpServer {
 
 
 	public void release() {
-		// TODO Auto-generated method stub
 		this.vertx.close();
 	}
 

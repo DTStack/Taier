@@ -49,10 +49,9 @@ public class BaseVerticle {
 
 			@Override
 			public Object execute() throws Exception {
-				// TODO Auto-generated method stub
 				return allRequestVerticle.reflectionMethod(routingContext);
 			}
-			
+
 		}, routingContext);
 	}
 	
@@ -111,14 +110,12 @@ public class BaseVerticle {
 		String ctime = routingContext.request().getHeader("ctime");
 		String md5other = MD5Util.getMD5String(String.format("%s:%s:%s", ctime,body,ctime));
 		if(!md5other.equals(md5)){
-			//FIXME 暂时注释--不要提交
-			//throw new RdosException("This call is unlawful");
+			throw new RdosException("This call is unlawful");
 		}
 	}
 	
 	private Object[] mapToParamObjects(Map<String, Object> params,
 			Parameter[] parameters, Class<?>[] parameterTypes) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
-		// TODO Auto-generated method st
 		if(parameters==null||parameters.length==0){return new Object[]{};}
 		int length = parameters.length;
 		Object[] objs  = new Object[length];

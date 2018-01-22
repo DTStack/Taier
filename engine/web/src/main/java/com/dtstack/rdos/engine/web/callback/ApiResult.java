@@ -3,6 +3,8 @@ package com.dtstack.rdos.engine.web.callback;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -13,6 +15,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  */
 public class ApiResult {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ApiResult.class);
 
 	private int code;
 	private Object data;
@@ -90,6 +94,25 @@ public class ApiResult {
 	public void success(Object data){
 		this.setCodeMsg(200, "OK");
 		this.setData(data);
+	}
+
+	public static String createErrorResultJsonStr(int code, String message) {
+		ApiResult apiResult = createErrorResult(message, code);
+		String result;
+		try {
+			result = objectMapper.writeValueAsString(apiResult);
+		} catch (Exception e) {
+            LOG.error("", e);
+			result = "code:" + code + ",message:" + message;
+		}
+		return result;
+	}
+
+	public static ApiResult createErrorResult(String errMsg, int code) {
+		ApiResult apiResult = new ApiResult();
+		apiResult.setCode(code);
+		apiResult.setErrorMsg(errMsg);
+		return apiResult;
 	}
 	
 
