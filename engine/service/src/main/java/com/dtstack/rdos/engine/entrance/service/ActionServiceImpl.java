@@ -75,7 +75,7 @@ public class ActionServiceImpl {
                 return;
             }
 
-            if(canAccepted){
+            if(!canAccepted){
                 return;
             }
 

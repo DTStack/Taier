@@ -2,30 +2,24 @@ package com.dtstack.rdos.engine.web.vertx;
 
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.annotation.Forbidden;
+import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.config.ConfigParse;
+import com.dtstack.rdos.common.util.MD5Util;
+import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.web.callback.ApiCallback;
+import com.dtstack.rdos.engine.web.callback.ApiCallbackMethod;
 import com.google.common.base.Strings;
-
+import com.google.common.collect.Maps;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Map;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.dtstack.rdos.common.annotation.Forbidden;
-import com.dtstack.rdos.common.annotation.Param;
-import com.dtstack.rdos.common.util.MD5Util;
-import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.web.callback.ApiCallback;
-import com.dtstack.rdos.engine.web.callback.ApiCallbackMethod;
-import com.google.common.collect.Maps;
 
 
 /**
@@ -36,13 +30,13 @@ import com.google.common.collect.Maps;
 public class BaseVerticle {
 	
 	private static Logger logger = LoggerFactory.getLogger(BaseVerticle.class);
-	
+
 	private static String classNameTemplate = "com.dtstack.rdos.engine.entrance.service.%sServiceImpl";
-	
+
 	private static Map<String,Object> objects = Maps.newConcurrentMap();
 	
 	private final static String CODE = "UTF-8";
-	
+
 	public void request(final RoutingContext routingContext){
 		
 		final BaseVerticle allRequestVerticle  = this;
@@ -118,7 +112,7 @@ public class BaseVerticle {
 	}
 	
 	private Object[] mapToParamObjects(Map<String, Object> params,
-			Parameter[] parameters, Class<?>[] parameterTypes) throws JsonParseException, JsonMappingException, JsonGenerationException, IOException {
+			Parameter[] parameters, Class<?>[] parameterTypes) throws IOException {
 		if(parameters==null||parameters.length==0){return new Object[]{};}
 		int length = parameters.length;
 		Object[] objs  = new Object[length];
