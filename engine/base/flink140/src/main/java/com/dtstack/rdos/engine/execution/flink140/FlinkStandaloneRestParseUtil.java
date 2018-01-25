@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * FLINK-1.2 和 FLink-1.3 client公用
+ * flink restful 返回数据解析
  * Date: 2017/11/23
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class FlinkStandaloneRestParseUtil {

@@ -17,7 +17,7 @@ import java.net.URL;
  * 根据指定的sink type 加载jar,并初始化对象
  * Date: 2017/3/10
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class StreamSinkFactory {

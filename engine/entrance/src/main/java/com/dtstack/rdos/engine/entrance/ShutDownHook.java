@@ -43,7 +43,6 @@ public class ShutDownHook {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
 			if(vertxHttpServer!=null){
 				vertxHttpServer.release();
 			}

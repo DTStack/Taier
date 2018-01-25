@@ -101,7 +101,7 @@ import java.util.concurrent.TimeUnit;
  *
  * Date: 2017/2/20
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 public class FlinkClient extends AbsClient {
 

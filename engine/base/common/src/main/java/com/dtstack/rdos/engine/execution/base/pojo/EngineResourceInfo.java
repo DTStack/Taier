@@ -9,7 +9,7 @@ import java.util.Map;
  * 引擎的资源信息
  * Date: 2017/11/27
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class EngineResourceInfo {

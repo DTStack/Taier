@@ -15,7 +15,7 @@ import java.util.Map;
  * 包括获得jar路径,获取plugin的类名称
  * Date: 2017/8/2
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class PluginSourceUtil {

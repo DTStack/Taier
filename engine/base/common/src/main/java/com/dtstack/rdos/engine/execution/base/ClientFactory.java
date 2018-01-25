@@ -25,8 +25,6 @@ public class ClientFactory {
     
     private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
-    private static ClassLoaderCallBackMethod classLoaderCallBackMethod = new ClassLoaderCallBackMethod();
-
     private static Map<String, String> typeRefClassName = Maps.newHashMap();
 
     static{
@@ -50,15 +48,19 @@ public class ClientFactory {
     	}
         return iClient;
     }
+
+    public static ClassLoader getClassLoader(String pluginType){
+        return pluginClassLoader.get(pluginType);
+    }
     
 	public static void initPluginClass(final String pluginType,
                                        ClassLoader classLoader) throws Exception{
     	pluginClassLoader.put(pluginType, classLoader);
 
-        classLoaderCallBackMethod.callback(new ClassLoaderCallBack(){
+        ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<Object>(){
+
             @Override
             public Object execute() throws Exception {
-
                 String className = typeRefClassName.get(pluginType);
                 if(className == null){
                     throw new RuntimeException("not support for engine type " + pluginType);
@@ -69,6 +71,6 @@ public class ClientFactory {
                 pluginIClient.put(pluginType, proxyClient);
                 return null;
             }
-        },classLoader,null,true);
+        }, classLoader, true);
     }
 }

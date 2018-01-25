@@ -5,12 +5,9 @@ import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
-import com.dtstack.rdos.engine.execution.queue.EngineTypeQueue;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
-import com.dtstack.rdos.engine.execution.queue.GroupExeQueue;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +23,11 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
  *
- * TODO 功能太多,考虑拆分
  * 任务提交执行容器
  * 单独起线程执行
  * Date: 2017/2/21
@@ -52,17 +47,13 @@ public class JobSubmitExecutor{
 
     private static String userDir = System.getProperty("user.dir");
 
-    private String localAddress;
-
-    private ExecutorService executor;
+    private ExecutorService jobExecutor;
 
     private ExecutorService queExecutor;
 
     private boolean hasInit = false;
 
     private Map<String, IClient> clientMap = new HashMap<>();
-
-    private List<Map<String, Object>> clientParamsList;
 
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
 
@@ -83,17 +74,15 @@ public class JobSubmitExecutor{
     public void init() throws Exception{
         if(!hasInit){
             this.maxPoolSize = ConfigParse.getSlots();
-            this.clientParamsList = ConfigParse.getEngineTypeList();
-            this.executor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
+            this.jobExecutor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(1), new CustomThreadFactory("jobExecutor"));
 
             this.queExecutor = new ThreadPoolExecutor(3, 3,
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
-            this.localAddress = ConfigParse.getLocalAddress();
 
-            initJobClient(this.clientParamsList);
+            initJobClient(ConfigParse.getEngineTypeList());
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
             hasInit = true;
@@ -108,54 +97,7 @@ public class JobSubmitExecutor{
 
                 while (true){
                     try{
-
-                        for(EngineTypeQueue engineTypeQueue : exeQueueMgr.getEngineTypeQueueMap().values()){
-
-                            String engineType = engineTypeQueue.getEngineType();
-                            Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
-                            final boolean[] needBreak = {false};
-
-                            engineTypeQueueMap.values().forEach(gq ->{
-
-                                //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
-                                if(!exeQueueMgr.checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
-                                    return;
-                                }
-
-                                JobClient jobClient = gq.getTop();
-                                if(jobClient == null){
-                                    return;
-                                }
-
-                                //判断资源是否满足
-                                IClient clusterClient = clientMap.get(jobClient.getEngineType());
-                                EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-                                if(!resourceInfo.judgeSlots(jobClient)){
-                                    return;
-                                }
-
-                                JobClient jobClientToExe = gq.remove();
-                                try {
-                                    executor.submit(new JobSubmitProcessor(jobClientToExe, clientMap, slotNoAvailableJobClients));
-                                } catch (RejectedExecutionException e) {
-                                    //如果添加到执行线程池失败则添加回等待队列
-                                    try {
-                                        needBreak[0] = true;
-                                        ExeQueueMgr.getInstance().add(jobClient);
-                                    } catch (InterruptedException e1) {
-                                        logger.error("add jobClient back to queue error:", e1);
-                                    }
-                                } catch (Exception e){
-                                    logger.error("", e);
-                                }
-
-                            });
-
-                            if(needBreak[0]){
-                                break;
-                            }
-                        }
-
+                        exeQueueMgr.checkQueueAndSubmit(clientMap, slotNoAvailableJobClients);
                     }catch (Throwable e){
                         //防止退出循环
                         logger.error("----提交任务返回异常----", e);
@@ -193,7 +135,7 @@ public class JobSubmitExecutor{
             if(clientTypeStr == null){
                 String errorMess = "node.yml of engineTypes setting error, typeName must not be null!!!";
                 logger.error(errorMess);
-                throw new RdosException(errorMess);
+                System.exit(-1);
             }
 
             loadComputerPlugin(clientTypeStr);
@@ -211,7 +153,7 @@ public class JobSubmitExecutor{
     	String plugin = String.format("%s/plugin/%s", userDir, pluginType);
 		File finput = new File(plugin);
 		if(!finput.exists()){
-			throw new Exception(String.format("%s direcotry not found",plugin));
+			throw new Exception(String.format("%s directory not found",plugin));
 		}
 		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
     }
@@ -234,6 +176,10 @@ public class JobSubmitExecutor{
 
     public void submitJob(JobClient jobClient) throws Exception{
         ExeQueueMgr.getInstance().add(jobClient);
+    }
+
+    public void addJobToProcessor(JobSubmitProcessor processor){
+        jobExecutor.submit(processor);
     }
 
 
@@ -259,8 +205,8 @@ public class JobSubmitExecutor{
     }
     
     public void shutdown(){
-        if(executor != null){
-            executor.shutdown();
+        if(jobExecutor != null){
+            jobExecutor.shutdown();
         }
 
         if(queExecutor != null){

@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.base.components;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
+import com.dtstack.rdos.engine.execution.base.ResultMsgDealerUtil;
 import com.dtstack.rdos.engine.execution.base.util.SlotJudge;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
@@ -24,12 +24,10 @@ public class SlotNoAvailableJobClient {
 	private Logger logger = LoggerFactory.getLogger(SlotNoAvailableJobClient.class);
 	
 	private ReentrantLock reentrantLock = new ReentrantLock();
+
+	private ResultMsgDealerUtil resultMsgDealer = ResultMsgDealerUtil.getInstance();
 	
 	private volatile Map<String, JobClient> slotNoAvailableJobClients = Maps.newLinkedHashMap();
-
-	public final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
-
-    public final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
     public void noAvailSlotsJobAddExecutionQueue(){
 		try{
@@ -90,13 +88,9 @@ public class SlotNoAvailableJobClient {
         }
 
 	    try{
-	        if(EngineType.isFlink(jobClient.getEngineType())){
-                return checkFailureForFLinkEngineDown(jobClient.getJobResult().getMsgInfo());
-            }else if(EngineType.isSpark(jobClient.getEngineType())){
-                return checkFailureForEngineDown(jobClient.getJobResult().getMsgInfo());
-            }else{
-                return false;
-            }
+            String engineType = jobClient.getEngineType();
+            String resultMsg = jobClient.getJobResult().getMsgInfo();
+            return resultMsgDealer.checkFailureForEngineDown(engineType, resultMsg);
 
         }catch (Exception e){
 	        logger.error("", e);
@@ -134,21 +128,4 @@ public class SlotNoAvailableJobClient {
 		JobSubmitExecutor.getInstance().addJobForTaskListenerQueue(jobClient);//添加触发读取任务状态消息
 	}
 
-	//TODO 暂时放这里
-	public static boolean checkFailureForEngineDown(String msg){
-		if(msg.contains(SPARK_ENGINE_DOWN)){
-			return true;
-		}
-
-		return false;
-	}
-
-    //TODO 暂时放这里
-    public static boolean checkFailureForFLinkEngineDown(String msg){
-        if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_ENGINE_DOWN)){
-            return true;
-        }
-
-        return false;
-    }
 }
