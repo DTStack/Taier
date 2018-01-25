@@ -25,8 +25,6 @@ public class SlotNoAvailableJobClient {
 	
 	private ReentrantLock reentrantLock = new ReentrantLock();
 
-	private ResultMsgDealerUtil resultMsgDealer = ResultMsgDealerUtil.getInstance();
-	
 	private volatile Map<String, JobClient> slotNoAvailableJobClients = Maps.newLinkedHashMap();
 
     public void noAvailSlotsJobAddExecutionQueue(){
@@ -90,7 +88,7 @@ public class SlotNoAvailableJobClient {
 	    try{
             String engineType = jobClient.getEngineType();
             String resultMsg = jobClient.getJobResult().getMsgInfo();
-            return resultMsgDealer.checkFailureForEngineDown(engineType, resultMsg);
+            return ResultMsgDealerUtil.getInstance().checkFailureForEngineDown(engineType, resultMsg);
 
         }catch (Exception e){
 	        logger.error("", e);

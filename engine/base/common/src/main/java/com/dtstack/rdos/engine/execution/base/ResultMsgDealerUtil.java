@@ -48,8 +48,7 @@ public class ResultMsgDealerUtil {
                 System.exit(-1);
             }
 
-            String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            typeList.add(key);
+            typeList.add(clientTypeStr);
 
         });
 
@@ -62,6 +61,7 @@ public class ResultMsgDealerUtil {
 
     public void init(List<String> pluginTypeList){
         for(String type : pluginTypeList){
+            String key = EngineType.getEngineTypeWithoutVersion(type);
             ClassLoader loader = ClientFactory.getClassLoader(type);
             if(loader == null){
                 LOG.error("can't get class loader for plugin type:{}", type);
@@ -76,7 +76,7 @@ public class ResultMsgDealerUtil {
 
             try {
                 IResultMsgDealer dealer =  Class.forName(dealerClassName).asSubclass(IResultMsgDealer.class).newInstance();
-                dealerMap.put(type, dealer);
+                dealerMap.put(key, dealer);
             } catch (Exception e) {
                 LOG.error("", e);
                 System.exit(-1);
