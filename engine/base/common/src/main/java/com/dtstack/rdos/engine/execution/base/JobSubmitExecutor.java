@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;

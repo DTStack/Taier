@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Company: www.dtstack.com
  * @author xuchao
  */
-class CustomThreadFactory implements ThreadFactory {
+public class CustomThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNumber = new AtomicInteger(1);
     private final ThreadGroup group;
     private final AtomicInteger threadNumber = new AtomicInteger(1);
