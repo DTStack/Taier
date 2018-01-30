@@ -1,7 +1,8 @@
-package com.dtstack.rdos.engine.execution.mysql;
+package com.dtstack.rdos.engine.execution.mysql.executor;
 
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.mysql.ConnPool;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -24,7 +26,8 @@ import java.util.concurrent.TimeUnit;
  * 1:执行实体
  * 2:监控类
  *
- * TODO 如何保证所有sql都执行完成(机器挂了如何处理)
+ * TODO 如何保证sql都执行完成(机器挂了如何处理) -- 分布式--数据库还是zk? ---暂时不考虑引入分布式处理
+ * TODO ---但是需要如何处理在机器挂掉之后如何将状态设置为失败
  * TODO sql执行完成之后如何保证状态可以提供查询？是否像flink一样保存最新n个(同时设定最小保存时间)
  * Date: 2018/1/29
  * Company: www.dtstack.com
@@ -61,6 +64,7 @@ public class MysqlExeQueue {
         MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId);
         try{
             executor.submit(mysqlExe);
+            //添加到zk上
         }catch (RejectedExecutionException e){
             //TODO 等待继续继续执行
         }
@@ -90,6 +94,7 @@ public class MysqlExeQueue {
 
     public RdosTaskStatus getJobStatus(){
         //TODO 查库
+
         return RdosTaskStatus.FINISHED;
     }
 
@@ -106,6 +111,8 @@ public class MysqlExeQueue {
 
         private CallableStatement stmt;
 
+        private String procedureName;
+
         private boolean isCancel = false;
 
         public MysqlExe(String jobName, String sql, String jobId){
@@ -121,14 +128,15 @@ public class MysqlExeQueue {
          * @return
          */
         private String createSqlProc(String exeSql, String jobName, String jobId){
-            String procedureName = jobName + NAME_SPLIT +jobId;
+            procedureName = jobName + NAME_SPLIT +jobId;
             StringBuilder sb = new StringBuilder(String.format("create procedure %s()", procedureName));
             sb.append("BEGIN")
               .append("START TRANSACTION;")
               .append(exeSql)
               .append("ROLLBACK;")
               .append("END");
-            return null;
+
+            return sb.toString();
         }
 
         public void cancelJob(){
@@ -143,6 +151,9 @@ public class MysqlExeQueue {
         }
 
 
+        /**
+         * TODO 是否可以复用statement?
+         */
         @Override
         public void run() {
             if(Strings.isNullOrEmpty(jobSqlProc)){
@@ -152,15 +163,23 @@ public class MysqlExeQueue {
             Connection conn = null;
             try{
                 conn = ConnPool.getInstance().getConn();
-                boolean result = true;
+                boolean result;
                 if(isCancel){
                     LOG.info("job:{} is cancled", jobName);
                     return;
                 }
 
+                //创建存储过程
                 stmt = conn.prepareCall(jobSqlProc);
                 result = stmt.execute();
+                if(!result){
+                    return;
+                }
 
+                //调用存储过程
+                String procCall = String.format("{call %s()}", procedureName);
+                stmt = conn.prepareCall(procCall);
+                result = stmt.execute();
                 if(!result){
                     return;
                 }
@@ -173,13 +192,18 @@ public class MysqlExeQueue {
             }finally {
 
                 try {
+
+                    //删除存储过程
+                    String dropSql = String.format("DROP PROCEDURE IF EXISTS `%s`", procedureName);
+                    Statement dropStmt = conn.createStatement();
+                    dropStmt.execute(dropSql);
+                    dropStmt.close();
+
                     if(stmt != null && !stmt.isClosed()){
                         stmt.close();
                     }
 
-                    if(conn != null){
-                        conn.close();
-                    }
+                    conn.close();
                 } catch (SQLException e) {
                     LOG.error("", e);
                 }

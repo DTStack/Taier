@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.mysql.executor.MysqlExeQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class MysqlClient extends AbsClient {
 
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
-        String submitId = exeQueue.submit(jobClient.getJobName(), jobClient.getSql());
+        String submitId = exeQueue.submit(jobClient.getJobName(), jobClient.getSql(), jobClient.getTaskId());
         return JobResult.createSuccessResult(submitId);
     }
 
