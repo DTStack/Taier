@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.mysql.executor.MysqlExeQueue;
 import org.slf4j.Logger;
@@ -25,14 +26,17 @@ public class MysqlClient extends AbsClient {
 
     private MysqlExeQueue exeQueue;
 
+    private  EngineResourceInfo resourceInfo;
+
     @Override
     public void init(Properties prop) throws Exception {
-
+        exeQueue = new MysqlExeQueue();
+        resourceInfo = new MysqlResourceInfo(exeQueue);
     }
 
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
-        String submitId = exeQueue.submit(jobClient.getJobName(), jobClient.getSql(), jobClient.getTaskId());
+        String submitId = exeQueue.submit(jobClient);
         return JobResult.createSuccessResult(submitId);
     }
 
@@ -43,21 +47,31 @@ public class MysqlClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(String jobId) {
-        return null;
+        boolean cancelResult = exeQueue.cancelJob(jobId);
+        if(cancelResult){
+            return JobResult.createSuccessResult(jobId);
+        }
+
+        return JobResult.createErrorResult("can't not find the job");
     }
 
     @Override
     public RdosTaskStatus getJobStatus(String jobId) throws IOException {
-        return null;
+        return exeQueue.getJobStatus();
     }
 
     @Override
     public String getJobMaster() {
-        return null;
+        throw new RdosException("mysql client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        return null;
+        throw new RdosException("mysql client not support method 'getMessageByHttp'");
+    }
+
+    @Override
+    public EngineResourceInfo getAvailSlots() {
+        return resourceInfo;
     }
 }

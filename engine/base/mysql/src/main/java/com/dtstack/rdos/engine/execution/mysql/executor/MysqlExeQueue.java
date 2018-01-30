@@ -1,10 +1,12 @@
 package com.dtstack.rdos.engine.execution.mysql.executor;
 
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
+import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.mysql.ConnPool;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +43,14 @@ public class MysqlExeQueue {
     private int minSize = 1;
 
     /**最大允许同时执行的sql任务长度*/
-    private int maxSize = 100;
+    private int maxSize = 20;
 
     private BlockingQueue<Runnable> queue;
 
     private ExecutorService executor;
+
+    /**优先执行*/
+    private BlockingQueue<JobClient> waitQueue = Queues.newLinkedBlockingQueue();
 
     private Map<String, MysqlExe> cache = Maps.newHashMap();
 
@@ -57,24 +62,23 @@ public class MysqlExeQueue {
 
     /**
      * 提交成功返回engine_id
-     * @param taskName
-     * @param sql
      */
-    public String submit(String taskName, String sql, String jobId){
-        MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId);
-        try{
-            executor.submit(mysqlExe);
-            //添加到zk上
-        }catch (RejectedExecutionException e){
-            //TODO 等待继续继续执行
+    public String submit(JobClient jobClient){
+
+        try {
+            waitQueue.put(jobClient);
+        } catch (InterruptedException e) {
+            LOG.error("", e);
+            return null;
         }
 
-        //TODO
-        return "00";
+        return jobClient.getTaskId();
     }
 
     public boolean checkCanSubmit(){
-        if(queue.size() > 0){
+        if(queue.size() > 0 ){
+            return false;
+        }else if(waitQueue.size() >= maxSize){
             return false;
         }
 
@@ -123,7 +127,7 @@ public class MysqlExeQueue {
 
         /**
          * 1:需要在存储过程加上事物
-         * 2:存储过程在执行完成的时候删除
+         * 2:存储过程在执行完成的时候删除--如何处理机器挂了导致存储过程未被删除
          * @param exeSql
          * @return
          */
@@ -209,8 +213,33 @@ public class MysqlExeQueue {
                 }
 
                 LOG.info("job:{} exe end...", jobName);
+                //TODO 修改指定任务的状态--成功或者失败
             }
         }
     }
 
+    class WaitQueueDealer implements Runnable{
+
+        @Override
+        public void run() {
+            while (true){
+                try{
+                    JobClient jobClient = waitQueue.take();
+                    String taskName = jobClient.getJobName();
+                    String sql = jobClient.getSql();
+                    String jobId = jobClient.getTaskId();
+
+                    MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId);
+                    try{
+                        executor.submit(mysqlExe);
+                    }catch (RejectedExecutionException e){
+                        //等待继续继续执行
+                        waitQueue.add(jobClient);
+                    }
+                }catch (Throwable t){
+                    LOG.error("", t);
+                }
+            }
+        }
+    }
 }

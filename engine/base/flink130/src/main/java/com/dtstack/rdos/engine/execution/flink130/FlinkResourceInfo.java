@@ -8,7 +8,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
  * 用于存储从flink上获取的资源信息
  * Date: 2017/11/24
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class FlinkResourceInfo extends EngineResourceInfo{
@@ -29,7 +29,7 @@ public class FlinkResourceInfo extends EngineResourceInfo{
         boolean result = true;
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
             int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
-            result = result && availableSlots >= maxParall;
+            result = availableSlots >= maxParall;
         }
 
         if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
