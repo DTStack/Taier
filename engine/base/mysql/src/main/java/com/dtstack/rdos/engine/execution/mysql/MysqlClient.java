@@ -26,11 +26,12 @@ public class MysqlClient extends AbsClient {
 
     private MysqlExeQueue exeQueue;
 
-    private  EngineResourceInfo resourceInfo;
+    private EngineResourceInfo resourceInfo;
 
     @Override
     public void init(Properties prop) throws Exception {
         exeQueue = new MysqlExeQueue();
+        exeQueue.init();
         resourceInfo = new MysqlResourceInfo(exeQueue);
     }
 
@@ -57,7 +58,7 @@ public class MysqlClient extends AbsClient {
 
     @Override
     public RdosTaskStatus getJobStatus(String jobId) throws IOException {
-        return exeQueue.getJobStatus();
+        return exeQueue.getJobStatus(jobId);
     }
 
     @Override

@@ -51,6 +51,16 @@ public enum RdosTaskStatus {
 	        return null;
         }
     }
+
+    public static RdosTaskStatus getTaskStatus(int status){
+        for(RdosTaskStatus tmp : RdosTaskStatus.values()){
+            if(tmp.getStatus() == status){
+                return tmp;
+            }
+        }
+
+        return null;
+    }
     
     public static boolean needClean(Byte status){
 		int sta = status.intValue();

@@ -4,6 +4,7 @@ import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.mysql.ConnPool;
+import com.dtstack.rdos.engine.execution.mysql.dao.MysqlJobInfoDao;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -52,7 +53,12 @@ public class MysqlExeQueue {
     /**优先执行*/
     private BlockingQueue<JobClient> waitQueue = Queues.newLinkedBlockingQueue();
 
-    private Map<String, MysqlExe> cache = Maps.newHashMap();
+    private Map<String, MysqlExe> threadCache = Maps.newHashMap();
+
+    /**缓存所有进入执行引擎的任务---在执行完成删除*/
+    private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
+
+    private MysqlJobInfoDao jobInfoDao = new MysqlJobInfoDao();
 
     public void init(){
         queue = new ArrayBlockingQueue<>(1);
@@ -67,6 +73,7 @@ public class MysqlExeQueue {
 
         try {
             waitQueue.put(jobClient);
+            jobCache.put(jobClient.getTaskId(), jobClient);
         } catch (InterruptedException e) {
             LOG.error("", e);
             return null;
@@ -86,7 +93,7 @@ public class MysqlExeQueue {
     }
 
     public boolean cancelJob(String jobId){
-        MysqlExe mysqlExe = cache.get(jobId);
+        MysqlExe mysqlExe = threadCache.get(jobId);
         if(mysqlExe == null){
             return false;
         }
@@ -96,10 +103,9 @@ public class MysqlExeQueue {
     }
 
 
-    public RdosTaskStatus getJobStatus(){
-        //TODO 查库
-
-        return RdosTaskStatus.FINISHED;
+    public RdosTaskStatus getJobStatus(String jobId){
+        Integer status = jobInfoDao.getStatusByJobId(jobId);
+        return RdosTaskStatus.getTaskStatus(status);
     }
 
 
@@ -150,6 +156,10 @@ public class MysqlExeQueue {
                     stmt.cancel();
                 } catch (SQLException e) {
                     LOG.error("", e);
+                }finally {
+                    //更新任务状态
+                    jobInfoDao.updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
+                    jobCache.remove(engineJobId);
                 }
             }
         }
@@ -165,55 +175,53 @@ public class MysqlExeQueue {
             }
 
             Connection conn = null;
+            boolean exeResult = false;
+
             try{
                 conn = ConnPool.getInstance().getConn();
-                boolean result;
                 if(isCancel){
-                    LOG.info("job:{} is cancled", jobName);
+                    LOG.info("job:{} is canceled", jobName);
                     return;
                 }
 
                 //创建存储过程
                 stmt = conn.prepareCall(jobSqlProc);
-                result = stmt.execute();
-                if(!result){
-                    return;
-                }
+                stmt.execute();
 
                 //调用存储过程
                 String procCall = String.format("{call %s()}", procedureName);
                 stmt = conn.prepareCall(procCall);
-                result = stmt.execute();
-                if(!result){
-                    return;
-                }
+                stmt.execute();
 
                 stmt = null;
-
-                LOG.info("job:{} exe result:{}", jobName, result);
+                exeResult = true;
             }catch (Exception e){
                 LOG.error("", e);
             }finally {
 
                 try {
+                    if(conn != null){
+                        //删除存储过程
+                        String dropSql = String.format("DROP PROCEDURE IF EXISTS `%s`", procedureName);
+                        Statement dropStmt = conn.createStatement();
+                        dropStmt.execute(dropSql);
+                        dropStmt.close();
 
-                    //删除存储过程
-                    String dropSql = String.format("DROP PROCEDURE IF EXISTS `%s`", procedureName);
-                    Statement dropStmt = conn.createStatement();
-                    dropStmt.execute(dropSql);
-                    dropStmt.close();
+                        if(stmt != null && !stmt.isClosed()){
+                            stmt.close();
+                        }
 
-                    if(stmt != null && !stmt.isClosed()){
-                        stmt.close();
+                        conn.close();
                     }
 
-                    conn.close();
                 } catch (SQLException e) {
                     LOG.error("", e);
                 }
 
-                LOG.info("job:{} exe end...", jobName);
-                //TODO 修改指定任务的状态--成功或者失败
+                LOG.info("job:{} exe end...", jobName, exeResult);
+                //修改指定任务的状态--成功或者失败
+                jobInfoDao.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                jobCache.remove(engineJobId);
             }
         }
     }
@@ -240,6 +248,35 @@ public class MysqlExeQueue {
                     LOG.error("", t);
                 }
             }
+        }
+    }
+
+    class StatusUpdateDealer implements Runnable{
+
+        private boolean isRun = true;
+
+        private final int interval = 2 * 1000;
+
+        @Override
+        public void run() {
+
+            while (isRun){
+                try{
+
+                    //更新时间
+                    jobInfoDao.updateModifyTime(jobCache.keySet());
+
+                    //清理数据
+                    jobInfoDao.clearInfo();
+                }catch (Throwable e){
+                    LOG.error("", e);
+                }
+            }
+
+        }
+
+        public void stop(){
+            isRun = false;
         }
     }
 }
