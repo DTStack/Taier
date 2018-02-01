@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.mysql.dao;
 
-import com.dtstack.rdos.engine.execution.mysql.ConnPool;
+import com.dtstack.rdos.engine.execution.mysql.executor.ConnPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

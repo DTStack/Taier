@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.mysql.executor.ConnPool;
 import com.dtstack.rdos.engine.execution.mysql.executor.MysqlExeQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,10 @@ public class MysqlClient extends AbsClient {
         exeQueue = new MysqlExeQueue();
         exeQueue.init();
         resourceInfo = new MysqlResourceInfo(exeQueue);
+
+        ConnPool.getInstance().init(prop);
+
+        LOG.warn("-------init mysql plugin success-----");
     }
 
     @Override

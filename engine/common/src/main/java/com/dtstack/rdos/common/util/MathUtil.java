@@ -26,6 +26,15 @@ public class MathUtil {
         throw new RuntimeException("not support type of " + obj.getClass() + " convert to Long." );
     }
 
+    public static Long getLongVal(Object obj, Long defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getLongVal(obj);
+    }
+
+
     public static Integer getIntegerVal(Object obj){
         if(obj == null){
             return null;
@@ -40,6 +49,15 @@ public class MathUtil {
         }
 
         throw new RuntimeException("not support type of " + obj.getClass() + " convert to Integer." );
+    }
+
+    public static Integer getIntegerVal(Object obj, Integer defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getIntegerVal(obj);
+
     }
 
     public static Double getDoubleVal(Object obj){
@@ -70,6 +88,14 @@ public class MathUtil {
         throw new RuntimeException("not support type of " + obj.getClass() + " convert to Boolean." );
     }
 
+    public static Boolean getBoolean(Object obj, Boolean defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getBoolean(defaultVal);
+    }
+
     public static String getString(Object obj){
         if(obj == null){
             return null;
@@ -81,5 +107,13 @@ public class MathUtil {
             return obj.toString();
         }
 
+    }
+
+    public static String getString(Object obj, String defaultVal){
+        if(obj == null){
+            return defaultVal;
+        }
+
+        return getString(obj);
     }
 }

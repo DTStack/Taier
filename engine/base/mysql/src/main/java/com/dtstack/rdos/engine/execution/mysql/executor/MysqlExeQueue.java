@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.execution.mysql.executor;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.mysql.ConnPool;
 import com.dtstack.rdos.engine.execution.mysql.dao.MysqlJobInfoDao;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
