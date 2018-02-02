@@ -77,6 +77,11 @@ public class MysqlClient extends AbsClient {
     }
 
     @Override
+    public String getJobLog(String jobId) {
+        return exeQueue.getJobLog(jobId);
+    }
+
+    @Override
     public EngineResourceInfo getAvailSlots() {
         return resourceInfo;
     }

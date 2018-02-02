@@ -120,6 +120,11 @@ public class MysqlExeQueue {
         return RdosTaskStatus.getTaskStatus(status);
     }
 
+    public String getJobLog(String jobId){
+        String logInfo = jobInfoDao.getLogByJobId(jobId);
+        return logInfo == null ? "" : logInfo;
+    }
+
 
     class MysqlExe implements Runnable {
 
@@ -281,7 +286,7 @@ public class MysqlExeQueue {
 
         private final int interval = 2 * 1000;
 
-        /**30分钟对 保留记录做一次删除删除*/
+        /**30分钟对 保留记录做一次删除*/
         private final int clear_rate = 900;
 
         @Override

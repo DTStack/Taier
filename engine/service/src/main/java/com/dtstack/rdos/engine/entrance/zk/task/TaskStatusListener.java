@@ -44,7 +44,7 @@ public class TaskStatusListener implements Runnable{
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
-    public final static int FLINK_NOT_FOUND_LIMIT_TIMES = 300;
+    public final static int NOT_FOUND_LIMIT_TIMES = 300;
 
     public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
 
@@ -147,7 +147,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(EngineType.isDataX(engineTypeName)){
                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, rdosBatchJob.getStatus().intValue());
-                }else{
+                }else {
                     RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId);
 
                     if(rdosTaskStatus != null){
@@ -155,7 +155,7 @@ public class TaskStatusListener implements Runnable{
                         zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
                         rdosBatchJobDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
                         updateJobEngineLog(status, taskId, engineTaskId, engineTypeName, computeType);
-                        dealSparkAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType);
+                        dealBatchJobAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType);
                     }
                 }
             }else{
@@ -216,7 +216,7 @@ public class TaskStatusListener implements Runnable{
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
-        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
@@ -275,8 +275,8 @@ public class TaskStatusListener implements Runnable{
 
     }
 
-    private void dealSparkAfterGetStatus(Integer status, String jobId, String zkTaskId, String engineTaskId,
-                                         String engineTypeName, int computeType){
+    private void dealBatchJobAfterGetStatus(Integer status, String jobId, String zkTaskId, String engineTaskId,
+                                            String engineTypeName, int computeType){
         if(RdosTaskStatus.needClean(status.byteValue())){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
@@ -285,7 +285,7 @@ public class TaskStatusListener implements Runnable{
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
 
-        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= FLINK_NOT_FOUND_LIMIT_TIMES){
+        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);

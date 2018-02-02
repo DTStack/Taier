@@ -7,13 +7,12 @@ import java.util.regex.Pattern;
  * Reason:
  * Date: 2017/2/20
  * Company: www.dtstack.com
- *
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public enum EngineType {
 
-    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4);
+    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5);
 
     private int val;
 
@@ -38,6 +37,8 @@ public enum EngineType {
             case "datax":return EngineType.Datax;
 
             case "spark_yarn": return EngineType.Sparkyarn;
+
+            case "mysql": return EngineType.Mysql;
         }
          return null;
     }
@@ -73,6 +74,15 @@ public enum EngineType {
     public static boolean isDataX(String engineType){
         engineType = engineType.toLowerCase();
         if(engineType.startsWith("datax")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isMysql(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("mysql")){
             return true;
         }
 

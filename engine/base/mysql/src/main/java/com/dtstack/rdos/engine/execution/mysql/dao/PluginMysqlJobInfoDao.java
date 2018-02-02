@@ -22,7 +22,7 @@ public class PluginMysqlJobInfoDao {
     
     private static final Logger LOG = LoggerFactory.getLogger(PluginMysqlJobInfoDao.class);
 
-    private static final String INSERT_SQL = "replace into rdos_plugin_mysql_job_info(job_id, job_info, status, gmt_create, gmt_modified) values(?, ?, ?, NOW(), NOW())";
+    private static final String REPLACE_INTO_SQL = "replace into rdos_plugin_mysql_job_info(job_id, job_info, status, log_info, gmt_create, gmt_modified) values(?, ?, ?, ?, NOW(), NOW())";
 
     private static final String UPDATE_STATUS_SQL = "update rdos_plugin_mysql_job_info set status = ?,  gmt_modified = NOW() where job_id = ?";
 
@@ -31,6 +31,8 @@ public class PluginMysqlJobInfoDao {
     private static final String UPDATE_JOB_ERRINFO_SQL = "update rdos_plugin_mysql_job_info set log_info = ?, gmt_modified = NOW() where job_id = ?";
 
     private static final String GET_STATUS_BY_JOB_ID = "select status from rdos_plugin_mysql_job_info where job_id = ?";
+
+    private static final String GET_LOG_BY_JOB_ID = "select log_info from rdos_plugin_mysql_job_info where job_id = ?";
 
     /**未完成的任务在60s内没有任务更新操作---认为任务已经挂了*/
     private static final String TIME_OUT_TO_FAILT_SQL = "update rdos_plugin_mysql_job_info set status = 8 where status not in(5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > 60 ";
@@ -47,10 +49,11 @@ public class PluginMysqlJobInfoDao {
 
         try {
             connection = connPool.getConn();
-            pstmt = connection.prepareStatement(INSERT_SQL);
+            pstmt = connection.prepareStatement(REPLACE_INTO_SQL);
             pstmt.setString(1, jobId);
             pstmt.setString(2, jobInfo);
             pstmt.setInt(3, status);
+            pstmt.setString(4, "");
 
             return pstmt.executeUpdate();
 
@@ -182,6 +185,43 @@ public class PluginMysqlJobInfoDao {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){
                 return rs.getInt(1);
+            }
+
+            return null;
+
+        } catch (SQLException e) {
+            LOG.error("", e);
+            return null;
+        }finally {
+            try {
+
+                if(pstmt != null){
+                    pstmt.close();
+                }
+
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                LOG.error("", e);
+            }
+        }
+    }
+
+
+    public String getLogByJobId(String jobId){
+        ConnPool connPool = ConnPool.getInstance();
+        Connection connection = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            connection = connPool.getConn();
+            pstmt = connection.prepareStatement(GET_LOG_BY_JOB_ID);
+            pstmt.setString(1, jobId);
+
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+                return rs.getString(1);
             }
 
             return null;
