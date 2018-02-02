@@ -27,10 +27,7 @@ import java.util.concurrent.TimeUnit;
  * engineJobId === jobId
  * 1:执行实体
  * 2:监控类
- *
- * TODO 如何保证sql都执行完成(机器挂了如何处理) -- 分布式--数据库还是zk? ---暂时不考虑引入分布式处理
- * TODO ---但是需要如何处理在机器挂掉之后如何将状态设置为失败
- * TODO sql执行完成之后如何保证状态可以提供查询？是否像flink一样保存最新n个(同时设定最小保存时间)
+ * //FIXME 不考虑机器挂掉任务恢复的问题，只需要在机器挂掉之后任务设置为失败即可
  * Date: 2018/1/29
  * Company: www.dtstack.com
  * @author xuchao
