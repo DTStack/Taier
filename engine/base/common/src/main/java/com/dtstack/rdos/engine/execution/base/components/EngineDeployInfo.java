@@ -36,7 +36,7 @@ public class EngineDeployInfo {
                 deployType = engineInfo.containsKey("sparkYarnArchive") ? EDeployType.YARN : EDeployType.STANDALONE;
 
             }else{
-                logger.error("========not support engine type:{} !!!========", typeName);
+                logger.warn("========not support engine type:{} !!!========", typeName);
                 continue;
             }
 

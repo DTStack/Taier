@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author xuchao
  */
 
-public class MysqlJobInfo {
+public class PluginMysqlJobInfo {
 
     private Long id;
 
@@ -22,6 +22,8 @@ public class MysqlJobInfo {
     private Timestamp gmtCreate;
 
     private Timestamp gmtModified;
+
+    private int isDelete;
 
     public Long getId() {
         return id;
@@ -69,5 +71,13 @@ public class MysqlJobInfo {
 
     public void setGmtModified(Timestamp gmtModified) {
         this.gmtModified = gmtModified;
+    }
+
+    public int getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(int isDelete) {
+        this.isDelete = isDelete;
     }
 }

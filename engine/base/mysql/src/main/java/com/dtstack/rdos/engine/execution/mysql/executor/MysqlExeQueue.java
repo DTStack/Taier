@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.mysql.executor;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.mysql.dao.MysqlJobInfoDao;
+import com.dtstack.rdos.engine.execution.mysql.dao.PluginMysqlJobInfoDao;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -47,7 +47,9 @@ public class MysqlExeQueue {
 
     private BlockingQueue<Runnable> queue;
 
-    private ExecutorService executor;
+    private ExecutorService jobExecutor;
+
+    private ExecutorService monitorExecutor;
 
     /**优先执行*/
     private BlockingQueue<JobClient> waitQueue = Queues.newLinkedBlockingQueue();
@@ -57,12 +59,18 @@ public class MysqlExeQueue {
     /**缓存所有进入执行引擎的任务---在执行完成删除*/
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
 
-    private MysqlJobInfoDao jobInfoDao = new MysqlJobInfoDao();
+    private PluginMysqlJobInfoDao jobInfoDao = new PluginMysqlJobInfoDao();
 
     public void init(){
         queue = new ArrayBlockingQueue<>(1);
-        executor = new ThreadPoolExecutor(minSize, maxSize, 0, TimeUnit.MILLISECONDS, queue,
-                new CustomThreadFactory("mysql-exe-queue"));
+        jobExecutor = new ThreadPoolExecutor(minSize, maxSize, 0, TimeUnit.MILLISECONDS, queue,
+                new CustomThreadFactory("mysql-job-exe"));
+
+        monitorExecutor = new ThreadPoolExecutor(2, 2, 0, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1), new CustomThreadFactory("monitor-exe"));
+
+        monitorExecutor.submit(new WaitQueueDealer());
+        monitorExecutor.submit(new StatusUpdateDealer());
     }
 
     /**
@@ -73,6 +81,7 @@ public class MysqlExeQueue {
         try {
             waitQueue.put(jobClient);
             jobCache.put(jobClient.getTaskId(), jobClient);
+            jobInfoDao.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
         } catch (InterruptedException e) {
             LOG.error("", e);
             return null;
@@ -104,6 +113,10 @@ public class MysqlExeQueue {
 
     public RdosTaskStatus getJobStatus(String jobId){
         Integer status = jobInfoDao.getStatusByJobId(jobId);
+        if(status == null){
+            return null;
+        }
+
         return RdosTaskStatus.getTaskStatus(status);
     }
 
@@ -138,12 +151,12 @@ public class MysqlExeQueue {
          */
         private String createSqlProc(String exeSql, String jobName, String jobId){
             procedureName = jobName + NAME_SPLIT +jobId;
-            StringBuilder sb = new StringBuilder(String.format("create procedure %s()", procedureName));
-            sb.append("BEGIN")
-              .append("START TRANSACTION;")
+            StringBuilder sb = new StringBuilder(String.format("create procedure %s() ", procedureName));
+            sb.append(" BEGIN ")
+              .append(" START TRANSACTION;")
               .append(exeSql)
-              .append("ROLLBACK;")
-              .append("END");
+              .append(" ROLLBACK;")
+              .append(" END ");
 
             return sb.toString();
         }
@@ -196,6 +209,8 @@ public class MysqlExeQueue {
                 exeResult = true;
             }catch (Exception e){
                 LOG.error("", e);
+                //错误信息更新到日志里面
+                jobInfoDao.updateErrorLog(engineJobId, e.toString());
             }finally {
 
                 try {
@@ -227,9 +242,13 @@ public class MysqlExeQueue {
 
     class WaitQueueDealer implements Runnable{
 
+        private boolean isRun = true;
+
         @Override
         public void run() {
-            while (true){
+
+            LOG.warn("---mysql WaitQueueDealer is start----");
+            while (isRun){
                 try{
                     JobClient jobClient = waitQueue.take();
                     String taskName = jobClient.getJobName();
@@ -238,7 +257,7 @@ public class MysqlExeQueue {
 
                     MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId);
                     try{
-                        executor.submit(mysqlExe);
+                        jobExecutor.submit(mysqlExe);
                     }catch (RejectedExecutionException e){
                         //等待继续继续执行
                         waitQueue.add(jobClient);
@@ -247,6 +266,12 @@ public class MysqlExeQueue {
                     LOG.error("", t);
                 }
             }
+
+            LOG.warn("---mysql WaitQueueDealer is stop----");
+        }
+
+        public void stop(){
+            this.isRun = false;
         }
     }
 
@@ -256,22 +281,36 @@ public class MysqlExeQueue {
 
         private final int interval = 2 * 1000;
 
+        /**30分钟对 保留记录做一次删除删除*/
+        private final int clear_rate = 900;
+
         @Override
         public void run() {
+
+            LOG.warn("---mysql StatusUpdateDealer is start----");
+            int i = 0;
 
             while (isRun){
                 try{
 
+                    i++;
                     //更新时间
                     jobInfoDao.updateModifyTime(jobCache.keySet());
+                    //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
+                    jobInfoDao.timeOutDeal();
 
-                    //清理数据
-                    jobInfoDao.clearInfo();
+                    if(i%clear_rate == 0){
+                        jobInfoDao.clearJob();
+                        LOG.info("do clear db mysql_job_info where modify is 7 day ago.");
+                    }
+
+                    Thread.sleep(interval);
                 }catch (Throwable e){
                     LOG.error("", e);
                 }
             }
 
+            LOG.warn("---mysql StatusUpdateDealer is stop----");
         }
 
         public void stop(){
