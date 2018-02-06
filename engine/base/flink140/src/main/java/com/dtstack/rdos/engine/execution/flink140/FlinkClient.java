@@ -358,7 +358,7 @@ public class FlinkClient extends AbsClient {
      */
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
-        logger.error("submitJobWithJar flink140");
+
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
             if(existsJobOnFlink(jobClient.getEngineTaskId())){
                 return JobResult.createSuccessResult(jobClient.getEngineTaskId());
@@ -386,12 +386,9 @@ public class FlinkClient extends AbsClient {
         }
 
         programArgList.add("-monitor");
-
         if(StringUtils.isNotEmpty(monitorAddress)) {
-            logger.error("monitorAddress");
             programArgList.add(monitorAddress);
         } else {
-            logger.error("getrequrl");
             programArgList.add(getReqUrl());
         }
 
@@ -819,7 +816,7 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     private String getReqUrl(){
-        logger.error("hyf getrequrl=" + client.getWebInterfaceURL());
+        logger.info("hyf getrequrl=" + client.getWebInterfaceURL());
         return client.getWebInterfaceURL();
     }
 
