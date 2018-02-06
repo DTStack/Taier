@@ -267,6 +267,10 @@ public class FlinkClient extends AbsClient {
                     continue;
                 }
 
+                if(!report.getYarnApplicationState().equals(YarnApplicationState.RUNNING)) {
+                    continue;
+                }
+
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
                 int thisCores = report.getApplicationResourceUsageReport().getNeededResources().getVirtualCores();
                 if(thisMemory > maxMemory || thisMemory == maxMemory && thisCores > maxCores) {
@@ -812,6 +816,7 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     private String getReqUrl(){
+        logger.info("hyf getrequrl=" + client.getWebInterfaceURL());
         return client.getWebInterfaceURL();
     }
 

@@ -24,19 +24,17 @@ public class ResultMsgDealerUtil {
 
     private Map<String, IResultMsgDealer> dealerMap = Maps.newHashMap();
 
-    private static Map<String, String> dealerClassNameMap = Maps.newHashMap();
+    private Map<String, String> dealerClassNameMap = Maps.newHashMap();
 
     private static ResultMsgDealerUtil singleton = new ResultMsgDealerUtil();
 
-    static {
+    private ResultMsgDealerUtil(){
         dealerClassNameMap.put("flink120", "com.dtstack.rdos.engine.execution.flink120.FlinkResultMsgDealer");
         dealerClassNameMap.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkResultMsgDealer");
         dealerClassNameMap.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkResultMsgDealer");
         dealerClassNameMap.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkResultMsgDealer");
         dealerClassNameMap.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkResultMsgDealer");
-    }
 
-    private ResultMsgDealerUtil(){
         List<Map<String,Object>> configList = ConfigParse.getEngineTypeList();
         List<String> typeList = Lists.newArrayList();
 
@@ -70,12 +68,12 @@ public class ResultMsgDealerUtil {
 
             String dealerClassName = dealerClassNameMap.get(type);
             if(dealerClassName == null){
-                LOG.error("need to init dealer className.");
+                LOG.error("need to init type:{} of dealer className.", type);
                 System.exit(-1);
             }
 
             try {
-                IResultMsgDealer dealer =  Class.forName(dealerClassName).asSubclass(IResultMsgDealer.class).newInstance();
+                IResultMsgDealer dealer = Class.forName(dealerClassName, false, loader).asSubclass(IResultMsgDealer.class).newInstance();
                 dealerMap.put(key, dealer);
             } catch (Exception e) {
                 LOG.error("", e);
