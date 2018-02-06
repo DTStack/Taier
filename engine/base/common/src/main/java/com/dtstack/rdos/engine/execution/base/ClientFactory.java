@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 /**
- * Reason:
+ * TODO 修改---根据不同的配置生成不同的client实例
  * Date: 2017/2/20
  * Company: www.dtstack.com
  * @author xuchao
@@ -20,9 +20,7 @@ import com.google.common.collect.Maps;
 public class ClientFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientFactory.class);
-        
-    private static Map<String, IClient> pluginIClient = Maps.newConcurrentMap();
-    
+
     private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
     private static Map<String, String> typeRefClassName = Maps.newHashMap();
@@ -37,27 +35,14 @@ public class ClientFactory {
         typeRefClassName.put("mysql", "com.dtstack.rdos.engine.execution.mysql.MysqlClient");
     }
 
-
-    public static IClient getClient(String type) throws Exception{
-    	type = type.toLowerCase();
-    	IClient iClient = pluginIClient.get(type);
-    	while(iClient == null){
-    		initPluginClass(type, pluginClassLoader.get(type));
-    		Thread.sleep(1000);
-    		iClient = pluginIClient.get(type);
-    		logger.warn("{}:initPluginClass again...",type);
-    	}
-        return iClient;
-    }
-
     public static ClassLoader getClassLoader(String pluginType){
         return pluginClassLoader.get(pluginType);
     }
     
-	public static void initPluginClass(final String pluginType,
-                                       ClassLoader classLoader) throws Exception{
-    	pluginClassLoader.put(pluginType, classLoader);
+	public static IClient createPluginClass(String pluginType) throws Exception{
 
+        Map<String, IClient> clientMap = Maps.newConcurrentMap();
+        ClassLoader classLoader = pluginClassLoader.get(pluginType);
         ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<Object>(){
 
             @Override
@@ -69,9 +54,23 @@ public class ClientFactory {
 
                 IClient client = classLoader.loadClass(className).asSubclass(IClient.class).newInstance();
                 ClientProxy proxyClient = new ClientProxy(client);
-                pluginIClient.put(pluginType, proxyClient);
+                clientMap.put(pluginType, proxyClient);
                 return null;
             }
         }, classLoader, true);
+
+        return clientMap.get(pluginType);
+    }
+
+    public static void addClassLoader(String pluginType, ClassLoader classLoader){
+        if(pluginClassLoader.containsKey(pluginType)){
+            return;
+        }
+
+        pluginClassLoader.putIfAbsent(pluginType, classLoader);
+    }
+
+    public static boolean checkContainClassLoader(String pluginType){
+        return pluginClassLoader.containsKey(pluginType);
     }
 }

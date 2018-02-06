@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.queue;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
+import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -133,7 +133,7 @@ public class ExeQueueMgr {
         return engineTypeQueue.checkLocalPriorityIsMax(groupName, localAddress, zkInfo);
     }
 
-    public void checkQueueAndSubmit(Map<String, IClient> clientMap, SlotNoAvailableJobClient slotNoAvailableJobClients){
+    public void checkQueueAndSubmit(SlotNoAvailableJobClient slotNoAvailableJobClients){
         for(EngineTypeQueue engineTypeQueue : engineTypeQueueMap.values()){
 
             String engineType = engineTypeQueue.getEngineType();
@@ -153,7 +153,17 @@ public class ExeQueueMgr {
                 }
 
                 //判断资源是否满足
-                IClient clusterClient = clientMap.get(jobClient.getEngineType());
+                IClient clusterClient = null;
+
+                try{
+                    clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+                }catch (Exception e){
+                    LOG.error("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
+                    LOG.error("", e);
+                    //TODO 从队列里面删除---并且将任务设置为失败,写入失败日志
+                    return;
+                }
+
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
                 if(!resourceInfo.judgeSlots(jobClient)){
                     return;
@@ -161,8 +171,7 @@ public class ExeQueueMgr {
 
                 JobClient jobClientToExe = gq.remove();
                 try {
-                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClientToExe, clientMap,
-                            slotNoAvailableJobClients));
+                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClientToExe, slotNoAvailableJobClients));
                 } catch (RejectedExecutionException e) {
                     //如果添加到执行线程池失败则添加回等待队列
                     try {

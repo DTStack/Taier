@@ -71,13 +71,15 @@ public class JobClient extends OrderObject{
 
     private int priorityLevel = 0;
 
+    private String pluginInfo;
+
     /***
      * 获取engine上job执行的状态
      * @param engineTaskId engine jobId
      * @return
      */
     public static RdosTaskStatus getStatus(String engineType, String engineTaskId) {
-        return ClientOperator.getInstance().getJobStatus(engineType, engineTaskId);
+        return ClientOperator.getInstance().getJobStatus(engineType,  engineTaskId);
     }
 
     public static String getEngineLog(String engineType, String jobId){
@@ -104,6 +106,7 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
+        this.pluginInfo = paramAction.getPluginInfo();
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
@@ -284,6 +287,14 @@ public class JobClient extends OrderObject{
 
     public void setPriorityLevel(int priorityLevel) {
         this.priorityLevel = priorityLevel;
+    }
+
+    public String getPluginInfo() {
+        return pluginInfo;
+    }
+
+    public void setPluginInfo(String pluginInfo) {
+        this.pluginInfo = pluginInfo;
     }
 
     @Override

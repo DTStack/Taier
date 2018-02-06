@@ -24,15 +24,11 @@ public class JobSubmitProcessor implements Runnable{
 
     private JobClient jobClient;
 
-    private Map<String, IClient> clientMap;
-
     private SlotNoAvailableJobClient slotNoAvailableJobClient;
 
 
-    public JobSubmitProcessor(JobClient jobClient, Map<String, IClient> clientMap,
-                              SlotNoAvailableJobClient slotNoAvailableJobClient) throws Exception{
+    public JobSubmitProcessor(JobClient jobClient, SlotNoAvailableJobClient slotNoAvailableJobClient) throws Exception{
         this.jobClient = jobClient;
-        this.clientMap = clientMap;
         this.slotNoAvailableJobClient = slotNoAvailableJobClient;
     }
 
@@ -44,17 +40,18 @@ public class JobSubmitProcessor implements Runnable{
             updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.WAITCOMPUTE.getStatus());
 
             jobClient.doJobClientCallBack(updateStatus);
-            IClient clusterClient = clientMap.get(jobClient.getEngineType());
             JobResult jobResult = null;
 
-            if(clusterClient == null){
-                jobResult = JobResult.createErrorResult("setting client type " +
-                        "(" + jobClient.getEngineType()  +") don't found.");
-                listenerJobStatus(jobClient, jobResult);
-                return;
-            }
 
             try {
+                IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+
+                if(clusterClient == null){
+                    jobResult = JobResult.createErrorResult("setting client type " +
+                            "(" + jobClient.getEngineType()  +") don't found.");
+                    listenerJobStatus(jobClient, jobResult);
+                    return;
+                }
 
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
 

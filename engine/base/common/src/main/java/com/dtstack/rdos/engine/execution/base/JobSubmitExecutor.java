@@ -44,15 +44,11 @@ public class JobSubmitExecutor{
 
     private int maxPoolSize = 10;
 
-    private static String userDir = System.getProperty("user.dir");
-
     private ExecutorService jobExecutor;
 
     private ExecutorService queExecutor;
 
     private boolean hasInit = false;
-
-    private Map<String, IClient> clientMap = new HashMap<>();
 
     private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
 
@@ -60,6 +56,8 @@ public class JobSubmitExecutor{
     private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();
 
     private ExeQueueMgr exeQueueMgr = ExeQueueMgr.getInstance();
+
+    private ClientCache clientCache = ClientCache.getInstance();
 
     private static JobSubmitExecutor singleton = new JobSubmitExecutor();
 
@@ -81,7 +79,7 @@ public class JobSubmitExecutor{
                     0L, TimeUnit.MILLISECONDS,
                     new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
 
-            initJobClient(ConfigParse.getEngineTypeList());
+            clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
             hasInit = true;
@@ -96,7 +94,7 @@ public class JobSubmitExecutor{
 
                 while (true){
                     try{
-                        exeQueueMgr.checkQueueAndSubmit(clientMap, slotNoAvailableJobClients);
+                        exeQueueMgr.checkQueueAndSubmit(slotNoAvailableJobClients);
                     }catch (Throwable e){
                         //防止退出循环
                         logger.error("----提交任务返回异常----", e);
@@ -127,51 +125,6 @@ public class JobSubmitExecutor{
 			}
     	});
     }
-    
-    private void initJobClient(List<Map<String, Object>> clientParamsList) throws Exception{
-        for(Map<String, Object> params : clientParamsList){
-            String clientTypeStr = (String) params.get(ConfigParse.TYPE_NAME_KEY);
-            if(clientTypeStr == null){
-                String errorMess = "node.yml of engineTypes setting error, typeName must not be null!!!";
-                logger.error(errorMess);
-                System.exit(-1);
-            }
-
-            loadComputerPlugin(clientTypeStr);
-            IClient client = ClientFactory.getClient(clientTypeStr);
-            Properties clusterProp = new Properties();
-            clusterProp.putAll(params);
-            client.init(clusterProp);
-
-            String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            clientMap.put(key, client);
-        }
-    }
-
-    private void loadComputerPlugin(String pluginType) throws Exception{
-    	String plugin = String.format("%s/plugin/%s", userDir, pluginType);
-		File finput = new File(plugin);
-		if(!finput.exists()){
-			throw new Exception(String.format("%s directory not found",plugin));
-		}
-		ClientFactory.initPluginClass(pluginType, getClassLoad(finput));
-    }
-
-	private URLClassLoader getClassLoad(File dir) throws IOException{
-		File[] files = dir.listFiles();
-		URL[] urls = new URL[files.length];
-		int index = 0;
-	    if (files!=null && files.length>0){
-			for(File f : files){
-				String jarName = f.getName();
-				if(f.isFile() && jarName.endsWith(".jar")){
-					urls[index] = f.toURI().toURL();
-					index = index+1;
-				}
-			}
-	    }
-    	return new DtClassLoader(urls, this.getClass().getClassLoader());
-	}
 
     public void submitJob(JobClient jobClient) throws Exception{
         ExeQueueMgr.getInstance().add(jobClient);
@@ -196,11 +149,8 @@ public class JobSubmitExecutor{
             return JobResult.createSuccessResult(jobClient.getTaskId());
         }
 
-        String engineType = jobClient.getEngineType();
-        IClient client = clientMap.get(engineType);
-        JobResult jobResult = client.cancelJob(jobClient.getEngineTaskId());
-
-    	return jobResult;
+        IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return client.cancelJob(jobClient.getEngineTaskId());
     }
     
     public void shutdown(){
@@ -219,11 +169,6 @@ public class JobSubmitExecutor{
 
     public void addJobForTaskListenerQueue(JobClient jobClient){
         queueForTaskListener.offer(jobClient);
-    }
-
-
-    public Map<String, IClient> getClientMap() {
-        return clientMap;
     }
 }
 

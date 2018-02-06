@@ -236,6 +236,7 @@ public class MysqlExeQueue {
 
                 LOG.info("job:{} exe end...", jobName, exeResult);
                 //修改指定任务的状态--成功或者失败
+                //TODO 处理cancel job 情况
                 jobInfoDao.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 jobCache.remove(engineJobId);
             }

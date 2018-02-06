@@ -39,6 +39,9 @@ public class ParamAction {
 
 	private String groupName;
 
+	//选填参数,如果请求指定集群信息的话需要填写
+	private String pluginInfo;
+
 	/**
 	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
 	 */
@@ -143,7 +146,15 @@ public class ParamAction {
         this.groupName = groupName;
     }
 
-    @Override
+	public String getPluginInfo() {
+		return pluginInfo;
+	}
+
+	public void setPluginInfo(String pluginInfo) {
+		this.pluginInfo = pluginInfo;
+	}
+
+	@Override
     public String toString() {
 	    String jsonStr = "";
 	    try{

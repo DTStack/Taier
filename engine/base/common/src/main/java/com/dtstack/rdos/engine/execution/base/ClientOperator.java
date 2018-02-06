@@ -22,26 +22,25 @@ public class ClientOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientOperator.class);
 
-    private Map<String, IClient> clientMap;
+    private ClientCache clientCache = ClientCache.getInstance();
 
     private static ClientOperator singleton = new ClientOperator();
 
     private ClientOperator(){
-        clientMap = JobSubmitExecutor.getInstance().getClientMap();
     }
 
     public static ClientOperator getInstance(){
         return singleton;
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String jobId){
+    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo,String jobId){
 
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
         }
 
-        IClient client = clientMap.get(engineType);
         try{
+            IClient client = clientCache.getClient(engineType, pluginInfo);
             Object result = client.getJobStatus(jobId);
 
             if(result == null){
@@ -62,7 +61,7 @@ public class ClientOperator {
     }
 
     public String getEngineMessageByHttp(String engineType, String path){
-        IClient client = clientMap.get(engineType);
+        IClient client = clientCache.getClient(engineType);
         String message = "";
         try {
             message = client.getMessageByHttp(path);
@@ -73,7 +72,7 @@ public class ClientOperator {
     }
 
     public String getEngineLogByHttp(String engineType, String jobId) {
-        IClient client = clientMap.get(engineType);
+        IClient client = clientCache.getClient(engineType);
         String logInfo = "";
         try{
             logInfo = client.getJobLog(jobId);
@@ -82,20 +81,6 @@ public class ClientOperator {
         }
 
         return logInfo;
-    }
-
-    public Map<String, String> getJobMaster(){
-        final Map<String, String> jobMasters = Maps.newConcurrentMap();
-        clientMap.forEach((k,v)->{
-            if(StringUtils.isNotBlank(v.getJobMaster())){
-                try {
-                    jobMasters.put(k, v.getJobMaster());
-                } catch (Exception e) {
-                    LOG.error("",e);
-                }
-            }
-        });
-        return jobMasters;
     }
 
 }
