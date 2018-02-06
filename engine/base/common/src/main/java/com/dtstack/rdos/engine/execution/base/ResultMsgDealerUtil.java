@@ -24,19 +24,17 @@ public class ResultMsgDealerUtil {
 
     private Map<String, IResultMsgDealer> dealerMap = Maps.newHashMap();
 
-    private static Map<String, String> dealerClassNameMap = Maps.newHashMap();
+    private Map<String, String> dealerClassNameMap = Maps.newHashMap();
 
     private static ResultMsgDealerUtil singleton = new ResultMsgDealerUtil();
 
-    static {
+    private ResultMsgDealerUtil(){
         dealerClassNameMap.put("flink120", "com.dtstack.rdos.engine.execution.flink120.FlinkResultMsgDealer");
         dealerClassNameMap.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkResultMsgDealer");
         dealerClassNameMap.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkResultMsgDealer");
         dealerClassNameMap.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkResultMsgDealer");
         dealerClassNameMap.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkResultMsgDealer");
-    }
 
-    private ResultMsgDealerUtil(){
         List<Map<String,Object>> configList = ConfigParse.getEngineTypeList();
         List<String> typeList = Lists.newArrayList();
 
