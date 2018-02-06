@@ -73,7 +73,7 @@ public class ResultMsgDealerUtil {
             }
 
             try {
-                IResultMsgDealer dealer =  Class.forName(dealerClassName).asSubclass(IResultMsgDealer.class).newInstance();
+                IResultMsgDealer dealer = Class.forName(dealerClassName, false, loader).asSubclass(IResultMsgDealer.class).newInstance();
                 dealerMap.put(key, dealer);
             } catch (Exception e) {
                 LOG.error("", e);
