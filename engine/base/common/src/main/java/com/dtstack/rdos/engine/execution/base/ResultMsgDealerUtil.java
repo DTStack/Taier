@@ -70,7 +70,7 @@ public class ResultMsgDealerUtil {
 
             String dealerClassName = dealerClassNameMap.get(type);
             if(dealerClassName == null){
-                LOG.error("need to init dealer className.");
+                LOG.error("need to init dealer className.{}", type);
                 System.exit(-1);
             }
 
