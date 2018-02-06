@@ -816,7 +816,7 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     private String getReqUrl(){
-        System.out.println("hyf getrequrl=" + client.getWebInterfaceURL());
+        logger.info("hyf getrequrl=" + client.getWebInterfaceURL());
         return client.getWebInterfaceURL();
     }
 
