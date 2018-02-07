@@ -33,7 +33,7 @@ public class ClientOperator {
         return singleton;
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo,String jobId){
+    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, String jobId){
 
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
@@ -50,7 +50,7 @@ public class ClientOperator {
             RdosTaskStatus status = (RdosTaskStatus) result;
 
             if(status == RdosTaskStatus.FAILED){
-                status = SlotJudge.judgeSlotsAndAgainExecute(engineType, jobId) ? RdosTaskStatus.WAITCOMPUTE : status;
+                status = SlotJudge.judgeSlotsAndAgainExecute(engineType, jobId, pluginInfo) ? RdosTaskStatus.WAITCOMPUTE : status;
             }
 
             return status;
@@ -60,24 +60,28 @@ public class ClientOperator {
         }
     }
 
-    public String getEngineMessageByHttp(String engineType, String path){
-        IClient client = clientCache.getClient(engineType);
+    public String getEngineMessageByHttp(String engineType, String path, String pluginInfo){
         String message = "";
         try {
+            IClient client = clientCache.getClient(engineType, pluginInfo);
             message = client.getMessageByHttp(path);
         } catch (Exception e) {
             LOG.error("", e);
+            message = e.toString();
         }
         return message;
     }
 
-    public String getEngineLogByHttp(String engineType, String jobId) {
-        IClient client = clientCache.getClient(engineType);
+    public String getEngineLog(String engineType, String jobId, String pluginInfo) {
+
         String logInfo = "";
+
         try{
+            IClient client = clientCache.getClient(engineType, pluginInfo);
             logInfo = client.getJobLog(jobId);
         }catch (Exception e){
             LOG.error("", e);
+            logInfo = e.toString();
         }
 
         return logInfo;

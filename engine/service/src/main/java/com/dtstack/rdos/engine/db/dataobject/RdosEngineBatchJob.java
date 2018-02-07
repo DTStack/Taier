@@ -10,94 +10,103 @@ import java.util.Date;
  */
 public class RdosEngineBatchJob extends DataObject{
 
-	    /**
-	     * 工作任务id
-	     */
-	    private String jobId;
+    /**
+     * 工作任务id
+     */
+    private String jobId;
 
-	    /**
-	     * 执行引擎任务id
-	     */
-	    private String engineJobId;
+    /**
+     * 执行引擎任务id
+     */
+    private String engineJobId;
 
-	    /**
-	     * 任务状态
-	     * UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)
-	     */
-	    private Byte status;
+    /**
+     * 任务状态
+     * UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)
+     */
+    private Byte status;
 
-		private Date execStartTime;
+    private Date execStartTime;
 
-		private Date execEndTime;
+    private Date execEndTime;
 
-	    private Long execTime;
-	    
-	    private String logInfo;
+    private Long execTime;
 
-	    private String engineLog;
+    private String logInfo;
 
-		public String getJobId() {
-			return jobId;
-		}
+    private String engineLog;
 
-		public void setJobId(String jobId) {
-			this.jobId = jobId;
-		}
+    private long pluginInfoId;
 
-		public String getEngineJobId() {
-			return engineJobId;
-		}
+    public String getJobId() {
+        return jobId;
+    }
 
-		public void setEngineJobId(String engineJobId) {
-			this.engineJobId = engineJobId;
-		}
+    public void setJobId(String jobId) {
+        this.jobId = jobId;
+    }
 
-		public Byte getStatus() {
-			return status;
-		}
+    public String getEngineJobId() {
+        return engineJobId;
+    }
 
-		public void setStatus(Byte status) {
-			this.status = status;
-		}
+    public void setEngineJobId(String engineJobId) {
+        this.engineJobId = engineJobId;
+    }
 
-	    public Date getExecStartTime() {
-		return execStartTime;
-	}
+    public Byte getStatus() {
+        return status;
+    }
 
-	    public void setExecStartTime(Date execStartTime) {
-		this.execStartTime = execStartTime;
-	}
+    public void setStatus(Byte status) {
+        this.status = status;
+    }
 
-	    public Date getExecEndTime() {
-		return execEndTime;
-	}
+    public Date getExecStartTime() {
+    return execStartTime;
+}
 
-	    public void setExecEndTime(Date execEndTime) {
-		this.execEndTime = execEndTime;
-	}
+    public void setExecStartTime(Date execStartTime) {
+    this.execStartTime = execStartTime;
+}
 
-	    public Long getExecTime() {
-		   return execTime;
-	    }
+    public Date getExecEndTime() {
+    return execEndTime;
+}
 
-	    public void setExecTime(Long execTime) {
-		   this.execTime = execTime;
-	    }
+    public void setExecEndTime(Date execEndTime) {
+    this.execEndTime = execEndTime;
+}
 
-		public String getLogInfo() {
-			return logInfo;
-		}
+    public Long getExecTime() {
+       return execTime;
+    }
 
-		public void setLogInfo(String logInfo) {
-			this.logInfo = logInfo;
-		}
+    public void setExecTime(Long execTime) {
+       this.execTime = execTime;
+    }
 
-		public String getEngineLog() {
-			return engineLog;
-		}
+    public String getLogInfo() {
+        return logInfo;
+    }
 
-		public void setEngineLog(String engineLog) {
-			this.engineLog = engineLog;
-		}
-	    
+    public void setLogInfo(String logInfo) {
+        this.logInfo = logInfo;
+    }
+
+    public String getEngineLog() {
+        return engineLog;
+    }
+
+    public void setEngineLog(String engineLog) {
+        this.engineLog = engineLog;
+    }
+
+    public long getPluginInfoId() {
+        return pluginInfoId;
+    }
+
+    public void setPluginInfoId(long pluginInfoId) {
+        this.pluginInfoId = pluginInfoId;
+    }
 }

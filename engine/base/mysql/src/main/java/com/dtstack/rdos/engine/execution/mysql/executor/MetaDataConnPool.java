@@ -3,26 +3,24 @@ package com.dtstack.rdos.engine.execution.mysql.executor;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.engine.execution.mysql.constant.ConfigConstant;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 
 /**
- * 连接池---使用Druid
+ * mysql 插件本身信息存储使用的连接
  * Date: 2018/1/29
  * Company: www.dtstack.com
  * @author xuchao
  */
 
-public class ConnPool {
+public class MetaDataConnPool {
     
-    private static final Logger LOG = LoggerFactory.getLogger(ConnPool.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MetaDataConnPool.class);
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
@@ -39,10 +37,10 @@ public class ConnPool {
     private int initialSize = 2;
 
     /**最小连接池大小*/
-    private int minIdle = 5;
+    private int minIdle = 2;
 
     /**最大连接池大小*/
-    private int maxActive = 20;
+    private int maxActive = 2;
 
     /**获取连接等待超时的时间*/
     private int maxWait = 60 * 1000;
@@ -67,15 +65,17 @@ public class ConnPool {
 
     private DruidDataSource dataSource = new DruidDataSource();
 
-    private static ConnPool singleton = new ConnPool();
+    private static MetaDataConnPool singleton = new MetaDataConnPool();
 
-    private ConnPool(){
+    private MetaDataConnPool(){
     }
 
-    public void init(Properties properties){
+    public void init(){
 
         try{
-            parseConfig(properties);
+            dbUrl = Preconditions.checkNotNull(ConfigParse.getDbUrl(), "mysql 插件必须设置DBURL");
+            dbUserName = ConfigParse.getDbUserName();
+            dbPwd = ConfigParse.getDbPwd();
         }catch (Exception e){
             LOG.error("mysql 插件配置异常", e);
             System.exit(-1);
@@ -83,8 +83,15 @@ public class ConnPool {
 
         dataSource.setDriverClassName(DRIVER_NAME);
         dataSource.setUrl(dbUrl);
-        dataSource.setUsername(dbUserName);
-        dataSource.setPassword(dbPwd);
+
+        if(!Strings.isNullOrEmpty(dbUserName)){
+            dataSource.setUsername(dbUserName);
+
+        }
+
+        if(!Strings.isNullOrEmpty(dbPwd)){
+            dataSource.setPassword(dbPwd);
+        }
 
         dataSource.setInitialSize(initialSize);
         dataSource.setMinIdle(minIdle);
@@ -113,27 +120,8 @@ public class ConnPool {
         LOG.warn("----init mysql conn pool success");
     }
 
-    private void parseConfig(Properties properties){
-        dbUrl = Preconditions.checkNotNull(properties.getProperty(ConfigConstant.DB_URL), "mysql 插件必须设置DBURL");
-        dbUserName = Preconditions.checkNotNull(properties.getProperty(ConfigConstant.USER_NAME), "mysql 插件用户名必须设置");
-        dbPwd = Preconditions.checkNotNull(properties.getProperty(ConfigConstant.PWD), "mysql 插件密码必须设置");
 
-        queryTimeOut = MathUtil.getIntegerVal(properties.get(ConfigConstant.QUERY_TIMEOUT), queryTimeOut);
-        initialSize = MathUtil.getIntegerVal(properties.get(ConfigConstant.INITIAL_SIZE), initialSize);
-        minIdle = MathUtil.getIntegerVal(properties.get(ConfigConstant.MIN_IDLE), minIdle);
-        maxActive = MathUtil.getIntegerVal(properties.get(ConfigConstant.MAX_ACTIVE), maxActive);
-        maxWait = MathUtil.getIntegerVal(properties.get(ConfigConstant.MAX_WAIT), maxWait);
-        timeBetweenEvictionRunsMillis = MathUtil.getLongVal(properties.get(ConfigConstant.TIME_BETWEEN_EVICTIONRUNS_MILLIS), timeBetweenEvictionRunsMillis);
-        minEvictableIdleTimeMillis = MathUtil.getLongVal(properties.get(ConfigConstant.MIN_EVICTABLE_IDLETIME_MILLIS), minEvictableIdleTimeMillis);
-        validationQuery = MathUtil.getString(properties.get(ConfigConstant.VALIDATION_QUERY), validationQuery);
-        testWhileIdle = MathUtil.getBoolean(properties.get(ConfigConstant.TEST_WHILE_IDLE), testWhileIdle);
-        testOnBorrow = MathUtil.getBoolean(properties.get(ConfigConstant.TEST_ON_BORROW), testOnBorrow);
-        testOnReturn = MathUtil.getBoolean(properties.get(ConfigConstant.TEST_ON_RETURN), testOnReturn);
-    }
-
-
-
-    public static ConnPool getInstance(){
+    public static MetaDataConnPool getInstance(){
         return singleton;
     }
 

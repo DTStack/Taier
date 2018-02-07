@@ -43,6 +43,20 @@ public class RdosEngineStreamJobDAO {
 			
 		});
 	}
+
+	public void updateTaskPluginId(final String taskId, long pluginId){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.updateTaskPluginId(taskId, pluginId);
+				return null;
+			}
+
+		});
+	}
 	
 	public void updateTaskEngineId(final String taskId,final String engineId){
 		

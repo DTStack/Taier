@@ -67,7 +67,7 @@ public class MysqlExeQueue {
                 new ArrayBlockingQueue<>(1), new CustomThreadFactory("monitor-exe"));
 
         monitorExecutor.submit(new WaitQueueDealer());
-        monitorExecutor.submit(new StatusUpdateDealer());
+        monitorExecutor.submit(new StatusUpdateDealer(jobCache));
     }
 
     /**
@@ -133,16 +133,19 @@ public class MysqlExeQueue {
 
         private String jobSqlProc;
 
+        private String pluginInfo;
+
         private CallableStatement stmt;
 
         private String procedureName;
 
         private boolean isCancel = false;
 
-        public MysqlExe(String jobName, String sql, String jobId){
+        public MysqlExe(String jobName, String sql, String jobId, String pluginInfo){
             this.jobName = jobName;
             this.jobSqlProc = createSqlProc(sql, jobName, jobId);
             this.engineJobId = jobId;
+            this.pluginInfo = pluginInfo;
         }
 
         /**
@@ -192,7 +195,7 @@ public class MysqlExeQueue {
             boolean exeResult = false;
 
             try{
-                conn = ConnPool.getInstance().getConn();
+                conn = ConnFactory.getInstance().getConn(pluginInfo);
                 if(isCancel){
                     LOG.info("job:{} is canceled", jobName);
                     return;
@@ -258,7 +261,7 @@ public class MysqlExeQueue {
                     String sql = jobClient.getSql();
                     String jobId = jobClient.getTaskId();
 
-                    MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId);
+                    MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId, jobClient.getPluginInfo());
                     try{
                         jobExecutor.submit(mysqlExe);
                     }catch (RejectedExecutionException e){
@@ -278,46 +281,4 @@ public class MysqlExeQueue {
         }
     }
 
-    class StatusUpdateDealer implements Runnable{
-
-        private boolean isRun = true;
-
-        private final int interval = 2 * 1000;
-
-        /**30分钟对 保留记录做一次删除*/
-        private final int clear_rate = 900;
-
-        @Override
-        public void run() {
-
-            LOG.warn("---mysql StatusUpdateDealer is start----");
-            int i = 0;
-
-            while (isRun){
-                try{
-
-                    i++;
-                    //更新时间
-                    jobInfoDao.updateModifyTime(jobCache.keySet());
-                    //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
-                    jobInfoDao.timeOutDeal();
-
-                    if(i%clear_rate == 0){
-                        jobInfoDao.clearJob();
-                        LOG.info("do clear db mysql_job_info where modify is 7 day ago.");
-                    }
-
-                    Thread.sleep(interval);
-                }catch (Throwable e){
-                    LOG.error("", e);
-                }
-            }
-
-            LOG.warn("---mysql StatusUpdateDealer is stop----");
-        }
-
-        public void stop(){
-            isRun = false;
-        }
-    }
 }

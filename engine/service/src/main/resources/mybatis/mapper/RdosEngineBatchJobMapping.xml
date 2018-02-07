@@ -11,6 +11,7 @@
         <result column="exec_time" property="execTime" jdbcType="BIGINT"/>
         <result column="job_id" property="jobId" jdbcType="VARCHAR" />
         <result column="engine_job_id" property="engineJobId" jdbcType="VARCHAR" />
+        <result column="plugin_info_id" property="pluginInfoId" jdbcType="BIGINT"/>
         <result column="status" property="status" jdbcType="INTEGER" />
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
         <result column="engine_log" property="engineLog" jdbcType="VARCHAR"/>
@@ -18,16 +19,20 @@
     </resultMap>
 	
    <insert id="insert" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob">
-	insert into rdos_engine_batch_job(gmt_create,gmt_modified,exec_start_time,job_id,status)
-	values(now(),now(),now(),#{jobId},#{status})
-	<selectKey resultType="long" keyProperty="id" order="AFTER">
-	   SELECT LAST_INSERT_ID() AS ID
-	</selectKey>
-</insert>	
+	   insert into rdos_engine_batch_job(gmt_create,gmt_modified,exec_start_time,job_id,status)
+	   values(now(),now(),now(),#{jobId},#{status})
+	   <selectKey resultType="long" keyProperty="id" order="AFTER">
+	      SELECT LAST_INSERT_ID() AS ID
+	   </selectKey>
+    </insert>
 	
    <update id="updateJobStatus" parameterType="java.util.HashMap">
 	   update rdos_engine_batch_job set gmt_modified=now(),status=#{status},exec_end_time=now(),exec_time=time_to_sec(TIMEDIFF(NOW(),exec_start_time)) where job_id=#{jobId};
    </update>
+
+    <update id="updateJobPluginId" parameterType="java.util.HashMap">
+        update rdos_engine_batch_job set gmt_modified=now(), plugin_info_id=#{pluginId} where task_id=#{taskId};
+    </update>
    
    <update id="updateJobEngineId" parameterType="java.util.HashMap">
 	   update rdos_engine_batch_job set gmt_modified=now(),exec_end_time=now(),engine_job_id=#{engineId},exec_time=time_to_sec(TIMEDIFF(NOW(),exec_start_time)) where job_id=#{jobId};

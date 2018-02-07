@@ -31,11 +31,13 @@ public class RdosEngineStreamJob extends DataObject{
 
 	private Date execEndTime;
 
-	private Long exeTime;
+	private Long execTime;
 	
     private String logInfo;
 
     private String engineLog;
+
+    private long pluginInfoId;
 
 	public String getTaskId() {
 		return taskId;
@@ -93,11 +95,19 @@ public class RdosEngineStreamJob extends DataObject{
 		this.engineLog = engineLog;
 	}
 
-    public Long getExeTime() {
-        return exeTime;
+    public Long getExecTime() {
+        return execTime;
     }
 
-    public void setExeTime(Long exeTime) {
-        this.exeTime = exeTime;
+    public void setExecTime(Long execTime) {
+        this.execTime = execTime;
+    }
+
+    public long getPluginInfoId() {
+        return pluginInfoId;
+    }
+
+    public void setPluginInfoId(long pluginInfoId) {
+        this.pluginInfoId = pluginInfoId;
     }
 }

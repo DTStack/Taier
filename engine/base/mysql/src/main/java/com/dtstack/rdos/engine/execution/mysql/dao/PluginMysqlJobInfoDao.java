@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.mysql.dao;
 
-import com.dtstack.rdos.engine.execution.mysql.executor.ConnPool;
+import com.dtstack.rdos.engine.execution.mysql.executor.MetaDataConnPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,12 +46,12 @@ public class PluginMysqlJobInfoDao {
     private static final String RETAIN_CLEAR_SQL = "delete from rdos_plugin_mysql_job_info where status in (5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > " + retain_time;
 
     public int insert(String jobId, String jobInfo, int status){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             pstmt = connection.prepareStatement(REPLACE_INTO_SQL);
             pstmt.setString(1, jobId);
             pstmt.setString(2, jobInfo);
@@ -80,12 +80,12 @@ public class PluginMysqlJobInfoDao {
     }
 
     public int updateStatus(String jobId, int status){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_STATUS_SQL);
             pstmt.setInt(1, status);
             pstmt.setString(2, jobId);
@@ -112,12 +112,12 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void updateModifyTime(Collection<String> jobIds){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_MODIFY_TIME_SQL);
             for(String jobId : jobIds){
                 pstmt.setString(1, jobId);
@@ -145,12 +145,12 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void updateErrorLog(String jobId, String errorLog){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_JOB_ERRINFO_SQL);
             pstmt.setString(1, errorLog);
             pstmt.setString(2, jobId);
@@ -176,12 +176,12 @@ public class PluginMysqlJobInfoDao {
 
 
     public Integer getStatusByJobId(String jobId){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             pstmt = connection.prepareStatement(GET_STATUS_BY_JOB_ID);
             pstmt.setString(1, jobId);
 
@@ -213,12 +213,12 @@ public class PluginMysqlJobInfoDao {
 
 
     public String getLogByJobId(String jobId){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             pstmt = connection.prepareStatement(GET_LOG_BY_JOB_ID);
             pstmt.setString(1, jobId);
 
@@ -249,12 +249,12 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void timeOutDeal(){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             stmt = connection.createStatement();
             stmt.executeUpdate(TIME_OUT_TO_FAIL_SQL);
 
@@ -276,12 +276,12 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void clearJob(){
-        ConnPool connPool = ConnPool.getInstance();
+        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 
         try {
-            connection = connPool.getConn();
+            connection = metaDataConnPool.getConn();
             stmt = connection.createStatement();
             stmt.executeUpdate(RETAIN_CLEAR_SQL);
 

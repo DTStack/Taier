@@ -6,6 +6,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.db.dao.RdosPluginInfoDao;
 import com.dtstack.rdos.engine.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
@@ -72,6 +73,8 @@ public class TaskStatusListener implements Runnable{
 
 	private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
+	private RdosPluginInfoDao pluginInfoDao = new RdosPluginInfoDao();
+
 	
 	@Override
 	public void run() {
@@ -123,14 +126,19 @@ public class TaskStatusListener implements Runnable{
             String engineTaskId = rdosTask.getEngineTaskId();
 
             if(StringUtils.isNotBlank(engineTaskId)){
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId);
+                String pluginInfoStr = "";
+                if(rdosTask.getPluginInfoId() > 0 ){
+                    pluginInfoStr = pluginInfoDao.getPluginInfo(rdosTask.getPluginInfoId());
+                }
+
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId, pluginInfoStr);
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
                     rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
-                    updateJobEngineLog(status, taskId, engineTaskId, engineTypeName, computeType);
-                    dealFlinkAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, engineTaskId);
+                    updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+                    dealFlinkAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, engineTaskId, pluginInfoStr);
                 }
             }else{
                 dealWaitingJobForMigrationJob(zkTaskId, oldStatus);
@@ -148,14 +156,19 @@ public class TaskStatusListener implements Runnable{
                 if(EngineType.isDataX(engineTypeName)){
                     zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, rdosBatchJob.getStatus().intValue());
                 }else {
-                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId);
+                    String pluginInfoStr = "";
+                    if(rdosBatchJob.getPluginInfoId() > 0 ){
+                        pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
+                    }
+
+                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId, pluginInfoStr);
 
                     if(rdosTaskStatus != null){
                         Integer status = rdosTaskStatus.getStatus();
                         zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
                         rdosBatchJobDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
-                        updateJobEngineLog(status, taskId, engineTaskId, engineTypeName, computeType);
-                        dealBatchJobAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType);
+                        updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+                        dealBatchJobAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     }
                 }
             }else{
@@ -164,11 +177,10 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
-	private void updateJobEngineLog(Integer status, String jobId, String engineJobId,
-                                    String engineType, int computeType){
+	private void updateJobEngineLog(String jobId, String engineJobId, String engineType, int computeType, String pluginInfo){
 
         //从engine获取log
-        String jobLog = JobClient.getEngineLog(engineType, engineJobId);
+        String jobLog = JobClient.getEngineLog(engineType, engineJobId, pluginInfo);
 
         //写入db
         if(computeType == ComputeType.STREAM.getType()){
@@ -211,7 +223,7 @@ public class TaskStatusListener implements Runnable{
      * @param jobId
      */
     private void dealFlinkAfterGetStatus(Integer status, String jobId, String engineTypeName, String zkTaskId,
-                                         int computeType, String engineTaskId){
+                                         int computeType, String engineTaskId, String pluginInfo){
 
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
@@ -221,7 +233,7 @@ public class TaskStatusListener implements Runnable{
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
             rdosStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
-            updateJobEngineLog(status, jobId, engineTaskId, engineTypeName, computeType);
+            updateJobEngineLog(jobId, engineTaskId, engineTypeName, computeType, pluginInfo);
         }
 
         if(RdosTaskStatus.needClean(status.byteValue())){
@@ -234,7 +246,7 @@ public class TaskStatusListener implements Runnable{
             }
 
             String checkPath = String.format(FLINK_CP_URL_FORMAT, engineTaskId);
-            String checkPointJsonStr = JobClient.getInfoByHttp(engineTypeName, checkPath);
+            String checkPointJsonStr = JobClient.getInfoByHttp(engineTypeName, checkPath, pluginInfo);
             updateStreamJobCheckPoint(jobId, engineTaskId, checkPointJsonStr);
         }
     }
@@ -276,7 +288,7 @@ public class TaskStatusListener implements Runnable{
     }
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId, String zkTaskId, String engineTaskId,
-                                            String engineTypeName, int computeType){
+                                            String engineTypeName, int computeType, String pluginInfo){
         if(RdosTaskStatus.needClean(status.byteValue())){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
@@ -290,7 +302,7 @@ public class TaskStatusListener implements Runnable{
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
             rdosBatchJobDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
-            updateJobEngineLog(status, jobId, engineTaskId, engineTypeName, computeType);
+            updateJobEngineLog(jobId, engineTaskId, engineTypeName, computeType, pluginInfo);
 
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);

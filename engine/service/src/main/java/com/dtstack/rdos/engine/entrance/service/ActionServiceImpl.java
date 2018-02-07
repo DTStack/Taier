@@ -8,8 +8,10 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.db.dao.RdosPluginInfoDao;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.node.JobStopAction;
 import com.dtstack.rdos.engine.entrance.node.MasterNode;
@@ -18,11 +20,13 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
+import com.dtstack.rdos.engine.execution.base.enumeration.EPluginType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -49,13 +53,15 @@ public class ActionServiceImpl {
     
     private RdosEngineJobCacheDao engineJobCacheDao = new RdosEngineJobCacheDao();
 
+    private RdosPluginInfoDao pluginInfoDao = new RdosPluginInfoDao();
+
     private JobStopAction stopAction = new JobStopAction();
 
     private MasterNode masterNode = MasterNode.getInstance();
 
     /**
      * 接受来自客户端的请求, 目的是在master节点上组织成一个优先级队列
-     * TODO 1：处理 重复发送的问题 2：rdos-web端的发送需要修改为向master节点发送--避免转发
+     * 1：处理 重复发送的问题 2：rdos-web端的发送需要修改为向master节点发送--避免转发
      * @param params
      */
     public void start(Map<String, Object> params){
@@ -121,6 +127,7 @@ public class ActionServiceImpl {
             String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
             zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
+            updateJobClientPluginInfo(jobId, computeType, paramAction.getPluginInfo());
 
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobId;
@@ -327,6 +334,28 @@ public class ActionServiceImpl {
         } else {
             batchJobDAO.updateJobStatus(jobId, status);
         }
+    }
+
+    public void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
+        Long refPluginInfoId = -1L;
+
+        //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
+        if(!Strings.isNullOrEmpty(pluginInfoStr)){
+            RdosPluginInfo pluginInfo = pluginInfoDao.getByPluginInfo(pluginInfoStr);
+            if(pluginInfo == null){
+                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfoStr, EPluginType.DYNAMIC.getType());
+            }else{
+                refPluginInfoId = pluginInfo.getId();
+            }
+        }
+
+        //更新任务ref的pluginInfo
+        if(ComputeType.STREAM.getType().equals(computeType)){
+            streamTaskDAO.updateTaskPluginId(jobId, refPluginInfoId);
+        } else{
+            batchJobDAO.updateJobPluginId(jobId, refPluginInfoId);
+        }
+
     }
 
     /**

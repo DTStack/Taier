@@ -14,18 +14,20 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
  */
 public interface RdosEngineStreamJobMapper {
 	
-    public void insert(RdosEngineStreamJob rdosEngineStreamJob);
+    void insert(RdosEngineStreamJob rdosEngineStreamJob);
 	
-	public void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
-	
-	public void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("status") int stauts);
+	void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 
-	public void updateTaskEngineId(@Param("taskId") String taskId,@Param("engineId") String engineId);
+	void updateTaskPluginId(@Param("taskId") String taskId, @Param("pluginId") long pluginId);
 
-	public RdosEngineStreamJob getRdosTaskByTaskId(@Param("taskId")String taskId);
+	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("status") int stauts);
 
-	public void updateEngineLog(@Param("taskId")String taskId, @Param("engineLog")String engineLog);
+	void updateTaskEngineId(@Param("taskId") String taskId,@Param("engineId") String engineId);
 
-	public void updateSubmitLog(@Param("taskId")String taskId, @Param("submitLog")String submitLog);
+	RdosEngineStreamJob getRdosTaskByTaskId(@Param("taskId")String taskId);
+
+	void updateEngineLog(@Param("taskId")String taskId, @Param("engineLog")String engineLog);
+
+	void updateSubmitLog(@Param("taskId")String taskId, @Param("submitLog")String submitLog);
 
 }

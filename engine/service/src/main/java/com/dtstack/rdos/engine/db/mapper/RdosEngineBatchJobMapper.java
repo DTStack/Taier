@@ -13,18 +13,20 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
  */
 public interface RdosEngineBatchJobMapper {
 	
-	public void insert(RdosEngineBatchJob rdosEngineBatchJob);
+	void insert(RdosEngineBatchJob rdosEngineBatchJob);
 	
-	public void updateJobStatus(@Param("jobId") String jobId, @Param("status") int stauts);
-	
-	public void updateJobEngineIdAndStatus(@Param("jobId") String jobId,@Param("engineId") String engineId, @Param("status") int stauts);
+	void updateJobStatus(@Param("jobId") String jobId, @Param("status") int stauts);
 
-	public void updateJobEngineId(@Param("jobId") String jobId,@Param("engineId") String engineId);
+	void updateJobPluginId(@Param("jobId") String jobId, @Param("pluginId") long pluginId);
 
-	public RdosEngineBatchJob getRdosJobByJobId(@Param("jobId")String jobId);
+	void updateJobEngineIdAndStatus(@Param("jobId") String jobId,@Param("engineId") String engineId, @Param("status") int stauts);
 
-	public void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
+	void updateJobEngineId(@Param("jobId") String jobId,@Param("engineId") String engineId);
 
-	public void updateSubmitLog(@Param("jobId")String jobId, @Param("submitLog")String submitLog);
+	RdosEngineBatchJob getRdosJobByJobId(@Param("jobId")String jobId);
+
+	void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
+
+	void updateSubmitLog(@Param("jobId")String jobId, @Param("submitLog")String submitLog);
 
 }

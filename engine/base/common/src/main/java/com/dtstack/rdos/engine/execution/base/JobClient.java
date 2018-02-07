@@ -78,16 +78,16 @@ public class JobClient extends OrderObject{
      * @param engineTaskId engine jobId
      * @return
      */
-    public static RdosTaskStatus getStatus(String engineType, String engineTaskId) {
-        return ClientOperator.getInstance().getJobStatus(engineType,  engineTaskId);
+    public static RdosTaskStatus getStatus(String engineType, String engineTaskId, String pluginInfo) {
+        return ClientOperator.getInstance().getJobStatus(engineType,  engineTaskId, pluginInfo);
     }
 
-    public static String getEngineLog(String engineType, String jobId){
-        return ClientOperator.getInstance().getEngineLogByHttp(engineType, jobId);
+    public static String getEngineLog(String engineType, String jobId, String pluginInfo){
+        return ClientOperator.getInstance().getEngineLog(engineType, jobId, pluginInfo);
     }
 
-    public static String getInfoByHttp(String engineType, String path){
-        return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path);
+    public static String getInfoByHttp(String engineType, String path, String pluginInfo){
+        return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path, pluginInfo);
     }
 
 

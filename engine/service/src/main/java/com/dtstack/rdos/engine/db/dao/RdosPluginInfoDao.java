@@ -1,7 +1,10 @@
 package com.dtstack.rdos.engine.db.dao;
 
+import com.dtstack.rdos.common.util.MD5Util;
 import com.dtstack.rdos.engine.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.db.callback.MybatisSessionCallbackMethod;
+import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
+import com.dtstack.rdos.engine.db.mapper.RdosPluginInfoMapper;
 import com.dtstack.rdos.engine.db.mapper.RdosStreamTaskCheckpointMapper;
 import org.apache.ibatis.session.SqlSession;
 
@@ -16,15 +19,38 @@ import java.sql.Timestamp;
 
 public class RdosPluginInfoDao {
 
-    public void insert(String pluginKey, String pluginInfo, int type){
+    public Long replaceInto(String pluginInfo, int type){
 
-        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Long>(){
 
             @Override
-            public Object execute(SqlSession sqlSession) throws Exception {
-                RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                taskCheckpointMapper.insert(taskId, engineTaskId, checkpointInfo, startTime, endTime);
-                return null;
+            public Long execute(SqlSession sqlSession) throws Exception {
+                String pluginKey = MD5Util.getMD5String(pluginInfo);
+                RdosPluginInfoMapper pluginInfoMapper = sqlSession.getMapper(RdosPluginInfoMapper.class);
+                return pluginInfoMapper.replaceInto(pluginKey, pluginInfo, type);
+            }
+        });
+    }
+
+    public RdosPluginInfo getByPluginInfo(String pluginInfo){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosPluginInfo>(){
+
+            @Override
+            public RdosPluginInfo execute(SqlSession sqlSession) throws Exception {
+                String pluginKey = MD5Util.getMD5String(pluginInfo);
+                RdosPluginInfoMapper pluginInfoMapper = sqlSession.getMapper(RdosPluginInfoMapper.class);
+                return pluginInfoMapper.getByKey(pluginKey);
+            }
+        });
+    }
+
+    public String getPluginInfo(long id){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<String>(){
+
+            @Override
+            public String execute(SqlSession sqlSession) throws Exception {
+                RdosPluginInfoMapper pluginInfoMapper = sqlSession.getMapper(RdosPluginInfoMapper.class);
+                return pluginInfoMapper.getPluginInfo(id);
             }
         });
     }

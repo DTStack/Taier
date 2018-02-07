@@ -28,7 +28,6 @@ public class RdosEngineBatchJobDAO {
 		});
 	}
 	
-	
 	public void updateJobStatus(final String jobId,final int stauts){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
@@ -40,6 +39,20 @@ public class RdosEngineBatchJobDAO {
 				return null;
 			}
 			
+		});
+	}
+
+	public void updateJobPluginId(final String jobId, long pluginId){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				rdosTaskMapper.updateJobPluginId(jobId, pluginId);
+				return null;
+			}
+
 		});
 	}
 	

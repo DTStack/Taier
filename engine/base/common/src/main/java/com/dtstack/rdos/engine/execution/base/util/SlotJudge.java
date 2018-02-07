@@ -15,10 +15,11 @@ public class SlotJudge {
 
     public final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 
-    public static boolean judgeSlotsAndAgainExecute(String engineType, String jobId) {
+    public static boolean judgeSlotsAndAgainExecute(String engineType, String jobId, String pluginInfo) {
 
         if(EngineType.isFlink(engineType)){
-            String message = ClientOperator.getInstance().getEngineMessageByHttp(engineType,String.format(FLINK_EXCEPTION_URL, jobId));
+            String message = ClientOperator.getInstance().getEngineMessageByHttp(engineType,
+                    String.format(FLINK_EXCEPTION_URL, jobId), pluginInfo);
             return ResultMsgDealerUtil.getInstance().checkNOResource(engineType, message);
         }
 
