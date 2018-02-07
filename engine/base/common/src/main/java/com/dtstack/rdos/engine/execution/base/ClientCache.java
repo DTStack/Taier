@@ -106,7 +106,7 @@ public class ClientCache {
 
     public IClient buildPluginClient(String pluginInfo) throws Exception {
 
-        Map<String, Object> params = PublicUtil.ObjectToMap(pluginInfo);
+        Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         String clientTypeStr = MathUtil.getString(params.get(ConfigParse.TYPE_NAME_KEY));
         loadComputerPlugin(clientTypeStr);
         return ClientFactory.createPluginClass(clientTypeStr);

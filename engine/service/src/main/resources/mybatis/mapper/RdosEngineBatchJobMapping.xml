@@ -43,7 +43,7 @@
    </update>
    
    <select id="getRdosJobByJobId" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
-       select job_id,engine_job_id,status from rdos_engine_batch_job where job_id=#{jobId} and is_deleted=0;
+       select * from rdos_engine_batch_job where job_id=#{jobId} and is_deleted=0;
    </select>
    
     <update id="updateEngineLog">
