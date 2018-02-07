@@ -31,7 +31,7 @@
    </update>
 
     <update id="updateJobPluginId" parameterType="java.util.HashMap">
-        update rdos_engine_batch_job set gmt_modified=now(), plugin_info_id=#{pluginId} where task_id=#{taskId};
+        update rdos_engine_batch_job set gmt_modified=now(), plugin_info_id=#{pluginId} where job_id=#{jobId};
     </update>
    
    <update id="updateJobEngineId" parameterType="java.util.HashMap">

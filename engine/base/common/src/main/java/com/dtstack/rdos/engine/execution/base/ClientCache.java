@@ -151,7 +151,8 @@ public class ClientCache {
         }
 
         defaultClientMap.putIfAbsent(pluginKey, client);
-        Map<String, IClient> clientMap = cache.get(pluginKey);
+
+        Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, key -> Maps.newConcurrentMap());
 
         String pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
         clientMap.put(pluginInfoMd5, client);

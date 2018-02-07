@@ -14,7 +14,7 @@
 	
    <insert id="replaceInto" parameterType="java.util.HashMap" >
 	   replace into rdos_plugin_info(plugin_key, plugin_info, type, gmt_create,gmt_modified)
-	   values(#{pluginKey}, #{pluginInfo}, #{type} now(),now())
+	   values(#{pluginKey}, #{pluginInfo}, #{type}, now(),now())
 
        <selectKey resultType="long" keyProperty="id" order="AFTER">
            SELECT LAST_INSERT_ID() AS ID
@@ -22,7 +22,7 @@
    </insert>
 
     <select id="getByKey" resultMap="rdosPluginInfoResult">
-        select * from rdos_plugin_info where plugin_key = #{stage} and is_deleted=0
+        select * from rdos_plugin_info where plugin_key = #{pluginKey} and is_deleted=0
     </select>
 
     <select id="getPluginInfo" resultType="java.lang.String">

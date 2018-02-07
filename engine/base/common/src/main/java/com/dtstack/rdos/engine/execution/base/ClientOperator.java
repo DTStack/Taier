@@ -72,7 +72,7 @@ public class ClientOperator {
         return message;
     }
 
-    public String getEngineLog(String engineType, String jobId, String pluginInfo) {
+    public String getEngineLog(String engineType, String pluginInfo, String jobId) {
 
         String logInfo = "";
 

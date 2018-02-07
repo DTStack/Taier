@@ -131,7 +131,7 @@ public class TaskStatusListener implements Runnable{
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosTask.getPluginInfoId());
                 }
 
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId, pluginInfoStr);
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, engineTaskId);
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
@@ -161,7 +161,7 @@ public class TaskStatusListener implements Runnable{
                         pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
                     }
 
-                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, engineTaskId, pluginInfoStr);
+                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, engineTaskId);
 
                     if(rdosTaskStatus != null){
                         Integer status = rdosTaskStatus.getStatus();
@@ -180,7 +180,7 @@ public class TaskStatusListener implements Runnable{
 	private void updateJobEngineLog(String jobId, String engineJobId, String engineType, int computeType, String pluginInfo){
 
         //从engine获取log
-        String jobLog = JobClient.getEngineLog(engineType, engineJobId, pluginInfo);
+        String jobLog = JobClient.getEngineLog(engineType, pluginInfo, engineJobId);
 
         //写入db
         if(computeType == ComputeType.STREAM.getType()){

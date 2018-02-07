@@ -4,6 +4,8 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -40,7 +42,7 @@ public class ParamAction {
 	private String groupName;
 
 	//选填参数,如果请求指定集群信息的话需要填写
-	private String pluginInfo;
+	private Map<String, Object> pluginInfo;
 
 	/**
 	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
@@ -146,11 +148,11 @@ public class ParamAction {
         this.groupName = groupName;
     }
 
-	public String getPluginInfo() {
+	public Map<String, Object> getPluginInfo() {
 		return pluginInfo;
 	}
 
-	public void setPluginInfo(String pluginInfo) {
+	public void setPluginInfo(Map<String, Object> pluginInfo) {
 		this.pluginInfo = pluginInfo;
 	}
 

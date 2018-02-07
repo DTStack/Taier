@@ -46,12 +46,11 @@ public class ConnFactory {
         dbURL = MathUtil.getString(properties.get(DBURL_KEY));
         userName = MathUtil.getString(properties.get(USER_NAME_KEY));
         pwd = MathUtil.getString(properties.get(PWD_KEY));
+
+        Preconditions.checkNotNull(dbURL, "db url can't be null");
     }
 
     public Connection getConn() throws ClassNotFoundException, SQLException, IOException {
-
-
-        Preconditions.checkNotNull(dbURL, "db url can't be null");
 
         Connection conn;
 

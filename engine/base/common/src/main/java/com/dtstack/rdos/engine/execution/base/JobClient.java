@@ -7,6 +7,8 @@ import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
@@ -78,12 +80,12 @@ public class JobClient extends OrderObject{
      * @param engineTaskId engine jobId
      * @return
      */
-    public static RdosTaskStatus getStatus(String engineType, String engineTaskId, String pluginInfo) {
-        return ClientOperator.getInstance().getJobStatus(engineType,  engineTaskId, pluginInfo);
+    public static RdosTaskStatus getStatus(String engineType, String pluginInfo, String engineTaskId) {
+        return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, engineTaskId);
     }
 
-    public static String getEngineLog(String engineType, String jobId, String pluginInfo){
-        return ClientOperator.getInstance().getEngineLog(engineType, jobId, pluginInfo);
+    public static String getEngineLog(String engineType, String pluginInfo, String jobId){
+        return ClientOperator.getInstance().getEngineLog(engineType, pluginInfo, jobId);
     }
 
     public static String getInfoByHttp(String engineType, String path, String pluginInfo){
@@ -106,7 +108,10 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
-        this.pluginInfo = paramAction.getPluginInfo();
+        if(paramAction.getPluginInfo() != null){
+            this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
+        }
+
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
@@ -133,6 +138,12 @@ public class JobClient extends OrderObject{
         action.setExternalPath(externalPath);
         action.setEngineType(engineType);
         action.setExeArgs(classArgs);
+        try{
+            action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
+        }catch (Exception e){
+            //不应该走到这个异常,这个数据本身是由map转换过来的
+            logger.error("", e);
+        }
         return action;
     }
 
