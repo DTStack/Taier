@@ -7,6 +7,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.mysql.executor.ConnFactory;
 import com.dtstack.rdos.engine.execution.mysql.executor.MetaDataConnPool;
 import com.dtstack.rdos.engine.execution.mysql.executor.MysqlExeQueue;
 import org.slf4j.Logger;
@@ -30,9 +31,15 @@ public class MysqlClient extends AbsClient {
 
     private EngineResourceInfo resourceInfo;
 
+    private ConnFactory connFactory;
+
     @Override
     public void init(Properties prop) throws Exception {
-        exeQueue = new MysqlExeQueue();
+
+        connFactory = new ConnFactory();
+        connFactory.init(prop);
+
+        exeQueue = new MysqlExeQueue(connFactory);
         exeQueue.init();
         resourceInfo = new MysqlResourceInfo(exeQueue);
 

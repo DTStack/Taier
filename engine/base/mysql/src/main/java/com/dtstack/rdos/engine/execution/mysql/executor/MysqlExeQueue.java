@@ -58,6 +58,12 @@ public class MysqlExeQueue {
 
     private PluginMysqlJobInfoDao jobInfoDao = new PluginMysqlJobInfoDao();
 
+    public ConnFactory connFactory;
+
+    public MysqlExeQueue(ConnFactory connFactory){
+        this.connFactory = connFactory;
+    }
+
     public void init(){
         queue = new ArrayBlockingQueue<>(1);
         jobExecutor = new ThreadPoolExecutor(minSize, maxSize, 0, TimeUnit.MILLISECONDS, queue,
@@ -133,19 +139,16 @@ public class MysqlExeQueue {
 
         private String jobSqlProc;
 
-        private String pluginInfo;
-
         private CallableStatement stmt;
 
         private String procedureName;
 
         private boolean isCancel = false;
 
-        public MysqlExe(String jobName, String sql, String jobId, String pluginInfo){
+        public MysqlExe(String jobName, String sql, String jobId){
             this.jobName = jobName;
             this.jobSqlProc = createSqlProc(sql, jobName, jobId);
             this.engineJobId = jobId;
-            this.pluginInfo = pluginInfo;
         }
 
         /**
@@ -195,7 +198,7 @@ public class MysqlExeQueue {
             boolean exeResult = false;
 
             try{
-                conn = ConnFactory.getInstance().getConn(pluginInfo);
+                conn = connFactory.getConn();
                 if(isCancel){
                     LOG.info("job:{} is canceled", jobName);
                     return;
@@ -261,7 +264,7 @@ public class MysqlExeQueue {
                     String sql = jobClient.getSql();
                     String jobId = jobClient.getTaskId();
 
-                    MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId, jobClient.getPluginInfo());
+                    MysqlExe mysqlExe = new MysqlExe(taskName, sql, jobId);
                     try{
                         jobExecutor.submit(mysqlExe);
                     }catch (RejectedExecutionException e){
