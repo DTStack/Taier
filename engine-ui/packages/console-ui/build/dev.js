@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MY_PATH = require('./consts');
 
 const baseConf = require('./base.js')();
-var config = require('../config');
+var config = require('./config');
 
 baseConf.plugins.push(
     new webpack.DefinePlugin({
