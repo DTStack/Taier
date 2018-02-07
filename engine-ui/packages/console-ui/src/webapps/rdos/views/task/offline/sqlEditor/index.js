@@ -1,0 +1,179 @@
+import React, { Component } from 'react'
+import SplitPane from 'react-split-pane'
+import { connect } from 'react-redux'
+import { debounce } from 'lodash';
+
+import utils from 'utils'
+
+import Toolbar from './toolbar'
+import Console from './console'
+
+import Api from '../../../../api';
+import { matchTaskParams } from '../../../../comm'
+import CodeEditor from '../../../../components/code-editor'
+
+import {
+    workbenchAction
+} from '../../../../store/modules/offlineTask/actionType';
+
+import {
+    getTab,
+    setSelectionContent,
+} from '../../../../store/modules/offlineTask/sqlEditor'
+
+ class SQLEditor extends Component {
+
+    componentDidMount() {
+        const currentNode = this.props.currentTabData
+        if (currentNode) {
+            this.props.getTab(currentNode.id)
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const current = nextProps.currentTabData
+        const old = this.props.currentTabData
+        if (current && current.id !== old.id) {
+            this.props.getTab(current.id)
+        }
+    }
+
+    matchTaskParams(sqlText) {
+        const regx = /\$\{([.\w]+)\}/g;
+        const { taskCustomParams } = this.props;
+        const data = [];
+        let res = null;
+        while ((res = regx.exec(sqlText)) !== null) {
+            const name = res[1]
+            const param = {
+                paramName: name,
+                paramCommand: '',
+            };
+            const sysParam = taskCustomParams.find(item => item.paramName === name)
+            if (sysParam) {
+                param.type = 0
+                param.paramCommand = sysParam.paramCommand
+            } else { 
+                param.type = 1 
+            } 
+            // 去重
+            const exist = data.find(item => name === item.paramName)
+            if (!exist) {
+                data.push(param)
+            }
+        }
+        return data
+    }
+
+    handleEditorTxtChange = (old, newVal, doc) => {
+        const task = this.props.currentTabData
+        const taskCustomParams = this.props.taskCustomParams;
+        let params = {
+            merged: false,
+            cursor: doc.getCursor(),
+        }
+        if (old !== newVal) {
+            if (utils.checkExist(task.taskType)) {
+                params.sqlText = newVal
+                params.taskVariables = matchTaskParams(taskCustomParams, newVal)//this.matchTaskParams(newVal)
+            } else if (utils.checkExist(task.type)) {
+                params.scriptText = newVal
+            }
+            this.props.updateTaskFields(params);
+        }
+    }
+
+    debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
+
+    onEditorSelection = (old, doc) => {
+        const selected = doc.getSelection()
+        if (doc.somethingSelected()) {
+            this.props.setSelection(selected)
+        } else {
+            const oldSelection = this.props.sqlEditor.selection
+            if (oldSelection !== '' ) this.props.setSelection('')
+        }
+    }
+
+    render() {
+        const { sqlEditor, currentTabData, options, value } = this.props
+        const currentTab = currentTabData.id
+        const consoleData = sqlEditor.console
+        const data = consoleData && consoleData[currentTab] ? 
+        consoleData[currentTab] : { results: [] }
+
+        const cursor = currentTabData.cursor || undefined
+
+        return (
+            <div className="ide-sql">
+                <div className="ide-header bd-bottom">
+                    <Toolbar {...this.props} />
+                </div>
+                <div className="ide-content">
+                    {
+                        data.log ?
+                        <SplitPane
+                            split="horizontal"
+                            minSize={100}
+                            maxSize="80%"
+                            style={{ paddingBottom: '40px' }}
+                            defaultSize="60%"
+                            primary="first"
+                        >
+                            <div className="ide-editor bd-bottom">
+                                <CodeEditor 
+                                    key="sqlEditor"
+                                    sync={currentTabData.merged || undefined}
+                                    options={options}
+                                    value={value}
+                                    cursor={cursor}
+                                    cursorActivity={ this.onEditorSelection }
+                                    onChange={ this.debounceChange }  
+                                />
+                            </div>
+                            <Console
+                                data={data}
+                                {...this.props} 
+                            /> 
+                        </SplitPane> : 
+                        <div className="ide-editor bd-bottom">
+                            <CodeEditor
+                                key="sqlEditor"
+                                sync={currentTabData.merged || undefined}
+                                options={options}
+                                cursor={cursor}
+                                cursorActivity={ this.onEditorSelection }
+                                onChange={ this.debounceChange }  
+                                value={value}
+                            />
+                        </div>
+                    }
+                </div>
+            </div>
+        )
+    }
+}
+
+export default connect(state => {
+    return {
+        sqlEditor: state.sqlEditor,
+        project: state.project,
+        user: state.user,
+    }
+}, dispatch => {
+    return {
+        dispatch: dispatch,
+        updateTaskFields(params) {
+            dispatch({
+                type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                payload: params
+            });
+        },
+        setSelection(data) {
+            dispatch(setSelectionContent(data))
+        },
+        getTab(id) {
+            dispatch(getTab(id))
+        }
+    }
+})(SQLEditor) 

@@ -1,0 +1,248 @@
+import React, { Component } from 'react'
+import moment from 'moment'
+import {
+    Form, Input, Checkbox, InputNumber,
+    Select, Modal, TimePicker,
+ } from 'antd'
+
+import { formItemLayout } from '../../../comm/const'
+
+const FormItem = Form.Item
+const Option = Select.Option
+const CheckboxGroup = Checkbox.Group
+
+class AlarmForm extends Component {
+
+    state = {
+        myTrigger: 0,
+        triggerTimeType: 0, // 触发时间类型
+        runHour: '',
+        runMin: '',
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const alarmInfo = nextProps.alarmInfo
+        const old = this.props.alarmInfo
+        if (alarmInfo && alarmInfo.id !== old.id) {
+            this.setState({
+                myTrigger: alarmInfo.myTrigger || 0,
+            })
+        }
+    }
+
+    submit = (e) => {
+        e.preventDefault()
+        const ctx = this
+        const { onOk, form } = this.props
+        const alarm = form.getFieldsValue()
+        const fields = ['name', 'taskId', 'senderTypes', 'myTrigger', 'receiveUsers']
+        if (alarm.myTrigger === 4) { // 定时未完成
+            fields.push('uncompleteTime')
+            alarm.uncompleteTime = moment(alarm.uncompleteTime).format('HH:mm')
+        } else if (alarm.myTrigger === 5) { // 超时未完成, 
+            fields.push('runTime')
+            // 转换小时和分钟成秒，然后赋值给未完成字段
+            const { runHour, runMin } = this.state
+            const hour = runHour ? runHour * 60 * 60 : 0
+            const min = runMin ? runMin * 60 : 0
+            alarm.uncompleteTime = hour + min
+        }
+        alarm.receiveUsers = alarm.receiveUsers.join(',')
+        form.validateFields(fields, (err) => {
+            if (!err) {
+                ctx.setState({ myTrigger: 0 })
+                setTimeout(() => form.resetFields(), 300)
+                onOk(alarm)
+            }
+        });
+    }
+
+    cancle = () => {
+        const { form, onCancel } = this.props
+        form.resetFields()
+        this.setState({ myTrigger: 0 })
+        onCancel()
+    }
+
+    receiveChange = (e) => {
+        this.setState({ selectedReceive: e.target.value })
+    }
+
+    onChangeTrigger = (value) => {
+        this.setState({ myTrigger: value })
+    }
+
+    onChangeRunHour = (value) => {
+        this.setState({ runHour: value })
+
+    }
+
+    onChangeRunMin = (value) => {
+        this.setState({ runMin: value })
+    }
+
+    render() {
+        const {
+            form, title, projectUsers,
+            visible, alarmInfo, taskList, user,
+        } = this.props
+        const { getFieldDecorator } = form
+        const taskItems = taskList && taskList.length > 0 ?
+        taskList.map((item) => {
+            return (<Option key={item.id} value={item.id} name={item.name}>
+                {item.name}
+            </Option>)
+        }) : []
+        const userItems = projectUsers && projectUsers.length > 0 ?
+        projectUsers.map((item) => {
+            return (<Option key={item.id} value={item.userId} name={item.user.userName}>
+                {item.user.userName}
+            </Option>)
+        }) : []
+
+        const receivers = alarmInfo.receiveUsers ?
+        alarmInfo.receiveUsers.map(item => item.userId) : []
+
+        const { myTrigger, triggerTimeType } = this.state
+        const display = myTrigger === 2 ? 'block' : 'none'
+
+        return (
+            <Modal
+              title={title}
+              wrapClassName="vertical-center-modal"
+              visible={visible}
+              onOk={this.submit}
+              onCancel={this.cancle}
+            >
+                <Form>
+                    <FormItem
+                      {...formItemLayout}
+                      label="告警规则名称"
+                      hasFeedback
+                    >
+                        {getFieldDecorator('name', {
+                            rules: [{
+                                required: true, message: '告警规则名称不可为空！',
+                            }, {
+                                max: 30,
+                                message: '告警规则名称不得超过30个字符！',
+                            }],
+                            initialValue: alarmInfo.alarmName || '',
+                        })(
+                            <Input />,
+                        )}
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="任务名称"
+                      hasFeedback
+                    >
+                        {getFieldDecorator('taskId', {
+                            rules: [{
+                                required: true, message: '请您选择所要告警的任务！',
+                            }],
+                            initialValue: alarmInfo.taskId || '',
+                        })(
+                            <Select
+                              showSearch
+                              style={{ width: '100%' }}
+                              placeholder="任务任务"
+                              optionFilterProp="name"
+                            >
+                                { taskItems }
+                            </Select>,
+                        )}
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="告警方式"
+                    >
+                        {getFieldDecorator('senderTypes', {
+                            rules: [{
+                                required: true, message: '请您选择告警通知的方式！',
+                            }],
+                            initialValue: alarmInfo.senderTypes || [1], // 1：邮件、2：短信
+                        })(
+                            <CheckboxGroup>
+                                <Checkbox value={1}>邮件</Checkbox>
+                                <Checkbox value={2}>短信</Checkbox>
+                            </CheckboxGroup>,
+                        )}
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="触发方式"
+                    >
+                        {getFieldDecorator('myTrigger', {
+                            rules: [{
+                                required: true, message: '请您选择任务触发方式！',
+                            }],
+                            initialValue: alarmInfo.myTrigger || 0, // 任务失败
+                        })(
+                            <Select onChange={this.onChangeTrigger}>
+                                <Option value={0}>任务失败</Option>
+                                <Option value={3}>任务停止</Option>
+                                <Option value={4}>定时未完成</Option>
+                                <Option value={5}>超时未完成</Option>
+                            </Select>,
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="定时时长"
+                        style={{ display: myTrigger === 4 ? 'block': 'none' }}
+                        hasFeedback
+                        >
+                            {getFieldDecorator('uncompleteTime', {
+                                rules: [{
+                                    required: true, message: '请您选择[未完成]任务的定时时长！',
+                                }],
+                            })(
+                                <TimePicker format={'HH:mm'} />
+                            )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        style={{ display: myTrigger === 5 ? 'block': 'none' }}
+                        label="运行时长"
+                        hasFeedback
+                        >
+                            {getFieldDecorator('runTime', { // 换算成秒
+                                rules: [{
+                                    required: true, message: '请您选择[未完成]任务的运行时间触发条件！',
+                                }],
+                            })(
+                                <div>
+                                    <InputNumber min={0} onChange={this.onChangeRunHour} />小时&nbsp;
+                                    <InputNumber min={0} max={59} onChange={this.onChangeRunHour} />分钟
+                                </div>,
+                            )}
+                    </FormItem>
+                    <FormItem
+                      {...formItemLayout}
+                      label="接收人"
+                    >
+                        {getFieldDecorator('receiveUsers', {
+                            rules: [{
+                                required: true, message: '请您选择接收人!',
+                            }],
+                            initialValue: receivers,
+                        })(
+                            <Select
+                              showSearch
+                              mode="multiple"
+                              style={{ width: 200 }}
+                              placeholder="请选择接收人"
+                              optionFilterProp="name"
+                            >
+                                {userItems}
+                            </Select>,
+                        )}
+                    </FormItem>
+                </Form>
+            </Modal>
+        )
+    }
+}
+const wrappedForm = Form.create()(AlarmForm);
+export default wrappedForm

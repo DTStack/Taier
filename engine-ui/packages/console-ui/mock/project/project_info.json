@@ -1,0 +1,11 @@
+{
+    "code": 1,
+    "message": "request success.",
+    "result": "",
+    "data": {
+        "adminProjects": 3,
+        "joinProjects": 3,
+        "undealWarning": 0
+    },
+    "space": "0.3s"
+}

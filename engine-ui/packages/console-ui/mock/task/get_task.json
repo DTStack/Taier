@@ -1,0 +1,51 @@
+{
+    "code": 1,
+    "message": "request success.",
+    "result": "",
+    "data": {
+        "id": 2,
+        "gmtCreate": 1493212918000,
+        "gmtModified": 1493212917000,
+        "isDeleted": 0,
+        "tenantId": 1,
+        "projectId": 123,
+        "taskId": "TK5b12839b13b549dbbb4cd74bf8e4b019",
+        "engineTaskId": "1",
+        "name": "mynewtask",
+        "status": 0,
+        "taskType": 1,
+        "computeType": 0,
+        "engineType": 0,
+        "sqlText": "",
+        "taskParams": "",
+        "modifyUser": {
+            "id": 2,
+            "gmtCreate": 1493178887000,
+            "gmtModified": 1493178887000,
+            "isDeleted": 0,
+            "userName": "xc",
+            "phoneNumber": "111",
+            "dtUicUserId": 123,
+            "email": "xc@123.com",
+            "status": 0,
+            "defaultProjectId": null
+        },
+        "modifyUserId": 1,
+        "createUser": {
+            "id": 2,
+            "gmtCreate": 1493178887000,
+            "gmtModified": 1493178887000,
+            "isDeleted": 0,
+            "userName": "xc",
+            "phoneNumber": "111",
+            "dtUicUserId": 123,
+            "email": "xc@123.com",
+            "status": 0,
+            "defaultProjectId": null
+        },
+        "createUserId": 1,
+        "version": 0,
+        "nodePid": 1
+    },
+    "space": "0.3s"
+}

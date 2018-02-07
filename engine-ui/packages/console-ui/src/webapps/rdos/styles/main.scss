@@ -1,0 +1,235 @@
+@import './const.scss';
+body {
+    // font-size: $font1 !important;
+    background-color: $bgColor !important;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+table {
+    font-size: 12px;
+}
+
+.mask-layer {
+    display: block;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 998;
+    top: 0;
+    left: 0;
+}
+
+.section {
+    .ant-row {
+        margin-left: -8px;
+        margin-right: -8px;
+        >div {
+            padding: 0 8px;
+        }
+    }
+    .title {
+        font-weight: 700;
+        color: $fontColor;
+        font-size: $font2;
+        padding: 10px 0;
+    }
+    .desc {
+        color: #999999;
+        font-size: 10px;
+    }
+    .ant-card-extra {
+        margin-top: 10px;
+    }
+    .section-border {
+        border: 1px solid #e9e9e9;
+        border-radius: 3px;
+    }
+}
+
+.bg-w {
+    background: #fff !important;
+}
+
+.black {
+    color: #000;
+}
+
+.bd {
+    border: 1px solid #e9e9e9;
+    border-radius: 3px;
+}
+
+.bd-top {
+    border-top: 1px solid #e9e9e9;
+}
+
+.bd-left {
+    border-left: 1px solid #e9e9e9;
+}
+
+.bd-bottom {
+    border-bottom: 1px solid #e9e9e9;
+}
+
+.bd-right {
+    border-right: 1px solid #e9e9e9;
+}
+
+.row-col-padding>div {
+    padding: 0 8px;
+}
+
+
+/* use css to set position of modal */
+
+.vertical-center-modal {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.vertical-center-modal:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    width: 0;
+}
+
+.vertical-center-modal .ant-modal {
+    display: inline-block;
+    vertical-align: middle;
+    top: 0;
+    text-align: left;
+}
+
+.CodeMirror,
+.CodeMirror-merge-pane {
+    height: inherit !important;
+    font-family: consolas !important;
+}
+
+.CodeMirror-merge {
+    border: none !important;
+}
+
+.mini-card {
+    padding: 0 8px;
+    display: inline-block;
+    text-align: center;
+    width: 16.66666667%;
+    .card-content {
+        font-size: 12px;
+        position: relative;
+        padding-bottom: 10px;
+    }
+}
+
+.i {
+    color: #d9d9d9;
+    font-size: 12px;
+}
+
+.shadow {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.help-doc {
+    position: absolute;
+    right: -20px;
+    top: 10px;
+}
+
+.my-ant-menu {
+    // sidebar styles
+    .ant-menu.ant-menu-inline,
+    .ant-menu.ant-menu-vertical {
+        background: #3B4D5F;
+        .ant-menu-item>a,
+        .ant-menu-submenu-title {
+            color: #959FB1;
+        }
+        .ant-menu-item:active,
+        .ant-menu-submenu-title:active {
+            background: #222F3C;
+        }
+        .ant-menu-item-selected {
+            background: #222F3C;
+            &>a {
+                color: #009D7E;
+            }
+        }
+    }
+}
+
+.modal-body-nopadding {
+    .ant-modal-body {
+        padding: 0;
+    }
+}
+
+
+.ant-calendar-picker {
+    display: inline-block;
+}
+
+.ant-checkbox-group-item {
+    float: left;
+}
+
+.ant-calendar-picker-input,
+.ant-calendar-range-picker-input {
+    vertical-align: initial !important;
+}
+
+
+// 调整input 整体表单的行高
+
+.ant-input-search {
+    height: 28px;
+}
+
+.org-tree-select-wrap {
+    position: relative;
+}
+
+.ant-form-item {
+    .ant-input-search {
+        height: 32px;
+        line-height: 32px;
+    }
+    .ant-select {
+        .ant-select-search__field__wrap,
+        .ant-select-search__field,
+        .ant-select-selection--multiple,
+        .ant-select-selection--single {
+            height: 32px;
+            line-height: 32px;
+        
+            .ant-select-selection__rendered {
+                line-height: 32px;
+                height: 32px;
+            }
+        }
+    }
+}
+
+.ant-select-search__field__mirror {
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    white-space: pre;
+    pointer-events: none;
+}
+
+.custom-filter-dropdown {
+    padding: 8px;
+    border-radius: 6px;
+    background: #fff;
+    position: relative;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
+}
+  

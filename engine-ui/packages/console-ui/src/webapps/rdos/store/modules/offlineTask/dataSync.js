@@ -1,0 +1,439 @@
+import { combineReducers } from 'redux';
+import assign from 'object-assign';
+import { cloneDeep, isEqual } from 'lodash';
+import { message } from 'antd';
+
+import {
+    dataSourceListAction,
+    sourceMapAction,
+    targetMapAction,
+    keyMapAction,
+    settingAction,
+    dataSyncAction,
+} from './actionType';
+
+import { DATA_TYPE_ARRAY } from '../../../comm/const'
+
+// 缓存数据源列表
+const dataSourceList = (state = [], action) => {
+    switch(action.type) {
+        case dataSourceListAction.LOAD_DATASOURCE: {
+            const dataSource = action.payload;
+            return dataSource;
+        }
+
+        case dataSourceListAction.RESET_DATASOURCE:
+            return [];
+
+        default: return state;
+    }
+};
+
+const sourceMap = (state = {}, action) => {
+    switch(action.type) {
+        case dataSyncAction.INIT_JOBDATA: {
+
+            if(action.payload === null) return {};
+
+            const { sourceMap } = action.payload;
+            return sourceMap;
+        }
+
+        case dataSyncAction.RESET_SOURCE_MAP: {
+            return {};
+        }
+
+        case sourceMapAction.DATA_SOURCE_CHANGE: {
+            const { type, id, dataName } = action.payload;
+            const clone = cloneDeep(state);
+
+            clone.sourceId = id;
+            clone.name = dataName;
+            clone.type = { type };
+
+            if(type === 6) clone.column = [];
+
+            return clone;
+        }
+
+        case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
+            const { sourceId, splitPK, src, table, where } = action.payload;
+            const { type } = src;
+            const clone = cloneDeep(state);
+
+            clone.sourceId = +sourceId;
+            clone.name = src.dataName;
+
+            if (DATA_TYPE_ARRAY.indexOf(+type) !== -1) {
+                clone.splitPK = splitPK;
+                delete action.payload.splitPK;
+            }
+
+            delete action.payload.sourceId;
+            delete action.payload.src;
+
+            clone.type = assign(action.payload, {type});
+
+            return clone;
+        }
+
+        case sourceMapAction.SOURCE_TABLE_COLUMN_CHANGE: {
+            const colData = action.payload;
+
+            return assign({}, state, {
+                column: colData
+            });
+        }
+
+        // 数据源 添加一行字段
+        case sourceMapAction.ADD_SOURCE_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            let column;
+
+            if(clone.column) {
+                let name = '索引值'
+                if (colData.index) {
+                    column = clone.column.find(o => o.index === colData.index);
+                } else if (colData.key) {
+                    name = '字段名'
+                    column = clone.column.find(o => o.key === colData.key);
+                }
+                if (column) {
+                    message.error(`添加失败：${name}不能重复`);
+                }
+                else{
+                    clone.column = [...clone.column, colData]
+                }
+            }
+            else {
+                clone.column = [colData];
+            }
+            return clone;
+        }
+
+        case sourceMapAction.ADD_BATCH_SOURCE_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            if (colData) {
+                clone.column = colData;
+            }
+            return clone;
+        }
+
+        // hdfs字段移除行
+        case sourceMapAction.REMOVE_SOURCE_KEYROW: {
+            const index = action.payload;
+            const clone = cloneDeep(state);
+            if (clone.column && clone.column.length > 0) {
+                clone.column.splice(index, 1)
+            }
+            return clone;
+        }
+
+        default: return state;
+    }
+};
+
+const targetMap = (state = {}, action) => {
+    switch(action.type) {
+        case dataSyncAction.INIT_JOBDATA: {
+            if(action.payload === null) return {};
+            const { targetMap } = action.payload;
+            return targetMap;
+        }
+
+        case dataSyncAction.RESET_TARGET_MAP: {
+            return {};
+        }
+
+        case targetMapAction.DATA_SOURCE_TARGET_CHANGE: {
+            const { type, id, dataName } = action.payload;
+            const clone = cloneDeep(state);
+
+            clone.sourceId = id;
+            clone.name = dataName;
+            clone.type = { type };
+
+            if(type === 6) clone.column = [];
+
+            return clone;
+        }
+
+        case targetMapAction.DATA_TARGETMAP_CHANGE: {
+            const { 
+                sourceId, preSql, src, 
+                table, postSql, writeMode,
+                rowkey
+            } = action.payload;
+            const clone = cloneDeep(state);
+
+            if (sourceId) clone.sourceId = sourceId;
+            if (rowkey) clone.type.rowkey = rowkey;
+            
+            if (src) {
+                const { type } = src;
+                clone.name = src.dataName;
+
+                // 在赋值给Type前，删除无用的字段
+                delete action.payload.sourceId;
+                delete action.payload.src;
+
+                clone.type = assign(action.payload, { type });
+            }
+
+            return clone;
+        }
+
+        case targetMapAction.TARGET_TABLE_COLUMN_CHANGE: {
+            const colData = action.payload;
+
+            return assign({}, state, {
+                column: colData
+            });
+        }
+
+        // target keyrow 添加一行字段
+        case targetMapAction.ADD_TARGET_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            let column;
+
+            if(clone.column) {
+                column = clone.column.find(o => o.key === colData.key);
+                if (column) {
+                    message.error('添加失败：字段名不能重复');
+                }
+                else{
+                    clone.column = [...clone.column, colData]
+                }
+            }
+            else{
+                clone.column = [colData];
+            }
+
+            return clone;
+        }
+ 
+        // HDFS批量添加字段
+        case targetMapAction.ADD_BATCH_TARGET_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            if (colData) {
+                clone.column = colData;
+            }
+            return clone;
+        }
+
+        // 编辑HDFS目标字段
+        case targetMapAction.EDIT_TARGET_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            if (colData) {
+                clone.column[colData.index] = colData.value
+            }
+            return clone;
+        }
+
+        // hdfs字段移除行
+        case targetMapAction.REMOVE_TARGET_KEYROW: {
+            const index = action.payload;
+            const clone = cloneDeep(state);
+            if (clone.column && clone.column.length > 0) {
+                clone.column.splice(index, 1)
+            }
+            return clone;
+        }
+
+        default: return state;
+    }
+};
+
+const keymap = (state = { source: [], target: [] }, action) => {
+    switch(action.type) {
+        case dataSyncAction.INIT_JOBDATA: {
+            if(action.payload === null) return {source: [], target: []};
+            const { keymap } = action.payload;
+            return keymap;
+        }
+
+        case dataSyncAction.RESET_KEYMAP: {
+            return { source: [], target: [] };
+        }
+
+        case keyMapAction.ADD_LINKED_KEYS: {
+            const map = action.payload;
+            const clone = cloneDeep(state);
+            const { source, target } = clone;
+
+            const checkExist = (arr, item) => {
+                let bl = false;
+
+                for(let o of arr) {
+                    if(isEqual(o, item)) {
+                        bl = true;
+                        break;
+                    }
+                }
+
+                return bl;
+            }
+
+            if(checkExist(source, map.source)) {
+                return state;
+            }
+            else if(checkExist(target, map.target)) {
+                return state;
+            }
+            else{
+                clone.source = [...clone.source, map.source];
+                clone.target = [...clone.target, map.target];
+            }
+
+            return clone;
+        }
+
+        case keyMapAction.DEL_LINKED_KEYS: {
+            const map = action.payload;
+            const clone = cloneDeep(state);
+            const { source, target } = clone;
+            const mapSource = map.source;
+            const mapTarget = map.target;
+            const newSource = source.filter(key_obj => !isEqual(key_obj, mapSource));
+            const newTarget = target.filter(key_obj => !isEqual(key_obj, mapTarget));
+
+            clone.source = newSource;
+            clone.target = newTarget;
+
+            return clone;
+        }
+
+        case keyMapAction.SET_ROW_MAP: {
+            const { targetCol, sourceCol } = action.payload;
+            let source = [], target = [];
+
+            sourceCol.forEach((o, i) => {
+                if(targetCol[i]) {
+                    source.push(o);
+                    target.push(targetCol[i]);
+                }
+            });
+
+            return {source, target};
+        }
+
+        case keyMapAction.SET_NAME_MAP: {
+            let { targetCol, sourceCol, targetSrcType } = action.payload;
+            let source = [], target = [];
+
+            let targetNameCol = targetCol.map(o => o.key);
+            sourceCol.forEach((o, i) => {
+                let name = o.key;
+                let idx = targetNameCol.indexOf(name);
+
+                if( idx !== -1) {
+                    source.push(name);
+                    target.push(DATA_TYPE_ARRAY.indexOf(+targetSrcType) !== -1? name: targetCol[idx]);
+                }
+            });
+
+            return {source, target};
+        }
+
+        case keyMapAction.EDIT_KEYMAP_TARGET: {
+            const map = action.payload;
+            const { old, replace } = map
+            const clone = cloneDeep(state);
+            if (map) {
+                const index = clone.target.findIndex((item) => isEqual(item, old))
+                if (index > 0) {
+                    clone.target[index] = replace;
+                    return clone;
+                }
+            }
+            return state;
+        }
+
+        // 移除
+        case keyMapAction.REMOVE_KEYMAP: {
+            const map = action.payload;
+            const { source, target } = map
+            const clone = cloneDeep(state);
+            if (source) {
+                const index = clone.source.findIndex((item) => isEqual(item, source))
+                if (index > 0) {
+                    clone.source.splice(index, 1)
+                    clone.target.splice(index, 1)
+                    return clone;
+                }
+            } else if (target) {
+                const index = clone.target.findIndex((item) => isEqual(item, target))
+                if (index > 0) {
+                    clone.source.splice(index, 1)
+                    clone.target.splice(index, 1)
+                    return clone;
+                }
+            }
+            return state;
+        }
+
+        case keyMapAction.RESET_LINKED_KEYS:
+            return {source: [], target: []};
+
+        default: return state;
+    }
+};
+
+const setting = (state = { speed: 1, channel: 1, record: 100, isSaveDirty: false }, action) => {
+    switch(action.type) {
+        case dataSyncAction.INIT_JOBDATA: {
+            if(action.payload === null) return { speed: 1, channel: 1, record: 100 };
+            const { setting } = action.payload;
+            return setting;
+        }
+
+        case settingAction.CHANGE_CHANNEL_SETTING: {
+            const setting = action.payload;
+            return setting;
+        }
+
+        case settingAction.CHANGE_CHANNEL_FIELDS: {
+            const newSetting = assign(state, action.payload)
+            return newSetting;
+        }
+
+        default: return state;
+    }
+};
+
+const currentStep = (state = {}, action) => {// 缓存数据同步当前操作界面
+    switch(action.type) {
+        case dataSyncAction.INIT_CURRENT_STEP: {
+            const { key } = action.payload;
+            const clone = cloneDeep(state)
+            // if (clone[key] === undefined) {
+            //     clone[key] = 0
+            // }
+            clone[key] = 0
+            return clone;
+        }
+
+        case dataSyncAction.SET_CURRENT_STEP: {
+            const { key, step } = action.payload;
+            const clone = cloneDeep(state)
+            clone[key] = step
+            return clone;
+        }
+
+        default: return state;
+    }
+}
+
+export const dataSyncReducer = combineReducers({
+   dataSourceList,
+   sourceMap,
+   targetMap,
+   keymap,
+   setting,
+   currentStep,
+});

@@ -1,0 +1,19 @@
+{
+    "code": 1,
+    "message": "request success.",
+    "result": "",
+    "data": [
+        {
+            "id": 123,
+            "gmtCreate": 1493178625000,
+            "gmtModified": 1493178625000,
+            "isDeleted": 0,
+            "projectIdentifier": "toutian_test",
+            "projectName": "偷天dtstack测试",
+            "projectDesc": "偷天测试",
+            "status": 0,
+            "tenantId": 123
+        }
+    ],
+    "space": "0.3s"
+}

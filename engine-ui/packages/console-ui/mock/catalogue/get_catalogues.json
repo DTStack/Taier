@@ -1,0 +1,66 @@
+{
+    "code": 1,
+    "message": null,
+    "result": null,
+    "data": {
+        "id": 1,
+        "name": "taskList",
+        "level": 0,
+        "type": "folder",
+        "children": [
+            {
+                "id": 3,
+                "name": "任务管理一级目录",
+                "level": 1,
+                "type": "folder",
+                "children": [
+                    {
+                        "id": 2,
+                        "name": "mynewtask",
+                        "level": 2,
+                        "type": "file",
+                        "children": null
+                    },
+                    {
+                        "id": 26,
+                        "name": "任务管理二级目录2",
+                        "level": 2,
+                        "type": "folder",
+                        "children": [
+                            {
+                                "id": 3,
+                                "name": "xctest",
+                                "level": 3,
+                                "type": "file",
+                                "children": null
+                            },
+                            {
+                                "id": 12,
+                                "name": "xctestFlink",
+                                "level": 3,
+                                "type": "file",
+                                "children": null
+                            }
+                        ]
+                    },
+                    {
+                        "id": 4,
+                        "name": "任务管理二级目录1",
+                        "level": 2,
+                        "type": "folder",
+                        "children": [
+                            {
+                                "id": 1,
+                                "name": "eee",
+                                "level": 3,
+                                "type": "file",
+                                "children": null
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "space": 337
+}

@@ -1,0 +1,142 @@
+import { combineReducers } from 'redux';
+import { cloneDeep } from 'lodash';
+import { editorAction } from './actionType'
+
+// Actions
+export function output(tab, log) {
+    return {
+        type: editorAction.APPEND_CONSOLE_LOG,
+        data: log,
+        key: tab,
+    }
+}
+
+export function setOutput(tab, log) {
+    return {
+        type: editorAction.SET_CONSOLE_LOG,
+        data: log,
+        key: tab,
+    }
+}
+
+export function outputRes(tab, item) {
+    return {
+        type: editorAction.UPDATE_RESULTS,
+        data: item,
+        key: tab,
+    }
+}
+
+export function removeRes(tab, index) {
+    return {
+        type: editorAction.DELETE_RESULT,
+        data: index,
+        key: tab,
+    }
+}
+
+
+export function resetConsole(tab) {
+    return {
+        type: editorAction.RESET_CONSOLE,
+        key: tab,
+    }
+}
+
+
+export function getTab(key) {
+    return {
+        type: editorAction.GET_TAB,
+        key
+    }
+}
+
+
+export function setSelectionContent(data) {
+    return {
+        type: editorAction.SET_SELECTION_CONTENT,
+        data
+    }
+}
+
+// Console Reducers 
+const console = (state = {}, action) => {
+    switch (action.type) {
+    case editorAction.GET_TAB: {// 获取Tab
+        const origin = cloneDeep(state)
+        if (action.key) {
+            const tab = origin[action.key]
+            if (!tab) {
+                origin[action.key] = { log: '', results: [] }
+            }
+        }
+        return origin
+    }
+    case editorAction.RESET_CONSOLE: { // reset console
+        const origin = cloneDeep(state)
+        origin[action.key] = { log: '', results: [] }
+        return origin
+    }
+    case editorAction.SET_TAB: { // 设置Tab
+        const obj = cloneDeep(state)
+        const map = action.data
+        if (map) {
+            obj[map.key] = map.data
+        }
+        return obj;
+    }
+    case editorAction.APPEND_CONSOLE_LOG: {// 追加日志
+        const { key, data } = action
+        const newConso = cloneDeep(state)
+        newConso[key].log = newConso[key] ? 
+        `${newConso[key].log} \n ${data}` :
+        ` ${data}`
+        return newConso
+    }
+    case editorAction.SET_CONSOLE_LOG: {
+        const { key, data } = action
+        const newLog = cloneDeep(state)
+        newLog[key].log = action.data
+        return newLog;
+    }
+    case editorAction.UPDATE_RESULTS: {// 更新结果
+        const updatedKey = action.key
+        let updated = cloneDeep(state);
+        const update_arr = [...updated[updatedKey].results]
+        if (updated[updatedKey] && action.data) {
+            update_arr.push(action.data)
+            updated[updatedKey].results = update_arr
+        }
+        return updated;
+    }
+    case editorAction.DELETE_RESULT: {// 删除结果
+        const key = action.key
+        const index = action.data
+        const origin = cloneDeep(state)
+        const arr = origin[key].results
+        if (arr.length > 0 && index !== undefined) {
+            arr.splice(index, 1);
+            origin[key].results = arr;
+        }
+        return origin;
+    }
+    default:
+        return state;
+    }
+}
+
+// 剪贴板
+export const selection = (state = '', action) => {
+    switch(action.type) {
+    case editorAction.SET_SELECTION_CONTENT: {
+        return action.data
+    }
+    default:
+        return state
+    }
+}
+
+export const sqlEditor = combineReducers({
+    console,
+    selection,
+})

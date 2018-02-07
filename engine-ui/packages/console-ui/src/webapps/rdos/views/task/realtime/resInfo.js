@@ -1,0 +1,44 @@
+import React, { Component } from 'react'
+import {
+    Modal,
+ } from 'antd'
+
+import utils from 'utils'
+
+class ResInfoModal extends Component {
+
+    render() {
+        const {
+            title, data,
+            handCancel, visible,
+        } = this.props
+        return (
+            <Modal
+              title={title}
+              wrapClassName="vertical-center-modal"
+              visible={visible}
+              onCancel={handCancel}
+              footer={null}
+            >
+                <div className="ant-table ant-table-bordered bd-top bd-left" >
+                    <table>
+                        <tbody className="ant-table-tbody" >
+                            <tr><td>资源名称</td><td>{data.resourceName}</td></tr>
+                            <tr><td>责任人</td><td>{data.createUser ? data.createUser.userName : ''}</td></tr>
+                            <tr>
+                                <td>资源类型</td>
+                                <td>{data.resourceType === 1 ? 'jar' : 'file'}</td>
+                            </tr>
+                            <tr>
+                                <td>最近修改时间</td>
+                                <td>{utils.formateDateTime(data.gmtModified)}</td>
+                            </tr>
+                            <tr><td>描述</td><td>{data.resourceDesc}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </Modal>
+        )
+    }
+}
+export default ResInfoModal

@@ -1,0 +1,57 @@
+.project-dashboard {
+    
+    .indicator-col {
+
+        height: 65px;
+        background: #fff;
+        border-radius: 3px;
+        border-color: transparent;
+        .indicator-icon {
+            padding: 20.5px 33px;
+            height: 65px;
+            width: 90px;
+            border-radius: 3px 0 0 3px;
+            background: #8e9aa6;
+            color: #ffffff;
+            img {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        .indicator-detail {
+            padding: 10px;
+            height: 65px;
+            text-align: left;
+
+            .indicator-title {
+                font-size: 12px;
+                color: #999999;
+            }
+
+            .indicator-content {
+                font-size: 24px;
+                color: #18a689;
+            }
+        }
+    }
+
+    .chart-tip {
+        font-size: 12px;
+        color: #c2c8d3;
+    }
+
+    .chart-board {
+        padding: 10px;
+        background: #ffffff;
+        height: 300px;
+        border-radius: 3px;
+        position: relative;
+
+        .filter {
+            position: absolute;
+            top: 30px;
+            left: 80px;
+        }
+    }
+}

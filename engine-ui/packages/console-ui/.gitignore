@@ -1,0 +1,13 @@
+node_modules/
+bower_components/
+src/app/.idea/
+.cache-loader/
+.DS_Store
+.cache-loader/
+.idea/
+.env
+.vscode
+.history
+npm-error.log
+npm-debug.log
+yarn-error.log
