@@ -19,31 +19,32 @@ baseConf.plugins.push(
     }),
     new webpack.HotModuleReplacementPlugin(), // 开启全局的模块热替换(HMR)
     new webpack.NamedModulesPlugin(), // 当模块热替换(HMR)时在浏览器控制台输出对用户更友好的模块名字信息
-    new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: path.resolve(MY_PATH.WEB_PUBLIC, 'main/index.html'),
-        inject: 'body',
-        chunks: ['vendor', 'main', 'manifest'],
-        showErrors: true,
-        hash: true
-    }),
-    new HtmlWebpackPlugin({
-        filename: 'rdos.html',
-        template: path.resolve(MY_PATH.WEB_PUBLIC, 'rdos/index.html'),
-        inject: 'body',
-        chunks: ['vendor', 'rdos', 'manifest'],
-        showErrors: true,
-        hash: true
-    }),
-    new HtmlWebpackPlugin({
-        filename: 'dataQuality.html',
-        template: path.resolve(MY_PATH.WEB_PUBLIC, 'dataQuality/index.html'),
-        inject: 'body',
-        chunks: ['vendor', 'quality', 'manifest'],
-        showErrors: true,
-        hash: true
-    }),
 )
+
+
+const htmlPlugs = [];
+function loadHtmlPlugs() {
+    const appConfs = require(path.resolve(MY_PATH.APP_PATH, 'config/defaultApps'));
+    for (var i = 0 ; i < appConfs.length; i++) {
+        const app = appConfs[i];
+        if (app.enable) {
+            const tmp = path.resolve(MY_PATH.WEB_PUBLIC, `${app.id}/index.html`)
+            htmlPlugs.push(
+                new HtmlWebpackPlugin({
+                    filename: app.filename,
+                    template: tmp,
+                    inject: 'body',
+                    chunks: ['vendor', app.id, 'manifest'],
+                    showErrors: true,
+                    hash: true,
+                })
+            )
+        }
+    }
+    console.log('htmlPlugs:', JSON.stringify(htmlPlugs))
+}
+
+loadHtmlPlugs();
 
 const devServer = Object.assign({
             hot: true, // 开启服务器的模块热替换
@@ -62,7 +63,8 @@ const devServer = Object.assign({
 const merged = function(env) {
     return webpackMerge(baseConf, {
         devtool: 'cheap-module-eval-source-map', //
-        devServer: devServer
+        devServer: devServer,
+        plugins: htmlPlugs,
     })
 }
 

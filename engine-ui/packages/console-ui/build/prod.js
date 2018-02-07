@@ -7,19 +7,6 @@ const MY_PATH = require('./consts');
 
 const baseConf = require('./base.js')();
 
-const htmlMinify = {
-    removeComments: true,
-    collapseWhitespace: true,
-    removeRedundantAttributes: true,
-    useShortDoctype: true,
-    removeEmptyAttributes: true,
-    removeStyleLinkTypeAttributes: true,
-    keepClosingSlash: true,
-    minifyJS: true,
-    minifyCSS: true,
-    minifyURLs: true,
-}
-
 baseConf.plugins.push(
     new webpack.DefinePlugin({
         'process.env': {
@@ -45,35 +32,50 @@ baseConf.plugins.push(
             comments: false,
         },
     }),
-    new HtmlWebpackPlugin({
-        filename: 'index.html',
-        template: path.resolve(MY_PATH.WEB_PUBLIC, 'main/index.html'),
-        inject: 'body',
-        chunks: ['vendor', 'main', 'manifest'],
-        showErrors: true,
-        hash: true,
-        minify: htmlMinify,
-    }),
-    new HtmlWebpackPlugin({
-        filename: 'rdos.html',
-        template: path.resolve(MY_PATH.WEB_PUBLIC, 'rdos/index.html'),
-        inject: 'body',
-        chunks: ['vendor', 'rdos', 'manifest'],
-        showErrors: true,
-        hash: true,
-        minify: htmlMinify,
-    }),
-    new HtmlWebpackPlugin({
-        filename: 'dataQuality.html',
-        template: path.resolve(MY_PATH.WEB_PUBLIC, 'dataQuality/index.html'),
-        inject: 'body',
-        chunks: ['vendor', 'quality', 'manifest'],
-        showErrors: true,
-        hash: true,
-        minify: htmlMinify,
-    }),
 )
 
+
+const htmlPlugs = [];
+function loadHtmlPlugs() {
+
+    const htmlMinify = {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true,
+    }
+
+    const appConfs = require(path.resolve(MY_PATH.APP_PATH, 'config/defaultApps'));
+
+    for (var i = 0 ; i < appConfs.length; i++) {
+        const app = appConfs[i];
+        if (app.enable) {
+            const tmp = path.resolve(MY_PATH.WEB_PUBLIC, `${app.id}/index.html`)
+            htmlPlugs.push(
+                {
+                    filename: app.filename,
+                    template: tmp,
+                    inject: 'body',
+                    chunks: ['vendor', app.id, 'manifest'],
+                    showErrors: true,
+                    hash: true,
+                    minify: htmlMinify,
+                }
+            )
+        }
+    }
+}
+
+loadHtmlPlugs();
+
 module.exports = function(env) {
-    return webpackMerge(baseConf)
+    return webpackMerge(baseConf, {
+        plugins: htmlPlugs,
+    })
 }

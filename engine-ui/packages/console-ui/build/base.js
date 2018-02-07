@@ -81,6 +81,7 @@ module.exports = function() {
                 styles: path.resolve(MY_PATH.APP_PATH, 'styles'), // 样式文件
                 funcs: path.resolve(MY_PATH.APP_PATH, 'funcs'), // 零碎的公共方法，抽象成工具类的则移至utils目录
                 public: path.resolve(MY_PATH.APP_PATH, 'public'), // 公共资源
+                config: path.resolve(MY_PATH.APP_PATH, 'config'), // 数据文件，后期可能替换为借口
 
                 // 应用根目录
                 main: MY_PATH. MAIN_APP_PATH, // 主应用

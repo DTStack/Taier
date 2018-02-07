@@ -98,8 +98,8 @@ class DataSourceForm extends Component {
         const { handOk, form } = this.props
         const source = form.getFieldsValue()
         const { sourceType } = this.state
-        let fields = fields = ['dataName', 'type', 'dataJson']
-        form.validateFields(fields, (err) => {
+        // let fields = fields = ['dataName', 'type', 'dataJson']
+        form.validateFields((err) => {
             if (!err) {
                 handOk(source, form)
             }
@@ -108,8 +108,7 @@ class DataSourceForm extends Component {
 
     testConnection = (e) => {
         const { testConnection, form } = this.props
-        const source = form.getFieldsValue()
-        this.props.form.validateFields((err) => {
+        this.props.form.validateFields((err, source) => {
             if (!err) {
                 testConnection(source)
             }
@@ -124,6 +123,7 @@ class DataSourceForm extends Component {
 
     sourceChange = (value) => {
         this.setState({sourceType: value})
+        this.props.form.resetFields();
     }
 
     enableHdfsConfig = (e) => {
@@ -242,13 +242,10 @@ class DataSourceForm extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="用户名"
-                        hasFeedback
                         key="username"
                     >
                         {getFieldDecorator('dataJson.username', {
-                            rules: [{
-                                required: true, message: '用户名不可为空！',
-                            }],
+                            rules: [],
                             initialValue: config.username || '',
                         })(
                             <Input autoComplete="off" />,
@@ -258,12 +255,9 @@ class DataSourceForm extends Component {
                         key="password"
                         {...formItemLayout}
                         label="密码"
-                        hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！',
-                            }],
+                            rules: [],
                             initialValue: '',
                         })(
                             <Input type="password"/>,
@@ -302,13 +296,10 @@ class DataSourceForm extends Component {
                         {...formItemLayout}
                         label="高可用配置"
                         key="hadoopConfig"
-                        hasFeedback
                         style={{display: hasHdfsConfig ? 'block' : 'none'}}
                     >
                         {getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [{
-                                required: true, message: 'Hadoop配置不可为空！',
-                            }],
+                            rules: [],
                             initialValue: config.hadoopConfig || ''
                         })(
                             <Input type="textarea" rows={5} placeholder={hdfsConf} />,

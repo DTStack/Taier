@@ -18,5 +18,5 @@ module.exports = {
                 secure: false,
             }
         }
-    }
+    },
 };
