@@ -43,7 +43,7 @@ public class MysqlClient extends AbsClient {
         exeQueue.init();
         resourceInfo = new MysqlResourceInfo(exeQueue);
 
-        MetaDataConnPool.getInstance().init();
+        MetaDataConnPool.getInstance();
         ConfigParse.getEngineTypeList();
 
         LOG.warn("-------init mysql plugin success-----");

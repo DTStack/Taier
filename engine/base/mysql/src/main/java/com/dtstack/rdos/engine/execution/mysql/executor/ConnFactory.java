@@ -1,14 +1,13 @@
 package com.dtstack.rdos.engine.execution.mysql.executor;
 
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.mysql.constant.ConfigConstant;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -22,12 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ConnFactory {
 
     private String driverName = "com.mysql.jdbc.Driver";
-
-    private static final String DBURL_KEY = "dbUrl";
-
-    private static final String USER_NAME_KEY = "userName";
-
-    private static final String PWD_KEY = "pwd";
 
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
@@ -43,9 +36,9 @@ public class ConnFactory {
             isFirstLoaded.set(false);
         }
 
-        dbURL = MathUtil.getString(properties.get(DBURL_KEY));
-        userName = MathUtil.getString(properties.get(USER_NAME_KEY));
-        pwd = MathUtil.getString(properties.get(PWD_KEY));
+        dbURL = MathUtil.getString(properties.get(ConfigConstant.DB_URL));
+        userName = MathUtil.getString(properties.get(ConfigConstant.USER_NAME));
+        pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
 
         Preconditions.checkNotNull(dbURL, "db url can't be null");
     }

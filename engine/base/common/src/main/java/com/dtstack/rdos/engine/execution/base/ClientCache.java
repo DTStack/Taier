@@ -85,7 +85,7 @@ public class ClientCache {
         String pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
         IClient client = clientMap.get(pluginInfoMd5);
         if(client == null){
-            Properties properties = PublicUtil.stringToProperties(pluginInfo);
+            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
             client = buildPluginClient(pluginInfo);
             client.init(properties);
             clientMap.putIfAbsent(pluginInfoMd5, client);

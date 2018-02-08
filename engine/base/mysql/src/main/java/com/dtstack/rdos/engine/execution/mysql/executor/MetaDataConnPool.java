@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.mysql.executor;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.google.common.base.Preconditions;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * mysql 插件本身信息存储使用的连接
@@ -65,12 +67,15 @@ public class MetaDataConnPool {
 
     private DruidDataSource dataSource = new DruidDataSource();
 
-    private static MetaDataConnPool singleton = new MetaDataConnPool();
-
-    private MetaDataConnPool(){
+    private static class SingletonHolder{
+        private static MetaDataConnPool instance = new MetaDataConnPool();
     }
 
-    public void init(){
+    private MetaDataConnPool(){
+        init();
+    }
+
+    private void init(){
 
         try{
             dbUrl = Preconditions.checkNotNull(ConfigParse.getDbUrl(), "mysql 插件必须设置DBURL");
@@ -122,7 +127,7 @@ public class MetaDataConnPool {
 
 
     public static MetaDataConnPool getInstance(){
-        return singleton;
+        return SingletonHolder.instance;
     }
 
     public Connection getConn() throws SQLException {

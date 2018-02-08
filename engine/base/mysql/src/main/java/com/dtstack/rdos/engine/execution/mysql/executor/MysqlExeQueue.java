@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * mysql 执行队列
@@ -58,7 +59,7 @@ public class MysqlExeQueue {
 
     private PluginMysqlJobInfoDao jobInfoDao = new PluginMysqlJobInfoDao();
 
-    public ConnFactory connFactory;
+    private ConnFactory connFactory;
 
     public MysqlExeQueue(ConnFactory connFactory){
         this.connFactory = connFactory;
@@ -143,7 +144,7 @@ public class MysqlExeQueue {
 
         private String procedureName;
 
-        private boolean isCancel = false;
+        private AtomicBoolean isCancel = new AtomicBoolean(false);
 
         public MysqlExe(String jobName, String sql, String jobId){
             this.jobName = jobName;
@@ -170,7 +171,7 @@ public class MysqlExeQueue {
         }
 
         public void cancelJob(){
-            isCancel = true;
+            isCancel.set(true);
             if(stmt != null){
                 try {
                     stmt.cancel();
@@ -199,7 +200,7 @@ public class MysqlExeQueue {
 
             try{
                 conn = connFactory.getConn();
-                if(isCancel){
+                if(isCancel.get()){
                     LOG.info("job:{} is canceled", jobName);
                     return;
                 }
@@ -268,8 +269,9 @@ public class MysqlExeQueue {
                     try{
                         jobExecutor.submit(mysqlExe);
                     }catch (RejectedExecutionException e){
-                        //等待继续继续执行
+                        //等待继续执行---说明当时执行队列处于满状态-->先等2s
                         waitQueue.add(jobClient);
+                        Thread.sleep(2 * 1000);
                     }
                 }catch (Throwable t){
                     LOG.error("", t);

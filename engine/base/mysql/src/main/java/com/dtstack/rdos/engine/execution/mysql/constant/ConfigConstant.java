@@ -11,8 +11,8 @@ public class ConfigConstant {
 
     public static final String DB_URL = "dbUrl";
 
-    public static final String USER_NAME = "dbUserName";
+    public static final String USER_NAME = "userName";
 
-    public static final String PWD = "dbPwd";
+    public static final String PWD = "pwd";
 
 }
