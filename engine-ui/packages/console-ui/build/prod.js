@@ -31,8 +31,8 @@ baseConf.plugins.push(
         output: {
             comments: false,
         },
-    }),
-)
+    })
+);
 
 
 const htmlPlugs = [];
