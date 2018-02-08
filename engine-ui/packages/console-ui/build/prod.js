@@ -58,7 +58,7 @@ function loadHtmlPlugs() {
         if (app.enable) {
             const tmp = path.resolve(MY_PATH.WEB_PUBLIC, `${app.id}/index.html`)
             htmlPlugs.push(
-                {
+                new HtmlWebpackPlugin({
                     filename: app.filename,
                     template: tmp,
                     inject: 'body',
@@ -66,7 +66,7 @@ function loadHtmlPlugs() {
                     showErrors: true,
                     hash: true,
                     minify: htmlMinify,
-                }
+                })
             )
         }
     }
