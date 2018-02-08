@@ -95,6 +95,6 @@ public class JobSubmitProcessor implements Runnable{
 
     private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
         jobClient.setJobResult(jobResult);
-        JobSubmitExecutor.getInstance().addJobForTaskListenerQueue(jobClient);//添加触发读取任务状态消息
+        JobSubmitExecutor.getInstance().addJobIntoTaskListenerQueue(jobClient);//添加触发读取任务状态消息
     }
 }

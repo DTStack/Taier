@@ -167,7 +167,7 @@ public class JobSubmitExecutor{
         return queueForTaskListener;
     }
 
-    public void addJobForTaskListenerQueue(JobClient jobClient){
+    public void addJobIntoTaskListenerQueue(JobClient jobClient){
         queueForTaskListener.offer(jobClient);
     }
 }

@@ -11,6 +11,7 @@ import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClien
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
+import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -158,9 +159,12 @@ public class ExeQueueMgr {
                 try{
                     clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
                 }catch (Exception e){
-                    LOG.error("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
-                    LOG.error("", e);
-                    //TODO 从队列里面删除---并且将任务设置为失败,写入失败日志
+                    LOG.info("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
+                    LOG.info("", e);
+                    gq.remove(jobClient.getTaskId());
+                    JobResult jobResult = JobResult.createErrorResult(e);
+                    jobClient.setJobResult(jobResult);
+                    JobSubmitExecutor.getInstance().addJobIntoTaskListenerQueue(jobClient);
                     return;
                 }
 
@@ -169,9 +173,9 @@ public class ExeQueueMgr {
                     return;
                 }
 
-                JobClient jobClientToExe = gq.remove();
+                gq.remove(jobClient.getTaskId());
                 try {
-                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClientToExe, slotNoAvailableJobClients));
+                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClient, slotNoAvailableJobClients));
                 } catch (RejectedExecutionException e) {
                     //如果添加到执行线程池失败则添加回等待队列
                     try {
