@@ -9,11 +9,11 @@ module.exports = [
         link: 'index.html',
         filename: 'index.html',
         target: '_self',
-        enable: true,
+        enable: false,
     }, {
         id: 'rdos',
         name: '开发套件',
-        filename: 'rdos.html',
+        filename: 'index.html',
         link: 'rdos.html#/',
         target: '_blank',
         enable: true,
@@ -23,7 +23,7 @@ module.exports = [
         link: 'dataQuality.html',
         filename: 'dataQuality.html',
         target: '_blank',
-        enable: true,
+        enable: false,
     },{
         id: 'api',
         name: 'API管理',

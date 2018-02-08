@@ -3,7 +3,7 @@
  */
 module.exports = () => {
     return {
-      'primary-color': '#2491F7',
+      'primary-color': '#18a689', //'#2491F7',
     //   'link-color': '#2491F7',
     //   'border-radius-base': '2px',
     };
