@@ -170,8 +170,8 @@ class TaskForm extends React.Component {
                                     rules: [{
                                         required: true, message: 'mainClass 不可为空！',
                                     }, {
-                                        pattern: /^[A-Za-z0-9_-]+$/,
-                                        message: 'mainClass 只能由字母、数字、下划线组成!',
+                                        pattern: /^[A-Za-z0-9_.-]+$/,
+                                        message: 'mainClass 只能由字母、数字、下划线、分隔点组成!',
                                     }],
                                     initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.mainClass
                                 })(
