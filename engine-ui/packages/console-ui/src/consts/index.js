@@ -7,3 +7,8 @@ export const defaultEditorOptions = { // 编辑器选项
     autofocus: false,
     // extraKeys: { 'Ctrl-Space': 'autocomplete' },
 }
+
+
+export const MY_APPS = {
+    
+}

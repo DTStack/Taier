@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+
+import Header from '../layout/header'
 
 class Dashboard extends Component {
 
@@ -10,7 +12,10 @@ class Dashboard extends Component {
         const { children } = this.props
         return (
             <div className="dashboard">
-                { children || "dashboard" }
+                <Header />
+                <div className="container">
+                    { children || "dashboard" }
+                </div>
             </div>
         )
     }

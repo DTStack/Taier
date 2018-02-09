@@ -3,8 +3,10 @@
  */
 module.exports = () => {
     return {
-      'primary-color': '#18a689', //'#2491F7',
-    //   'link-color': '#2491F7',
-    //   'border-radius-base': '2px',
+      'icon-url': '/public/iconfont/iconfont',
+      'primary-color': '#2491F7',
+      'link-color': '#2491F7',
+      'border-radius-base': '2px',
+      'border-color-base': '#dddddd',
     };
   };

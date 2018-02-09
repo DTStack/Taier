@@ -1,0 +1,91 @@
+@import './const.scss';
+
+/**
+** 自定义antd样式
+*/
+.m-tabs {
+
+    .ant-menu {
+        width: 136px;
+        height: 100%;
+        background: #FAFAFA;
+
+        .ant-menu-item {
+            padding: 0 38px;
+            height: 36px;
+            line-height: 36px;
+            color: #333333;
+        }
+
+        &:not(.ant-menu-horizontal) .ant-menu-item-selected {
+            background: #EBEBEB;
+            color: $primaryColor;
+        }
+    }
+
+    .ant-tabs {
+        height: 100%;
+    }
+
+    .m-panel {
+        position: relative;
+        margin: 20px;
+        height: 685px;
+        border: 1px solid #DDDDDD;
+    }
+
+    .panel-content {
+        width: 100%;
+        position: absolute;
+        padding-left: 136px;
+    }
+}
+
+.m-table {
+
+    .ant-pagination {
+        margin-right: 20px !important;
+
+        .ant-pagination-item {
+            min-width: 26px;
+            height: 26px;
+            line-height: 26px;
+
+            a {
+                font-size: 12px;
+                color: #333333;
+                letter-spacing: 0;
+            }
+        }
+
+
+        .ant-pagination-item-active {
+            background-color: #ffffff;
+            border-color: $primaryColor;
+
+            a {
+                color: $primaryColor;
+            }
+        }
+    }
+
+    .ant-table-thead > tr > th {
+        font-size: 12px;
+        color: #333333;
+        letter-spacing: 0;
+        padding: 8.5px 8px;
+    }
+
+    .ant-table-tbody > tr:hover {
+        background: #E7F7FF;
+    }
+
+    .ant-table-tbody > tr > td {
+        padding: 8px 8px;
+        border-bottom: 1px solid #E8E8E8;
+    }
+}
+
+.m-card {
+    
+}

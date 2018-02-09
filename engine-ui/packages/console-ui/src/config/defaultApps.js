@@ -9,21 +9,24 @@ module.exports = [
         link: 'index.html',
         filename: 'index.html',
         target: '_self',
-        enable: false,
+        enable: true,
+        apiBase: '/main',
     }, {
         id: 'rdos',
         name: '开发套件',
-        filename: 'index.html',
+        filename: 'rdos.html',
         link: 'rdos.html#/',
         target: '_blank',
         enable: true,
+        apiBase: '/rdos',
     },{
         id: 'dataQuality',
         name: '数据质量',
         link: 'dataQuality.html',
         filename: 'dataQuality.html',
         target: '_blank',
-        enable: false,
+        enable: true,
+        apiBase: '/dataQuality',
     },{
         id: 'api',
         name: 'API管理',
@@ -31,6 +34,7 @@ module.exports = [
         filename: 'api.html',
         target: '_blank',
         enable: false,
+        apiBase: '/api',
     }, {
         id: 'label',
         name: '标签管理',
@@ -38,6 +42,7 @@ module.exports = [
         filename: 'label.html',
         target: '_blank',
         enable: false,
+        apiBase: '/label',
     }, {
         id: 'map',
         name: '数据地图',
@@ -45,6 +50,7 @@ module.exports = [
         filename: 'map.html',
         target: '_blank',
         enable: false,
+        apiBase: '/map',
     }, {
         id: 'metaData',
         name: '元数据管理',
@@ -52,6 +58,7 @@ module.exports = [
         link: 'metaData.html',
         target: '_blank',
         enable: false,
+        apiBase: '/metaData',
     },
 ];
 

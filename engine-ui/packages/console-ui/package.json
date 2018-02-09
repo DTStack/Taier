@@ -26,6 +26,7 @@
     "redux": "3.6.0",
     "redux-logger": "3.0.1",
     "redux-thunk": "2.2.0",
+    "styled-components": "3.1.6",
     "url-loader": "0.5.8",
     "whatwg-fetch": "2.0.3"
   },

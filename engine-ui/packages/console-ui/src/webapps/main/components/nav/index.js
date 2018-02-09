@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Menu, Dropdown, Icon, Badge } from 'antd'
 import { Link } from 'react-router'
+import styled from 'styled-components'
 
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
@@ -9,14 +10,22 @@ import './style.scss'
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
 const SubMenu = Menu.SubMenu
 
+export const Title = styled.span`
+    color: #ffffff;
+    margin-left: 10px;
+    font-size: 14px;
+`
+export const MyIcon = styled.span`
+    font-size: 18px;
+`
+
 function renderMenuItems(menuItems) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => 
-        menu.enable ? <Menu.Item key={menu.id} className="my-menu-item">
+        menu.enable ? <Menu.Item key={menu.id}>
             <Link to={menu.link} target={menu.target}>{menu.name}</Link>
         </Menu.Item> : ''
     ) : []
 }
-
 
 export function Logo(props) {
     const { linkTo, img } = props
@@ -55,6 +64,17 @@ export function MenuRight(props) {
             </Menu.Item>
         </Menu>
     )
+    const settingMenuItems = (
+        <Menu>
+            <Menu.Item key="setting:1">
+                <Link to="/admin/user">用户管理</Link>
+            </Menu.Item>
+            <Menu.Item key="setting:2">
+                <Link to="/admin/role">角色管理</Link>
+            </Menu.Item>
+            {renderMenuItems(settingMenus)}
+        </Menu>
+    )
     return (
         <div className="menu right">
             <menu className="menu-right">
@@ -63,21 +83,23 @@ export function MenuRight(props) {
                 </span>
                 <span className="divide"></span>
                 <span>
-                    <Badge dot>
-                        <Icon type="message" />
-                    </Badge>
+                    <Link to="/message" style={{color: '#ffffff'}}>
+                        <Badge dot>
+                            <Icon type="message" />
+                        </Badge>
+                    </Link>
                 </span>
-                <span>
-                    <Icon type="setting" />
-                </span>
-                <div className="user-info">
-                    <Dropdown overlay={userMenu} trigger={['click']}>
+                <Dropdown overlay={settingMenuItems} trigger={['click']}>
+                    <span><Icon type="setting" /> </span>
+                </Dropdown>
+                <Dropdown overlay={userMenu} trigger={['click']}>
+                    <div className="user-info">
                         <span>
                             <img className="avatar" />
-                            {user.userName || '未登录'}
+                            { (user && user.userName) || '未登录'}
                         </span>
-                    </Dropdown>
-                </div>
+                    </div>
+                </Dropdown>
             </menu>
         </div>
     )
@@ -116,7 +138,7 @@ export class Navigator extends Component {
 
     updateSelected = () => {
         const menuItems = this.props.menuItems
-        let pathname = this.props.router.location.pathname
+        let pathname = window.location.pathname
         if (menuItems && menuItems.length > 0) {
             const pathFund = menuItems.find(item => {
                 return pathname.indexOf(item.id) > -1

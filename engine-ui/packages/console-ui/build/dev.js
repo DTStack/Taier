@@ -41,7 +41,6 @@ function loadHtmlPlugs() {
             )
         }
     }
-    console.log('htmlPlugs:', JSON.stringify(htmlPlugs))
 }
 
 loadHtmlPlugs();

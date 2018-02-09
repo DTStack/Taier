@@ -28,7 +28,8 @@ $activeColor: #262e36; // 主色
         line-height: 48px;
         background: $bgColor2;
         border-bottom: 0;
-        .my-menu-item {
+
+        .ant-menu-item {
             color: #fff;
             font-size: 14px;
             a {
@@ -98,8 +99,6 @@ $activeColor: #262e36; // 主色
             font-size: 18px;
         }
 
-
-
         .avatar {
             position: relative;
             display: inline-block;
@@ -115,6 +114,23 @@ $activeColor: #262e36; // 主色
         .user-info {
             float: right;
             color: #fff;
+            cursor: pointer;
         }
+
+        .ant-menu-submenu {
+            line-height: 50px;
+            height: 50px;
+            color: #ffffff;
+            text-align: center;
+
+            .ant-menu-submenu-title {
+                padding: 16px 0;
+
+                .anticon-setting {
+                    margin-right: 0;
+                }
+            }
+        }
+
     }
 }
