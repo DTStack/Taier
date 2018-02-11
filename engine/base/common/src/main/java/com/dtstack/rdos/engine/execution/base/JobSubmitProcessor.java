@@ -63,7 +63,7 @@ public class JobSubmitProcessor implements Runnable{
                         logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
                     }
 
-                    updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTING.getStatus());
+                    updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTED.getStatus());
                     jobClient.doJobClientCallBack(updateStatus);
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
 
