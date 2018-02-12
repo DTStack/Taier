@@ -191,7 +191,7 @@ class RealTimeTaskList extends Component {
             title: '最近操作时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formateDateTime(text),
+            render: text => utils.formatDateTime(text),
             sorter: (a, b) => a.gmtModified - b.gmtModified,
         }, {
             title: '最近操作人',

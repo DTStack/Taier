@@ -116,7 +116,7 @@ export default class GoOnTask extends Component {
         const checkPoints = this.state.checkPoints
 
         const options = checkPoints && checkPoints.map(item => {
-            const time = utils.formateDateTime(item.time)
+            const time = utils.formatDateTime(item.time)
             return <Option key={item.id} value={item.externalPath} name={time}>
                 {time}
             </Option>

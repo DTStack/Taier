@@ -208,7 +208,7 @@ class RealTimeConfig extends Component {
             title: '创建时间',
             dataIndex: 'createTime',
             key: 'createTime',
-            render: text => utils.formateDateTime(text),
+            render: text => utils.formatDateTime(text),
         }, {
             title: '创建人',
             dataIndex: 'createUser',

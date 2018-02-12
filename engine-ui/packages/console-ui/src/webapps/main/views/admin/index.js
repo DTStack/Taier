@@ -35,10 +35,14 @@ class SysAdmin extends Component {
         }) : <NotFund />;
 
         const menuItems = [{
-            id: 'userAdmin',
+            id: 'adminUser',
             name: '用户管理',
             link: '/admin/user',
-            target: '_self',
+            enable: true,
+        }, {
+            id: 'adminRole',
+            name: '角色管理',
+            link: '/admin/role',
             enable: true,
         }]
 

@@ -60,7 +60,7 @@ class TaskIndex extends Component {
                         title: '锁定提醒', // 锁定提示
                         content: <span>
                             文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                            {utils.formateDateTime(lockInfo.gmtModified)}。
+                            {utils.formatDateTime(lockInfo.gmtModified)}。
                             强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
                         </span>,
                         okText: '确定保存',
@@ -80,7 +80,7 @@ class TaskIndex extends Component {
                         title: '保存警告',
                         content: <span>
                             文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                            {utils.formateDateTime(lockInfo.gmtModified)}。
+                            {utils.formatDateTime(lockInfo.gmtModified)}。
                             点击确认按钮会<Tag color="orange">覆盖</Tag>
                             您本地的代码，请您提前做好备份！
                         </span>,

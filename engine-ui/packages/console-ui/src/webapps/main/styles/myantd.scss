@@ -25,6 +25,29 @@
 
     .ant-tabs {
         height: 100%;
+
+        .ant-tabs-bar {
+            background: #FAFAFA;
+            border-bottom: 1px solid #DDDDDD;
+            margin-bottom: 0;
+            height: 36px;
+        }
+
+        .ant-tabs-nav {
+            .ant-tabs-tab-active {
+                background: #ffffff;
+            }
+            .ant-tabs-ink-bar {
+                top: 0;
+                bottom: auto;
+            }
+            .ant-tabs-tab {
+                margin-right: 0;
+                font-size: 12px;
+                line-height: 20px;
+                border-right: 1px solid #DDDDDD;
+            }
+        }
     }
 
     .m-panel {
@@ -68,24 +91,62 @@
             }
         }
     }
+    .ant-table-thead {
 
-    .ant-table-thead > tr > th {
-        font-size: 12px;
-        color: #333333;
-        letter-spacing: 0;
-        padding: 8.5px 8px;
+        .ant-table-selection-column > span {
+            visibility: hidden;
+        }
+
+        & > tr > th {
+            font-size: 12px;
+            color: #333333;
+            letter-spacing: 0;
+            padding: 8.5px 8px;
+        }
     }
 
     .ant-table-tbody > tr:hover {
         background: #E7F7FF;
     }
 
-    .ant-table-tbody > tr > td {
-        padding: 8px 8px;
-        border-bottom: 1px solid #E8E8E8;
+    .ant-table-tbody {
+        & > tr > td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #E8E8E8;
+            font-size: 12px;
+        }
     }
+
+    .ant-table-footer {
+        background: #fff;
+        padding: 0;
+        border-bottom: 1px solid #E8E8E8;
+
+        & > tr > td {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .ant-btn {
+            height: 20px;
+            line-height: 20px;
+            font-size: 12px;
+        }
+    }
+
 }
 
 .m-card {
+
+    .ant-card {
+
+        .ant-card-body {
+            padding: 0;
+        }
+    }
     
+}
+
+.ant-input-search {
+    height: 28px;
 }

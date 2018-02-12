@@ -167,11 +167,11 @@ class DirtyData extends Component {
         let myChart = echarts.init(document.getElementById('ProduceTrend'));
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = '脏数据产生趋势'
-        const formateDate = function(obj) {
-            return utils.formateDate(obj.value);
+        const formatDate = function(obj) {
+            return utils.formatDate(obj.value);
         }
-        option.tooltip.axisPointer.label.formatter = formateDate;
-        option.xAxis[0].axisLabel.formatter = formateDate;
+        option.tooltip.axisPointer.label.formatter = formatDate;
+        option.xAxis[0].axisLabel.formatter = formatDate;
         option.yAxis[0].minInterval = 1
         option.legend.data = chartData && chartData.type ? chartData.type.data : []
         option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
@@ -249,7 +249,7 @@ class DirtyData extends Component {
                 dataIndex: 'lastDataChangeTime',
                 key: 'lastDataChangeTime',
                 render: function(text) {
-                    return utils.formateDateTime(text);
+                    return utils.formatDateTime(text);
                 }
             }, {
                 title: '占用存储',

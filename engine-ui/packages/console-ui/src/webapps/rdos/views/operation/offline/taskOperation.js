@@ -364,7 +364,7 @@ class OfflineTaskList extends Component {
                         <div style={{marginTop: '5px'}}>
                             业务日期：{record.businessDate}&nbsp;
                             定时时间：{record.cycTime}&nbsp;
-                            创建时间：{record.gmtCreate ? utils.formateDateTime(record.gmtCreate) : ''}
+                            创建时间：{record.gmtCreate ? utils.formatDateTime(record.gmtCreate) : ''}
                         </div>
                     </article>
                 )

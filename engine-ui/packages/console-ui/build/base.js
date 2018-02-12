@@ -12,7 +12,7 @@ module.exports = function() {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
             rdos: MY_PATH.RDOS_APP_FILE,
-            quality: MY_PATH.DATA_QUALITY_APP_FILE,
+            dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
             vendor: [
                 'react', 'react-dom',
                 'react-router', 'prop-types',

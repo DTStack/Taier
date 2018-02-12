@@ -104,7 +104,7 @@ class ProjectConfig extends Component {
                                         修改
                                     </a>
                                 </td></tr>
-                                <tr><td className="t-title">创建日期</td><td>{utils.formateDateTime(project.gmtCreate)}</td></tr>
+                                <tr><td className="t-title">创建日期</td><td>{utils.formatDateTime(project.gmtCreate)}</td></tr>
                                 <tr><td className="t-title">项目描述</td><td>
                                     {project.projectDesc || ''}
                                     &nbsp;

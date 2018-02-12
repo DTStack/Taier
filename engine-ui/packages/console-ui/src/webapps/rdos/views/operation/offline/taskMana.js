@@ -178,7 +178,7 @@ class OfflineTaskMana extends Component {
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: (text) => {
-                return <span>{utils.formateDateTime(text)}</span>
+                return <span>{utils.formatDateTime(text)}</span>
             },
         }, {
             title: '操作',

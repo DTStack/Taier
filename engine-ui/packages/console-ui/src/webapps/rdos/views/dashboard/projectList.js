@@ -100,7 +100,7 @@ export default class ProjectList extends Component {
             title: '创建日期',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render: text => utils.formateDateTime(text),
+            render: text => utils.formatDateTime(text),
         }, {
             title: '项目所有者',
             dataIndex: 'createUser',

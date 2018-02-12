@@ -7,6 +7,7 @@ import { Provider } from 'react-redux'
 import 'main/styles/comm.css'
 import 'main/styles/reset.css'
 import 'main/styles/layout.scss'
+import 'main/styles/myantd.scss'
 
 // Styles
 import './styles/main.scss'

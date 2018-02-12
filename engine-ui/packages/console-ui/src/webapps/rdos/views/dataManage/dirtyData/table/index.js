@@ -169,11 +169,11 @@ export default class TableDetail extends React.Component {
                             </tr>
                             <tr>
                                 <th>DDL最后变更时间</th>
-                                <td>{ utils.formateDateTime(tableInfo.lastDDLTime) }</td>
+                                <td>{ utils.formatDateTime(tableInfo.lastDDLTime) }</td>
                             </tr>
                             <tr>
                                 <th>数据最后变更时间</th>
-                                <td>{ utils.formateDateTime(tableInfo.lastDataChangeTime) }</td>
+                                <td>{ utils.formatDateTime(tableInfo.lastDataChangeTime) }</td>
                             </tr>
                         </tbody>
                     </table> }

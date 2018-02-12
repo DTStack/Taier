@@ -30,9 +30,7 @@ function renderMenuItems(menuItems) {
 export function Logo(props) {
     const { linkTo, img } = props
     return (
-        <div className="logo left txt-left">
-            <Link to={linkTo}><img alt="logo" src={img} /></Link>
-        </div>
+        <Link to={linkTo}><img alt="logo" src={img} /></Link>
     )
 }
 
@@ -53,7 +51,7 @@ export function MenuLeft(props) {
 }
 
 export function MenuRight(props) {
-    const { activeKey, onClick, settingMenus, user } = props;
+    const { activeKey, onClick, settingMenus, user, apps } = props;
     const userMenu = (
         <Menu onClick={onClick}>
             <Menu.Item key="ucenter">
@@ -75,12 +73,21 @@ export function MenuRight(props) {
             {renderMenuItems(settingMenus)}
         </Menu>
     )
+
+    const appMenus = (
+        <Menu>
+            {renderMenuItems(apps)}
+        </Menu>
+    )
+
     return (
         <div className="menu right">
             <menu className="menu-right">
-                <span>
-                    <Icon type="home" />
-                </span>
+                <Dropdown overlay={appMenus} trigger={['click']}>
+                    <span>
+                        <Icon type="home" />
+                    </span>
+                </Dropdown>
                 <span className="divide"></span>
                 <span>
                     <Link to="/message" style={{color: '#ffffff'}}>
@@ -120,12 +127,13 @@ export class Navigator extends Component {
     }
 
     componentWillReceiveProps() {
-        this.updateSelected()
+        // this.updateSelected()
     }
 
     handleClick = (e) => {
         const props = e.item.props
         const { onMenuClick } = this.props
+        console.log('menu select: ', e.key)
         this.setState({ current: e.key });
         if (onMenuClick) onMenuClick(e)
     }
@@ -158,25 +166,29 @@ export class Navigator extends Component {
     render() {
         const { 
             user, logo, menuItems, 
-            settingMenus, 
+            settingMenus, apps,
             menuLeft, menuRight 
         } = this.props;
         const { current } = this.state
+        console.log('current:', current)
         return (
             <header className="header">
-                { logo }
+                <div className="logo left txt-left">
+                    { logo }
+                </div>
                 {
                     menuLeft ? menuLeft : <MenuLeft 
                         activeKey={ current }
-                        menuItems={menuItems}
+                        menuItems={ menuItems }
                         onClick={this.handleClick} 
                     /> 
                 }
                 {
                      menuRight ? menuRight : <MenuRight 
                         activeKey={ current } 
-                        user={user}
-                        onClick={this.clickUserMenu}
+                        user={ user }
+                        apps={ apps }
+                        onClick={ this.clickUserMenu }
                         settingMenus={ settingMenus }
                     /> 
                 }

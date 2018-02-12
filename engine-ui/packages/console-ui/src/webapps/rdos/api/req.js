@@ -1,4 +1,5 @@
-const baseUrl = APP_CONF.API_BASE_URL || ''; // 从config文件全局读取
+// '/api/rdos'; //
+const baseUrl = '/api';//APP_CONF.API_BASE_URL || ''; // 从config文件全局读取
 
 export default {
     // ===== 用户模块 ===== //

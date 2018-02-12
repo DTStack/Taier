@@ -68,7 +68,7 @@ class RoleManagement extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formateDateTime(text),
+            render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
             width: 120,

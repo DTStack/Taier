@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Tabs, Menu, Table } from 'antd'
+import { Tabs, Menu, Table, Checkbox, Button } from 'antd'
 import { Link } from 'react-router'
-
-import { tabBarStyle } from '../../consts'
 
 import DataSouceApi from 'dataQuality/api/dataSource'
 
@@ -33,6 +31,29 @@ class MessageList extends Component {
         this.setState({
             active: key,
         })
+    }
+
+    tableFooter = (currentPageData) => {
+        return (
+            <tr className="ant-table-row  ant-table-row-level-0">
+                <td>
+                    <Checkbox
+                        indeterminate={this.state.indeterminate}
+                        onChange={this.onCheckAllChange}
+                        checked={this.state.checkAll}
+                    >
+                    </Checkbox>
+                </td>
+                <td>
+                    <Button 
+                        size="small"
+                        type="primary" 
+                        onClick={() => { this.setState({ visible: true }) }}>
+                        删除
+                    </Button>
+                </td>
+            </tr>
+        )
     }
 
     renderPane = () => {
@@ -93,6 +114,7 @@ class MessageList extends Component {
                         columns={colms} 
                         dataSource={ data ? data.data : [] } 
                         rowSelection={rowSelection} 
+                        footer={this.tableFooter}
                     />
                 </main>
             </div>
@@ -105,9 +127,8 @@ class MessageList extends Component {
 
         return (
             <div className="box-1 m-tabs" style={{height: '785px'}}>
-                 <Tabs 
+                <Tabs 
                     animated={false}
-                    tabBarStyle={tabBarStyle} 
                     activeKey={this.state.active} 
                     onChange={this.onPaneChange}
                 >

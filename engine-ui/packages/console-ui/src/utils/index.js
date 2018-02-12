@@ -82,12 +82,12 @@ const utils = {
         return str;
     },
 
-    formateDateTime: function(timestap) {
+    formatDateTime: function(timestap) {
         moment.locale('zh-cn');
         return moment(timestap).format('YYYY-MM-DD HH:mm:ss')
     },
 
-    formateDate: function(timestap) {
+    formatDate: function(timestap) {
         moment.locale('zh-cn');
         return moment(timestap).format('YYYY-MM-DD')
     },

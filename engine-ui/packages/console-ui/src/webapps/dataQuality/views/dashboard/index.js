@@ -3,22 +3,17 @@ import PropTypes from 'prop-types'
 
 class Dashboard extends Component {
 
-    componentDidMount() {
-    }
-
-    initProject() {
-    }
+    componentDidMount() { }
 
     render() {
-        const { children } = this.props
         return (
-            <div className="dt-dcenter">
-                <div className="container">
-                    { children || "i'm container." }
-                </div>
+            <div className="box-1">
+                <h1 className="txt-center">预览</h1>
             </div>
         )
     }
 }
 
 export default Dashboard
+
+

@@ -21,7 +21,7 @@ class FolderTree extends Component {
             && file.type === 'file'
         ) {
             const lockInfo = file.readWriteLockVO;
-            return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formateDateTime(lockInfo.gmtModified)}`;
+            return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formatDateTime(lockInfo.gmtModified)}`;
         }
         return file.createUser;
     }

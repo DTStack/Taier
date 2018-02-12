@@ -130,7 +130,7 @@ class RelationDetail extends React.Component {
                         <table>
                             <tbody className="ant-table-tbody" >
                                 <tr><td>创建者：</td><td>{data.createUser}</td></tr>
-                                <tr><td>创建时间：</td><td>{utils.formateDateTime(data.createTime)}</td></tr>
+                                <tr><td>创建时间：</td><td>{utils.formatDateTime(data.createTime)}</td></tr>
                                 <tr><td>描述：</td><td>{data.comment}</td></tr>
                             </tbody>
                         </table>

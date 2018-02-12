@@ -94,7 +94,7 @@ export default class TaskBrowser extends Component {
         confirm({
             title: '解锁提醒',
             content: `文件正在被${lockInfo.lastKeepLockUserName}编辑中，开始编辑时间
-                ${utils.formateDateTime(lockInfo.gmtModified)}。
+                ${utils.formatDateTime(lockInfo.gmtModified)}。
                 强制编辑可能导致${lockInfo.lastKeepLockUserName}对该文件的修改无法保存！
             `,
             okText: '确定',
@@ -115,7 +115,7 @@ export default class TaskBrowser extends Component {
                             Modal.error({
                                 title: '解锁失败',
                                 content: `文件正在被${lockData.lastKeepLockUserName}编辑中!开始编辑时间
-                                ${utils.formateDateTime(lockData.gmtModified)}.`,
+                                ${utils.formatDateTime(lockData.gmtModified)}.`,
                             });
                         }
                         // reload task info

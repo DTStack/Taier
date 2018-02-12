@@ -123,9 +123,9 @@ export default class TaskLog extends Component {
                                 <tr>
                                     <td style={tdStyle}>运行时间</td>
                                     <td>
-                                        {utils.formateDateTime(taskInfo.execStartTime)} 
+                                        {utils.formatDateTime(taskInfo.execStartTime)} 
                                         ~ 
-                                        {utils.formateDateTime(taskInfo.execEndTime)} 
+                                        {utils.formatDateTime(taskInfo.execEndTime)} 
                                     </td>
                                     <td style={tdStyle}></td>
                                     <td></td>

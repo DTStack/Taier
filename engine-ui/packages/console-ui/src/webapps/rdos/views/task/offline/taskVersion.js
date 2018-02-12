@@ -75,7 +75,7 @@ export default class TaskVersion extends React.Component {
                 dataIndex: 'gmtCreate',
                 key: 'gmtCreate',
                 render: (text) => {
-                    return utils.formateDateTime(text)
+                    return utils.formatDateTime(text)
                 },
             }, {
                 title: '发布人',

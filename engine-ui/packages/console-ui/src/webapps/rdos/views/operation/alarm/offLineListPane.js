@@ -116,7 +116,7 @@ class OfflinePanel extends Component {
             dataIndex: 'time',
             key: 'time',
             render: (text) => {
-                return utils.formateDateTime(text)
+                return utils.formatDateTime(text)
             },
         }, {
             title: '任务名称',

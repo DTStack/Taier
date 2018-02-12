@@ -1,27 +1,55 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Input, Table, Card } from 'antd'
+import { Select, Table, Card, Button, Tabs } from 'antd'
 import { Link } from 'react-router'
 
-import DqApi from 'dataQuality/api'
+import utils from 'utils'
+import { MY_APPS } from 'consts'
 
-const Search = Input.Search
+import RdosApi from 'rdos/api'
+import DqApi from 'dataQuality/api/sysAdmin'
+
+import AppTabs from '../../../components/app-tabs'
+import { currentApps } from '../../../consts'
+
+const Option = Select.Option
+const TabPane = Tabs.TabPane
 
 class AdminRole extends Component {
 
     state = {
-        active: 'all',
+        active: '',
         data: '',
+        projects: [],
         loading: 'success',
     }
 
     componentDidMount() {
-        this.loadData();
+        // const { apps } = this.props
+        // if (apps && apps.length > 0 ) {
+        //     const key = apps[1].id;
+        //     this.setState({
+        //         active: key
+        //     })
+        // }
+        this.loadData(currentApps[0].id);
     }
 
-    loadData = () => {
+    getReqFunc(app) {
+        switch( app ) {
+            case MY_APPS.RDOS: 
+                return RdosApi.getRoleList;
+            case MY_APPS.DATA_QUALITY:
+                return DqApi.queryRole;
+            default:
+                return '';
+        }
+    }
+
+    loadData = (key) => {
         this.setState({ loading: 'loading' })
-        DqApi.queryRole().then(res => {
+        const reqFunc = this.getReqFunc(key)
+        if (reqFunc) reqFunc().then(res => {
             this.setState({
                 data: res.data,
                 loading: 'success'
@@ -33,48 +61,51 @@ class AdminRole extends Component {
         this.setState({
             active: key,
         })
+        this.loadData(key)
     }
 
     initColums = () => {
         return [{
-            title: '账号',
-            dataIndex: 'account',
-            key: 'account',
+            title: '角色名称',
+            dataIndex: 'roleName',
+            key: 'roleName',
             render(text, record) {
                 return <Link to={`message/detail/${record.id}`}>{text}</Link>
             },
         }, {
-            title: '邮箱',
-            dataIndex: 'age',
-            key: 'age',
+            title: '角色描述',
+            dataIndex: 'roleDesc',
+            key: 'roleDesc',
         }, {
-            title: '邮箱',
-            dataIndex: 'email',
-            key: 'email',
+            title: '最近修改时间',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
+            render(time) {
+                return utils.formatDateTime(time);
+            }
         }, {
-            title: '手机号',
-            dataIndex: 'phoneNumber',
-            key: 'phoneNumber',
-        }, {
-            title: '角色',
-            dataIndex: 'roles',
-            key: 'roles',
-        }, {
-            title: '加入时间',
-            dataIndex: 'address',
-            key: 'address',
+            title: '最近修改人',
+            dataIndex: 'person',
+            key: 'person',
+            render(text) {
+                return text || '-'
+            }
         }, {
             title: '操作',
             dataIndex: 'id',
             key: 'id',
             render(id, record) {
-
+                return <span>
+                    <a>编辑</a>
+                    <span className="ant-divider" />
+                    <a>删除</a>
+                </span>
             }
         }]
     }
 
-    render() {
-        const { data, loading } = this.state;
+    renderPane = () => {
+        const { data, loading, projects } = this.state;
 
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => {
@@ -85,36 +116,71 @@ class AdminRole extends Component {
             }),
         };
 
+        const projectOpts = projects && projects.map(project => 
+            <Option value={project.id} key={project.id}>
+                { project.name }
+            </Option>
+        )
+
         const title = (
-            <div>
-                <Search
-                  placeholder="按项目名称搜索"
-                  style={{ width: 200 }}
-                  onSearch={this.onSearch}
-                />&nbsp;&nbsp;
-                <Radio.Group value={this.state.choose} onChange={this.handleChange}>
-                    <Radio.Button value="1">我管理的</Radio.Button>
-                    <Radio.Button value="0">我参与的</Radio.Button>
-                </Radio.Group>
-            </div>
+            <span
+                style={{ marginTop: '10px' }}
+            >
+                选择项目：
+                <Select
+                    showSearch
+                    style={{ width: 200 }}
+                    placeholder="按项目名称搜索"
+                    optionFilterProp="name"
+                >  
+                  { projectOpts }
+                </Select>
+            </span>
+        )
+
+        const extra = (
+            <Button 
+                style={{marginTop: '10px'}}
+                type="primary" 
+                onClick={() => { this.setState({ visible: true }) }}>
+                新建角色
+            </Button>
         )
 
         return (
-            <div className="box-2">
-                <h1 className="box-title">用户管理</h1>
-                <Card 
-                    title={title} 
-                    extra={extra}
-                >
-                    <Table 
-                        rowKey="id"
-                        className="m-table"
-                        columns={this.initColums()} 
-                        loading={loading === 'loading'}
-                        dataSource={ data ? data.data : [] } 
-                        rowSelection={rowSelection} 
+            <Card 
+                bordered={false}
+                noHovering
+                title={title}
+                extra={extra}
+            >
+                <Table 
+                    rowKey="id"
+                    className="m-table"
+                    columns={this.initColums()} 
+                    loading={loading === 'loading'}
+                    dataSource={ data ? data.data : [] } 
+                    rowSelection={rowSelection} 
+                />
+            </Card>
+        )
+    }
+
+    render() {
+        // 融合API管理后
+        // const { apps } = this.props
+        const content = this.renderPane();
+        return (
+            <div className="user-admin">
+                <h1 className="box-title">角色管理</h1>
+                <div className="box-2 m-card" style={{height: '785px'}}>
+                    <AppTabs 
+                        apps={currentApps} 
+                        activeKey={this.state.active}
+                        content={content}
+                        onPaneChange={this.onPaneChange} 
                     />
-                </Card>
+                </div>
             </div>
         )
     }

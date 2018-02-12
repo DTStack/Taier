@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import utils from 'utils'
-
-import * as UserAction from '../actions/user'
+import NotFund from 'widgets/notFund'
 
 const propType = {
     children: PropTypes.node,
@@ -14,15 +13,8 @@ const defaultPro = {
 }
 
 class Main extends Component {
-
-    componentDidMount() {
-        const { dispatch } = this.props
-        // dispatch(UserAction.getUser())
-    }
-
     render() {
-        const { children } = this.props
-        return  <div> { children } </div>
+        return this.props.children || <NotFund />
     }
 }
 Main.propTypes = propType

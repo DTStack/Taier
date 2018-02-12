@@ -191,7 +191,7 @@ class ProjectMember extends Component {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render: (text, record) => utils.formateDateTime(record.user.gmtCreate),
+            render: (text, record) => utils.formatDateTime(record.user.gmtCreate),
         }, {
             title: '操作',
             width: 100,

@@ -14,7 +14,7 @@ const defaultPro = {
     children: [],
 }
 
-class Container extends Component {
+class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
@@ -25,7 +25,7 @@ class Container extends Component {
         const { children } = this.props
         return (
             <div className="main">
-                <Header showMenu {...this.props} />
+                <Header />
                 <div className="container">
                     { children || "i'm container." }
                 </div>
@@ -33,12 +33,7 @@ class Container extends Component {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
+Main.propTypes = propType
+Main.defaultProps = defaultPro
 
-function mapStateToProps(state) {
-    return {
-        user: state.user,
-    }
-}
-export default connect(mapStateToProps)(Container)
+export default Main

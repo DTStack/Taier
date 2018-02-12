@@ -89,7 +89,7 @@ class Abstract extends Component {
             title: '最近操作时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formateDateTime(text),
+            render: text => utils.formatDateTime(text),
             sorter: (a, b) => a.gmtModified - b.gmtModified,
         }, {
             title: '最近操作人',
@@ -208,7 +208,7 @@ class Abstract extends Component {
                         {project.projectName}
                         <span className="desc">
                              &nbsp;{project.createUser ? project.createUser.userName : ''}
-                             &nbsp;创建于：{utils.formateDateTime(project.gmtCreate)}
+                             &nbsp;创建于：{utils.formatDateTime(project.gmtCreate)}
                         </span>
                     </h1>
                     <Table

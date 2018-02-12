@@ -79,11 +79,11 @@ export default class TableOverview extends React.Component{
         let myChart = echarts.init(document.getElementById('Table_Overview'));
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = '脏数据概览图'
-        const formateDate = function(obj) {
-            return utils.formateDate(obj.value);
+        const formatDate = function(obj) {
+            return utils.formatDate(obj.value);
         }
-        option.tooltip.axisPointer.label.formatter = formateDate
-        option.xAxis[0].axisLabel.formatter = formateDate;
+        option.tooltip.axisPointer.label.formatter = formatDate
+        option.xAxis[0].axisLabel.formatter = formatDate;
 
         option.yAxis[0].minInterval = 1
         option.legend.data = chartData && chartData.type ? chartData.type.data : []

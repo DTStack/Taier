@@ -31,7 +31,7 @@ class ResInfoModal extends Component {
                             </tr>
                             <tr>
                                 <td>最近修改时间</td>
-                                <td>{utils.formateDateTime(data.gmtModified)}</td>
+                                <td>{utils.formatDateTime(data.gmtModified)}</td>
                             </tr>
                             <tr><td>描述</td><td>{data.resourceDesc}</td></tr>
                         </tbody>

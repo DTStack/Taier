@@ -11,6 +11,8 @@ import Header from './../layout/header'
 import * as UserAction from '../../actions/user'
 import { Navigator, Logo, Title, MyIcon }  from '../../components/nav'
 
+import '../../styles/views/message.scss';
+
 @connect(state => {
     return {
         user: state.user,

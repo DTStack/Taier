@@ -34,7 +34,7 @@ export default class ScriptDetail extends React.Component {
                         <Row>
                             <Col span="10" className="txt-right">创建时间：</Col>
                             <Col span="14">
-                                {utils.formateDateTime(scriptInfo.gmtCreate)}
+                                {utils.formatDateTime(scriptInfo.gmtCreate)}
                             </Col>
                         </Row>
                         <Row>
@@ -43,7 +43,7 @@ export default class ScriptDetail extends React.Component {
                         </Row>
                         <Row>
                             <Col span="10" className="txt-right">最近修改时间：</Col>
-                            <Col span="14">{utils.formateDateTime(scriptInfo.gmtModified)}</Col>
+                            <Col span="14">{utils.formatDateTime(scriptInfo.gmtModified)}</Col>
                         </Row>
                         <Row>
                             <Col span="10" className="txt-right">描述：</Col>
