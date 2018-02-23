@@ -4,12 +4,16 @@ import {
     Card, message,
  } from 'antd'
 
- import GoBack from 'widgets/go-back'
+ import utils from 'utils'
+ import { formItemLayout } from 'consts'
 
- import Api from '../../../api'
- import { formItemLayout } from '../../../comm/const'
  import RoleForm from './form'
- 
+ import Api from '../../../api'
+ import GoBack from '../../../components/go-back'
+ import { AppName } from '../../../components/display'
+
+ const app = utils.getParameterByName('app')
+
 export default class RoleAdd extends Component {
 
     goIndex = () => {
@@ -21,7 +25,7 @@ export default class RoleAdd extends Component {
         ctx.form.validateFieldsAndScroll((err, roleData) => {
             if (!err) {
                 roleData.roleType = 1; // 表示功能权限类型，还有数据类型权限
-                Api.updateRole(roleData).then((res) => {
+                Api.updateRole(app, roleData).then((res) => {
                     if (res.code === 1) {
                         message.success('创建角色成功！')
                         this.goIndex()
@@ -32,11 +36,11 @@ export default class RoleAdd extends Component {
     }
 
     render() {
-        const extra = <GoBack style={{marginTop: '10px'}} icon="rollback" size="small" />
 
         return (
-            <div className="project-member">
-                <Card title="创建角色" extra={extra}>
+            <div className="box-1">
+                <div className="box-card">
+                    <h1 className="card-title"><GoBack /> 创建{AppName(app)}角色</h1>
                     <article className="section">
                         <RoleForm key="add-role" ref={(e) => this.form = e} />
                         <Row>
@@ -47,7 +51,7 @@ export default class RoleAdd extends Component {
                             </Col>
                         </Row>
                     </article>
-                </Card>
+                </div>
             </div>
         )
     }

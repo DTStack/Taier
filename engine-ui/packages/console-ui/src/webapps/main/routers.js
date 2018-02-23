@@ -16,6 +16,8 @@ import MsgDetail from './views/message/detail'
 import SysAdmin from './views/admin'
 import AdminUser from './views/admin/user'
 import AdminRole from './views/admin/role'
+import RoleAdd from './views/admin/role/add'
+import RoleEdit from './views/admin/role/edit'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -25,15 +27,17 @@ export default (
     <Route path="/" component={ Container }>
         <IndexRoute component={ Dashboard } />
         <Route path="/index.html" component={ Dashboard }></Route>
-        <Route path="/message" component={ MsgCenter }>
+        <Route path="message" component={ MsgCenter }>
             <IndexRoute component={ MsgList } />
             <Route path="list" component={ MsgList } />
             <Route path="detail/:msgId" component={ MsgDetail } />
         </Route>
-        <Route path="/admin" component={ SysAdmin }>
+        <Route path="admin" component={ SysAdmin }>
             <IndexRoute component={ AdminUser } />
             <Route path="user" component={ AdminUser } />
             <Route path="role" component={ AdminRole } />
+            <Route path="role/add" component={ RoleAdd } />
+            <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         {/* <Route path="/rdos" onEnter={() => openNewWindow('/rdos.html')}/> */}
         {/* <Route path="/project/:pid" ></Route> */}

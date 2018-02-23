@@ -10,7 +10,7 @@ export default {
     updateRole(params) {
         return http.post(req.DQ_ROLE_UPDATE, params)
     },
-    delRole(params) {
+    deleteRole(params) {
         return http.post(req.DQ_ROLE_DELETE, params)
     },
     getRolePerissions(params) {

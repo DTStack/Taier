@@ -1,3 +1,4 @@
+import { MY_APPS } from 'consts'
 export function DatabaseType(props) {
     const value = props.value
     switch (value) {
@@ -17,6 +18,24 @@ export function DatabaseType(props) {
         return <span>FTP</span>
     default:
         return <span>其他</span>
+    }
+}
+
+export function AppName(app) {
+    switch(app) {
+        case MY_APPS.RDOS: 
+            return '开发套件'
+        case MY_APPS.DATA_QUALITY: 
+            return '数据质量'
+        case MY_APPS.API: 
+            return 'API管理'
+        case MY_APPS.LABEL: 
+            return '标签管理'
+        case MY_APPS.DATA_MAP: 
+            return '数据地图'
+        case MY_APPS.META_DATA: 
+            return '元数据管理'
+        default: return '';
     }
 }
 

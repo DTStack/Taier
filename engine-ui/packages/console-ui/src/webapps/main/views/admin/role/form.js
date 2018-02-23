@@ -6,9 +6,11 @@ import {
     Radio, Modal, Tree
  } from 'antd'
 
+ import utils from 'utils'
+ import { formItemLayout } from 'consts'
+
  import Api from '../../../api'
- import { formItemLayout } from '../../../comm/const' 
- 
+
  const FormItem = Form.Item
  const Option = Select.Option
  const TreeNode = Tree.TreeNode
@@ -23,7 +25,8 @@ import {
     }
 
     componentDidMount() {
-        Api.getRoleTree().then(res => {
+        const app = utils.getParameterByName('app')
+        Api.getRoleTree(app).then(res => {
             if (res.code === 1) {
                 this.setState({
                     roleTree: (res.data && res.data.children) || []

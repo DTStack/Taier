@@ -20,3 +20,36 @@ export const MY_APPS = {
     DATA_MAP: 'map',
     META_DATA: 'metaData',
 }
+
+/**
+ * 项目角色
+ */
+export const PROJECT_ROLE = { // 项目角色
+    PROJECT_OWNER: 2, // 项目所有者
+    TENANT_OWVER: 1, // 租户所有者
+    VISITOR: 4, // 访客
+}
+
+export const formItemLayout = { // 表单正常布局
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 14 },
+    },
+}
+
+export const tailFormItemLayout = { // 表单末尾布局
+    wrapperCol: {
+        xs: {
+            span: 24,
+            offset: 0,
+        },
+        sm: {
+            span: 14,
+            offset: 6,
+        },
+    },
+}

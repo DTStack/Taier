@@ -5,12 +5,16 @@ import {
     Card, message, Spin,
  } from 'antd'
 
- import GoBack from 'widgets/go-back'
-
+ import utils from 'utils'
+ import { formItemLayout } from 'consts'
+ 
  import Api from '../../../api'
- import { formItemLayout } from '../../../comm/const'
+ import GoBack from '../../../components/go-back'
+ import { AppName } from '../../../components/display'
 
  import RoleForm from './form'
+
+ const app = utils.getParameterByName('app')
 
 export default class RoleEdit extends Component {
 
@@ -32,7 +36,7 @@ export default class RoleEdit extends Component {
         ctx.form.validateFieldsAndScroll((err, roleData) => {
             if (!err) {
                 const updateData = assign(this.state.roleInfo, roleData)
-                Api.updateRole(updateData).then((res) => {
+                Api.updateRole(app, updateData).then((res) => {
                     if (res.code === 1) {
                         message.success('角色更新成功！')
                         ctx.goIndex()
@@ -46,7 +50,7 @@ export default class RoleEdit extends Component {
         const ctx = this
         const { params } = ctx.props
         ctx.setState({loading: true})
-        Api.getRoleInfo({roleId: params.roleId}).then(res => {
+        Api.getRoleInfo(app, {roleId: params.roleId}).then(res => {
             if (res.code === 1) {
                 ctx.setState({ roleInfo: res.data, loading: false })
             }
@@ -55,11 +59,10 @@ export default class RoleEdit extends Component {
 
     render() {
 
-        const extra = <GoBack style={{marginTop: '10px'}} icon="rollback" size="small" />
-
         return (
-            <div className="project-member">
-                <Card title="编辑角色" extra={extra}>
+            <div className="box-1">
+                <div className="box-card">
+                    <h1 className="card-title"><GoBack /> 编辑{AppName(app)}角色</h1>
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <article className="section">
                             <RoleForm 
@@ -76,7 +79,7 @@ export default class RoleEdit extends Component {
                             </Row>
                         </article>
                     </Spin>
-                </Card>
+                </div>
             </div>
         )
     }

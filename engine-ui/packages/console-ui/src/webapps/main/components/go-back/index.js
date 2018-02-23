@@ -15,7 +15,7 @@ export default class GoBack extends Component {
 
     render(){
         return (
-            <Icon type="left-circle" {...this.props} onClick={this.go} />
+            <Icon style={{cursor: 'pointer'}} type="left-circle" {...this.props} onClick={this.go} />
         )
     }
 }

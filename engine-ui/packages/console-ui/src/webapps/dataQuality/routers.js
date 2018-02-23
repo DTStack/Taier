@@ -15,6 +15,8 @@ import MsgDetail from 'main/views/message/detail'
 import SysAdmin from 'main/views/admin'
 import AdminUser from 'main/views/admin/user'
 import AdminRole from 'main/views/admin/role'
+import RoleAdd from 'main/views/admin/role/add'
+import RoleEdit from 'main/views/admin/role/edit'
 
 // 数据质量
 import Container from './views'
@@ -40,6 +42,8 @@ export default (
             <IndexRoute component={ AdminUser } />
             <Route path="user" component={ AdminUser } />
             <Route path="role" component={ AdminRole } />
+            <Route path="role/add" component={ RoleAdd } />
+            <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/dq" component={ Container }>
             <IndexRoute component={ Dashboard } />

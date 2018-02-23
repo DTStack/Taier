@@ -131,17 +131,25 @@
             height: 20px;
             line-height: 20px;
             font-size: 12px;
+            margin-right: 16px;
         }
     }
-
 }
 
 .m-card {
 
     .ant-card {
-
+        .ant-card-head {
+            padding: 0 20px;
+        }
         .ant-card-body {
             padding: 0;
+        }
+    }
+
+    .m-table {
+        tr > td:first-child, tr > th:first-child  {
+            padding-left: 20px;
         }
     }
     

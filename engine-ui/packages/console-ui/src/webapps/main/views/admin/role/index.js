@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Select, Table, Card, Button, Tabs } from 'antd'
+import { 
+    Select, Table, Card, message,
+    Button, Tabs, Popconfirm 
+} from 'antd'
 import { Link } from 'react-router'
 
 import utils from 'utils'
-import { MY_APPS } from 'consts'
 
-import RdosApi from 'rdos/api'
-import DqApi from 'dataQuality/api/sysAdmin'
-
+import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
-import { currentApps } from '../../../consts'
 
 const Option = Select.Option
 const TabPane = Tabs.TabPane
@@ -25,35 +24,33 @@ class AdminRole extends Component {
     }
 
     componentDidMount() {
-        // const { apps } = this.props
-        // if (apps && apps.length > 0 ) {
-        //     const key = apps[1].id;
-        //     this.setState({
-        //         active: key
-        //     })
-        // }
-        this.loadData(currentApps[0].id);
-    }
-
-    getReqFunc(app) {
-        switch( app ) {
-            case MY_APPS.RDOS: 
-                return RdosApi.getRoleList;
-            case MY_APPS.DATA_QUALITY:
-                return DqApi.queryRole;
-            default:
-                return '';
+        const { apps } = this.props
+        if (apps && apps.length > 0 ) {
+            const key = apps[1].id;
+            this.setState({
+                active: key
+            })
+            this.loadData(key);
         }
     }
 
     loadData = (key) => {
         this.setState({ loading: 'loading' })
-        const reqFunc = this.getReqFunc(key)
-        if (reqFunc) reqFunc().then(res => {
+        Api.queryRole(key).then(res => {
             this.setState({
                 data: res.data,
                 loading: 'success'
             })
+        })
+    }
+
+    removeRole = (role) => {
+        const appKey = this.state.active;
+        Api.deleteRole(appKey, {roleId: role.id }).then((res) => {
+            if (res.code === 1) {
+                message.success('移除角色成功！')
+                this.loadData(appKey)
+            }
         })
     }
 
@@ -65,6 +62,8 @@ class AdminRole extends Component {
     }
 
     initColums = () => {
+        const { active } = this.state;
+        const removeRole = this.removeRole;
         return [{
             title: '角色名称',
             dataIndex: 'roleName',
@@ -96,25 +95,22 @@ class AdminRole extends Component {
             key: 'id',
             render(id, record) {
                 return <span>
-                    <a>编辑</a>
+                    <Link to={`/admin/role/edit/${id}?app=${active}`}>编辑</Link>
                     <span className="ant-divider" />
-                    <a>删除</a>
+                    <Popconfirm
+                            title="确认将该角色移除？"
+                            okText="确定" cancelText="取消"
+                            onConfirm={() => { removeRole(record) }}
+                        >
+                            <a>删除</a>
+                    </Popconfirm>
                 </span>
             }
         }]
     }
 
     renderPane = () => {
-        const { data, loading, projects } = this.state;
-
-        const rowSelection = {
-            onChange: (selectedRowKeys, selectedRows) => {
-                console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-            },
-            getCheckboxProps: record => ({
-                disabled: record.name === 'Disabled User', // Column configuration not to be checked
-            }),
-        };
+        const { data, loading, projects, active } = this.state;
 
         const projectOpts = projects && projects.map(project => 
             <Option value={project.id} key={project.id}>
@@ -139,11 +135,8 @@ class AdminRole extends Component {
         )
 
         const extra = (
-            <Button 
-                style={{marginTop: '10px'}}
-                type="primary" 
-                onClick={() => { this.setState({ visible: true }) }}>
-                新建角色
+            <Button style={{marginTop: '10px'}} type="primary">
+                <Link to={`/admin/role/add?app=${active}`}>新建角色</Link>
             </Button>
         )
 
@@ -160,7 +153,6 @@ class AdminRole extends Component {
                     columns={this.initColums()} 
                     loading={loading === 'loading'}
                     dataSource={ data ? data.data : [] } 
-                    rowSelection={rowSelection} 
                 />
             </Card>
         )
@@ -168,14 +160,14 @@ class AdminRole extends Component {
 
     render() {
         // 融合API管理后
-        // const { apps } = this.props
+        const { apps } = this.props
         const content = this.renderPane();
         return (
             <div className="user-admin">
                 <h1 className="box-title">角色管理</h1>
                 <div className="box-2 m-card" style={{height: '785px'}}>
                     <AppTabs 
-                        apps={currentApps} 
+                        apps={apps} 
                         activeKey={this.state.active}
                         content={content}
                         onPaneChange={this.onPaneChange} 

@@ -36,7 +36,7 @@ class MessageList extends Component {
     tableFooter = (currentPageData) => {
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
-                <td>
+                <td style={{ padding: '0 24px' }}>
                     <Checkbox
                         indeterminate={this.state.indeterminate}
                         onChange={this.onCheckAllChange}
@@ -50,6 +50,18 @@ class MessageList extends Component {
                         type="primary" 
                         onClick={() => { this.setState({ visible: true }) }}>
                         删除
+                    </Button>
+                    <Button 
+                        size="small"
+                        type="primary" 
+                        onClick={() => { this.setState({ visible: true }) }}>
+                        标为已读
+                    </Button>
+                    <Button 
+                        size="small"
+                        type="primary" 
+                        onClick={() => { this.setState({ visible: true }) }}>
+                        全部已读
                     </Button>
                 </td>
             </tr>

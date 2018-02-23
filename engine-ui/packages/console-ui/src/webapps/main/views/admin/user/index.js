@@ -1,14 +1,19 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Select, Table, Card, Button, Tabs } from 'antd'
+import { 
+    Select, Table, Card,
+    Button, Tabs, Modal 
+} from 'antd'
 import { Link } from 'react-router'
 
-import RdosApi from 'rdos/api'
-import DqApi from 'dataQuality/api/sysAdmin'
-
+import utils from 'utils'
 import { MY_APPS } from 'consts'
-import { currentApps } from '../../../consts'
+
+import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
+
+import MemberForm from './form'
+import EditMemberRoleForm from './editRole'
 
 const Option = Select.Option
 const TabPane = Tabs.TabPane
@@ -18,41 +23,108 @@ class AdminUser extends Component {
     state = {
         active: '',
         data: '',
+        users: {
+            data: [],
+        },
         projects: [],
+        project: '',
+        notProjectUsers: [],
         loading: 'success',
+        roles: [],
+        visible: false,
+        editTarget: '',
+        visibleEditRole: false,
     }
 
     componentDidMount() {
-        // const { apps } = this.props
-        // if (apps && apps.length > 0 ) {
-        //     const key = apps[1].id;
-        //     this.setState({
-        //         active: key
-        //     })
-        // }
-        this.loadData(currentApps[0].id);
+        const { apps } = this.props
+        if (apps && apps.length > 0 ) {
+            const key = apps[1].id;
+            this.setState({
+                active: key
+            })
+            this.loadUsers(key);
+            this.loadRoles(key);
+        }
     }
 
-    loadData = (key) => {
-        this.setState({ loading: 'loading' })
-        const reqFunc = this.getReqFunc(key)
-        reqFunc().then(res => {
-            this.setState({
-                data: res.data,
-                loading: 'success'
-            })
+    loadUsers = (app, page) => {
+        const ctx = this
+        this.setState({ loading: true })
+        const { params } = this.props
+        Api.queryUser({
+            projectId: params.pid,
+            pageSize: 10,
+            currentPage: page || 1,
+        }).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ users: res.data, loading: false })
+            }
         })
     }
 
-    getReqFunc(app) {
-        switch( app ) {
-            case MY_APPS.RDOS: 
-                return RdosApi.getProjectUsers;
-            case MY_APPS.DATA_QUALITY:
-                return DqApi.getProjectUsers;
-            default:
-                return '';
-        }
+    loadRoles = (app, page) => {
+        const ctx = this
+        Api.getRoleList({
+            currentPage: page || 1,
+        }).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ roles: res.data && res.data.data })
+            }
+        })
+    }
+
+    addMember = () => {
+        const ctx = this
+        const form = this.memberForm.props.form
+        const projectRole = form.getFieldsValue()
+        form.validateFields((err) => {
+            if (!err) {
+                Api.addRoleUser(projectRole).then((res) => {
+                    if (res.code === 1) {
+                        ctx.setState({ visible: false }, () => {
+                            form.resetFields()
+                        })
+                        ctx.loadUsers()
+                        message.success('添加用户成功!')
+                    }
+                })
+            }
+        });
+    }
+
+    updateMemberRole = (item) => {
+        const ctx = this
+        const { editTarget } = this.state
+        const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
+        Api.updateUserRole({
+            targetUserId: editTarget.userId,
+            roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
+        }).then((res) => {
+            if (res.code === 1) {
+                message.success('设置成功！')
+                ctx.setState({ visibleEditRole: false })
+                ctx.loadUsers()
+            }
+        })
+    }
+
+    onCancel = () => {
+        this.setState({
+            visible: false,
+            visibleEditRole: false,
+        }, () => {
+            if (this.eidtRoleForm) {
+                this.eidtRoleForm.props.form.resetFields()
+            }
+            if (this.memberForm) {
+                this.memberForm.props.form.resetFields()
+            }
+        })
+    }
+
+    handleTableChange = (pagination) => {
+        this.loadUsers(pagination.current)
     }
 
     onPaneChange = (key) => {
@@ -65,26 +137,22 @@ class AdminUser extends Component {
     initColums = () => {
         return [{
             title: '账号',
-            dataIndex: 'account',
+            dataIndex: 'user.userName',
             key: 'account',
             render(text, record) {
                 return <Link to={`message/detail/${record.id}`}>{text}</Link>
             },
         }, {
             title: '邮箱',
-            dataIndex: 'age',
-            key: 'age',
-        }, {
-            title: '邮箱',
-            dataIndex: 'email',
+            dataIndex: 'user.email',
             key: 'email',
         }, {
             title: '手机号',
-            dataIndex: 'phoneNumber',
+            dataIndex: 'user.phoneNumber',
             key: 'phoneNumber',
         }, {
             title: '姓名',
-            dataIndex: 'userName',
+            dataIndex: 'user.userName',
             key: 'userName',
         }, {
             title: '角色',
@@ -95,8 +163,11 @@ class AdminUser extends Component {
             }
         }, {
             title: '加入时间',
-            dataIndex: 'address',
-            key: 'address',
+            dataIndex: 'user.gmtCreate',
+            key: 'gmtCreate',
+            render(time) {
+                return utils.formatDateTime(time);
+            }
         }, {
             title: '操作',
             dataIndex: 'id',
@@ -113,15 +184,6 @@ class AdminUser extends Component {
 
     renderPane = () => {
         const { data, loading, projects } = this.state;
-
-        const rowSelection = {
-            onChange: (selectedRowKeys, selectedRows) => {
-                console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-            },
-            getCheckboxProps: record => ({
-                disabled: record.name === 'Disabled User', // Column configuration not to be checked
-            }),
-        };
 
         const projectOpts = projects && projects.map(project => 
             <Option value={project.id} key={project.id}>
@@ -162,12 +224,12 @@ class AdminUser extends Component {
                 extra={extra}
             >
                 <Table 
-                    rowKey="id"
+                    rowKey="userId"
                     className="m-table"
                     columns={this.initColums()} 
+                    onChange={this.handleTableChange}
                     loading={loading === 'loading'}
                     dataSource={ data ? data.data : [] } 
-                    rowSelection={rowSelection} 
                 />
             </Card>
         )
@@ -175,7 +237,13 @@ class AdminUser extends Component {
 
 
     render() {
-        // const { apps } = this.props
+        const { apps } = this.props
+
+        const { 
+            visible, users, roles, notProjectUsers,
+            visibleEditRole, editTarget, project
+        } = this.state
+
         const content = this.renderPane();
 
         return (
@@ -183,12 +251,38 @@ class AdminUser extends Component {
                 <h1 className="box-title">用户管理</h1>
                 <div className="box-2 m-card" style={{height: '785px'}}>
                     <AppTabs 
-                        apps={currentApps} 
+                        apps={apps} 
                         activeKey={this.state.active}
                         content={content}
                         onPaneChange={this.onPaneChange} 
                     />
                 </div>
+                <Modal
+                  title="添加项目成员"
+                  wrapClassName="vertical-center-modal"
+                  visible={visible}
+                  onOk={this.addMember}
+                  onCancel={this.onCancel}
+                >
+                    <MemberForm
+                      wrappedComponentRef={(e) => { this.memberForm = e }}
+                      roles={roles}
+                      notProjectUsers={notProjectUsers}
+                    />
+                </Modal>
+                <Modal
+                  title="设置用户角色"
+                  wrapClassName="vertical-center-modal"
+                  visible={visibleEditRole}
+                  onOk={this.updateMemberRole}
+                  onCancel={this.onCancel}
+                >
+                    <EditMemberRoleForm
+                      user={editTarget}
+                      roles={roles}
+                      wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
+                    />
+                </Modal>
             </div>
         )
     }

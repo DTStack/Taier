@@ -31,9 +31,9 @@ class MsgDetail extends Component {
     render() {
         return (
             <div className="box-1">
-                <div className="msg-box">
+                <div className="box-card msg-box">
                     <main>
-                        <h1><GoBack /> 蚂蚁金服设计平台简介</h1>
+                        <h1 className="card-title"><GoBack /> 蚂蚁金服设计平台简介</h1>
                         <p>
                             段落示意：蚂蚁金服设计平台 design.alipay.com，用最小的工作量，无缝接入蚂蚁金服生态，提供跨越设计与开发的体验解决方案。蚂蚁金服设计平台 design.alipay.com，
                             用最小的工作量，无缝接入蚂蚁金服生态，提供跨越设计与开发的体验解决方案。
