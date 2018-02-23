@@ -24,6 +24,7 @@
 		<module>base/spark-yarn</module>
 		<module>base/flink140</module>
 		<module>base/mysql</module>
+		<module>base/odps</module>
 	</modules>
 
 	<dependencies>
