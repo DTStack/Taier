@@ -1,8 +1,6 @@
 package com.dtstack.rdos.engine.execution.odps;
 
-import com.aliyun.odps.Instance;
-import com.aliyun.odps.Odps;
-import com.aliyun.odps.OdpsException;
+import com.aliyun.odps.*;
 import com.aliyun.odps.task.SQLTask;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
@@ -33,6 +31,10 @@ public class OdpsClient extends AbsClient {
     private EngineResourceInfo resourceInfo;
     private Odps odps;
 
+    public Odps getOdps() {
+        return odps;
+    }
+
     @Override
     public void init(Properties prop) throws Exception {
         resourceInfo = new OdpsResourceInfo();
@@ -53,6 +55,7 @@ public class OdpsClient extends AbsClient {
 
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
+
         throw new RdosException("odps client not support MR job?");
     }
 
@@ -87,11 +90,11 @@ public class OdpsClient extends AbsClient {
 
         try {
             Map<String, Instance.TaskStatus> statusMap = instance.getTaskStatus();
-
-            for (Map.Entry<String, Instance.TaskStatus> status : statusMap.entrySet()) {
-                taskStatus = status.getValue().getStatus();
-                break;
+            if (statusMap == null || statusMap.size() == 0) {
+               throw new RuntimeException("statusMap empty: " + jobId);
             }
+            taskStatus = statusMap.entrySet().iterator().next().getValue().getStatus();
+
             if (taskStatus == null) {
                 throw new RuntimeException("can't find task status for task: " + jobId);
             }
@@ -132,12 +135,35 @@ public class OdpsClient extends AbsClient {
 
     @Override
     public String getJobLog(String jobId) {
-        return null;
-//        return exeQueue.getJobLog(jobId);
+        if (!hasLog(jobId)) {
+            return "";
+        }
+
+        Instance instance = odps.instances().get(jobId);
+
+        if (instance == null) {
+            throw new RuntimeException("can't find odps task: " + jobId);
+        }
+
+        try {
+            return instance.getTaskResults().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("getLog error: " + jobId + " msg:" + e.getMessage());
+        }
+
     }
 
     @Override
     public EngineResourceInfo getAvailSlots() {
         return resourceInfo;
+    }
+
+    private boolean hasLog(String jobId)  {
+        try {
+            RdosTaskStatus taskStatus = getJobStatus(jobId);
+            return taskStatus.equals(RdosTaskStatus.FAILED);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
