@@ -1,6 +1,9 @@
 package com.dtstack.rdos.engine.execution.odps.test;
 
 
+import com.aliyun.odps.FileResource;
+import com.aliyun.odps.Odps;
+import com.aliyun.odps.Resource;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -10,8 +13,10 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class OdpsClientTest {
@@ -86,6 +91,54 @@ public class OdpsClientTest {
         Thread.sleep(3000);
         RdosTaskStatus cancelStatus = odpsClient.getJobStatus(jobId);
         System.out.println("cancel status: " + cancelStatus);
+    }
+
+    @Test
+    @Ignore
+    public void getLog() throws Exception {
+        //String query = "select * from tb250; select 111 from tb250;";
+        String query = "select * from tb250;";
+        JobClient jobClient = new JobClient();
+        jobClient.setSql(query);
+        JobResult jobResult =  odpsClient.submitSqlJob(jobClient);
+        String jobId = jobResult.getData("jobid");
+        System.out.println("my jobid: " + jobId);
+        RdosTaskStatus status = odpsClient.getJobStatus(jobId);
+
+        Thread.sleep(3000);
+        String log = odpsClient.getJobLog(jobId);
+        System.out.println("log: " + log);
+    }
+
+    @Test
+    @Ignore
+    public void getSlot() throws Exception {
+        odpsClient.getAvailSlots();
+    }
+
+    @Test
+    @Ignore
+    public void createResource() throws Exception {
+        Odps odps = odpsClient.getOdps();
+        FileResource resource = new FileResource();
+        resource.setName("hyf_heheda");
+
+        String source = "/Users/softfly/company/backbone/README.md";
+        File file = new File(source);
+        InputStream is = new FileInputStream(file);
+
+        odps.resources().create(resource, is);
+
+    }
+
+    @Test
+    public void findResource() throws Exception {
+        Odps odps = odpsClient.getOdps();
+        for(Resource resource : odps.resources()) {
+            if(resource.getName().equals("hyf_heheda")) {
+                System.out.println("fuck you");
+            }
+        }
     }
 
 }
