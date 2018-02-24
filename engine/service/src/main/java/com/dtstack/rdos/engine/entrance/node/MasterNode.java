@@ -181,9 +181,10 @@ public class MasterNode {
             return sendTask(jobClient, retryNum, excludeNodes);
         }
 
-        ParamAction paramAction = jobClient.getParamAction();
-        paramAction.setRequestStart(RequestStart.NODE.getStart());
+
         try {
+            ParamAction paramAction = jobClient.getParamAction();
+            paramAction.setRequestStart(RequestStart.NODE.getStart());
             if(HttpSendClient.actionSubmit(address, paramAction)){
                 return true;
             }else{
