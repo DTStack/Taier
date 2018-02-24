@@ -138,11 +138,13 @@ public class JobClient extends OrderObject{
         action.setExternalPath(externalPath);
         action.setEngineType(engineType);
         action.setExeArgs(classArgs);
-        try{
-            action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
-        }catch (Exception e){
-            //不应该走到这个异常,这个数据本身是由map转换过来的
-            logger.error("", e);
+        if(!Strings.isNullOrEmpty(pluginInfo)){
+            try{
+                action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
+            }catch (Exception e){
+                //不应该走到这个异常,这个数据本身是由map转换过来的
+                logger.error("", e);
+            }
         }
         return action;
     }

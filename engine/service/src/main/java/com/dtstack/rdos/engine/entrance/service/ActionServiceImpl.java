@@ -127,8 +127,9 @@ public class ActionServiceImpl {
             String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
             zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
-            updateJobClientPluginInfo(jobId, computeType, PublicUtil.objToString(paramAction.getPluginInfo()));
-
+            if(paramAction.getPluginInfo() != null){
+                updateJobClientPluginInfo(jobId, computeType, PublicUtil.objToString(paramAction.getPluginInfo()));
+            }
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobId;
             Integer finalComputeType = computeType;
