@@ -147,7 +147,9 @@ public class ZkDistributed {
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
-		executors.execute(new PluginStoreInfoListener(masterListener));
+		if(ConfigParse.getPluginStoreInfo()!=null){
+			executors.execute(new PluginStoreInfoListener(masterListener));
+		}
 	}
 
 	public boolean localIsMaster(){

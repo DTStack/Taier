@@ -28,9 +28,7 @@ public class PluginStoreInfoListener implements Runnable{
                 Thread.sleep(30*60*1000);
                 logger.info("PluginStoreInfoListener start again...");
                 if(masterListener.isMaster()){
-                    if(ConfigParse.getPluginStoreInfo()!=null){
-                        PluginJobInfoComponent.getPluginJobInfoComponent().clearJob();
-                    }
+                    PluginJobInfoComponent.getPluginJobInfoComponent().clearJob();
                 }
             } catch (Exception e) {
                 logger.error("",e);
