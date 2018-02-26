@@ -147,6 +147,7 @@ export default class ProjectList extends Component {
         const { projectList, visible, loading } = this.state
         const extra = (
             <Button 
+                style={{ marginTop: 10 }}
                 type="primary" 
                 onClick={() => { this.setState({ visible: true }) }}>
                 创建项目
@@ -171,14 +172,16 @@ export default class ProjectList extends Component {
             current: this.state.current,
         };
         return (
-            <article className="section">
-                <h1 className="title">项目列表</h1>
+            <div className="m-card shadow" style={{margin: '0 20px'}}>
                 <Card
+                    noHovering
+                    bordered={false}
                     loading={false}
                     title={title}
                     extra={extra}
                 >
                     <Table
+                        className="m-table"
                         rowKey="id"
                         columns={this.initColumns()}
                         loading={loading === 'loading'}
@@ -193,7 +196,7 @@ export default class ProjectList extends Component {
                     visible={visible}
                     onCancel={() => this.setState({ visible: false })}
                 />
-            </article>
+            </div>
         )
     }
 }

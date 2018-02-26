@@ -5,9 +5,8 @@ import {
     Card, message, Spin,
  } from 'antd'
 
- import GoBack from 'widgets/go-back'
-
  import Api from '../../../api'
+ import GoBack from 'main/components/go-back'
  import { formItemLayout } from '../../../comm/const'
 
  import RoleForm from './form'
@@ -55,28 +54,29 @@ export default class RoleEdit extends Component {
 
     render() {
 
-        const extra = <GoBack style={{marginTop: '10px'}} icon="rollback" size="small" />
-
         return (
-            <div className="project-member">
-                <Card title="编辑角色" extra={extra}>
-                    <Spin tip="Loading..." spinning={this.state.loading}>
-                        <article className="section">
-                            <RoleForm 
-                                key="edit-role"
-                                roleInfo={this.state.roleInfo} 
-                                ref={(e) => this.form = e} 
-                            />
-                            <Row>
-                                <Col {...formItemLayout.labelCol}></Col>
-                                <Col {...formItemLayout.wrapperCol}>
-                                    <Button type="primary" onClick={this.submit}>确认更新</Button>
-                                    <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
-                                </Col>
-                            </Row>
-                        </article>
-                    </Spin>
-                </Card>
+            <div className="box-1">
+                <div className="box-card">
+                    <h1 className="card-title"><GoBack /> 编辑角色</h1>
+                    <article title="编辑角色">
+                        <Spin tip="Loading..." spinning={this.state.loading}>
+                            <article className="section">
+                                <RoleForm 
+                                    key="edit-role"
+                                    roleInfo={this.state.roleInfo} 
+                                    ref={(e) => this.form = e} 
+                                />
+                                <Row>
+                                    <Col {...formItemLayout.labelCol}></Col>
+                                    <Col {...formItemLayout.wrapperCol}>
+                                        <Button type="primary" onClick={this.submit}>确认更新</Button>
+                                        <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
+                                    </Col>
+                                </Row>
+                            </article>
+                        </Spin>
+                    </article>
+                </div>
             </div>
         )
     }

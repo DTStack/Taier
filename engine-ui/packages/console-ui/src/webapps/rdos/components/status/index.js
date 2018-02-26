@@ -6,12 +6,12 @@ export function ProjectStatus(props) {
     const value = props.value
     switch (value) {
     case 0:
-        return <Tag color="blue">初始化</Tag>
+        return <span><Badge status="default" />初始化</span>
     case 1:
-        return <Tag color="green">正常</Tag>
+        return <span><Badge status="processing" />正常</span>
     case 2:
     case 3:
-        return <Tag color="red">创建失败</Tag>
+        return <span><Badge status="error" />创建失败</span>
     default:
         return ''
     }

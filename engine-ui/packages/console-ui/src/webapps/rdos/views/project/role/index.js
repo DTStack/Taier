@@ -103,22 +103,29 @@ class RoleManagement extends Component {
 
         const extra = (<Button 
             type="primary" 
+            style={{ marginTop: '10px' }}
             onClick={this.initAddMember}>
                 <Link to={`${location.pathname}/add`}>新建角色</Link>
             </Button>
         )
 
         return (
-            <div className="project-member">
-                <article className="section">
-                    <h1 className="title black" style={{paddingTop: '0'}}>
-                        {project.projectName}
-                        <span className="desc">&nbsp;描述：{project.projectDesc}</span>
-                    </h1>
-                    <Card title="角色列表" extra={extra}>
+            <div>
+                <h1 className="box-title black" style={{paddingTop: '0'}}>
+                    {project.projectName}
+                    <span className="box-sub-title">&nbsp;描述：{project.projectDesc}</span>
+                </h1>
+                <div className="box-2 m-card">
+                    <Card 
+                        noHovering
+                        bordered={false}
+                        loading={false}
+                        title="角色列表" 
+                        extra={extra}
+                    >
                         <Table
                             rowKey="id"
-                            className="section-border"
+                            className="m-table"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
@@ -126,7 +133,7 @@ class RoleManagement extends Component {
                             dataSource={roles.data}
                         />
                     </Card>
-                </article>
+                </div>
             </div>
         )
     }

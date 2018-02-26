@@ -120,7 +120,7 @@ export default (
             <Route path="alarm-record" component={OpeAlarm} />
             <Route path="alarm-config" component={OpeAlarmConfig} />
         </Route>
-        <Route path="/database" component={DataSourceContainer}>
+        <Route path="/database" component={DataSourceIndex}>
             <IndexRoute component={DataSourceIndex} />
         </Route>
         <Route path="/data-manage" component={DataManageContainer}>

@@ -89,41 +89,39 @@ class ProjectConfig extends Component {
             project.memberUsers.map(item => <span key={item.id}>{item.userName};</span>) : ''
         return (
             <div className="project-config">
-                <article className="section">
-                    <h1 className="title black" style={{paddingTop: '0'}}>
-                        项目配置
-                    </h1>
-                    <Card>
-                        <table className="project-config-table bd">
-                            <tbody>
-                                <tr><td className="t-title">项目名称</td><td>{project.projectIdentifier}</td></tr>
-                                <tr><td className="t-title">项目别名</td><td>
-                                    {project.projectAlias || '-'}
-                                    &nbsp;
-                                    <a onClick={() => { this.setState({ visibleUpdateDesc: true }) }}>
-                                        修改
-                                    </a>
-                                </td></tr>
-                                <tr><td className="t-title">创建日期</td><td>{utils.formatDateTime(project.gmtCreate)}</td></tr>
-                                <tr><td className="t-title">项目描述</td><td>
-                                    {project.projectDesc || ''}
-                                    &nbsp;
-                                    <a onClick={() => { this.setState({ visibleUpdateDesc: true }) }}>
-                                        修改
-                                    </a>
-                                </td></tr>
-                                <tr><td className="t-title">项目管理员</td><td>{admins}</td></tr>
-                                <tr>
-                                    <td className="t-title">普通成员</td>
-                                    <td>
-                                        {members}
-                                        <Link to={`/project/${params.pid}/member`}> 成员管理</Link>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </Card>
-                </article>
+                <h1 className="box-title">
+                    项目配置
+                </h1>
+                <div className="box-card">
+                    <table className="project-config-table bd">
+                        <tbody>
+                            <tr><td className="t-title">项目名称</td><td>{project.projectIdentifier}</td></tr>
+                            <tr><td className="t-title">项目别名</td><td>
+                                {project.projectAlias || '-'}
+                                &nbsp;
+                                <a onClick={() => { this.setState({ visibleUpdateDesc: true }) }}>
+                                    修改
+                                </a>
+                            </td></tr>
+                            <tr><td className="t-title">创建日期</td><td>{utils.formatDateTime(project.gmtCreate)}</td></tr>
+                            <tr><td className="t-title">项目描述</td><td>
+                                {project.projectDesc || ''}
+                                &nbsp;
+                                <a onClick={() => { this.setState({ visibleUpdateDesc: true }) }}>
+                                    修改
+                                </a>
+                            </td></tr>
+                            <tr><td className="t-title">项目管理员</td><td>{admins}</td></tr>
+                            <tr>
+                                <td className="t-title">普通成员</td>
+                                <td>
+                                    {members}
+                                    <Link to={`/project/${params.pid}/member`}> 成员管理</Link>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <Modal
                     title="修改项目描述"
                     wrapClassName="vertical-center-modal"

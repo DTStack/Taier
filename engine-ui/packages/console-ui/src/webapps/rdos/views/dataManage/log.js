@@ -21,12 +21,12 @@ class LogSearchForm extends React.Component {
         const { projectUsers } = this.props;
 
         return (
-            <Form layout="inline">
+            <Form className="m-form-inline" layout="inline">
                 <FormItem style={{ marginBottom: 24 }} label="变更时间">
                     {getFieldDecorator('range', {
                         initialValue: [moment().subtract(7, 'days'), moment()]
                     })(
-                        <RangePicker style={{width: 200}} format="YYYY-MM-DD" />
+                        <RangePicker size="default" style={{width: 200}} format="YYYY-MM-DD" />
                     )}
                 </FormItem>
                 <FormItem style={{ marginBottom: 24 }} label="操作人">
@@ -42,11 +42,11 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" style={{width: 200}}></Input>
+                        <Input placeholder="变更语句" size="default" style={{width: 200}}></Input>
                     )}
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" onClick={ this.props.search } > 搜索 </Button>
+                    <Button type="primary" size="default" onClick={ this.props.search } > 搜索 </Button>
                 </FormItem>
                 <FormItem>
                     {getFieldDecorator('tableId', {
@@ -117,6 +117,7 @@ class TableLog extends React.Component {
                     projectUsers={ projectUsers }
                 />
                 <Table columns={ columns }
+                    className="m-table"
                     dataSource={ logs.data }
                     style={{ margin: '20 0' }}
                     pagination={ false }
@@ -268,13 +269,14 @@ class Log extends React.Component {
 
         return <div className="g-tablelogs">
             <SplitPane split="vertical" minSize={200} defaultSize={300}>
-                <div className="m-tablelist">
+                <div className="m-tablelist m-card">
                     <Search style={{ width: '100%' }}
                         placeholder="按表名搜索"
                         onSearch={ value => { this.searchTable({tableName: value}) } }
                     />
                     {data && <Table columns={ columns }
                         dataSource={ data }
+                        className="m-table"
                         style={{ margin: '10 0 10 0' }}
                         pagination={ false }
                         onChange={this.handleTableChange}

@@ -149,8 +149,8 @@ export default class ProjectList extends Component {
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = '数据概览'
         option.legend.show = false
-        option.color[0] = '#69e3be'
-        option.color[1] = '#ad85f5'
+        option.color[0] = '#F5A623'; //'#69e3be'
+        option.color[1] = '#2491F7'; //'#F5A623'
 
         option.tooltip.formatter = function (params) {
             const showVal = utils.convertBytes(params[1].value)
@@ -160,7 +160,7 @@ export default class ProjectList extends Component {
         }
 
         option.xAxis[0].axisLabel.formatter = '{value}'
-        option.xAxis[0].axisLabel.textStyle.color = '#c2c8d3';
+        option.xAxis[0].axisLabel.textStyle.color = '#666666';
         option.xAxis[0].data = chartData && chartData.tableNum
             ? chartData.tableNum.x.data.map(item => moment(item).format('MM-DD'))
             : []
@@ -199,7 +199,7 @@ export default class ProjectList extends Component {
         const option = cloneDeep(defaultBarOption);
         const data = this.getPieData(chartData)
         option.title.text = '项目占用存储TOP5'
-        option.color = ['#18a689']
+        option.color = ['#2491F7']
 
         option.tooltip.formatter = function (params) {
             const showVal = utils.convertBytes(params[0].value)
@@ -232,7 +232,7 @@ export default class ProjectList extends Component {
         const option = cloneDeep(defaultBarOption);
         const data = this.getPieData(chartData)
 
-        option.color = ['#72d6f1']
+        option.color = ['#F5A623']
         option.title.text = '表占用存储TOP5'
         option.legend.show = false
 
@@ -305,13 +305,7 @@ export default class ProjectList extends Component {
         }
 
         return (
-            <article className="section">
-                <h1 className="title" style={{ marginTop: '-10px' }}>
-                    概况&nbsp;&nbsp;
-                    <span style={{ fontSize: '12px', color: '#999999' }}>
-                        截至{moment().format('YYYY-MM-DD')}
-                    </span>
-                </h1>
+            <div style={{margin: '0 14px'}}>
                 <Abstract
                     project={project}
                     projectTable={projectTable}
@@ -363,7 +357,7 @@ export default class ProjectList extends Component {
                         </Col>
                 </Row>
                 </Resize>
-            </article>
+            </div>
         )
     }
 }

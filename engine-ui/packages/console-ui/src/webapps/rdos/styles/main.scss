@@ -23,33 +23,6 @@ table {
     left: 0;
 }
 
-.section {
-    .ant-row {
-        margin-left: -8px;
-        // margin-right: -8px;
-        >div {
-            padding: 0 8px;
-        }
-    }
-    .title {
-        font-weight: 700;
-        color: $fontColor;
-        font-size: $font2;
-        padding: 10px 0;
-    }
-    .desc {
-        color: #999999;
-        font-size: 10px;
-    }
-    .ant-card-extra {
-        margin-top: 10px;
-    }
-    .section-border {
-        border: 1px solid #e9e9e9;
-        border-radius: 3px;
-    }
-}
-
 .bg-w {
     background: #fff !important;
 }
@@ -85,7 +58,6 @@ table {
 
 
 /* use css to set position of modal */
-
 .vertical-center-modal {
     text-align: center;
     white-space: nowrap;
@@ -134,35 +106,13 @@ table {
 }
 
 .shadow {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
 }
 
 .help-doc {
     position: absolute;
     right: -20px;
     top: 10px;
-}
-
-.my-ant-menu {
-    // sidebar styles
-    .ant-menu.ant-menu-inline,
-    .ant-menu.ant-menu-vertical {
-        background: #3B4D5F;
-        .ant-menu-item>a,
-        .ant-menu-submenu-title {
-            color: #959FB1;
-        }
-        .ant-menu-item:active,
-        .ant-menu-submenu-title:active {
-            background: #222F3C;
-        }
-        .ant-menu-item-selected {
-            background: #222F3C;
-            &>a {
-                color: #009D7E;
-            }
-        }
-    }
 }
 
 .modal-body-nopadding {
@@ -197,10 +147,7 @@ table {
 }
 
 .ant-form-item {
-    .ant-input-search {
-        height: 32px;
-        line-height: 32px;
-    }
+
     .ant-select {
         .ant-select-search__field__wrap,
         .ant-select-search__field,

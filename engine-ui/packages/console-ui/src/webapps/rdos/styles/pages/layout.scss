@@ -1,7 +1,9 @@
 @import '../const.scss';
+$activeColor: #262e36; // 主色
+
 .header {
     background: $color1;
-    padding: 0 40px;
+    padding: 0 20px 0 44px;
     height: 50px;
     line-height: 50px;
     position: absolute;
@@ -36,7 +38,7 @@
 
     .menu {
         .ant-menu-submenu {
-            background: #263645;
+            background: $activeColor;
         }
     }
 
@@ -53,9 +55,9 @@
     .ant-menu-horizontal>.ant-menu-submenu-open,
     .ant-menu-horizontal>.ant-menu-item-selected,
     .ant-menu-horizontal>.ant-menu-submenu-selected {
-        border-bottom: 2px solid #18a689;
+        border-bottom: 2px solid $color2;
         color: #fff;
-        background: #18a689;
+        background: $activeColor;
     }
     .ant-menu-horizontal>.ant-menu-item>a:hover,
     .ant-menu-horizontal>.ant-menu-submenu>a:hover,
@@ -79,26 +81,11 @@
         }
     }
     .ant-menu-item-selected {
-        background-color: #18a689 !important;
+        background-color: $activeColor !important;
         color: #fff;
         &:hover {
             color: #fff;
         }
-    }
-}
-
-.container {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #fff;
-
-    .ant-layout {
-        overflow: hidden;
-        height: 100%;
-        background: #fff;
     }
 }
 
@@ -112,13 +99,6 @@
     position: relative;
     overflow-y: auto;
     background: #fff;
-}
-
-.inner-container {
-    padding: 20px;
-    height: 100%;
-    position: relative;
-    background: #f2f3f8;
 }
 
 .sidebar {

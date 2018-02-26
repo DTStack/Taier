@@ -1,11 +1,19 @@
 .project-dashboard {
-    
+    padding-bottom: 20px;
+
+    .ant-row {
+        >div {
+            padding: 0 8px;
+        }
+    }
+
+
     .indicator-col {
 
         height: 65px;
         background: #fff;
-        border-radius: 3px;
         border-color: transparent;
+
         .indicator-icon {
             padding: 20.5px 33px;
             height: 65px;
@@ -31,7 +39,7 @@
 
             .indicator-content {
                 font-size: 24px;
-                color: #18a689;
+                color: #2491F7;
             }
         }
     }
@@ -45,7 +53,6 @@
         padding: 10px;
         background: #ffffff;
         height: 300px;
-        border-radius: 3px;
         position: relative;
 
         .filter {

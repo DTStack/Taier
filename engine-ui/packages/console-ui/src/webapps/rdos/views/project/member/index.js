@@ -235,7 +235,7 @@ class ProjectMember extends Component {
         };
 
         const title = (
-            <div>
+            <div >
                 <Search
                     placeholder="搜索姓名"
                     style={{ width: 200 }}
@@ -244,19 +244,31 @@ class ProjectMember extends Component {
             </div>
         )
 
-        const extra = <Button type="primary" onClick={this.initAddMember}>添加成员</Button>
+        const extra = <Button 
+                type="primary"
+                style={{ marginTop: 10 }}
+                onClick={this.initAddMember}
+            >
+                添加成员
+            </Button>
 
         return (
-            <div className="project-member">
-               <article className="section">
-                    <h1 className="title black" style={{paddingTop: '0'}}>
-                        {project.projectName}
-                        <span className="desc">&nbsp;描述：{project.projectDesc}</span>
-                    </h1>
-                    <Card title={title} extra={extra}>
+            <div>
+                <h1 className="box-title" style={{paddingTop: '0'}}>
+                    {project.projectName}
+                    <span className="box-sub-title">&nbsp;描述：{project.projectDesc}</span>
+                </h1>
+                <div className="box-2 m-card">
+                    <Card 
+                        noHovering
+                        bordered={false}
+                        loading={false}
+                        title={title} 
+                        extra={extra}
+                    >
                         <Table
                             rowKey="userId"
-                            className="section-border"
+                            className="m-table"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}
@@ -264,7 +276,7 @@ class ProjectMember extends Component {
                             dataSource={users.data}
                         />
                     </Card>
-                </article>
+                </div>
                 <Modal
                   title="添加项目成员"
                   wrapClassName="vertical-center-modal"

@@ -41,7 +41,7 @@ export default class Sidebar extends Component {
         const props = this.props
         const base = `/data-manage`
         return (
-            <div className="sidebar my-ant-menu">
+            <div className="sidebar m-ant-menu">
                 <Menu
                   onClick={this.handleClick}
                   style={{ width: 200, height: '100%' }}

@@ -1,10 +1,3 @@
-.project-dashboard {
-    padding: 10px 40px 40px 40px;
-    overflow-y: auto;
-    height: 100%;
-    background: #f2f3f8;
-}
-
 .project-config {
 
     .project-config-table {
@@ -44,16 +37,5 @@
             }
         }
 
-    }
-}
-
-.project-abstract, .project-member {    
-    .ant-table-placeholder,
-    .ant-table-tbody > tr > td {
-        border-bottom: 0;
-    }
-
-    .ant-pagination {
-        padding-right: 20px;
     }
 }

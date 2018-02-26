@@ -166,9 +166,9 @@ class DirtyData extends Component {
     renderProduceTrend = (chartData) => {
         let myChart = echarts.init(document.getElementById('ProduceTrend'));
         const option = cloneDeep(lineAreaChartOptions);
-        option.title.text = '脏数据产生趋势'
+        option.title.text = ''
         const formatDate = function(obj) {
-            return utils.formatDate(obj.value);
+            return obj ? utils.formatDate(obj.value) : null;
         }
         option.tooltip.axisPointer.label.formatter = formatDate;
         option.xAxis[0].axisLabel.formatter = formatDate;
@@ -208,7 +208,13 @@ class DirtyData extends Component {
         ]
 
         return (
-            <Card title="脏数据产生TOP30任务" noHovering>
+            <Card 
+                noHovering
+                bordered={false}
+                loading={false}
+                className="shadow"
+                title="脏数据产生TOP30任务"
+            >
                 <Table
                     rowKey="taskName"
                     pagination={false}
@@ -276,46 +282,52 @@ class DirtyData extends Component {
         ]
 
         const title = (
-            <span>
-                <Form layout="inline" 
-                    style={{ marginTop: '8px' }}
+            <Form layout="inline" 
+                className="m-form-inline"
+                style={{ marginTop: '10px' }}
+                >
+                <FormItem
+                    label="选择任务"
+                >
+                    <Select
+                        allowClear
+                        showSearch
+                        style={{ width: 150 }}
+                        placeholder="选择任务"
+                        optionFilterProp="name"
+                        onChange={this.onTableSelectTask}
                     >
-                    <FormItem
-                        label="选择任务"
-                    >
-                        <Select
-                            allowClear
-                            showSearch
-                            style={{ width: 150 }}
-                            placeholder="选择任务"
-                            optionFilterProp="name"
-                            onChange={this.onTableSelectTask}
-                        >
-                            {taskOptions}
-                        </Select>
-                    </FormItem>
-                    <FormItem>
-                        <Search
-                            placeholder="按表名称搜索"
-                            style={{ width: 150 }}
-                            onChange={this.onTableNameChange}
-                            onSearch={this.search}
-                        />
-                    </FormItem>
-                    <FormItem>
-                        <Button type="primary" onClick={this.search}>搜索</Button>
-                    </FormItem>
-                </Form>
-            </span>
+                        {taskOptions}
+                    </Select>
+                </FormItem>
+                <FormItem>
+                    <Search
+                        placeholder="按表名称搜索"
+                        style={{ width: 150 }}
+                        size="default"
+                        onChange={this.onTableNameChange}
+                        onSearch={this.search}
+                    />
+                </FormItem>
+                <FormItem>
+                    <Button type="primary" size="default" onClick={this.search}>搜索</Button>
+                </FormItem>
+            </Form>
         );
         const pagination = {
             total: produceList.totalCount,
             defaultPageSize: 10,
         };
         return (
-            <Card title={title}>
+            <Card title={title} 
+                noHovering
+                bordered={false}
+                loading={false}
+                className="shadow"
+            >
                 <Table
                     rowKey="tableName"
+                    className="m-table"
                     pagination={pagination}
                     style={{minHeight: '0'}}
                     columns={columns}
@@ -339,9 +351,10 @@ class DirtyData extends Component {
         )
 
         return (
-            <div className="dirty-data">
-                <Row>
-                    <Card title="脏数据统计" extra={
+            <div className="dirty-data m-card">
+                <h1 className="box-title">
+                    脏数据统计
+                    <span className="right">
                         <RadioGroup 
                             defaultValue={3}
                             onChange={this.onTimeRangeChange}
@@ -352,31 +365,30 @@ class DirtyData extends Component {
                             <RadioButton value={30}>最近30天</RadioButton>
                             <RadioButton value={60}>最近60天</RadioButton>
                         </RadioGroup>
-                    }>
-                        <Row>
-                            <Col span={12} style={{ paddingRight: '10px' }}>
-                                <Card noHovering title="脏数据产生趋势" extra={
-                                    <Select  
-                                        showSearch
-                                        style={{ width: 150, marginTop: '10px' }}
-                                        placeholder="请选择任务"
-                                        onChange={this.onTrendSelectTask}
-                                    >
-                                       { taskOptions }
-                                    </Select>
-                                }>
-                                    <Resize onResize={this.resize}>
-                                        <section id="ProduceTrend" style={{height: '300px'}}></section>
-                                    </Resize>
-                                </Card>
-                            </Col>
-                            <Col span={12} style={{paddingLeft: '10px'}}>
-                                { this.renderProduceTop30() }
-                            </Col>
-                        </Row>
-                    </Card>
+                    </span>
+                </h1>
+                <Row style={{margin: '0 20px'}}>
+                    <Col span={12} style={{ paddingRight: '10px' }}>
+                        <Card className="shadow" noHovering bordered={false} title="脏数据产生趋势" extra={
+                            <Select  
+                                showSearch
+                                style={{ width: 150, marginTop: '10px' }}
+                                placeholder="请选择任务"
+                                onChange={this.onTrendSelectTask}
+                            >
+                                { taskOptions }
+                            </Select>
+                        }>
+                            <Resize onResize={this.resize}>
+                                <section id="ProduceTrend" style={{height: '300px', padding: '10px'}}></section>
+                            </Resize>
+                        </Card>
+                    </Col>
+                    <Col span={12} style={{paddingLeft: '10px'}}>
+                        { this.renderProduceTop30() }
+                    </Col>
                 </Row>
-                <Row style={{marginTop: '20px'}}>
+                <Row style={{margin: '20px'}}>
                     { this.renderProduceList(taskOptions) }
                 </Row>
             </div>

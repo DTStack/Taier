@@ -303,14 +303,14 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             axisLabel: {
                 formatter: '{value} 时',
                 textStyle: {
-                    color: '#bbc2ce',
+                    color: '#666666',
                 },
             },
             nameTextStyle: {
-                color: '#bbc2ce',
+                color: '#666666',
             },
             splitLine: {
-                color: '#bbc2ce',
+                color: '#666666',
             }
         }
     ],
@@ -320,12 +320,12 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             axisLabel: {
                 formatter: '{value} 个',
                 textStyle: {
-                    color: '#bbc2ce',
+                    color: '#666666',
                     baseline: 'bottom',
                 },
             },
             nameTextStyle: {
-                color: '#bbc2ce',
+                color: '#666666',
             },
             nameLocation: 'end',
             nameGap: 20,
@@ -337,7 +337,8 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             },
             splitLine: {
                 lineStyle: {
-                    color: '#eeeeee',
+                    color: '#DDDDDD',
+                    type: 'dashed'
                 }
             }
         }
@@ -435,14 +436,14 @@ export const defaultBarOption = {
         data: ['巴西', '美国','印度','中国','世界人口(万)'],
         axisLine: {
             lineStyle: {
-                color: '#eeeeee',
+                color: '#dddddd',
                 width: 2,
             }
         },
         position: 'top',
         axisLabel: {
             textStyle: {
-                color: '#72d6f1'
+                color: '#666666'
             },
         },
         axisTick: {

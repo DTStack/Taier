@@ -3,36 +3,31 @@
 /**
 ** 自定义antd样式
 */
-.m-tabs {
 
+.m-tabs {
     .ant-menu {
         width: 136px;
         height: 100%;
         background: #FAFAFA;
-
         .ant-menu-item {
             padding: 0 38px;
             height: 36px;
             line-height: 36px;
             color: #333333;
         }
-
         &:not(.ant-menu-horizontal) .ant-menu-item-selected {
             background: #EBEBEB;
             color: $primaryColor;
         }
     }
-
     .ant-tabs {
         height: 100%;
-
         .ant-tabs-bar {
             background: #FAFAFA;
             border-bottom: 1px solid #DDDDDD;
             margin-bottom: 0;
             height: 36px;
         }
-
         .ant-tabs-nav {
             .ant-tabs-tab-active {
                 background: #ffffff;
@@ -49,14 +44,12 @@
             }
         }
     }
-
     .m-panel {
         position: relative;
         margin: 20px;
         height: 685px;
         border: 1px solid #DDDDDD;
     }
-
     .panel-content {
         width: 100%;
         position: absolute;
@@ -65,68 +58,55 @@
 }
 
 .m-table {
-
     .ant-pagination {
         margin-right: 20px !important;
-
         .ant-pagination-item {
             min-width: 26px;
             height: 26px;
             line-height: 26px;
-
             a {
                 font-size: 12px;
                 color: #333333;
                 letter-spacing: 0;
             }
         }
-
-
         .ant-pagination-item-active {
             background-color: #ffffff;
             border-color: $primaryColor;
-
             a {
                 color: $primaryColor;
             }
         }
     }
     .ant-table-thead {
-
-        .ant-table-selection-column > span {
+        .ant-table-selection-column>span {
             visibility: hidden;
         }
-
-        & > tr > th {
+        &>tr>th {
             font-size: 12px;
             color: #333333;
             letter-spacing: 0;
             padding: 8.5px 8px;
         }
     }
-
-    .ant-table-tbody > tr:hover {
+    .ant-table-tbody>tr:hover {
         background: #E7F7FF;
     }
-
     .ant-table-tbody {
-        & > tr > td {
+        &>tr>td {
             padding: 6px 8px;
             border-bottom: 1px solid #E8E8E8;
             font-size: 12px;
         }
     }
-
     .ant-table-footer {
         background: #fff;
         padding: 0;
         border-bottom: 1px solid #E8E8E8;
-
-        & > tr > td {
+        &>tr>td {
             padding: 4px 8px;
             font-size: 12px;
         }
-
         .ant-btn {
             height: 20px;
             line-height: 20px;
@@ -137,7 +117,6 @@
 }
 
 .m-card {
-
     .ant-card {
         .ant-card-head {
             padding: 0 20px;
@@ -146,15 +125,57 @@
             padding: 0;
         }
     }
-
     .m-table {
-        tr > td:first-child, tr > th:first-child  {
+        tr>td:first-child,
+        tr>th:first-child {
             padding-left: 20px;
         }
     }
-    
 }
 
 .ant-input-search {
     height: 28px;
+}
+
+.m-ant-menu {
+    // sidebar styles
+    .ant-menu.ant-menu-inline,
+    .ant-menu.ant-menu-vertical {
+        background: $bgColor2;
+        .ant-menu-item>a,
+        .ant-menu-submenu-title {
+            color: #959FB1;
+        }
+        .ant-menu-item:active,
+        .ant-menu-submenu-title:active {
+            background: #222F3C;
+        }
+        .ant-menu-item-selected {
+            background: #222F3C;
+            &>a {
+                color: $primaryColor;
+            }
+        }
+    }
+}
+
+// form
+.m-form-inline {
+    .ant-form-item .ant-select .ant-select-search__field__wrap,
+    .ant-form-item .ant-select .ant-select-search__field,
+    .ant-form-item .ant-select .ant-select-selection--multiple,
+    .ant-form-item .ant-select .ant-select-selection--single {
+        height: 28px;
+        line-height: 28px;
+    }
+    .ant-form-item .ant-select .ant-select-search__field__wrap .ant-select-selection__rendered,
+    .ant-form-item .ant-select .ant-select-search__field .ant-select-selection__rendered,
+    .ant-form-item .ant-select .ant-select-selection--multiple .ant-select-selection__rendered,
+    .ant-form-item .ant-select .ant-select-selection--single .ant-select-selection__rendered {
+        height: 28px;
+        line-height: 28px;
+    }
+    .ant-form-item-label {
+        line-height: 28px;
+    }
 }

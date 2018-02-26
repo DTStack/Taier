@@ -775,7 +775,7 @@ class TableCreator extends React.Component {
             </div>,
         }];
 
-        return <div>
+        return <div className="bg-w" style={{ padding: '20px', margin: '20px' }}>
             <Steps current={this.state.current}>
                 {steps.map(item => <Step key={item.title} title={item.title} />)}
             </Steps>

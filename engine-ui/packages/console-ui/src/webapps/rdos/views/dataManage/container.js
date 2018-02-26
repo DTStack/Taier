@@ -35,8 +35,8 @@ class Container extends Component {
                 <Sider className="bg-w">
                     <Sidebar {...this.props} />
                 </Sider>
-                <Content className="inner-container">
-                        { children || "概览" }
+                <Content style={{ position: 'relative' }}>
+                    { children || "概览" }
                 </Content>
             </Layout>
         )

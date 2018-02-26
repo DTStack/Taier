@@ -131,7 +131,7 @@ class DataSourceMana extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: 80,
+            width: 120,
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -212,6 +212,7 @@ class DataSourceMana extends Component {
         const extra = (
             <Button
                 type="primary"
+                style={{ marginTop: 10 }}
                 className="right"
                 onClick={() => {
                     this.setState({
@@ -223,15 +224,20 @@ class DataSourceMana extends Component {
             >新增数据源</Button>
         )
         return (
-            <div className="project-member">
-               <article className="section">
-                    <h1 className="title black" style={{paddingTop: '0'}}>
-                        离线数据源
-                    </h1>
-                    <Card title={title} extra={extra}>
+            <div>
+                <h1 className="box-title" style={{paddingTop: '0'}}>
+                    离线数据源
+                </h1>
+               <div className="box-2 m-card shadow">
+                    <Card 
+                        title={title} 
+                        extra={extra} 
+                        noHovering 
+                        bordered={false}
+                    >
                         <Table
+                            className="m-table"
                             rowKey="id"
-                            className="section-border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}
@@ -239,7 +245,7 @@ class DataSourceMana extends Component {
                             dataSource={dataSource.data}
                         />
                     </Card>
-                </article>
+                </div>
                 <DataSourceForm
                     title={this.state.title}
                     visible={this.state.visible}

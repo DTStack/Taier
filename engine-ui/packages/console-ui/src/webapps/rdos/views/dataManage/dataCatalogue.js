@@ -148,24 +148,22 @@ class DataCatalogue extends React.Component {
     render() {
         return (
             <div>
-                <article className="section">
-                    <h1 className="title black" style={{ paddingTop: '0' }}>
-                        数据类目
-                        <span className="desc">&nbsp;
-                            构建数据类目体系，便于数据维护
-                            数据类目体系是树形结构的，
-                            每张表可以关联到唯一的一个叶子节点，
-                            便于您进行数据检索与数据维护。
-                        </span>
-                    </h1>
-                    <Card>
-                        <CatalogueTree
-                            treeData={this.state.treeData}
-                            onTreeNodeEdit={this.onTreeNodeEdit}
-                            onSelect={this.onSelect}
-                        />
-                    </Card>
-                </article>
+                <h1 className="box-title">
+                    数据类目
+                    <span className="box-sub-title">&nbsp;
+                        构建数据类目体系，便于数据维护
+                        数据类目体系是树形结构的，
+                        每张表可以关联到唯一的一个叶子节点，
+                        便于您进行数据检索与数据维护。
+                    </span>
+                </h1>
+                <div className="box-2">
+                    <CatalogueTree
+                        treeData={this.state.treeData}
+                        onTreeNodeEdit={this.onTreeNodeEdit}
+                        onSelect={this.onSelect}
+                    />
+                </div>
             </div>
         )
     }

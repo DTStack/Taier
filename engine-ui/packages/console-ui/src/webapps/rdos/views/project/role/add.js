@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import { 
-    Row, Col, Button,
-    Card, message,
+    Row, Col, Button, message,
  } from 'antd'
 
- import GoBack from 'widgets/go-back'
+ import GoBack from 'main/components/go-back'
 
  import Api from '../../../api'
  import { formItemLayout } from '../../../comm/const'
@@ -32,11 +31,10 @@ export default class RoleAdd extends Component {
     }
 
     render() {
-        const extra = <GoBack style={{marginTop: '10px'}} icon="rollback" size="small" />
-
         return (
-            <div className="project-member">
-                <Card title="创建角色" extra={extra}>
+            <div className="box-1">
+                <div className="box-card">
+                    <h1 className="card-title"><GoBack /> 创建角色</h1>
                     <article className="section">
                         <RoleForm key="add-role" ref={(e) => this.form = e} />
                         <Row>
@@ -47,7 +45,7 @@ export default class RoleAdd extends Component {
                             </Col>
                         </Row>
                     </article>
-                </Card>
+                </div>
             </div>
         )
     }
