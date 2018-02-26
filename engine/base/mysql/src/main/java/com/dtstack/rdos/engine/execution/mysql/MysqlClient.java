@@ -1,18 +1,15 @@
 package com.dtstack.rdos.engine.execution.mysql;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.mysql.executor.ConnFactory;
-import com.dtstack.rdos.engine.execution.mysql.executor.MetaDataConnPool;
 import com.dtstack.rdos.engine.execution.mysql.executor.MysqlExeQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Properties;
 
@@ -42,10 +39,6 @@ public class MysqlClient extends AbsClient {
         exeQueue = new MysqlExeQueue(connFactory);
         exeQueue.init();
         resourceInfo = new MysqlResourceInfo(exeQueue);
-
-        MetaDataConnPool.getInstance();
-        ConfigParse.getEngineTypeList();
-
         LOG.warn("-------init mysql plugin success-----");
     }
 

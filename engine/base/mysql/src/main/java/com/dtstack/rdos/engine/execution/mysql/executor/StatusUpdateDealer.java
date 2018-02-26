@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.mysql.executor;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.mysql.dao.PluginMysqlJobInfoDao;
+import com.dtstack.rdos.engine.execution.base.pluginlog.PluginJobInfoComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +21,7 @@ public class StatusUpdateDealer implements Runnable {
 
     private final int interval = 2 * 1000;
 
-    /**30分钟对 保留记录做一次删除*/
-    private final int clear_rate = 900;
-
-    private PluginMysqlJobInfoDao jobInfoDao = new PluginMysqlJobInfoDao();
+    private PluginJobInfoComponent jobInfoComponent = PluginJobInfoComponent.getPluginJobInfoComponent();
 
     private boolean isRun = true;
 
@@ -37,7 +34,7 @@ public class StatusUpdateDealer implements Runnable {
     @Override
     public void run() {
 
-        LOG.warn("---mysql StatusUpdateDealer is start----");
+        LOG.warn("---StatusUpdateDealer is start----");
         int i = 0;
 
         while (isRun){
@@ -45,22 +42,15 @@ public class StatusUpdateDealer implements Runnable {
 
                 i++;
                 //更新时间
-                jobInfoDao.updateModifyTime(jobCache.keySet());
+                jobInfoComponent.updateModifyTime(jobCache.keySet());
                 //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
-                jobInfoDao.timeOutDeal();
-
-                if(i%clear_rate == 0){
-                    jobInfoDao.clearJob();
-                    LOG.info("do clear db mysql_job_info where modify is 7 day ago.");
-                }
-
+                jobInfoComponent.timeOutDeal();
                 Thread.sleep(interval);
             }catch (Throwable e){
                 LOG.error("", e);
             }
         }
-
-        LOG.warn("---mysql StatusUpdateDealer is stop----");
+        LOG.warn("---StatusUpdateDealer is stop----");
     }
 
     public void stop(){

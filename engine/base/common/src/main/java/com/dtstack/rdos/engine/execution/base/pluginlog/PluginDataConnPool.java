@@ -1,7 +1,6 @@
-package com.dtstack.rdos.engine.execution.mysql.executor;
+package com.dtstack.rdos.engine.execution.base.pluginlog;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.google.common.base.Preconditions;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * mysql 插件本身信息存储使用的连接
@@ -20,9 +18,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author xuchao
  */
 
-public class MetaDataConnPool {
+public class PluginDataConnPool {
     
-    private static final Logger LOG = LoggerFactory.getLogger(MetaDataConnPool.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluginDataConnPool.class);
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
@@ -68,10 +66,10 @@ public class MetaDataConnPool {
     private DruidDataSource dataSource = new DruidDataSource();
 
     private static class SingletonHolder{
-        private static MetaDataConnPool instance = new MetaDataConnPool();
+        private static PluginDataConnPool instance = new PluginDataConnPool();
     }
 
-    private MetaDataConnPool(){
+    private PluginDataConnPool(){
         init();
     }
 
@@ -126,7 +124,7 @@ public class MetaDataConnPool {
     }
 
 
-    public static MetaDataConnPool getInstance(){
+    public static PluginDataConnPool getInstance(){
         return SingletonHolder.instance;
     }
 
