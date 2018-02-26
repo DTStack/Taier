@@ -11,7 +11,7 @@ import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
-import com.dtstack.rdos.engine.entrance.zk.task.OtherListener;
+import com.dtstack.rdos.engine.entrance.zk.task.QueueListener;
 import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -152,7 +152,7 @@ public class ZkDistributed {
 		executors.execute(new TaskListener());
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
-		executors.execute(new OtherListener());
+		executors.execute(new QueueListener());
 	}
 
 	public boolean localIsMaster(){
