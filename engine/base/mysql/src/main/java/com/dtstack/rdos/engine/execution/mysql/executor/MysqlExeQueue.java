@@ -161,11 +161,12 @@ public class MysqlExeQueue {
         private String createSqlProc(String exeSql, String jobName, String jobId){
             procedureName = jobName + NAME_SPLIT +jobId;
             StringBuilder sb = new StringBuilder(String.format("create procedure %s() ", procedureName));
-            sb.append(" BEGIN ")
-              .append(" START TRANSACTION;")
-              .append(exeSql)
-              .append(" ROLLBACK;")
-              .append(" END ");
+//            sb.append(" BEGIN ")
+//                    .append(" START TRANSACTION;")
+//                    .append(exeSql)
+//                    .append(" ROLLBACK;")
+//                    .append(" END ");
+            sb.append(exeSql);//标准的存储过程
 
             return sb.toString();
         }
