@@ -1,0 +1,54 @@
+import PropTypes from 'prop-types'
+import { assign } from 'lodash'
+import { Icon } from 'antd'
+import React, { Component } from 'react'
+
+import './style.scss'
+
+const strOrNum = PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+])
+
+const propType = {
+    children: PropTypes.node,
+    left: strOrNum,
+    width: strOrNum,
+    visible: PropTypes.bool,
+}
+
+class SlidePane extends Component {
+    
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const { children, visible, style, className, onClose,  } = this.props
+
+        let myClass = 'slide-pane';
+        let myStyle = { 
+            top: 0, 
+            transform: visible ? 'translate3d(0%, 0, 0)' : 'translate3d(150%, 0, 0)',
+        }
+        
+        if (className) myClass = `${myClass} ${className}`;
+        if (style) myStyle = assign(myStyle, style);
+
+        return (
+            <div className={ myClass } style={myStyle} >
+                <div className="slide-pane-conent">
+                    { children }
+                </div>
+                <span className="slide-pane-toggle" onClick={onClose}>
+                    <Icon type="double-right" />
+                </span>
+            </div>
+        )
+    }
+
+}
+
+SlidePane.propTypes = propType
+
+export default SlidePane
