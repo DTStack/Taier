@@ -5,6 +5,7 @@ import moment from 'moment';
 import SplitPane from 'react-split-pane';
 import { Row, Col, Table, Button, Tabs, Radio, Icon, Modal, message } from 'antd';
 
+import GoBack from 'main/components/go-back';
 
 import Editor from '../../components/code-editor';
 import ajax from '../../api';
@@ -133,124 +134,135 @@ export default class TableViewer extends React.Component{
             }
         }];
 
-        return <div className="g-tableviewer">
-            <div className="m-tableviewerhead">
-                <Button type="default" className="f-fr" style={{ marginTop: 7 }}>
-                    <Link to="/data-manage/table">返回</Link>
-                </Button>
-                <h3>{ tableData && tableData.table.tableName }</h3>
-            </div>
-            <SplitPane split="vertical" minSize={200} defaultSize={300}>
-                <div className="m-tablebasic">
-                    <h3 className="clearfix">
-                        <Button type="primary" className="f-fr"
-                            onClick={ this.getCreateCode.bind(this) }
-                        >生成建表语句</Button>基本信息
-                    </h3>
-                    { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
-                        <tbody>
-                            <tr>
-                                <th>所属项目</th>
-                                <td>{ tableData.table.project }</td>
-                            </tr>
-                            <tr>
-                                <th>创建者：</th>
-                                <td>{ tableData.table.userName }</td>
-                            </tr>
-                            <tr>
-                                <th>创建时间</th>
-                                <td>{ moment(tableData.table.createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
-                            </tr>
-                            <tr>
-                                <th>所属类目</th>
-                                <td>{ tableData.table.catalogue }</td>
-                            </tr>
-                            <tr>
-                                <th>描述</th>
-                                <td>{ tableData.table.tableDesc }</td>
-                            </tr>
-                        </tbody>
-                    </table> }
-                    <h3>存储信息</h3>
-                    { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
-                        <tbody>
-                            <tr>
-                                <th>物理存储量</th>
-                                <td>{ tableData.table.storeSize }</td>
-                            </tr>
-                            <tr>
-                                <th>生命周期</th>
-                                <td>{tableData.table.lifeDay}天</td>
-                            </tr>
-                            <tr>
-                                <th>是否分区</th>
-                                <td>{ tableData.table.partitions ? '是' : '否' }</td>
-                            </tr>
-                            <tr>
-                                <th>DDL最后变更时间</th>
-                                <td>{ moment(tableData.table.lastDDLTime).format('YYYY-MM-DD HH:mm:ss') }</td>
-                            </tr>
-                            <tr>
-                                <th>数据最后变更时间</th>
-                                <td>{ moment(tableData.table.lastDataChangeTime).format('YYYY-MM-DD HH:mm:ss') }</td>
-                            </tr>
-                        </tbody>
-                    </table> }
-                </div>
-                <div className="m-tabledetail">
-                    <Tabs type="card"
-                        onChange={ this.getPreview.bind(this) }
-                    >
-                        <TabPane tab="字段信息" key="1">
-                            <div className="box">
-                                <RadioGroup
-                                    defaultValue={showType}
-                                    onChange={ this.switchType.bind(this) }
-                                    style={{ marginBottom: 10 }}
+        return <div className="g-tableviewer box-1">
+            <div className="box-card">
+                <main>
+                    <h1 className="card-title"><GoBack /> 查看表：{ tableData && tableData.table.tableName }</h1>
+                    <Row className="box-card m-tablebasic">
+                        <Col span={12} className="col-sep">
+                            <h3>
+                                基本信息
+                                <Button 
+                                    type="primary" 
+                                    className="right"
+                                    onClick={ this.getCreateCode.bind(this) }
                                 >
-                                    <RadioButton value={0}>非分区字段</RadioButton>
-                                    <RadioButton value={1}>分区字段</RadioButton>
-                                </RadioGroup>
-                                { tableData && <Table
-                                    columns={ columns }
-                                    dataSource={ showType === 0 ? tableData.column : tableData.partition }
-                                />}
-                                <p style={{ marginTop: 5, color: '#ccc' }}>
-                                    {/* <span className="f-fr">注：每天定时更新，非实时数据</span> */}
-                                    共 { tableData ? (tableData[showType === 0 ? 'column' : 'partition'].length) : 0} 个字段
-                                </p>
-                            </div>
-                        </TabPane>
-                        <TabPane tab="分区信息" key="2">
-                            <TablePartition table={tableData && tableData.table} />
-                        </TabPane>
-                        <TabPane tab="数据预览" key="3">
-                            <div className="box">
-                                { previewData ? <Table
-                                    columns={ this.previewCols.map(str => ({
-                                        title: str,
-                                        dataIndex: str,
-                                        key: str
-                                    })) }
-                                    rowKey="id"
-                                    dataSource={ previewData }
-                                    scroll={{ x: 200 * this.previewCols.length }}
-                                ></Table> :
-                                    <p style={{
-                                        marginTop: 20,
-                                        textAlign: 'center',
-                                        fontSize: 36,
-                                        color: '#ddd'
-                                    }}><Icon type="exclamation-circle-o" /> 此表中没有字段信息 </p>
-                                }
-                            </div>
-                        </TabPane>
-                        <TabPane tab="血缘信息" key="4">
-                            <TableRelation tableData={tableData && tableData.table}/>
-                        </TabPane>
-                    </Tabs>
-                </div>
-            </SplitPane>
+                                    生成建表语句
+                                </Button>
+                            </h3>
+                            { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
+                                <tbody>
+                                    <tr>
+                                        <th>所属项目</th>
+                                        <td>{ tableData.table.project }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>创建者：</th>
+                                        <td>{ tableData.table.userName }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>创建时间</th>
+                                        <td>{ moment(tableData.table.createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>所属类目</th>
+                                        <td>{ tableData.table.catalogue }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>描述</th>
+                                        <td>{ tableData.table.tableDesc }</td>
+                                    </tr>
+                                </tbody>
+                            </table> }
+                        </Col>
+                        <Col span={12} className="col-sep">
+                            <h3>存储信息</h3>
+                            { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
+                                <tbody>
+                                    <tr>
+                                        <th>物理存储量</th>
+                                        <td>{ tableData.table.storeSize }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>生命周期</th>
+                                        <td>{tableData.table.lifeDay}天</td>
+                                    </tr>
+                                    <tr>
+                                        <th>是否分区</th>
+                                        <td>{ tableData.table.partitions ? '是' : '否' }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>DDL最后变更时间</th>
+                                        <td>{ moment(tableData.table.lastDDLTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    </tr>
+                                    <tr>
+                                        <th>数据最后变更时间</th>
+                                        <td>{ moment(tableData.table.lastDataChangeTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    </tr>
+                                </tbody>
+                            </table> }
+                        </Col>
+                    </Row>
+                    <Row className="box-card" style={{minHeight: '500px'}}>
+                        <div className="m-tabs">
+                            <Tabs type="card"
+                                onChange={ this.getPreview.bind(this) }
+                            >
+                                <TabPane tab="字段信息" key="1">
+                                    <div className="box">
+                                        <RadioGroup
+                                            defaultValue={showType}
+                                            onChange={ this.switchType.bind(this) }
+                                            style={{ marginBottom: 10 }}
+                                        >
+                                            <RadioButton value={0}>非分区字段</RadioButton>
+                                            <RadioButton value={1}>分区字段</RadioButton>
+                                        </RadioGroup>
+                                        { tableData && <Table
+                                            className="m-table"
+                                            columns={ columns }
+                                            dataSource={ showType === 0 ? tableData.column : tableData.partition }
+                                        />}
+                                        <p style={{ marginTop: 5, color: '#ccc' }}>
+                                            {/* <span className="f-fr">注：每天定时更新，非实时数据</span> */}
+                                            共 { tableData ? (tableData[showType === 0 ? 'column' : 'partition'].length) : 0} 个字段
+                                        </p>
+                                    </div>
+                                </TabPane>
+                                <TabPane tab="分区信息" key="2">
+                                    <TablePartition table={tableData && tableData.table} />
+                                </TabPane>
+                                <TabPane tab="数据预览" key="3">
+                                    <div className="box">
+                                        { previewData ? <Table
+                                            columns={ this.previewCols.map(str => ({
+                                                title: str,
+                                                dataIndex: str,
+                                                key: str
+                                            })) }
+                                            rowKey="id"
+                                            className="m-table"
+                                            dataSource={ previewData }
+                                            scroll={{ x: 200 * this.previewCols.length }}
+                                        ></Table> :
+                                            <p style={{
+                                                marginTop: 20,
+                                                textAlign: 'center',
+                                                fontSize: 36,
+                                                color: '#ddd'
+                                            }}><Icon type="exclamation-circle-o" /> 此表中没有字段信息 </p>
+                                        }
+                                    </div>
+                                </TabPane>
+                                <TabPane tab="血缘信息" key="4">
+                                    <TableRelation tableData={tableData && tableData.table}/>
+                                </TabPane>
+                            </Tabs>
+                        </div>
+                    </Row>
+                </main>
+            </div>
+
             <Modal className="m-codemodal"
                 title="建表语句"
                 width="750"

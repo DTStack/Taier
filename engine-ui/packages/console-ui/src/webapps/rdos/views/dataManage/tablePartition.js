@@ -68,6 +68,7 @@ export default class TablePartition extends React.Component {
             <div className="box">
                 <Table 
                     key="table_partition" 
+                    className="m-table"
                     pagination={pagination}
                     columns={this.initClumuns()} 
                     dataSource={result.data || []} 

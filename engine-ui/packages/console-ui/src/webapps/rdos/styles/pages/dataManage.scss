@@ -1,5 +1,18 @@
     .g-datamanage {
         $green: #009D7E; // ======== folder tree icon 
+        
+        // ==== misc====
+        .Resizer {
+            background: #DDDDDD;
+            z-index: 1;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            -moz-background-clip: padding;
+            -webkit-background-clip: padding;
+            background-clip: padding-box;
+        }
+
         .ant-tree li span.ant-tree-switcher {
             width: 24px;
             height: 24px;
@@ -92,6 +105,7 @@
         } 
         // ======== layouts =========
         .g-tablelogs {
+            
             .m-tablelist {
                 padding: 20px;
             }
@@ -110,7 +124,7 @@
                     color: #999999;
                 }
                 .title {
-                    background: #f4f9f8;
+                    background: #FCFBFC;
                     border-radius: 3px 3px 0 0;
                     .cell {
                         height: 40px;
@@ -137,17 +151,15 @@
             z-index: 1000;
         }
         .m-tablebasic {
-            padding: 40px 20px;
+            padding: 20px;
             h3 {
-                border-bottom: 1px solid #D8D8D8;
-                padding-bottom: 5px;
-                margin: -8px 0 10px 0;
+                margin-bottom: 10px;
                 button {
                     margin-top: -3px;
                 }
             }
             table {
-                margin-bottom: 40px;
+                margin-bottom: 20px;
                 border-collapse: collapse;
                 border-radius: 3px;
                 border: 1px solid #E6E6E6;
@@ -205,51 +217,8 @@
         .m-countdown:after {
             content: '3';
             animation: countdown 3s ease;
-        } // ==== misc====
-        .Resizer {
-            background: #000;
-            opacity: .2;
-            z-index: 1;
-            -moz-box-sizing: border-box;
-            -webkit-box-sizing: border-box;
-            box-sizing: border-box;
-            -moz-background-clip: padding;
-            -webkit-background-clip: padding;
-            background-clip: padding-box;
         }
-        .Resizer:hover {
-            -webkit-transition: all 2s ease;
-            transition: all 2s ease;
-        }
-        .Resizer.horizontal {
-            height: 11px;
-            margin: -5px 0;
-            border-top: 5px solid rgba(255, 255, 255, 0);
-            border-bottom: 5px solid rgba(255, 255, 255, 0);
-            cursor: row-resize;
-            width: 100%;
-        }
-        .Resizer.horizontal:hover {
-            border-top: 5px solid rgba(0, 0, 0, 0.5);
-            border-bottom: 5px solid rgba(0, 0, 0, 0.5);
-        }
-        .Resizer.vertical {
-            width: 11px;
-            margin: 0 -5px;
-            border-left: 5px solid rgba(255, 255, 255, 0);
-            border-right: 5px solid rgba(255, 255, 255, 0);
-            cursor: col-resize;
-        }
-        .Resizer.vertical:hover {
-            border-left: 5px solid rgba(0, 0, 0, 0.5);
-            border-right: 5px solid rgba(0, 0, 0, 0.5);
-        }
-        .Resizer.disabled {
-            cursor: not-allowed;
-        }
-        .Resizer.disabled:hover {
-            border-color: transparent;
-        }
+
         .rel-table-info {
             .ant-table {
                 height: 140px;

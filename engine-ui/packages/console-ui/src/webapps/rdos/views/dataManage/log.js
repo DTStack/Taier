@@ -1,10 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import SplitPane from 'react-split-pane';
-import { Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon } from 'antd';
+import { 
+    Input, Button, message, Modal, Table, Pagination,
+    Form, DatePicker, Select, Icon, Card, Tabs,
+} from 'antd';
 import { isEmpty } from 'lodash';
 import  moment from 'moment';
+
+import SlidePane from 'widgets/slidePane'
 
 import ajax from '../../api';
 import actions from '../../store/modules/dataManage/actionCreator';
@@ -14,6 +18,7 @@ const Search = Input.Search;
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
 const Option = Select.Option;
+const TabPane = Tabs.TabPane;
 
 class LogSearchForm extends React.Component {
     render() {
@@ -21,17 +26,21 @@ class LogSearchForm extends React.Component {
         const { projectUsers } = this.props;
 
         return (
-            <Form className="m-form-inline" layout="inline">
-                <FormItem style={{ marginBottom: 24 }} label="变更时间">
+            <Form 
+                className="m-form-inline" 
+                layout="inline" 
+                style={{marginTop: '10px'}}
+            >
+                <FormItem label="变更时间">
                     {getFieldDecorator('range', {
                         initialValue: [moment().subtract(7, 'days'), moment()]
                     })(
-                        <RangePicker size="default" style={{width: 200}} format="YYYY-MM-DD" />
+                        <RangePicker size="default" style={{width: 180}} format="YYYY-MM-DD" />
                     )}
                 </FormItem>
-                <FormItem style={{ marginBottom: 24 }} label="操作人">
+                <FormItem label="操作人">
                     {getFieldDecorator('actionUserId')(
-                        <Select placeholder="请选择操作人" style={{width: 200}}>
+                        <Select placeholder="请选择操作人" style={{width: 120}}>
                             {projectUsers.map(o => <Option value={ `${o.userId}` }
                                 key={ o.userId }
                             >
@@ -42,7 +51,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{width: 200}}></Input>
+                        <Input placeholder="变更语句" size="default" style={{width: 120}}></Input>
                     )}
                 </FormItem>
                 <FormItem>
@@ -108,27 +117,40 @@ class TableLog extends React.Component {
             }
         }];
 
-        return <div className="m-tablelog">
-            <h3 className="m-logheader"><b>{ tableName }</b></h3>
-            <div className="box" style={{ marginTop: 50, padding: 20 }}>
-                <FormWrapper tableId={tableId}
-                    ref={ el => this.searchForm = el }
-                    search={ this.search.bind(this) }
-                    projectUsers={ projectUsers }
-                />
-                <Table columns={ columns }
-                    className="m-table"
-                    dataSource={ logs.data }
-                    style={{ margin: '20 0' }}
-                    pagination={ false }
-                />
-                <Pagination
-                    pageSize={ 10 }
-                    style={{ float: 'right' }}
-                    current={ logs.currentPage }
-                    total={ logs.totalCount }
-                    onChange={ this.showPage.bind(this) }
-                />
+        const title = (
+            <FormWrapper tableId={tableId}
+                ref={ el => this.searchForm = el }
+                search={ this.search.bind(this) }
+                projectUsers={ projectUsers }
+            />
+        )
+
+
+        return <div className="m-tablelog m-slide-pane">
+            <h1 className="box-title">
+                { tableName }
+            </h1>
+            <div className="m-card">
+                <Card 
+                    title={title} 
+                    noHovering
+                    bordered={false}
+                    loading={false}
+                >
+                    <Table columns={ columns }
+                        className="m-table bd"
+                        style={{ borderBottom: 0}}
+                        dataSource={ logs.data }
+                        pagination={ false }
+                    />
+                    <Pagination
+                        pageSize={ 10 }
+                        style={{ float: 'right', margin: '30px' }}
+                        current={ logs.currentPage }
+                        total={ logs.totalCount }
+                        onChange={ this.showPage.bind(this) }
+                    />
+                </Card>
             </div>
         </div>
     }
@@ -176,7 +198,8 @@ class Log extends React.Component {
         super(props);
         this.state = {
             tableList: {},
-            tableLog: this.props.routeParams
+            tableLog: this.props.routeParams,
+            visibleSlidePane: false,
         }
     }
 
@@ -227,13 +250,20 @@ class Log extends React.Component {
     showTableLog(table) {
         const { tableId, tableName } = table;
         this.setState({
-            tableLog: { tableId, tableName }
+            tableLog: { tableId, tableName },
+            visibleSlidePane: true,
         })
     }
 
     onFilter = (value, record) => {
         this.searchTable({
             isDeleted: value,
+        })
+    }
+
+    closeSlidePane = () => {
+        this.setState({
+            visibleSlidePane: false,
         })
     }
 
@@ -263,45 +293,59 @@ class Log extends React.Component {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }];
-        const { tableList, tableLog } = this.state;
+        const { tableList, tableLog, visibleSlidePane } = this.state;
         const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
         const { projectUsers } = this.props;
 
+        const title = (
+            <Search style={{ width: 200, marginTop: 10 }}
+                placeholder="按表名搜索"
+                onSearch={ value => { this.searchTable({tableName: value}) } }
+            />
+        )
+
         return <div className="g-tablelogs">
-            <SplitPane split="vertical" minSize={200} defaultSize={300}>
-                <div className="m-tablelist m-card">
-                    <Search style={{ width: '100%' }}
-                        placeholder="按表名搜索"
-                        onSearch={ value => { this.searchTable({tableName: value}) } }
-                    />
+            <h1 className="box-title">操作记录</h1>
+            <div className="box-2 m-card" style={{padding: '0 20px 20px 0', height: '600px'}}> 
+                <Card
+                    noHovering
+                    bordered={false}
+                    loading={false}
+                    title={title}
+                >
                     {data && <Table columns={ columns }
                         dataSource={ data }
                         className="m-table"
-                        style={{ margin: '10 0 10 0' }}
                         pagination={ false }
                         onChange={this.handleTableChange}
                         bordered
                     />}
                     <Pagination
                         pageSize={ 10 }
-                        style={{ float: 'right' }}
+                        style={{ float: 'right', marginTop: '16px' }}
                         current={ currentPage || 0 }
                         total={ totalCount || 0 }
                         onChange={ this.showTableListPage.bind(this) }
                     />
-                </div>
-                <div className="m-loglist">
-                    {isEmpty(tableLog) ? <p style={{
-                        fontSize: 36,
-                        color: '#ddd',
-                        textAlign: 'center',
-                        marginTop: 40
-                    }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>:
-                    <TableLog key={ tableLog.tableId } {...tableLog}
-                        projectUsers={ projectUsers }
-                    />}
-                </div>
-            </SplitPane>
+                        <SlidePane 
+                            onClose={ this.closeSlidePane }
+                            visible={ visibleSlidePane } 
+                            style={{ right: '-20px', width: '80%', height: '552px' }}
+                        >
+                            <div className="m-loglist">
+                                {isEmpty(tableLog) ? <p style={{
+                                    fontSize: 36,
+                                    color: '#ddd',
+                                    textAlign: 'center',
+                                    marginTop: 40
+                                }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>:
+                                <TableLog key={ tableLog.tableId } {...tableLog}
+                                    projectUsers={ projectUsers }
+                                />}
+                            </div>
+                        </SlidePane>
+                </Card>
+            </div>
         </div>
     }
 }

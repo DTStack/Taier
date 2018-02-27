@@ -95,14 +95,14 @@
     .ant-table-tbody {
         &>tr>td {
             padding: 6px 8px;
-            border-bottom: 1px solid #E8E8E8;
+            border-bottom: 1px solid $tbBorderColor;
             font-size: 12px;
         }
     }
     .ant-table-footer {
         background: #fff;
         padding: 0;
-        border-bottom: 1px solid #E8E8E8;
+        border-bottom: 1px solid $tbBorderColor;
         &>tr>td {
             padding: 4px 8px;
             font-size: 12px;
@@ -123,6 +123,7 @@
         }
         .ant-card-body {
             padding: 0;
+            position: relative;
         }
     }
     .m-table {

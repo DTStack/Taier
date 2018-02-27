@@ -44,6 +44,27 @@
     display: inline-block;
 }
 
+.bd {
+    border: 1px solid #dddddd;
+    border-radius: 2px;
+}
+
+.bd-top {
+    border-top: 1px solid #dddddd;
+}
+
+.bd-left {
+    border-left: 1px solid #dddddd;
+}
+
+.bd-bottom {
+    border-bottom: 1px solid #dddddd;
+}
+
+.bd-right {
+    border-right: 1px solid #dddddd;
+}
+
 .clear:before {
     content: '';
     display: table;

@@ -358,7 +358,7 @@ class DirtyData extends Component {
                         <RadioGroup 
                             defaultValue={3}
                             onChange={this.onTimeRangeChange}
-                            style={{ marginTop: '10px' }}
+                            style={{ marginTop: '8.5px' }}
                         >
                             <RadioButton value={3}>最近3天</RadioButton>
                             <RadioButton value={7}>最近7天</RadioButton>

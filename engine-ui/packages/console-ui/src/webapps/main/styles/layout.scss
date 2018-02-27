@@ -40,6 +40,10 @@
     margin: 10px 20px 20px 10px;
 }
 
+.box-bg {
+    background: $bgColor;
+}
+
 .box-title {
     height: 45px;
     line-height: 45px;
@@ -70,4 +74,29 @@
         font-weight: normal;
     }
 
+}
+
+.m-slide-pane {
+
+    .box-title {
+        height: 35px;
+        line-height: 35px;
+        background: #FAFAFA;
+        padding: 0 30px;
+        border-top: 1px solid #dddddd;
+        border-bottom: 1px solid #dddddd;
+    }
+    
+    .m-card {
+        .ant-card {
+            .ant-card-head, .ant-card-body {
+                border-bottom: 0;
+                padding: 0 30px;
+            }
+        }
+    }
+}
+
+.col-sep {
+    padding: 0 8px;
 }

@@ -11,12 +11,15 @@ import { isEmpty } from 'lodash';
 import moment from 'moment';
 
 import utils from 'utils';
+import GoBack from 'main/components/go-back';
+
 import ajax from '../../api';
 import { ColumnsPartition } from './tableCreator';
 import actions from '../../store/modules/dataManage/actionCreator';
-import { formItemLayout } from '../../comm/const';
+// import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
+
 
 const FormItem = Form.Item
 const confirm = Modal.confirm;
@@ -39,8 +42,6 @@ class TableEditor extends Component {
         this.loadCatalogue();
     }
 
-    componentWillUnmount() {}
-
     loadCatalogue = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
@@ -56,42 +57,37 @@ class TableEditor extends Component {
             desc, userName, lifeDay, catalogueId,
         } = tableData;
 
-        formItemLayout.wrapperCol.sm = 18; // 更改FormItem布局
+        const formItemLayout = {
+            labelCol: { span: 2 },
+            wrapperCol: { span: 12 },
+        };
 
-        return <div className="g-tableeditor">
-            <div className="m-tableviewerhead">
-                <Button type="default" className="f-fr" style={{ marginTop: 7 }}>
-                    <Link to="/data-manage/table">返回</Link>
-                </Button>
-                <h3>{ tableData && <span>编辑表：{ tableName }</span> }</h3>
-            </div>
-            <SplitPane split="vertical" minSize={200} defaultSize={300}>
-                <div className="m-tablebasic">
-                    <h3 className="clearfix">
-                        基本信息
-                    </h3>
-                    <table width="100%" cellPadding="0" cellSpacing="0">
-                        <tbody>
-                            <tr>
-                                <th>表名</th>
-                                <td>{ tableName }</td>
-                            </tr>
-                            <tr>
-                                <th>所属项目</th>
-                                <td>{ project }</td>
-                            </tr>
-                            <tr>
-                                <th>创建者</th>
-                                <td>{userName}</td>
-                            </tr>
-                            <tr>
-                                <th>创建时间</th>
-                                <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <Row>
+        return <div className="g-tableeditor box-1">
+            <div className="box-card">
+                <main>
+                    <h1 className="card-title"><GoBack /> { tableData && <span>编辑表：{ tableName }</span> }</h1>
+                    <Row className="box-card m-tablebasic">
+                        <h3>基本信息</h3>
+                        <table width="100%" cellPadding="0" cellSpacing="0">
+                            <tbody>
+                                <tr>
+                                    <th>表名</th>
+                                    <td>{ tableName }</td>
+                                </tr>
+                                <tr>
+                                    <th>所属项目</th>
+                                    <td>{ project }</td>
+                                </tr>
+                                <tr>
+                                    <th>创建者</th>
+                                    <td>{userName}</td>
+                                </tr>
+                                <tr>
+                                    <th>创建时间</th>
+                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <Form>
                             <FormItem
                                 {...formItemLayout}
@@ -132,27 +128,32 @@ class TableEditor extends Component {
                             </FormItem>
                         </Form>
                     </Row>
-
-                    <Button type="danger"
-                        onClick={ this.delTable.bind(this) }
-                        style={{ float: 'right'}}
-                    >删除表</Button>
-                </div>
-                <div className="m-tabledetail">
-                    {!isEmpty(tableData) && <ColumnsPartition
-                        {...tableData }
-                        addRow={ this.addRow.bind(this) }
-                        delRow={ this.delRow.bind(this) }
-                        replaceRow={ this.replaceRow.bind(this) }
-                        moveRow={ this.moveRow.bind(this) }
-                        isEdit
-                    />}
-                    <Button type="primary"
-                        onClick={ this.saveTable.bind(this) }
-                        style={{ float: 'right', margin: '30 25' }}
-                    >提交</Button>
-                </div>
-            </SplitPane>
+                    <Row className="box-card">
+                        {!isEmpty(tableData) && <ColumnsPartition
+                            {...tableData }
+                            addRow={ this.addRow.bind(this) }
+                            delRow={ this.delRow.bind(this) }
+                            replaceRow={ this.replaceRow.bind(this) }
+                            moveRow={ this.moveRow.bind(this) }
+                            isEdit
+                        />}
+                    </Row>
+                    <Row className="box-card txt-center">
+                        <Button 
+                            type="primary"
+                            style={{ marginRight: '20px' }}
+                            onClick={ this.saveTable.bind(this) }
+                        >
+                            保存
+                        </Button>
+                        <Button type="danger" 
+                            onClick={ this.delTable.bind(this) }
+                        >
+                            删除表
+                        </Button>
+                    </Row>
+                </main>
+            </div>
         </div>
     }
 
@@ -212,7 +213,6 @@ class TableEditor extends Component {
     
     delTable() {
         const the = this;
-
         confirm({
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',

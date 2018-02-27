@@ -83,7 +83,6 @@ class BaseForm extends React.Component {
                     <Input placeholder="分隔符" autoComplete="off" />
                 )}
             </FormItem>
-            
             <FormItem
                 {...formItemLayout}
                 label="类型"

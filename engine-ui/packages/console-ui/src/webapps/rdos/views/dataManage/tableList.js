@@ -170,7 +170,7 @@ class TableList extends Component {
 
         return <div className="m-tablelist section">
             <h1 className="box-title"> 表管理 </h1>
-            <div className="box-2 m-card shadow" style={{ paddingBottom: 20 }}>
+            <div className="box-2 m-card" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title} extra={extra}>
                     <Table
                         rowKey="id"
