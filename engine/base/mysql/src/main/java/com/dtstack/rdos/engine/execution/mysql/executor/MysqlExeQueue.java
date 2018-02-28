@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.mysql.executor;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.mysql.dao.PluginMysqlJobInfoDao;
+import com.dtstack.rdos.engine.execution.base.pluginlog.PluginJobInfoComponent;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -57,7 +57,7 @@ public class MysqlExeQueue {
     /**缓存所有进入执行引擎的任务---在执行完成删除*/
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
 
-    private PluginMysqlJobInfoDao jobInfoDao = new PluginMysqlJobInfoDao();
+    private PluginJobInfoComponent jobInfoComponent = PluginJobInfoComponent.getPluginJobInfoComponent();
 
     private ConnFactory connFactory;
 
@@ -85,7 +85,7 @@ public class MysqlExeQueue {
         try {
             waitQueue.put(jobClient);
             jobCache.put(jobClient.getTaskId(), jobClient);
-            jobInfoDao.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+            jobInfoComponent.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
         } catch (InterruptedException e) {
             LOG.error("", e);
             return null;
@@ -116,7 +116,7 @@ public class MysqlExeQueue {
 
 
     public RdosTaskStatus getJobStatus(String jobId){
-        Integer status = jobInfoDao.getStatusByJobId(jobId);
+        Integer status = jobInfoComponent.getStatusByJobId(jobId);
         if(status == null){
             return null;
         }
@@ -125,7 +125,7 @@ public class MysqlExeQueue {
     }
 
     public String getJobLog(String jobId){
-        String logInfo = jobInfoDao.getLogByJobId(jobId);
+        String logInfo = jobInfoComponent.getLogByJobId(jobId);
         return logInfo == null ? "" : logInfo;
     }
 
@@ -161,11 +161,12 @@ public class MysqlExeQueue {
         private String createSqlProc(String exeSql, String jobName, String jobId){
             procedureName = jobName + NAME_SPLIT +jobId;
             StringBuilder sb = new StringBuilder(String.format("create procedure %s() ", procedureName));
-            sb.append(" BEGIN ")
-              .append(" START TRANSACTION;")
-              .append(exeSql)
-              .append(" ROLLBACK;")
-              .append(" END ");
+//            sb.append(" BEGIN ")
+//                    .append(" START TRANSACTION;")
+//                    .append(exeSql)
+//                    .append(" ROLLBACK;")
+//                    .append(" END ");
+            sb.append(exeSql);//标准的存储过程
 
             return sb.toString();
         }
@@ -179,7 +180,7 @@ public class MysqlExeQueue {
                     LOG.error("", e);
                 }finally {
                     //更新任务状态
-                    jobInfoDao.updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
+                    jobInfoComponent.updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
                     jobCache.remove(engineJobId);
                 }
             }
@@ -219,7 +220,7 @@ public class MysqlExeQueue {
             }catch (Exception e){
                 LOG.error("", e);
                 //错误信息更新到日志里面
-                jobInfoDao.updateErrorLog(engineJobId, e.toString());
+                jobInfoComponent.updateErrorLog(engineJobId, e.toString());
             }finally {
 
                 try {
@@ -244,7 +245,7 @@ public class MysqlExeQueue {
                 LOG.info("job:{} exe end...", jobName, exeResult);
                 //修改指定任务的状态--成功或者失败
                 //TODO 处理cancel job 情况
-                jobInfoDao.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                jobInfoComponent.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 jobCache.remove(engineJobId);
             }
         }

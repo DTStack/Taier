@@ -1,15 +1,9 @@
-package com.dtstack.rdos.engine.execution.mysql.dao;
+package com.dtstack.rdos.engine.execution.base.pluginlog;
 
-import com.dtstack.rdos.engine.execution.mysql.executor.MetaDataConnPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
+import java.sql.*;
 
 /**
  * 操作
@@ -18,21 +12,21 @@ import java.util.Collection;
  * @author xuchao
  */
 
-public class PluginMysqlJobInfoDao {
+public class PluginJobInfoComponent {
     
-    private static final Logger LOG = LoggerFactory.getLogger(PluginMysqlJobInfoDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluginJobInfoComponent.class);
 
-    private static final String REPLACE_INTO_SQL = "replace into rdos_plugin_mysql_job_info(job_id, job_info, status, log_info, gmt_create, gmt_modified) values(?, ?, ?, ?, NOW(), NOW())";
+    private static final String REPLACE_INTO_SQL = "replace into rdos_plugin_job_info(job_id, job_info, status, log_info, gmt_create, gmt_modified) values(?, ?, ?, ?, NOW(), NOW())";
 
-    private static final String UPDATE_STATUS_SQL = "update rdos_plugin_mysql_job_info set status = ?,  gmt_modified = NOW() where job_id = ?";
+    private static final String UPDATE_STATUS_SQL = "update rdos_plugin_job_info set status = ?,  gmt_modified = NOW() where job_id = ?";
 
-    private static final String UPDATE_MODIFY_TIME_SQL = "update rdos_plugin_mysql_job_info set gmt_modified = NOW() where job_id = ?";
+    private static final String UPDATE_MODIFY_TIME_SQL = "update rdos_plugin_job_info set gmt_modified = NOW() where job_id = ?";
 
-    private static final String UPDATE_JOB_ERRINFO_SQL = "update rdos_plugin_mysql_job_info set log_info = ?, gmt_modified = NOW() where job_id = ?";
+    private static final String UPDATE_JOB_ERRINFO_SQL = "update rdos_plugin_job_info set log_info = ?, gmt_modified = NOW() where job_id = ?";
 
-    private static final String GET_STATUS_BY_JOB_ID = "select status from rdos_plugin_mysql_job_info where job_id = ?";
+    private static final String GET_STATUS_BY_JOB_ID = "select status from rdos_plugin_job_info where job_id = ?";
 
-    private static final String GET_LOG_BY_JOB_ID = "select log_info from rdos_plugin_mysql_job_info where job_id = ?";
+    private static final String GET_LOG_BY_JOB_ID = "select log_info from rdos_plugin_job_info where job_id = ?";
 
     private static final String TIME_OUT_ERR_INFO = "任务失去连接(可能原因:执行引擎挂掉)";
 
@@ -45,8 +39,27 @@ public class PluginMysqlJobInfoDao {
 
     private static final String RETAIN_CLEAR_SQL = "delete from rdos_plugin_mysql_job_info where status in (5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > " + retain_time;
 
+    private PluginDataConnPool dataConnPool = PluginDataConnPool.getInstance();
+
+    private static volatile PluginJobInfoComponent pluginJobInfoComponent = null;
+
+    private PluginJobInfoComponent(){
+
+    }
+
+    public static PluginJobInfoComponent getPluginJobInfoComponent(){
+        if(pluginJobInfoComponent==null){
+            synchronized (PluginJobInfoComponent.class){
+                if(pluginJobInfoComponent==null){
+                    pluginJobInfoComponent = new PluginJobInfoComponent();
+                }
+            }
+        }
+        return pluginJobInfoComponent;
+    }
+
     public int insert(String jobId, String jobInfo, int status){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
+        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
@@ -80,12 +93,11 @@ public class PluginMysqlJobInfoDao {
     }
 
     public int updateStatus(String jobId, int status){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_STATUS_SQL);
             pstmt.setInt(1, status);
             pstmt.setString(2, jobId);
@@ -112,12 +124,10 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void updateModifyTime(Collection<String> jobIds){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
-
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_MODIFY_TIME_SQL);
             for(String jobId : jobIds){
                 pstmt.setString(1, jobId);
@@ -145,12 +155,10 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void updateErrorLog(String jobId, String errorLog){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
-
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_JOB_ERRINFO_SQL);
             pstmt.setString(1, errorLog);
             pstmt.setString(2, jobId);
@@ -176,12 +184,11 @@ public class PluginMysqlJobInfoDao {
 
 
     public Integer getStatusByJobId(String jobId){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
         try {
-            connection = metaDataConnPool.getConn();
+            connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(GET_STATUS_BY_JOB_ID);
             pstmt.setString(1, jobId);
 
@@ -213,7 +220,7 @@ public class PluginMysqlJobInfoDao {
 
 
     public String getLogByJobId(String jobId){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
+        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
@@ -249,7 +256,7 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void timeOutDeal(){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
+        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 
@@ -276,7 +283,7 @@ public class PluginMysqlJobInfoDao {
     }
 
     public void clearJob(){
-        MetaDataConnPool metaDataConnPool = MetaDataConnPool.getInstance();
+        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 

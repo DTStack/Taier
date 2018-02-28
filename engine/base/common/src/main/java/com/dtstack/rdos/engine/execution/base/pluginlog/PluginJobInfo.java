@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.mysql.dto;
+package com.dtstack.rdos.engine.execution.base.pluginlog;
 
 import java.sql.Timestamp;
 
@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  * @author xuchao
  */
 
-public class PluginMysqlJobInfo {
+public class PluginJobInfo {
 
     private Long id;
 

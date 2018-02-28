@@ -16,7 +16,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <druid.version>1.0.23</druid.version>
     </properties>
 
     <dependencies>
@@ -32,12 +31,6 @@
             <artifactId>base.common</artifactId>
             <version>1.0.0</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>${druid.version}</version>
         </dependency>
     </dependencies>
 

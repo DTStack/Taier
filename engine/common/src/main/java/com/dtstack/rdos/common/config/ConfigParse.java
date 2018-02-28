@@ -66,16 +66,7 @@ public class ConfigParse {
         return isDebug == null ? false : MathUtil.getBoolean(isDebug);
     }
 
-    public static String getDbUrl(){
-        return MathUtil.getString(configs.get("dbUrl"));
+    public static Map<String,String> getPluginStoreInfo(){
+        return (Map<String, String>) configs.get("pluginStoreInfo");
     }
-
-    public static String getDbUserName(){
-        return MathUtil.getString(configs.get("dbUserName"));
-    }
-
-    public static String getDbPwd(){
-        return MathUtil.getString(configs.get("dbPwd"));
-    }
-
 }

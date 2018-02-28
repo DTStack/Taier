@@ -1,17 +1,14 @@
-package com.dtstack.rdos.engine.execution.mysql.executor;
+package com.dtstack.rdos.engine.execution.base.pluginlog;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.util.Map;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * mysql 插件本身信息存储使用的连接
@@ -20,9 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author xuchao
  */
 
-public class MetaDataConnPool {
+public class PluginDataConnPool {
     
-    private static final Logger LOG = LoggerFactory.getLogger(MetaDataConnPool.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluginDataConnPool.class);
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
@@ -68,65 +65,64 @@ public class MetaDataConnPool {
     private DruidDataSource dataSource = new DruidDataSource();
 
     private static class SingletonHolder{
-        private static MetaDataConnPool instance = new MetaDataConnPool();
+        private static PluginDataConnPool instance = new PluginDataConnPool();
     }
 
-    private MetaDataConnPool(){
+    private PluginDataConnPool(){
         init();
     }
 
     private void init(){
-
-        try{
-            dbUrl = Preconditions.checkNotNull(ConfigParse.getDbUrl(), "mysql 插件必须设置DBURL");
-            dbUserName = ConfigParse.getDbUserName();
-            dbPwd = ConfigParse.getDbPwd();
-        }catch (Exception e){
-            LOG.error("mysql 插件配置异常", e);
+        Map<String,String> pluginStore = ConfigParse.getPluginStoreInfo();
+        if(pluginStore==null) {
+            LOG.error("插件存储配置信息不能为空");
             System.exit(-1);
         }
+            dbUrl = pluginStore.get("dbUrl");
+            dbUserName = pluginStore.get("dbUserName");
+            dbPwd = pluginStore.get("dbPwd");
 
-        dataSource.setDriverClassName(DRIVER_NAME);
-        dataSource.setUrl(dbUrl);
+            dataSource.setDriverClassName(DRIVER_NAME);
+            dataSource.setUrl(dbUrl);
 
-        if(!Strings.isNullOrEmpty(dbUserName)){
-            dataSource.setUsername(dbUserName);
+            if(!Strings.isNullOrEmpty(dbUserName)){
+                dataSource.setUsername(dbUserName);
 
-        }
+            }
 
-        if(!Strings.isNullOrEmpty(dbPwd)){
-            dataSource.setPassword(dbPwd);
-        }
+            if(!Strings.isNullOrEmpty(dbPwd)){
+                dataSource.setPassword(dbPwd);
+            }
 
-        dataSource.setInitialSize(initialSize);
-        dataSource.setMinIdle(minIdle);
-        dataSource.setMaxActive(maxActive);
+            dataSource.setInitialSize(initialSize);
+            dataSource.setMinIdle(minIdle);
+            dataSource.setMaxActive(maxActive);
 
-        dataSource.setMaxWait(maxWait);
-        dataSource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
-        dataSource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
-        dataSource.setValidationQuery(validationQuery);
+            dataSource.setMaxWait(maxWait);
+            dataSource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
+            dataSource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis);
+            dataSource.setValidationQuery(validationQuery);
 
-        dataSource.setTestOnBorrow(testOnBorrow);
-        dataSource.setTestOnReturn(testOnReturn);
-        dataSource.setTestWhileIdle(testWhileIdle);
+            dataSource.setTestOnBorrow(testOnBorrow);
+            dataSource.setTestOnReturn(testOnReturn);
+            dataSource.setTestWhileIdle(testWhileIdle);
 
-        dataSource.setQueryTimeout(queryTimeOut);
+            dataSource.setQueryTimeout(queryTimeOut);
 
-        try{
-            //初始化的时候检测一次
-            DruidPooledConnection conn = dataSource.getConnection();
-            conn.recycle();
-        }catch (Exception e){
-            LOG.error("", e);
-            System.exit(-1);
-        }
+            try{
+                //初始化的时候检测一次
+                DruidPooledConnection conn = dataSource.getConnection();
+                conn.recycle();
+            }catch (Exception e){
+                LOG.error("", e);
+                System.exit(-1);
+            }
 
-        LOG.warn("----init mysql conn pool success");
+            LOG.warn("----init mysql conn pool success");
     }
 
 
-    public static MetaDataConnPool getInstance(){
+    public static PluginDataConnPool getInstance(){
         return SingletonHolder.instance;
     }
 

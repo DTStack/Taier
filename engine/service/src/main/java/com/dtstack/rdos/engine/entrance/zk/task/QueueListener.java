@@ -4,12 +4,10 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 
 
@@ -18,24 +16,23 @@ import java.util.Map;
  * @author sishu.yss
  *
  */
-public class OtherListener implements Runnable{
+public class QueueListener implements Runnable{
 	
-	private static final Logger logger = LoggerFactory.getLogger(OtherListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(QueueListener.class);
 	
 	private final static int listener = 5 * 1000;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-	public OtherListener(){
+	public QueueListener(){
 	}
 	
 	@Override
 	public void run() {
 
-        logger.warn("OtherListener start ....");
         while(true){
-
             try{
+                logger.warn("QueueListener start again....");
                 //更新当前节点的queue
                 Map<String, BrokerQueueNode> queueNodeMap = zkDistributed.getAllBrokerQueueNode();
                 Map<String, Map<String, Map<String, Integer>>> queueInfo = Maps.newHashMap();
@@ -49,9 +46,8 @@ public class OtherListener implements Runnable{
                 BrokerQueueNode localQueueNode = new BrokerQueueNode();
                 localQueueNode.setGroupQueueInfo(localQueueSet);
                 zkDistributed.updateSynchronizedLocalQueueNode(localAddr, localQueueNode);
-
             }catch(Throwable e){
-                logger.error("OtherListener error:{}",ExceptionUtil.getErrorMessage(e));
+                logger.error("QueueListener error:{}",ExceptionUtil.getErrorMessage(e));
             }finally {
                 try {
                     Thread.sleep(listener);

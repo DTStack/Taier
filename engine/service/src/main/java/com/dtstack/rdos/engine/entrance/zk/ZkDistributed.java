@@ -11,7 +11,7 @@ import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
-import com.dtstack.rdos.engine.entrance.zk.task.OtherListener;
+import com.dtstack.rdos.engine.entrance.zk.task.*;
 import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -25,12 +25,6 @@ import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
-import com.dtstack.rdos.engine.entrance.zk.task.TaskMemStatusListener;
-import com.dtstack.rdos.engine.entrance.zk.task.HeartBeat;
-import com.dtstack.rdos.engine.entrance.zk.task.HeartBeatListener;
-import com.dtstack.rdos.engine.entrance.zk.task.MasterListener;
-import com.dtstack.rdos.engine.entrance.zk.task.TaskListener;
-import com.dtstack.rdos.engine.entrance.zk.task.TaskStatusListener;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.collect.Lists;
@@ -152,7 +146,10 @@ public class ZkDistributed {
 		executors.execute(new TaskListener());
 		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
-		executors.execute(new OtherListener());
+		executors.execute(new QueueListener());
+		if(ConfigParse.getPluginStoreInfo()!=null){
+			executors.execute(new PluginStoreInfoListener(masterListener));
+		}
 	}
 
 	public boolean localIsMaster(){

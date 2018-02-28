@@ -40,6 +40,7 @@ public class ClientProxy implements IClient{
         }, targetClient.getClass().getClassLoader(),true);
     }
 
+    @Override
     public JobResult submitJob(JobClient jobClient){
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<JobResult>(){
