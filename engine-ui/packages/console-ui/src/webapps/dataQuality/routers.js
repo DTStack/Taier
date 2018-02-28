@@ -24,7 +24,8 @@ import Dashboard from './views/dashboard'
 import TaskQuery from './views/taskQuery'
 import RuleConfig from './views/ruleConfig'
 import DataCheck from './views/dataCheck'
-
+import DataCheckIndex from './views/dataCheck/dashboard'
+import DataCheckAdd from './views/dataCheck/edit'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -50,7 +51,9 @@ export default (
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="taskQuery" component={ TaskQuery }></Route>
             <Route path="rule" component={ RuleConfig }></Route>
-            <Route path="dataCheck" component={ DataCheck }></Route>
+            <Route path="dataCheck" component={ DataCheckIndex }></Route>
+            <Route path="dataCheck/add" component={ DataCheckAdd }></Route>
+            <Route path="dataCheck/edit/:checkId" component={ DataCheckIndex }></Route>
             <Route path="dataSource" component={ DataCheck }></Route>
         </Route>
     </Route>

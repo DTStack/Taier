@@ -3,7 +3,9 @@ import PropTypes from 'prop-types'
 
 class Dashboard extends Component {
 
-    componentDidMount() { }
+    componentDidMount() {
+    	
+    }
 
     render() {
         return (

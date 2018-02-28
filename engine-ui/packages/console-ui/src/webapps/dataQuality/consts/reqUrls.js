@@ -1,6 +1,7 @@
  // API 地址
  // '/api/dq/service';
- const DQ_BASE_URL = 'http://api.dtstack.com/server/index.php?g=Web&c=Mock&o=simple&projectID=3&uri=/api/dq/service'; // 从config文件全局读取
+ //const DQ_BASE_URL = 'http://api.dtstack.com/server/index.php?g=Web&c=Mock&o=simple&projectID=3&uri=/api/dq/service'; // 从config文件全局读取
+const DQ_BASE_URL = '/api/dq/service'; // 从config文件全局读取
 
 export default {
 
@@ -20,4 +21,10 @@ export default {
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`, // 查询数据源
 
+    // ===== 逐行校验 ===== //
+    GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`,       // 逐行校验列表数据
+    GET_CHECK_DETAIL: `${DQ_BASE_URL}/verify/getOne`,       // 单个数据详情
+    EDIT_CHECK: `${DQ_BASE_URL}/verify/add`,             // 编辑逐行校验
+    DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,  // 删除逐行校验
+    GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`, // 获取报告
 }
