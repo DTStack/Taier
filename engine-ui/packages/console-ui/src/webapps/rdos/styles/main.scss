@@ -31,6 +31,17 @@ table {
     color: #000;
 }
 
+
+.i {
+    color: #d9d9d9;
+    font-size: 12px;
+}
+
+.shadow {
+    box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
+}
+
+
 .row-col-padding>div {
     padding: 0 8px;
 }
@@ -77,15 +88,6 @@ table {
         position: relative;
         padding-bottom: 10px;
     }
-}
-
-.i {
-    color: #d9d9d9;
-    font-size: 12px;
-}
-
-.shadow {
-    box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
 }
 
 .help-doc {

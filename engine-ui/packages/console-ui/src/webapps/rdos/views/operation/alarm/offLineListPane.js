@@ -191,80 +191,91 @@ class OfflinePanel extends Component {
             defaultPageSize: 10,
         };
         return (
-            <div className="row-item">
-                <h2>告警记录-离线任务</h2>
-                <Row className="row-col-padding txt-center" style={{ margin: '20px 0' }}>
-                    <Col span={8} className="mini-card">
-                        <div className="bd card-content">
-                            <p className="count warning">{statistics.today || 0}</p>
-                            <p>今日告警</p>
-                        </div>
+            <div className="m-card">
+                <Row className="m-count box-1">
+                    <Col span={6}>
+                        <section className="m-count-section">
+                            <span className="m-count-title">今日</span>
+                            <span className="m-count-content font-organge">{statistics.today || 0}</span>
+                        </section>
                     </Col>
-                    <Col span={8} className="mini-card">
-                        <div className="bd card-content">
-                            <p className="count warning">{statistics.week || 0}</p>
-                            <p>本周告警</p>
-                        </div>
+                    <Col span={12}>
+                        <section className="m-count-section">
+                            <span className="m-count-title">本周</span>
+                            <span className="m-count-content font-blue">{statistics.week || 0}</span>
+                        </section>
                     </Col>
-                    <Col span={8} className="mini-card">
-                        <div className="bd card-content">
-                            <p className="count warning">{statistics.month || 0}</p>
-                            <p>本月告警</p>
-                        </div>
+                    <Col span={6}>
+                        <section className="m-count-section">
+                            <span className="m-count-title">本月</span>
+                            <span className="m-count-content font-darkgreen">{statistics.month || 0}</span>
+                        </section>
                     </Col>
                 </Row>
-                <Row style={{ margin: '24px 0' }}>
-                    <Form layout="inline">
-                        <FormItem
-                            label="告警时间"
-                            style={{paddingBottom: '24px'}}
-                        >
-                            <RangePicker
-                                style={{ width: 200 }}
-                                disabledDate={this.disabledDate}
-                                format="YYYY-MM-DD"
-                                onChange={this.rangeTimeChange}
-                            />
-                        </FormItem>
-                        <br/>
-                        <FormItem
-                            label="任务名称"
-                        >
-                            <Input
-                                placeholder="任务名称"
-                                style={{ width: 200 }}
-                                onChange={this.changeTaskName} 
-                            />
-                        </FormItem>
-                        <FormItem
-                            label="告警接收人"
-                        >
-                            <Select
-                                allowClear
-                                showSearch
-                                style={{ width: 200 }}
-                                placeholder="请选择接收人"
-                                optionFilterProp="name"
-                                onChange={this.changeReceive}
+                <Card
+                    noHovering
+                    bordered={false}
+                    loading={false}
+                    title={
+                        <Form className="m-form-inline" layout="inline">
+                            <FormItem
+                                label="告警时间"
                             >
-                                {userItems}
-                            </Select>
-                        </FormItem>
-                        <FormItem>
-                            <Button type="primary" onClick={this.search}>搜索</Button>
-                        </FormItem>
-                    </Form>
-                </Row>
-                <Table
-                  rowKey="id"
-                  key="offlineAlarmList"
-                  className="bd"
-                  pagination={pagination}
-                  loading={this.state.loading}
-                  columns={this.initColumns()}
-                  onChange={this.handleTableChange}
-                  dataSource={alarmRecords.data}
-                />
+                                <RangePicker
+                                    style={{ width: 200 }}
+                                    disabledDate={this.disabledDate}
+                                    format="YYYY-MM-DD"
+                                    size="default"
+                                    onChange={this.rangeTimeChange}
+                                />
+                            </FormItem>
+                            <FormItem
+                                label="任务名称"
+                            >
+                                <Input
+                                    size="default"
+                                    placeholder="任务名称"
+                                    style={{ width: 120 }}
+                                    onChange={this.changeTaskName} 
+                                />
+                            </FormItem>
+                            <FormItem
+                                label="告警接收人"
+                            >
+                                <Select
+                                    allowClear
+                                    showSearch
+                                    style={{ width: 120 }}
+                                    placeholder="请选择接收人"
+                                    optionFilterProp="name"
+                                    onChange={this.changeReceive}
+                                >
+                                    {userItems}
+                                </Select>
+                            </FormItem>
+                            <FormItem>
+                                <Button
+                                    size="default"
+                                    type="primary" 
+                                    onClick={this.search}
+                                >
+                                    搜索
+                                </Button>
+                            </FormItem>
+                        </Form>
+                    }
+                >
+                    <Table
+                        rowKey="id"
+                        key="offlineAlarmList"
+                        className="m-table"
+                        pagination={pagination}
+                        loading={this.state.loading}
+                        columns={this.initColumns()}
+                        onChange={this.handleTableChange}
+                        dataSource={alarmRecords.data}
+                    />
+                </Card>
             </div>
         )
     }

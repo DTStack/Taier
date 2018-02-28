@@ -380,7 +380,7 @@ class DirtyData extends Component {
                             </Select>
                         }>
                             <Resize onResize={this.resize}>
-                                <section id="ProduceTrend" style={{height: '300px', padding: '10px'}}></section>
+                                <section id="ProduceTrend" style={{height: '300px', padding: '0 20px 20px 20px'}}></section>
                             </Resize>
                         </Card>
                     </Col>

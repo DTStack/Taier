@@ -9,31 +9,11 @@ import {
  } from 'antd'
  
 import Api from '../../../api'
-import { pieChartOptions } from '../../../comm/const'
-
-// 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
-// 引入饼状图
-require('echarts/lib/chart/pie');
-// 引入提示框和标题组件
-require('echarts/lib/component/tooltip');
-// 引入主题
-require('echarts/lib/component/title');
 
 class OfflineCount extends Component {
 
     state = {
-        offline: '',
-        chart: '',
-    }
-
-    componentDidMount() {
-        this.loadOfflineData()
-        window.addEventListener('resize',  this.resizeChart, false)
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('resize', this.resizeChart, false)
+        data: '',
     }
 
     componentWillReceiveProps(nextProps) {
@@ -48,7 +28,9 @@ class OfflineCount extends Component {
         const ctx = this
         Api.getJobStatistics().then((res) => {
             if (res.code === 1) {
-                ctx.initChart(res.data)
+                this.setState({
+                    data: res.data
+                })
             }
         })
     }
@@ -79,41 +61,52 @@ class OfflineCount extends Component {
         }]
     }
 
-    initChart(chartData) {
-        const ele = document.getElementById('offlinePie')
-        if (!ele) return;
-        let myChart = echarts.init(ele);
-        const option = Object.assign({}, pieChartOptions);
-        option.title.text = `离线任务数量`
-        option.title.subtext = moment().format('YYYY-MM-DD')
-        option.legend.data = [
-            { name: '失败', icon: 'circle' },
-            { name: '运行中', icon: 'circle' },
-            { name: '已完成', icon: 'circle' },
-            { name: '等待运行', icon: 'circle' },
-            { name: '提交中', icon: 'circle' },
-            { name: '等待提交', icon: 'circle' },
-            { name: '冻结', icon: 'circle' },
-        ]
-        option.series[0].name = `总量:${chartData.ALL || 0}`
-        option.series[0].cursor = 'initial'
-        option.series[0].data = this.getSeriesData(chartData)
-        myChart.setOption(option);
-        this.setState({ chart: myChart })
-    }
-
-    resizeChart = () => {
-        if (this.state && this.state.chart) {
-            this.state.chart.resize()
-        }
-    }
-
     render() {
-        const { offline } = this.state
+        const { data } = this.state
         return (
-            <Card>
-                <div id="offlinePie" style={{ height: '300px' }}></div>
-            </Card>
+            <div style={{marginTop: '10px'}}>
+                <h1 className="box-title box-title-bolder">
+                    离线任务
+                    <Button type="primary" className="right" style={{marginTop: '8px'}}>
+                        <Link to="/offline/operation">离线任务运维</Link>
+                    </Button>
+                </h1>
+                <div className="box-4 m-card m-card-small">
+                    <Card
+                        noHovering
+                        bordered={false}
+                        loading={false} 
+                        title="今日任务完成情况（12：00）"
+                    >
+                        <Row className="m-count">
+                            <Col span={4}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">失败</span>
+                                    <span className="m-count-content font-red">{data.FAILED || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={8}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">运行</span>
+                                    <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={8}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">未运行</span>
+                                    <span className="m-count-content font-gray">{data.WAITENGINE || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={4}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">成功</span>
+                                    <span className="m-count-content font-green">{data.FINISHED || 0}</span>
+                                </section>
+                            </Col>
+                        </Row>
+                    </Card>
+                </div>
+            </div>
         )
     }
 }

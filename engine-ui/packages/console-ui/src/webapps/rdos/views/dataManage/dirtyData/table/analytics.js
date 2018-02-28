@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Tabs, Table, Radio, Select
+    Row, Col, Tabs, Table, Radio, Select, Card
 } from 'antd'
 
 import ajax from '../../../../api';
@@ -123,28 +123,32 @@ export default class TableAnalytics extends Component {
 
         const tablePane = <Table 
             columns={cols} 
+            className="m-table"
             dataSource={showData} 
             loading={this.state.loading}
         />
 
         return (
-            <div className="box">
-                <Row style={{margin: '20px 0'}}>
-                    <span style={{lineHeight: '30px',}}>
-                        总计：共{tableCountInfo.totalNum}条 脏数据
-                    </span>
+            <Card 
+                bordered={false}
+                noHovering
+                title={
+                    <span> 总计：共{tableCountInfo.totalNum}条 脏数据</span>
+                }
+                extra={
                     <Select 
                         allowClear
                         showSearch
                         placeholder="分区下拉选项"
                         onChange={this.onPartitionChange} 
-                        style={{width: '200px', float: 'right'}}
+                        style={{width: '200px', marginTop: '10px'}}
                     >
                         { partitionsOptions }
                     </Select>
-                </Row>
-                <Row>
-                    <Tabs type="card" onChange={ this.onTabChange.bind(this) } >
+                }
+            >
+                <Row style={{ marginTop: '1px' }}>
+                    <Tabs onChange={ this.onTabChange.bind(this) } >
                         <TabPane tab={`空指针 (${tableCountInfo.npe || 0}条)`} key="npe">
                             {tablePane}
                         </TabPane>
@@ -159,7 +163,7 @@ export default class TableAnalytics extends Component {
                         </TabPane>
                     </Tabs>
                 </Row>
-            </div>
+            </Card>
         )
     }
 }

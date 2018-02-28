@@ -239,7 +239,7 @@ class RealTimeTaskList extends Component {
 
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.logInfo(record) }}>查看</a>
+                        <a onClick={() => { this.logInfo(record) }}>日志</a>
                         { goOn ? <span className="ant-divider" /> : '' }
                         <a onClick={() => { this.updateTaskStatus(record) }}>{ goOn }</a>
                         { normal ? <span className="ant-divider" /> : '' }
@@ -272,33 +272,30 @@ class RealTimeTaskList extends Component {
             defaultPageSize: 10,
         };
         return (
-            <div className="operation-content">
-                <Card title="实时任务运维">
-                    <article className="section">
-                        <div style={{ paddingBottom: '15px' }}>
-                            <Form layout="inline">
-                                <FormItem
-                                    label=""
-                                >
-                                    <Search
-                                        placeholder="按任务名称搜索"
-                                        style={{ width: 200 }}
-                                        defaultValue={utils.getParameterByName('tname') || ''}
-                                        onSearch={this.searchTask}
-                                    />
-                                </FormItem>
-                            </Form>
-                        </div>
-                        <Table
-                            rowKey="id"
-                            className="section-border"
-                            pagination={pagination}
-                            loading={this.state.loading}
-                            columns={this.initTaskColumns()}
-                            dataSource={tasks.data || []}
-                            onChange={this.handleTableChange}
+            <div className="box-1 m-card">
+                <Card 
+                    noHovering
+                    bordered={false}
+                    loading={false} 
+                    title={
+                        <Search
+                            placeholder="按任务名称搜索"
+                            style={{ width: 200, marginTop: '10px' }}
+                            defaultValue={utils.getParameterByName('tname') || ''}
+                            onSearch={this.searchTask}
                         />
-                    </article>
+                    }
+                >
+                    <Table
+                        rowKey="id"
+                        className="m-table"
+                        style={{ marginTop: '1px' }}
+                        pagination={pagination}
+                        loading={this.state.loading}
+                        columns={this.initTaskColumns()}
+                        dataSource={tasks.data || []}
+                        onChange={this.handleTableChange}
+                    />
                     <GoOnTask 
                         visible={this.state.goOnTask ? true : false}
                         taskId={this.state.goOnTask}

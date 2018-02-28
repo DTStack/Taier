@@ -278,7 +278,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     },
-    color: ['#f25d5d', '#9a64fb', '#5d99f2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
+    color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
     legend: {
         data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
     },

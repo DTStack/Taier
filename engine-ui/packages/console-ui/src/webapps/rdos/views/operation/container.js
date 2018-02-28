@@ -38,14 +38,10 @@ class Container extends Component {
         const collapsed = this.state.collapsed
         return (
             <Layout className="dt-operation">
-                <Sider 
-                    collapsible
-                    className="bg-w"
-                    collapsed={this.state.collapsed}
-                    onCollapse={this.onCollapse}>
+                <Sider className="bg-w">
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
-                <Content style={{ background: '#fff' }}>
+                <Content>
                     { children || "i'm container." }
                 </Content>
             </Layout>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import {
-    Table, Row, Col, Select, Form,
+    Table, Row, Col, Select, Form, Card,
     Input, Button, message, Popconfirm,
 } from 'antd'
 
@@ -159,6 +159,7 @@ class OfflineConfig extends Component {
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
+            width: 80,
             title: '任务名称',
             dataIndex: 'taskName',
             key: 'taskName',
@@ -171,6 +172,7 @@ class OfflineConfig extends Component {
                 return <TaskType value={text} />
             },
         }, {
+            width: 80,
             title: '触发方式',
             dataIndex: 'myTrigger',
             key: 'myTrigger',
@@ -178,7 +180,7 @@ class OfflineConfig extends Component {
                 return <AlarmTriggerType value={text} />
             },
         }, {
-            width: 100,
+            width: 80,
             title: '告警方式',
             dataIndex: 'senderTypes',
             key: 'senderTypes',
@@ -215,7 +217,6 @@ class OfflineConfig extends Component {
             dataIndex: 'createUser',
             key: 'createUser',
         }, {
-            width: 120,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -270,56 +271,70 @@ class OfflineConfig extends Component {
             defaultPageSize: 10,
         };
         return (
-            <div className="row-item">
-                <h2>
-                    自定义告警-离线任务
-                    <Button
-                      style={{ marginTop: '-5px' }}
-                      type="primary"
-                      className="right"
-                      onClick={() => { this.setState({ visible: true }) }}
-                    >
-                      添加告警
-                    </Button>
-                </h2>
-                <Row style={{ margin: '24px 0' }}>
-                   <Form layout="inline">
-                        <FormItem
-                            label="任务名称"
+            <div className="m-card">
+                <Card
+                    noHovering
+                    bordered={false}
+                    loading={false}
+                    title={
+                        <Form 
+                            className="m-form-inline" 
+                            layout="inline"
+                            style={{ marginTop: '10px' }}
                         >
-                            <Input
-                                style={{ width: 200 }}
-                                placeholder="任务名称"
-                                onChange={this.changeTaskName}
-                            />
-                        </FormItem>
-                        <FormItem>
-                             <Select
-                                allowClear
-                                showSearch
-                                style={{ width: 200 }}
-                                placeholder="选择创建人"
-                                optionFilterProp="name"
-                                onChange={this.changeReceive}
-                            >
-                                {userItems}
-                            </Select>
-                        </FormItem>
-                        <FormItem>
-                            <Button type="primary" onClick={this.search}>搜索</Button>
-                        </FormItem>
-                    </Form>
-                </Row>
-                <Table
-                  rowKey="id"
-                  key="offlineConfig"
-                  className="bd"
-                  pagination={pagination}
-                  loading={loading}
-                  columns={this.initColumns()}
-                  onChange={this.handleTableChange}
-                  dataSource={configs.data || []}
-                />
+                            <FormItem label="任务名称">
+                                <Input
+                                    style={{ width: 200 }}
+                                    placeholder="任务名称"
+                                    size="default"
+                                    onChange={this.changeTaskName}
+                                />
+                            </FormItem>
+                            <FormItem>
+                                <Select
+                                    allowClear
+                                    showSearch
+                                    style={{ width: 200 }}
+                                    placeholder="选择创建人"
+                                    optionFilterProp="name"
+                                    onChange={this.changeReceive}
+                                >
+                                    {userItems}
+                                </Select>
+                            </FormItem>
+                            <FormItem>
+                                <Button 
+                                    size="default"
+                                    type="primary" 
+                                    onClick={this.search}
+                                >
+                                    搜索
+                                </Button>
+                            </FormItem>
+                        </Form>
+                    }
+
+                    extra={
+                        <Button
+                            style={{ marginTop: '10px' }}
+                            type="primary"
+                            onClick={() => { this.setState({ visible: true }) }}
+                        >
+                            添加告警
+                        </Button>
+                    }
+                >
+                     <Table
+                        rowKey="id"
+                        key="offlineConfig"
+                        className="m-table"
+                        pagination={pagination}
+                        loading={loading}
+                        columns={this.initColumns()}
+                        onChange={this.handleTableChange}
+                        dataSource={configs.data || []}
+                        />
+                </Card>
                 <AlarmForm
                   {...this.props}
                   title="修改离线任务告警规则"

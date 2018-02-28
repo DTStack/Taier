@@ -3,7 +3,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import moment from 'moment';
 import SplitPane from 'react-split-pane';
-import { Row, Col, Table, Button, Tabs, Radio, Icon, Modal, message } from 'antd';
+import { 
+    Row, Col, Table, Button, 
+    Tabs, Radio, Icon, 
+    Modal, message, Card
+} from 'antd';
 
 import GoBack from 'main/components/go-back';
 
@@ -203,31 +207,38 @@ export default class TableViewer extends React.Component{
                             </table> }
                         </Col>
                     </Row>
-                    <Row className="box-card" style={{minHeight: '500px'}}>
-                        <div className="m-tabs">
-                            <Tabs type="card"
+                    <Row style={{ padding: '0 30px' }}>
+                        <div className="m-tabs m-card bd" style={{minHeight: '500px'}}>
+                            <Tabs 
+                                animated={false}
                                 onChange={ this.getPreview.bind(this) }
                             >
                                 <TabPane tab="字段信息" key="1">
-                                    <div className="box">
-                                        <RadioGroup
-                                            defaultValue={showType}
-                                            onChange={ this.switchType.bind(this) }
-                                            style={{ marginBottom: 10 }}
-                                        >
-                                            <RadioButton value={0}>非分区字段</RadioButton>
-                                            <RadioButton value={1}>分区字段</RadioButton>
-                                        </RadioGroup>
+                                    <Card
+                                        bordered={false}
+                                        noHovering
+                                        title={
+                                            <RadioGroup
+                                                defaultValue={showType}
+                                                onChange={ this.switchType.bind(this) }
+                                                style={{ marginTop: 10 }}
+                                            >
+                                                <RadioButton value={0}>非分区字段</RadioButton>
+                                                <RadioButton value={1}>分区字段</RadioButton>
+                                            </RadioGroup>
+                                        }
+                                        extra={
+                                            <p style={{ color: '#ccc' }}>
+                                                共 { tableData ? (tableData[showType === 0 ? 'column' : 'partition'].length) : 0} 个字段
+                                            </p>
+                                        }
+                                    >
                                         { tableData && <Table
                                             className="m-table"
                                             columns={ columns }
                                             dataSource={ showType === 0 ? tableData.column : tableData.partition }
                                         />}
-                                        <p style={{ marginTop: 5, color: '#ccc' }}>
-                                            {/* <span className="f-fr">注：每天定时更新，非实时数据</span> */}
-                                            共 { tableData ? (tableData[showType === 0 ? 'column' : 'partition'].length) : 0} 个字段
-                                        </p>
-                                    </div>
+                                    </Card>
                                 </TabPane>
                                 <TabPane tab="分区信息" key="2">
                                     <TablePartition table={tableData && tableData.table} />

@@ -10,8 +10,8 @@ export default class AlarmList extends Component {
 
     render() {
         return (
-            <div className="operation-content alarm-list">
-                <Tabs type="card">
+            <div className="box-1 m-tabs">
+                <Tabs animated={false} style={{height: 'auto'}}>
                     <TabPane tab="离线任务" key="1">
                         <OfflinePane />
                     </TabPane>

@@ -4,32 +4,20 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 
 import {
-    Card,
+    Card, Button, Row, Col
  } from 'antd'
 
 import Api from '../../../api'
-import { pieChartOptions } from '../../../comm/const'
-
-// 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
-// 引入饼状图
-require('echarts/lib/chart/pie');
-// 引入提示框和标题组件
-require('echarts/lib/component/tooltip');
-// 引入主题
-require('echarts/theme/shine');
-require('echarts/lib/component/title');
 
 class RealtimeCount extends Component {
 
     state = {
-        realtime: {},
+        data: {},
         chart: '',
     }
 
     componentDidMount() {
         this.loadRealtimeData()
-        this.resizeChart()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -44,7 +32,9 @@ class RealtimeCount extends Component {
         const ctx = this
         Api.taskStatistics().then((res) => {
             if (res.code === 1) {
-                 ctx.initChart(res.data)
+                 this.setState({
+                     data: res.data
+                 })
             }
         })
     }
@@ -69,38 +59,52 @@ class RealtimeCount extends Component {
         }]
     }
 
-    initChart(chartData) {
-        let myChart = echarts.init(document.getElementById('realtimePie'), 'shine');
-        const option = pieChartOptions;
-        option.title.text = `实时任务数量`
-        option.title.subtext = moment().format('YYYY-MM-DD')
-        option.legend.data = [
-            { name: '失败', icon: 'circle' },
-            { name: '运行中', icon: 'circle' },
-            { name: '停止', icon: 'circle' },
-            { name: '等待运行', icon: 'circle' },
-            { name: '等待提交', icon: 'circle' },
-        ]
-        option.series[0].name = `总量：${chartData.ALL}`
-        option.series[0].data = this.getSeriesData(chartData)
-        myChart.setOption(option)
-        this.setState({ chart: myChart })
-    }
-
-    resizeChart = () => {
-        window.addEventListener('resize', () => {
-            if (this.state && this.state.chart) {
-                this.state.chart.resize()
-            }
-        })
-    }
-
     render() {
-        const { realtime } = this.state
+        const { data } = this.state
         return (
-            <Card>
-                <div id="realtimePie" style={{ height: '300px' }}></div>
-            </Card>
+            <div>
+                <h1 className="box-title box-title-bolder">
+                    实时任务
+                    <Button type="primary" className="right" style={{marginTop: '8px'}}>
+                        <Link to="/realtime/operation">实时任务运维</Link>
+                    </Button>
+                </h1>
+                <div className="box-4 m-card m-card-small">
+                    <Card
+                        noHovering
+                        bordered={false}
+                        loading={false} 
+                        title="任务数量"
+                    >
+                        <Row className="m-count">
+                            <Col span={4}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">全部</span>
+                                    <span className="m-count-content font-black">{data.ALL || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={8}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">失败</span>
+                                    <span className="m-count-content font-red">{data.FAILED || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={8}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">运行</span>
+                                    <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={4}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">停止</span>
+                                    <span className="m-count-content font-darkgreen">{data.CANCELED || 0}</span>
+                                </section>
+                            </Col>
+                        </Row>
+                    </Card>
+                </div>
+            </div>
         )
     }
 }

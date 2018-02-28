@@ -9,6 +9,8 @@ import {
     Col, Table, DatePicker,
  } from 'antd'
 
+ import Resize from 'widgets/resize'
+
 import Api from '../../../api'
 import { lineAreaChartOptions } from '../../../comm/const'
 import {
@@ -38,7 +40,6 @@ class OfflineStatistics extends Component {
         this.loadChartData()
         this.getTopTaskTime()
         this.getTopJobError()
-        this.resizeChart()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -51,17 +52,9 @@ class OfflineStatistics extends Component {
             this.getTopJobError()
         }
     }
-    
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.resize, false);
-    }
 
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
-    }
-
-    resizeChart = () => {
-        window.addEventListener('resize', this.resize, false)
     }
 
     loadOfflineData = () => {
@@ -132,7 +125,7 @@ class OfflineStatistics extends Component {
     initLineChart(chartData) {
         let myChart = echarts.init(document.getElementById('TaskTrend'));
         const option = cloneDeep(lineAreaChartOptions);
-        option.title.text = '任务完成情况'
+        option.title.text = ''
         option.tooltip.axisPointer.label.formatter = '{value}: 00'
         option.yAxis[0].minInterval = 1
         option.legend.data = chartData && chartData.type ? chartData.type.data : []
@@ -205,15 +198,28 @@ class OfflineStatistics extends Component {
     render() {
         const { offline, topTiming, topError, handleTiming } = this.state
         return (
-            <article className="section" style={{ paddingBottom: '100px' }}>
-                <Card title="离线任务">
-                    <article id="TaskTrend" style={{width: '100%', height: '300px'}}/>
+            <div className="box-card" style={{ marginTop: '20px' }}>
+                <Card   
+                    noHovering
+                    bordered={false}
+                    loading={false} 
+                    className="shadow"
+                    title="今日任务完成情况（12：00）" 
+                >
+                    <Resize onResize={this.resize}>
+                        <article id="TaskTrend" style={{width: '100%', height: '300px'}}/>
+                    </Resize>
                 </Card>
-                <Row style={{marginTop: '20px'}}>
-                    <Col span="12" className="section">
-                        <Card title="执行时长排行" extra={
+                <Row className="m-card" style={{marginTop: '20px'}}>
+                    <Col span="12" style={{paddingRight: '10px'}}>
+                        <Card 
+                            noHovering
+                            bordered={false}
+                            loading={false}  
+                            className="shadow"
+                            title="执行时长排行" extra={
                             <DatePicker 
-                                style={{ width: 100, float: 'right' }}
+                                style={{ width: 100, float: 'right', marginTop: '10px' }}
                                 format="YYYY-MM-DD"
                                 value={handleTiming}
                                 disabledDate={this.disabledDate}
@@ -222,16 +228,23 @@ class OfflineStatistics extends Component {
                             <Table
                                 rowKey="id"
                                 pagination={false}
+                                className="m-table"
                                 style={{minHeight: '0'}}
                                 columns={this.topTaskTiming()}
                                 dataSource={topTiming || []}
                             />
                         </Card>
                     </Col>
-                    <Col span="12">
-                        <Card title="近30天出错排行">
+                    <Col span="12" style={{paddingLeft: '10px'}}>
+                        <Card
+                            noHovering
+                            bordered={false}
+                            loading={false} 
+                            className="shadow"
+                            title="近30天出错排行">
                             <Table
                                 rowKey="id"
+                                className="m-table"
                                 pagination={false}
                                 style={{minHeight: '0'}}
                                 columns={this.topTaskError()}
@@ -240,7 +253,7 @@ class OfflineStatistics extends Component {
                         </Card>
                     </Col>
                 </Row>
-            </article>
+            </div>
         )
     }
 }

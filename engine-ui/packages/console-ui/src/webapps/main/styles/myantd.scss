@@ -134,6 +134,16 @@
     }
 }
 
+.m-card-small {
+    .ant-card {
+        .ant-card-head {
+            height: 40px;
+            line-height: 40px;
+            border-bottom: 1px solid #DDDDDD;
+        }
+    }
+}
+
 .ant-input-search {
     height: 28px;
 }
@@ -145,16 +155,19 @@
         background: $bgColor2;
         .ant-menu-item>a,
         .ant-menu-submenu-title {
-            color: #959FB1;
+            font-family: PingFangSC-Regular;
+            font-size: 12px;
+            color: #FFFFFF;
+            letter-spacing: 0;
         }
         .ant-menu-item:active,
         .ant-menu-submenu-title:active {
-            background: #222F3C;
+            background: $primaryColor;
         }
         .ant-menu-item-selected {
-            background: #222F3C;
+            background: $primaryColor;
             &>a {
-                color: $primaryColor;
+                color: #ffffff;
             }
         }
     }

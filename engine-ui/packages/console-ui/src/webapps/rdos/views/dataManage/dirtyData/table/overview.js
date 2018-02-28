@@ -96,7 +96,9 @@ export default class TableOverview extends React.Component{
 
     render() {
         return <div className="box">
-            <Card noHovering 
+            <Card 
+                noHovering 
+                bordered={false}
                 extra={
                     <Select  
                         showSearch
@@ -111,7 +113,7 @@ export default class TableOverview extends React.Component{
                     </Select>
                 }>
                 <Resize onResize={this.resize}>
-                    <div id="Table_Overview" style={{height: '300px'}}></div>
+                    <div id="Table_Overview" style={{height: '300px', padding: '20px'}}></div>
                 </Resize>
             </Card>
         </div>

@@ -11,18 +11,10 @@ import OfflineStatistics from './offline'
 export default class Index extends Component {
     render() {
         return (
-            <div className="operation-overview" style={{ background: '#f2f3f8', padding: '20px' }}>
-                <Row>
-                    <Col span={12} style={{paddingRight: '10px'}}>
-                        <OfflineCount />
-                    </Col>
-                    <Col span={12} style={{paddingLeft: '10px'}}>
-                        <RealtimeCount />
-                    </Col>
-                </Row>
-                <Row style={{marginTop: '20px'}}>
-                    <OfflineStatistics />
-                </Row>
+            <div className="operation-overview" style={{ background: '#f2f7fa' }}>
+                <RealtimeCount />
+                <OfflineCount />
+                <OfflineStatistics />
             </div>
         )
     }
