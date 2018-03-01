@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
 
 public interface RdosPluginInfoMapper {
 
-    Long replaceInto(@Param("pluginKey") String pluginKey, @Param("pluginInfo") String pluginInfo, @Param("type") int type);
+    Integer replaceInto(RdosPluginInfo rdosPluginInfo);
 
     RdosPluginInfo getByKey(@Param("pluginKey") String pluginKey);
 

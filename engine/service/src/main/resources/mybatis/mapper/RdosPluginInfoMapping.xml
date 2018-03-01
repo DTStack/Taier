@@ -12,13 +12,9 @@
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
 	
-   <insert id="replaceInto" parameterType="java.util.HashMap" >
+   <insert id="replaceInto" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo" useGeneratedKeys="true" keyProperty="id">
 	   replace into rdos_plugin_info(plugin_key, plugin_info, type, gmt_create,gmt_modified)
 	   values(#{pluginKey}, #{pluginInfo}, #{type}, now(),now())
-
-       <selectKey resultType="long" keyProperty="id" order="AFTER">
-           SELECT LAST_INSERT_ID() AS ID
-       </selectKey>
    </insert>
 
     <select id="getByKey" resultMap="rdosPluginInfoResult">

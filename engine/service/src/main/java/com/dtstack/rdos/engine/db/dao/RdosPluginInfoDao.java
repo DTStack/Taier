@@ -27,7 +27,12 @@ public class RdosPluginInfoDao {
             public Long execute(SqlSession sqlSession) throws Exception {
                 String pluginKey = MD5Util.getMD5String(pluginInfo);
                 RdosPluginInfoMapper pluginInfoMapper = sqlSession.getMapper(RdosPluginInfoMapper.class);
-                return pluginInfoMapper.replaceInto(pluginKey, pluginInfo, type);
+                RdosPluginInfo rdosPluginInfo = new RdosPluginInfo();
+                rdosPluginInfo.setPluginKey(pluginKey);
+                rdosPluginInfo.setPluginInfo(pluginInfo);
+                rdosPluginInfo.setType(type);
+                pluginInfoMapper.replaceInto(rdosPluginInfo);
+                return rdosPluginInfo.getId();
             }
         });
     }
