@@ -72,16 +72,16 @@ public class ActionServiceImpl {
 
             boolean canAccepted = receiveStartJob(paramAction);
 
+            if(!canAccepted){
+                return;
+            }
+
             //判断当前节点是不是master
             if(zkDistributed.localIsMaster()){
 
                 //直接提交到本地master的优先级队列,会对重复数据做校验
                 JobClient jobClient = new JobClient(paramAction);
                 masterNode.addStartJob(jobClient);
-                return;
-            }
-
-            if(!canAccepted){
                 return;
             }
 
