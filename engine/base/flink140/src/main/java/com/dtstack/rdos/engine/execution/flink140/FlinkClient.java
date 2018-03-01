@@ -896,6 +896,7 @@ public class FlinkClient extends AbsClient {
         String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
         String jobInfo = getMessageByHttp(jobPath);
         String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+        System.out.println("accuPath=" + accuPath);
         String accuInfo = getMessageByHttp(accuPath);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
