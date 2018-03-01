@@ -9,6 +9,8 @@
         <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>
         <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob"/>
         <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache" />
+        <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTaskCheckpoint" />
+        <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo"/>
     </typeAliases>
 
     <environments default="production">
@@ -27,5 +29,7 @@
         <mapper resource="mybatis/mapper/RdosEngineStreamJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineBatchJobMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
     </mappers>
 </configuration>
