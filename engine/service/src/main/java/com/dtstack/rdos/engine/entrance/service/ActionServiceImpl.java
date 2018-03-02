@@ -303,6 +303,10 @@ public class ActionServiceImpl {
                 streamTaskDAO.insert(rdosEngineStreamJob);
                 result =  true;
             }else{
+                if(rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.SUBMITTING.getStatus()){
+                    return false;
+                }
+
                 result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
                 if(result){
                     streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
@@ -317,6 +321,11 @@ public class ActionServiceImpl {
                 batchJobDAO.insert(rdosEngineBatchJob);
                 result =  true;
             }else{
+
+                if(rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.SUBMITTING.getStatus()){
+                    return false;
+                }
+
                 result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
                 if(result){
                     batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
