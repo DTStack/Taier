@@ -47,7 +47,7 @@ public class RdbsExeQueue {
     /**优先执行*/
     private BlockingQueue<JobClient> waitQueue = Queues.newLinkedBlockingQueue();
 
-    private Map<String, OracleExe> threadCache = Maps.newHashMap();
+    private Map<String, RdbsExe> threadCache = Maps.newHashMap();
 
     /**缓存所有进入执行引擎的任务---在执行完成删除*/
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
@@ -100,12 +100,12 @@ public class RdbsExeQueue {
     }
 
     public boolean cancelJob(String jobId){
-        OracleExe oracleExe = threadCache.get(jobId);
-        if(oracleExe == null){
+        RdbsExe rdbsExe = threadCache.get(jobId);
+        if(rdbsExe == null){
             return false;
         }
 
-        oracleExe.cancelJob();
+        rdbsExe.cancelJob();
         return true;
     }
 
@@ -125,9 +125,11 @@ public class RdbsExeQueue {
     }
 
 
-    class OracleExe implements Runnable {
+    class RdbsExe implements Runnable {
 
         private static final String NAME_SPLIT = "_";
+
+        private static final String SEMICOLON = ";";
 
         private String jobName;
 
@@ -141,7 +143,7 @@ public class RdbsExeQueue {
 
         private AtomicBoolean isCancel = new AtomicBoolean(false);
 
-        public OracleExe(String jobName, String sql, String jobId){
+        public RdbsExe(String jobName, String sql, String jobId){
             this.jobName = jobName;
             this.jobSqlProc = createSqlProc(sql, jobName, jobId);
             this.engineJobId = jobId;
@@ -155,15 +157,16 @@ public class RdbsExeQueue {
          */
         private String createSqlProc(String exeSql, String jobName, String jobId){
             procedureName = jobName + NAME_SPLIT +jobId;
-            StringBuilder sb = new StringBuilder(String.format("create procedure %s() ", procedureName));
-//            sb.append(" BEGIN ")
-//                    .append(" START TRANSACTION;")
-//                    .append(exeSql)
-//                    .append(" ROLLBACK;")
-//                    .append(" END ");
-            sb.append(exeSql);//标准的存储过程
+            StringBuilder sb = new StringBuilder(connFactory.getCreateProcedureHeader(procedureName));
 
-            return sb.toString();
+            sb.append(exeSql);
+
+            String sql = sb.toString();
+            if(!sql.endsWith(SEMICOLON)) {
+                sql += SEMICOLON;
+            }
+
+            return sql;
         }
 
         public void cancelJob(){
@@ -206,7 +209,7 @@ public class RdbsExeQueue {
                 stmt.execute();
 
                 //调用存储过程
-                String procCall = String.format("{call %s()}", procedureName);
+                String procCall = connFactory.getCallProc(procedureName);
                 stmt = conn.prepareCall(procCall);
                 stmt.execute();
 
@@ -221,7 +224,7 @@ public class RdbsExeQueue {
                 try {
                     if(conn != null){
                         //删除存储过程
-                        String dropSql = String.format("DROP PROCEDURE IF EXISTS `%s`", procedureName);
+                        String dropSql = connFactory.getDropProc(procedureName);
                         Statement dropStmt = conn.createStatement();
                         dropStmt.execute(dropSql);
                         dropStmt.close();
@@ -261,9 +264,9 @@ public class RdbsExeQueue {
                     String sql = jobClient.getSql();
                     String jobId = jobClient.getTaskId();
 
-                    OracleExe oracleExe = new OracleExe(taskName, sql, jobId);
+                    RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId);
                     try{
-                        jobExecutor.submit(oracleExe);
+                        jobExecutor.submit(rdbsExe);
                     }catch (RejectedExecutionException e){
                         //等待继续执行---说明当时执行队列处于满状态-->先等2s
                         waitQueue.add(jobClient);

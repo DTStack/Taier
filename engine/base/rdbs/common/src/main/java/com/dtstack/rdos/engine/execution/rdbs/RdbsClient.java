@@ -21,7 +21,7 @@ import java.util.Properties;
  * @author jingzhen
  */
 
-public class RdbsClient extends AbsClient {
+public abstract class RdbsClient extends AbsClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(RdbsClient.class);
 
@@ -33,10 +33,12 @@ public class RdbsClient extends AbsClient {
 
     protected String dbType = "rdbs";
 
+    protected abstract ConnFactory getConnFactory();
+
     @Override
     public void init(Properties prop) throws Exception {
 
-        connFactory = new ConnFactory();
+        connFactory = getConnFactory();
         connFactory.init(prop);
 
         exeQueue = new RdbsExeQueue(connFactory);

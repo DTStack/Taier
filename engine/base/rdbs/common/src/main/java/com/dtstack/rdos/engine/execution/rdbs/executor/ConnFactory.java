@@ -22,13 +22,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author xuchao
  */
 
-public class ConnFactory {
+public abstract class ConnFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnFactory.class);
-
-    private static final String driverName = "com.mysql.jdbc.Driver";
-
-    private static final String testSql = "select 1 from dual";
 
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
@@ -37,6 +33,11 @@ public class ConnFactory {
     private String userName;
 
     private String pwd;
+
+    protected String driverName = null;
+
+    protected String testSql = null;
+
 
     public void init(Properties properties) throws ClassNotFoundException {
         if(isFirstLoaded.get()){
@@ -89,5 +90,15 @@ public class ConnFactory {
         }
 
         return conn;
+    }
+
+    public abstract String getCreateProcedureHeader(String procName);
+
+    public String getCallProc(String procName) {
+        return String.format("call %s();", procName);
+    }
+
+    public String getDropProc(String procName) {
+        return String.format("DROP PROCEDURE %s;", procName);
     }
 }
