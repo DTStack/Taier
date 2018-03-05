@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
-import { Menu, Tree, message, Popconfirm, Icon, Tooltip } from 'antd'
+import { 
+    Menu, Tree, message, Tabs,
+    Popconfirm, Icon, Tooltip,
+    Dropdown, 
+} from 'antd'
 
 import {
     ContextMenu,
@@ -34,6 +38,7 @@ import MyIcon from '../../components/icon'
 
 const SubMenu = Menu.SubMenu
 const TreeNode = Tree.TreeNode
+const TabPane = Tabs.TabPane
 
 function isCreate(operation) {
     return operation.indexOf('ADD') > -1
@@ -361,7 +366,45 @@ class RealTimeTabPane extends Component {
         this.doAction(modalAction.MODAL_HIDDEN)
     }
 
-    renderSubMenu = () => {
+    onMenuClick = ({ key }) => {
+        const { dispatch } = this.props;
+        switch (key) {
+            case 'task:newFolder': {
+                this.setState({ activeNode: {} })
+                this.doAction(modalAction.ADD_TASK_CATA_VISIBLE)
+                return;
+            }
+            case 'task:newTask': {
+                this.doAction(modalAction.ADD_TASK_VISIBLE)
+                return;
+            }
+            case 'task:search': {
+                dispatch(showSeach())
+                return;
+            }
+            case 'resource:newFolder': {
+                this.setState({ activeNode: {} })
+                this.doAction(modalAction.ADD_RES_CATA_VISIBLE) 
+                return;
+            }
+            case 'resource:upload': {
+                this.setState({ activeNode: {} })
+                this.doAction(modalAction.ADD_RES_VISIBLE)
+                return;
+            }
+            case 'function:newFolder': {
+                this.setState({ activeNode: {} })
+                this.doAction(modalAction.ADD_FUNC_CATA_VISIBLE)
+                return;
+            }
+            case 'function:newFunc': {
+                this.setState({ visibleFn: true })
+                return;
+            }
+        }
+    }
+
+    renderTabPanes = () => {
         const { realtimeTree, dispatch } = this.props;
         const menus = []
         if (realtimeTree && realtimeTree.length > 0) {
@@ -373,32 +416,21 @@ class RealTimeTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="新建文件夹">
-                                    <Icon
-                                        className="right"
-                                        onClick={() => {
-                                            this.setState({ activeNode: {} })
-                                            this.doAction(modalAction.ADD_TASK_CATA_VISIBLE)
-                                        }}
-                                        style={{ marginRight: '8px' }}
-                                        type="folder-add" />
-                                </Tooltip>
-                                <Tooltip title="新建任务">
-                                    <span className="anticon right">
-                                        <MyIcon
-                                            onClick={() => { 
-                                                this.doAction(modalAction.ADD_TASK_VISIBLE)
-                                            }}
-                                            type="create-task" />
-                                    </span>
-                                </Tooltip>
-                                <Tooltip title="搜索任务 Ctrl + P">
-                                    <Icon
-                                        style={{ marginRight: '0px' }}
-                                        className="right"
-                                        onClick={() => { dispatch(showSeach()) }}
-                                        type="search" />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="task:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="task:newTask">
+                                            新建任务
+                                        </Menu.Item>
+                                        <Menu.Item key="task:search">
+                                            搜索任务（Ctrl + P）
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <FolderTree 
                                 onRightClick={this.rightClick}
@@ -413,25 +445,18 @@ class RealTimeTabPane extends Component {
                     case MENU_TYPE.RESOURCE: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="上传资源">
-                                    <span className="anticon">
-                                        <MyIcon
-                                            onClick={() => {
-                                                this.setState({ activeNode: {} })
-                                                this.doAction(modalAction.ADD_RES_VISIBLE)
-                                            }}
-                                            type="upload-res" />
-                                    </span>
-                                </Tooltip>
-                                <Tooltip title="新建文件夹">
-                                    <Icon
-                                        className="anticon right"
-                                        onClick={() => {
-                                            this.setState({ activeNode: {} })
-                                            this.doAction(modalAction.ADD_RES_CATA_VISIBLE)
-                                        }}
-                                        type="folder-add" />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="resource:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="resource:upload">
+                                            上传资源
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <FolderTree
                                 onRightClick={this.rightClick}
@@ -453,19 +478,18 @@ class RealTimeTabPane extends Component {
                         
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="新建函数">
-                                    <Icon type="api" onClick={() => {
-                                        this.setState({ visibleFn: true })
-                                    }} />
-                                </Tooltip>
-                                <Tooltip title="新建文件夹">
-                                    <Icon type="folder-add"
-                                        onClick={() => {
-                                            this.setState({ activeNode: {} })
-                                            this.doAction(modalAction.ADD_FUNC_CATA_VISIBLE)
-                                        }}
-                                    />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="function:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="function:newFunc">
+                                            新建函数
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <FolderTree
                                 onRightClick={this.rightClick}
@@ -507,9 +531,9 @@ class RealTimeTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <SubMenu title={menuItem.name} key={menuItem.id}>
+                    <TabPane tab={menuItem.name} key={menuItem.id}>
                         {menuContent}
-                    </SubMenu>
+                    </TabPane>
                 )
             }
         }
@@ -550,14 +574,15 @@ class RealTimeTabPane extends Component {
         const visibleCata = modal.indexOf('CATA_VISIBLE') > -1
 
         return (
-            <div className="task-sidebar">
-                <Menu
-                    defaultSelectedKeys={['sub1']}
-                    defaultOpenKeys={['sub1', 'sub2']}
-                    mode="inline"
+            <div className="task-sidebar m-tabs">
+                <Tabs
+                    tabPosition="left"
+                    animated={false}
+                    className="task-tab-menu"
+                    style={{ height: '100%' }}
                 >
-                    {this.renderSubMenu()}
-                </Menu>
+                    {this.renderTabPanes()}
+                </Tabs>
 
                 <TaskFormModal
                     taskTypes={taskTypes}

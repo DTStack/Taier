@@ -160,4 +160,13 @@ table {
     position: relative;
     box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
 }
-  
+
+.m-log-modal {
+
+    .CodeMirror-gutter { 
+        background: #E3E5E8;
+    }
+    .CodeMirror-scroll {
+        background: #F3F4F5;
+    }
+}

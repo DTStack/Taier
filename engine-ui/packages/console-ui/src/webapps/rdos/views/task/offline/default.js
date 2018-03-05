@@ -20,7 +20,7 @@ class Default extends Component {
         return (
             workbench.tabs.length ?
             <Workbench />:
-            <Row className="inner-content txt-left" style={{ marginTop: '30px' }}>
+            <Row className="inner-content txt-left" style={{ paddingTop: '30px' }}>
                 <Col className="operation-card" >
                     <div
                       onClick={ toggleCreateTask }

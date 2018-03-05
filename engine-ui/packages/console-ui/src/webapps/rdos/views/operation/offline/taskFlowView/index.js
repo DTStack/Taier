@@ -4,17 +4,19 @@ import { Link, hashHistory } from 'react-router'
 
 import {
     Button, Tooltip, Spin,
-    Modal, notification,
+    Modal, notification, Icon,
 } from 'antd'
 
 import utils from 'utils'
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
+import { taskTypeText } from '../../../../components/display'
 
-import { TaskInfo, TaskOverView } from './taskInfo'
+import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
+
 
 import {
     workbenchActions
@@ -41,13 +43,13 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxUndoManager,
-    mxHierarchicalLayout,
+    mxCompactTreeLayout,
     mxUtils,
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 60,
+    height: 36,
 }
 
 // 遍历树形节点，用新节点替换老节点
@@ -65,7 +67,7 @@ export function replaceTreeNode(treeNode, replace) {
     }
 }
 
-class GraphEditor extends Component {
+class TaskFlowView extends Component {
 
     state = {
         selectedJob: '', // 选中的Job
@@ -80,6 +82,7 @@ class GraphEditor extends Component {
     }
 
     componentDidMount() {
+        this._vertexCells = [] // 用于缓存创建的顶点节点
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
@@ -89,17 +92,16 @@ class GraphEditor extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const taskFlow = nextProps.taskFlow
-        const oldFlow = this.props.taskFlow
-
-        if (taskFlow.id === 0) {
-            this.graph.getModel().clear()
-            this.setState({ selectedJob: '' })
-        } else {
+        const nextTask = nextProps.task
+        const task = this.props.task
+        if (nextTask && nextTask !== task) {
             this.loadTaskChidren({
-                jobId: taskFlow.id,
+                jobId: nextTask.id,
                 level: 2,
             })
+        } else {
+            this.graph.getModel().clear()
+            this.setState({ selectedJob: '' })
         }
     }
 
@@ -139,6 +141,12 @@ class GraphEditor extends Component {
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
+
+        // anchor styles
+        mxConstants.HANDLE_FILLCOLOR = '#ffffff';
+        mxConstants.HANDLE_STROKECOLOR = '#2491F7';
+        mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+
         // enables rubberband
         new mxRubberband(graph)
         this.initContextMenu(graph)
@@ -157,12 +165,12 @@ class GraphEditor extends Component {
             case TASK_STATUS.SUBMITTING:
             case TASK_STATUS.RESTARTING:
             case TASK_STATUS.SET_SUCCESS:
-                return 'whiteSpace=wrap;fillColor=#cfefdf;strokeColor=#18a689;'
+                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.SUBMIT_FAILED:
-                return 'whiteSpace=wrap;fillColor=#fcdbd9;strokeColor=#f04134;'
+                return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;'
             default:
-                return 'whiteSpace=wrap;'
+                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
         }
     }
 
@@ -171,74 +179,67 @@ class GraphEditor extends Component {
             if (cell.value.nodeName.toLowerCase() == 'task') {
                 const data = cell.getAttribute('data');
                 const task = data ? JSON.parse(data).batchTask : '';
-                let txt = ''
-                switch (task.taskType) {
-                    case TASK_TYPE.MR:
-                        txt = 'MR'; break;
-                    case TASK_TYPE.SYNC:
-                        txt = 'Sync'; break;
-                    case TASK_TYPE.VIRTUAL_NODE:
-                        txt = 'Virtual'; break;
-                    case TASK_TYPE.PYTHON:
-                        txt = 'Python'; break;
-                    case TASK_TYPE.R:
-                        txt = 'R'; break;
-                    case TASK_TYPE.SQL:
-                    default:
-                        txt = 'SQL'; break;
-                }
+                const taskType = taskTypeText(task.taskType);
                 if (task) {
-                    return `
-                        <div class="vertex">
-                            ${task.name || ''} <br/> ${txt}
-                        </div>
-                    `
+                    return `<div class="vertex"><span>${task.name || ''}</span>
+                    <span style="font-size:10px; color: #666666;">${taskType}</span>
+                    </div>`
                 }
             }
         }
         return '';
     }
 
-    insertVertex = (graph, data, parent, type, level, cacheArr) => {
-        if (data) {
-            const lev = level + 1 // 层级
-            const style = this.getStyles(data.status)
-            const doc = mxUtils.createXmlDocument()
-            const taskInfo = doc.createElement('Task')
-            taskInfo.setAttribute('id', data.id)
-            taskInfo.setAttribute('data', JSON.stringify(data))
+    insertEdge = (graph, type, parent, child) => {
+        if (type === 'children') {
+            graph.insertEdge(parent, null, '', parent, child)
+        } else {
+            graph.insertEdge(parent, null, '', child, parent)
+        }
+    }
 
-            const exist = cacheArr.find(item => {
-                return item.id === data.id && item.level === lev
+    insertVertex = (graph, data, parent, type) => {
+        if (data) {
+
+            const style = this.getStyles(data.status)
+
+            const exist = this._vertexCells.find((cell) => {
+                const dataStr = cell.getAttribute('data')
+                if (!dataStr) return null
+                const itemData = JSON.parse(dataStr)
+                return itemData.id === data.id
             })
 
-            let current = '';
+            let newVertex = '';
 
             if (exist) {
-                current = exist.node
+                this.insertEdge(graph, type, parent, exist)
+                // graph.insertEdge(parent, null, '', parent, exist)
+                // current = exist.node
             } else {
+
+                // 创建节点
+                const doc = mxUtils.createXmlDocument()
+                const taskInfo = doc.createElement('Task')
+                taskInfo.setAttribute('id', data.id)
+                taskInfo.setAttribute('data', JSON.stringify(data))
+
                 // 插入当前节点
-                current = graph.insertVertex(
+                newVertex = graph.insertVertex(
                     graph.getDefaultParent(), null, taskInfo, 0, 0,
                     VertexSize.width, VertexSize.height, style
                 )
-                cacheArr.push({
-                    id: data.id,
-                    node: current,
-                    level: lev
-                })
-            }
-            
-            if (type === 'children') {
-                graph.insertEdge(parent, null, '', parent, current)
-            } else {
-                graph.insertEdge(current, null, '', current, parent)
+
+                this.insertEdge(graph, type, parent, newVertex)
+
+                // 缓存节点
+                this._vertexCells.push(newVertex)
             }
 
-            if (data.jobVOS) {
-                const children = data.jobVOS
+            if (data.taskVOS) {
+                const children = data.taskVOS
                 for (let i = 0; i < children.length; i++) {
-                    this.insertVertex(graph, children[i], current, type, lev, cacheArr)
+                    this.insertVertex(graph, children[i], newVertex, type)
                 }
             }
         }
@@ -247,16 +248,14 @@ class GraphEditor extends Component {
     doInsertVertex = (data, type) => {
         const graph = this.graph
         const model = graph.getModel()
-        const layout = new mxHierarchicalLayout(graph)
+        const layout = new mxCompactTreeLayout(graph, false)
         model.clear()
-        const cx = graph.container.clientWidth / 3;
-        const cy = 150;
-        const level = -1;
-        const cacheArr = []
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
+        const cy = 200;
         model.beginUpdate()
         const parent = graph.getDefaultParent()
         try {
-            this.insertVertex(graph, data, parent, type, level, cacheArr)
+            this.insertVertex(graph, data, parent, type)
             // Executes the layout
             layout.execute(parent);
             graph.view.setTranslate(cx, cy);
@@ -319,7 +318,7 @@ class GraphEditor extends Component {
                     level: 6,
                 })
             })
-            menu.addSeparator()
+            // menu.addSeparator()
             menu.addItem('查看任务日志', null, function() {
                 // const url = `/operation/task-log/${currentNode.jobId}`
                 // hashHistory.push(url)
@@ -331,7 +330,7 @@ class GraphEditor extends Component {
             menu.addItem('查看任务属性', null, function() {
                 ctx.setState({  visible: true })
             })
-            menu.addSeparator()
+            // menu.addSeparator()
             menu.addItem('终止', null, function() {
                 ctx.stopTask({
                     jobId: currentNode.id,
@@ -508,9 +507,13 @@ class GraphEditor extends Component {
         const logInfo = this.state.logInfo
         const project = this.props.project
         return (
-            <div className="graph-editor">
+            <div className="graph-editor"
+                style={{
+                    position: 'relative', 
+                    height: '600px',
+                }}
+            >
                 <div className="editor pointer" ref={(e) => { this.Container = e }} />
-                <div className="absolute-middle graph-bg">任务视图</div>
                 <Spin
                     tip="Loading..."
                     size="large"
@@ -519,24 +522,23 @@ class GraphEditor extends Component {
                     <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
                 </Spin>
                 <div className="graph-toolbar">
+                    <Tooltip placement="bottom" title="刷新">
+                        <Icon type="reload" onClick={this.refreshTask}/>
+                    </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="缩小">
                         <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                     </Tooltip>
-                    <Tooltip placement="bottom" title="刷新">
-                        <MyIcon onClick={this.refreshTask} type="loop2"/>
-                    </Tooltip>
                 </div>
-                <div className="goback-list">
-                    <Link to={'/operation/offline-operation'}>
-                        <Button icon="rollback">
-                            列表模式
-                        </Button>
-                    </Link>
+                <div className="box-title graph-info">
+                    <span>{task.name || '-'}</span>&nbsp;
+                    <span>{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
+                    发布于&nbsp;
+                    <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
+                    <a>查看代码</a>
                 </div>
-                {task ? <TaskOverView task={task} project={project} /> : ''}
                 <Modal
                     title="查看属性"
                     wrapClassName="vertical-center-modal"
@@ -547,14 +549,14 @@ class GraphEditor extends Component {
                     <TaskInfo task={task} project={project} />
                 </Modal>
                 <Modal
-                    width="80%"
-                    title="任务日志"
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
+                    width="60%"
+                    title="运行日志"
+                    wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
                     visible={this.state.logVisible}
                     onCancel={() => { this.setState({ logVisible: false }) }}
                     footer={null}
                 >
-                    <LogInfo log={logInfo} height="600px"/>
+                    <LogInfo log={logInfo} height="520px"/>
                 </Modal>
                 <RestartModal 
                     restartNode={task}
@@ -572,11 +574,11 @@ class GraphEditor extends Component {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-        style[mxConstants.STYLE_STROKECOLOR] = '#9e9e9e';
-        style[mxConstants.STYLE_ROUNDED] = true;
-        style[mxConstants.STYLE_FILLCOLOR] = '#e9e9e9';
+        style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
+        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
+        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
         // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
-        style[mxConstants.STYLE_FONTCOLOR] = '#000';
+        style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
@@ -587,13 +589,14 @@ class GraphEditor extends Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#18a689';
+        style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
+        style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector; // edgeStyle
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
-        style[mxConstants.STYLE_ROUNDED] = true;
         style[mxConstants.STYLE_FONTSIZE] = '10';
+        style[mxConstants.STYLE_ROUNDED] = true;
         return style
     }
 
@@ -631,9 +634,7 @@ class GraphEditor extends Component {
     }
 }
 export default connect((state) => {
-    const { taskFlow } = state.operation
     return {
-        taskFlow,
         project: state.project,
     }
 }, dispatch => {
@@ -646,4 +647,4 @@ export default connect((state) => {
             dispatch(FlowAction.udpateGraphStatus('change'))
         }
     }
-})(GraphEditor)
+})(TaskFlowView)

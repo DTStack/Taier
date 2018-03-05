@@ -6,6 +6,9 @@ import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 import { setTaskFlow } from '../../store/modules/operation/taskflow'
 
+
+import { MenuRight } from 'main/components/nav'
+
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
 /* eslint-disable */
@@ -105,7 +108,7 @@ class Header extends Component {
     }
 
     render() {
-        const { user, project, projects } = this.props
+        const { user, project, projects, settingMenus, apps } = this.props
         const { current, devPath } = this.state
         const menuItems = this.getProjectItems()
         const userMenu = this.initUserDropMenu()
@@ -170,14 +173,20 @@ class Header extends Component {
                         </Menu.Item>
                     </Menu>
                 </div>
-                <div className="user-info right">
+                
+                <MenuRight 
+                    user={ user }
+                    apps={ apps }
+                    onClick={ this.clickUserMenu }
+                /> 
+                {/* <div className="user-info right">
                     <Dropdown overlay={userMenu} trigger={['click']}>
                         <a className="ant-dropdown-link">
                             {user.userName || '未登录'}
                             <Icon type="down" />
                         </a>
                     </Dropdown>
-                </div>
+                </div> */}
             </div>
         )
     }

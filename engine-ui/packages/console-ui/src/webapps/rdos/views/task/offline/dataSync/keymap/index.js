@@ -157,7 +157,7 @@ class Keymap extends React.Component{
             .attr('r', 5)
             .attr('stroke-width', 2)
             .attr('stroke', '#fff')
-            .attr('fill', 'rgba(0, 157, 126, 0.5)');
+            .attr('fill', '#2491F7');
 
         this.$canvas.append('g')
             .attr('class', 'dr')
@@ -173,7 +173,7 @@ class Keymap extends React.Component{
             .attr('r', 5)
             .attr('stroke-width', 2)
             .attr('stroke', '#fff')
-            .attr('fill', 'rgba(0, 157, 126, 0.5)');
+            .attr('fill', '#2491F7');
     }
 
     renderLines() {
@@ -262,7 +262,7 @@ class Keymap extends React.Component{
             .attr("y1", d => d.s.y)
             .attr("x2", d => d.e.x)
             .attr("y2", d => d.e.y)
-            .attr("stroke","rgba(0, 157, 126, 0.5)")
+            .attr("stroke","#2491F7")
             .attr("stroke-width", 2)
             .attr("marker-end","url(#arrow)");
     }
@@ -334,13 +334,13 @@ class Keymap extends React.Component{
                 select(nodes[i])
                     .select('line')
                     .attr('stroke-width', 3)
-                    .attr('stroke', 'rgba(0, 157, 126, 0.8)')
+                    .attr('stroke', '#2491F7')
             })
             .on('mouseout', (d, i, nodes) => {
                 select(nodes[i])
                     .select('line')
                     .attr('stroke-width', 2)
-                    .attr('stroke', 'rgba(0, 157, 126, 0.5)')
+                    .attr('stroke', '#2491F7')
             })
             .on('click', (d, i, nodes) => {
                 delLinkedKeys({
@@ -902,13 +902,13 @@ class Keymap extends React.Component{
                         >
                             <defs>
                                 <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
-                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: 'rgba(0, 157, 126, 0.5)' }}></path>
+                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
                                 </marker>
                             </defs>
                             <g>
                                 <line id="activeLine"
                                     x1="-10" y1="-10" x2="-10" y2="-10"
-                                    stroke="rgba(0, 157, 126, 0.5)"
+                                    stroke="#2491F7"
                                     strokeWidth="2"
                                     markerEnd="url(#arrow)"
                                 />

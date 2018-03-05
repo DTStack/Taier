@@ -3,7 +3,8 @@ $prefix: 'slide-pane';
 .#{$prefix} {
 
     background: #FFFFFF;
-    border-left: 1px solid #DDDDDD;
+    border-left: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
     box-shadow: -2px 0 2px 0 rgba(0,0,0,0.10);
     position: absolute;
     display: inline-block;
@@ -22,6 +23,7 @@ $prefix: 'slide-pane';
         line-height: 50px;
         top: 0;
         bottom: 0;
+        z-index: 999;
         left: 0;
         margin: auto;
         cursor: pointer;

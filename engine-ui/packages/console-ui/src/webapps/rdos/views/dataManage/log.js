@@ -51,7 +51,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{width: 120}}></Input>
+                        <Input placeholder="变更语句" size="default" style={{width: 105}}></Input>
                     )}
                 </FormItem>
                 <FormItem>
@@ -327,23 +327,23 @@ class Log extends React.Component {
                         total={ totalCount || 0 }
                         onChange={ this.showTableListPage.bind(this) }
                     />
-                        <SlidePane 
-                            onClose={ this.closeSlidePane }
-                            visible={ visibleSlidePane } 
-                            style={{ right: '-20px', width: '80%', height: '552px' }}
-                        >
-                            <div className="m-loglist">
-                                {isEmpty(tableLog) ? <p style={{
-                                    fontSize: 36,
-                                    color: '#ddd',
-                                    textAlign: 'center',
-                                    marginTop: 40
-                                }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>:
-                                <TableLog key={ tableLog.tableId } {...tableLog}
-                                    projectUsers={ projectUsers }
-                                />}
-                            </div>
-                        </SlidePane>
+                    <SlidePane 
+                        onClose={ this.closeSlidePane }
+                        visible={ visibleSlidePane } 
+                        style={{ right: '-20px', width: '80%', height: '552px' }}
+                    >
+                        <div className="m-loglist">
+                            {isEmpty(tableLog) ? <p style={{
+                                fontSize: 36,
+                                color: '#ddd',
+                                textAlign: 'center',
+                                marginTop: 40
+                            }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>:
+                            <TableLog key={ tableLog.tableId } {...tableLog}
+                                projectUsers={ projectUsers }
+                            />}
+                        </div>
+                    </SlidePane>
                 </Card>
             </div>
         </div>

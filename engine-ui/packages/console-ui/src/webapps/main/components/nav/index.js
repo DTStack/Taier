@@ -104,7 +104,7 @@ export function MenuRight(props) {
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">
                         <span>
-                            <img className="avatar" />
+                            <Icon  className="avatar" type="user" />
                             { (user && user.userName) || '未登录'}
                         </span>
                     </div>

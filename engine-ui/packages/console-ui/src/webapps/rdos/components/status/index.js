@@ -1,6 +1,7 @@
 import React from 'react'
 import { Tag, Badge, Tooltip } from 'antd'
 import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE } from '../../comm/const'
+import { Circle } from '../circle' 
 
 export function ProjectStatus(props) {
     const value = props.value
@@ -21,33 +22,47 @@ export function ProjectStatus(props) {
 export function TaskStatus(props) {
     const value = props.value
     switch (value) {
-    case 1:
-        return <Tag color="green">已创建</Tag>
-    case 2:
-        return <Tag color="red">已调度</Tag>
-    case 3:
-        return <Tag color="red">部署中</Tag>
-    case 4:
-        return <Tag color="blue">运行中</Tag>
-    case 5:
-        return <Tag color="green">已完成</Tag>
-    case 6:
-        return <Tag color="red">停止中</Tag>
-    case 7:
-        return <Tag color="red">已停止</Tag>
-    case 8:
-    case 9:
-        return <Tag color="red">失败</Tag>
-    case 10:
-        return <Tag color="blue">提交中</Tag>
-    case 11:
-        return <Tag color="blue">重启中</Tag>
-    case 16:
-    case 17:
-        return <Tag color="green" >等待运行</Tag>
-    case 0:
-    default:
-        return <Tag color="blue">等待提交</Tag>
+        case 4:
+            return <span>
+                    <Circle style={{ background: '#2491F7' }} />&nbsp;
+                    运行中
+                </span>
+        case 5:
+            return <span color="green">
+                <Circle style={{ background: '#00A755' }} />&nbsp;
+                已完成
+            </span>
+        case 7:
+            return <span>
+            <Circle style={{ background: '#EF5350' }} />&nbsp;
+                取消
+            </span>
+        case 8:
+            return <span color="red">
+                <Circle style={{ background: '#EF5350' }} />&nbsp;
+                失败
+            </span>
+        case 10:
+            return <span color="green">
+                <Circle style={{ background: '#background' }} />&nbsp;
+                提交中
+            </span>
+        case 16:
+        return <span color="green" >
+            <Circle style={{ background: '#F5A623' }} />&nbsp;
+            等待运行
+        </span>
+        case 18:
+            return <span>
+                <Circle style={{ background: '#26DAD2' }} />&nbsp;
+                    冻结
+                </span>
+        case 0:
+        default:
+            return <span>
+                <Circle style={{ background: '#d9d9d9' }} />&nbsp;
+                未提交
+            </span>
     }
 }
 
@@ -62,23 +77,47 @@ export function TaskStatus(props) {
 export function OfflineTaskStatus(props) {
     const value = props.value
     switch (value) {
-    case 4:
-        return <Tag color="green">运行中</Tag>
-    case 5:
-        return <Tag color="green">已完成</Tag>
-    case 7:
-        return <Tag>取消</Tag>
-    case 8:
-        return <Tag color="red">失败</Tag>
-    case 10:
-        return <Tag color="green">提交中</Tag>
-    case 16:
-    return <Tag color="green" >等待运行</Tag>
-    case 18:
-        return <Tag color="blue">冻结</Tag>
-    case 0:
-    default:
-        return <Tag>未提交</Tag>
+        case 4:
+            return <span>
+                    <Circle style={{ background: '#2491F7' }} />&nbsp;
+                    运行中
+                </span>
+        case 5:
+            return <span color="green">
+                <Circle style={{ background: '#00A755' }} />&nbsp;
+                已完成
+            </span>
+        case 7:
+            return <span>
+            <Circle style={{ background: '#EF5350' }} />&nbsp;
+                取消
+            </span>
+        case 8:
+            return <span color="red">
+                <Circle style={{ background: '#EF5350' }} />&nbsp;
+                失败
+            </span>
+        case 10:
+            return <span color="green">
+                <Circle style={{ background: '#background' }} />&nbsp;
+                提交中
+            </span>
+        case 16:
+        return <span color="green" >
+            <Circle style={{ background: '#F5A623' }} />&nbsp;
+            等待运行
+        </span>
+        case 18:
+            return <span>
+                <Circle style={{ background: '#26DAD2' }} />&nbsp;
+                    冻结
+                </span>
+        case 0:
+        default:
+            return <span>
+                <Circle style={{ background: '#d9d9d9' }} />&nbsp;
+                未提交
+            </span>
     }
 }
 
@@ -124,16 +163,16 @@ export function TaskTimeType(props) {
     const value = props.value
     switch (value) {
     case 0:
-        return <Tag color="orange">分钟任务</Tag>
+        return <span>分钟任务</span>
     case 1:
-        return <Tag color="green">小时任务</Tag>
+        return <span>小时任务</span>
     case 3:
-        return <Tag color="cyan">周任务</Tag>
+        return <span>周任务</span>
     case 4:
-        return <Tag color="purple">月任务</Tag>
+        return <span>月任务</span>
     case 2:
     default:
-        return <Tag color="blue">天任务</Tag>
+        return <span>天任务</span>
     }
 }
 

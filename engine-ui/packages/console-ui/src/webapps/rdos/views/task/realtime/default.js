@@ -12,7 +12,7 @@ class Default extends Component {
         const { dispatch } = this.props
         const iconStyle = { width: '60px', height: '60px', marginTop: '25px'}
         return (
-            <Row className="inner-content txt-left" style={{ marginTop: '30px' }}>
+            <Row className="inner-content txt-left" style={{ paddingTop: '30px' }}>
                 <Col className="operation-card" >
                     <div
                       onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE)) }}

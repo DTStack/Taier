@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import utils from 'utils'
 
 import Header from './layout/header'
+import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 
@@ -48,7 +49,7 @@ class Container extends Component {
             <div className="dt-dev-tools">
                 <Header showMenu {...this.props} />
                 <div className="container">
-                    { children || "i'm container." }
+                    { children || <Dashboard /> }
                 </div>
             </div>
         )
@@ -62,6 +63,7 @@ function mapStateToProps(state) {
         user: state.user,
         projects: state.projects,
         project: state.project,
+        apps: state.apps,
     }
 }
 export default connect(mapStateToProps)(Container)

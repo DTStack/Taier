@@ -65,6 +65,10 @@
     border-right: 1px solid #dddddd;
 }
 
+.no-bd {
+    border: 0;
+}
+
 .clear:before {
     content: '';
     display: table;

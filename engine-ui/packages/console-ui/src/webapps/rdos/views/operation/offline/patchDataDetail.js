@@ -15,6 +15,7 @@ import {
 
 import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
+import GoBack from 'main/components/go-back'
 
 import Api from '../../../api'
 import { 
@@ -41,7 +42,7 @@ const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
-class OfflineTaskList extends Component {
+class PatchDataDetail extends Component {
 
     state = {
         tasks: {
@@ -393,7 +394,7 @@ class OfflineTaskList extends Component {
             dataIndex: 'businessDate',
             key: 'businessDate'
         }, {
-            title: '定时时间',
+            title: '业务日期',
             dataIndex: 'cycTime',
             key: 'cycTime'
         }, {
@@ -451,7 +452,7 @@ class OfflineTaskList extends Component {
         
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={item.userId} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
@@ -467,7 +468,6 @@ class OfflineTaskList extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange,
         };
-
         return (
             <div>
                 <h1 className="box-title" style={{lineHeight: '50px'}}>
@@ -510,27 +510,38 @@ class OfflineTaskList extends Component {
                         bordered={false}
                         loading={false}
                         title={
+                            <span
+                                style={{
+                                    display: 'inline-block',
+                                    paddingLeft: '8px'
+                                }}
+                            >
+                                <GoBack type="left-circle-o" style={{
+                                    fontSize: '18px',
+                                    color: '9EABB2'
+                                }}/> 
+                                <span style={{
+                                    fontSize: '14px',
+                                    color: '#333333',
+                                    marginLeft: '5px'
+                                }}>
+                                    XXX任务
+                                </span>
+                            </span>
+                        }
+                        extra={
                             <Form 
                                 layout="inline"
                                 style={{marginTop: '10px'}}
                                 className="m-form-inline" 
                             >
-                                <FormItem label="">
-                                    <Search
-                                        placeholder="按任务名称搜索"
-                                        style={{ width: 120 }}
-                                        size="default"
-                                        onChange={this.changeTaskName}
-                                        onSearch={this.search}
-                                    />
-                                </FormItem>
                                 <FormItem
                                     label="责任人"
                                 >
                                     <Select
                                         allowClear
                                         showSearch
-                                        style={{ width: 150 }}
+                                        style={{ width: 120 }}
                                         placeholder="责任人"
                                         optionFilterProp="name"
                                         onChange={this.changePerson}
@@ -543,21 +554,11 @@ class OfflineTaskList extends Component {
                                 >
                                     <DatePicker
                                         size="default"
-                                        style={{ width: 100 }}
+                                        style={{ width: 120 }}
                                         format="YYYY-MM-DD"
                                         placeholder="业务日期"
                                         value={bussinessDate}
                                         onChange={this.changeBussinessDate}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="执行时间"
-                                >
-                                    <RangePicker
-                                        size="default"
-                                        format="YYYY-MM-DD"
-                                        disabledDate={this.disabledDate}
-                                        onChange={this.onExecTimeChange}
                                     />
                                 </FormItem>
                             </Form>
@@ -602,4 +603,4 @@ export default connect((state) => {
             actions.openTaskInDev(id)
         }
     }
-})(OfflineTaskList)
+})(PatchDataDetail)

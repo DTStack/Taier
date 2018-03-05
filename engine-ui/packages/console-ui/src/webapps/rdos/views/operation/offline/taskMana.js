@@ -9,16 +9,21 @@ import {
     Radio, Button, Select,
     Menu, Dropdown, Icon,
     DatePicker, Tag, Form,
+    Checkbox, Tabs,
  } from 'antd'
 
  import utils from 'utils'
+ import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
 import { taskStatusFilter } from '../../../comm/const'
 import { TaskTimeType, TaskType } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
-import PatchData from './patchData'
+import PatchDataModal from './patchDataModal'
+import TaskView from './taskView'
+import TaskRuntime from './taskRuntime'
+
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction' 
@@ -26,6 +31,7 @@ import {
 const FormItem = Form.Item
 const Option = Select.Option
 const Search = Input.Search
+const TabPane = Tabs.TabPane
 const RangePicker = DatePicker.RangePicker
 
 class OfflineTaskMana extends Component {
@@ -42,6 +48,7 @@ class OfflineTaskMana extends Component {
         selectedTask: '',
         startTime: '',
         endTime: '',
+        visibleSlidePane: false,
     }
 
     componentDidMount() {
@@ -84,7 +91,7 @@ class OfflineTaskMana extends Component {
         this.setState({ loading: true })
         const reqParams = Object.assign({
             currentPage: 1,
-            pageSize: 10,
+            pageSize: 20,
         }, params)
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
@@ -113,15 +120,24 @@ class OfflineTaskMana extends Component {
         })
     }
 
+    clickPatchData = (task) => {
+        this.setState({
+            patchDataVisible: true,
+            selectedTask: task
+        })
+    }
+
+    showTask = (task) => {
+        this.setState({
+            visibleSlidePane: true,
+            selectedTask: task
+        })
+    }
+
     clickMenu = (target) => {
         const task = target.item.props.value
         const { workbench } = this.props
-        if (target.key === 'patch') {
-            this.setState({
-                patchDataVisible: true,
-                selectedTask: task
-            })
-        } else if (target.key === 'edit') {
+        if (target.key === 'edit') {
             this.props.goToTaskDev(task.id)
         }
     }
@@ -157,28 +173,42 @@ class OfflineTaskMana extends Component {
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
-                const schedule = JSON.parse(record.scheduleConf)
-                return (
-                    <article style={{fontSize: '12px'}}>
-                        <div>
-                            <TaskTimeType value={record.taskPeriodId} />
-                            <a onClick={() => { this.props.goToTaskDev(record.id) }}>{record.name}</a>&nbsp;
-                            <span>({record.createUser && record.createUser.userName})</span>&nbsp;
-                            <i className="i"><TaskType value={record.taskType}/></i>
-                        </div>
-                        <div style={{marginTop: '5px'}}>
-                            调度生效日期：{schedule.beginDate} ~ {schedule.endDate}&nbsp;
-                            具体调度时间：{record.cron}
-                        </div>
-                    </article>
-                )
+                return <a onClick={() => { this.showTask(record) }}>{record.name}</a>
             },
         }, {
-            title: '修改时间',
+            title: '发布时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: (text) => {
                 return <span>{utils.formatDateTime(text)}</span>
+            },
+        }, {
+            title: '任务类型',
+            dataIndex: 'taskType',
+            key: 'taskType',
+            render: (text) => {
+                return <TaskType value={text}/>
+            },
+        }, {
+            title: '调度周期',
+            dataIndex: 'taskPeriodId',
+            key: 'taskPeriodId',
+            render: (text) => {
+                return <TaskTimeType value={text} />
+            },
+        }, {
+            title: '责任人',
+            dataIndex: 'userName',
+            key: 'userName',
+            render: (text, record) => {
+                return <span>{record.createUser && record.createUser.userName}</span>
+            },
+        }, {
+            title: '告警配置',
+            dataIndex: 'alarmConf',
+            key: 'alarmConf',
+            render: (text, record) => {
+                return '-'
             },
         }, {
             title: '操作',
@@ -187,97 +217,164 @@ class OfflineTaskMana extends Component {
                const menu = (
                     <Menu onClick={this.clickMenu}>
                         <Menu.Item key="edit" value={record}>修改</Menu.Item>
-                        <Menu.Item key="patch" value={record}>补数据</Menu.Item>
                         <Menu.Item key="execTime">
                            <Link to={`/operation/task-runtime/${record.id}`}>运行时间</Link>
                         </Menu.Item>
                     </Menu>
                 );
                 return (
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <Button style={{ marginLeft: 8 }}>
-                            操作 <Icon type="down" />
-                        </Button>
-                    </Dropdown>
+                    <span>
+                        <a onClick={()=> {this.clickPatchData(record)}}>补数据</a>
+                        <span className="ant-divider"></span>
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <Button className="m-drop-btn">
+                                其他 <Icon type="down" />
+                            </Button>
+                        </Dropdown>
+                    </span>
                 )
             },
         }]
     }
 
+    closeSlidePane = () => {
+        this.setState({
+            visibleSlidePane: false,
+        })
+    }
+
+    tableFooter = (currentPageData) => {
+        return (
+            <Row>
+                <Col className="inline" style={{ padding: '15px 10px 10px 30px' }}>
+                    <Checkbox
+                        indeterminate={this.state.indeterminate}
+                        onChange={this.onCheckAllChange}
+                        checked={this.state.checkAll}
+                    >
+                    </Checkbox>
+                </Col>
+                <Col className="inline" style={{ paddingLeft: '15px' }}>
+                    <Button 
+                        size="small"
+                        type="primary" 
+                    >
+                        冻结
+                    </Button>
+                    <Button 
+                        size="small"
+                    >
+                        解冻
+                    </Button>
+                </Col>
+            </Row>
+        )
+    }
+
     render() {
         const { projectUsers } = this.props
-        const { tasks, patchDataVisible, selectedTask, current, taskName } = this.state
+        const { 
+            tasks, patchDataVisible, selectedTask, 
+            current, taskName, visibleSlidePane
+        } = this.state;
+
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={item.userId} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
+
         const pagination = {
             total: tasks.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 20,
             current,
         };
+
+        const rowSelection = {
+            onChange: (selectedRowKeys, selectedRows) => {
+                console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+            },
+            getCheckboxProps: record => ({
+                disabled: record.name === 'Disabled User', // Column configuration not to be checked
+            }),
+        };
+
         return (
-            <div className="operation-content">
-                <article className="section">
-                    <div style={{ paddingBottom: '15px' }}>
-                        <table className="bd my-table">
-                            <tr>
-                                <td colSpan={2}>
-                                    <Form layout="inline">
-                                        <FormItem
-                                            label="修改时间"
-                                        >
-                                        <RangePicker
-                                            style={{ width: 200 }}
-                                            disabledDate={this.disabledDate}
-                                            format="YYYY-MM-DD"
-                                            onChange={this.rangeTimeChange}
-                                        />
-                                        </FormItem>
-                                        <FormItem
-                                            label="责任人"
-                                            >
-                                            <Select
-                                                allowClear
-                                                showSearch
-                                                style={{ width: 150 }}
-                                                placeholder="责任人"
-                                                optionFilterProp="name"
-                                                onChange={this.changePerson}
-                                            >
-                                                <Option key={0} value={0} name="全部">
-                                                    全部
-                                                </Option>
-                                                {userItems}
-                                            </Select>
-                                        </FormItem>
-                                        <FormItem label="">
-                                            <Search
-                                                placeholder="按任务名称搜索"
-                                                style={{ width: 150 }}
-                                                value={taskName}
-                                                onChange={this.changeTaskName}
-                                                onSearch={this.search}
-                                            />
-                                        </FormItem>
-                                    </Form>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+            <div className="box-1 m-card">
+                <Card 
+                    noHovering
+                    bordered={false}
+                    loading={false}
+                    title={
+                        <Form
+                            style={{marginTop: '10px'}}
+                            className="m-form-inline"
+                            layout="inline"
+                        >
+                            <FormItem label="">
+                                <Search
+                                    placeholder="按任务名称"
+                                    style={{ width: 120 }}
+                                    value={taskName}
+                                    size="default"
+                                    onChange={this.changeTaskName}
+                                    onSearch={this.search}
+                                />
+                            </FormItem>
+                            <FormItem
+                                label="责任人"
+                                >
+                                <Select
+                                    allowClear
+                                    showSearch
+                                    style={{ width: 120 }}
+                                    placeholder="责任人"
+                                    optionFilterProp="name"
+                                    onChange={this.changePerson}
+                                >
+                                    {userItems}
+                                </Select>
+                            </FormItem>
+                            <FormItem>
+                                <Checkbox.Group>
+                                    <Checkbox value={1}>我的任务</Checkbox>
+                                    <Checkbox value={2}>今日修改</Checkbox>
+                                    <Checkbox value={3}>冻结的任务</Checkbox>
+                                </Checkbox.Group>
+                            </FormItem>
+                        </Form>
+                    }
+                >
                     <Table
-                      rowKey="id"
-                      className="section-border"
-                      pagination={pagination}
-                      loading={this.state.loading}
-                      columns={this.initTaskColumns()}
-                      dataSource={tasks.data || []}
-                      onChange={this.handleTableChange}
+                        rowKey="id"
+                        style={{marginTop: '1px'}}
+                        className="m-table"
+                        pagination={pagination}
+                        rowSelection={rowSelection} 
+                        loading={this.state.loading}
+                        columns={this.initTaskColumns()}
+                        dataSource={tasks.data || []}
+                        onChange={this.handleTableChange}
+                        footer={this.tableFooter}
                     />
-                </article>
-                <PatchData
+                    <SlidePane 
+                        className="m-tabs bd-top bd-right m-slide-pane"
+                        onClose={ this.closeSlidePane }
+                        visible={ visibleSlidePane } 
+                        style={{ right: '0px', width: '80%' }}
+                    >
+                        <Tabs animated={false}>
+                            <TabPane tab="依赖视图" key="taskFlow"> 
+                                <TaskView tabData={selectedTask}/>
+                            </TabPane>
+                            <TabPane tab="运行报告" key="runTime"> 
+                                <TaskRuntime tabData={selectedTask} />
+                            </TabPane>
+                        </Tabs>
+                    </SlidePane>
+                </Card>
+                <PatchDataModal
                   visible={patchDataVisible}
                   task={selectedTask}
                   handCancel={() => { this.setState({ patchDataVisible: false }) }}

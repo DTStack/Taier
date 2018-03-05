@@ -1,5 +1,10 @@
 import React, { Component } from 'react'
-import { Row, Tabs } from 'antd'
+
+import { 
+    Row, Tabs, Icon, 
+    Popover, Tooltip 
+} from 'antd';
+
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 
@@ -9,6 +14,7 @@ import OfflineTabPanel from './offlineTab'
 const TabPane = Tabs.TabPane
 
 class Sidebar extends Component {
+
     constructor(props) {
         super(props)
         this.state = {
@@ -22,15 +28,25 @@ class Sidebar extends Component {
 
         return (
             <div className="sidebar">
-                <Row className="tab-menu" style={{ paddingTop: '16px' }}>
+                <Row>
                     <Tabs
-                        defaultActiveKey={ activeKey } type="card"
+                        type="card"
+                        className="task-dev-switcher"
+                        defaultActiveKey={ activeKey } 
                         onTabClick={this.switchTaskPanel}
                     >
-                        <TabPane tab="离线任务" key="offline">
+                        <TabPane tab={
+                            <Tooltip placement="bottom" title="离线任务">
+                                <Icon type="usb" />
+                            </Tooltip>
+                        } key="offline">
                             <OfflineTabPanel />
                         </TabPane>
-                        <TabPane tab="实时任务" key="realtime">
+                        <TabPane tab={
+                            <Tooltip placement="bottom" title="实时任务">
+                                <Icon type="link" />
+                            </Tooltip>
+                        } key="realtime">
                             <RealTimeTabPanel />
                         </TabPane>
                     </Tabs>

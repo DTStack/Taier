@@ -11,43 +11,6 @@
     background-position: -1px -1px;
 }
 
-body div.mxPopupMenu {
-    -webkit-box-shadow: 3px 3px 6px #C0C0C0;
-    -moz-box-shadow: 3px 3px 6px #C0C0C0;
-    box-shadow: 3px 3px 6px #C0C0C0;
-    background: white;
-    position: absolute;
-    border: 3px solid #e7e7e7;
-    padding: 3px;
-}
-body table.mxPopupMenu {
-    border-collapse: collapse;
-    margin: 0px;
-}
-body tr.mxPopupMenuItem {
-    color: black;
-    cursor: default;
-}
-body td.mxPopupMenuItem {
-    padding: 6px 60px 6px 30px;
-    font-family: Arial;
-    font-size: 10pt;
-}
-body td.mxPopupMenuIcon {
-    background-color: white;
-    padding: 0px;
-}
-body tr.mxPopupMenuItemHover {
-    background-color: #eeeeee;
-    color: black;
-}
-table.mxPopupMenu hr {
-    border-top: solid 1px #cccccc;
-}
-table.mxPopupMenu tr {
-    font-size: 4pt;
-}
-
 .task-floating-window {
     position: absolute !important;
     right: 10px;
@@ -65,6 +28,63 @@ table.mxPopupMenu tr {
         width: 100%;
         height: 100%;
     }
+
+    .graph-info {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        width: 100%;
+        border-bottom: 1px solid #DDDDDD;
+        box-shadow: -2px 0 2px 0 rgba(0,0,0,0.10);
+        background-color: white;
+        font-family: PingFangSC-Regular;
+        font-size: 12px;
+        color: #666666;
+        letter-spacing: 0;
+    }
+}
+
+body div.mxPopupMenu {
+    -webkit-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    position: absolute;
+    background: #FFFFFF;
+    border-radius: 2px;
+    border: 0;
+}
+body table.mxPopupMenu {
+    border-collapse: collapse;
+    margin: 0px;
+}
+body tr.mxPopupMenuItem {
+    color: #666666;
+    cursor: default;
+}
+body td.mxPopupMenuItem {
+    padding: 6px 60px 6px 30px;
+    font-size: 10pt;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #666666;
+    letter-spacing: 0;
+}
+body td.mxPopupMenuIcon {
+    background-color: white;
+    padding: 0px;
+}
+body tr.mxPopupMenuItemHover {
+    background-color: #E6F7FF;;
+    
+    .mxPopupMenuItem {
+        color: #2491F7;
+    }
+}
+table.mxPopupMenu hr {
+    border-top: solid 1px #cccccc;
+}
+table.mxPopupMenu tr {
+    font-size: 4pt;
 }
 
 .graph-bg {
@@ -84,25 +104,30 @@ table.mxPopupMenu tr {
 .graph-toolbar {
     position: absolute;
     z-index: 2;
-    right: 20px;
+    right: 14px;
     top: 20px;
-    width: 100px;
-    height: 30px;
+    height: 18px;
     border-radius: 2px;
-    border: 1px solid #dddddd;
-    background: #f9f9f9;
     text-align: center;
 
-    img {
-        width: 24px;
-        height: 30px;
-        padding: 3px;
+    img, .anticon {
+        width: 18px;
+        height: 16px;
+        line-height: 16px;
         cursor: pointer;
+        float: left;
+        margin-right: 12px;
+        color: #94A8C6;
     }
 }
 
-.task-vertex {
-    .task-vertex-content {
+.vertex {
+    word-break: break-all;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #333333;
+
+    .vertex-content {
         height: 30px;
         left: 0;
         top: 0;
@@ -113,20 +138,19 @@ table.mxPopupMenu tr {
         text-overflow: ellipsis;
 
         .vertex-title {
-            float: left;
-            margin-left: 5px;
-            margin-top: 1px;
-            width: 60px;
-            text-overflow: ellipsis;
-            overflow: hidden;
+            font-family: PingFangSC-Regular;
+            font-size: 12px;
+            color: #333333;
         }
 
-        img {
-            float: left;
-            width: 16px;
-            height: 16px;
+        .vertex-desc {
+            font-family: PingFangSC-Regular;
+            font-size: 10px;
+            color: #666666;
         }
     }
 }
+
+
 
 

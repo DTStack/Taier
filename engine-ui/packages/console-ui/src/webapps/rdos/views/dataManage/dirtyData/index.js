@@ -22,9 +22,9 @@ require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const Search = Input.Search
-const FormItem = Form.Item
-const Option = Select.Option
+const Search = Input.Search;
+const FormItem = Form.Item;
+const Option = Select.Option;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 

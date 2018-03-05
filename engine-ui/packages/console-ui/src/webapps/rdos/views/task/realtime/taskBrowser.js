@@ -178,6 +178,7 @@ export default class TaskBrowser extends Component {
                         onTabClick={this.onChange}
                         activeKey={`${currentPage.id}`}
                         type="editable-card"
+                        className="browser-tabs"
                         onEdit={this.onEdit}
                     >
                         {panels}
