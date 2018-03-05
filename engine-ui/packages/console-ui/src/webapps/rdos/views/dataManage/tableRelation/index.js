@@ -226,7 +226,7 @@ export default class TableRelation extends React.Component {
         const graph = this.graph;
         let layout = this.layout;
         const cx = (graph.container.clientWidth - VertexSize.width) / 3
-        const cy = 120
+        const cy = 10
 
         if (!layout) {
             layout = new mxCircleLayout(graph)
@@ -288,6 +288,12 @@ export default class TableRelation extends React.Component {
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
+
+        // anchor styles
+        mxConstants.HANDLE_FILLCOLOR = '#ffffff';
+        mxConstants.HANDLE_STROKECOLOR = '#2491F7';
+        mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+
         // enables rubberband
         new mxRubberband(graph)
         // 启用菜单
@@ -296,7 +302,7 @@ export default class TableRelation extends React.Component {
     }
 
     getStyles = (data) => {
-        return 'whiteSpace=wrap;fillColor=#e3f7f3;strokeColor=#18a689'
+        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
     formatTooltip = (cell) => {
@@ -311,7 +317,7 @@ export default class TableRelation extends React.Component {
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
-                    return `<div class="task-vertex"><span class="task-vertex-content"><img src="/img/table.svg" /> <span class="vertex-title">${obj.name || ''}</span></span>
+                    return `<div class="vertex"><span><img src="/public/rdos/img/table.svg" /></span> <span class="vertex-title">${obj.name || ''}</span>
                     </div>`
                 }
             }
@@ -405,26 +411,25 @@ export default class TableRelation extends React.Component {
         const { tableInfo, relationTasks } = this.state
         return (
             <div className="graph-editor" 
-                style = {{ position: 'relative', height: '88%' }}
+                style = {{ position: 'relative', height: '650px' }}
             >
-                <div className="editor pointer" ref={(e) => { this.Container = e }} />
-                <div className="absolute-middle graph-bg">血缘关系</div>
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }} />
+                    <div className="absolute-middle graph-bg">血缘关系</div>
+                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">
+                    <Tooltip placement="bottom" title="刷新">
+                        <Icon type="reload" onClick={this.refresh}/>
+                    </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
                     </Tooltip>
                     <Tooltip placement="bottom" title="缩小">
                         <MyIcon onClick={this.zoomOut} type="zoom-out" />
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="刷新">
-                        <MyIcon onClick={this.refresh} type="loop2" />
                     </Tooltip>
                 </div>
                 <RelationDetail 
@@ -440,11 +445,11 @@ export default class TableRelation extends React.Component {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-        style[mxConstants.STYLE_STROKECOLOR] = '#9e9e9e';
-        style[mxConstants.STYLE_ROUNDED] = true;
-        style[mxConstants.STYLE_FILLCOLOR] = '#e9e9e9';
+        style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
+        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
+        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
         // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
-        style[mxConstants.STYLE_FONTCOLOR] = '#000';
+        style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
@@ -455,15 +460,17 @@ export default class TableRelation extends React.Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#18a689';//'#f04134';
+        style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
+        style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style
     }
+
 
     /* eslint-disable */
     initEditor() {

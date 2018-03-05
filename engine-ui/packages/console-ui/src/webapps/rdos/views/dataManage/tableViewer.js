@@ -208,7 +208,7 @@ export default class TableViewer extends React.Component{
                         </Col>
                     </Row>
                     <Row style={{ padding: '0 30px' }}>
-                        <div className="m-tabs m-card bd" style={{minHeight: '500px'}}>
+                        <div className="m-tabs m-card bd" style={{height: '700px'}}>
                             <Tabs 
                                 animated={false}
                                 onChange={ this.getPreview.bind(this) }
@@ -259,7 +259,7 @@ export default class TableViewer extends React.Component{
                                             <p style={{
                                                 marginTop: 20,
                                                 textAlign: 'center',
-                                                fontSize: 36,
+                                                fontSize: 12,
                                                 color: '#ddd'
                                             }}><Icon type="exclamation-circle-o" /> 此表中没有字段信息 </p>
                                         }
