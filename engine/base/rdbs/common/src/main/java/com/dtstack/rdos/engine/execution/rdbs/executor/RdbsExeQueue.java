@@ -207,7 +207,6 @@ public class RdbsExeQueue {
                 //创建存储过程
                 stmt = conn.prepareCall(jobSqlProc);
                 stmt.execute();
-
                 //调用存储过程
                 String procCall = connFactory.getCallProc(procedureName);
                 stmt = conn.prepareCall(procCall);
