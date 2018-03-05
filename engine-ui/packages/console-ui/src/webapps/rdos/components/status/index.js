@@ -44,7 +44,7 @@ export function TaskStatus(props) {
             </span>
         case 10:
             return <span color="green">
-                <Circle style={{ background: '#background' }} />&nbsp;
+                <Circle style={{ background: '#2491F7' }} />&nbsp;
                 提交中
             </span>
         case 16:
@@ -99,7 +99,7 @@ export function OfflineTaskStatus(props) {
             </span>
         case 10:
             return <span color="green">
-                <Circle style={{ background: '#background' }} />&nbsp;
+                <Circle style={{ background: '#2491F7' }} />&nbsp;
                 提交中
             </span>
         case 16:

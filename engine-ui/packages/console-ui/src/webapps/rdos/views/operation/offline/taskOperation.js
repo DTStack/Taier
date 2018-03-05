@@ -32,7 +32,7 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction' 
 
-import TaskFlowView from './taskFlowView/index'
+import TaskFlowView from './taskFlowView'
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -52,9 +52,9 @@ class OfflineTaskList extends Component {
         current: 1,
         person: '',
         choose: '0',
-        jobName: '',
+        jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: '',
-        bussinessDate: moment().subtract(1, 'days'),
+        bussinessDate: '',
         selectedRowKeys: [],
         execTime: '', // 执行时间
         jobType: '', // 调度类型
@@ -148,12 +148,20 @@ class OfflineTaskList extends Component {
 
     killAllJobs = () => {
         const ctx = this
-        Api.batchStopJob({ isAll: 1 }).then((res) => {
-            if (res.code === 1) {
-                message.success('已经成功启动杀死所有任务！')
-                ctx.search()
-            }
-        })
+        confirm({
+            title: '确认提示',
+            content: '确定要杀死所有的任务吗？',
+            onOk() {
+                Api.batchStopJob({ isAll: 1 }).then((res) => {
+                    if (res.code === 1) {
+                        message.success('已经成功启动杀死所有任务！')
+                        ctx.search()
+                    } else {
+                        message.error('启动杀死任务失败！')
+                    }
+                })
+            },
+        });
     }
 
     batchKillJobs = () => { // 批量重跑
@@ -335,7 +343,6 @@ class OfflineTaskList extends Component {
     }
 
     onExecSpendTime = (execSpendTime) => {
-        console.log('onExecSpendTime:', execSpendTime)
         this.setState({ execSpendTime, current: 1 }, () => {
             this.search()
         })
@@ -352,6 +359,19 @@ class OfflineTaskList extends Component {
         })
     }
 
+    onCheckAllChange = (e) => {
+        if (e.target.checked) {
+            const selectedRowKeys = this.state.tasks.data.map(item => item.id)
+            this.setState({
+                selectedRowKeys
+            })
+        } else {
+            this.setState({
+                selectedRowKeys: []
+            })
+        }
+    }
+
     initTaskColumns = () => {
         return [{
             title: '任务名称',
@@ -366,6 +386,7 @@ class OfflineTaskList extends Component {
             },
         }, {
             title: '状态',
+            width: 80,
             dataIndex: 'status',
             key: 'status',
             render: (text) => {
@@ -426,9 +447,7 @@ class OfflineTaskList extends Component {
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 30px' }}>
                     <Checkbox
-                        indeterminate={this.state.indeterminate}
                         onChange={this.onCheckAllChange}
-                        checked={this.state.checkAll}
                     >
                     </Checkbox>
                 </td>
@@ -443,11 +462,12 @@ class OfflineTaskList extends Component {
 
     render() {
         const { 
-            tasks, selectedRowKeys, 
+            tasks, selectedRowKeys, jobName,
             bussinessDate, current, statistics,
             selectedTask, visibleSlidePane,
         } = this.state
-        const { projectUsers } = this.props
+
+        const { projectUsers, project } = this.props
         
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
@@ -518,8 +538,9 @@ class OfflineTaskList extends Component {
                                 <FormItem label="">
                                     <Search
                                         placeholder="按任务名称搜索"
-                                        style={{ width: 120 }}
+                                        style={{ width: 150 }}
                                         size="default"
+                                        value={jobName}
                                         onChange={this.changeTaskName}
                                         onSearch={this.search}
                                     />
@@ -543,7 +564,7 @@ class OfflineTaskList extends Component {
                                 >
                                     <DatePicker
                                         size="default"
-                                        style={{ width: 100 }}
+                                        style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="业务日期"
                                         value={bussinessDate}
@@ -554,6 +575,7 @@ class OfflineTaskList extends Component {
                                     label="执行时间"
                                 >
                                     <RangePicker
+                                        style={{ width: 180 }}
                                         size="default"
                                         format="YYYY-MM-DD"
                                         disabledDate={this.disabledDate}
@@ -561,6 +583,15 @@ class OfflineTaskList extends Component {
                                     />
                                 </FormItem>
                             </Form>
+                        }
+                        extra={
+                            <Icon type="reload" onClick={this.search} 
+                                style={{
+                                    cursor: 'pointer',
+                                    marginTop: '16px',
+                                    color: '#94A8C6'
+                                }}
+                            />
                         }
                     > 
                          <Table
@@ -574,14 +605,20 @@ class OfflineTaskList extends Component {
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
+                            scroll={{ y: '65%' }}
                         />
                         <SlidePane 
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '80%', height: '600px' }}
+                            style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px' }}
                         >
-                            <TaskFlowView task={selectedTask} />
+                            <TaskFlowView 
+                                visibleSlidePane={visibleSlidePane}
+                                goToTaskDev={this.props.goToTaskDev} 
+                                taskJob={selectedTask} 
+                                project={project}
+                            />
                         </SlidePane>
                     </Card>
                 </div>

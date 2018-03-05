@@ -17,13 +17,10 @@ class Sidebar extends Component {
 
     constructor(props) {
         super(props)
-        this.state = {
-            current: 'project-abstract',
-        }
     }
 
     render() {
-        const {pathname} = this.props.routing.locationBeforeTransitions;
+        const { pathname } = this.props.routing.locationBeforeTransitions;
         const activeKey = /^\/*(\w+)(\/*.*)$/.exec(pathname)[1];
 
         return (
@@ -56,7 +53,7 @@ class Sidebar extends Component {
     }
 
     switchTaskPanel(key) {
-        hashHistory.push(`${key}/task`);
+        hashHistory.push(`/${key}/task`);
     }
 }
 

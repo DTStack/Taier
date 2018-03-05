@@ -29,7 +29,6 @@ class PatchDataList extends Component {
 
     state = {
         loading: false,
-        whichTask: [0],
         chooseTime: 0,
         current: 1 ,
         tasks: {
@@ -40,7 +39,7 @@ class PatchDataList extends Component {
         endTime: '',
         bussinessDate: utils.getParameterByName('patchBizTime') 
         ? moment(utils.getParameterByName('patchBizTime')) : '',
-        runningDate: utils.getParameterByName('patchBizTime') ? '' : moment(),
+        runningDate: '',
         taskStatus: [],
         jobType: '',
         taskName: utils.getParameterByName('patchName') || '',
@@ -72,16 +71,14 @@ class PatchDataList extends Component {
     loadPatchData(params) {
         const ctx = this
         this.setState({ loading: true, expandedKeys: [] })
-        if (this.valideParams()) {
-            let defaultParams = this.getReqParams()
-            const reqParams = Object.assign(defaultParams, params)
-            Api.getFillData(reqParams).then((res) => {
-                if (res.code === 1) {
-                    ctx.setState({ tasks: res.data, loading: false })
-                    ctx.props.dispatch(FlowAction.setTaskFlow({ id: 0 }))
-                }
-            })
-        }
+        let defaultParams = this.getReqParams()
+        const reqParams = Object.assign(defaultParams, params)
+        Api.getFillData(reqParams).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ tasks: res.data, loading: false })
+                ctx.props.dispatch(FlowAction.setTaskFlow({ id: 0 }))
+            }
+        })
     }
 
     loadPatchDataDetail(params, node) {
@@ -114,18 +111,6 @@ class PatchDataList extends Component {
         })
     }
 
-    valideParams = () => {
-        const {
-            runningDate, bussinessDate
-        } = this.state
-
-        if (!runningDate && !bussinessDate) {
-            message.error('运行日期和业务日期必须选择一个！')
-            return false
-        }
-        return true;
-    }
-
     getReqParams = () => {
         const {
             startTime, endTime,
@@ -137,13 +122,17 @@ class PatchDataList extends Component {
             reqParams.jobName = taskName
         }
         if (bussinessDate) {
-            reqParams.bizDay = moment(bussinessDate).format('YYYY-MM-DD')
+            reqParams.bizDay = moment(bussinessDate).format('YYYY-MM-DD').unix()
         }
         if (runningDate) {
-            reqParams.runDay = moment(runningDate).format('YYYY-MM-DD')
+            reqParams.runDay = moment(runningDate).format('YYYY-MM-DD').unix()
         }
         if (taskStatus && taskStatus.length > 0) {
             reqParams.status = taskStatus.join(',')
+        }
+        if (startTime && endTime) {
+            reqParams.startTime = startTime
+            reqParams.endTime = endTime
         }
         if (owner) {
              reqParams.dutyUserId = owner
@@ -167,45 +156,12 @@ class PatchDataList extends Component {
         }
     }
 
-    onWhichTask = (value) => {
-        const val = value && value.length > 0 ? [value[value.length -1]] : []
-        const { user } = this.props
-        // const userId = parseInt(, 10)
-        const data = {
-            owner: `${user.id}`,
-            whichTask: val,
-            current: 1,
-        }
-        if (val[0] === 2) { // is mine
-            data.runningDate = moment()
-        }
-        this.setState(data, () => {
-            this.loadPatchData()
-        })
-    }
-
     onBuisTimeChange = (date) => {
-        this.setState({ bussinessDate: date, current: 1 }, () => {
-            this.loadPatchData()
-        });
+        this.setState({ bussinessDate: date, current: 1 }, this.loadPatchData);
     }
 
     onRunningTime = (date) => {
-        this.setState({ runningDate: date, current: 1 }, () => {
-            this.loadPatchData()
-        });
-    }
-
-    onStartTime = (date) => {
-        this.setState({ startTime: date, current: 1 }, () => {
-            this.loadPatchData()
-        });
-    }
-
-    onEndTime = (date) => {
-        this.setState({ endTime: date, current: 1 }, () => {
-            this.loadPatchData()
-        });
+        this.setState({ runningDate: date, current: 1 }, this.loadPatchData);
     }
 
     onChangeTaskName = (e) => {
@@ -214,12 +170,35 @@ class PatchDataList extends Component {
 
     onOwnerChange = (value) => {
         const state = { owner: value, current: 1, }
-        if (value === 0 || value === undefined) {
-            state.whichTask = 0
-        }
-        this.setState(state, () => {
-            this.loadPatchData()
-        });
+        this.setState(state, this.loadPatchData);
+    }
+
+    onCheckChange = (checkedList) => {
+        const { user } = this.props;
+        const conditions = {
+            person: '',
+            startTime: '',
+            endTime: '',
+            scheduleStatus: 1,
+        };
+        checkedList.forEach(item => {
+            if (item === 'person') {
+                conditions.owner  = `${user.id}`;
+            } else if (item === 'todayUpdate') {
+                conditions.startTime = moment().set({
+                    'hour': 0,
+                    'minute': 0,
+                    'second': 0,
+                }).unix()
+                conditions.endTime = moment().set({
+                    'hour': 23,
+                    'minute': 59,
+                    'second': 59,
+                }).unix()
+            }
+        })
+
+        this.setState(conditions, this.loadPatchData)
     }
 
     initTaskColumns = () => {
@@ -229,7 +208,7 @@ class PatchDataList extends Component {
             key: 'patchName',
             render: (text, record) => {
                 return (
-                    <Link to={`operation/task-patch-data/${record.id}`}>{text}</Link>
+                    <Link to={`/operation/task-patch-data/${record.id}`}>{text}</Link>
                 )
             },
         }, {
@@ -308,6 +287,26 @@ class PatchDataList extends Component {
                         onSearch={this.searchJob}
                     />
                 </FormItem>
+                <FormItem label="业务日期">
+                    <DatePicker
+                        format="YYYY-MM-DD"
+                        placeholder="业务日期"
+                        style={{ width: '120px' }}
+                        value={bussinessDate}
+                        size="default"
+                        onChange={this.onBuisTimeChange}
+                    />
+                </FormItem>
+                <FormItem label="运行日期">
+                    <DatePicker
+                        format="YYYY-MM-DD"
+                        placeholder="运行日期"
+                        style={{ width: '120px' }}
+                        size="default"
+                        value={runningDate}
+                        onChange={this.onRunningTime}
+                    />
+                </FormItem>
                 <FormItem label="责任人">
                     <Select
                         allowClear
@@ -321,28 +320,10 @@ class PatchDataList extends Component {
                         {userItems}
                     </Select>
                 </FormItem>
-                <FormItem label="业务日期">
-                    <DatePicker
-                        format="YYYY-MM-DD"
-                        placeholder="业务日期"
-                        value={bussinessDate}
-                        size="default"
-                        onChange={this.onBuisTimeChange}
-                    />
-                </FormItem>
-                <FormItem label="运行日期">
-                    <DatePicker
-                        format="YYYY-MM-DD"
-                        placeholder="运行日期"
-                        size="default"
-                        value={runningDate}
-                        onChange={this.onRunningTime}
-                    />
-                </FormItem>
                 <FormItem>
-                    <Checkbox.Group value={whichTask} onChange={this.onWhichTask}>
-                        <Checkbox value={1}>我的任务</Checkbox>
-                        <Checkbox value={2}>我今天补的</Checkbox>
+                    <Checkbox.Group onChange={this.onCheckChange}>
+                        <Checkbox value="person">我的任务</Checkbox>
+                        <Checkbox value="todayUpdate">我今天补的</Checkbox>
                     </Checkbox.Group>
                 </FormItem>
             </Form>
@@ -365,24 +346,6 @@ class PatchDataList extends Component {
                         onChange={ this.pageChange }
                     />
                 </Card>
-                {/* <Row className="task-list" style={{ padding: '5px' }}>
-                    <Tree
-                        showLine
-                        autoExpandParent={false}
-                        expandedKeys={this.state.expandedKeys}
-                        onExpand={this.onExpandTree}
-                        onSelect={this.selectTreeItem}
-                        loadData={this.asyncTree}
-                    >
-                        {treeNodes}
-                    </Tree>
-                    <Pagination
-                        simple
-                        className="txt-right"
-                        onChange={this.pageChange}
-                        current={this.state.current}
-                        total={tasks.totalCount} />
-                </Row> */}
             </div>
         )
     }

@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { Link, hashHistory } from 'react-router'
 
 import {
     Button, Tooltip, Spin,
-    Modal, notification, Icon,
+    Modal, message, Icon,
 } from 'antd'
 
 import utils from 'utils'
@@ -81,27 +80,25 @@ class TaskFlowView extends Component {
         visibleRestart: false,
     }
 
-    componentDidMount() {
+    initGraph = (id) => {
         this._vertexCells = [] // 用于缓存创建的顶点节点
+        this.Container.innerHTML = ""; // 清理容器内的Dom元素
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
         this.listenDoubleClick()
-        this.listenOnClick()
         this.hideMenu()
+        this.loadTaskChidren({
+            jobId: id,
+            level: 6,
+        })
     }
 
     componentWillReceiveProps(nextProps) {
-        const nextTask = nextProps.task
-        const task = this.props.task
-        if (nextTask && nextTask !== task) {
-            this.loadTaskChidren({
-                jobId: nextTask.id,
-                level: 2,
-            })
-        } else {
-            this.graph.getModel().clear()
-            this.setState({ selectedJob: '' })
+        const currentJob = this.props.taskJob
+        const { taskJob, visibleSlidePane } = nextProps
+        if (taskJob && visibleSlidePane && taskJob.id !== currentJob.id) {
+            this.initGraph(taskJob.id)
         }
     }
 
@@ -247,18 +244,25 @@ class TaskFlowView extends Component {
 
     doInsertVertex = (data, type) => {
         const graph = this.graph
-        const model = graph.getModel()
-        const layout = new mxCompactTreeLayout(graph, false)
-        model.clear()
+        let layout = this.layout;
+
+        if (!layout) {
+            layout = new mxCompactTreeLayout(graph, false)
+            this.layout = layout;
+        }
         const cx = (graph.container.clientWidth - VertexSize.width) / 2;
         const cy = 200;
-        model.beginUpdate()
+        
         const parent = graph.getDefaultParent()
+        const model = graph.getModel()
+        model.beginUpdate()
+
         try {
             this.insertVertex(graph, data, parent, type)
             // Executes the layout
             layout.execute(parent);
             graph.view.setTranslate(cx, cy);
+
         } finally {
             model.endUpdate()
         }
@@ -385,16 +389,9 @@ class TaskFlowView extends Component {
     stopTask = (params) => {
         Api.stopJob(params).then(res => {
             if (res.code === 1 ) {
-                notification['success']({
-                    message: '终止任务',
-                    description: '任务终止运行命令已提交！',
-                });
-                this.props.udpateGraphStatus();
+                message.success('任务终止运行命令已提交！')
             } else {
-                notification['error']({
-                    message: '终止任务',
-                    description: '任务终止提交失败！',
-                });
+                message.error('任务终止提交失败！')
             }
             this.refreshTask()
         })
@@ -403,16 +400,9 @@ class TaskFlowView extends Component {
     restartAndResume = (params, msg) => { // 重跑并恢复任务
         Api.restartAndResume(params).then(res => {
             if (res.code === 1 ) {
-                notification['success']({
-                    message: msg,
-                    description: `${msg}命令已提交!`,
-                });
-                this.props.udpateGraphStatus();
+                message.success(`${msg}命令已提交!`)
             } else {
-                notification['error']({
-                    message: msg,
-                    description: `${msg}提交失败！`,
-                });
+                message.error(`${msg}提交失败！`)
             }
             this.refreshTask()
         })
@@ -483,6 +473,10 @@ class TaskFlowView extends Component {
         this.graph.setEnabled(!status)
     }
 
+    refresh = () => {
+        this.initGraph(this.props.tabData.id)
+    }
+    
     zoomIn = () => {
         this.graph.zoomIn()
     }
@@ -503,23 +497,29 @@ class TaskFlowView extends Component {
 
     /* eslint-enable */
     render() {
-        const task = this.state.selectedJob
+        const selectedJob = this.state.selectedJob
         const logInfo = this.state.logInfo
-        const project = this.props.project
+        const { goToTaskDev, project, taskJob } = this.props
         return (
             <div className="graph-editor"
                 style={{
                     position: 'relative', 
-                    height: '600px',
+                    height: '100%',
                 }}
             >
-                <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
+                      <div 
+                            className="editor pointer" 
+                            ref={(e) => { this.Container = e }} 
+                            style={{
+                                position: 'relative', 
+                                height: '100%',
+                            }}
+                        />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
@@ -533,11 +533,11 @@ class TaskFlowView extends Component {
                     </Tooltip>
                 </div>
                 <div className="box-title graph-info">
-                    <span>{task.name || '-'}</span>&nbsp;
-                    <span>{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
+                    <span>{ taskJob.batchTask && taskJob.batchTask.name || '-' }</span>&nbsp;
+                    <span>{ (taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
-                    <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
-                    <a>查看代码</a>
+                    <span>{ taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified) }</span>&nbsp;
+                    <a onClick={ () => { goToTaskDev(taskJob.taskId) }}>查看代码</a>
                 </div>
                 <Modal
                     title="查看属性"
@@ -546,21 +546,20 @@ class TaskFlowView extends Component {
                     onCancel={() => { this.setState({ visible: false }) }}
                     footer={null}
                 >
-                    <TaskInfo task={task} project={project} />
+                    <TaskInfo task={selectedJob} project={project} />
                 </Modal>
                 <Modal
                     width="60%"
                     title="运行日志"
                     wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
-                    visible={this.state.logVisible}
+                    visible={ this.state.logVisible }
                     onCancel={() => { this.setState({ logVisible: false }) }}
                     footer={null}
                 >
                     <LogInfo log={logInfo} height="520px"/>
                 </Modal>
                 <RestartModal 
-                    restartNode={task}
-                    udpateGraphStatus={this.props.udpateGraphStatus}
+                    restartNode={selectedJob}
                     visible={this.state.visibleRestart}
                     onCancel={() => { 
                         this.setState({ visibleRestart: false })
@@ -633,18 +632,4 @@ class TaskFlowView extends Component {
         mxPolyline.prototype.constraints = null;
     }
 }
-export default connect((state) => {
-    return {
-        project: state.project,
-    }
-}, dispatch => {
-    const actions = workbenchActions(dispatch)
-    return {
-        goToTaskDev: (id) => {
-            actions.openTaskInDev(id)
-        }, 
-        udpateGraphStatus() {
-            dispatch(FlowAction.udpateGraphStatus('change'))
-        }
-    }
-})(TaskFlowView)
+export default TaskFlowView;

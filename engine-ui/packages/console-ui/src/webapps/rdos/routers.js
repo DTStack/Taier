@@ -122,17 +122,17 @@ export default (
                 <Route path="role/add" component={RoleAdd} />
                 <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
-            <Route path="realtime" component={TaskContainer} onEnter={isSelectedProject}>
+            <Route path="/realtime" component={TaskContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={Default} />
                 <Route path="task" component={TaskIndex} />
                 <Route path="task/:tid" component={TaskIndex} />
             </Route>
-            <Route path="offline" component={TaskContainer} onEnter={isSelectedProject}>
+            <Route path="/offline" component={TaskContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={OfflineDefault} />
                 <Route path="task" component={TaskOffline} />
                 <Route path="task/:tid" component={TaskOffline} />
             </Route>
-            <Route path="operation" component={Operation} onEnter={isSelectedProject}>
+            <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
                 <IndexRoute component={OperationOverview} />
                 <Route path="realtime" component={OpeRealTimeList} />
                 <Route path="offline-operation" component={OpeOfflineList} />

@@ -23,8 +23,8 @@ export default class Sidebar extends Component {
 
     updateSelected = () => {
         const routes = this.props.router.routes
-        if (routes.length > 2) {
-            let current = routes[2].path || 'overview'
+        if (routes.length > 3) {
+            let current = routes[3].path || 'overview'
             if (current.indexOf('task-patch-data') > -1) {
                 current = 'task-patch-data'
             }

@@ -620,7 +620,7 @@ const mapDispatch = dispatch => {
                     message.success('发布成功！');
                     dispatch({
                         type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
-                        payload: res.data.submitStatus
+                        payload: (res.data && res.data.submitStatus) || 1
                     });
                     dispatch({
                         type: workbenchAction.MAKE_TAB_CLEAN

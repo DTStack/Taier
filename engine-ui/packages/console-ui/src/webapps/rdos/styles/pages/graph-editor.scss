@@ -33,6 +33,7 @@
         position: absolute;
         bottom: 0px;
         left: 0px;
+        z-index: 999;
         width: 100%;
         border-bottom: 1px solid #DDDDDD;
         box-shadow: -2px 0 2px 0 rgba(0,0,0,0.10);
@@ -109,6 +110,7 @@ table.mxPopupMenu tr {
     height: 18px;
     border-radius: 2px;
     text-align: center;
+
 
     img, .anticon {
         width: 18px;

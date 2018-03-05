@@ -114,6 +114,7 @@ class Header extends Component {
         const userMenu = this.initUserDropMenu()
         const display = current !== 'overview' ? 'inline-block' : 'none'
         const pid = project && project.id ? project.id : ''
+
         return (
             <div className="header">
                 <div className="logo left txt-left">
@@ -144,7 +145,7 @@ class Header extends Component {
                           className="my-menu-item"
                           key="database"
                           style={{ display }}>
-                            <Link to={'/database'}>数据集成</Link>
+                            <Link to={`/database`}>数据集成</Link>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
@@ -156,13 +157,13 @@ class Header extends Component {
                           className="my-menu-item"
                           key="operation"
                           style={{ display }}>
-                            <Link to="/operation">运维中心</Link>
+                            <Link to={`/operation`}>运维中心</Link>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
                           key="data-manage"
                           style={{ display }}>
-                            <Link to="/data-manage/table">数据管理</Link>
+                            <Link to={`/data-manage/table`}>数据管理</Link>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"

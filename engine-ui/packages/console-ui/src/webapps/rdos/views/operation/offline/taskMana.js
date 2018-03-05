@@ -49,6 +49,7 @@ class OfflineTaskMana extends Component {
         startTime: '',
         endTime: '',
         visibleSlidePane: false,
+        selectedRowKeys: [],
     }
 
     componentDidMount() {
@@ -77,8 +78,8 @@ class OfflineTaskMana extends Component {
             reqParams.name = taskName
         }
         if (startTime && endTime) {
-            reqParams.startTime = startTime.unix()
-            reqParams.endTime = endTime.unix()
+            reqParams.startTime = startTime
+            reqParams.endTime = endTime
         }
         if (person) {
             reqParams.ownerId = person
@@ -108,16 +109,6 @@ class OfflineTaskMana extends Component {
         params.currentPage = pagination.current
         this.setState({ current: pagination.current })
         this.loadTaskList(params)
-    }
-
-    chooseTask = (task) => {
-        const { dispatch, router } = this.props
-        Api.getTask({ taskId: task.id }).then((res) => {
-            if (res.code === 1) {
-                dispatch(BrowserAction.newPage(res.data))
-                router.push('/realtime/task')
-            }
-        })
     }
 
     clickPatchData = (task) => {
@@ -150,21 +141,53 @@ class OfflineTaskMana extends Component {
         this.setState({ taskName: e.target.value })
     }
 
-    rangeTimeChange = (date) => { // 缺少时间过滤条件
-
-        const start = date.length >= 0 ? date[0] : ''
-        const end = date.length >= 1 ? date[1] : ''
-        
-        this.setState({
-            startTime: start,
-            endTime: end,
-            current: 1,
-        }, this.search)
-        
+    onCheckAllChange = (e) => {
+        if (e.target.checked) {
+            const selectedRowKeys = this.state.tasks.data.map(item => item.id)
+            this.setState({
+                selectedRowKeys
+            })
+        } else {
+            this.setState({
+                selectedRowKeys: []
+            })
+        }
     }
 
-    disabledDate = (current) => {
-        return current && current.valueOf() > new Date().getTime();
+    onCheckChange = (checkedList) => {
+        const { user } = this.props;
+        const conditions = {
+            person: '',
+            startTime: '',
+            endTime: '',
+            scheduleStatus: 1,
+        };
+        checkedList.forEach(item => {
+            if (item === 'person') {
+                conditions.person  = user.id;
+            } else if (item === 'todayUpdate') {
+                conditions.startTime = moment().set({
+                    'hour': 0,
+                    'minute': 0,
+                    'second': 0,
+                }).unix()
+                conditions.endTime = moment().set({
+                    'hour': 23,
+                    'minute': 59,
+                    'second': 59,
+                }).unix()
+            } else if (item === 'stopped') {
+                conditions.scheduleStatus = 2; // 任务状态(1:正常 2：冻结)
+            }
+        })
+
+        this.setState(conditions, this.search)
+    }
+
+    closeSlidePane = () => {
+        this.setState({
+            visibleSlidePane: false,
+        })
     }
 
     initTaskColumns = () => {
@@ -214,33 +237,15 @@ class OfflineTaskMana extends Component {
             title: '操作',
             key: 'operation',
             render: (text, record) => {
-               const menu = (
-                    <Menu onClick={this.clickMenu}>
-                        <Menu.Item key="edit" value={record}>修改</Menu.Item>
-                        <Menu.Item key="execTime">
-                           <Link to={`/operation/task-runtime/${record.id}`}>运行时间</Link>
-                        </Menu.Item>
-                    </Menu>
-                );
                 return (
                     <span>
                         <a onClick={()=> {this.clickPatchData(record)}}>补数据</a>
                         <span className="ant-divider"></span>
-                        <Dropdown overlay={menu} trigger={['click']}>
-                            <Button className="m-drop-btn">
-                                其他 <Icon type="down" />
-                            </Button>
-                        </Dropdown>
+                        <a onClick={()=> {this.props.goToTaskDev(record.id)}}>修改</a>
                     </span>
                 )
             },
         }]
-    }
-
-    closeSlidePane = () => {
-        this.setState({
-            visibleSlidePane: false,
-        })
     }
 
     tableFooter = (currentPageData) => {
@@ -250,7 +255,6 @@ class OfflineTaskMana extends Component {
                     <Checkbox
                         indeterminate={this.state.indeterminate}
                         onChange={this.onCheckAllChange}
-                        checked={this.state.checkAll}
                     >
                     </Checkbox>
                 </Col>
@@ -272,10 +276,10 @@ class OfflineTaskMana extends Component {
     }
 
     render() {
-        const { projectUsers } = this.props
+        const { projectUsers, project } = this.props
         const { 
             tasks, patchDataVisible, selectedTask, 
-            current, taskName, visibleSlidePane
+            current, taskName, visibleSlidePane, selectedRowKeys
         } = this.state;
 
         const userItems = projectUsers && projectUsers.length > 0 ?
@@ -293,11 +297,11 @@ class OfflineTaskMana extends Component {
 
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => {
-                console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+                this.setState({
+                    selectedRowKeys
+                })
             },
-            getCheckboxProps: record => ({
-                disabled: record.name === 'Disabled User', // Column configuration not to be checked
-            }),
+            selectedRowKeys: selectedRowKeys,
         };
 
         return (
@@ -315,7 +319,7 @@ class OfflineTaskMana extends Component {
                             <FormItem label="">
                                 <Search
                                     placeholder="按任务名称"
-                                    style={{ width: 120 }}
+                                    style={{ width: 150 }}
                                     value={taskName}
                                     size="default"
                                     onChange={this.changeTaskName}
@@ -328,7 +332,7 @@ class OfflineTaskMana extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 120 }}
+                                    style={{ width: 150 }}
                                     placeholder="责任人"
                                     optionFilterProp="name"
                                     onChange={this.changePerson}
@@ -337,10 +341,10 @@ class OfflineTaskMana extends Component {
                                 </Select>
                             </FormItem>
                             <FormItem>
-                                <Checkbox.Group>
-                                    <Checkbox value={1}>我的任务</Checkbox>
-                                    <Checkbox value={2}>今日修改</Checkbox>
-                                    <Checkbox value={3}>冻结的任务</Checkbox>
+                                <Checkbox.Group onChange={this.onCheckChange} >
+                                    <Checkbox value="person">我的任务</Checkbox>
+                                    <Checkbox value="todayUpdate">今日修改</Checkbox>
+                                    <Checkbox value="stopped">冻结的任务</Checkbox>
                                 </Checkbox.Group>
                             </FormItem>
                         </Form>
@@ -366,7 +370,12 @@ class OfflineTaskMana extends Component {
                     >
                         <Tabs animated={false}>
                             <TabPane tab="依赖视图" key="taskFlow"> 
-                                <TaskView tabData={selectedTask}/>
+                                <TaskView 
+                                    visibleSlidePane={visibleSlidePane}
+                                    goToTaskDev={this.props.goToTaskDev} 
+                                    clickPatchData={this.clickPatchData}
+                                    tabData={selectedTask}
+                                />
                             </TabPane>
                             <TabPane tab="运行报告" key="runTime"> 
                                 <TaskRuntime tabData={selectedTask} />
@@ -388,6 +397,7 @@ export default connect((state) => {
         project: state.project,
         projectUsers: state.projectUsers,
         workbench: state.workbench,
+        user: state.user,
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

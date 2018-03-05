@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { Link, hashHistory } from 'react-router'
 
 import {
-    Button, Tooltip, Spin,
+    Button, Tooltip, Spin, message,
     Modal, notification, Icon,
 } from 'antd'
 
@@ -55,7 +54,9 @@ export default class TaskView extends Component {
         visible: false,
     }
 
-    componentDidMount() {
+    componentDidMount() {}
+
+    initGraph = (id) => {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         const editor = this.Container
@@ -63,17 +64,17 @@ export default class TaskView extends Component {
         this.loadEditor(editor)
         this.listenDoubleClick()
         this.hideMenu()
-
+        this.loadTaskChidren({
+            taskId: id,
+            level: 6,
+        })
     }
 
     componentWillReceiveProps(nextProps) {
-        // const currentTask = this.props.tabData
-        const nextTask = nextProps.tabData
-        if (nextTask) {
-            this.loadTaskChidren({
-                taskId: nextTask.id,
-                level: 6,
-            })
+        const currentTask = this.props.tabData
+        const { tabData, visibleSlidePane} = nextProps
+        if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+            this.initGraph(tabData.id)
         }
     }
 
@@ -174,8 +175,6 @@ export default class TaskView extends Component {
 
             if (exist) {
                 this.insertEdge(graph, type, parent, exist)
-                // graph.insertEdge(parent, null, '', parent, exist)
-                // current = exist.node
             } else {
 
                 // 创建节点
@@ -250,8 +249,21 @@ export default class TaskView extends Component {
         })
     }
 
+    stopTask = (params) => {
+        Api.stopJob(params).then(res => {
+            if (res.code === 1 ) {
+                message.success('任务终止运行命令已提交！')
+                this.refresh()
+            } else {
+                message.error('任务终止提交失败！')
+            }
+        })
+    }
+
     initContextMenu = (graph) => {
         const ctx = this
+        const { goToTaskDev, clickPatchData, tabData } = this.props
+
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -267,17 +279,21 @@ export default class TaskView extends Component {
             const currentNode = JSON.parse(cell.getAttribute('data'))
 
             menu.addItem('补数据', null, function() {
-               
+                clickPatchData(tabData)
             })
             menu.addItem('查看代码', null, function() {
-              
+                goToTaskDev(tabData.id)
             })
             menu.addItem('冻结', null, function() {
-               
+                ctx.stopTask({
+                    jobId: tabData.id,
+                })
             })
             menu.addItem('解冻', null, function() {
+                
             })
             menu.addItem('查看实例', null, function() {
+                hashHistory.push(`/operation/offline-operation?job=${tabData.name}`)
             })
         }
     }
@@ -304,7 +320,7 @@ export default class TaskView extends Component {
     }
 
     refresh = () => {
-        // this.componentDidMount()
+        this.initGraph(this.props.tabData.id)
     }
 
     graphEnable() {
@@ -364,7 +380,8 @@ export default class TaskView extends Component {
     /* eslint-enable */
     render() {
         const task = this.state.selectedTask
-        const project = this.props.project
+        const { goToTaskDev } = this.props
+
         return (
             <div className="graph-editor" 
                 style={{
@@ -382,7 +399,7 @@ export default class TaskView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" />
+                        <Icon type="reload" onClick={this.refresh} />
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -396,7 +413,7 @@ export default class TaskView extends Component {
                     <span>{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
-                    <a>查看代码</a>
+                    <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
                 </div>
             </div>
         )
