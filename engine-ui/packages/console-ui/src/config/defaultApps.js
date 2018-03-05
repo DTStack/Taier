@@ -8,7 +8,7 @@ module.exports = [
         link: 'index.html',
         filename: 'index.html',
         target: '_self',
-        enable: true,
+        enable: false,
         apiBase: '/main',
     }, {
         id: 'rdos',
@@ -24,7 +24,7 @@ module.exports = [
         link: 'dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_blank',
-        enable: true,
+        enable: false,
         apiBase: '/dataQuality',
     },{
         id: 'api',
