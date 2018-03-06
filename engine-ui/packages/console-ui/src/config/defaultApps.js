@@ -13,7 +13,7 @@ module.exports = [
     }, {
         id: 'rdos',
         name: '开发套件',
-        filename: 'rdos.html',
+        filename: 'index.html',
         link: 'rdos.html#/',
         target: '_blank',
         enable: true,
