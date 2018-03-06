@@ -8,7 +8,7 @@ $activeColor: #262e36; // 主色
         padding-left: 30px;
 
         .logo {
-            width: 155px;
+            width: 165px;
             padding: 5px;
         }
 
@@ -27,42 +27,20 @@ $activeColor: #262e36; // 主色
             }
     
             .ant-menu-sub {
+                max-height: 400px;
+                overflow-y: auto;
+
                 .ant-menu-item {
                     color: rgba(0, 0, 0, 0.65);
                     font-size: 12px;
                 }
+
+                .ant-menu-item:hover {
+                    color: #2491F7;
+                }
             }
         }
     
-        .menu {
-            .ant-menu-submenu {
-                background: $activeColor;
-            }
-        }
-    
-        .ant-menu-sub {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-    
-        .ant-menu-horizontal>.ant-menu-item:hover,
-        .ant-menu-horizontal>.ant-menu-submenu:hover,
-        .ant-menu-horizontal>.ant-menu-item-active,
-        .ant-menu-horizontal>.ant-menu-submenu-active,
-        .ant-menu-horizontal>.ant-menu-item-open,
-        .ant-menu-horizontal>.ant-menu-submenu-open,
-        .ant-menu-horizontal>.ant-menu-item-selected,
-        .ant-menu-horizontal>.ant-menu-submenu-selected {
-            border-bottom: 2px solid $color2;
-            color: #fff;
-            background: $activeColor;
-        }
-        .ant-menu-horizontal>.ant-menu-item>a:hover,
-        .ant-menu-horizontal>.ant-menu-submenu>a:hover,
-        .ant-menu-item-selected > a,
-        .ant-menu-item-selected > a:hover {
-            color: #fff;
-        }
     }
     
     .sidebar {

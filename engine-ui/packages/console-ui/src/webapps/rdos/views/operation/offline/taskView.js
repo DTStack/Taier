@@ -54,8 +54,6 @@ export default class TaskView extends Component {
         visible: false,
     }
 
-    componentDidMount() {}
-
     initGraph = (id) => {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素

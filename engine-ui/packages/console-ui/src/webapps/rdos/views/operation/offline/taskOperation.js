@@ -127,7 +127,7 @@ class OfflineTaskList extends Component {
         const reqParams = Object.assign({
             currentPage: 1,
             pageSize: 20,
-            hasAttach: true, // 列表模式
+            type: 0,
         }, params)
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
@@ -139,6 +139,8 @@ class OfflineTaskList extends Component {
 
     loadJobStatics(params) {
         const ctx = this
+        // type:  NORMAL_SCHEDULE(0), FILL_DATA(1);
+        params.type = 0;
         Api.queryJobStatics(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ statistics: res.data })
@@ -377,6 +379,7 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
+            width: 100,
             render: (text, record) => {
                 return (
                     <a onClick={() => { this.showTask(record) }}>{

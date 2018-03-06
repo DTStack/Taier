@@ -140,7 +140,7 @@ export default (
                 <Route path="task-log/:jobId" component={OpeOfflineTaskLog} />
                 <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
                 <Route path="task-patch-data" component={OperationPatchData} />
-                <Route path="task-patch-data/:patchId" component={OperationPatchDataDetail} />
+                <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
                 <Route path="alarm-record" component={OpeAlarm} />
                 <Route path="alarm-config" component={OpeAlarmConfig} />
             </Route>

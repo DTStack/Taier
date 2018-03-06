@@ -300,8 +300,15 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             type : 'category',
             boundaryGap : false,
             data : [],
+            axisTick: {
+                show: true,
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#DDDDDD'
+                }
+            },
             axisLabel: {
-                formatter: '{value} 时',
                 textStyle: {
                     color: '#666666',
                 },

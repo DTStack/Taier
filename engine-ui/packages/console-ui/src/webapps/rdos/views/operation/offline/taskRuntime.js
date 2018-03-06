@@ -34,68 +34,111 @@ export default class TaskLog extends Component {
     componentDidMount() {
         const currentTask = this.props.tabData
         if (currentTask) {
-            this.loadRuntimeInfo(currentTask.id)
+            this.loadRuntimeInfo({
+                taskId: currentTask.id,
+                count: 30,
+            })
         }
     }
 
     componentWillReceiveProps(nextProps) {
         const currentTask = this.props.tabData
-        const nextTask = nextProps.tabData
-        if (nextTask) {
-            this.loadRuntimeInfo(nextTask.id)
-        } else if (currentTask) {
-            this.loadRuntimeInfo(currentTask.id)
+        const { tabData, visibleSlidePane} = nextProps
+        if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+            this.loadRuntimeInfo({
+                taskId: tabData.id,
+                count: 30,
+            })
         }
     }
 
-    loadRuntimeInfo = (taskId) => {
+    loadRuntimeInfo = (params) => {
         const ctx = this
-        // Test API
-        Api.getJobGraph().then((res) => {
+        Api.statisticsTaskRunTime(params).then((res) => {
             if (res.code === 1) {
-                ctx.initLineChart(res.data)
+                this.setState({ data: res.data })
+                const chartData = res.data.jobInfoList;
+                ctx.initLineChart(chartData)
             }
         })
-        // Api.getJobRuntimeInfo({ taskId }).then((res) => {
-        //     if (res.code === 1) {
-        //         this.setState({ data: res.data || {} })
-        //         this.initLineChart(res.data)
-        //     }
-        // })
     }
 
-    getSeries = (data) => {
-        const arr = []
-        if (data && data.y) {
-            const legend = data && data.type ? data.type.data : []
-            for (let i = 0; i < legend.length; i++) {
-                arr.push({
-                    name: legend[i],
-                    symbol: 'none',
-                    type:'line',
-                    data: data.y[i].data,
-                })
+    onRadioChange = (e) => {
+        const { tabData } = this.props
+        this.loadRuntimeInfo({
+            taskId: tabData.id,
+            count: e.target.value,
+        })
+    }
+
+    handData = (data) => {
+        
+        let arr = [], xAxis = [], series = [];
+        const legend = ['持续时长', '读取数据', '脏数据'];
+        const stayTiming = [], readData = [], dirtyData = [];
+
+        if (data) {
+            for (let i = 0; i < data.length; i++) {
+                const item = data[i]
+                xAxis.push(moment(item.exeStartTime).format('YYYY-MM-DD HH:mm:ss'))
+                stayTiming.push(item.exeTime)
+                readData.push(item.totalCount)
+                dirtyData.push(item.dirtyNum)
             }
         }
-        return arr
+        return {
+            legend,
+            xAxis,
+            series: [
+                {
+                    name: '持续时长',
+                    symbol: 'none',
+                    type:'line',
+                    data: stayTiming,
+                }, {
+                    name: '读取数据',
+                    symbol: 'none',
+                    type:'line',
+                    data: readData,
+                }, {
+                    name: '脏数据',
+                    symbol: 'none',
+                    type:'line',
+                    data: dirtyData,
+                }
+            ]
+        }
     }
 
+
+
     initLineChart(chartData) {
+
+        const data = this.handData(chartData);
 
         let myChart = echarts.init(document.getElementById('RunTimeTrend'));
         const option = cloneDeep(lineAreaChartOptions);
         
         option.grid = {
-            left: 70,
+            left: 75,
             right: 50
         }
 
         option.title.text = ''
         option.tooltip.axisPointer.label.formatter = '{value}: 00'
- 
-        option.legend.data = chartData && chartData.type ? chartData.type.data : []
-        option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
-        option.series = this.getSeries(chartData)
+        option.xAxis[0].axisTick = {
+            show: false,
+            alignWithLabel: true,
+        }
+        option.xAxis[0].boundaryGap = ['10%', '10%'];
+        option.xAxis[0].axisLabel ={
+            align: 'center',
+            color: '#666666',
+            margin: 12,
+        }
+        option.legend.data = data.legend;
+        option.xAxis[0].data = data.xAxis;
+        option.series = data.series;
 
         option.yAxis[0].minInterval = 1
         option.yAxis[0].name = '执行时长（秒）'
@@ -151,19 +194,19 @@ export default class TaskLog extends Component {
                         <Col span={4}>
                             <section className="m-count-section" style={tStyle}>
                                 <span className="m-count-title">周期执行</span>
-                                <span className="m-count-content font-black">{data.FAILED || 0}</span>
+                                <span className="m-count-content font-black">{data.cronExeNum || 0}</span>
                             </section>
                         </Col>
                         <Col span={4}>
                             <section className="m-count-section" style={tStyle}>
                                 <span className="m-count-title">补数据</span>
-                                <span className="m-count-content font-black">{data.RUNNING || 0}</span>
+                                <span className="m-count-content font-black">{data.fillDataExeNum || 0}</span>
                             </section>
                         </Col>
                         <Col span={4}>
                             <section className="m-count-section" style={tStyle}>
                                 <span className="m-count-title">失败次数</span>
-                                <span className="m-count-content font-red">{data.WAITENGINE || 0}</span>
+                                <span className="m-count-content font-red">{data.failNum || 0}</span>
                             </section>
                         </Col>
                     </Row>

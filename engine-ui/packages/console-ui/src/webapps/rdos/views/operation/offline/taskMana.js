@@ -41,14 +41,14 @@ class OfflineTaskMana extends Component {
             data: [],
         },
         loading: false,
-        current: 1, // 当前页
         patchDataVisible: false,
+        visibleSlidePane: false,
+        current: 1, // 当前页
         person: '',
         taskName: utils.getParameterByName('tname') ? utils.getParameterByName('tname') : '',
         selectedTask: '',
         startTime: '',
         endTime: '',
-        visibleSlidePane: false,
         selectedRowKeys: [],
     }
 
@@ -96,7 +96,29 @@ class OfflineTaskMana extends Component {
         }, params)
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ tasks: res.data, loading: false })
+                ctx.setState({ tasks: res.data })
+            }
+            this.setState({ loading: false })
+        })
+    }
+
+    forzenTasks = (mode) => {
+        console.log('mode:', mode)
+        const ctx = this
+        const selected = this.state.selectedRowKeys
+       
+        if (!selected || selected.length <= 0) {
+            message.error('您没有选择任何任务！')
+            return false;
+        }
+       
+        Api.forzenTask({
+            taskIdList: selected, 
+            scheduleStatus: mode  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+        }).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ selectedRowKeys: [] })
+                ctx.search()
             }
         })
     }
@@ -195,6 +217,7 @@ class OfflineTaskMana extends Component {
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
+            width: 120,
             render: (text, record) => {
                 return <a onClick={() => { this.showTask(record) }}>{record.name}</a>
             },
@@ -236,6 +259,7 @@ class OfflineTaskMana extends Component {
         }, {
             title: '操作',
             key: 'operation',
+            width: 120,
             render: (text, record) => {
                 return (
                     <span>
@@ -262,11 +286,13 @@ class OfflineTaskMana extends Component {
                     <Button 
                         size="small"
                         type="primary" 
+                        onClick={this.forzenTasks.bind(this, 2)}
                     >
                         冻结
                     </Button>
                     <Button 
                         size="small"
+                        onClick={this.forzenTasks.bind(this, 1)}
                     >
                         解冻
                     </Button>
@@ -366,7 +392,7 @@ class OfflineTaskMana extends Component {
                         className="m-tabs bd-top bd-right m-slide-pane"
                         onClose={ this.closeSlidePane }
                         visible={ visibleSlidePane } 
-                        style={{ right: '0px', width: '80%' }}
+                        style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px'  }}
                     >
                         <Tabs animated={false}>
                             <TabPane tab="依赖视图" key="taskFlow"> 
@@ -378,7 +404,10 @@ class OfflineTaskMana extends Component {
                                 />
                             </TabPane>
                             <TabPane tab="运行报告" key="runTime"> 
-                                <TaskRuntime tabData={selectedTask} />
+                                <TaskRuntime 
+                                    visibleSlidePane={visibleSlidePane}
+                                    tabData={selectedTask} 
+                                />
                             </TabPane>
                         </Tabs>
                     </SlidePane>

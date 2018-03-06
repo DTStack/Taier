@@ -372,6 +372,16 @@ export default {
     queryJobSubNodes(params) {
         return http.post(offlineReq.QUERY_JOB_SUB_NODES, params)
     },
+    forzenTask(params) {
+        return http.post(offlineReq.FROZEN_TASK, params)
+    },
+    statisticsTaskRunTime(params) {
+        return http.post(offlineReq.STATISTICS_TASK_RUNTIME, params)
+    },
+    stopFillDataJobs(params) {
+        return http.post(offlineReq.STOP_FILL_DATA_JOBS, params)
+    },
+
 
     // =========== 离线catalogue目录模块 ==================//
     getOfflineCatelogue(params) {

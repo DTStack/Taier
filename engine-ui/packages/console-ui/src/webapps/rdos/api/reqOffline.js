@@ -58,7 +58,10 @@ export default {
     GET_JOB_RUNTIME_INFO: `${baseUrl}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${baseUrl}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
     QUERY_JOB_SUB_NODES: `${baseUrl}/batch/batchJob/getAllChildJobWithSameDay`, // 查询子job子节点
-
+    FROZEN_TASK: `${baseUrl}/batch/batchJob/frozenTask`, // 冻结/解冻任务
+    STATISTICS_TASK_RUNTIME: `${baseUrl}/batch/batchJob/statisticsTaskRecentInfo`, // 统计任务运行信息
+    STOP_FILL_DATA_JOBS: `${baseUrl}/batch/batchJob/stopFillDataJobs`, // 停止补数据任务
+    
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATELOGUE: `${baseUrl}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
     GET_OFFLINE_CATELOGUE: `${baseUrl}/batch/batchCatalogue/getCatalogue`,

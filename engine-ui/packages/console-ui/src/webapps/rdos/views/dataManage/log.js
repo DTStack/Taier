@@ -125,7 +125,6 @@ class TableLog extends React.Component {
             />
         )
 
-
         return <div className="m-tablelog m-slide-pane">
             <h1 className="box-title">
                 { tableName }
