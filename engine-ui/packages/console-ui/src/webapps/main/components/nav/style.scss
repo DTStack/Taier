@@ -11,7 +11,7 @@ $activeColor: #262e36; // 主色
     top: 0;
     left: 0;
     right: 0;
-    z-index: 9999;
+    z-index: 6;
     .logo,
     .menu,
     .user-info {
@@ -114,7 +114,7 @@ $activeColor: #262e36; // 主色
             line-height: 30px;
             background: #fff;
             top: -18px;
-            color: #b1b1b1;
+            color: #e5e5e5;
         }
 
         .user-info {

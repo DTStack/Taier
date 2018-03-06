@@ -57,9 +57,9 @@ class PatchData extends Component {
         reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
         this.props.form.validateFields((err) => {
             if (!err) {
-                reqParams.fromDay = reqParams.rangeDate[0].format('YYYY-MM-DD')
-                reqParams.toDay = reqParams.rangeDate[1].format('YYYY-MM-DD')
-                reqParams.rangeDate = undefined
+                reqParams.fromDay = reqParams.rangeDate[0].unix()
+                reqParams.toDay = reqParams.rangeDate[1].unix()
+                delete reqParams.rangeDate;
                 Api.patchTaskData(reqParams).then((res) => {
                     if (res.code === 1) {
                         this.showAddResult(reqParams.fromDay)
@@ -80,7 +80,7 @@ class PatchData extends Component {
             title: '查看补数据结果',
             content: '补数据任务已在执行中，点击下方按钮查看结果',
             onOk() {
-                hashHistory.push(`/operation/task-patch-data?patchName=${taskName}&patchBizTime=${bizTime}`)
+                hashHistory.push(`/operation/task-patch-data/${taskName}?patchBizTime=${bizTime}`)
             },
             onCancel() {
                 console.log('Cancel');
@@ -213,12 +213,11 @@ class PatchData extends Component {
             <Modal
               title="补数据"
               okText="运行选中任务"
-              wrapClassName="vertical-center-modal"
               visible={visible}
               onOk={this.addData}
               onCancel={this.cancleModal}
             >
-                <Row style={{ paddingBottom: '15px', lineHeight: '30px'  }}>
+                <Row style={{ lineHeight: '30px'  }}>
                     <FormItem {...formItemLayout} label="补数据名">
                         {getFieldDecorator('fillName', {
                             initialValue: `P_${task.name}_${moment().format('YYYY_MM_DD')}`,
@@ -230,11 +229,11 @@ class PatchData extends Component {
                                 message: '补数据名称不得超过64个字符！',
                             }],
                         })(
-                            <Input placeholder="请输入补数据名" />
+                            <Input placeholder="请输入补数据名"/>
                         )}
                     </FormItem>
                 </Row>
-                <Row style={{ paddingBottom: '15px', lineHeight: '30px' }}>
+                <Row style={{ lineHeight: '30px' }}>
                     <FormItem {...formItemLayout} label="业务日期：">
                         {getFieldDecorator('rangeDate', {
                             initialValue: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -247,6 +246,7 @@ class PatchData extends Component {
                             <RangePicker
                                 disabledDate={this.disabledDate}
                                 format="YYYY-MM-DD"
+                                style={{width: '100%'}}
                             />
                         )}
                     </FormItem>

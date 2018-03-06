@@ -128,6 +128,8 @@ class OfflineStatistics extends Component {
         option.title.text = ''
         option.tooltip.axisPointer.label.formatter = '{value}: 00'
         option.yAxis[0].minInterval = 1
+        
+        option.xAxis[0].axisLabel.formatter = '{value} 时';
         option.legend.data = chartData && chartData.type ? chartData.type.data : []
         option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
         option.series = this.getSeries(chartData)

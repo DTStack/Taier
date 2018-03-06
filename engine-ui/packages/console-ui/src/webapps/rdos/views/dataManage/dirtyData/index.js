@@ -166,6 +166,14 @@ class DirtyData extends Component {
     renderProduceTrend = (chartData) => {
         let myChart = echarts.init(document.getElementById('ProduceTrend'));
         const option = cloneDeep(lineAreaChartOptions);
+       
+        option.grid = {
+            left: 40,
+            right: 20,
+            bottom: 20,
+            top: 30,
+        }
+
         option.title.text = ''
         const formatDate = function(obj) {
             return obj ? utils.formatDate(obj.value) : null;

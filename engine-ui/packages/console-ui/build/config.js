@@ -5,9 +5,8 @@ module.exports = {
         host: 'rdos.yarn.dtstack.net',
         proxy: {
             "/api": {
-                target: "http://172.16.8.104:9020",
-                // target: "http://172.16.8.101:9020",
-                // target: "http://172.16.6.207:9020", // tmp server
+                // target: "http://172.16.8.104:9020", formal ser
+                target: "http://172.16.8.106:9020", // tmp server
                 // ignorePath: true, 
                 changeOrigin: true,
                 secure: false,

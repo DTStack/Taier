@@ -12,7 +12,6 @@ import {
 import utils from 'utils'
 
 import Api from '../../../api'
-import { offlineTaskStatusFilter } from '../../../comm/const'
 import { TaskBadgeStatus } from '../../../components/status'
 import * as FlowAction from '../../../store/modules/operation/taskflow'
 
@@ -26,25 +25,16 @@ function getTimeString(date) {
 }
 
 class PatchDataList extends Component {
-
     state = {
         loading: false,
-        chooseTime: 0,
         current: 1 ,
-        tasks: {
-            data: [],
-        },
-        owner: undefined,
-        startTime: '',
-        endTime: '',
-        bussinessDate: utils.getParameterByName('patchBizTime') 
-        ? moment(utils.getParameterByName('patchBizTime')) : '',
-        runningDate: '',
-        taskStatus: [],
-        jobType: '',
-        taskName: utils.getParameterByName('patchName') || '',
-        selected: '',
-        expandedKeys: [],
+        tasks: { data: [] },
+
+        // 参数
+        jobName: '',
+        runDay: '',
+        bizDay: '',
+        dutyUserId: '',
     }
 
     componentDidMount() {
@@ -59,117 +49,72 @@ class PatchDataList extends Component {
         }
     }
 
-    searchJob = (query) => {
-        const params = {}
-        if (query) {
-            const taskName = utils.trim(query)
-            params.fillJobName = taskName
-        }
-        this.loadPatchData(params)
-    }
-
     loadPatchData(params) {
         const ctx = this
-        this.setState({ loading: true, expandedKeys: [] })
+        this.setState({ loading: true })
         let defaultParams = this.getReqParams()
         const reqParams = Object.assign(defaultParams, params)
         Api.getFillData(reqParams).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ tasks: res.data, loading: false })
-                ctx.props.dispatch(FlowAction.setTaskFlow({ id: 0 }))
+                ctx.setState({ tasks: res.data })
             }
+            this.setState({ loading: false })
         })
     }
 
-    loadPatchDataDetail(params, node) {
-        const ctx = this
-        this.setState({ loading: true })
-        Api.getFillDataDetail(params).then((res) => {
+    killAllJobs = (job) => {
+        Api.stopFillDataJobs({
+            fillDataJobName: job.fillDataJobName,
+        }).then(res => {
             if (res.code === 1) {
-                const tasks = Object.assign(ctx.state.tasks)
-                if (res.data && res.data.length > 0) {
-                    node.children = res.data
-                    replaceTreeNode(tasks, node)
-                }
-                ctx.setState({ tasks: tasks, loading: false })
-            }
-        })
-    }
-
-    loadPatchDate(params, node) { // 查询补数据的日期列表
-        const ctx = this
-        this.setState({ loading: true })
-        Api.getFillDate(params).then((res) => {
-            if (res.code === 1) {
-                const tasks = Object.assign(ctx.state.tasks)
-                if (res.data && res.data.length > 0) {
-                    node.children = res.data
-                    replaceTreeNode(tasks, node)
-                }
-                ctx.setState({ tasks: tasks, loading: false })
+                message.success('已成功杀死所有实例！')
             }
         })
     }
 
     getReqParams = () => {
         const {
-            startTime, endTime,
-            taskStatus, owner, jobType,
-            runningDate, bussinessDate, taskName,
+            jobName, runDay, bizDay, dutyUserId, current,
         } = this.state
-        let reqParams = { currentPage: 1, pageSize: 10, }
-        if (taskName) {
-            reqParams.jobName = taskName
+
+        let reqParams = { currentPage: current || 1, pageSize: 20 }
+
+        if (jobName) {
+            reqParams.jobName = jobName
         }
-        if (bussinessDate) {
-            reqParams.bizDay = moment(bussinessDate).format('YYYY-MM-DD').unix()
+        if (bizDay) {
+            reqParams.bizDay = moment(bizDay).unix()
         }
-        if (runningDate) {
-            reqParams.runDay = moment(runningDate).format('YYYY-MM-DD').unix()
+        if (runDay) {
+            reqParams.runDay = moment(runDay).unix()
         }
-        if (taskStatus && taskStatus.length > 0) {
-            reqParams.status = taskStatus.join(',')
+        if (dutyUserId) {
+             reqParams.dutyUserId = dutyUserId
         }
-        if (startTime && endTime) {
-            reqParams.startTime = startTime
-            reqParams.endTime = endTime
-        }
-        if (owner) {
-             reqParams.dutyUserId = owner
-        }
-        if (jobType) {
-            reqParams.type = jobType
-        }
+     
         return reqParams
     }
 
     pageChange = (page) => {
-        const params = { currentPage: page }
-        this.setState({ current: page })
+        const params = { currentPage: page.current }
+        this.setState({ current: page.current })
         this.loadPatchData(params)
     }
 
-    selectTreeItem = (selectedKeys, item) => {
-        const task = item.node.props.data
-        if (task.batchTask) {
-            this.props.dispatch(FlowAction.setTaskFlow(task))
-        }
-    }
-
     onBuisTimeChange = (date) => {
-        this.setState({ bussinessDate: date, current: 1 }, this.loadPatchData);
+        this.setState({ bizDay: date, current: 1 }, this.loadPatchData);
     }
 
     onRunningTime = (date) => {
-        this.setState({ runningDate: date, current: 1 }, this.loadPatchData);
+        this.setState({ runDay: date, current: 1 }, this.loadPatchData);
     }
 
-    onChangeTaskName = (e) => {
-        this.setState({ taskName: e.target.value })
+    onChangeJobName = (e) => {
+        this.setState({ jobName: e.target.value })
     }
 
     onOwnerChange = (value) => {
-        const state = { owner: value, current: 1, }
+        const state = { dutyUserId: value, current: 1, }
         this.setState(state, this.loadPatchData);
     }
 
@@ -183,7 +128,7 @@ class PatchDataList extends Component {
         };
         checkedList.forEach(item => {
             if (item === 'person') {
-                conditions.owner  = `${user.id}`;
+                conditions.dutyUserId  = `${user.id}`;
             } else if (item === 'todayUpdate') {
                 conditions.startTime = moment().set({
                     'hour': 0,
@@ -204,44 +149,35 @@ class PatchDataList extends Component {
     initTaskColumns = () => {
         return [{
             title: '补数据名称',
-            dataIndex: 'data',
-            key: 'patchName',
+            dataIndex: 'fillDataJobName',
+            key: 'fillDataJobName',
             render: (text, record) => {
                 return (
-                    <Link to={`/operation/task-patch-data/${record.id}`}>{text}</Link>
+                    <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
                 )
             },
         }, {
-            title: '已完成/总任务数',
-            width: 120,
-            dataIndex: 'taskCount',
-            key: 'taskCount',
+            title: '业务日期',
+            dataIndex: 'fromDay',
+            key: 'fromDay',
             render: (text, record) => {
-                return  '1/12'
+                return <span>{ record.fromDay} ~ {record.toDay }</span>
             },
         }, {
-            title: '业务日期',
-            dataIndex: 'businessDate',
-            key: 'businessDate'
-        }, {
             title: '开始运行时间',
-            dataIndex: 'execStartDate',
-            key: 'execStartDate',
+            dataIndex: 'createTime',
+            key: 'createTime',
         }, {
             title: '操作人',
-            dataIndex: 'createUser',
-            key: 'createUser',
-            render: (text, record) => {
-                return record.batchTask && record.batchTask.createUser 
-                && record.batchTask.createUser.userName
-            }
+            dataIndex: 'dutyUserName',
+            key: 'dutyUserName',
         }, {
             title: '操作',
             dataIndex: 'id',
             key: 'id',
             render: (text, record) => {
                 return (
-                    <a>杀死所有实例</a>
+                    <a onClick={this.killAllJobs.bind(this, record)}>杀死所有实例</a>
                 )
             }
         }]
@@ -279,12 +215,12 @@ class PatchDataList extends Component {
             >
                 <FormItem>
                     <Search
-                        placeholder="任务名称搜索"
+                        placeholder="按补数据名称搜索"
                         style={{ width: '120px' }}
                         value={taskName}
                         size="default"
-                        onChange={this.onChangeTaskName}
-                        onSearch={this.searchJob}
+                        onChange={this.onChangeJobName}
+                        onSearch={this.loadPatchData}
                     />
                 </FormItem>
                 <FormItem label="业务日期">

@@ -125,7 +125,6 @@ class TableLog extends React.Component {
             />
         )
 
-
         return <div className="m-tablelog m-slide-pane">
             <h1 className="box-title">
                 { tableName }
@@ -306,7 +305,7 @@ class Log extends React.Component {
 
         return <div className="g-tablelogs">
             <h1 className="box-title">操作记录</h1>
-            <div className="box-2 m-card" style={{padding: '0 20px 20px 0', height: '600px'}}> 
+            <div className="box-2 m-card" style={{padding: '0 20px 20px 0'}}> 
                 <Card
                     noHovering
                     bordered={false}
@@ -319,9 +318,10 @@ class Log extends React.Component {
                         pagination={ false }
                         onChange={this.handleTableChange}
                         bordered
+                        scroll={{ y: '65%' }}
                     />}
                     <Pagination
-                        pageSize={ 10 }
+                        pageSize={ 20 }
                         style={{ float: 'right', marginTop: '16px' }}
                         current={ currentPage || 0 }
                         total={ totalCount || 0 }
@@ -330,7 +330,7 @@ class Log extends React.Component {
                     <SlidePane 
                         onClose={ this.closeSlidePane }
                         visible={ visibleSlidePane } 
-                        style={{ right: '-20px', width: '80%', height: '552px' }}
+                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                     >
                         <div className="m-loglist">
                             {isEmpty(tableLog) ? <p style={{
