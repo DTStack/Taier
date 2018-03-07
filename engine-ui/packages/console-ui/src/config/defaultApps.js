@@ -8,12 +8,12 @@ module.exports = [
         link: 'index.html',
         filename: 'index.html',
         target: '_self',
-        enable: false,
+        enable: true,
         apiBase: '/main',
     }, {
         id: 'rdos',
         name: '开发套件',
-        filename: 'index.html',
+        filename: 'rdos.html',
         link: 'rdos.html#/',
         target: '_blank',
         enable: true,
@@ -24,7 +24,7 @@ module.exports = [
         link: 'dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_blank',
-        enable: false,
+        enable: true,
         apiBase: '/dataQuality',
     },{
         id: 'api',
