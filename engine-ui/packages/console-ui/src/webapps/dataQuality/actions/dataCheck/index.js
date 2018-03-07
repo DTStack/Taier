@@ -14,9 +14,7 @@ export const dataCheckActions = {
 						type: ACTION_TYPE.GET_LIST,
 						payload: res.data
 					});
-				} else {
-					message.error(res.message);
-				}
+				} 
 				dispatch({
 					type: ACTION_TYPE.CHANGE_LOADING
 				});
@@ -31,19 +29,23 @@ export const dataCheckActions = {
 						type: ACTION_TYPE.GET_CHECK_DETAIL,
 						payload: res.data
 					});
-				} else {
-					message.error(res.message);
 				}
+			});
+		}
+	},
+	changeParams(params) {
+		return dispatch => {
+			dispatch({
+				type: ACTION_TYPE.CHANGE_PARAMS,
+				payload: params
 			});
 		}
 	},
 	editCheck(params) {
 		return dispatch => {
-			API.editCheckDetail(params).then((res) => {
+			API.editCheck(params).then((res) => {
 				if (res.code === 1) {
 					message.success("操作成功", 2);
-				} else {
-					message.error(res.message);
 				}
 			});
 		}
@@ -53,8 +55,6 @@ export const dataCheckActions = {
 			API.deleteCheck(params).then((res) => {
 				if (res.code === 1) {
 					message.success("删除成功", 2);
-				} else {
-					message.error(res.message);
 				}
 			});
 		}
