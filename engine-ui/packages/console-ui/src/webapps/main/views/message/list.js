@@ -78,7 +78,7 @@ class MessageList extends Component {
             defaultKey = apps[0].id
             for (var i = 0; i < apps.length; i++) {
                 const app = apps[i];
-                if (app.enable) {
+                if (app.enable && app.id !== 'main') {
                     menuItem.push(
                         <MenuItem app={app} key={app.id}>{app.name}</MenuItem>
                     )
