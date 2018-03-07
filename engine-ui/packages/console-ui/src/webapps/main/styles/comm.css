@@ -44,6 +44,10 @@
     display: inline-block;
 }
 
+.flex {
+    display: flex;
+}
+
 .bd {
     border: 1px solid #dddddd;
     border-radius: 2px;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { dataCheckActions } from '../../../actions/dataCheck';
-import { Row, Table, Button, Icon, Input, Form, DatePicker, Menu, Dropdown } from 'antd';
+import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown } from 'antd';
 import '../../../styles/views/dataCheck.scss';
 
 const Search = Input.Search;
@@ -35,7 +35,6 @@ export default class DataCheck extends Component {
 
     componentDidMount() {
         this.props.getLists(this.state.params);
-    	console.log(this,3121)
     }
 
     initColumns = () => {
@@ -43,19 +42,29 @@ export default class DataCheck extends Component {
             title: '左侧表',
             dataIndex: 'originTableName',
             key: 'originTableName',
+            width: '15%'
         }, {
             title: '分区',
             dataIndex: 'originPartitionColumn',
             key: 'originPartitionColumn',
+            width: '12%',
+            render: (text, record) => {
+                return `${record.originPartitionColumn} -- ${record.originPartitionValue}`
+            }
         }, 
         {
             title: '右侧表',
             dataIndex: 'targetTableName',
             key: 'targetTableName',
+            width: '15%'
         }, {
             title: '分区',
             dataIndex: 'targetPartitionColumn',
             key: 'targetPartitionColumn',
+            width: '12%',
+            render: (text, record) => {
+                return `${record.targetPartitionColumn} -- ${record.targetPartitionValue}`
+            }
         }, {
             title: '校验结果',
             dataIndex: 'status',
@@ -73,28 +82,34 @@ export default class DataCheck extends Component {
                 text: '未开始',
                 value: '3',
             }],
+            width: '8%',
             filterMultiple: false,
             onFilter: (value, record) => console.log(value,record),
         }, {
             title: '差异总数',
             dataIndex: 'diverseNum',
             key: 'diverseNum',
+            width: '8%',
             sorter: true
         }, {
             title: '差异比例',
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
+            width: '8%',
             sorter: true
         }, {
             title: '最近修改人',
-            dataIndex: 'executeUserId',
-            key: 'executeUserId',
+            dataIndex: 'modifyUserName',
+            key: 'modifyUserName',
+            width: '10%'
         }, {
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
+            width: '10%'
         }, {
             title: '操作',
+            width: '12%',
             render: (text, record) => {
                 let menu = (
                     <Menu>
@@ -132,7 +147,6 @@ export default class DataCheck extends Component {
 
     render() {
         const { lists, loading } = this.props.dataCheck;
-    	const { getFieldDecorator } = this.props.form;
         const pagination = {
             current: this.state.params.currentPage,
             pageSize: 20,
@@ -140,7 +154,7 @@ export default class DataCheck extends Component {
         };
 
         return (
-        	<div className="content check-list">
+        	<div className="inner-container check-page">
         		<div className="action-panel">
                     <div className="flex">
             			<InputGroup compact>
@@ -169,7 +183,7 @@ export default class DataCheck extends Component {
                     </div>
 
                     <Button type="primary">
-                        <Link className="ant-cb" to="/dq/dataCheck/add">
+                        <Link to="/dq/dataCheck/add">
                             新建逐行校验
                         </Link>
                     </Button>
@@ -177,7 +191,7 @@ export default class DataCheck extends Component {
 
                 <Table 
                     rowKey="id"
-                    className="m-table list-table"
+                    className="m-table box-5"
                     columns={this.initColumns()} 
                     loading={loading}
                     pagination={pagination}
@@ -188,6 +202,5 @@ export default class DataCheck extends Component {
         )
     }
 }
-DataCheck = Form.create()(DataCheck);
 
 

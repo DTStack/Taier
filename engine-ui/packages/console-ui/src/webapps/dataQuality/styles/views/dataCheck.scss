@@ -1,14 +1,3 @@
-.content {
-    padding: 20px 40px 40px 40px;
-    overflow-y: auto;
-    height: 100%;
-    /*background: #f2f3f8;*/
-}
-
-.flex {
-	display: flex;
-}
-
 .m-l-8 {
 	margin-left: 8px;
 }
@@ -17,7 +6,7 @@
 	margin-right: 8px;
 }
 
-.check-list {
+.check-page {
 	.action-panel {
     	display: flex;
     	justify-content: space-between;
@@ -30,10 +19,6 @@
     	.action-item {
     		margin-left: 10px;
     	}
-    }
-
-    .list-table {
-    	background: #FFF;
     }
 }
 
@@ -50,12 +35,26 @@
  	}
 
   	.batch-body {
-    	padding: 35px 50px;
+    	padding: 35px 50px 0;
 		background: #FFF;
 
     	.ant-steps-icon {
-			line-height: 1.5;
+			line-height: 23px;
     	}
+		
+		.preview-table {
+			width: 100%;
+			max-height: 500px;
+			overflow: auto;
+			
+			.ant-table-thead {
+				tr {
+					th {
+						white-space: nowrap;
+					}
+				}
+			}
+		}
 
 	    .steps-content {
 	    	margin: 40px 0;
@@ -63,21 +62,27 @@
 	      	border-radius: 3px;
 	      	background: #fafafa;
 
-	      	.steps-main {
-	        	min-height: 200px;
-	        	padding: 25px;
-	      	}
-
-	      	.table-view {
-	      		font-size: 14px;
-
+	      	.preview-text {
 	      		p {
 					margin: 3px 0;
+	      			font-size: 14px;
+	      		}
+	      	}
+
+			.ant-form-item-control {
+				line-height: 32px;
+			}
+
+	      	.diffrule-table {
+	      		background: #FFF;
+
+	      		p {
+	      			height: 26px;
+	      			line-height: 26px;
 	      		}
 
-	      		button {
-	      			margin-top: 10px;
-	      			margin-bottom: 5px;
+	      		.ant-input-number {
+	      			margin: 0 8px;
 	      		}
 	      	}
 	    }
@@ -117,3 +122,126 @@
     	text-align: right;
   	}
  }
+
+    .m-keymapbox {
+        position: relative;
+        width: 100%;
+        height: 60%;
+		min-height: 180px;
+        .pa {
+            position: absolute;
+        }
+        .m-col {
+            border-bottom: 1px dotted #ccc;
+            background: #eee;
+            line-height: 40px;
+            &.title {
+                background: #ddd;
+            }
+            &.footer {
+                cursor: pointer;
+                background: #eee;
+            }
+            .cell {
+                float: left;
+                box-sizing: border-box;
+                padding: 0 10px;
+                text-align: left; // overflow: hidden;
+                // text-overflow: ellipsis;
+                font-size: 11px;
+                &:first-child {
+                    width: 40%;
+                    font-weight: bold;
+                }
+                &:nth-child(2) {
+                    width: 40%;
+                    text-align: left;
+                }
+                &:nth-child(3) {
+                    width: 20%;
+                    text-align: right;
+                }
+            }
+            .remove-cell,
+            .edit-cell {
+                display: inline-block;
+                position: absolute;
+                top: 14px;
+                cursor: pointer;
+                font-weight: normal;
+                z-index: 9;
+            }
+            .four-cells {
+                .cell {
+                    &:first-child {
+                        width: 30%;
+                        font-weight: bold;
+                    }
+                    &:nth-child(2) {
+                        width: 30%;
+                        text-align: left;
+                    }
+                    &:nth-child(3) {
+                        width: 20%;
+                        text-align: right;
+                    }
+                    &:nth-child(4) {
+                        width: 20%;
+                        text-align: right;
+                    }
+                }
+            }
+            .remove-cell {
+                right: 23px;
+            }
+            .edit-cell {
+                right: 10px;
+            }
+        }
+        .mapline {
+            cursor: url(/public/rdos/img/del.png?t=3), auto;
+        }
+        .dl {
+            .dag-circle {
+                cursor: crosshair;
+            }
+        }
+    }
+    .m-buttons {
+        padding-top: 10px;
+        button {
+            margin-bottom: 5px;
+        }
+    }
+    .cell-input {
+        height: 28px;
+        margin: 5px 5px 5px 0px;
+        width: 100%;
+        text-align: left;
+        background-color: transparent;
+        background-image: none;
+        border: none;
+    }
+
+.keymap-table {
+	.ant-table-thead {
+        .ant-table-selection-column > span {
+            visibility: hidden;
+        }
+
+        & > tr > th {
+            padding: 9px 8px;
+            font-size: 14px;
+            color: #333333;
+            letter-spacing: 0;
+        }
+    }
+    
+    .ant-table-tbody {
+        & > tr > td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #E8E8E8;
+            font-size: 14px;
+        }
+    }
+}

@@ -16,10 +16,17 @@ export default {
     DQ_USER_ROLE_ADD: `${DQ_BASE_URL}/roleUser/addRoleUser`,
     DQ_USER_ROLE_DELETE: `${DQ_BASE_URL}/roleUser/deleteRole`,
     DQ_USER_ROLE_UPDATE: `${DQ_BASE_URL}/roleUser/updateUserRole`,
+    DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
 
 
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`, // 查询数据源
+    GET_DATA_SOURCES_TYPE: `${DQ_BASE_URL}/dataSource/list`, // 查询数据源类型
+    GET_DATA_SOURCES_TABLE: `${DQ_BASE_URL}/dataSource/tablelist`, // 查询数据源下的表
+    GET_DATA_SOURCES_COLUMN: `${DQ_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
+    GET_DATA_SOURCES_PART: `${DQ_BASE_URL}/dataSource/getPartValue`, // 查询数据源下的分区
+    GET_DATA_SOURCES_PREVIEW: `${DQ_BASE_URL}/dataSource/preview`, // 预览数据源下的数据
+    
 
     // ===== 逐行校验 ===== //
     GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`,       // 逐行校验列表数据

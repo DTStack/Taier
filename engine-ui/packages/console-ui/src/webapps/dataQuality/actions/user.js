@@ -1,5 +1,5 @@
-import UserApi from 'main/api/user'
-import userActions from 'main/consts/userActions'
+import UserApi from '../api/user'
+import userActions from '../consts/userActions'
 
 // Action
 export function getUser() {
@@ -19,5 +19,18 @@ export function updateUser(fields) {
     return {
         type: userActions.UPDATE_USER,
         data: fields,
+    }
+}
+
+export function getUserList(fields) {
+    return (dispatch) => {
+        UserApi.getUserList(fields).then(res => {
+            if (res.code === 1) {
+                dispatch({
+                    type: userActions.GET_USER_LIST,
+                    data: res.data,
+                })
+            }
+        })
     }
 }

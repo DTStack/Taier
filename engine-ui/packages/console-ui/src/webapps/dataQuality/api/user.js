@@ -31,5 +31,8 @@ export default {
     getLoginedUser() {
         return http.post(req.GET_USER_BY_ID)
     },
+    getUserList() {
+        return http.post(req.DQ_GET_USER_LIST)
+    }
 
 }
