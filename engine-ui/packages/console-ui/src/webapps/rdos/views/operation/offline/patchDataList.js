@@ -49,7 +49,7 @@ class PatchDataList extends Component {
         }
     }
 
-    loadPatchData(params) {
+    loadPatchData = (params) => {
         const ctx = this
         this.setState({ loading: true })
         let defaultParams = this.getReqParams()
@@ -186,8 +186,9 @@ class PatchDataList extends Component {
     render() {
 
         const {
-            tasks, startTime, endTime, whichTask, current,
-            owner, bussinessDate, runningDate, taskName,
+            tasks, current,
+            dutyUserId, bizDay,
+            runDay, jobName,
         } = this.state
 
         const { projectUsers } = this.props
@@ -199,7 +200,6 @@ class PatchDataList extends Component {
             </Option>)
         }) : []
 
-        const showTime = bussinessDate ? 'block' : 'none';
 
         const pagination = {
             total: tasks.totalCount,
@@ -216,8 +216,8 @@ class PatchDataList extends Component {
                 <FormItem>
                     <Search
                         placeholder="按补数据名称搜索"
-                        style={{ width: '120px' }}
-                        value={taskName}
+                        style={{ width: '130px' }}
+                        value={jobName}
                         size="default"
                         onChange={this.onChangeJobName}
                         onSearch={this.loadPatchData}
@@ -228,7 +228,7 @@ class PatchDataList extends Component {
                         format="YYYY-MM-DD"
                         placeholder="业务日期"
                         style={{ width: '120px' }}
-                        value={bussinessDate}
+                        value={bizDay}
                         size="default"
                         onChange={this.onBuisTimeChange}
                     />
@@ -239,7 +239,7 @@ class PatchDataList extends Component {
                         placeholder="运行日期"
                         style={{ width: '120px' }}
                         size="default"
-                        value={runningDate}
+                        value={runDay}
                         onChange={this.onRunningTime}
                     />
                 </FormItem>
@@ -250,7 +250,7 @@ class PatchDataList extends Component {
                         style={{ width: '120px' }}
                         placeholder="责任人"
                         optionFilterProp="name"
-                        value={owner}
+                        value={dutyUserId}
                         onChange={this.onOwnerChange}
                     >
                         {userItems}

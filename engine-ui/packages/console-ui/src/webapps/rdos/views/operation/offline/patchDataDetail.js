@@ -120,6 +120,7 @@ class PatchDataDetail extends Component {
         const ctx = this
         // type:  NORMAL_SCHEDULE(0), FILL_DATA(1);
         params.type = 1;
+        params.fillTaskName = params.fillJobName;
         Api.queryJobStatics(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ statistics: res.data })
@@ -199,7 +200,7 @@ class PatchDataDetail extends Component {
     }
 
     canReload = (ids) => { // 未运行、成功、失败的任务可以reload
-        const tasks = this.state.tasks.data
+        const tasks = this.state.table.data && this.state.table.data.recordList
         if (ids && ids.length > 0) {
             for (let i = 0; i < ids.length; i++) {
                 const id = ids[i]
@@ -217,7 +218,7 @@ class PatchDataDetail extends Component {
     }
 
     canKill = (ids) => { // 是否可以进行kill
-        const tasks = this.state.tasks.data
+        const tasks = this.state.table.data && this.state.table.data.recordList
         if (ids && ids.length > 0) {
             for (let i = 0; i < ids.length; i++) {
                 const id = ids[i]
