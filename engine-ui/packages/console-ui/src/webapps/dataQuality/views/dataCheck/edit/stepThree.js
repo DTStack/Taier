@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Table, Checkbox, TimePicker, Form, InputNumber, Button, Switch, Select, message, Row, Col } from 'antd';
 import { select, selectAll, mouse } from 'd3-selection';
 import { connect } from 'react-redux';
-import { keyMapActions } from '../../../actions/dataSource/keymapActions';
+import { keyMapActions } from '../../../actions/dataSource/keyMapActions';
 import API from '../../../api/dataSource';
 
 const FormItem = Form.Item;
