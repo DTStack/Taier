@@ -62,7 +62,7 @@ class PatchData extends Component {
                 delete reqParams.rangeDate;
                 Api.patchTaskData(reqParams).then((res) => {
                     if (res.code === 1) {
-                        this.showAddResult(reqParams.fromDay)
+                        this.showAddResult(reqParams.fillName)
                         setTimeout(() => {
                             form.resetFields()
                         }, 500)
@@ -72,15 +72,14 @@ class PatchData extends Component {
         });
     }
 
-    showAddResult = (bizTime) => {
+    showAddResult = (fillJobName) => {
         this.props.handCancel()
-        const taskName = this.props.task.name
         confirm({
             okText: '查看',
             title: '查看补数据结果',
             content: '补数据任务已在执行中，点击下方按钮查看结果',
             onOk() {
-                hashHistory.push(`/operation/task-patch-data/${taskName}?patchBizTime=${bizTime}`)
+                hashHistory.push(`/operation/task-patch-data/${fillJobName}`)
             },
             onCancel() {
                 console.log('Cancel');

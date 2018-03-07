@@ -42,6 +42,7 @@ const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
+
 class PatchDataDetail extends Component {
 
     state = {
@@ -52,7 +53,7 @@ class PatchDataDetail extends Component {
         dutyUserId: '',
         fillJobName: '',
         jobStatuses: '',
-        bizDay: utils.getParameterByName('patchBizTime') || '',
+        bizDay: '',
         
         table: {
             data: [],
@@ -378,7 +379,7 @@ class PatchDataDetail extends Component {
         
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={item.userId} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
