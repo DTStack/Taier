@@ -42,6 +42,7 @@ export default class TaskVersion extends React.Component {
         return (
             <div>
                 <Table
+                    className="m-table"
                     rowKey="id"
                     dataSource={taskInfo.taskVersions || []}
                     columns={this.taskVersionCols()}

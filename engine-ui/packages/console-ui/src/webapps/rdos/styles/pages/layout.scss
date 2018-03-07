@@ -1,124 +1,59 @@
 @import '../const.scss';
 $activeColor: #262e36; // 主色
 
-.header {
-    background: $color1;
-    padding: 0 20px 0 44px;
-    height: 50px;
-    line-height: 50px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    .logo,
-    .menu,
-    .user-info {
-        display: inline-block
-    }
-    .logo {
-        width: 200px;
-        padding: 5px 0;
-        img {
-            height: 38px;
-        }
-    }
+.dt-dev-tools {
 
-    .my-menu {
-        line-height: 48px;
-        background: $color1;
-        border-bottom: 0;
-        .my-menu-item {
-            color: #fff;
-            font-size: 14px;
-            a {
-                color: inherit;
+    .header {
+        
+        padding-left: 30px;
+
+        .logo {
+            width: 165px;
+            padding: 5px;
+        }
+
+        .my-menu {
+            line-height: 48px;
+            background: $color1;
+            border-bottom: 0;
+    
+            .my-menu-item {
+                color: #fff;
+                font-size: 14px;
+    
+                a {
+                    color: inherit;
+                }
+            }
+    
+            .ant-menu-sub {
+                max-height: 400px;
+                overflow-y: auto;
+
+                .ant-menu-item {
+                    color: rgba(0, 0, 0, 0.65);
+                    font-size: 12px;
+                }
+
+                .ant-menu-item:hover {
+                    color: #2491F7;
+                }
             }
         }
+    
     }
-
-    .menu {
-        .ant-menu-submenu {
-            background: $activeColor;
-        }
-    }
-
-    .ant-menu-sub {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .ant-menu-horizontal>.ant-menu-item:hover,
-    .ant-menu-horizontal>.ant-menu-submenu:hover,
-    .ant-menu-horizontal>.ant-menu-item-active,
-    .ant-menu-horizontal>.ant-menu-submenu-active,
-    .ant-menu-horizontal>.ant-menu-item-open,
-    .ant-menu-horizontal>.ant-menu-submenu-open,
-    .ant-menu-horizontal>.ant-menu-item-selected,
-    .ant-menu-horizontal>.ant-menu-submenu-selected {
-        border-bottom: 2px solid $color2;
-        color: #fff;
-        background: $activeColor;
-    }
-    .ant-menu-horizontal>.ant-menu-item>a:hover,
-    .ant-menu-horizontal>.ant-menu-submenu>a:hover,
-    .ant-menu-item-selected > a,
-    .ant-menu-item-selected > a:hover {
-        color: #fff;
-    }
-
-    .avatar {
-        position: relative;
-        display: inline-block;
-        width: 40px;
-        height: 30px;
-        img {
-            border-radius: 50% 50%;
-            width: 25px;
-            height: 25px;
-            position: absolute;
-            bottom: -5px;
-            right: 5px;
-        }
-    }
-    .ant-menu-item-selected {
-        background-color: $activeColor !important;
-        color: #fff;
-        &:hover {
-            color: #fff;
-        }
-    }
-}
-
-.content {
-    padding: 20px 40px 20px 40px;
-}
-
-.inner-content {
-    padding: 0px 20px;
-    height: 100%;
-    position: relative;
-    overflow-y: auto;
-    background: #fff;
-}
-
-.sidebar {
-    height: 100%;
-    border-right: 1px solid #e9e9e9;
-    .ant-tabs-content {
-        overflow-x: hidden;
-        overflow-y: auto;
+    
+    .sidebar {
         height: 100%;
-    }
-
-    .tab-menu {
-        bottom: 0;
-        height: 100%;
-        padding-bottom: 60px;
-        .ant-tabs-bar {
-            margin-bottom: 0;
-        }
-        .ant-menu-inline, .ant-menu-vertical {
-            border-right: 0;
+        border-right: 1px solid #e9e9e9;
+    
+        .ant-tabs-content {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 100%;
         }
     }
+    
 }
+
+

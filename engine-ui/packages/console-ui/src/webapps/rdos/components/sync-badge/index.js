@@ -20,7 +20,7 @@ export default class SyncBadge extends React.Component {
                     marginRight: 8,
                     borderRadius: '50%',
                     border: '3px solid ',
-                    borderColor: 'red',
+                    borderColor: '#EF5350',
                     opacity: 0.8
                 }}
             ></span>
@@ -33,7 +33,7 @@ export default class SyncBadge extends React.Component {
                 marginRight: 8,
                 borderRadius: '50%',
                 border: '3px solid ',
-                borderColor: 'green',
+                borderColor: '#00a854',
                 opacity: 0.6
             }}
         ></span>

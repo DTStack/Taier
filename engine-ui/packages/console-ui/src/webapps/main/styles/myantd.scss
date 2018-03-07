@@ -152,7 +152,12 @@
     // sidebar styles
     .ant-menu.ant-menu-inline,
     .ant-menu.ant-menu-vertical {
-        background: $bgColor2;
+        background: #262E36;
+
+        .ant-menu-sub {
+            background: #2E3943;
+        }
+
         .ant-menu-item>a,
         .ant-menu-submenu-title {
             font-family: PingFangSC-Regular;
@@ -191,5 +196,37 @@
     }
     .ant-form-item-label {
         line-height: 28px;
+    }
+}
+
+.m-drop-btn {
+    height: auto;
+    border: 0px;
+    padding: 0;
+    color: #2491F7;
+
+    &:hover, &:focus, &:active, &.active {
+        background: transparent;
+    }
+}
+
+.m-radio-group {
+    .ant-radio-group {
+        .ant-radio-button-wrapper {
+            border: 0;
+            padding: 0 5px;
+
+            &:not(:first-child)::before {
+                border: 0;
+                width: 0;
+            }
+
+        }
+        .ant-radio-button-wrapper-checked {
+            &, &:hover {
+                box-shadow: none;
+            }
+        }
+
     }
 }

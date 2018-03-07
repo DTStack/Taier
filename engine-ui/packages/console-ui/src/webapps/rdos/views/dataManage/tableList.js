@@ -121,7 +121,7 @@ class TableList extends Component {
                 render(text, record) {
                     return <span>
                         <Link to={`${ROUTER_BASE}/edit/${record.tableId}`}>编辑</Link>
-                        <span> | </span>
+                        <span className="ant-divider"></span>
                         <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
                     </span>
                 }

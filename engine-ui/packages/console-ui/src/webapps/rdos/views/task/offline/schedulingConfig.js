@@ -721,6 +721,7 @@ class SchedulingConfig extends React.Component {
                             <Col span="6"></Col>
                             <Col>
                                 <Table
+                                    className="m-table"
                                     columns={columns}
                                     bordered={false}
                                     dataSource={ tabData.taskVOS }

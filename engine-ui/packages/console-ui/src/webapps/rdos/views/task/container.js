@@ -53,7 +53,7 @@ class Container extends Component {
         const { children } = this.props
         return (
             <Layout className="dt-dev-task">
-                <SplitPane split="vertical" minSize={260} maxSize="80%" defaultSize={260} primary="first">
+                <SplitPane split="vertical" minSize={200} maxSize="80%" defaultSize={200} primary="first">
                     <div className="bg-w ant-layout-sider" style={{ width: 'inherit' }}>
                         <Sidebar />
                         <SearchTaskModal />

@@ -23,8 +23,11 @@ export default class Sidebar extends Component {
 
     updateSelected = () => {
         const routes = this.props.router.routes
-        if (routes.length > 2) {
-            let current = routes[2].path || 'overview'
+        if (routes.length > 3) {
+            let current = routes[3].path || 'overview'
+            if (current.indexOf('task-patch-data') > -1) {
+                current = 'task-patch-data'
+            }
             this.setState({ current })
         }
     }
@@ -52,7 +55,7 @@ export default class Sidebar extends Component {
                             <span className="nav-text">运维总览</span>
                         </Link>
                     </Menu.Item>
-                    <SubMenu key="offline" title={<span><Icon type="code" /><span className="nav-text">离线任务</span></span>}>
+                    <SubMenu key="offline" title={<span><Icon type="usb" /><span className="nav-text">离线任务</span></span>}>
                         <Menu.Item key="offline-management">
                             <Link to={`${base}/offline-management`}>
                                 任务管理
@@ -63,8 +66,8 @@ export default class Sidebar extends Component {
                                 周期实例
                             </Link>
                         </Menu.Item>
-                        <Menu.Item key="task-flow">
-                            <Link to={`${base}/task-flow`}>
+                        <Menu.Item key="task-patch-data">
+                            <Link to={`${base}/task-patch-data`}>
                                 补数据实例
                             </Link>
                         </Menu.Item>

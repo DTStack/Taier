@@ -59,7 +59,7 @@ class RestartModal extends Component {
     }
     
     restartChildNodes = () => {
-        const { handCancel, router, restartNode, udpateGraphStatus } = this.props
+        const { handCancel, router, restartNode } = this.props
         const checked = this.state.checkedKeys
 
         if (checked.length === 0) {
@@ -77,7 +77,6 @@ class RestartModal extends Component {
         Api.restartAndResume(reqParams).then((res) => {
             if (res.code === 1) {
                 message.success('重跑成功!')
-                udpateGraphStatus();
                 handCancel();
             }
         })

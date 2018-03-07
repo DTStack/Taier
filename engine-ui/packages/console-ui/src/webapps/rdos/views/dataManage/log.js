@@ -51,7 +51,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{width: 120}}></Input>
+                        <Input placeholder="变更语句" size="default" style={{width: 105}}></Input>
                     )}
                 </FormItem>
                 <FormItem>
@@ -124,7 +124,6 @@ class TableLog extends React.Component {
                 projectUsers={ projectUsers }
             />
         )
-
 
         return <div className="m-tablelog m-slide-pane">
             <h1 className="box-title">
@@ -306,7 +305,7 @@ class Log extends React.Component {
 
         return <div className="g-tablelogs">
             <h1 className="box-title">操作记录</h1>
-            <div className="box-2 m-card" style={{padding: '0 20px 20px 0', height: '600px'}}> 
+            <div className="box-2 m-card" style={{padding: '0 20px 20px 0'}}> 
                 <Card
                     noHovering
                     bordered={false}
@@ -319,31 +318,32 @@ class Log extends React.Component {
                         pagination={ false }
                         onChange={this.handleTableChange}
                         bordered
+                        scroll={{ y: '65%' }}
                     />}
                     <Pagination
-                        pageSize={ 10 }
+                        pageSize={ 20 }
                         style={{ float: 'right', marginTop: '16px' }}
                         current={ currentPage || 0 }
                         total={ totalCount || 0 }
                         onChange={ this.showTableListPage.bind(this) }
                     />
-                        <SlidePane 
-                            onClose={ this.closeSlidePane }
-                            visible={ visibleSlidePane } 
-                            style={{ right: '-20px', width: '80%', height: '552px' }}
-                        >
-                            <div className="m-loglist">
-                                {isEmpty(tableLog) ? <p style={{
-                                    fontSize: 36,
-                                    color: '#ddd',
-                                    textAlign: 'center',
-                                    marginTop: 40
-                                }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>:
-                                <TableLog key={ tableLog.tableId } {...tableLog}
-                                    projectUsers={ projectUsers }
-                                />}
-                            </div>
-                        </SlidePane>
+                    <SlidePane 
+                        onClose={ this.closeSlidePane }
+                        visible={ visibleSlidePane } 
+                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                    >
+                        <div className="m-loglist">
+                            {isEmpty(tableLog) ? <p style={{
+                                fontSize: 36,
+                                color: '#ddd',
+                                textAlign: 'center',
+                                marginTop: 40
+                            }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>:
+                            <TableLog key={ tableLog.tableId } {...tableLog}
+                                projectUsers={ projectUsers }
+                            />}
+                        </div>
+                    </SlidePane>
                 </Card>
             </div>
         </div>

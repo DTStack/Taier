@@ -6,6 +6,19 @@ import { isSelectedProject } from './interceptor'
 
 import NotFund from 'widgets/notFund'
 
+
+// 继承主应用的的公共View组件
+import Main from 'main/views'
+import MsgCenter from 'main/views/message'
+import MsgList from 'main/views/message/list'
+import MsgDetail from 'main/views/message/detail'
+
+import SysAdmin from 'main/views/admin'
+import AdminUser from 'main/views/admin/user'
+import AdminRole from 'main/views/admin/role'
+import GRoleAdd from 'main/views/admin/role/add'
+import GRoleEdit from 'main/views/admin/role/edit'
+
 import Container from './views/container'
 import Dashboard from './views/dashboard'
 
@@ -30,6 +43,8 @@ import OpeOfflineList from './views/operation/offline/taskOperation'
 import OpeOfflineTaskMana from './views/operation/offline/taskMana'
 import OpeOfflineTaskLog from './views/operation/offline/taskLog'
 import OpeOfflineTaskRunTime from './views/operation/offline/taskRuntime'
+import OperationPatchData from './views/operation/offline/patchDataList'
+import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
 
 // ======= 运维 =======
 import DataSourceIndex from './views/dataSource'
@@ -70,9 +85,6 @@ const Operation = asyncComponent(() => import('./views/operation/container')
 const OperationOverview = asyncComponent(() => import('./views/operation/overview')
 .then(module => module.default), { name: 'operationAbstract' })
 
-const OperationTaskFlow = asyncComponent(() => import('./views/operation/offline/taskflow')
-.then(module => module.default), { name: 'taskflow' })
-
 // ======= 数据管理 =======
 const DataManageContainer = asyncComponent(() => import('./views/dataManage/container')
 .then(module => module.default), { name: 'dataManageContainer' })
@@ -86,57 +98,69 @@ const Test = asyncComponent(() => import('./views/test')
 .then(module => module.default), { name: 'testPage' })
 
 export default (
-    <Route path="/" component={Container}>
-        <Route path="/rdos.html" component={Dashboard}/>
-        <IndexRoute component={Dashboard} />
-        <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
-            <IndexRoute component={ProjectConfig} />
-            <Route path="config" component={ProjectConfig} />
-            <Route path="member" component={ProjectMember} />
-            <Route path="role" component={RoleManagement} />
-            <Route path="role/add" component={RoleAdd} />
-            <Route path="role/edit/:roleId" component={RoleEdit} />
+    <Route path="/" component={Main}>
+        <IndexRoute component={Container} />
+        <Route path="/message" component={ MsgCenter }>
+            <IndexRoute component={ MsgList } />
+            <Route path="list" component={ MsgList } />
+            <Route path="detail/:msgId" component={ MsgDetail } />
         </Route>
-        <Route path="realtime" component={TaskContainer} onEnter={isSelectedProject}>
-            <IndexRoute component={Default} />
-            <Route path="task" component={TaskIndex} />
-            <Route path="task/:tid" component={TaskIndex} />
+        <Route path="/admin" component={ SysAdmin }>
+            <IndexRoute component={ AdminUser } />
+            <Route path="user" component={ AdminUser } />
+            <Route path="role" component={ AdminRole } />
+            <Route path="role/add" component={ GRoleAdd } />
+            <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
-        <Route path="offline" component={TaskContainer} onEnter={isSelectedProject}>
-            <IndexRoute component={OfflineDefault} />
-            <Route path="task" component={TaskOffline} />
-            <Route path="task/:tid" component={TaskOffline} />
-        </Route>
-        <Route path="operation" component={Operation} onEnter={isSelectedProject}>
-            <IndexRoute component={OperationOverview} />
-            <Route path="realtime" component={OpeRealTimeList} />
-            <Route path="offline-operation" component={OpeOfflineList} />
-            <Route path="offline-management" component={OpeOfflineTaskMana} />
-            <Route path="task-log/:jobId" component={OpeOfflineTaskLog} />
-            <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
-            <Route path="task-flow" component={OperationTaskFlow} />
-            <Route path="task-patch-data" component={OperationTaskFlow} />
-            <Route path="task-flow/:jobId" component={OperationTaskFlow} />
-            <Route path="alarm-record" component={OpeAlarm} />
-            <Route path="alarm-config" component={OpeAlarmConfig} />
-        </Route>
-        <Route path="/database" component={DataSourceIndex}>
-            <IndexRoute component={DataSourceIndex} />
-        </Route>
-        <Route path="/data-manage" component={DataManageContainer}>
-            <Route path="table" component={TableManage}>
-                <IndexRoute component={TableList} />
-                <Route path="create" component={TableCreator} />
-                <Route path="view/:tableId" component={TableViewer} />
-                <Route path="edit/:tableId" component={TableEditor} />
+        <Route path="/rdos" component={ Container }>
+            <IndexRoute component={Dashboard} />
+            <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
+                <IndexRoute component={ProjectConfig} />
+                <Route path="config" component={ProjectConfig} />
+                <Route path="member" component={ProjectMember} />
+                <Route path="role" component={RoleManagement} />
+                <Route path="role/add" component={RoleAdd} />
+                <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
-            <Route path="log" component={Log} />
-            <Route path="log/:tableId/:tableName" component={Log}></Route>
-            <Route path="catalogue" component={DataCatalogue} />
-            <Route path="dirty-data" component={DirtyData} />
-            <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
+            <Route path="/realtime" component={TaskContainer} onEnter={isSelectedProject}>
+                <IndexRoute component={Default} />
+                <Route path="task" component={TaskIndex} />
+                <Route path="task/:tid" component={TaskIndex} />
+            </Route>
+            <Route path="/offline" component={TaskContainer} onEnter={isSelectedProject}>
+                <IndexRoute component={OfflineDefault} />
+                <Route path="task" component={TaskOffline} />
+                <Route path="task/:tid" component={TaskOffline} />
+            </Route>
+            <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
+                <IndexRoute component={OperationOverview} />
+                <Route path="realtime" component={OpeRealTimeList} />
+                <Route path="offline-operation" component={OpeOfflineList} />
+                <Route path="offline-management" component={OpeOfflineTaskMana} />
+                <Route path="task-log/:jobId" component={OpeOfflineTaskLog} />
+                <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
+                <Route path="task-patch-data" component={OperationPatchData} />
+                <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
+                <Route path="alarm-record" component={OpeAlarm} />
+                <Route path="alarm-config" component={OpeAlarmConfig} />
+            </Route>
+            <Route path="/database" component={DataSourceIndex}>
+                <IndexRoute component={DataSourceIndex} />
+            </Route>
+            <Route path="/data-manage" component={DataManageContainer}>
+                <Route path="table" component={TableManage}>
+                    <IndexRoute component={TableList} />
+                    <Route path="create" component={TableCreator} />
+                    <Route path="view/:tableId" component={TableViewer} />
+                    <Route path="edit/:tableId" component={TableEditor} />
+                </Route>
+                <Route path="log" component={Log} />
+                <Route path="log/:tableId/:tableName" component={Log}></Route>
+                <Route path="catalogue" component={DataCatalogue} />
+                <Route path="dirty-data" component={DirtyData} />
+                <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
+            </Route>
         </Route>
-
         <Route path="/test" component={Test} />
         <Route path="/*" component={NotFund} />
     </Route>

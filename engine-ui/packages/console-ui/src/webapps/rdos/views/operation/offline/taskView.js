@@ -1,17 +1,16 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { Link, hashHistory } from 'react-router'
 
 import {
-    Button, Tooltip, Spin,
+    Button, Tooltip, Spin, message,
     Modal, notification, Icon,
 } from 'antd'
 
 import utils from 'utils'
 
-import Api from '../../../../api'
-import MyIcon from '../../../../components/icon'
-import { taskTypeText } from '../../../../components/display'
+import Api from '../../../api'
+import MyIcon from '../../../components/icon'
+import { taskTypeText } from '../../../components/display'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -40,8 +39,8 @@ const {
 } = Mx
 
 const VertexSize = { // vertex大小
-    width: 100,
-    height: 30,
+    width: 150,
+    height: 36,
 }
 
 export default class TaskView extends Component {
@@ -55,19 +54,26 @@ export default class TaskView extends Component {
         visible: false,
     }
 
-    componentDidMount() {
+    initGraph = (id) => {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         const editor = this.Container
-        const currentTask = this.props.tabData
         this.initEditor()
         this.loadEditor(editor)
         this.listenDoubleClick()
         this.hideMenu()
         this.loadTaskChidren({
-            taskId: currentTask.id,
+            taskId: id,
             level: 6,
         })
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const currentTask = this.props.tabData
+        const { tabData, visibleSlidePane} = nextProps
+        if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+            this.initGraph(tabData.id)
+        }
     }
 
     loadEditor = (container) => {
@@ -113,6 +119,8 @@ export default class TaskView extends Component {
 
         // enables rubberband
         new mxRubberband(graph)
+
+        this.initContextMenu(graph)
     }
 
     getStyles = (type) => {
@@ -165,8 +173,6 @@ export default class TaskView extends Component {
 
             if (exist) {
                 this.insertEdge(graph, type, parent, exist)
-                // graph.insertEdge(parent, null, '', parent, exist)
-                // current = exist.node
             } else {
 
                 // 创建节点
@@ -241,6 +247,55 @@ export default class TaskView extends Component {
         })
     }
 
+    stopTask = (params) => {
+        Api.stopJob(params).then(res => {
+            if (res.code === 1 ) {
+                message.success('任务终止运行命令已提交！')
+                this.refresh()
+            } else {
+                message.error('任务终止提交失败！')
+            }
+        })
+    }
+
+    initContextMenu = (graph) => {
+        const ctx = this
+        const { goToTaskDev, clickPatchData, tabData } = this.props
+
+        var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
+        mxPopupMenu.prototype.showMenu = function() {
+            var cells = this.graph.getSelectionCells()
+            if (cells.length > 0 && cells[0].vertex) {
+                mxPopupMenuShowMenu.apply(this, arguments);
+            } else return false
+        };
+        graph.popupMenuHandler.autoExpand = true
+        graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
+
+            if (!cell) return
+
+            const currentNode = JSON.parse(cell.getAttribute('data'))
+
+            menu.addItem('补数据', null, function() {
+                clickPatchData(tabData)
+            })
+            menu.addItem('查看代码', null, function() {
+                goToTaskDev(tabData.id)
+            })
+            menu.addItem('冻结', null, function() {
+                ctx.stopTask({
+                    jobId: tabData.id,
+                })
+            })
+            menu.addItem('解冻', null, function() {
+                
+            })
+            menu.addItem('查看实例', null, function() {
+                hashHistory.push(`/operation/offline-operation?job=${tabData.name}`)
+            })
+        }
+    }
+
     listenDoubleClick() {
         this.graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const cell = evt.getProperty('cell')
@@ -263,7 +318,7 @@ export default class TaskView extends Component {
     }
 
     refresh = () => {
-        this.componentDidMount()
+        this.initGraph(this.props.tabData.id)
     }
 
     graphEnable() {
@@ -279,6 +334,37 @@ export default class TaskView extends Component {
         this.graph.zoomOut()
     }
 
+    showImage = () => {
+        const graph = this.graph
+
+        // const xmlDoc = mxUtils.createXmlDocument();
+        // const root = xmlDoc.createElement('output');
+        // xmlDoc.appendChild(root);
+        this.setState({ visible: true })
+
+        const bounds = graph.getGraphBounds();
+        const w = Math.ceil(bounds.x + bounds.width);
+        const h = Math.ceil(bounds.y + bounds.height);
+ 
+        const myCanvas = this.MyCanvas
+        const ctx = myCanvas.getContext('2d');
+        const svgData = this.Container.innerHTML
+        const DOMURL = window.URL || window.webkitURL || window;
+
+        myCanvas.width = w
+        myCanvas.height = h
+
+        const img = new Image();
+        const svg = new Blob([svgData], {type: 'image/svg+xml'});
+        const url = DOMURL.createObjectURL(svg);
+
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0);
+            DOMURL.revokeObjectURL(url);
+        }
+        img.src = url;
+    }
+
     hideMenu = () => {
         document.addEventListener('click', (e) => {
             const graph = this.graph
@@ -292,10 +378,14 @@ export default class TaskView extends Component {
     /* eslint-enable */
     render() {
         const task = this.state.selectedTask
-        const project = this.props.project
+        const { goToTaskDev } = this.props
+
         return (
             <div className="graph-editor" 
-                style={{  position: 'relative', }}
+                style={{
+                    position: 'relative', 
+                    height: '563px',
+                }}
             >
                 <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 <Spin
@@ -307,7 +397,7 @@ export default class TaskView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh}/>
+                        <Icon type="reload" onClick={this.refresh} />
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -315,6 +405,13 @@ export default class TaskView extends Component {
                     <Tooltip placement="bottom" title="缩小">
                         <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                     </Tooltip>
+                </div>
+                <div className="box-title graph-info">
+                    <span>{task.name || '-'}</span>&nbsp;
+                    <span>{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
+                    发布于&nbsp;
+                    <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
+                    <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
                 </div>
             </div>
         )

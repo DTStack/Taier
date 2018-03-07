@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
-import { Button, Row } from 'antd'
+import { Button, Row, Col, Card, Radio } from 'antd'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
 
 import GoBack from 'widgets/go-back'
+import Resize from 'widgets/resize'
 
 import Api from '../../../api'
-import { defaultBarOption } from '../../../comm/const'
+import { lineAreaChartOptions } from '../../../comm/const'
 
 import { 
     OfflineTaskStatus, TaskTimeType, TaskType 
@@ -21,167 +22,198 @@ require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const barOption = {
-    color: ['#18a689'],
-    tooltip : {
-        trigger: 'axis',
-        formatter: "{a} : {c} 秒",
-        axisPointer : {   // 坐标轴指示器，坐标轴触发有效
-            type : 'shadow', // 默认为直线，可选为：'line' | 'shadow'
-        }
-    },
-    grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-    },
-    legend: {
-        right: 0,
-        data: ['耗时']
-    },
-    xAxis : [
-        {
-            type : 'category',
-            data : [],
-            axisLine: {
-                lineStyle: {
-                    color: '#dddddd',
-                    width: 1,
-                }
-            },
-            axisTick: {
-                show: false,
-                alignWithLabel: true
-            },
-            axisLabel: {
-                textStyle: {
-                    color: '#333333'
-                },
-            },
-        }
-    ],
-    yAxis : [
-        {   
-            name: '耗时',
-            type : 'value',
-            axisLine: {
-                lineStyle: {
-                    color: '#dddddd',
-                    width: 1,
-                }
-            },
-            position: 'top',
-            axisLabel: {
-                 formatter: '{value} 秒',
-                textStyle: {
-                    color: '#333333'
-                },
-            },
-            axisTick: {
-                show: false,
-            },
-        },
-    ],
-    series : [
-        {
-            name:'耗时',
-            type:'bar',
-            barWidth: 30,
-            data:[]
-        }
-    ]
-};
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 export default class TaskLog extends Component {
 
     state = {
-        taskInfo: '',
-        chart1: '',
+        data: {},
     }
 
     componentDidMount() {
-        this.loadRuntimeInfo()
-        this.resizeChart()
+        const currentTask = this.props.tabData
+        if (currentTask) {
+            this.loadRuntimeInfo({
+                taskId: currentTask.id,
+                count: 30,
+            })
+        }
     }
 
-    loadRuntimeInfo = () => {
+    componentWillReceiveProps(nextProps) {
+        const currentTask = this.props.tabData
+        const { tabData, visibleSlidePane} = nextProps
+        if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+            this.loadRuntimeInfo({
+                taskId: tabData.id,
+                count: 30,
+            })
+        }
+    }
+
+    loadRuntimeInfo = (params) => {
         const ctx = this
-        const jobId = this.props.params.jobId
-        Api.getJobRuntimeInfo({ taskId: jobId }).then((res) => {
+        Api.statisticsTaskRunTime(params).then((res) => {
             if (res.code === 1) {
-                this.setState({ taskInfo: res.data })
-                this.initLineChart(res.data)
+                this.setState({ data: res.data })
+                const chartData = res.data.jobInfoList;
+                ctx.initLineChart(chartData)
             }
         })
     }
 
-    initLineChart(chartData) {
-
-        let myChart = echarts.init(document.getElementById('RunTimeTrend'));
-        const data = this.getChartData(chartData)
-
-        const option = barOption;
-        option.backgroundColor = '#ffffff'
-        option.xAxis[0].data = data.x
-        option.series = data.series
-
-        // 绘制图表
-        myChart.setOption(option);
-        this.setState({ chart1: myChart })
+    onRadioChange = (e) => {
+        const { tabData } = this.props
+        this.loadRuntimeInfo({
+            taskId: tabData.id,
+            count: e.target.value,
+        })
     }
 
-    getChartData = (data) => {
-        const x = []
-        const seriesData = []
-        if (data && data.length > 0) {
+    handData = (data) => {
+        
+        let arr = [], xAxis = [], series = [];
+        const legend = ['持续时长', '读取数据', '脏数据'];
+        const stayTiming = [], readData = [], dirtyData = [];
+
+        if (data) {
             for (let i = 0; i < data.length; i++) {
-                x.push(moment(data[i].startTime).format('YYYY-MM-DD'))
-                const ms = Math.round(data[i].execTime)
-                seriesData.push(ms || 0)
+                const item = data[i]
+                xAxis.push(moment(item.exeStartTime).format('YYYY-MM-DD HH:mm:ss'))
+                stayTiming.push(item.exeTime)
+                readData.push(item.totalCount)
+                dirtyData.push(item.dirtyNum)
             }
         }
         return {
-            x,
-            series: [{
-                name: '耗时',
-                type:'bar',
-                barWidth: '60%',
-                data: seriesData
-            }]
+            legend,
+            xAxis,
+            series: [
+                {
+                    name: '持续时长',
+                    symbol: 'none',
+                    type:'line',
+                    data: stayTiming,
+                }, {
+                    name: '读取数据',
+                    symbol: 'none',
+                    type:'line',
+                    data: readData,
+                }, {
+                    name: '脏数据',
+                    symbol: 'none',
+                    type:'line',
+                    data: dirtyData,
+                }
+            ]
         }
     }
 
+
+
+    initLineChart(chartData) {
+
+        const data = this.handData(chartData);
+
+        let myChart = echarts.init(document.getElementById('RunTimeTrend'));
+        const option = cloneDeep(lineAreaChartOptions);
+        
+        option.grid = {
+            left: 75,
+            right: 50
+        }
+
+        option.title.text = ''
+        option.tooltip.axisPointer.label.formatter = '{value}: 00'
+        option.xAxis[0].axisTick = {
+            show: false,
+            alignWithLabel: true,
+        }
+        option.xAxis[0].boundaryGap = ['10%', '10%'];
+        option.xAxis[0].axisLabel ={
+            align: 'center',
+            color: '#666666',
+            margin: 12,
+        }
+        option.legend.data = data.legend;
+        option.xAxis[0].data = data.xAxis;
+        option.series = data.series;
+
+        option.yAxis[0].minInterval = 1
+        option.yAxis[0].name = '执行时长（秒）'
+
+        option.yAxis[1] = cloneDeep(option.yAxis[0])
+        option.yAxis[1].name = '数据量（条）'
+        option.yAxis[1].axisLine.show = false
+        option.yAxis[1].splitLine.show = false
+
+        // 绘制图表
+        myChart.setOption(option);
+
+        this._chart = myChart;
+    }
+
     resizeChart = () => {
-        const { chart1 } = this.state
-        if (chart1) {
-            chart1.resize()
+        if (this._chart) {
+            this._chart.resize()
         }
     }
 
     render() {
 
-        const { taskInfo } = this.state
+        const { data } = this.state
 
-        const tdStyle = {
-            width: '110px',
-            background: '#fcfcfc',
+        const tStyle = {
+            width: '50px',
+            margin: 0,
+            marginTop: '10px',
         }
 
         return (
-            <div className="runtime-page">
-                <header className="bd-bottom">
-                    <span className="left">运行时长</span>&nbsp;&nbsp;
-                    <GoBack className="right" icon="rollback" size="small" />
-                </header>
-                <div className="runtime-content">
-                    <article className="runtime-section">
-                        <h1>运行信息</h1>
-                        <div id="RunTimeTrend" className="runtime-trend bd"
-                            style={{width: '100%', height: '330px'}}>
-                        </div>
-                    </article>
-                </div>
+            <div className="m-card m-radio-group">
+                <Card 
+                    noHovering
+                    bordered={false}
+                    loading={false}
+                    title="执行时长分析"
+                    extra={
+                        <RadioGroup 
+                            defaultValue={30}
+                            className="no-bd"
+                            onChange={this.onRadioChange}
+                            style={{ marginTop: '8.5px' }}
+                        >
+                            <RadioButton value={7}>近7次</RadioButton>
+                            <RadioButton value={30}>近30次</RadioButton>
+                            <RadioButton value={60}>近60次</RadioButton>
+                        </RadioGroup>
+                    }
+                > 
+                    <Row className="m-count" style={{ height: '70px', padding: '0 20px' }}>
+                        <Col span={4}>
+                            <section className="m-count-section" style={tStyle}>
+                                <span className="m-count-title">周期执行</span>
+                                <span className="m-count-content font-black">{data.cronExeNum || 0}</span>
+                            </section>
+                        </Col>
+                        <Col span={4}>
+                            <section className="m-count-section" style={tStyle}>
+                                <span className="m-count-title">补数据</span>
+                                <span className="m-count-content font-black">{data.fillDataExeNum || 0}</span>
+                            </section>
+                        </Col>
+                        <Col span={4}>
+                            <section className="m-count-section" style={tStyle}>
+                                <span className="m-count-title">失败次数</span>
+                                <span className="m-count-content font-red">{data.failNum || 0}</span>
+                            </section>
+                        </Col>
+                    </Row>
+                    <Resize onResize={this.resizeChart}>
+                        <div id="RunTimeTrend" style={{width: '100%', height: '330px'}}></div>
+                    </Resize>
+                </Card>
             </div>
         )
     }

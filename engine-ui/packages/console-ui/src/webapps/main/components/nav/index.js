@@ -103,8 +103,8 @@ export function MenuRight(props) {
                 </Dropdown>
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">
-                        <span>
-                            <img className="avatar" />
+                        <Icon  className="avatar" type="user" />
+                        <span className="user-name">
                             { (user && user.userName) || '未登录'}
                         </span>
                     </div>
@@ -135,7 +135,6 @@ export class Navigator extends Component {
     handleClick = (e) => {
         const props = e.item.props
         const { onMenuClick } = this.props
-        console.log('menu select: ', e.key)
         this.setState({ current: e.key });
         if (onMenuClick) onMenuClick(e)
     }
@@ -172,7 +171,6 @@ export class Navigator extends Component {
             menuLeft, menuRight 
         } = this.props;
         const { current } = this.state
-        console.log('current:', current)
         return (
             <header className="header">
                 <div className="logo left txt-left">

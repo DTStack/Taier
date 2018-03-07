@@ -15,6 +15,7 @@ import {
 
 import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
+import GoBack from 'main/components/go-back'
 
 import Api from '../../../api'
 import { 
@@ -32,7 +33,7 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction' 
 
-import TaskFlowView from './taskFlowView'
+import TaskFlowView from './taskFlowView/index'
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -41,31 +42,31 @@ const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
-class OfflineTaskList extends Component {
+class PatchDataDetail extends Component {
 
     state = {
-        tasks: {
+        loading: false,
+        current: 1,
+        selectedRowKeys: [],
+        
+        dutyUserId: '',
+        fillJobName: '',
+        jobStatuses: '',
+        bizDay: utils.getParameterByName('patchBizTime') || '',
+        
+        table: {
             data: [],
         },
-        loading: false,
-        continue: false,
-        current: 1,
-        person: '',
-        choose: '0',
-        jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
-        taskStatus: '',
-        bussinessDate: '',
-        selectedRowKeys: [],
-        execTime: '', // 执行时间
-        jobType: '', // 调度类型
         statistics: '',
-        execSpendTime: '', // 执行时长
+
         visibleSlidePane: false,
-        selectedTask: '',
+        selectedTask: {},
     }
 
     componentDidMount() {
-        this.search()
+        this.setState({
+            fillJobName: this.props.params.fillJobName
+        }, this.search)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -80,90 +81,49 @@ class OfflineTaskList extends Component {
 
     search = () => {
         const {
-            jobName, person, taskStatus,
-            bussinessDate, jobType, current,
-            execTime, execSpendTime,
-        } = this.state
+            fillJobName, dutyUserId, jobStatuses,
+            bizDay, current,
+        } = this.state;
         const reqParams = {
             currentPage: current,
+            pageSize: 20,
         }
-        if (jobName) {
-            reqParams.taskName = jobName
+        if (fillJobName) {
+            reqParams.fillJobName = fillJobName
         }
-        if (person) {
-            reqParams.ownerId = person
+        if (dutyUserId !== '') {
+            reqParams.dutyUserId = dutyUserId
         }
-        if (bussinessDate) {
-            reqParams.startTime = bussinessDate.set({
-                'hour': 0,
-                'minute': 0,
-                'second': 0,
-            }).unix()
-            reqParams.endTime = bussinessDate.set({
-                'hour': 23,
-                'minute': 59,
-                'second': 59,
-            }).unix()
+        if (bizDay) {
+            reqParams.bizDay = moment(bizDay).unix()
         }
-        if (execTime.length > 0) {
-            reqParams.execStartTime = execTime[0].unix()
-            reqParams.execEndTime = execTime[1].unix()
+        if (jobStatuses && jobStatuses.length > 0) {
+            reqParams.jobStatuses = jobStatuses.join(',')
         }
-        if (execSpendTime) {// 执行时长
-            reqParams.execTime = execSpendTime
-        }
-        if (jobType !== undefined && jobType !== '') {
-            reqParams.type = jobType
-        }
-        if (taskStatus && taskStatus.length > 0) {
-            reqParams.jobStatuses = taskStatus.join(',')
-        }
-        this.loadTaskList(reqParams)
+        this.loadPatchRecords(reqParams)
     }
 
-    loadTaskList(params) { // currentPage, pageSize, isTimeSortDesc, status
+    loadPatchRecords(params) {
         const ctx = this
         this.setState({ loading: true })
-        const reqParams = Object.assign({
-            currentPage: 1,
-            pageSize: 20,
-            type: 0,
-        }, params)
-        Api.queryJobs(reqParams).then((res) => {
+        Api.getFillDataDetail(params).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ tasks: res.data, loading: false })
+                ctx.setState({ table: res.data })
             }
+            this.setState({ loading: false })
         })
         this.loadJobStatics(params)
     }
-
+    
     loadJobStatics(params) {
         const ctx = this
         // type:  NORMAL_SCHEDULE(0), FILL_DATA(1);
-        params.type = 0;
+        params.type = 1;
         Api.queryJobStatics(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ statistics: res.data })
             }
         })
-    }
-
-    killAllJobs = () => {
-        const ctx = this
-        confirm({
-            title: '确认提示',
-            content: '确定要杀死所有的任务吗？',
-            onOk() {
-                Api.batchStopJob({ isAll: 1 }).then((res) => {
-                    if (res.code === 1) {
-                        message.success('已经成功启动杀死所有任务！')
-                        ctx.search()
-                    } else {
-                        message.error('启动杀死任务失败！')
-                    }
-                })
-            },
-        });
     }
 
     batchKillJobs = () => { // 批量重跑
@@ -273,28 +233,23 @@ class OfflineTaskList extends Component {
 
     handleTableChange = (pagination, filters) => {
         let status;
-        let jobType;
         if (filters.status) {
             status = filters.status
         }
-        if (filters.type) {
-            jobType = filters.type[0]
-        }
         this.setState({ 
             current: pagination.current, 
-            taskStatus: status,
-            jobType,
+            jobStatuses: status,
         }, () => {
             this.search()
         })
     }
 
     changeTaskName = (e) => {
-        this.setState({ jobName: e.target.value })
+        this.setState({ fillJobName: e.target.value })
     }
 
     changePerson = (target) => {
-        this.setState({ person: target, current: 1 }, () => {
+        this.setState({ dutyUserId: target, current: 1 }, () => {
             this.search()
         })
     }
@@ -303,49 +258,8 @@ class OfflineTaskList extends Component {
         this.setState({ selectedRowKeys });
     }
 
-    onJobTypeChange = (value) => {
-        this.setState({ jobType: value, current: 1 }, () => {
-            this.search()
-        });
-    }
-
     changeBussinessDate = (value) => {
-        const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
-        const beforeDay = moment().subtract(2, 'days').format('YYYY-MM-DD')
-        const selected = value ? value.format('YYYY-MM-DD') : ''
-        let choose = '';
-        if (selected === yesterday) {
-            choose = '0'
-        } else if (selected === beforeDay) {
-            choose = '1'
-        }
-        this.setState({ choose: choose, bussinessDate: value, current: 1 }, () => {
-            this.search()
-        })
-    }
-
-    onTimeChange = (e) => {
-        const val = e.target.value
-        if (val === '0') {
-            this.setState({ bussinessDate: moment().subtract(1, 'days') })
-        } else if (val === '1') {
-            this.setState({ bussinessDate: moment().subtract(2, 'days') })
-        } else {
-            this.setState({ bussinessDate: '' })
-        }
-        this.setState({ choose: val, current: 1 }, () => {
-            this.search()
-        });
-    }
-
-    onExecTimeChange = (dates) => {
-        this.setState({ execTime: dates, current: 1 }, () => {
-            this.search()
-        })
-    }
-
-    onExecSpendTime = (execSpendTime) => {
-        this.setState({ execSpendTime, current: 1 }, () => {
+        this.setState({ bizDay: value, current: 1 }, () => {
             this.search()
         })
     }
@@ -363,7 +277,7 @@ class OfflineTaskList extends Component {
 
     onCheckAllChange = (e) => {
         if (e.target.checked) {
-            const selectedRowKeys = this.state.tasks.data.map(item => item.id)
+            const selectedRowKeys = this.state.table.data.map(item => item.id)
             this.setState({
                 selectedRowKeys
             })
@@ -376,15 +290,18 @@ class OfflineTaskList extends Component {
 
     initTaskColumns = () => {
         return [{
-            title: '任务名称',
-            dataIndex: 'id',
-            key: 'id',
+            title: '业务日期',
+            dataIndex: 'bizDay',
             width: 100,
+            key: 'bizDay'
+        }, {
+            title: '实例名称',
+            dataIndex: 'jobName',
+            key: 'jobName',
+            width: 120,
             render: (text, record) => {
                 return (
-                    <a onClick={() => { this.showTask(record) }}>{
-                        record.batchTask && record.batchTask.name
-                    }</a>
+                    <a onClick={() => { this.showTask(record) }}>{ text }</a>
                 )
             },
         }, {
@@ -406,36 +323,22 @@ class OfflineTaskList extends Component {
                 return  <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
         }, {
-            title: '调度周期',
-            dataIndex: 'taskPeriodId',
-            key: 'taskPeriodId',
-            render: (text) => {
-                return <TaskTimeType value={text} />
-            },
-        }, {
-            title: '业务日期',
-            dataIndex: 'businessDate',
-            key: 'businessDate'
-        }, {
             title: '定时时间',
             dataIndex: 'cycTime',
-            key: 'cycTime'
+            key: 'cycTime',
         }, {
             title: '开始时间',
-            dataIndex: 'execStartDate',
-            key: 'execStartDate',
+            dataIndex: 'exeStartTime',
+            key: 'exeStartTime',
         }, {
-            title: '运行时长',
-            dataIndex: 'execTime',
-            key: 'execTime',
+            title: '运行时长（分钟）',
+            dataIndex: 'exeTime',
+            key: 'exeTime',
         }, {
             title: '责任人',
+            width: 80,
             dataIndex: 'createUser',
             key: 'createUser',
-            render: (text, record) => {
-                return record.batchTask && record.batchTask.createUser 
-                && record.batchTask.createUser.userName
-            }
         }]
     }
 
@@ -455,7 +358,6 @@ class OfflineTaskList extends Component {
                     </Checkbox>
                 </td>
                 <td>
-                    <Button type="primary" size="small" onClick={this.killAllJobs}>杀死全部任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchReloadJobs}>批量重跑</Button>&nbsp;
                 </td>
@@ -465,22 +367,24 @@ class OfflineTaskList extends Component {
 
     render() {
         const { 
-            tasks, selectedRowKeys, jobName,
-            bussinessDate, current, statistics,
+            table, selectedRowKeys, fillJobName,
+            bizDay, current, statistics,
             selectedTask, visibleSlidePane,
         } = this.state
 
-        const { projectUsers, project } = this.props
+        const { 
+            projectUsers, project, goToTaskDev,
+         } = this.props
         
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={item.userId} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
 
         const pagination = {
-            total: tasks.totalCount,
+            total: table.totalCount,
             defaultPageSize: 20,
             current,
         };
@@ -533,59 +437,63 @@ class OfflineTaskList extends Component {
                         bordered={false}
                         loading={false}
                         title={
-                            <Form 
-                                layout="inline"
-                                style={{marginTop: '10px'}}
-                                className="m-form-inline" 
-                            >
-                                <FormItem label="">
-                                    <Search
-                                        placeholder="按任务名称搜索"
-                                        style={{ width: 150 }}
-                                        size="default"
-                                        value={jobName}
-                                        onChange={this.changeTaskName}
-                                        onSearch={this.search}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="责任人"
+                            <div>
+                                <span
+                                    style={{
+                                        display: 'inline-block',
+                                        paddingLeft: '8px',
+                                        float: 'left'
+                                    }}
                                 >
-                                    <Select
-                                        allowClear
-                                        showSearch
-                                        style={{ width: 150 }}
-                                        placeholder="责任人"
-                                        optionFilterProp="name"
-                                        onChange={this.changePerson}
+                                    <GoBack type="left-circle-o" style={{
+                                        fontSize: '18px',
+                                        color: '9EABB2'
+                                    }}/> 
+                                    <span style={{
+                                        fontSize: '14px',
+                                        color: '#333333',
+                                        marginLeft: '5px'
+                                    }}>
+                                        { fillJobName }
+                                    </span>
+                                </span>
+                                <Form 
+                                    layout="inline"
+                                    style={{
+                                        marginTop: '10px',
+                                        marginLeft: '20px',
+                                        display: 'inline-block',
+                                    }}
+                                    className="m-form-inline" 
+                                >
+                                    <FormItem
+                                        label="责任人"
                                     >
-                                        {userItems}
-                                    </Select>
-                                </FormItem>
-                                <FormItem
-                                    label="业务日期"
-                                >
-                                    <DatePicker
-                                        size="default"
-                                        style={{ width: 150 }}
-                                        format="YYYY-MM-DD"
-                                        placeholder="业务日期"
-                                        value={bussinessDate}
-                                        onChange={this.changeBussinessDate}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="执行时间"
-                                >
-                                    <RangePicker
-                                        style={{ width: 180 }}
-                                        size="default"
-                                        format="YYYY-MM-DD"
-                                        disabledDate={this.disabledDate}
-                                        onChange={this.onExecTimeChange}
-                                    />
-                                </FormItem>
-                            </Form>
+                                        <Select
+                                            allowClear
+                                            showSearch
+                                            style={{ width: 120 }}
+                                            placeholder="责任人"
+                                            optionFilterProp="name"
+                                            onChange={this.changePerson}
+                                        >
+                                            {userItems}
+                                        </Select>
+                                    </FormItem>
+                                    <FormItem
+                                        label="业务日期"
+                                    >
+                                        <DatePicker
+                                            size="default"
+                                            style={{ width: 120 }}
+                                            format="YYYY-MM-DD"
+                                            placeholder="业务日期"
+                                            value={bizDay}
+                                            onChange={this.changeBussinessDate}
+                                        />
+                                    </FormItem>
+                                </Form>
+                            </div>
                         }
                         extra={
                             <Icon type="reload" onClick={this.search} 
@@ -605,20 +513,19 @@ class OfflineTaskList extends Component {
                             pagination={pagination}
                             loading={this.state.loading}
                             columns={this.initTaskColumns()}
-                            dataSource={tasks.data || []}
+                            dataSource={(table.data && table.data.recordList) || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
-                            scroll={{ y: '65%' }}
                         />
                         <SlidePane 
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '80%', height: '600px' }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}
-                                goToTaskDev={this.props.goToTaskDev} 
+                                goToTaskDev={goToTaskDev} 
                                 taskJob={selectedTask} 
                                 project={project}
                             />
@@ -642,4 +549,4 @@ export default connect((state) => {
             actions.openTaskInDev(id)
         }
     }
-})(OfflineTaskList)
+})(PatchDataDetail)

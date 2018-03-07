@@ -6,6 +6,9 @@ import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 import { setTaskFlow } from '../../store/modules/operation/taskflow'
 
+
+import { MenuRight } from 'main/components/nav'
+
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
 /* eslint-disable */
@@ -105,12 +108,13 @@ class Header extends Component {
     }
 
     render() {
-        const { user, project, projects } = this.props
+        const { user, project, projects, settingMenus, apps } = this.props
         const { current, devPath } = this.state
         const menuItems = this.getProjectItems()
         const userMenu = this.initUserDropMenu()
         const display = current !== 'overview' ? 'inline-block' : 'none'
         const pid = project && project.id ? project.id : ''
+
         return (
             <div className="header">
                 <div className="logo left txt-left">
@@ -141,7 +145,7 @@ class Header extends Component {
                           className="my-menu-item"
                           key="database"
                           style={{ display }}>
-                            <Link to={'/database'}>数据集成</Link>
+                            <Link to={`/database`}>数据集成</Link>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
@@ -153,13 +157,13 @@ class Header extends Component {
                           className="my-menu-item"
                           key="operation"
                           style={{ display }}>
-                            <Link to="/operation">运维中心</Link>
+                            <Link to={`/operation`}>运维中心</Link>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
                           key="data-manage"
                           style={{ display }}>
-                            <Link to="/data-manage/table">数据管理</Link>
+                            <Link to={`/data-manage/table`}>数据管理</Link>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
@@ -170,14 +174,20 @@ class Header extends Component {
                         </Menu.Item>
                     </Menu>
                 </div>
-                <div className="user-info right">
+                
+                <MenuRight 
+                    user={ user }
+                    apps={ apps }
+                    onClick={ this.clickUserMenu }
+                /> 
+                {/* <div className="user-info right">
                     <Dropdown overlay={userMenu} trigger={['click']}>
                         <a className="ant-dropdown-link">
                             {user.userName || '未登录'}
                             <Icon type="down" />
                         </a>
                     </Dropdown>
-                </div>
+                </div> */}
             </div>
         )
     }

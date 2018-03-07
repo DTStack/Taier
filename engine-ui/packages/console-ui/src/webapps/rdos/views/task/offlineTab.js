@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { Collapse, Icon, Tooltip, Menu } from 'antd';
+import { 
+    Collapse, Icon, Tooltip, 
+    Tabs, Dropdown, Menu 
+} from 'antd';
 import { isEmpty } from 'lodash';
 
 import FolderTree from './offline/folderTree';
@@ -28,8 +31,9 @@ import { MENU_TYPE } from '../../comm/const';
 import MyIcon from '../../components/icon';
 
 const Panel = Collapse.Panel;
-const SubMenu = Menu.SubMenu;
-const MenuItemGroup = Menu.ItemGroup;
+const TabPane = Tabs.TabPane;
+
+// const MenuItemGroup = Menu.ItemGroup;
 
 class OfflineTabPane extends Component {
 
@@ -116,7 +120,7 @@ class OfflineTabPane extends Component {
         });
     }
 
-    renderSubMenu = () => {
+    onMenuClick = ({ key }) => {
         const {
             toggleCreateTask,
             toggleUpload,
@@ -133,6 +137,61 @@ class OfflineTabPane extends Component {
             showSeachTask,
         } = this.props;
 
+        switch (key) {
+            case 'task:newFolder': {
+                toggleCreateFolder(MENU_TYPE.TASK_DEV)
+                return;
+            }
+            case 'task:newTask': {
+                toggleCreateTask()
+                return;
+            }
+            case 'task:search': {
+                showSeachTask()
+                return;
+            }
+            case 'script:newScript': {
+                toggleCreateScript()
+                return;
+            }
+            case 'script:newFolder': {
+                toggleCreateFolder(MENU_TYPE.SCRIPT)
+                return;
+            }
+            case 'resource:newFolder': {
+                toggleCreateFolder(MENU_TYPE.RESOURCE)
+                return;
+            }
+            case 'resource:upload': {
+                toggleUpload()
+                return;
+            }
+            case 'resource:replace': {
+                toggleCoverUpload()
+                return;
+            }
+            case 'function:newFolder': {
+                toggleCreateFolder(MENU_TYPE.COSTOMFUC)
+                return;
+            }
+            case 'function:newFunc': {
+                toggleCreateFn()
+                return;
+            }
+        }
+    }
+
+    renderTabPanes = () => {
+
+        const {
+            taskTreeData,
+            resourceTreeData,
+            functionTreeData,
+            sysFunctionTreeData,
+            scriptTreeData,
+            tableTreeData,
+        } = this.props;
+
         const { subMenus } = this.state
 
         const menus = []
@@ -144,28 +203,21 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="新建文件夹">
-                                    <Icon
-                                        style={{ marginRight: '8px' }}
-                                        className="right"
-                                        type="folder-add"
-                                        onClick={toggleCreateFolder.bind(this, MENU_TYPE.TASK_DEV)}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="新建任务">
-                                    <span className="anticon right">
-                                        <MyIcon
-                                            onClick={toggleCreateTask}
-                                            type="create-task" />
-                                    </span>
-                                </Tooltip>
-                                <Tooltip title={`搜索任务 Ctrl + P`}>
-                                    <Icon
-                                        style={{ marginRight: '0px' }}
-                                        className="right"
-                                        onClick={showSeachTask}
-                                        type="search" />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="task:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="task:newTask">
+                                            新建任务
+                                        </Menu.Item>
+                                        <Menu.Item key="task:search">
+                                            搜索任务（Ctrl + P）
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <div>
                                 {
@@ -182,16 +234,18 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.SCRIPT: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="新建脚本">
-                                    <Icon onClick={toggleCreateScript} type="code-o" />
-                                </Tooltip>
-                                <Tooltip title="新建文件夹">
-                                    <Icon
-                                        className="right"
-                                        type="folder-add"
-                                        onClick={toggleCreateFolder.bind(this, MENU_TYPE.SCRIPT)}
-                                    />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="script:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="script:newScript">
+                                            新建脚本
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <div>
                                 { 
@@ -208,27 +262,21 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.RESOURCE: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="新建文件夹">
-                                    <Icon
-                                        style={{ marginRight: '8px' }}
-                                        className="right"
-                                        type="folder-add"
-                                        onClick={toggleCreateFolder.bind(this, MENU_TYPE.RESOURCE)} />
-                                </Tooltip>
-                                <Tooltip title="上传资源">
-                                    <span className="anticon right">
-                                        <MyIcon
-                                            onClick={toggleUpload}
-                                            type="upload-res" />
-                                    </span>
-                                </Tooltip>
-                                <Tooltip title="替换资源">
-                                    <Icon
-                                        onClick={toggleCoverUpload}
-                                        style={{ marginRight: '0px' }}
-                                        className="right"
-                                        type="copy" />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="resource:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="resource:upload">
+                                            上传资源
+                                        </Menu.Item>
+                                        <Menu.Item key="resource:replace">
+                                            替换资源
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <div>
                                 {
@@ -245,12 +293,18 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.FUNCTION: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="新建函数">
-                                    <Icon type="api" onClick={toggleCreateFn} />
-                                </Tooltip>
-                                <Tooltip title="新建文件夹">
-                                    <Icon type="folder-add" onClick={toggleCreateFolder.bind(this, MENU_TYPE.COSTOMFUC)} />
-                                </Tooltip>
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="function:newFolder">
+                                            新建文件夹
+                                        </Menu.Item>
+                                        <Menu.Item key="function:newFunc">
+                                            新建函数
+                                        </Menu.Item>
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
                             </header>
                             <div>
                                 {
@@ -280,9 +334,9 @@ class OfflineTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <SubMenu title={menuItem.name} key={menuItem.id}> 
+                    <TabPane tab={menuItem.name} key={menuItem.id}> 
                         {menuContent} 
-                    </SubMenu>
+                    </TabPane>
                 )
             }
         }
@@ -297,15 +351,15 @@ class OfflineTabPane extends Component {
         const defaultOpen = [`${taskTreeData.id}`];
 
         return (
-            <div className="g-taskOfflineSidebar task-sidebar">
-                <Menu
-                    key={ `${taskTreeData.id}` }
-                    defaultSelectedKeys={ defaultOpen }
-                    defaultOpenKeys={ defaultOpen }
-                    mode="inline"
+            <div className="g-taskOfflineSidebar task-sidebar m-tabs">
+                <Tabs
+                    tabPosition="left"
+                    animated={false}
+                    className="task-tab-menu"
+                    style={{ height: '100%' }}
                 >
-                    {this.renderSubMenu()}
-                </Menu>
+                    { this.renderTabPanes() }
+                </Tabs>
             </div>
         )
     }

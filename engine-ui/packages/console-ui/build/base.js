@@ -42,16 +42,16 @@ module.exports = function() {
                     loader: ['babel-loader']
                 }, {
                     test: /\.css$/,
-                    use: ExtractTextPlugin.extract({
+                    use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
                         fallback: "style-loader",
                         use: ['css-loader?sourceMap']
-                    })
+                    })),
                 }, {
                     test: /\.scss$/,
-                    use: ExtractTextPlugin.extract({
+                    use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
                         fallback: "style-loader",
                         use: ["css-loader?sourceMap", "sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true"]
-                    })
+                    }))
                 }, {
                     test: /\.less$/,
                     use: ExtractTextPlugin.extract({

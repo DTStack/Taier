@@ -21,8 +21,8 @@ export default class Sidebar extends Component {
 
     updateSelected = () => {
         const routes = this.props.router.routes
-        if (routes.length > 2) {
-            let current = routes[2].path;
+        if (routes.length > 3) {
+            let current = routes[3].path;
 
             if(current) {
                 current = current.split('/')[0];

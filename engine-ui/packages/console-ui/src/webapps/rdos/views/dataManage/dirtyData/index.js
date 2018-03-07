@@ -22,9 +22,9 @@ require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const Search = Input.Search
-const FormItem = Form.Item
-const Option = Select.Option
+const Search = Input.Search;
+const FormItem = Form.Item;
+const Option = Select.Option;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
@@ -166,6 +166,14 @@ class DirtyData extends Component {
     renderProduceTrend = (chartData) => {
         let myChart = echarts.init(document.getElementById('ProduceTrend'));
         const option = cloneDeep(lineAreaChartOptions);
+       
+        option.grid = {
+            left: 40,
+            right: 20,
+            bottom: 20,
+            top: 30,
+        }
+
         option.title.text = ''
         const formatDate = function(obj) {
             return obj ? utils.formatDate(obj.value) : null;
