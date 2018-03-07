@@ -145,12 +145,12 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.submit.deployMode", deployMode);
 
-        //----设定spark 执行的executor数量(默认为2)
-        sparkConf.set("spark.executor.instances", "2");
+        //----设定spark 执行的executor数量(默认为1)
+        sparkConf.set("spark.executor.instances", SparkYarnResourceInfo.DEFAULT_INSTANCES + "");
         //----设定每个executor 的cpu(默认为1)
-        sparkConf.set("spark.executor.cores", "1");
+        sparkConf.set("spark.executor.cores", SparkYarnResourceInfo.DEFAULT_CORES + "");
         //----设定每个executor 的mem(默认为512m)
-        sparkConf.set("spark.executor.memory", "512m");
+        sparkConf.set("spark.executor.memory", SparkYarnResourceInfo.DEFAULT_MEM + "m");
 
         return sparkConf;
     }
