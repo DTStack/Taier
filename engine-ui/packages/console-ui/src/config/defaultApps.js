@@ -14,7 +14,7 @@ module.exports = [
         id: 'rdos',
         name: '开发套件',
         filename: 'index.html',
-        link: 'rdos.html#/',
+        link: '#/',
         target: '_blank',
         enable: true,
         apiBase: '/rdos',
