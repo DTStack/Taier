@@ -148,24 +148,6 @@ class OfflineTaskList extends Component {
         })
     }
 
-    killAllJobs = () => {
-        const ctx = this
-        confirm({
-            title: '确认提示',
-            content: '确定要杀死所有的任务吗？',
-            onOk() {
-                Api.batchStopJob({ isAll: 1 }).then((res) => {
-                    if (res.code === 1) {
-                        message.success('已经成功启动杀死所有任务！')
-                        ctx.search()
-                    } else {
-                        message.error('启动杀死任务失败！')
-                    }
-                })
-            },
-        });
-    }
-
     batchKillJobs = () => { // 批量重跑
         const ctx = this
         const selected = this.state.selectedRowKeys
@@ -455,7 +437,6 @@ class OfflineTaskList extends Component {
                     </Checkbox>
                 </td>
                 <td>
-                    <Button type="primary" size="small" onClick={this.killAllJobs}>杀死全部任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchReloadJobs}>批量重跑</Button>&nbsp;
                 </td>
