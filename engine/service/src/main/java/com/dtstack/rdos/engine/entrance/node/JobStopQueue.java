@@ -80,14 +80,14 @@ public class JobStopQueue {
                     //在master等待队列中查找
                     if(masterNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), jobId)){
                         LOG.info("stop job:{} success." + paramAction.getTaskId());
-                        return;
+                        continue;
                     }
 
                     //cache记录被删除说明已经在引擎上执行了,往对应的引擎发送停止任务指令
                     if(engineJobCacheDao.getJobById(jobId) == null){
                         jobStopAction.stopJob(paramAction);
                         LOG.info("stop job:{} success." + paramAction.getTaskId());
-                        return;
+                        continue;
                     }
 
                     //在zk上查找任务所在的worker-address
@@ -96,7 +96,7 @@ public class JobStopQueue {
                     String addr = zkDistributed.getJobLocationAddr(zkTaskId);
                     if(addr == null){
                         LOG.info("can't get info from engine zk for jobId:" + jobId);
-                        return;
+                        continue;
                     }
 
                     paramAction.setRequestStart(RequestStart.NODE.getStart());
