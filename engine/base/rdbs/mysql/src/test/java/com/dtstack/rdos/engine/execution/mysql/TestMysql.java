@@ -19,8 +19,8 @@ public class TestMysql {
         sb.append("\tinsert into my_time values (now());\n");
         sb.append("end\n");
         String createProc = sb.toString();
-        String callProc = "call hyf_proc();";
-        String deleteProc = "DROP PROCEDURE IF EXISTS hyf_proc;";
+        String callProc = "call hyf_proc()";
+        String deleteProc = "DROP PROCEDURE IF EXISTS hyf_proc";
 
         Connection conn = DriverManager.getConnection(url, user, pass);
         CallableStatement stmt = conn.prepareCall(deleteProc);

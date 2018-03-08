@@ -420,6 +420,9 @@ public class FlinkClient extends AbsClient {
         }catch (ProgramInvocationException e){
             logger.error("", e);
             return JobResult.createErrorResult(e);
+        } catch (Exception e){
+            logger.error("", e);
+            return JobResult.createErrorResult(e);
         }finally {
             //FIXME 作用?
             packagedProgram.deleteExtractedLibraries();

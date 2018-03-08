@@ -36,13 +36,13 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
 
     private final static String EXECUTOR_MEM_OVERHEAD_KEY = "yarn.executor.memoryOverhead";
 
-    private final static int DEFAULT_CORES = 1;
+    public final static int DEFAULT_CORES = 1;
 
-    private final static int DEFAULT_INSTANCES = 1;
+    public final static int DEFAULT_INSTANCES = 1;
 
-    private final static int DEFAULT_MEM = 512;
+    public final static int DEFAULT_MEM = 512;
 
-    private final static int DEFAULT_MEM_OVERHEAD = 384;
+    public final static int DEFAULT_MEM_OVERHEAD = 384;
 
 
     @Override

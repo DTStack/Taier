@@ -13,7 +13,7 @@ public class MysqlConnFactory extends ConnFactory {
 
     @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("create procedure %s()\n", procName);
+        return String.format("create procedure %s() \n", procName);
     }
 
 }

@@ -7,7 +7,7 @@ public class SqlserverConnFactory extends ConnFactory {
 
     public SqlserverConnFactory() {
         driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-        testSql = "select 1111 from dual";
+        testSql = "select 1111";
     }
 
     @Override
@@ -17,6 +17,6 @@ public class SqlserverConnFactory extends ConnFactory {
 
     @Override
     public String getCallProc(String procName) {
-        return String.format("execute %s;", procName);
+        return String.format("execute %s", procName);
     }
 }
