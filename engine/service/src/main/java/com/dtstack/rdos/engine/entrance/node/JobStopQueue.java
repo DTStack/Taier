@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.entrance.node;
 
-import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
@@ -32,7 +32,7 @@ public class JobStopQueue {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private RdosEngineJobCacheDao engineJobCacheDao = new RdosEngineJobCacheDao();
+    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private JobStopAction jobStopAction = new JobStopAction();
 

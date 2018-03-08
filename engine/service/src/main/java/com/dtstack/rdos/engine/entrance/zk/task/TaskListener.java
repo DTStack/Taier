@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.entrance.zk.task;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
@@ -33,7 +33,7 @@ public class TaskListener implements Runnable{
 	
 	private RdosEngineBatchJobDAO rdosbatchJobDAO = new RdosEngineBatchJobDAO();
 
-	private RdosEngineJobCacheDao rdosEngineJobCacheDao = new RdosEngineJobCacheDao();
+	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
 
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 

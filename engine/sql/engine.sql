@@ -94,3 +94,14 @@ CREATE TABLE `rdos_plugin_job_info` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_job_id` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `rdos_engine_unique_sign`;
+CREATE TABLE `rdos_engine_unique_sign` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `unique_sign` varchar(255) NOT NULL COMMENT '唯一标识',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique_sign` (`unique_sign`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

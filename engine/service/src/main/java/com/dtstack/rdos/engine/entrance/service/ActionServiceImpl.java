@@ -5,10 +5,8 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
-import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosPluginInfoDao;
+import com.dtstack.rdos.engine.db.dao.*;
+import com.dtstack.rdos.engine.db.dataobject.GenerateUniqueSign;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
@@ -34,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * 接收http请求
@@ -51,13 +51,19 @@ public class ActionServiceImpl {
     
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
     
-    private RdosEngineJobCacheDao engineJobCacheDao = new RdosEngineJobCacheDao();
+    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
-    private RdosPluginInfoDao pluginInfoDao = new RdosPluginInfoDao();
+    private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
+
+    private GenerateUniqueSignDAO generateUniqueSignDAO = new GenerateUniqueSignDAO();
 
     private JobStopAction stopAction = new JobStopAction();
 
     private MasterNode masterNode = MasterNode.getInstance();
+
+    private static int length = 8;
+
+    private Random random = new Random();
 
     /**
      * 接受来自客户端的请求, 目的是在master节点上组织成一个优先级队列
@@ -437,5 +443,34 @@ public class ActionServiceImpl {
             }
         }
         return status;
+    }
+
+    public String generateUniqueSign(){
+
+        String uniqueSign;
+        int index = 100;
+        while(true){
+            try{
+                if(index > 100){
+                    Thread.sleep(100);
+                }
+                index = index+1;
+                uniqueSign = UUID.randomUUID().toString().replace("-","");
+                int len = uniqueSign.length();
+                StringBuffer sb =new StringBuffer();
+                for(int i=0;i<length;i++){
+                    int a = random.nextInt(len) + 1;
+                    sb.append(uniqueSign.substring(a-1, a));
+                }
+                uniqueSign =  sb.toString();
+                GenerateUniqueSign generateUniqueSign = new GenerateUniqueSign();
+                generateUniqueSign.setUniqueSign(sb.toString());
+                //新增操作
+                generateUniqueSignDAO.generate(generateUniqueSign);
+                break;
+            }catch(Exception e){
+            }
+        }
+        return uniqueSign;
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public class RdosEngineJobCacheDao {
+public class RdosEngineJobCacheDAO {
 
     public void insertJob(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
 

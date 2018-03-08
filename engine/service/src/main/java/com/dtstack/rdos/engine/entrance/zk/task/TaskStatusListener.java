@@ -4,9 +4,9 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosPluginInfoDao;
+import com.dtstack.rdos.engine.db.dao.RdosPluginInfoDAO;
 import com.dtstack.rdos.engine.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
@@ -69,11 +69,11 @@ public class TaskStatusListener implements Runnable{
 	
 	private RdosEngineBatchJobDAO rdosBatchJobDAO = new RdosEngineBatchJobDAO();
 
-	private RdosEngineJobCacheDao rdosEngineJobCacheDao = new RdosEngineJobCacheDao();
+	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
 
 	private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
-	private RdosPluginInfoDao pluginInfoDao = new RdosPluginInfoDao();
+	private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
 	
 	@Override

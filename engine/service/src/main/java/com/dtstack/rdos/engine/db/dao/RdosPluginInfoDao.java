@@ -17,7 +17,7 @@ import java.sql.Timestamp;
  * @author xuchao
  */
 
-public class RdosPluginInfoDao {
+public class RdosPluginInfoDAO {
 
     public Long replaceInto(String pluginInfo, int type){
 

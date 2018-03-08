@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDao;
+import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
@@ -56,7 +56,7 @@ public class MasterNode {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private RdosEngineJobCacheDao engineJobCacheDao = new RdosEngineJobCacheDao();
+    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private RdosEngineBatchJobDAO rdosEngineBatchJobDao = new RdosEngineBatchJobDAO();
 
