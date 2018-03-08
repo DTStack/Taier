@@ -414,4 +414,28 @@ public class ActionServiceImpl {
         }
 
     }
+
+    /**
+     * 根据jobid 和 计算类型，查询job的状态
+     */
+    public Integer status(String jobId, Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId)||computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        Integer status = null;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            if (streamJob != null) {
+                status = streamJob.getStatus().intValue();
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if (batchJob != null) {
+                status = batchJob.getStatus().intValue();
+            }
+        }
+        return status;
+    }
 }
