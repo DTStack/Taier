@@ -2,22 +2,28 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import moment from 'moment';
 import { dataCheckActions } from '../../../actions/dataCheck';
-import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown } from 'antd';
+import * as UserAction from '../../../actions/user';
+import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select } from 'antd';
 import '../../../styles/views/dataCheck.scss';
 
 const Search = Input.Search;
 const InputGroup = Input.Group;
+const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { dataCheck } = state;
-    return { dataCheck }
+    const { dataCheck, user } = state;
+    return { dataCheck,user }
 };
 
 const mapDispatchToProps = dispatch => ({
     getLists(params) {
         dispatch(dataCheckActions.getLists(params));
-    }
+    },
+    getUserList(params) {
+        dispatch(UserAction.getUserList(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -27,14 +33,20 @@ export default class DataCheck extends Component {
         params: {
             currentPage: 1,
             pageSize: 20,
-            // tableName: '',
-            // lastModifyUserId: undefined,
-            // executeTime: ''
+            tableName: undefined,
+            lastModifyUserId: undefined,
+            executeTime: undefined
         }
     }
 
     componentDidMount() {
         this.props.getLists(this.state.params);
+        this.props.getUserList();
+        console.log(moment())
+    }
+
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps,this.state,this.props)
     }
 
     initColumns = () => {
@@ -42,28 +54,28 @@ export default class DataCheck extends Component {
             title: '左侧表',
             dataIndex: 'originTableName',
             key: 'originTableName',
-            width: '15%'
+            width: '12%'
         }, {
             title: '分区',
             dataIndex: 'originPartitionColumn',
             key: 'originPartitionColumn',
-            width: '12%',
+            width: '10%',
             render: (text, record) => {
-                return `${record.originPartitionColumn} -- ${record.originPartitionValue}`
+                return text ? `${text} -- ${record.originPartitionValue}` : '--';
             }
         }, 
         {
             title: '右侧表',
             dataIndex: 'targetTableName',
             key: 'targetTableName',
-            width: '15%'
+            width: '12%'
         }, {
             title: '分区',
             dataIndex: 'targetPartitionColumn',
             key: 'targetPartitionColumn',
-            width: '12%',
+            width: '10%',
             render: (text, record) => {
-                return `${record.targetPartitionColumn} -- ${record.targetPartitionValue}`
+                return text ? `${text} -- ${record.targetPartitionValue}` : '--';
             }
         }, {
             title: '校验结果',
@@ -90,26 +102,35 @@ export default class DataCheck extends Component {
             dataIndex: 'diverseNum',
             key: 'diverseNum',
             width: '8%',
+            render: (text, record) => {
+                return text ? text : '--';
+            },
             sorter: true
         }, {
             title: '差异比例',
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
             width: '8%',
+            render: (text, record) => {
+                 return text ? text : '--';
+            },
             sorter: true
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
             key: 'modifyUserName',
-            width: '10%'
+            width: '11%'
         }, {
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
-            width: '10%'
+            render: (text, record) => {
+                return text ? text : '--';
+            },
+            width: '11%'
         }, {
             title: '操作',
-            width: '12%',
+            width: '10%',
             render: (text, record) => {
                 let menu = (
                     <Menu>
@@ -121,7 +142,7 @@ export default class DataCheck extends Component {
                             </Menu.Item>
                         }
                         <Menu.Item>
-                            <a>编辑</a>
+                            <Link to={`dq/dataCheck/edit/${record.id}`}>编辑</Link>
                         </Menu.Item>
                         <Menu.Item>
                             <a type="danger">删除</a>
@@ -139,17 +160,58 @@ export default class DataCheck extends Component {
 
     handleInputChange = (e) => {
         console.log(e.target.value)
+        let tableName = e.target.value ? e.target.value : undefined;
+        let params = {...this.state.params, tableName: tableName};
+        this.setState({ params });
     }
 
+    // 表格换页/排序
     handleTableChange = (page, filter, sorter) => {
         console.log(page, filter, sorter)
+        let params = {...this.state.params, 
+            currentPage: page.current,
+            // sortBy: sorter.columnKey ? sorter.columnKey : '',
+            // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
+        }
+        // this.props.getFileList(params);
+        this.setState({ params });
+        this.props.getLists(params);
+    }
+
+    renderUserList = (data) => {
+        return data.map((item) => {
+            return (
+                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+            )
+        })
+    }
+
+    onUserChange = (value) => {
+        let params = {...this.state.params, lastModifyUserId: value};
+        this.setState({ params });
+        this.props.getLists(params);
+    }
+
+    onDateChange = (date, dateString) => {
+        let executeTime = date ? date.valueOf() : undefined;
+        let params = {...this.state.params, executeTime: executeTime};
+        
+        this.setState({ params });
+        this.props.getLists(params);
+    }
+
+    handleSearch = () => {
+        this.props.getLists(this.state.params);
     }
 
     render() {
         const { lists, loading } = this.props.dataCheck;
+        const { userList } = this.props.user;
+        const { params } = this.state;
+
         const pagination = {
-            current: this.state.params.currentPage,
-            pageSize: 20,
+            current: params.currentPage,
+            pageSize: params.pageSize,
             total: lists.totalCount,
         };
 
@@ -168,7 +230,11 @@ export default class DataCheck extends Component {
 
                         <div className="m-l-8">
                             最近修改人：
-                            <Input style={{ width: 100 }}  />
+                            <Select allowClear onChange={this.onUserChange} style={{ width: 200 }}>
+                                {
+                                    this.renderUserList(userList)
+                                }
+                            </Select>
                         </div>
 
                         <div className="m-l-8">
@@ -176,7 +242,7 @@ export default class DataCheck extends Component {
                             <DatePicker
                                 format="YYYY-MM-DD"
                                 placeholder="选择日期"
-                                onChange={this.handleDateChange}
+                                onChange={this.onDateChange}
                                 onOk={this.onCheckDate}
                             />
                         </div>
