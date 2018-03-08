@@ -12,7 +12,7 @@
 	
    <insert id="insert" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign">
 	   insert into rdos_engine_unique_sign(gmt_create,gmt_modified,unique_sign)
-	   values(now(),now(),now(),#{uniqueSign})
+	   values(now(),now(),#{uniqueSign})
 	   <selectKey resultType="long" keyProperty="id" order="AFTER">
 	      SELECT LAST_INSERT_ID() AS ID
 	   </selectKey>
