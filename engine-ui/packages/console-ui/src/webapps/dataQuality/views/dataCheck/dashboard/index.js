@@ -118,8 +118,8 @@ export default class DataCheck extends Component {
             width: '11%'
         }, {
             title: '执行时间',
-            dataIndex: 'executeTime',
-            key: 'executeTime',
+            dataIndex: 'executeTimeFormat',
+            key: 'executeTimeFormat',
             render: (text, record) => {
                 return text ? text : '--';
             },
