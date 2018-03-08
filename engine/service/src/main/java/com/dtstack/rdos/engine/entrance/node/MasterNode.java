@@ -281,6 +281,8 @@ public class MasterNode {
             try{
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
+                //更新任务状态为submitted
+                rdosEngineBatchJobDao.updateJobStatus(jobCache.getJobId(), RdosTaskStatus.SUBMITTED.getStatus());
                 groupQueue.add(jobClient);
             }catch (Exception e){
                 //数据转换异常--打日志
