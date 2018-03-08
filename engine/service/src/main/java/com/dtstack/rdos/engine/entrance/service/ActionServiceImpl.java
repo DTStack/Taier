@@ -6,7 +6,7 @@ import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.*;
-import com.dtstack.rdos.engine.db.dataobject.GenerateUniqueSign;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
@@ -55,7 +55,7 @@ public class ActionServiceImpl {
 
     private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
-    private GenerateUniqueSignDAO generateUniqueSignDAO = new GenerateUniqueSignDAO();
+    private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
 
     private JobStopAction stopAction = new JobStopAction();
 
@@ -463,7 +463,7 @@ public class ActionServiceImpl {
                     sb.append(uniqueSign.substring(a-1, a));
                 }
                 uniqueSign =  sb.toString();
-                GenerateUniqueSign generateUniqueSign = new GenerateUniqueSign();
+                RdosEngineUniqueSign generateUniqueSign = new RdosEngineUniqueSign();
                 generateUniqueSign.setUniqueSign(sb.toString());
                 //新增操作
                 generateUniqueSignDAO.generate(generateUniqueSign);
