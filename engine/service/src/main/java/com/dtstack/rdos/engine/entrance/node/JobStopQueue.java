@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 
 /**
  * 任务停止消息
+ * 不需要区分是不是主节点才启动处理线程
  * Date: 2018/1/22
  * Company: www.dtstack.com
  * @author xuchao
