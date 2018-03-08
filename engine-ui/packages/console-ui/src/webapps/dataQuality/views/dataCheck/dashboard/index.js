@@ -42,13 +42,9 @@ export default class DataCheck extends Component {
     componentDidMount() {
         this.props.getLists(this.state.params);
         this.props.getUserList();
-        console.log(moment())
     }
 
-    componentWillReceiveProps(nextProps) {
-        console.log(nextProps,this.state,this.props)
-    }
-
+    // table设置
     initColumns = () => {
         return [{
             title: '左侧表',
@@ -158,15 +154,15 @@ export default class DataCheck extends Component {
         }]
     }
 
-    handleInputChange = (e) => {
-        console.log(e.target.value)
+    // 表名
+    onInputChange = (e) => {
         let tableName = e.target.value ? e.target.value : undefined;
         let params = {...this.state.params, tableName: tableName};
         this.setState({ params });
     }
 
     // 表格换页/排序
-    handleTableChange = (page, filter, sorter) => {
+    onTableChange = (page, filter, sorter) => {
         console.log(page, filter, sorter)
         let params = {...this.state.params, 
             currentPage: page.current,
@@ -178,6 +174,7 @@ export default class DataCheck extends Component {
         this.props.getLists(params);
     }
 
+    // user的select选项
     renderUserList = (data) => {
         return data.map((item) => {
             return (
@@ -186,12 +183,14 @@ export default class DataCheck extends Component {
         })
     }
 
+    // 监听userList的select
     onUserChange = (value) => {
         let params = {...this.state.params, lastModifyUserId: value};
         this.setState({ params });
         this.props.getLists(params);
     }
 
+    // 执行时间改变
     onDateChange = (date, dateString) => {
         let executeTime = date ? date.valueOf() : undefined;
         let params = {...this.state.params, executeTime: executeTime};
@@ -200,6 +199,7 @@ export default class DataCheck extends Component {
         this.props.getLists(params);
     }
 
+    // table搜索
     handleSearch = () => {
         this.props.getLists(this.state.params);
     }
@@ -223,7 +223,7 @@ export default class DataCheck extends Component {
                             <Input 
                                 placeholder="输入表名搜索" 
                                 style={{ width: 300 }} 
-                                onChange={this.handleInputChange} 
+                                onChange={this.onInputChange} 
                             />
                             <Button type="primary" onClick={this.handleSearch}>搜索</Button>
                         </InputGroup>
@@ -243,7 +243,6 @@ export default class DataCheck extends Component {
                                 format="YYYY-MM-DD"
                                 placeholder="选择日期"
                                 onChange={this.onDateChange}
-                                onOk={this.onCheckDate}
                             />
                         </div>
                     </div>
@@ -262,7 +261,7 @@ export default class DataCheck extends Component {
                     loading={loading}
                     pagination={pagination}
                     dataSource={lists.data}
-                    onChange={this.handleTableChange}
+                    onChange={this.onTableChange}
                 />
         	</div>
         )
