@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.entrance.service;
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Forbidden;
+import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.*;
@@ -424,7 +425,7 @@ public class ActionServiceImpl {
     /**
      * 根据jobid 和 计算类型，查询job的状态
      */
-    public Integer status(String jobId, Integer computeType) throws Exception {
+    public Integer status(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
 
         if (StringUtils.isBlank(jobId)||computeType==null){
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
