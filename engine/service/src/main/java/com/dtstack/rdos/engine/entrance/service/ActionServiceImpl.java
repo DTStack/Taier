@@ -310,7 +310,7 @@ public class ActionServiceImpl {
                 streamTaskDAO.insert(rdosEngineStreamJob);
                 result =  true;
             }else{
-                if(rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.SUBMITTING.getStatus()){
+                if(RdosTaskStatus.SUBMITTING.getStatus().equals(rdosEngineStreamJob.getStatus().intValue())){
                     return false;
                 }
 
