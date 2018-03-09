@@ -18,6 +18,7 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.ExecutionOperator;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink140.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink140.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink140.source.batch.BatchSourceFactory;
@@ -113,10 +114,6 @@ public class FlinkClient extends AbsClient {
 
     private static final String syncPluginDirName = "syncplugin";
 
-    private static final String YARN_CLUSTER_MODE = "yarn";
-
-    private static final String STANDALONE_CLUSTER_MODE = "standalone";
-
     /**同步数据插件jar名称*/
     private static final String syncJarFileName = "flinkx.jar";
 
@@ -156,7 +153,7 @@ public class FlinkClient extends AbsClient {
         FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         String clusterMode = flinkConfig.getClusterMode();
         if(StringUtils.isEmpty(clusterMode)) {
-            clusterMode = STANDALONE_CLUSTER_MODE;
+            clusterMode = Deploy.standalone.name();
         }
 
         tmpFileDirPath = flinkConfig.getJarTmpDir();
@@ -175,14 +172,14 @@ public class FlinkClient extends AbsClient {
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
-        if(clusterMode.equals(STANDALONE_CLUSTER_MODE)) {
+        if(clusterMode.equals( Deploy.standalone.name())) {
             if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
                 Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
                 initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),flinkConfig.getFlinkHighAvailabilityStorageDir());
             }else{
                 initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
             }
-        } else if (clusterMode.equals(YARN_CLUSTER_MODE)) {
+        } else if (clusterMode.equals(Deploy.yarn.name())) {
             initYarnClusterClient(flinkConfig);
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
