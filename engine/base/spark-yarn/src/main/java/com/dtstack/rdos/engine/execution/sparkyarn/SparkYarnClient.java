@@ -55,7 +55,7 @@ public class SparkYarnClient extends AbsClient {
 
     private SparkYarnConfig sparkYarnConfig;
 
-    private String deployMode = "cluster";
+//    private String deployMode = "cluster";
 
     private Configuration yarnConf = new YarnConfiguration();
 
@@ -70,12 +70,6 @@ public class SparkYarnClient extends AbsClient {
     private static final String HTTP_PREFIX = "http://";
 
     private static final String KEY_PRE_STR = "spark.";
-
-    /**默认每个处理器可以使用的内存大小*/
-    private static final String DEFAULT_EXE_MEM = "512m";
-
-    /**默认最多可以请求的CPU核心数*/
-    private static final String DEFAULT_CORES_MAX = "2";
 
     private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
 
@@ -141,17 +135,17 @@ public class SparkYarnClient extends AbsClient {
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
         sparkConf.remove("spark.files");
-        sparkConf.set("spark.master", "yarn");
+//        sparkConf.set("spark.master", "yarn");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
-        sparkConf.set("spark.submit.deployMode", deployMode);
-
-        //----设定spark 执行的executor数量(默认为1)
-        sparkConf.set("spark.executor.instances", SparkYarnResourceInfo.DEFAULT_INSTANCES + "");
-        //----设定每个executor 的cpu(默认为1)
-        sparkConf.set("spark.executor.cores", SparkYarnResourceInfo.DEFAULT_CORES + "");
-        //----设定每个executor 的mem(默认为512m)
-        sparkConf.set("spark.executor.memory", SparkYarnResourceInfo.DEFAULT_MEM + "m");
-
+//        sparkConf.set("spark.submit.deployMode", deployMode);
+//
+//        //----设定spark 执行的executor数量(默认为1)
+//        sparkConf.set("spark.executor.instances", SparkYarnResourceInfo.DEFAULT_INSTANCES + "");
+//        //----设定每个executor 的cpu(默认为1)
+//        sparkConf.set("spark.executor.cores", SparkYarnResourceInfo.DEFAULT_CORES + "");
+//        //----设定每个executor 的mem(默认为512m)
+//        sparkConf.set("spark.executor.memory", SparkYarnResourceInfo.DEFAULT_MEM + "m");
+        SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
 
@@ -162,11 +156,6 @@ public class SparkYarnClient extends AbsClient {
      * @param confProperties
      */
     private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
-
-        //默认执行内存
-        sparkConf.set("spark.executor.memory", DEFAULT_EXE_MEM);
-        //默认请求的cpu核心数
-        sparkConf.set("spark.cores.max", DEFAULT_CORES_MAX);
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();

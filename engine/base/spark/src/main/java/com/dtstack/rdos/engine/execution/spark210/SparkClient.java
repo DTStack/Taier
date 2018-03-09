@@ -47,7 +47,7 @@ public class SparkClient extends AbsClient {
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
 
-    private SparkConfig sparkConfig;
+    private SparkStandaloneConfig sparkConfig;
 
     private String deployMode = "cluster";
 
@@ -55,7 +55,7 @@ public class SparkClient extends AbsClient {
     public void init(Properties prop) throws Exception {
 
         String errorMessage = null;
-        sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkConfig.class);
+        sparkConfig = objMapper.readValue(objMapper.writeValueAsBytes(prop), SparkStandaloneConfig.class);
         if(StringUtils.isEmpty(sparkConfig.getSparkMaster())){
             errorMessage = "you need to set sparkMaster when used spark engine.";
         }else if(StringUtils.isEmpty(sparkConfig.getSparkWebMaster())){
@@ -206,7 +206,7 @@ public class SparkClient extends AbsClient {
      * @param confProperties
      */
     private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
-          SparkStandAloneConfig.initDefautlConf(sparkConf);
+          SparkConfig.initDefautlConf(sparkConf);
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
