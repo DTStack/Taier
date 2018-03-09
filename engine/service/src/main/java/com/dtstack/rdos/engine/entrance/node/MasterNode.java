@@ -152,6 +152,7 @@ public class MasterNode {
 
             LOG.warn("---start master node deal thread------");
         }else if (!isMaster && currIsMaster){
+            currIsMaster = false;
             sendDealerMap.forEach((name, sendDealer) -> {
                 sendDealer.stop();
             });
