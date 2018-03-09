@@ -28,13 +28,10 @@ const defaultConf =
 }`
 const hdfsConf = 
 `{
-"defaultFS": "",
-"hadoopConfig": {
-    "dfs.nameservices": "defaultDfs", 
-    "dfs.ha.namenodes.defaultDfs": "namenode1", 
-    "dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
-    "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
-}
+"dfs.nameservices": "defaultDfs", 
+"dfs.ha.namenodes.defaultDfs": "namenode1", 
+"dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
+"dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 const hBaseConf = 
 `{
@@ -507,7 +504,7 @@ class DataSourceForm extends Component {
             item => (
                 <Option
                     key={item.value}
-                    value={item.value}
+                    value={`${item.value}`}
                 >
                     {item.name}
                 </Option>

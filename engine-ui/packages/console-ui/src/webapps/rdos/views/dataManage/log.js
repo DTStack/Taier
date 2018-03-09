@@ -40,7 +40,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="操作人">
                     {getFieldDecorator('actionUserId')(
-                        <Select placeholder="请选择操作人" style={{width: 120}}>
+                        <Select allowClear placeholder="请选择操作人" style={{width: 120}}>
                             {projectUsers.map(o => <Option value={ `${o.userId}` }
                                 key={ o.userId }
                             >

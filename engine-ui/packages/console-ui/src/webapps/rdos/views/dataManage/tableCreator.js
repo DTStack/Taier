@@ -21,6 +21,7 @@ const RadioGroup = Radio.Group;
  * @extends {React.Component}
  */
 class BaseForm extends React.Component {
+    
     constructor(props) {
         super(props);
         this.state = {
@@ -161,7 +162,6 @@ class BaseForm extends React.Component {
                     <Select>
                         <Option value="textfile">textfile</Option>
                         <Option value="orc">orc</Option>
-                        <Option value="parquet">parquet</Option>
                     </Select>
                 )}
             </FormItem>

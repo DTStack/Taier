@@ -247,13 +247,14 @@ export default class TaskView extends Component {
         })
     }
 
-    stopTask = (params) => {
-        Api.stopJob(params).then(res => {
-            if (res.code === 1 ) {
-                message.success('任务终止运行命令已提交！')
-                this.refresh()
-            } else {
-                message.error('任务终止提交失败！')
+    forzenTasks = (ids, mode) => {
+        const ctx = this
+        Api.forzenTask({
+            taskIdList: ids, 
+            scheduleStatus: mode  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+        }).then((res) => {
+            if (res.code === 1) {
+                message.success('操作成功！');
             }
         })
     }
@@ -277,21 +278,19 @@ export default class TaskView extends Component {
             const currentNode = JSON.parse(cell.getAttribute('data'))
 
             menu.addItem('补数据', null, function() {
-                clickPatchData(tabData)
+                clickPatchData(currentNode)
             })
             menu.addItem('查看代码', null, function() {
-                goToTaskDev(tabData.id)
+                goToTaskDev(currentNode.id)
             })
             menu.addItem('冻结', null, function() {
-                ctx.stopTask({
-                    jobId: tabData.id,
-                })
+                ctx.forzenTasks([currentNode.id], 2)
             })
             menu.addItem('解冻', null, function() {
-                
+                ctx.forzenTasks([currentNode.id], 1)
             })
             menu.addItem('查看实例', null, function() {
-                hashHistory.push(`/operation/offline-operation?job=${tabData.name}`)
+                hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
             })
         }
     }
@@ -384,7 +383,7 @@ export default class TaskView extends Component {
             <div className="graph-editor" 
                 style={{
                     position: 'relative', 
-                    height: '563px',
+                    height: '100%',
                 }}
             >
                 <div className="editor pointer" ref={(e) => { this.Container = e }} />

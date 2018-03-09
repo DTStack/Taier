@@ -23,15 +23,19 @@ export default {
     getUserById(params) {
         return http.post(req.DQ_GET_USER_BY_ID, params)
     },
-    addUserRole(params) {
+    addUser(params) {
         return http.post(req.DQ_USER_ROLE_ADD, params)
     },
-    delUserRole(params) {
+    delUser(params) {
         return http.post(req.DQ_USER_ROLE_DELETE, params)
     },
-    updateUserRole(params) {
+    updateUser(params) {
         return http.post(req.DQ_USER_ROLE_UPDATE, params)
     },
-    
-
+    getUsers(params) {
+        return http.post(req.DQ_GET_USER_LIST, params)
+    }, 
+    getUsersNotInProject(params) {
+        return http.post(req.DQ_GET_USER_NOT_IN_PROJECT, params)
+    }, 
 }

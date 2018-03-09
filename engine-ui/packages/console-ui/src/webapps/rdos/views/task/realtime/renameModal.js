@@ -26,7 +26,6 @@ class RenameModal extends Component {
         return (
             <Modal
               title="重命名"
-              wrapClassName="vertical-center-modal"
               visible={visible}
               onOk={this.submit}
               onCancel={handCancel}

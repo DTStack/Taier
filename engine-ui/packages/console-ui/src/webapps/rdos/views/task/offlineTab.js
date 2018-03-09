@@ -53,7 +53,7 @@ class OfflineTabPane extends Component {
     componentWillReceiveProps(nextProps) {
         const old = this.props.project
         const newData = nextProps.project
-        if (newData && ((old.id !== 0 && old.id !== newData.id) || !old)) {
+        if (newData && (!old || (old.id !== 0 && old.id !== newData.id))) {
             this.getCatelogue();
             this.props.closeAll();
         }

@@ -246,12 +246,11 @@ export default class TableViewer extends React.Component{
                                 <TabPane tab="数据预览" key="3">
                                     <div className="box">
                                         { previewData ? <Table
-                                            columns={ this.previewCols.map(str => ({
+                                            columns={ this.previewCols.map((str,i) => ({
                                                 title: str,
                                                 dataIndex: str,
-                                                key: str
+                                                key: str + i
                                             })) }
-                                            rowKey="id"
                                             className="m-table"
                                             dataSource={ previewData }
                                             scroll={{ x: 200 * this.previewCols.length }}

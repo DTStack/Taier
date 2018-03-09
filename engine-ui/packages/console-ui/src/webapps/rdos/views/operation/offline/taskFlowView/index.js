@@ -165,7 +165,7 @@ class TaskFlowView extends Component {
                 return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.SUBMIT_FAILED:
-                return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;'
+                return 'whiteSpace=wrap;fillColor=#ef53503d;strokeColor=#ef5350;'
             default:
                 return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
         }
@@ -504,7 +504,6 @@ class TaskFlowView extends Component {
             <div className="graph-editor"
                 style={{
                     position: 'relative', 
-                    height: '100%',
                 }}
             >
                 <Spin
@@ -517,7 +516,6 @@ class TaskFlowView extends Component {
                             ref={(e) => { this.Container = e }} 
                             style={{
                                 position: 'relative', 
-                                height: '100%',
                             }}
                         />
                 </Spin>
@@ -532,7 +530,12 @@ class TaskFlowView extends Component {
                         <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                     </Tooltip>
                 </div>
-                <div className="box-title graph-info">
+                <div 
+                    className="box-title graph-info"  
+                    style={{
+                        bottom: 0
+                    }}
+                >
                     <span>{ taskJob.batchTask && taskJob.batchTask.name || '-' }</span>&nbsp;
                     <span>{ (taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;

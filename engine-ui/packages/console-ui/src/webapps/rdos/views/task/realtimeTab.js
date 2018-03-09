@@ -292,11 +292,11 @@ class RealTimeTabPane extends Component {
         Api.renameRes(resource).then((res) => {
             if (res.code === 1) {
                 message.success('重命名成功！')
-                this.closeModal()
-                dispatch(TreeAction.getRealtimeTree({
-                    id: resInfo.id,
-                    catalogueType: MENU_TYPE.RESOURCE 
-                }))
+                this.setState({
+                    visibleResRename: false,
+                })
+                const newNode = Object.assign(resInfo, resource)
+                dispatch(TreeAction.updateRealtimeTreeNode(newNode))
             }
         })
     }

@@ -23,6 +23,7 @@ export default {
     GET_TASK_TYPES: `${baseUrl}/batch/batchTask/getSupportJobTypes`, // 获取任务类型
     PUBLISH_TASK: `${baseUrl}/batch/batchTask/publishTask`, // 发布任务
     GET_CUSTOM_TASK_PARAMS: `${baseUrl}/batch/batchTask/getSysParams`, // 获取任务自定义参数
+    FROZEN_TASK: `${baseUrl}/batch/batchTask/frozenTask`, // 冻结/解冻任务
 
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${baseUrl}/batch/batchScript/addOrUpdateScript`, // 保存脚本
@@ -58,7 +59,6 @@ export default {
     GET_JOB_RUNTIME_INFO: `${baseUrl}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${baseUrl}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
     QUERY_JOB_SUB_NODES: `${baseUrl}/batch/batchJob/getAllChildJobWithSameDay`, // 查询子job子节点
-    FROZEN_TASK: `${baseUrl}/batch/batchJob/frozenTask`, // 冻结/解冻任务
     STATISTICS_TASK_RUNTIME: `${baseUrl}/batch/batchJob/statisticsTaskRecentInfo`, // 统计任务运行信息
     STOP_FILL_DATA_JOBS: `${baseUrl}/batch/batchJob/stopFillDataJobs`, // 停止补数据任务
     

@@ -317,7 +317,7 @@ export default class TableRelation extends React.Component {
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
-                    return `<div class="vertex"><span><img src="/public/rdos/img/table.svg" /></span> <span class="vertex-title">${obj.name || ''}</span>
+                    return `<div class="table-vertex"><span class="table-vertex-content"><img src="/public/rdos/img/table.svg" /> <span class="table-vertex-title">${obj.name || ''}</span></span>
                     </div>`
                 }
             }
@@ -447,9 +447,9 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
         // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
-        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
+        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
         // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
-        style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
+        style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';

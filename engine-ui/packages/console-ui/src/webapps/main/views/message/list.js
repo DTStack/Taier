@@ -1,9 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Tabs, Menu, Table, Checkbox, Button } from 'antd'
+import { 
+    Tabs, Menu, Table, 
+    Checkbox, Button, message 
+} from 'antd'
+
 import { Link } from 'react-router'
 
-import DataSouceApi from 'dataQuality/api/dataSource'
+import utils from 'utils'
+import Api from '../../api'
+import MsgStatus from './msgStatus'
 
 const TabPane = Tabs.TabPane;
 const MenuItem = Menu.Item;
@@ -11,71 +17,193 @@ const MenuItem = Menu.Item;
 class MessageList extends Component {
 
     state = {
-        active: 'all',
-        data: '',
+        active: '1',
+        selectedApp: '',
+        table: {
+            data: [],
+        },
+
+        selectedRowKeys: [],
+        selectedRows: [],
+        selectedAll: false,
     }
 
     componentDidMount() {
-        this.loadMsg();
+        const { apps } = this.props;
+        const defaultApp = apps.find(app => app.default)
+        if (defaultApp) {
+            this.setState({
+                selectedApp: defaultApp.id
+            }, this.loadMsg)
+        }
     }
 
     loadMsg = () => {
-        DataSouceApi.getDataSources().then(res => {
+        const { active, selectedApp } = this.state;
+        Api.getMessage(selectedApp, {
+            currentPage: 1, 
+            pageSize: 20,
+            mode: active,
+        }).then(res => {
             this.setState({
-                data: res.data,
+                table: res.data,
             })
         })
+    }
+
+    getUnreadRows = () => {
+        const { selectedRows } = this.state;
+        const ids = []
+        selectedRows.forEach(item => {
+            if (item.readStatus === 0) { // 获取未读数据
+                ids.push(item.id)
+            }
+        })
+        return ids
+    }
+
+    resetRowKeys = () => {
+        this.setState({
+            selectedRowKeys: [],
+            selectedRows: [],
+            selectedAll: false,
+        })
+    }
+
+    markAsRead = () => {
+        const { active, selectedApp, selectedRowKeys } = this.state;
+
+        const unReadRows = this.getUnreadRows()
+
+        if (this.selectedNotNull(unReadRows)) {
+            Api.markAsRead(selectedApp, {
+                notifyRecordIds: unReadRows
+            }).then(res => {
+                if (res.code === 1) {
+                    this.resetRowKeys();
+                    this.loadMsg();
+                }
+            })
+        }
+    }
+
+    markAsAllRead = () => {
+        const { active, selectedApp, selectedRowKeys } = this.state;
+        
+        const unReadRows = this.getUnreadRows()
+
+        if (this.selectedNotNull(unReadRows)) {
+
+            Api.markAsAllRead(selectedApp, {
+                notifyRecordIds: unReadRows
+            }).then(res => {
+                if (res.code === 1) {
+                    this.resetRowKeys();
+                    this.loadMsg();
+                }
+            })
+        }
+    }
+
+    deleteMsg = () => {
+        const { active, selectedApp, selectedRowKeys } = this.state;
+        if (this.selectedNotNull(selectedRowKeys)) {
+            Api.deleteMsgs(selectedApp, {
+                notifyRecordIds: selectedRowKeys
+            }).then(res => {
+                if (res.code === 1) {
+                    this.loadMsg()
+                    this.setState({
+                        selectedRowKeys: [],
+                    })
+                }
+            })
+        }
+    }
+
+    selectedNotNull(selected) {
+        if (!selected || selected.length <= 0) {
+            message.error('请选择要操作的消息！')
+            return false
+        }
+        return true
     }
 
     onPaneChange = (key) => {
         this.setState({
             active: key,
+        }, this.loadMsg)
+    }
+
+    onAppSelect = ({ key }) => {
+        this.setState({
+            selectedApp: key,
+            selectedRowKeys: [],
+        }, this.loadMsg)
+    }
+
+    onCheckAllChange = (e) => {
+        const selectedRowKeys = []
+        const selectedRows = []
+        if (e.target.checked) {
+            const data = this.state.table.data
+            for (let i = 0; i < data.length; i++) {
+                const item = data[i]
+                selectedRowKeys.push(item.id)
+                selectedRows.push(item)
+            }
+        }
+        this.setState({
+            selectedRowKeys,
+            selectedRows,
+            selectedAll: e.target.checked,
         })
     }
 
     tableFooter = (currentPageData) => {
+        const { active, selectedAll } = this.state
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '0 24px' }}>
-                    <Checkbox
-                        indeterminate={this.state.indeterminate}
-                        onChange={this.onCheckAllChange}
-                        checked={this.state.checkAll}
-                    >
-                    </Checkbox>
+                    <Checkbox 
+                        checked={selectedAll}
+                        onChange={this.onCheckAllChange}></Checkbox>
                 </td>
                 <td>
                     <Button 
                         size="small"
                         type="primary" 
-                        onClick={() => { this.setState({ visible: true }) }}>
+                        onClick={this.deleteMsg}>
                         删除
                     </Button>
-                    <Button 
-                        size="small"
-                        type="primary" 
-                        onClick={() => { this.setState({ visible: true }) }}>
-                        标为已读
-                    </Button>
-                    <Button 
-                        size="small"
-                        type="primary" 
-                        onClick={() => { this.setState({ visible: true }) }}>
-                        全部已读
-                    </Button>
+                    {
+                        active !== '3' && <span>
+                            <Button 
+                                size="small"
+                                type="primary" 
+                                onClick={this.markAsRead}>
+                                标为已读
+                            </Button>
+                            <Button 
+                                size="small"
+                                type="primary" 
+                                onClick={this.markAsAllRead}>
+                                全部已读
+                            </Button>
+                        </span>
+                    }
                 </td>
             </tr>
         )
     }
 
     renderPane = () => {
+
         const { apps } = this.props;
-        const { data } = this.state;
+        const { table, selectedApp, selectedRowKeys } = this.state;
         const menuItem = []
-        let defaultKey = '';
 
         if (apps && apps.length > 0) {
-            defaultKey = apps[0].id
             for (var i = 0; i < apps.length; i++) {
                 const app = apps[i];
                 if (app.enable && app.id !== 'main') {
@@ -88,34 +216,55 @@ class MessageList extends Component {
 
         const colms = [{
             title: '标题与内容',
-            dataIndex: 'dataName',
-            key: 'name',
+            dataIndex: 'content',
+            key: 'content',
             render(text, record) {
-                return <Link to={`message/detail/${record.id}`}>{text}</Link>
+                return <Link to={`message/detail/${record.id}?app=${selectedApp}`}>
+                    <MsgStatus value={record.readStatus}/> {text}
+                </Link>
             },
         }, {
+            title: '状态',
+            dataIndex: 'readStatus',
+            key: 'readStatus',
+            render(status) {
+                let display = '未读'
+                if (status === 1) {// 已读
+                    display = '已读'
+                }
+                return display
+            }
+        }, {
             title: '发送时间',
-            dataIndex: 'age',
-            key: 'age',
+            dataIndex: 'gmtCreate',
+            key: 'gmtCreate',
+            render(text) {
+                return utils.formatDateTime(text)
+            }
         }, {
             title: '类型',
-            dataIndex: 'address',
-            key: 'address',
+            dataIndex: 'triggerType',
+            key: 'triggerType',
+            render(type) {
+                return type
+            }
         }]
 
         const rowSelection = {
+            selectedRowKeys,
             onChange: (selectedRowKeys, selectedRows) => {
-                console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+                this.setState({
+                    selectedRowKeys,
+                    selectedRows
+                })
             },
-            getCheckboxProps: record => ({
-                disabled: record.name === 'Disabled User', // Column configuration not to be checked
-            }),
         };
 
         return (
             <div className="m-panel">
                 <Menu 
-                    defaultOpenKeys={[defaultKey]}
+                    selectedKeys={[ selectedApp ]}
+                    onSelect={this.onAppSelect}
                     className="left">
                     {menuItem}
                 </Menu>
@@ -124,7 +273,7 @@ class MessageList extends Component {
                         rowKey="id"
                         className="m-table"
                         columns={colms} 
-                        dataSource={ data ? data.data : [] } 
+                        dataSource={ table.data || [] } 
                         rowSelection={rowSelection} 
                         footer={this.tableFooter}
                     />
@@ -144,9 +293,9 @@ class MessageList extends Component {
                     activeKey={this.state.active} 
                     onChange={this.onPaneChange}
                 >
-                    <TabPane tab="全部消息" key="all"> {paneContent} </TabPane>
-                    <TabPane tab="未读消息" key="unread"> {paneContent} </TabPane>
-                    <TabPane tab="已读消息" key="read"> {paneContent} </TabPane>
+                    <TabPane tab="全部消息" key="1"> {paneContent} </TabPane>
+                    <TabPane tab="未读消息" key="2"> {paneContent} </TabPane>
+                    <TabPane tab="已读消息" key="3"> {paneContent} </TabPane>
                 </Tabs>
             </div>
         )

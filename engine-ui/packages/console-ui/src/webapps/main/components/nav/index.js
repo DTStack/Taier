@@ -128,10 +128,6 @@ export class Navigator extends Component {
         this.updateSelected()
     }
 
-    componentWillReceiveProps() {
-        // this.updateSelected()
-    }
-
     handleClick = (e) => {
         const props = e.item.props
         const { onMenuClick } = this.props

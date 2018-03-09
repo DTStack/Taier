@@ -340,6 +340,9 @@ class Workbench extends React.Component {
             }].concat(publishRecords)
             taskVersions = taskVersions.length >= 5 ? taskVersions.slice(0, 5) : taskVersions 
             updateTaskFields({ taskVersions })
+        } else {
+            message.error('发布备注不可为空！')
+            return false;
         }
 
         // 修改task配置时接口要求的标记位

@@ -11,7 +11,7 @@ $activeColor: #262e36; // 主色
     top: 0;
     left: 0;
     right: 0;
-    z-index: 6;
+    z-index: 1000;
     .logo,
     .menu,
     .user-info {
@@ -124,7 +124,7 @@ $activeColor: #262e36; // 主色
         }
 
         .user-name {
-            width: 100px;
+            max-width: 100px;
             text-overflow: ellipsis;
             display: inline-block;
             overflow: hidden;

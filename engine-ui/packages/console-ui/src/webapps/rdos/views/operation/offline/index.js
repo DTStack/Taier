@@ -36,7 +36,6 @@ class OfflineStatistics extends Component {
     }
 
     componentDidMount() {
-        this.loadOfflineData()
         this.loadChartData()
         this.getTopTaskTime()
         this.getTopJobError()
@@ -46,7 +45,6 @@ class OfflineStatistics extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.loadOfflineData()
             this.loadChartData()
             this.getTopTaskTime()
             this.getTopJobError()
@@ -55,15 +53,6 @@ class OfflineStatistics extends Component {
 
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
-    }
-
-    loadOfflineData = () => {
-        const ctx = this
-        Api.getJobStatistics().then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ offline: res.data})
-            }
-        })
     }
 
     loadChartData = () => {

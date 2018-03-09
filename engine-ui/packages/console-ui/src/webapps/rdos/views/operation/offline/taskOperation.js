@@ -15,6 +15,7 @@ import {
 
 import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
+import { Circle } from 'widgets/circle' 
 
 import Api from '../../../api'
 import { 
@@ -26,7 +27,6 @@ import {
     OfflineTaskStatus, TaskTimeType, TaskType, 
 } from '../../../components/status'
 
-import { Circle } from '../../../components/circle' 
 
 import {
     workbenchActions

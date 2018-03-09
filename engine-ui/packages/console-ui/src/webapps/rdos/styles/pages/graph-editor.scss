@@ -31,7 +31,7 @@
 
     .graph-info {
         position: absolute;
-        bottom: 0px;
+        bottom: 35px;
         left: 0px;
         z-index: 999;
         width: 100%;
@@ -152,6 +152,37 @@ table.mxPopupMenu tr {
         }
     }
 }
+
+
+.table-vertex {
+    .table-vertex-content {
+        height: 30px;
+        line-height: 20px;
+        left: 0;
+        text-indent: 2px;
+        top: 0;
+        padding: 7px 5px;
+        width: 100px;
+        text-align: left;
+        display: inline-block;
+        text-overflow: ellipsis;
+
+        .table-vertex-title {
+            margin-left: 5px;
+            margin-top: 1px;
+            width: 60px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        img {
+            float: left;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
 
 
 

@@ -57,8 +57,16 @@ class PatchData extends Component {
         reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
         this.props.form.validateFields((err) => {
             if (!err) {
-                reqParams.fromDay = reqParams.rangeDate[0].unix()
-                reqParams.toDay = reqParams.rangeDate[1].unix()
+                reqParams.fromDay = reqParams.rangeDate[0].set({
+                    'hour': 0,
+                    'minute': 0,
+                    'second': 0,
+                }).unix()
+                reqParams.toDay = reqParams.rangeDate[1].set({
+                    'hour': 23,
+                    'minute': 59,
+                    'second': 59,
+                }).unix()
                 delete reqParams.rangeDate;
                 Api.patchTaskData(reqParams).then((res) => {
                     if (res.code === 1) {

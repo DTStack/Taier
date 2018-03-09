@@ -7,6 +7,7 @@ import {
 import { Link } from 'react-router'
 
 import utils from 'utils'
+import { hasProject } from 'funcs'
 
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
@@ -20,6 +21,7 @@ class AdminRole extends Component {
         active: '',
         data: '',
         projects: [],
+        selectedProject: '',
         loading: 'success',
     }
 
@@ -31,16 +33,36 @@ class AdminRole extends Component {
                 active: key
             })
             this.loadData(key);
+            if (hasProject(key)) {
+                this.getProjects(key)
+            }
         }
     }
 
     loadData = (key) => {
         this.setState({ loading: 'loading' })
+        
         Api.queryRole(key).then(res => {
             this.setState({
                 data: res.data,
+            })
+
+            this.setState({
                 loading: 'success'
             })
+        })
+    }
+
+    getProjects = (app) => {
+        const ctx = this
+        Api.getProjects(app).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ projects: res.data })
+                const selectedProject = res.data[0].id
+                this.setState({
+                    selectedProject 
+                }, this.loadData)
+            }
         })
     }
 
@@ -59,6 +81,12 @@ class AdminRole extends Component {
             active: key,
         })
         this.loadData(key)
+    }
+
+    onProjectSelect = (value) => {
+        this.setState({
+            selectedProject: value
+        })
     }
 
     initColums = () => {
@@ -110,24 +138,30 @@ class AdminRole extends Component {
     }
 
     renderPane = () => {
-        const { data, loading, projects, active } = this.state;
+
+        const { 
+            data, loading, projects, 
+            active, selectedProject 
+        } = this.state;
 
         const projectOpts = projects && projects.map(project => 
             <Option value={project.id} key={project.id}>
-                { project.name }
+                { project.projectAlias }
             </Option>
         )
 
-        const title = (
+        const title = hasProject(active) && (
             <span
                 style={{ marginTop: '10px' }}
             >
                 选择项目：
                 <Select
                     showSearch
+                    value={ selectedProject }
                     style={{ width: 200 }}
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
+                    onSelect={ this.onProjectSelect }
                 >  
                   { projectOpts }
                 </Select>

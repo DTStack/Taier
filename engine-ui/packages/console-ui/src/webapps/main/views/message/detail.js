@@ -2,16 +2,18 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Icon } from 'antd'
 
+import utils from 'utils'
+
 import GoBack from '../../components/go-back'
 import { tabBarStyle } from '../../consts'
 
-import DataSouceApi from 'dataQuality/api/dataSource'
+import Api from '../../api'
 
 class MsgDetail extends Component {
 
     state = {
-        active: 'all',
         msgInfo: '',
+        app: utils.getParameterByName('app'),
     }
 
     componentDidMount() {
@@ -20,13 +22,12 @@ class MsgDetail extends Component {
     }
 
     loadMsg = (msgId) => {
-        DataSouceApi.getDataSources({ msgId }).then(res => {
+        Api.getMsgById(this.state.app, { msgId }).then(res => {
             this.setState({
                 msgInfo: res.data,
             })
         })
     }
-
 
     render() {
         return (

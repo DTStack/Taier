@@ -16,6 +16,11 @@ class OfflineCount extends Component {
         data: '',
     }
 
+    componentDidMount() {
+        this.loadOfflineData()
+    }
+
+
     componentWillReceiveProps(nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -35,34 +40,9 @@ class OfflineCount extends Component {
         })
     }
 
-    getSeriesData = (data) => {
-        if (!data) return []
-        return [{
-            name: '失败',
-            value: data.FAILED || 0
-        }, {
-            name: '运行中',
-            value: data.RUNNING || 0
-        }, {
-            name: '已完成',
-            value: data.FINISHED || 0
-        }, {
-            name: '等待运行',
-            value: data.WAITENGINE || 0
-        }, {
-            name: '提交中',
-            value: data.SUBMITTING || 0
-        }, {
-            name: '等待提交',
-            value: data.UNSUBMIT || 0
-        }, {
-            name: '冻结',
-            value: data.FROZEN || 0
-        }]
-    }
-
     render() {
         const { data } = this.state
+        console.log('OfflineCount data:', data)
         return (
             <div style={{marginTop: '10px'}}>
                 <h1 className="box-title box-title-bolder">

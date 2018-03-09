@@ -68,15 +68,29 @@ export default class Console extends Component {
         const { results } = this.props.data
         const index = parseInt(this.state.activeKey, 10)
         const currentData = results[index]
-        let csvContent = "data:text/csv;charset=utf-8,";
+        let csvContent = "";
         currentData.forEach((row, i) => {
             const dataStr = row.join(',')
             csvContent += i < currentData.length ? 
             dataStr + '\n' : dataStr;
         })
-        var encodedUri = encodeURI(csvContent);
-        window.open(encodedUri);
+        // var encodedUri = encodeURI(csvContent);
+        // window.open(encodedUri);
+        var blob = new Blob([csvContent]);
+        if (window.navigator.msSaveOrOpenBlob)  // IE hack; see http://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
+            window.navigator.msSaveBlob(blob, "下载.csv");
+        else
+        {
+            var a = window.document.createElement("a");
+            a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+            a.download = "下载.csv";
+            document.body.appendChild(a);
+            a.click();  // IE: "Access is denied"; see: https://connect.microsoft.com/IE/feedback/details/797361/ie-10-treats-blob-url-as-cross-origin-and-denies-access
+            document.body.removeChild(a);
+        }
     }
+
+
 
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {

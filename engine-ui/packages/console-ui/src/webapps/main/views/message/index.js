@@ -35,6 +35,7 @@ class MessageCenter extends Component {
         const content = children ? React.cloneElement(children, {
             apps,
         }) : <NotFund /> 
+
         return (
             <div className="message">
                 <Navigator 

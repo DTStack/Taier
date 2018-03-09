@@ -15,6 +15,7 @@ import {
 
 import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
+import { Circle } from 'widgets/circle' 
 import GoBack from 'main/components/go-back'
 
 import Api from '../../../api'
@@ -27,7 +28,6 @@ import {
     OfflineTaskStatus, TaskTimeType, TaskType, 
 } from '../../../components/status'
 
-import { Circle } from '../../../components/circle' 
 
 import {
     workbenchActions
@@ -53,6 +53,7 @@ class PatchDataDetail extends Component {
         dutyUserId: '',
         fillJobName: '',
         jobStatuses: '',
+        taskName: '',
         bizDay: '',
         
         table: {
@@ -83,7 +84,7 @@ class PatchDataDetail extends Component {
     search = () => {
         const {
             fillJobName, dutyUserId, jobStatuses,
-            bizDay, current,
+            bizDay, current, taskName
         } = this.state;
         const reqParams = {
             currentPage: current,
@@ -91,6 +92,9 @@ class PatchDataDetail extends Component {
         }
         if (fillJobName) {
             reqParams.fillJobName = fillJobName
+        }
+        if (taskName) {
+            reqParams.taskName = taskName
         }
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId
@@ -120,6 +124,7 @@ class PatchDataDetail extends Component {
         const ctx = this
         // type:  NORMAL_SCHEDULE(0), FILL_DATA(1);
         params.type = 1;
+        params.fillTaskName = params.fillJobName;
         Api.queryJobStatics(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ statistics: res.data })
@@ -199,7 +204,7 @@ class PatchDataDetail extends Component {
     }
 
     canReload = (ids) => { // 未运行、成功、失败的任务可以reload
-        const tasks = this.state.tasks.data
+        const tasks = this.state.table.data && this.state.table.data.recordList
         if (ids && ids.length > 0) {
             for (let i = 0; i < ids.length; i++) {
                 const id = ids[i]
@@ -217,7 +222,7 @@ class PatchDataDetail extends Component {
     }
 
     canKill = (ids) => { // 是否可以进行kill
-        const tasks = this.state.tasks.data
+        const tasks = this.state.table.data && this.state.table.data.recordList
         if (ids && ids.length > 0) {
             for (let i = 0; i < ids.length; i++) {
                 const id = ids[i]
@@ -276,6 +281,10 @@ class PatchDataDetail extends Component {
         })
     }
 
+    changeTaskName = (e) => {// 任务名变更
+        this.setState({ taskName: e.target.value })
+    }
+
     onCheckAllChange = (e) => {
         if (e.target.checked) {
             const selectedRowKeys = this.state.table.data.map(item => item.id)
@@ -296,7 +305,7 @@ class PatchDataDetail extends Component {
             width: 100,
             key: 'bizDay'
         }, {
-            title: '实例名称',
+            title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
             width: 120,
@@ -369,7 +378,7 @@ class PatchDataDetail extends Component {
     render() {
         const { 
             table, selectedRowKeys, fillJobName,
-            bizDay, current, statistics,
+            bizDay, current, statistics, taskName,
             selectedTask, visibleSlidePane,
         } = this.state
 
@@ -467,6 +476,16 @@ class PatchDataDetail extends Component {
                                     }}
                                     className="m-form-inline" 
                                 >
+                                    <FormItem label="">
+                                        <Search
+                                            placeholder="按任务名称"
+                                            style={{ width: 150 }}
+                                            value={taskName}
+                                            size="default"
+                                            onChange={this.changeTaskName}
+                                            onSearch={this.search}
+                                        />
+                                    </FormItem>
                                     <FormItem
                                         label="责任人"
                                     >
@@ -522,7 +541,7 @@ class PatchDataDetail extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '80%', height: '600px' }}
+                            style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px'  }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}

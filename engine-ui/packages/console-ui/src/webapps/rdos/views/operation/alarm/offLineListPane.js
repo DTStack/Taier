@@ -201,13 +201,13 @@ class OfflinePanel extends Component {
                     </Col>
                     <Col span={12}>
                         <section className="m-count-section">
-                            <span className="m-count-title">本周</span>
+                            <span className="m-count-title">近7天</span>
                             <span className="m-count-content font-blue">{statistics.week || 0}</span>
                         </section>
                     </Col>
                     <Col span={6}>
                         <section className="m-count-section">
-                            <span className="m-count-title">本月</span>
+                            <span className="m-count-title">近30天</span>
                             <span className="m-count-content font-darkgreen">{statistics.month || 0}</span>
                         </section>
                     </Col>
