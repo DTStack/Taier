@@ -43,7 +43,6 @@ class TableTree extends React.Component {
 
     onLoadData = (treeNode) => {
         const { loadTreeNode, dispatch } = this.props;
-        console.log('onload:', treeNode)
         const { data } = treeNode.props;
         const params = { pageSize: 1000, isDeleted: 0 };
 
@@ -74,6 +73,7 @@ class TableTree extends React.Component {
         const { treeData, loadTreeNode } = this.props;
         Api.searchTable({
             tableName: queryName,
+            isDeleted: 0,
         }).then(res => {
             treeData.children = res.data && res.data.data;
             loadTreeNode(treeData)

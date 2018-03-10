@@ -32,17 +32,27 @@ class AdminRole extends Component {
             this.setState({
                 active: key
             })
-            this.loadData(key);
             if (hasProject(key)) {
                 this.getProjects(key)
+            } else {
+                this.loadData(key);
             }
         }
     }
 
     loadData = (key) => {
         this.setState({ loading: 'loading' })
+        const { active, selectedProject } = this.state
+        const params = {
+            pageSize: 10,
+            currentPage: 1,
+        }
+        const app = key || active;
         
-        Api.queryRole(key).then(res => {
+        if (hasProject(app)) {
+            params.projectId = selectedProject
+        }
+        Api.queryRole(app, params).then(res => {
             this.setState({
                 data: res.data,
             })
@@ -97,7 +107,7 @@ class AdminRole extends Component {
             dataIndex: 'roleName',
             key: 'roleName',
             render(text, record) {
-                return <Link to={`message/detail/${record.id}`}>{text}</Link>
+                return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
         }, {
             title: '角色描述',

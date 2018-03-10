@@ -168,7 +168,7 @@ class RealTimePanel extends Component {
         const { projectUsers } = this.props
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.user.dtuicUserId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
@@ -217,6 +217,7 @@ class RealTimePanel extends Component {
                             <Input
                                 placeholder="任务名称"
                                 size="default"
+                                allowClear
                                 style={{ width: 120 }}
                                 onChange={this.changeTaskName} 
                             />

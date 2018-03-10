@@ -17,6 +17,10 @@ export default {
         return http.post(req.MASSAGE_QUERY, params)
     },
 
+    getMsgById(params) {
+        return http.post(req.GET_MASSAGE_BY_ID, params)
+    },
+
     markAsRead(params) {
         return http.post(req.MASSAGE_MARK_AS_READ, params)
     },

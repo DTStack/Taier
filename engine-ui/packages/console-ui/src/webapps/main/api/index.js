@@ -49,7 +49,7 @@ export default {
             case MY_APPS.RDOS: 
                 return RdosApi.updateRole(params);
             case MY_APPS.DATA_QUALITY:
-                return DqSysApi.queryRole(params);
+                return DqSysApi.updateRole(params);
             default: return ;
         }
     },
@@ -97,7 +97,7 @@ export default {
     getMsgById(app, params) {
         switch( app ) {
             case MY_APPS.DATA_QUALITY:
-                return DqApi.getMessage(params);
+                return DqApi.getMsgById(params);
             default: return null;
         }
     },

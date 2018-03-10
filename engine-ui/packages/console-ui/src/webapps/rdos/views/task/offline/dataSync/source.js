@@ -370,7 +370,7 @@ class SourceForm extends React.Component {
                     >
                         {getFieldDecorator('splitPK', {
                             rules: [],
-                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.splitPK
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.splitPK
                         })(
                             <Input
                                 type="text"

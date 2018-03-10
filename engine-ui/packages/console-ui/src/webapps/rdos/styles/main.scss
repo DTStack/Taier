@@ -127,24 +127,6 @@ table {
     position: relative;
 }
 
-.ant-form-item {
-
-    .ant-select {
-        .ant-select-search__field__wrap,
-        .ant-select-search__field,
-        .ant-select-selection--multiple,
-        .ant-select-selection--single {
-            height: 32px;
-            line-height: 32px;
-        
-            .ant-select-selection__rendered {
-                line-height: 32px;
-                height: 32px;
-            }
-        }
-    }
-}
-
 .ant-select-search__field__mirror {
     position: absolute;
     top: 0;

@@ -125,7 +125,7 @@ class RelationDetail extends React.Component {
                 <Row>
                     <Col span={12} 
                         className="bd-right table-info" 
-                        style={{height: '193px'}}
+                        style={{minHeight: '193px'}}
                     >
                         <table>
                             <tbody className="ant-table-tbody" >

@@ -169,8 +169,8 @@ table.mxPopupMenu tr {
 
         .table-vertex-title {
             margin-left: 5px;
-            margin-top: 1px;
             width: 60px;
+            display: inline-block;
             text-overflow: ellipsis;
             overflow: hidden;
         }

@@ -7,7 +7,7 @@ export default {
 
     // ===== 系统管理 ===== //
     DQ_ROLE_QUERY: `${DQ_BASE_URL}/role/pageQuery`,
-    DQ_ROLE_UPDATE: `${DQ_BASE_URL}/role/pageQuery`,
+    DQ_ROLE_UPDATE: `${DQ_BASE_URL}/role/addOrUpdateRole`,
     DQ_ROLE_DELETE: `${DQ_BASE_URL}/role/deleteRole`,
     DQ_ROLE_PERMISSION_TREE: `${DQ_BASE_URL}/permission/tree`,
     DQ_ROLE_PERMISSION: `${DQ_BASE_URL}/permission/getPermissionIdsByRoleId`,
@@ -21,10 +21,10 @@ export default {
 
     // ===== 消息管理 ===== //
     MASSAGE_QUERY: `${DQ_BASE_URL}/notify/pageQuery`,
+    GET_MASSAGE_BY_ID: `${DQ_BASE_URL}/notify/getOne`,
     MASSAGE_MARK_AS_READ: `${DQ_BASE_URL}/notify/tabRead`,
     MASSAGE_MARK_AS_ALL_READ: `${DQ_BASE_URL}/notify/allRead`,
     MASSAGE_DELETE: `${DQ_BASE_URL}/notify/delete`,
-
 
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`, // 查询数据源

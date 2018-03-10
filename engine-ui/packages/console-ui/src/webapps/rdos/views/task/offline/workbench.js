@@ -137,7 +137,6 @@ class Workbench extends React.Component {
                         </Button>
                     </Link>
                 </Col>
-                
             </header>
             <Row className="task-browser">
                 <div className="browser-content">

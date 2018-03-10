@@ -258,7 +258,7 @@ class OfflineConfig extends Component {
             return (
                 <Option 
                     key={item.id} 
-                    value={`${item.userId}`} 
+                    value={`${item.user.dtuicUserId}`} 
                     name={item.user.userName}
                 >
                     {item.user.userName}
@@ -287,6 +287,7 @@ class OfflineConfig extends Component {
                                     style={{ width: 200 }}
                                     placeholder="任务名称"
                                     size="default"
+                                    allowClear
                                     onChange={this.changeTaskName}
                                 />
                             </FormItem>

@@ -110,7 +110,7 @@ import {
                 >
                     {getFieldDecorator('roleName', {
                         rules: [{
-                            required: true, message: '用户不可为空！',
+                            required: true, message: '角色名称不可为空！',
                         }],
                         initialValue: roleInfo && roleInfo.roleName || '',
                     })(

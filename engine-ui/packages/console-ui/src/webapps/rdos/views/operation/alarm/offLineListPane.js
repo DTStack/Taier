@@ -179,7 +179,7 @@ class OfflinePanel extends Component {
             return (
                 <Option
                     key={item.id}
-                    value={`${item.userId}`}
+                    value={`${item.user.dtuicUserId}`}
                     name={item.user.userName}
                 >
                     {item.user.userName}
@@ -235,6 +235,7 @@ class OfflinePanel extends Component {
                                 <Input
                                     size="default"
                                     placeholder="任务名称"
+                                    allowClear
                                     style={{ width: 120 }}
                                     onChange={this.changeTaskName} 
                                 />

@@ -97,7 +97,7 @@ class ProjectConfig extends Component {
                         <tbody>
                             <tr><td className="t-title">项目名称</td><td>{project.projectIdentifier}</td></tr>
                             <tr><td className="t-title">项目别名</td><td>
-                                {project.projectAlias || '-'}
+                                {project.projectAlias}
                                 &nbsp;
                                 <a onClick={() => { this.setState({ visibleUpdateDesc: true }) }}>
                                     修改

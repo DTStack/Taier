@@ -106,7 +106,7 @@ class LifeCycle extends React.Component {
                 <span style={{visibility: display}}>
                     <Input 
                         value={value}
-                        style={{ width: '45%', height: '32px' }}
+                        style={{ width: '45%'}}
                         type="number"
                         min={0}
                         onChange={this.customChange}

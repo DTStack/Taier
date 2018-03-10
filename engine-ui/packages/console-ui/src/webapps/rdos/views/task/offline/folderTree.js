@@ -35,6 +35,7 @@ class FolderTree extends React.Component {
                 {this.props.ispicker ?
                 <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
                     <TreeSelect
+                        size="large"
                         key={type}
                         dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                         showSearch={ !this.props.isFilepicker }

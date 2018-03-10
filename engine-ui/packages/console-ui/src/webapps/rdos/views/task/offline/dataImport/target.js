@@ -37,9 +37,13 @@ export default class ImportTarget extends Component {
     }
 
     tbNameOnChange = (tableName) => {
-        this.props.changeStatus({
+        const params = {
             queryTable: tableName
-        });
+        }
+        if (tableName === '') {
+            params.tableData = {}
+        }
+        this.props.changeStatus(params);
     }
 
     debounceSearch = debounce(this.tableInput, 500, { 'maxWait': 2000 })
@@ -72,7 +76,6 @@ export default class ImportTarget extends Component {
             }
         })
     }
-
 
     // 检测分区十分存在
     checkPartition = () => {
