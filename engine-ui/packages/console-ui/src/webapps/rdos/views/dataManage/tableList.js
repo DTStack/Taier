@@ -25,6 +25,7 @@ class TableList extends Component {
         super(props);
         this.state = {
             visible: false,
+            tableName: '',
             filterDropdownVisible: false,
             dataCatalogue: [],
             catalogue: undefined,
@@ -32,8 +33,40 @@ class TableList extends Component {
     }
 
     componentDidMount() {
-        this.props.searchTable();
+        this.search();
         this.loadCatalogue();
+    }
+
+    search = () => {
+        const params = this.getReqParams();
+        this.props.searchTable(params);
+    }
+
+    getReqParams = () => {
+        const { tableName, current, catalogue } = this.state;
+        const params = {
+            pageIndex: current || 1,
+            tableName: tableName || '',
+        }
+        if (catalogue) {
+            params.catalogueId = catalogue
+        }
+        return params;
+    }
+
+    showPage(page, pageSize) {
+        this.setState({
+            current: page,
+        }, this.search)
+    }
+
+    cleanSearch() {
+        const $input = findDOMNode(this.searchInput).querySelector('input');
+
+        if($input.value.trim() === '') return;
+
+        $input.value = '';
+        this.search();
     }
 
     loadCatalogue = () => {
@@ -44,14 +77,16 @@ class TableList extends Component {
         })
     }
 
+    onTableNameChange = (e) => {
+        this.setState({
+            tableName: e.target.value
+        })
+    }
+
     catalogueChange = (value) => {
         this.setState({
             catalogue: value,
-        }, () => {
-            this.props.searchTable({
-                catalogueId: value
-            })
-        })
+        }, this.search)
     }
 
     render() {
@@ -150,7 +185,8 @@ class TableList extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
-                        onSearch={ this.searchTableByName.bind(this) }
+                        onChange={ this.onTableNameChange }
+                        onSearch={ this.search }
                         ref={ el => this.searchInput = el }
                     />
                 </FormItem>
@@ -212,14 +248,17 @@ class TableList extends Component {
     }
 
     handleTableChange(pagination, filters, sorter) {
-        if(isEmpty(sorter)) this.props.searchTable();
-        else {
+        const params = this.getReqParams();
+        if (sorter) {
             let { field, order } = sorter;
-
-            this.props.searchTable({
-                [field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort']:
-                    order === 'descend' ? 'desc' : 'asc'
-            });
+            // const params = {
+            //     [field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort']:
+            //         order === 'descend' ? 'desc' : 'asc'
+            // }
+            params[
+                field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort'
+            ] = order === 'descend' ? 'desc' : 'asc'
+            this.props.searchTable(params);
         }
     }
 
@@ -258,27 +297,6 @@ class TableList extends Component {
 
     handleDdlChange(previous, value) {
         this._DDL = value;
-    }
-
-    showPage(page, pageSize) {
-        this.props.searchTable({
-            pageIndex: page
-        });
-    }
-
-    searchTableByName(name) {
-        this.props.searchTable({
-            tableName: name
-        });
-    }
-
-    cleanSearch() {
-        const $input = findDOMNode(this.searchInput).querySelector('input');
-
-        if($input.value.trim() === '') return;
-
-        $input.value = '';
-        this.props.searchTable();
     }
 }
 

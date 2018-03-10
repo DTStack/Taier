@@ -171,7 +171,7 @@ class ChannelForm extends React.Component{
                     </span>
                     {getFieldDecorator('percentage', {
                         rules: [],
-                        initialValue: setting.record
+                        initialValue: setting.percentage
                     })(
                         <InputNumber
                             style={{ float: 'left' }}

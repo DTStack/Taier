@@ -7,8 +7,10 @@ import Api from './api'
 /* eslint-disable */
 export function authBeforeFormate(response) {
     switch (response.status) {
+    case 402:
     case 200:
         return response;
+
     case 302:
         message.info('登录超时, 请重新登录！')
     default:
@@ -24,7 +26,6 @@ export function authAfterFormated(response) {
     case 1:
         return response;
     case 0: // 需要登录
-    
         Api.logout()
         return Promise.reject(response);
     case 3: // 功能无权限
