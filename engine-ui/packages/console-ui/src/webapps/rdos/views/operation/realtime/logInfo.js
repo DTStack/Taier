@@ -1,29 +1,51 @@
 import React from 'react'
+import { isArray } from 'lodash'
+import { Button, Row } from 'antd'
 
 import Editor from '../../../components/code-editor'
+const editorStyle = { height: '300px' }
+
+const editorOptions = {
+    mode: 'text',
+    lineNumbers: true,
+    readOnly: true,
+    autofocus: false,
+    indentWithTabs: true,
+    smartIndent: true,
+}
+
+function wrappTitle(title) {
+    return `====================${title}====================`
+}
 
 export default function LogInfo(props) {
-    const log = props.logInfo
-    const taskLogs = log['all-exceptions']
-    const logList = taskLogs && taskLogs.map((item) => {
-        return (
-            <section key={item.jobid}>
-                <h3 className="log-title bd-bottom">{item.location}</h3>
-                <Editor value={item.exception} />
-            </section>
-        )
-    })
+    const log = props.log;
+    const engineLog = log.engineLog ? JSON.parse(log.engineLog) : {};
+    const logStyle = Object.assign(editorStyle, {
+        height: props.height,
+    });
+    
+    const errors = engineLog['all-exceptions'] || ''
+    let engineLogs = isArray(errors) && errors.length > 0 ? errors.map(item => {
+        return `${item.exception} \n`
+    }) : errors;
+
+    const baseLog = log.logInfo ? JSON.parse(log.logInfo) : {}
+
+    let logText = ''
+    if (baseLog.msg_info) {
+        logText = `${wrappTitle('基本日志')}\n${baseLog.msg_info}`
+    }
+
+    if (engineLogs) {
+        logText = `${logText} \n${wrappTitle('引擎日志')} \n ${engineLogs}`
+    }
+
     return (
-        <div className="task-log-info">
-            <article>
-                <h2 className="log-title">提交日志</h2>
-                <Editor className="bd" value={log.msg_info} />
-            </article>
-            <article style={{ display: log['root-exception'] ? 'block' : 'none' }}>
-                <h2 className="log-title">运行日志</h2>
-                <Editor className="bd" value={log['root-exception']} />
-                {logList}
-            </article>
+        <div>
+            <Row style={logStyle}>
+                <Editor sync value={logText} options={editorOptions}/>
+            </Row>
         </div>
     )
 }

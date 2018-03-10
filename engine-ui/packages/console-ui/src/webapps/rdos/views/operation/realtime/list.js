@@ -31,9 +31,11 @@ class RealTimeTaskList extends Component {
         },
         loading: false,
         continue: false,
+        logVisible: false,
         current: 1,
         taskName: utils.getParameterByName('tname') || '',
         goOnTask: '',
+        logInfo: '',
     }
 
     componentDidMount() {
@@ -138,17 +140,11 @@ class RealTimeTaskList extends Component {
 
     logInfo = (task) => {
         Api.getTaskLogs({ taskId: task.taskId }).then((res) => {
-            const error = res.data && res.data.logInfo ? JSON.parse(res.data.logInfo) : {}
             if (res.code === 1) {
-                Modal.info({
-                    title: `日志-${task.name}`,
-                    content: (
-                        <LogInfo logInfo={error} />
-                    ),
-                    maskClosable: true,
-                    width: '60%',
-                    style: { height: '50%' },
-                });
+                this.setState({
+                    logInfo: res.data,
+                    logVisible: true,
+                })
             }
         })
     }
@@ -266,7 +262,7 @@ class RealTimeTaskList extends Component {
     }
 
     render() {
-        const { tasks } = this.state
+        const { tasks, logInfo } = this.state
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 10,
@@ -303,6 +299,16 @@ class RealTimeTaskList extends Component {
                         onCancel={this.hideGoOnTask}
                     />
                 </Card>
+                <Modal
+                    width="60%"
+                    title={`日志-${logInfo.taskId}`}
+                    wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
+                    visible={ this.state.logVisible }
+                    onCancel={() => { this.setState({ logVisible: false }) }}
+                    footer={null}
+                >
+                    <LogInfo log={logInfo} height="520px"/>
+                </Modal>
             </div>
         )
     }

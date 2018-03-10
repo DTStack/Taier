@@ -50,6 +50,7 @@ export default class Toolbar extends Component {
         const params = { 
             projectId: project.id, 
             isCheckDDL: user.isCheckDDL,
+            taskVariables: currentTabData.taskVariables,
         }
 
         let sqls = []
