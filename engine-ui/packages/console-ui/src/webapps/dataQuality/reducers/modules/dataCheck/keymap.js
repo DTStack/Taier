@@ -56,6 +56,16 @@ export default function keymap(state = initialState, action) {
             return clone;
         }
 
+        case keyMapActions.SET_EDIT_MAP: {
+            const clone = cloneDeep(state);
+            const { source, target } = clone;
+
+            clone.source = action.payload.source;
+            clone.target = action.payload.target;
+
+            return clone;
+        }
+
         case keyMapActions.SET_ROW_MAP: {
             const { targetCol, sourceCol } = action.payload;
             let source = [], target = [];
@@ -71,7 +81,7 @@ export default function keymap(state = initialState, action) {
         }
 
         case keyMapActions.SET_NAME_MAP: {
-            let { targetCol, sourceCol, targetSrcType } = action.payload;
+            let { targetCol, sourceCol } = action.payload;
             let source = [], target = [];
 
             let targetNameCol = targetCol.map(o => o.key);
@@ -81,7 +91,7 @@ export default function keymap(state = initialState, action) {
 
                 if( idx !== -1) {
                     source.push(name);
-                    target.push(DATA_TYPE_ARRAY.indexOf(+targetSrcType) !== -1? name: targetCol[idx]);
+                    target.push(name);
                 }
             });
 

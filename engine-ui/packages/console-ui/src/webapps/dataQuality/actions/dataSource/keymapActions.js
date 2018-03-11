@@ -18,6 +18,12 @@ export const keyMapActions = (dispatch) => {
                 payload: params
             });
         },
+        setEditMap: (params) => {
+            dispatch({
+                type: ACTION_TYPE.SET_EDIT_MAP,
+                payload: params
+            });
+        },
         setRowMap: (params) => {
             dispatch({
                 type: ACTION_TYPE.SET_ROW_MAP,

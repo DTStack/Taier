@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card } from 'antd';
+import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message } from 'antd';
 import moment from 'moment';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import * as UserAction from '../../../actions/user';
@@ -28,7 +28,7 @@ const mapDispatchToProps = dispatch => ({
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class DataCheck extends Component {
+export default class RuleConfig extends Component {
 
     state = {
         params: {
@@ -216,12 +216,8 @@ export default class DataCheck extends Component {
     }
 
     // table搜索
-    handleSearch = (name) => {
-        let tableName = name ? name : undefined;
-        let params = {...this.state.params, tableName: tableName};
-
-        this.setState({ params });
-        this.props.getLists(params);
+    handleSearch = () => {
+        this.props.getLists(this.state.params);
     }
 
     render() {
@@ -235,67 +231,54 @@ export default class DataCheck extends Component {
             total: lists.totalCount,
         };
 
-        const cardTitle = (
-            <div className="flex filter-action">
-                <Search
-                    placeholder="输入表名搜索"
-                    style={{ width: 200, margin: '10px 0' }}
-                    onSearch={this.handleSearch}
-                />
-
-                <div className="m-l-8">
-                    最近修改人：
-                    <Select allowClear onChange={this.onUserChange} style={{ width: 200 }}>
-                        {
-                            this.renderUserList(userList)
-                        }
-                    </Select>
-                </div>
-
-                <div className="m-l-8">
-                    执行时间：
-                    <DatePicker
-                        format="YYYY-MM-DD"
-                        placeholder="选择日期"
-                        onChange={this.onDateChange}
-                    />
-                </div>
-            </div>
-        )
-
-        const cardExtra = (
-            <Button type="primary" style={{ margin: '10px 0' }}>
-                <Link to="/dq/dataCheck/add">
-                    新建逐行校验
-                </Link>
-            </Button>
-        )
-
         return (
-        	<div className="check-dashboard">
-                <h1 className="box-title">
-                    逐行校验
-                </h1>
+        	<div className="inner-container check-page">
+        		<div className="action-panel">
+                    <div className="flex">
+            			<InputGroup compact>
+                            <Input 
+                                placeholder="输入表名搜索" 
+                                style={{ width: 300 }} 
+                                onChange={this.onInputChange} 
+                            />
+                            <Button type="primary" onClick={this.handleSearch}>搜索</Button>
+                        </InputGroup>
 
-                <div className="box-2 m-card shadow">
-                    <Card 
-                        title={cardTitle} 
-                        extra={cardExtra} 
-                        noHovering 
-                        bordered={false}
-                    >
-                        <Table 
-                            rowKey="id"
-                            className="m-table"
-                            columns={this.initColumns()} 
-                            loading={loading}
-                            pagination={pagination}
-                            dataSource={lists.data}
-                            onChange={this.onTableChange}
-                        />
-                    </Card>
+                        <div className="m-l-8">
+                            最近修改人：
+                            <Select allowClear onChange={this.onUserChange} style={{ width: 200 }}>
+                                {
+                                    this.renderUserList(userList)
+                                }
+                            </Select>
+                        </div>
+
+                        <div className="m-l-8">
+                            执行时间：
+                            <DatePicker
+                                format="YYYY-MM-DD"
+                                placeholder="选择日期"
+                                onChange={this.onDateChange}
+                            />
+                        </div>
+                    </div>
+
+                    <Button type="primary">
+                        <Link to="/dq/dataCheck/add">
+                            新建逐行校验
+                        </Link>
+                    </Button>
                 </div>
 
+                <Table 
+                    rowKey="id"
+                    className="m-table box-5"
+                    columns={this.initColumns()} 
+                    loading={loading}
+                    pagination={pagination}
+                    dataSource={lists.data}
+                    onChange={this.onTableChange}
+                />
         	</div>
         )
     }

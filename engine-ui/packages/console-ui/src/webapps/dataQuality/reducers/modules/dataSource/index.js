@@ -2,6 +2,9 @@ import { dataSourceActions as ACTION_TYPE } from '../../../consts/dataSourceActi
 import { cloneDeep } from 'lodash';
 
 const initialState = {
+    loading: false,
+    sourceQuery: [],
+    sourceType: [],
     sourceList: [],
     sourceTable: [],
     sourceColumn: [],
@@ -11,8 +14,30 @@ const initialState = {
 
 export default function dataSource(state = initialState, action) {
     const { type, payload } = action;
-    switch (type) {  
+    switch (type) {
+
+        case ACTION_TYPE.CHANGE_LOADING: {
+            const clone = cloneDeep(state);
+            const { loading } = clone;
+            clone.loading = !loading;
+            return clone;
+        }
+
+        case ACTION_TYPE.GET_DATA_SOURCES: {
+            const clone = cloneDeep(state);
+            const { sourceQuery } = clone;
+            clone.sourceQuery = payload;
+            return clone;
+        }
+
         case ACTION_TYPE.GET_DATA_SOURCES_TYPE: {
+            const clone = cloneDeep(state);
+            const { sourceType } = clone;
+            clone.sourceType = payload;
+            return clone;
+        }
+
+        case ACTION_TYPE.GET_DATA_SOURCES_LIST: {
             const clone = cloneDeep(state);
             const { sourceList } = clone;
             clone.sourceList = payload;

@@ -4,13 +4,6 @@ import { cloneDeep } from 'lodash';
 const initialState = {
     loading: false,
     lists: [],
-    params: {
-        origin: {},
-        target: {},
-        setting: {},
-        mappedPK: {},
-        notifyVO: {}
-    }
 }
 
 export default function dataCheck(state = initialState, action) {
@@ -27,13 +20,6 @@ export default function dataCheck(state = initialState, action) {
             const clone = cloneDeep(state);
             const { lists } = clone;
             clone.lists = payload;
-            return clone;
-        }
-
-        case ACTION_TYPE.CHANGE_PARAMS: {
-            const clone = cloneDeep(state);
-            const { params } = clone;
-            clone.params = {...params, ...payload};
             return clone;
         }
 

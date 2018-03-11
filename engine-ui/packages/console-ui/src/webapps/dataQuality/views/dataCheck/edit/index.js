@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Icon, Steps, Button, Form, Radio, Select, Input, Row, Col, Table, DatePicker, TimePicker, message } from 'antd';
-// import Keymap from './keymap';
+import { isEmpty } from 'lodash';
+import { Steps, Button, Icon } from 'antd';
+
 import StepOne from './stepOne';
 import StepTwo from './stepTwo';
 import StepThree from './stepThree';
 import StepFour from './stepFour';
 import DiffSettingTable from './diffSettingTable';
+
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
+import DCApi from '../../../api/dataCheck';
+
 import '../../../styles/views/dataCheck.scss';
 
 const Step = Steps.Step;
-const FormItem = Form.Item;
-const RadioGroup = Radio.Group;
-const Option = Select.Option;
 
 const mapStateToProps = state => {
     const { dataCheck, dataSource } = state;
@@ -23,8 +24,8 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesType(params) {
-        dispatch(dataSourceActions.getDataSourcesType(params));
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
     },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
@@ -40,9 +41,6 @@ const mapDispatchToProps = dispatch => ({
     },
     editCheck(params) {
         dispatch(dataCheckActions.editCheck(params));
-    },
-    changeParams(params) {
-        dispatch(dataCheckActions.changeParams(params));
     }
 })
 
@@ -52,57 +50,52 @@ export default class DataCheckEdit extends Component {
         super(props);
         this.state = {
             current: 0,
-            params: {
-                origin: {
-                    dataSourceId: undefined,
-                    table: '',
-                    column: '',
-                },
-                target: {
-                    dataSourceId: undefined,
-                    table: '',
-                    column: '',
-                },
-                setting: {
-                    matchNull: undefined,
-                    diverseNum: undefined,
-                    matchCase: '',
-                    diverseAbsolute: ''
-                },
+            editParams: {
+                origin: {},
+                target: {},
+                setting: {},
                 scheduleConf: '',
-                executeType: '',
+                executeType: 0,
                 mappedPK: {},
-                notifyVO: {
-                    receivers: '',
-                    sendTypes: '',
-                    bizType: '',
-                    status: '',
-                },
-                sourceType: undefined,
-                originTable: '',
-                originPart: '',
-                originColumn: [],
-                targetTable: '',
-                targetPart: '',
-                targetColumn: []
-            }
+                notifyVO: {},
+            },
+            editStatus: 'new'
         }
     }
 
-    componentDidMount() {
-        this.props.getDataSourcesType();
+    componentWillMount() {
+        const { routeParams } = this.props;
+        // this.props.getDataSourcesList();
+        if (!isEmpty(routeParams)) {
+            this.setState({ editStatus: 'edit' });
+            // this.props.getCheckDetail({ verifyId: routeParams.verifyId });
+            DCApi.getCheckDetail({ verifyId: routeParams.verifyId }).then((res) => {
+                if (res.code === 1) {
+                    this.setState({ 
+                        editParams: { ...this.state.editParams, 
+                            origin: res.data.origin,
+                            target: res.data.target,
+                            setting: res.data.setting,
+                            scheduleConf: res.data.scheduleConf,
+                            executeType: res.data.executeType,
+                            mappedPK: res.data.mappedPK,
+                            notifyVO: res.data.notifyVO
+                        }
+                    });
+                }
+            });
+        }
+        console.log(this,'edit')
     }
 
-    // changeParams = (obj) => {
-    //     let params = Object.assign({}, this.state.params, obj);
-    //     this.setState({ params });
-    //     console.log(this)
-    // }
+    componentDidMount() {
+        
+    }
 
     changeParams = (obj) => {
-        let params = {...this.state.params, ...obj};
-        this.setState({ params });
-        console.log(this,'params')
+        let editParams = { ...this.state.editParams, ...obj };
+        this.setState({ editParams });
+        console.log(this,'editParams')
     }
 
     next = () => {
@@ -116,7 +109,6 @@ export default class DataCheckEdit extends Component {
     }
 
     navToStep = (value) => {
-        console.log(value)
         this.setState({ current: value });
     }
 
@@ -125,15 +117,16 @@ export default class DataCheckEdit extends Component {
     }
  
     render() {
-        const { dataCheck } = this.props;
-        const { current } = this.state;
-
+        const { current, editParams, editStatus } = this.state;
         const steps = [
             {
                 title: '选择左侧表', content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
                     {...this.props} 
+                    editParams={editParams}
+                    editStatus={editStatus}
+                    changeParams={this.changeParams}
                 />
             },
             {
@@ -141,6 +134,9 @@ export default class DataCheckEdit extends Component {
                     currentStep={current}
                     navToStep={this.navToStep}
                     {...this.props} 
+                    editParams={editParams}
+                    editStatus={editStatus}
+                    changeParams={this.changeParams}
                 />
             },
             {
@@ -148,6 +144,9 @@ export default class DataCheckEdit extends Component {
                     currentStep={current}
                     navToStep={this.navToStep}
                     {...this.props} 
+                    editParams={editParams}
+                    editStatus={editStatus}
+                    changeParams={this.changeParams}
                 />
             },
             {
@@ -155,6 +154,9 @@ export default class DataCheckEdit extends Component {
                     currentStep={current}
                     navToStep={this.navToStep}
                     {...this.props} 
+                    editParams={editParams}
+                    editStatus={editStatus}
+                    changeParams={this.changeParams}
                 />
             }
         ];

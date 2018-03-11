@@ -3,6 +3,7 @@ import mc from 'mirror-creator';
 export const keyMapActions = mc([
     'ADD_LINKED_KEYS',
     'DEL_LINKED_KEYS',
+    'SET_EDIT_MAP',
     'SET_ROW_MAP',
     'SET_NAME_MAP',
     'RESET_LINKED_KEYS',

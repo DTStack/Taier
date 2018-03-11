@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Table, Checkbox, TimePicker, Form, InputNumber, Button, Switch, Select, message, Row, Col } from 'antd';
-import { select, selectAll, mouse } from 'd3-selection';
 import { connect } from 'react-redux';
+import { select, selectAll, mouse } from 'd3-selection';
+import { isEmpty, isEqual } from 'lodash';
+import { Table, Checkbox, TimePicker, Form, InputNumber, Button, Switch, Select, message, Row, Col } from 'antd';
 import { keyMapActions } from '../../../actions/dataSource/keymapActions';
 import API from '../../../api/dataSource';
 
@@ -17,10 +18,9 @@ export default class StepThree extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedIds: [],
-            selectedRows: [],
-            selectedIds1: [],
-            selectedRows1: [],
+            selectedSetting: [],
+            selectedSource: [],
+            selectedTarget: [],
             diffRule: [],
             h: 40,
             w: 230,
@@ -28,7 +28,9 @@ export default class StepThree extends Component {
             H: 0,
             padding: 10,
             originColumn: [],
-            targetColumn: []
+            targetColumn: [],
+            rowMap: false,
+            nameMap: false
         }
     }
 
@@ -37,13 +39,16 @@ export default class StepThree extends Component {
         this.$canvas = select(this.canvas);
         this.$activeLine = select('#activeLine');
         // this.setState({
-        //     W: this.getCanvasW1(),
+        //     W: this.getCanvasW(),
         //     H: this.getCanvasH()
         // })
+        // this.loadColumnFamily();
         this.drawSvg();
         this.listenResize();
-        // this.loadColumnFamily();
-        this.initData();
+        this.getKeyMapColumnData();
+        this.setEditKeymapData();
+        this.setKeymapCheck();
+        this.setSettingTableFields();
         console.log(this,'this')
     }
 
@@ -54,17 +59,74 @@ export default class StepThree extends Component {
     }
 
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.keymap.source.length != this.props.keymap.source.length) {
-			const { origin, target } = this.props.dataCheck.params;
+		let newKeymap = nextProps.keymap,
+			oldKeymap = this.props.keymap;
+
+		// keymap有改变则改变params
+		if (newKeymap.source.length != oldKeymap.source.length) {
+			const { origin, target } = this.props.editParams;
 			this.props.changeParams({
-	            origin: { ...origin, column: nextProps.keymap.source },
-	            target: { ...target, column: nextProps.keymap.target }
+	            origin: { ...origin, column: newKeymap.source },
+	            target: { ...target, column: newKeymap.target }
 	        });
 		}
 	}
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.resize, false);
+    }
+
+	setEditKeymapData = () => {
+		const { origin, target } = this.props.editParams;
+		if (origin.column && target.column) {
+			this.props.setEditMap({
+                source: origin.column,
+                target: target.column
+            });
+		}
+	}
+
+	setSettingTableFields = () => {
+		const { setting } = this.props.editParams;
+		const { form } = this.props;
+
+		if (!isEmpty(setting)) {
+			let settingCheck = [],
+				fieldsValue = {};
+
+			Object.keys(setting).forEach((item) => {
+				if (setting[item]) {
+					console.log(item, setting[item], item.indexOf('matchCase'))
+					settingCheck.push(item);
+					if (item != 'matchCase' && item != 'matchNull') {
+						fieldsValue[item] = setting[item];
+					}
+				}
+			});
+
+			form.setFieldsValue(fieldsValue);
+			this.setState({ selectedSetting: settingCheck });
+		}
+	}
+
+    setKeymapCheck = () => {
+    	const { mappedPK } = this.props.editParams;
+
+    	// 填充keymap的checkbox
+		if (!isEmpty(mappedPK)) {
+			let sourceCheck = [],
+				targetCheck = [];
+
+			for (let [key, value] of Object.entries(mappedPK)) {
+				sourceCheck.push(key);
+				targetCheck.push(value);
+			}
+
+			this.setState({
+  				selectedSource: sourceCheck,
+  				selectedTarget: targetCheck
+  			});
+		}
     }
 
     listenResize() {
@@ -75,13 +137,14 @@ export default class StepThree extends Component {
 
     resize = () => {
         this.setState({
-            W: this.getCanvasW1(),
+            W: this.getCanvasW(),
             H: this.getCanvasH()
         });
     }
 
-	initData = () => {
-		const { origin, target } = this.props.dataCheck.params;
+	getKeyMapColumnData = () => {
+		const { origin, target } = this.props.editParams;
+		const { setEditMap } = this.props;
 
 		API.getDataSourcesColumn({
 			sourceId: origin.dataSourceId,
@@ -103,9 +166,9 @@ export default class StepThree extends Component {
 				this.setState({
 					targetColumn: res.data
 				});
+				this.resize();
 			}
 		});
-
 	}
 
     drawSvg() {
@@ -360,7 +423,8 @@ export default class StepThree extends Component {
     }
 
     getSettingItem = (key) => {
-        const { getFieldDecorator } = this.props.form;
+    	const { getFieldDecorator } = this.props.form;
+    	const { setting } = this.props.editParams;
         switch (key) {
             case 'diverseNum':
                 return (
@@ -369,6 +433,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('diverseNum', {
                                 rules: [{ required: true, message: '不能为空' }],
+                                initialValue: setting.diverseNum
                             })(
                                 <InputNumber min={0} step={1} />
                             )
@@ -376,7 +441,6 @@ export default class StepThree extends Component {
                         %时候，计为成功匹配
                     </div>
                 )
-                break;
             case 'diverseRatio':
                 return (
                     <div>
@@ -384,6 +448,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('diverseRatio', {
                                 rules: [{ required: true, message: '不能为空' }],
+                                initialValue: setting.diverseRatio
                             })(
                                 <InputNumber min={0} max={100} step={1} />
                             )
@@ -391,7 +456,6 @@ export default class StepThree extends Component {
                         %时候，计为成功匹配
                     </div>
                 )
-                break;
             case 'diverseAbsolute':
                 return (
                     <div>
@@ -399,6 +463,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('diverseAbsolute', {
                                 rules: [{ required: true, message: '不能为空' }],
+                                initialValue: setting.diverseAbsolute
                             })(
                                 <InputNumber min={0} step={1} />
                             )
@@ -406,7 +471,6 @@ export default class StepThree extends Component {
                         时候，计为成功匹配
                     </div>
                 )
-                break;
             case 'decimalRetain':
                 return (
                     <div>
@@ -414,6 +478,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('decimalRetain', {
                                 rules: [{ required: true, message: '不能为空' }],
+                                initialValue: setting.decimalRetain
                             })(
                                 <InputNumber min={0} step={1} />
                             )
@@ -421,17 +486,14 @@ export default class StepThree extends Component {
                         位
                     </div>
                 )
-                break;
             case 'matchCase':
                 return (
                     <p>字符不区分大小写，对比左右表的字符串型数据时，不区分大小写</p>
                 )
-                break;
             case 'matchNull':
                 return (
                     <p>空值与NULL等价，对比左右表的数据时，认为空值与NULL值是相等的</p>
                 )
-                break;
             default:
                 break;
         }
@@ -442,27 +504,13 @@ export default class StepThree extends Component {
 	}
 
     getCanvasW() {
-        let w = 450;
-        const canvas = document.querySelector('.steps-content')
-        if (canvas) {
-            const newW = canvas.getBoundingClientRect().width/6*5;
-            if(newW > w) w = newW;
-        }
-        return w;
-    }
-
-    getCanvasW1() {
-        const canvas = document.querySelector('.m-keymapcanvas')
-        const newW = canvas.getBoundingClientRect().width;
-        console.log(newW)
-        return newW
+        return document.querySelector('.keymap-svg').getBoundingClientRect().width;
     }
 
     getCanvasH() {
-        const leftTable = document.querySelector('.keymap-table')
-        const newH = leftTable.getBoundingClientRect().height;
-        console.log(newH)
-        return newH
+        const left = document.querySelectorAll('.keymap-table')[0].getBoundingClientRect().height
+        const right = document.querySelectorAll('.keymap-table')[1].getBoundingClientRect().height
+        return left > right ? left : right;
     }
 
 	initTableColumns = () => {
@@ -483,27 +531,33 @@ export default class StepThree extends Component {
 	}
 
     prev = () => {
-        this.props.navToStep(1);
+        const { currentStep, navToStep } = this.props;
+        navToStep(currentStep - 1);
     }
 
     next = () => {
-    	const { params } = this.props.dataCheck;
-    	const { keymap } = this.props;
-    	const { selectedIds } = this.state;
+    	const { editParams, keymap, currentStep, navToStep, form, changeParams } = this.props;
+    	const { selectedSetting } = this.state;
 
     	if (!keymap.source.length) {
     		message.error('请连接要比对的字段')
     		return;
     	} else {
-    		if (selectedIds.length) {
-
-		        this.props.form.validateFields(selectedIds, (err, values) => {
+    		if (selectedSetting.length) {
+            	
+		        form.validateFields(selectedSetting, (err, values) => {
 		            console.log(err,values)
 		            if(!err) {
-		                this.props.changeParams({
-		                	setting: { ...params.setting, ...values }
+		            	Object.keys(values).forEach((item) => {
+		            		if (item === 'matchCase' || item === 'matchNull') {
+		            			values[item] = true;
+		            		}
+		            	});
+		            	console.log(values)
+		                changeParams({
+		                	setting: { ...editParams.setting, ...values }
 		                });
-		                this.props.navToStep(3);
+		                navToStep(currentStep + 1);
 		            } else {
 		            	message.error('请填写已选中的差异设置');
 		            }
@@ -515,66 +569,168 @@ export default class StepThree extends Component {
 
     }
 
-    render() {
-        const { selectedIds, diffRule, w, h, W, H, padding, originColumn, targetColumn } = this.state;
+    // 同行映射连接
+	setRowMap = () => {
+		const { rowMap, nameMap, originColumn, targetColumn } = this.state;
+		const { origin, target } = this.props.editParams;
 
-        const keymapSelection = {
-            selectedRowKeys: selectedIds,
-            onChange: (selectedIds, selectedRows) => {
-            	console.log(selectedIds,selectedRows)
-                this.setState({
-                    selectedIds1: selectedIds,
-                    selectedRows1: selectedRows
-                });
-            }
+        const convertColumn2Keymap = (column) => {
+            column = column.map(o => o.key);
+            return column;
+        }
+
+    	if (!rowMap) {
+            this.props.setRowMap({
+                sourceCol: convertColumn2Keymap(originColumn),
+                targetCol: convertColumn2Keymap(targetColumn)
+            });
+        } else {
+            this.props.resetLinkedKeys();
+        }
+
+    	this.setState({
+            rowMap: !rowMap,
+            nameMap: nameMap ? !nameMap : nameMap
+        });
+    }
+
+    // 同名映射连接
+    setNameMap = () => {
+        const { nameMap, rowMap, originColumn, targetColumn } = this.state;
+        const { origin, target } = this.props.editParams;
+
+        if (!nameMap) {
+            this.props.setNameMap({
+                sourceCol: originColumn,
+                targetCol: targetColumn
+            });
+        } else {
+            this.props.resetLinkedKeys();
+        }
+
+        this.setState({
+            nameMap: !nameMap,
+            rowMap: rowMap ? !rowMap : rowMap
+        });
+    }
+
+    render() {
+        const { selectedSetting, selectedSource, selectedTarget, diffRule, w, h, W, H, padding, originColumn, targetColumn } = this.state;
+        const { source, target } = this.props.keymap;
+        const { mappedPK } = this.props.editParams;
+
+        const keymapSourceSelection = {
+            selectedRowKeys: selectedSource,
+        	getCheckboxProps(record) {
+			    return {
+			      	disabled: !source.includes(record.key)
+			    };
+		  	},
+		  	onSelect: (record, selected, selectedRow) => {
+		  		let sourceCheck = [...selectedSource];
+		  		let targetCheck = [...selectedTarget];
+	  			let mapPk = {};
+
+		  		if (selected) {
+		  			sourceCheck.push(record.key);
+	  				targetCheck.push(target[source.indexOf(record.key)]);
+		  			this.setState({
+		  				selectedSource: sourceCheck,
+		  				selectedTarget: targetCheck
+		  			});
+		  		} else {
+		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
+		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
+		  			this.setState({
+		  				selectedTarget: targetCheck,
+		  				selectedSource: sourceCheck,
+		  			});
+		  		}
+
+		  		// mapperPk
+		  		sourceCheck.forEach((s, index) => {
+	  				mapPk[s] = targetCheck[index]
+	  			});
+	  			this.props.changeParams({
+	  				mappedPK: mapPk
+	  			});
+		  	}
+        };
+
+        const keymapTargetSelection = {
+            selectedRowKeys: selectedTarget,
+            getCheckboxProps(record) {
+			    return {
+			      	disabled: !target.includes(record.key)
+			    };
+		  	},
+		  	onSelect: (record, selected,selectedRow) => {
+		  		let sourceCheck = [...selectedSource];
+		  		let targetCheck = [...selectedTarget];
+		  		let mapPk = {};
+
+		  		if (selected) {
+		  			targetCheck.push(record.key);
+		  			sourceCheck.push(source[target.indexOf(record.key)]);
+		  			this.setState({
+		  				selectedSource: sourceCheck,
+		  				selectedTarget: targetCheck
+		  			});
+		  		} else {
+		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
+		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
+		  			this.setState({
+		  				selectedSource: sourceCheck,
+		  				selectedTarget: targetCheck
+		  			});
+		  		}
+
+		  		// mapperPk
+		  		sourceCheck.forEach((s, index) => {
+	  				mapPk[s] = targetCheck[index]
+	  			});
+
+	  			this.props.changeParams({
+	  				mappedPK: mapPk
+	  			});
+		  	}
         };
 
         const settingRowSelection = {
-            selectedRowKeys: selectedIds,
-            onChange: (selectedIds, selectedRows) => {
-            	let abb = {}
-            	selectedIds.forEach((item) => {
-            		abb[item] = this.props.form.getFieldValue(item)
-            	});
-            	console.log(abb)
-          //   	this.props.changeParams({
-		        //     setting: {
-
-		        //     }
-		        // });
-            	console.log(selectedIds,selectedRows)
+            selectedRowKeys: selectedSetting,
+            onChange: (selectedIds) => {
                 this.setState({
-                    selectedIds: selectedIds,
-                    selectedRows: selectedRows
+                    selectedSetting: selectedIds
                 });
             }
         };
 
         return (
         	<div>
-                <div className="steps-content">
-                    <p style={{ fontSize: 14, color: '#ccc', textAlign: 'center' }}>
+                <div className="steps-content step-3">
+                    <p className="keymap-title">
 		                您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
 		            </p>
-		            <Row>
+
+		            <Row className="keymap-content">
 		                <Col offset={2} span={6}>
 		                	<Table
 				                className="keymap-table m-table"
 				                bordered
 				                columns={this.initTableColumns()}
-				                rowSelection={keymapSelection}
+				                rowSelection={keymapSourceSelection}
 				                rowKey={record => record.key}
 				                dataSource={originColumn}
 				                pagination={false}
 				            />
 				        </Col>
-				        <Col span={8} style={{ margin: '0 -15px', zIndex: 99 }}>
+
+				        <Col span={8} className="canvas-content">
 				            <svg
 	                            ref={ el => this.canvas = el }
 	                            width='100%'
 	                            height={ H }
-	                            className="pa m-keymapcanvas"
-	                            // style={{ left: w , top: padding, margin: '0 -15px' }}
+	                            className="keymap-svg"
 	                        >
 	                            <defs>
 	                                <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
@@ -591,37 +747,53 @@ export default class StepThree extends Component {
 	                            </g>
 	                        </svg>
 	                    </Col>
+
 	                   	<Col span={6}>
 	                        <Table
 				                className="keymap-table m-table"
 				                bordered
 				                columns={this.initTableColumns()}
-				                rowSelection={keymapSelection}
+				                rowSelection={keymapTargetSelection}
 				                rowKey={record => record.key}
 				                dataSource={targetColumn}
 				                pagination={false}
 				            />
 		                </Col>
-		                
+
+	                	<Col span={2}>
+		                	<div className="keymap-action">
+		                        <Button
+		                            type={this.state.rowMap ? 'primary' : 'default'}
+		                            onClick={this.setRowMap}
+		                        >
+		                        	{this.state.rowMap ? '取消同行映射' : '同行映射'}
+		                        </Button>
+		                        <br />
+		                        <Button
+		                            type={this.state.nameMap ? 'primary' : 'default'}
+		                            onClick={this.setNameMap}
+		                        >
+		                        	{ this.state.nameMap ? '取消同名映射' : '同名映射' }
+		                        </Button>
+	                        </div>
+		                </Col>
 		            </Row>
-		            <div className="txt-center">
-	                    <Button>
-	                    	同行映射
-	                    </Button>
-	                    <Button>
-	                    	同名映射
-	                    </Button>
-		            </div>
-		            <Table
-		                className="m-table diffrule-table"
-		                showHeader={false}
-		                columns={this.initColumns()}
-		                rowSelection={settingRowSelection}
-		                rowKey={record => record.setting}
-		                dataSource={diffRule}
-		                pagination={false}
-		            />
+
+		            <Row className="keymap-content">
+		                <Col offset={2} span={20}>
+				            <Table
+				                className="m-table diffrule-table"
+				                showHeader={false}
+				                columns={this.initColumns()}
+				                rowSelection={settingRowSelection}
+				                rowKey={record => record.setting}
+				                dataSource={diffRule}
+				                pagination={false}
+				            />
+		                </Col>
+		             </Row>
 	           </div>
+
                 <div className="steps-action">
                     <Button onClick={this.prev}>上一步</Button>
                     <Button className="m-l-8" type="primary" onClick={this.next}>下一步</Button>
