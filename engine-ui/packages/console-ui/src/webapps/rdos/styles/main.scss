@@ -152,3 +152,11 @@ table {
         background: #F3F4F5;
     }
 }
+
+.card-tree-select {
+    .ant-card {
+        .ant-card-head-title {
+            overflow: inherit;
+        }
+    }
+}

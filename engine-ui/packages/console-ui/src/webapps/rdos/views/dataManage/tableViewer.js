@@ -117,10 +117,14 @@ export default class TableViewer extends React.Component{
 
     render() {
         const { showType, tableData, previewData } = this.state;
+
         const columns = [{
             title: '序号',
             dataIndex: 'index',
-            key: 'index'
+            key: 'index',
+            render(index) {
+                return ++index
+            }
         },{
             title: '字段名称',
             dataIndex: 'name',

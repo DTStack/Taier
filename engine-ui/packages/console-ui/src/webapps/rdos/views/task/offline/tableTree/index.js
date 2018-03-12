@@ -44,7 +44,7 @@ class TableTree extends React.Component {
     onLoadData = (treeNode) => {
         const { loadTreeNode, dispatch } = this.props;
         const { data } = treeNode.props;
-        const params = { pageSize: 1000, isDeleted: 0 };
+        const params = { pageSize: 1000, isDeleted: 0, isDirtyDataTable: 0 };
 
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
@@ -74,6 +74,8 @@ class TableTree extends React.Component {
         Api.searchTable({
             tableName: queryName,
             isDeleted: 0,
+            pageSize: 1000,
+            isDirtyDataTable: 0
         }).then(res => {
             treeData.children = res.data && res.data.data;
             loadTreeNode(treeData)
@@ -158,7 +160,7 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list">
+                <div className="tb-list" style={{maxHeight: tableId ? '500px' : '100%' }}>
                     <Tree
                         showIcon={true}
                         loadData={this.onLoadData}

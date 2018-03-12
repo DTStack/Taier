@@ -65,7 +65,7 @@ class RelationDetail extends React.Component {
             });
         } else { // 脚本
             Api.getScriptById({
-                scriptId: item.relationId,
+                id: item.relationId,
             }).then(res => {
                 if (res.code === 1) {
                     this.setState({

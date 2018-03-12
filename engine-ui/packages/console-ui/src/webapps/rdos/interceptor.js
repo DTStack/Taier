@@ -34,6 +34,9 @@ export function authAfterFormated(response) {
             description: response.message,
         });
         return Promise.reject(response);
+    case 11: // 验证异常
+            console.error(response.message)
+            return response;
     case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
         hashHistory.push('/');
     default:

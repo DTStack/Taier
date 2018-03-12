@@ -168,7 +168,7 @@ class TableList extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem>
-                    <span style={{ width: '200px', display: 'inline-block' }}>
+                    <span style={{ width: '200px', display: 'inline-block'}}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
@@ -204,38 +204,40 @@ class TableList extends Component {
             </div>
         )
 
-        return <div className="m-tablelist section">
+        return <div className="m-tablelist">
             <h1 className="box-title"> 表管理 </h1>
-            <div className="box-2 m-card" style={{ paddingBottom: 20 }}>
+            <div className="box-2 m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title} extra={extra}>
-                    <Table
-                        rowKey="id"
-                        className="m-table"
-                        columns={ columns }
-                        dataSource={ listData }
-                        pagination={ false }
-                        onChange={ this.handleTableChange.bind(this) }
-                    />
-                    <div className="pager" style={{ float: 'right', margin: '16px 20px 0 0' }}>
-                        <Pagination
-                            pageSize={ 10 }
-                            current={ currentPage }
-                            total={ totalCount }
-                            onChange={ this.showPage.bind(this) }
+                    <div style={{ marginTop: '1px' }}>
+                        <Table
+                            rowKey="id"
+                            className="m-table"
+                            columns={ columns }
+                            dataSource={ listData }
+                            pagination={ false }
+                            onChange={ this.handleTableChange.bind(this) }
                         />
+                        <div className="pager" style={{ float: 'right', margin: '16px 20px 0 0' }}>
+                            <Pagination
+                                pageSize={ 10 }
+                                current={ currentPage }
+                                total={ totalCount }
+                                onChange={ this.showPage.bind(this) }
+                            />
+                        </div>
+                        <Modal className="m-codemodal"
+                            width="750"
+                            title="DDL建表"
+                            visible={this.state.visible}
+                            onOk={this.handleOk.bind(this)}
+                            onCancel={this.handleCancel.bind(this)}
+                        >
+                            <Editor
+                                onChange={ this.handleDdlChange.bind(this) } 
+                                value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
+                            />
+                        </Modal>
                     </div>
-                    <Modal className="m-codemodal"
-                        width="750"
-                        title="DDL建表"
-                        visible={this.state.visible}
-                        onOk={this.handleOk.bind(this)}
-                        onCancel={this.handleCancel.bind(this)}
-                    >
-                        <Editor
-                            onChange={ this.handleDdlChange.bind(this) } 
-                            value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
-                        />
-                    </Modal>
                 </Card>
             </div>
         </div>
@@ -251,10 +253,6 @@ class TableList extends Component {
         const params = this.getReqParams();
         if (sorter) {
             let { field, order } = sorter;
-            // const params = {
-            //     [field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort']:
-            //         order === 'descend' ? 'desc' : 'asc'
-            // }
             params[
                 field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort'
             ] = order === 'descend' ? 'desc' : 'asc'

@@ -64,6 +64,9 @@ class BaseForm extends React.Component {
                         max: 64,
                         message: '名称不得超过64个字符！',
                     }, {
+                        pattern: /^[A-Za-z0-9_-]+$/,
+                        message: '表名称只能由字母、数字、下划线组成!',
+                    }, {
                         validator: this.validateTableName.bind(this)
                     }],
                     validateTrigger: 'onBlur',
@@ -196,12 +199,13 @@ class BaseForm extends React.Component {
     }
 
     validateTableName(rule, value, callback) {
+        const ctx = this;
         value ? ajax.checkTableExist({
             tableName: value
         }).then(res => {
             if(res.code === 1) {
                 // 转换为小写
-                this.props.form.setFieldsValue({ tableName: value.toLowerCase() })
+                ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
                 if(res.data) callback(res.data);
             }
         })

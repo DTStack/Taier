@@ -24,18 +24,19 @@ export default {
     logout() { // 注销退出
         http.post(req.APP_LOGOUT).then(res => {
             if (res.code === 1) {
-                http.post(req.LOGOUT).then(res => {
-                    localDb.clear()
-                    utils.deleteCookie('dt_user_id', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('dt_token', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('dt_tenant_id', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('dt_tenant_name', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('dt_username', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
-                    utils.deleteCookie('project_id', UIC_DOMAIN_URL, '/')
-                    window.location.href = `${UIC_URL_TARGET}/#/login`
-                })
+                localDb.clear()
+                utils.deleteCookie('dt_user_id', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('dt_token', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('dt_tenant_id', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('dt_tenant_name', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('dt_username', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
+                utils.deleteCookie('project_id', UIC_DOMAIN_URL, '/')
+                window.location.href = `${UIC_URL_TARGET}/#/login`
+                // 现在UIC的登出接口集成入 RDOS Web后端统一请求
+                // http.post(req.LOGOUT).then(res => {
+                // })
             }
         })
     },

@@ -253,6 +253,12 @@
             .tb-list {
                 overflow-y: auto;
                 overflow-x: hidden;
+                -ms-overflow-style: none;
+                overflow: -moz-scrollbars-none;
+                &::-webkit-scrollbar { 
+                    display: none; 
+                    width: 0 !important;
+                }
             }
             .ant-tree-title {
                 position: relative;

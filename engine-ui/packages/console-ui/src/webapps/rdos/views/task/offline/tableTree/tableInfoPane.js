@@ -153,23 +153,29 @@ export default class TableInfoPane extends React.Component {
                             rowKey="id"
                             columns={this.initColums()}
                             dataSource={tableData.column}
+                            pagination={{ simple: true, size: 'small' }}
                         />
                     </div>
                 </TabPane>
                 <TabPane tab="分区信息" key="2">
-                    <TablePartition table={tableData && tableData.table} />
+                    <TablePartition 
+                        pagination={{ simple: true, size: 'small' }}
+                        table={tableData && tableData.table} 
+                    />
                 </TabPane>
                 <TabPane tab="数据预览" key="3">
                     <div className="box">
                         {previewData ? <Table
                             columns={this.previewCols.map(str => ({
+                                width: 100,
                                 title: str,
                                 dataIndex: str,
                                 key: str
                             }))}
                             rowKey="key"
+                            pagination={{ simple: true, size: 'small' }}
                             dataSource={previewData}
-                            scroll={{ x: 260 }}
+                            scroll={{ x: 1000 }}
                         />
                             :
                             <p style={{

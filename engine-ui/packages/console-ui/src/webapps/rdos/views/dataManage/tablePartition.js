@@ -60,7 +60,8 @@ export default class TablePartition extends React.Component {
 
     render() {
         const { result } = this.state
-        const pagination = {
+        const { pagination } = this.props
+        const realPagination = pagination || {
             total: result.totalCount,
             defaultPageSize: 10,
         };
@@ -69,7 +70,7 @@ export default class TablePartition extends React.Component {
                 <Table 
                     key="table_partition" 
                     className="m-table"
-                    pagination={pagination}
+                    pagination={realPagination}
                     columns={this.initClumuns()} 
                     dataSource={result.data || []} 
                     onChange={this.handleTableChange}
