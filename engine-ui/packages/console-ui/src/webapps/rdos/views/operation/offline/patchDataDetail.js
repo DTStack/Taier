@@ -287,7 +287,8 @@ class PatchDataDetail extends Component {
 
     onCheckAllChange = (e) => {
         if (e.target.checked) {
-            const selectedRowKeys = this.state.table.data.map(item => item.id)
+            const tasks = this.state.table.data && this.state.table.data.recordList
+            const selectedRowKeys = tasks && tasks.map(item => item.id)
             this.setState({
                 selectedRowKeys
             })
@@ -341,14 +342,14 @@ class PatchDataDetail extends Component {
             dataIndex: 'exeStartTime',
             key: 'exeStartTime',
         }, {
-            title: '运行时长（分钟）',
+            title: '运行时长（S）',
             dataIndex: 'exeTime',
             key: 'exeTime',
         }, {
             title: '责任人',
             width: 80,
-            dataIndex: 'createUser',
-            key: 'createUser',
+            dataIndex: 'dutyUserName',
+            key: 'dutyUserName',
         }]
     }
 

@@ -183,7 +183,7 @@ export default class TableInfoPane extends React.Component {
                                 textAlign: 'center',
                                 fontSize: 12,
                                 color: '#ddd'
-                            }}><Icon type="exclamation-circle-o" /> 此表中没有字段信息 </p>
+                            }}><Icon type="exclamation-circle-o" /> 此表中没有数据 </p>
                         }
                     </div>
                 </TabPane>

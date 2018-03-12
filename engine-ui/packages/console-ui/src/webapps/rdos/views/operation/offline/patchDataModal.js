@@ -232,6 +232,9 @@ class PatchData extends Component {
                                 required: true,
                                 message: '请输入补数据名!',
                             }, {
+                                pattern: /^[A-Za-z0-9_]+$/,
+                                message: '补数据名称只能由字母、数字、下划线组成!',
+                            }, {
                                 max: 64,
                                 message: '补数据名称不得超过64个字符！',
                             }],

@@ -30,6 +30,7 @@ const {
     mxPerimeter,
     mxUndoManager,
     mxCircleLayout,
+    mxCompactTreeLayout,
     mxMorphing,
     mxUtils,
     mxXmlCanvas2D,
@@ -83,24 +84,20 @@ export default class TableRelation extends React.Component {
     }
 
     loadTableInfo = (params) => {
-        this.showLoading()
         Api.getRelTableInfo(params).then(res => {
             if (res.code === 1) {
                 this.setState({ tableInfo: res.data })
             }
-            this.hideLoading();
         })
     }
 
     loadRelTableTasks = (params) => {
-        this.showLoading()
         params.pageSize = 5;
         params.pageIndex = params.pageIndex || 1;
         Api.getRelTableTasks(params).then(res => {
             if (res.code === 1) {
                 this.setState({ relationTasks: res.data })
             }
-            this.hideLoading();
         })
     }
 
@@ -230,6 +227,7 @@ export default class TableRelation extends React.Component {
 
         if (!layout) {
             layout = new mxCircleLayout(graph)
+            // layout = new mxCompactTreeLayout(graph)
             this.layout = layout
         }
 
@@ -255,6 +253,7 @@ export default class TableRelation extends React.Component {
         // // Disable context menu
         mxEvent.disableContextMenu(container)
         const graph = new mxGraph(container)
+
         this.graph = graph
         // 启用绘制
         graph.setPanning(true);
@@ -367,7 +366,7 @@ export default class TableRelation extends React.Component {
             const cell = evt.getProperty('cell')
             const target = evt.getProperty('event')
             const CLICK_LEFT = 1;
-            if (target.which === CLICK_LEFT && cell) {
+            if (target.which === CLICK_LEFT && cell && cell.vertex) {
                 let data = cell.getAttribute('data')
                 data = data ? JSON.parse(data) : ''
                 if (data.id !== ctx.state.selectedData.id) {

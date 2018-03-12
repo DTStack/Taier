@@ -62,6 +62,7 @@ export default class TaskView extends Component {
         this.initEditor()
         this.loadEditor(editor)
         this.listenDoubleClick()
+        this.listenOnClick();
         this.hideMenu()
         this.loadTaskChidren({
             taskId: id,
@@ -321,7 +322,7 @@ export default class TaskView extends Component {
         const ctx = this
         this.graph.addListener(mxEvent.onClick, function(sender, evt) {
             const cell = evt.getProperty('cell')
-            if (cell) {
+            if (cell && cell.vertex) {
                 let data = cell.getAttribute('data')
                 data = data ? JSON.parse(data) : ''
                 ctx.setState({ selectedTask: data })

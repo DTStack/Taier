@@ -173,7 +173,10 @@ class BaseForm extends React.Component {
                 label="描述"
             >
                 {getFieldDecorator('desc', {
-                    rules: [],
+                    rules: [{
+                        max: 200,
+                        message: '描述不得超过200个字符！',
+                    }],
                     initialValue: desc
                 })(
                     <Input type="textarea" placeholder="描述信息" />
