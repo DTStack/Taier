@@ -63,6 +63,7 @@ class ChannelForm extends React.Component{
                 <FormItem
                     {...formItemLayout}
                     label="作业速率上限"
+                    style={{ height: '32px' }}
                 >
                     {getFieldDecorator('speed', {
                         rules: [{
@@ -82,6 +83,7 @@ class ChannelForm extends React.Component{
                 <FormItem
                     {...formItemLayout}
                     label="作业并发数"
+                    style={{ height: '32px' }}
                 >
                     {getFieldDecorator('channel', {
                         rules: [{
@@ -110,7 +112,7 @@ class ChannelForm extends React.Component{
                     <HelpDoc doc="recordDirtyData" />
                 </FormItem>
                 {
-                    setting.isSaveDirty && <div>
+                    setting.isSaveDirty ? <div>
                         <FormItem 
                             {...formItemLayout}
                             label="脏数据写入hive表"
@@ -140,7 +142,7 @@ class ChannelForm extends React.Component{
                             <LifeCycle value={setting.lifeDay} width={120} onChange={this.onLifeDayChange}/>
                             <HelpDoc doc="recordDirtyData" />
                         </FormItem>
-                    </div>
+                    </div> : ''
                 }
                 <FormItem
                     {...formItemLayout}
@@ -182,7 +184,7 @@ class ChannelForm extends React.Component{
                     </span>
                     <HelpDoc 
                         doc="errorPercentConfig" 
-                        style={{position: 'initial', marginLeft: '6px'}}
+                        style={{ position: 'initial', marginLeft: '6px' }}
                     />
                 </FormItem>
             </Form>

@@ -103,9 +103,9 @@ class TaskForm extends React.Component {
                             required: true, message: '任务名称不可为空！',
                         }, {
                             max: 64,
-                            message: '任务名称不得超过20个字符！',
+                            message: '任务名称不得超过64个字符！',
                         }, {
-                            pattern: /^[A-Za-z0-9_-]+$/,
+                            pattern: /^[A-Za-z0-9_]+$/,
                             message: '任务名称只能由字母、数字、下划线组成!',
                         }],
                         initialValue: isCreateNormal ? undefined :  isCreateFromMenu ? undefined : defaultData.name
