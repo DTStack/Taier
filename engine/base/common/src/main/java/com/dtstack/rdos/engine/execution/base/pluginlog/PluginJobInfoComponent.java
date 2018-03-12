@@ -31,13 +31,13 @@ public class PluginJobInfoComponent {
     private static final String TIME_OUT_ERR_INFO = "任务失去连接(可能原因:执行引擎挂掉)";
 
     /**未完成的任务在60s内没有任务更新操作---认为任务已经挂了*/
-    private static final String TIME_OUT_TO_FAIL_SQL = String.format("update rdos_plugin_mysql_job_info set status = 8, log_info = '%s', " +
+    private static final String TIME_OUT_TO_FAIL_SQL = String.format("update rdos_plugin_job_info set status = 8, log_info = '%s', " +
             " gmt_modified = NOW()  where status not in(5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > 60 ", TIME_OUT_ERR_INFO);
 
     /**清理数据库中更新时间超过7天的记录*/
     private static int retain_time = 604800;
 
-    private static final String RETAIN_CLEAR_SQL = "delete from rdos_plugin_mysql_job_info where status in (5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > " + retain_time;
+    private static final String RETAIN_CLEAR_SQL = "delete from rdos_plugin_job_info where status in (5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > " + retain_time;
 
     private PluginDataConnPool dataConnPool = PluginDataConnPool.getInstance();
 
