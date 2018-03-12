@@ -68,8 +68,7 @@ public class ResultMsgDealerUtil {
 
             String dealerClassName = dealerClassNameMap.get(type);
             if(dealerClassName == null){
-                LOG.error("need to init type:{} of dealer className.", type);
-                System.exit(-1);
+                dealerClassName = "com.dtstack.rdos.engine.execution.base.DefaultResultMsgDealer";
             }
 
             try {
