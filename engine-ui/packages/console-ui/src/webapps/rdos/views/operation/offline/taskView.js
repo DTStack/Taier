@@ -11,6 +11,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
 import { taskTypeText } from '../../../components/display'
+import { TASK_STATUS, TASK_TYPE } from '../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',

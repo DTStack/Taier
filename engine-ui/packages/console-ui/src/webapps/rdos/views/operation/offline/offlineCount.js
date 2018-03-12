@@ -42,7 +42,6 @@ class OfflineCount extends Component {
 
     render() {
         const { data } = this.state
-        console.log('OfflineCount data:', data)
         return (
             <div style={{marginTop: '10px'}}>
                 <h1 className="box-title box-title-bolder">
