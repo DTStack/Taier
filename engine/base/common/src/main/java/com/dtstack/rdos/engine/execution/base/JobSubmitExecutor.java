@@ -80,6 +80,7 @@ public class JobSubmitExecutor{
                     new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
 
             clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
+            ResultMsgDealerUtil.getInstance();
             executionJob();
             noAvailSlotsJobaddExecutionQueue();
             hasInit = true;
