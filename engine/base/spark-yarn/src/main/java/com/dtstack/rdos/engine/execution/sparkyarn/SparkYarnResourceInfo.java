@@ -56,6 +56,10 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
             totalFreeCore += nodeFreeCores;
         }
 
+        if(totalFreeCore == 0 || totalFreeMem == 0){
+            return false;
+        }
+
         Properties properties = jobClient.getConfProperties();
         int instances = properties.containsKey(EXECUTOR_INSTANCES_KEY) ?
                 MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY)) : DEFAULT_INSTANCES;

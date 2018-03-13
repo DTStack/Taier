@@ -26,6 +26,11 @@ public class FlinkResourceInfo extends EngineResourceInfo{
             availableSlots += freeSlots;
         }
 
+        //没有资源直接返回false
+        if(availableSlots == 0){
+            return false;
+        }
+
         boolean result = true;
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
             int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));

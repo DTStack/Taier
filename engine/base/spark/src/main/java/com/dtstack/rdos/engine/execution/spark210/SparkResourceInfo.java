@@ -45,6 +45,10 @@ public class SparkResourceInfo extends EngineResourceInfo {
             coreNum += workerFreeCpu;
         }
 
+        if(coreNum == 0 || memNum == 0){
+            return false;
+        }
+
         Properties properties = jobClient.getConfProperties();
         int coresMax = properties.containsKey(STANDALONE_SPARK_MAX_CORES) ?
                 MathUtil.getIntegerVal(properties.get(STANDALONE_SPARK_MAX_CORES)) : DEFAULT_CORES_MAX;
