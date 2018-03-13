@@ -76,8 +76,8 @@ class ResViewModal extends React.Component {
                             <td>{ data.createUser.userName } 于 { moment(data.gmtCreate).format('YYYY-MM-DD hh:mm:ss') }</td>
                         </tr>
                         <tr>
-                            <td>最后修改</td>
-                            <td>{ data.modifyUser ? data.modifyUser.userName : '/' } 于 { moment(data.gmtModified).format('YYYY-MM-DD hh:mm:ss') }</td>
+                            <td>修改时间</td>
+                            <td>{ moment(data.gmtModified).format('YYYY-MM-DD hh:mm:ss') }</td>
                         </tr>
                     </tbody>
                 </table>
