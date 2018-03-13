@@ -141,12 +141,14 @@ export default class Toolbar extends Component {
 
     // 执行确认
     execConfirm = () => {
-        const { currentTab, currentTabData, dispatch, user } = this.props;
+        const { currentTab, currentTabData, dispatch, user, sqlEditor } = this.props;
         if (user.isCheckDDL === 1) { // 不检测，直接执行
             this.execSQL()
             return;
         } 
-        const code = currentTabData.sqlText || currentTabData.scriptText;
+
+        const code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
+    
         // 匹配DDL执行语句，如果符合条件，则提醒
         const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;
         const ctx = this;

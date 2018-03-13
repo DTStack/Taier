@@ -333,7 +333,7 @@ class Workbench extends React.Component {
             let taskVersions = [{
                 id: time,
                 gmtCreate: time,
-                task: { modifyUser: { userName: user.userName } },
+                userName: user.userName,
                 publishDesc: publishDesc,
                 sqlText: result.sqlText,
             }].concat(publishRecords)

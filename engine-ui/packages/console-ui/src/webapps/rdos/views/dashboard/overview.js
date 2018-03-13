@@ -41,16 +41,21 @@ export default class ProjectList extends Component {
         chart2: '',
         chart3: '',
         selectedDate: '',
-        selectedProject: initProject(this.props),
+        selectedProject: '',
     }
 
     componentDidMount() {
-        this.loadProjectCount()
         this.loadProjectStoreTop5()
         this.loadProjectTableTop5()
         this.resizeChart()
-        if (this.props.projects.length > 0) {
-            this.loadDataOverview()
+
+        if (this.props.projects.length > 0){
+            const pid = this.props.projects[0].id
+            this.setState({
+                selectedProject: pid
+            })
+            this.loadDataOverview(pid)
+            this.loadProjectCount()
         }
     }
 
@@ -58,24 +63,21 @@ export default class ProjectList extends Component {
         const nextProjects = nextProps.projects
         const old = this.props.projects
 
-        console.log('update:', old, nextProjects)
-
         if (old.length !== nextProjects.length) {
+            const pid = nextProjects[0].id
             this.setState({
-                selectedProject: nextProjects[0].id
+                selectedProject: pid
             }, () => {
-                this.loadDataOverview();
-                this.loadProjectCount();
+                this.loadDataOverview(pid);
             })
+            this.loadProjectCount();
         }
     }
 
     loadProjectCount() {
         const ctx = this
-        const { user } = this.props
-        Api.getProjectInfo({
-            tenantId: user.id, // 租户ID
-        }).then((res) => {
+        const userId = utils.getCookie('dt_user_id')
+        Api.getProjectInfo().then((res) => {
             ctx.setState({
                 project: res.data,
             })
@@ -92,16 +94,16 @@ export default class ProjectList extends Component {
         })
     }
 
-    loadDataOverview() { // 默认最近7天
+    loadDataOverview(projectId) { // 默认最近7天
         const ctx = this
-        const { selectedDate, selectedProject } = this.state
-        const params = {}
+        const { selectedDate } = this.state
+
+        if (!projectId) return;
+
+        const params = { pId: projectId }
         if (selectedDate.length > 0) {
             params.start = selectedDate[0].unix()
             params.end = selectedDate[1].unix()
-        }
-        if (selectedProject) {
-            params.pId = selectedProject
         }
         Api.getProjectDataOverview(params).then((res) => {
             if (res.code === 1) {
@@ -189,7 +191,6 @@ export default class ProjectList extends Component {
 
     loadProjectStoreTop5() {
         const ctx = this
-        const { user } = this.props
         Api.getProjectStoreTop({ top: 5 }).then((res) => {
             if (res.code === 1) {
                 ctx.drawStoreTop5(res.data)
@@ -288,7 +289,7 @@ export default class ProjectList extends Component {
 
     projectOnChange = (selectedProject) => {
         this.setState({ selectedProject }, () => {
-            this.loadDataOverview()
+            this.loadDataOverview(selectedProject)
         })
     }
 

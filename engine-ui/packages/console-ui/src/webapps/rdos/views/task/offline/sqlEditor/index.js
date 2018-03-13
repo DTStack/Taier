@@ -83,8 +83,6 @@ import {
         }
     }
 
-    debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
-
     onEditorSelection = (old, doc) => {
         const selected = doc.getSelection()
         if (doc.somethingSelected()) {
@@ -94,6 +92,10 @@ import {
             if (oldSelection !== '' ) this.props.setSelection('')
         }
     }
+
+    debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
+
+    debounceSelectionChange = debounce(this.onEditorSelection, 200, { 'maxWait': 2000 })
 
     render() {
         const { sqlEditor, currentTabData, options, value } = this.props
@@ -127,7 +129,7 @@ import {
                                     options={options}
                                     value={value}
                                     cursor={cursor}
-                                    cursorActivity={ this.onEditorSelection }
+                                    cursorActivity={ this.debounceSelectionChange }
                                     onChange={ this.debounceChange }  
                                 />
                             </div>
@@ -142,7 +144,7 @@ import {
                                 sync={currentTabData.merged || undefined}
                                 options={options}
                                 cursor={cursor}
-                                cursorActivity={ this.onEditorSelection }
+                                cursorActivity={ this.debounceSelectionChange }
                                 onChange={ this.debounceChange }  
                                 value={value}
                             />

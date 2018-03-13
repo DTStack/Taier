@@ -255,7 +255,7 @@ class MessageList extends Component {
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
                     selectedRowKeys,
-                    selectedRows
+                    selectedRows,
                 })
             },
         };

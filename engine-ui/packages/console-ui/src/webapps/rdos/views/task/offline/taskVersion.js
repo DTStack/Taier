@@ -82,9 +82,6 @@ export default class TaskVersion extends React.Component {
                 title: '发布人',
                 dataIndex: 'userName',
                 key: 'userName',
-                render: (text, record) => {
-                    return record.task && record.task.modifyUser && record.task.modifyUser.userName
-                },
             }, {
                 title: '描述',
                 dataIndex: 'publishDesc',

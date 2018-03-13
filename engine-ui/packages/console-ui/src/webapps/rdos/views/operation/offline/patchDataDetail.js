@@ -49,6 +49,7 @@ class PatchDataDetail extends Component {
         loading: false,
         current: 1,
         selectedRowKeys: [],
+        checkAll: false,
         
         dutyUserId: '',
         fillJobName: '',
@@ -150,7 +151,7 @@ class PatchDataDetail extends Component {
                 onOk() {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
-                            ctx.setState({ selectedRowKeys: [] })
+                            ctx.setState({ selectedRowKeys: [], checkAll: false  })
                             message.success('已经成功杀死所选任务！')
                             ctx.search()
                         }
@@ -186,7 +187,7 @@ class PatchDataDetail extends Component {
                     Api.batchRestartAndResume({jobIdList: selected}).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
-                            ctx.setState({ selectedRowKeys: [] })
+                            ctx.setState({ selectedRowKeys: [], checkAll: false })
                             ctx.search()
                         }
                     })
@@ -196,7 +197,7 @@ class PatchDataDetail extends Component {
             warning({
                 title: '提示',
                 content: `
-                    只有“未运行、成功、失败”状态下的任务可以进行重跑操作，
+                    只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
                     请您重新选择!
                 `,
             })
@@ -208,13 +209,14 @@ class PatchDataDetail extends Component {
         if (ids && ids.length > 0) {
             for (let i = 0; i < ids.length; i++) {
                 const id = ids[i]
-                const res = tasks.find(task => task.id === id)
+                const task = tasks.find(item => item.id === id)
                 if (
-                    res &&
-                    res.status !== TASK_STATUS.WAIT_SUBMIT &&
-                    res.status !== TASK_STATUS.FINISHED && 
-                    res.status !== TASK_STATUS.RUN_FAILED &&
-                    res.status !== TASK_STATUS.SUBMIT_FAILED
+                    task &&
+                    task.status !== TASK_STATUS.WAIT_SUBMIT &&
+                    task.status !== TASK_STATUS.FINISHED && 
+                    task.status !== TASK_STATUS.RUN_FAILED &&
+                    task.status !== TASK_STATUS.SUBMIT_FAILED && 
+                    task.status !== TASK_STATUS.STOPED
                 ) return false
             }
             return true
@@ -287,19 +289,15 @@ class PatchDataDetail extends Component {
     }
 
     onCheckAllChange = (e) => {
-        if (e.target.checked) {
-            this.setSelectedRowKeys();
-        } else {
-            this.setState({
-                selectedRowKeys: []
-            })
-        }
-    }
+        let selectedRowKeys = []
 
-    setSelectedRowKeys = () => {
-        const tasks = this.state.table.data && this.state.table.data.recordList
-        const selectedRowKeys = tasks && tasks.map(item => item.id)
+        if (e.target.checked) {
+            const tasks = this.state.table.data && this.state.table.data.recordList
+            selectedRowKeys = tasks && tasks.map(item => item.id)
+        } 
+
         this.setState({
+            checkAll: e.target.checked,
             selectedRowKeys
         })
     }
@@ -369,6 +367,7 @@ class PatchDataDetail extends Component {
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 30px' }}>
                     <Checkbox
+                        checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>

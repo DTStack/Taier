@@ -35,7 +35,6 @@ export default class CtxMenu extends React.Component {
 
     showMenu(e) {
         e.preventDefault();
-
         this.setState({
             show: true,
             x: e.clientX,

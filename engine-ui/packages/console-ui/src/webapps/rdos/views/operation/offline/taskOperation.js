@@ -56,6 +56,7 @@ class OfflineTaskList extends Component {
         taskStatus: '',
         bussinessDate: '',
         selectedRowKeys: [],
+        checkAll: false,
         execTime: '', // 执行时间
         jobType: '', // 调度类型
         statistics: '',
@@ -166,7 +167,7 @@ class OfflineTaskList extends Component {
                 onOk() {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
-                            ctx.setState({ selectedRowKeys: [] })
+                            ctx.setState({ selectedRowKeys: [], checkAll: false  })
                             message.success('已经成功杀死所选任务！')
                             ctx.search()
                         }
@@ -202,7 +203,7 @@ class OfflineTaskList extends Component {
                     Api.batchRestartAndResume({jobIdList: selected}).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
-                            ctx.setState({ selectedRowKeys: [] })
+                            ctx.setState({ selectedRowKeys: [], checkAll: false  })
                             ctx.search()
                         }
                     })
@@ -212,7 +213,7 @@ class OfflineTaskList extends Component {
             warning({
                 title: '提示',
                 content: `
-                    只有“未运行、成功、失败”状态下的任务可以进行重跑操作，
+                    只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
                     请您重新选择!
                 `,
             })
@@ -230,7 +231,8 @@ class OfflineTaskList extends Component {
                     res.status !== TASK_STATUS.WAIT_SUBMIT &&
                     res.status !== TASK_STATUS.FINISHED && 
                     res.status !== TASK_STATUS.RUN_FAILED &&
-                    res.status !== TASK_STATUS.SUBMIT_FAILED
+                    res.status !== TASK_STATUS.SUBMIT_FAILED && 
+                    res.status !== TASK_STATUS.STOPED
                 ) return false
             }
             return true
@@ -266,6 +268,8 @@ class OfflineTaskList extends Component {
             current: pagination.current, 
             taskStatus: status,
             jobType,
+            selectedRowKeys: [],
+            checkAll: false,
         }, () => {
             this.search()
         })
@@ -344,16 +348,16 @@ class OfflineTaskList extends Component {
     }
 
     onCheckAllChange = (e) => {
+        let selectedRowKeys = []
+
         if (e.target.checked) {
-            const selectedRowKeys = this.state.tasks.data.map(item => item.id)
-            this.setState({
-                selectedRowKeys
-            })
-        } else {
-            this.setState({
-                selectedRowKeys: []
-            })
+            selectedRowKeys = this.state.tasks.data.map(item => item.id)
         }
+
+        this.setState({
+            checkAll: e.target.checked,
+            selectedRowKeys
+        })
     }
 
     initTaskColumns = () => {
@@ -412,6 +416,7 @@ class OfflineTaskList extends Component {
             key: 'execTime',
         }, {
             title: '责任人',
+            width: 100,
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
@@ -432,6 +437,7 @@ class OfflineTaskList extends Component {
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 30px' }}>
                     <Checkbox
+                        checked={ this.state.checkAll }
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
