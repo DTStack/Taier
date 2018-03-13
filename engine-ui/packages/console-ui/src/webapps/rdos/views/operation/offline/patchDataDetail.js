@@ -245,6 +245,7 @@ class PatchDataDetail extends Component {
         this.setState({ 
             current: pagination.current, 
             jobStatuses: status,
+            selectedRowKeys: []
         }, () => {
             this.search()
         })
@@ -287,16 +288,20 @@ class PatchDataDetail extends Component {
 
     onCheckAllChange = (e) => {
         if (e.target.checked) {
-            const tasks = this.state.table.data && this.state.table.data.recordList
-            const selectedRowKeys = tasks && tasks.map(item => item.id)
-            this.setState({
-                selectedRowKeys
-            })
+            this.setSelectedRowKeys();
         } else {
             this.setState({
                 selectedRowKeys: []
             })
         }
+    }
+
+    setSelectedRowKeys = () => {
+        const tasks = this.state.table.data && this.state.table.data.recordList
+        const selectedRowKeys = tasks && tasks.map(item => item.id)
+        this.setState({
+            selectedRowKeys
+        })
     }
 
     initTaskColumns = () => {
