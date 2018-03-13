@@ -77,7 +77,7 @@ public class ZkDistributed {
 
 	private static ZkDistributed zkDistributed;
 
-	private Map<String,BrokerDataNode> memTaskStatus = Maps.newHashMap();
+	private Map<String,BrokerDataNode> memTaskStatus = Maps.newConcurrentMap();
 
 	private InterProcessMutex masterLock;
 
