@@ -330,7 +330,9 @@ public class ZkDistributed {
 							objectMapper.writeValueAsBytes(brokersNode));
 					rdosNodeMachineDAO.updateOneTypeMachineToSlave(MachineAppType.ENGINE.getType());
 					rdosNodeMachineDAO.updateMachineType(this.localAddress,RdosNodeMachineType.MASTER.getType());
-                    masterAddrCache = zkMasterAddr;
+					if(zkMasterAddr != null){
+						masterAddrCache = zkMasterAddr;
+					}
 				}
 				return true;
 			}
