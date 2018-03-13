@@ -8,7 +8,8 @@ import { apps } from 'main/reducers/modules/apps'
 import dataCheck from './modules/dataCheck';
 import dataSource from './modules/dataSource';
 import ruleConfig from './modules/ruleConfig';
-import keymap from './modules/dataCheck/keymap'
+import keymap from './modules/dataCheck/keymap';
+import common from './modules/common';
 
 // 全局State
 const rootReducer = combineReducers({
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
     dataCheck,
     dataSource,
     ruleConfig,
+    common,
     keymap
 })
 

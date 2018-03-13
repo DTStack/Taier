@@ -16,7 +16,6 @@ export default {
     DQ_USER_ROLE_ADD: `${DQ_BASE_URL}/roleUser/addRoleUser`,
     DQ_USER_ROLE_DELETE: `${DQ_BASE_URL}/roleUser/deleteRole`,
     DQ_USER_ROLE_UPDATE: `${DQ_BASE_URL}/roleUser/updateUserRole`,
-    DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/pageQuery`,
     DQ_GET_USER_NOT_IN_PROJECT: `${DQ_BASE_URL}/user/listNotIn`,
 
     // ===== 消息管理 ===== //
@@ -58,4 +57,7 @@ export default {
 
     SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`, // 订阅表
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unsubscribe`, // 取消订阅表
+
+    // ===== common ===== //
+    DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
 }

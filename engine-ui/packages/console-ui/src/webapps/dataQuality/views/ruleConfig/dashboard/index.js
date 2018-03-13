@@ -5,7 +5,7 @@ import { Table, Button, Icon, Input, DatePicker, Select, Popconfirm, message, Ca
 import moment from 'moment';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
-import * as UserAction from '../../../actions/user';
+import { commonActions } from '../../../actions/common';
 import { dataSourceTypes } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 import '../../../styles/views/ruleConfig.scss';
@@ -15,8 +15,8 @@ const InputGroup = Input.Group;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { ruleConfig, dataSource, user } = state;
-    return { ruleConfig, dataSource, user }
+    const { ruleConfig, dataSource, common } = state;
+    return { ruleConfig, dataSource, common }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(dataSourceActions.getDataSourcesType(params));
     },
     getUserList(params) {
-        dispatch(UserAction.getUserList(params));
+        dispatch(commonActions.getUserList(params));
     },
 });
 
@@ -225,7 +225,7 @@ export default class RuleConfig extends Component {
     render() {
         const { ruleLists, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
-        const { userList } = this.props.user;
+        const { userList } = this.props.common;
         const { params } = this.state;
 
         const pagination = {
