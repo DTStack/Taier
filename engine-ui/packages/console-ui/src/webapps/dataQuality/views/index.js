@@ -17,7 +17,7 @@ const defaultPro = {
 class Main extends Component {
 
     componentDidMount() {
-        const { dispatch } = this.props
+        // const { dispatch } = this.props
         // dispatch(UserAction.getUser())
     }
 

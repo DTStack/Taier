@@ -103,7 +103,6 @@ class OfflineTaskMana extends Component {
     }
 
     forzenTasks = (mode) => {
-        console.log('mode:', mode)
         const ctx = this
         const selected = this.state.selectedRowKeys
        
@@ -248,13 +247,6 @@ class OfflineTaskMana extends Component {
             key: 'userName',
             render: (text, record) => {
                 return <span>{record.createUser && record.createUser.userName}</span>
-            },
-        }, {
-            title: '告警配置',
-            dataIndex: 'alarmConf',
-            key: 'alarmConf',
-            render: (text, record) => {
-                return '-'
             },
         }, {
             title: '操作',

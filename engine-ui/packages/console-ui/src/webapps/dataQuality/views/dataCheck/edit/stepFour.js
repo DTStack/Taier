@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox } from 'antd';
-import * as UserAction from '../../../actions/user';
+import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 
 const FormItem = Form.Item;
@@ -12,13 +12,13 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { user } = state;
-    return { user }
+    const { common } = state;
+    return { common }
 }
 
 const mapDispatchToProps = dispatch => ({
     getUserList(params) {
-        dispatch(UserAction.getUserList(params));
+        dispatch(commonActions.getUserList(params));
     },
 })
 
@@ -142,7 +142,7 @@ export default class StepFour extends Component {
     }
 
     render() {
-        const { form, user, editParams, editStatus } = this.props;
+        const { form, common, editParams, editStatus } = this.props;
         const { isInform, scheduleConfObj } = this.state;
         const { executeType, notifyVO, scheduleConf } = editParams;
         const { getFieldDecorator } = form;
@@ -256,7 +256,7 @@ export default class StepFour extends Component {
                                         })(
                                             <Select mode="multiple" allowClear onChange={this.onInformUserChange}>
                                                 {
-                                                    this.renderUserList(user.userList)
+                                                    this.renderUserList(common.userList)
                                                 }
                                             </Select>
                                         )

@@ -3,28 +3,27 @@ import { assign } from 'lodash'
 import { 
     Row, Col, Button,
     Card, message, Spin,
- } from 'antd'
+} from 'antd'
 
- import utils from 'utils'
- import { formItemLayout } from 'consts'
- 
- import Api from '../../../api'
- import GoBack from '../../../components/go-back'
- import { AppName } from '../../../components/display'
+import utils from 'utils'
+import { formItemLayout } from 'consts'
 
- import RoleForm from './form'
+import Api from '../../../api'
+import GoBack from '../../../components/go-back'
+import { AppName } from '../../../components/display'
 
- const app = utils.getParameterByName('app')
+import RoleForm from './form'
 
 export default class RoleEdit extends Component {
 
     state = {
         roleInfo: {},
         loading: false,
+        app: utils.getParameterByName('app'),
     }
 
     componentDidMount() {
-        this.loadRolePermission()
+        this.getRoleInfo()
     }
 
     goIndex = () => {
@@ -46,11 +45,12 @@ export default class RoleEdit extends Component {
         })
     }
 
-    loadRolePermission = () => {
+    getRoleInfo = () => {
         const ctx = this
+        const app = this.state.app
         const { params } = ctx.props
         ctx.setState({loading: true})
-        Api.getRoleInfo(app, {roleId: params.roleId}).then(res => {
+        Api.getRoleInfo(app, { roleId: params.roleId }).then(res => {
             if (res.code === 1) {
                 ctx.setState({ roleInfo: res.data, loading: false })
             }
@@ -58,11 +58,12 @@ export default class RoleEdit extends Component {
     }
 
     render() {
+        const app = this.state.app
 
         return (
             <div className="box-1">
                 <div className="box-card">
-                    <h1 className="card-title"><GoBack /> 编辑{AppName(app)}角色</h1>
+                    <h1 className="card-title"><GoBack /> 编辑 {AppName(app)}角色</h1>
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <article className="section">
                             <RoleForm 

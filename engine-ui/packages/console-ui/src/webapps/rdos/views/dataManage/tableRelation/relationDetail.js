@@ -65,7 +65,7 @@ class RelationDetail extends React.Component {
             });
         } else { // 脚本
             Api.getScriptById({
-                scriptId: item.relationId,
+                id: item.relationId,
             }).then(res => {
                 if (res.code === 1) {
                     this.setState({
@@ -125,7 +125,7 @@ class RelationDetail extends React.Component {
                 <Row>
                     <Col span={12} 
                         className="bd-right table-info" 
-                        style={{height: '193px'}}
+                        style={{minHeight: '193px'}}
                     >
                         <table>
                             <tbody className="ant-table-tbody" >

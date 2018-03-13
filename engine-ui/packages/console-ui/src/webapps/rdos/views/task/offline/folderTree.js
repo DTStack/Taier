@@ -21,6 +21,11 @@ import { TASK_TYPE, MENU_TYPE } from '../../../comm/const'
 const { TreeNode } = Tree;
 const confirm = Modal.confirm;
 
+const isRootFolder = (node) => {
+    return node.level === 1;
+}
+
+
 class FolderTree extends React.Component {
 
     constructor(props) {
@@ -35,6 +40,7 @@ class FolderTree extends React.Component {
                 {this.props.ispicker ?
                 <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
                     <TreeSelect
+                        size="large"
                         key={type}
                         dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                         showSearch={ !this.props.isFilepicker }
@@ -44,6 +50,7 @@ class FolderTree extends React.Component {
                         defaultValue={ this.props.defaultNode }
                         getPopupContainer={() => this.selEle }
                         placeholder={placeholder}
+                        treeNodeFilterProp="name"
                     >
                         { this.genetateTreeNode() }
                     </TreeSelect>
@@ -127,14 +134,13 @@ class FolderTree extends React.Component {
             case MENU_TYPE.TASK:
             case MENU_TYPE.TASK_DEV:
                 if(type === 'file') {
-                    const readWriteLockVO = data.readWriteLockVO
-                    operations = readWriteLockVO.getLock ? arr.concat([{
+                    operations = arr.concat([{
                         txt: '编辑',
                         cb: this.editTask.bind(this, data)
                     },{
                         txt: '删除',
                         cb: this.deleteTask.bind(this, data)
-                    }]) : []
+                    }])
                 }
                 else {
                     operations = arr.concat([{
@@ -143,13 +149,16 @@ class FolderTree extends React.Component {
                     },{
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
-                    },{
-                        txt: '编辑',
-                        cb: this.editFolder.bind(this, data, treeType)
-                    },{
-                        txt: '删除',
-                        cb: this.deleteFolder.bind(this, data, treeType)
                     }])
+                    if (!isRootFolder(data)) {
+                        operations = operations.concat([{
+                            txt: '编辑',
+                            cb: this.editFolder.bind(this, data, treeType)
+                        },{
+                            txt: '删除',
+                            cb: this.deleteFolder.bind(this, data, treeType)
+                        }])
+                    }
                 }
             break;
 
@@ -171,13 +180,17 @@ class FolderTree extends React.Component {
                     },{
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
-                    },{
-                        txt: '编辑',
-                        cb: this.editFolder.bind(this, data, treeType)
-                    }, {
-                        txt: '删除',
-                        cb: this.deleteFolder.bind(this, data, treeType)
                     }])
+
+                    if (!isRootFolder(data)) {
+                        operations = operations.concat([{
+                            txt: '编辑',
+                            cb: this.editFolder.bind(this, data, treeType)
+                        },{
+                            txt: '删除',
+                            cb: this.deleteFolder.bind(this, data, treeType)
+                        }])
+                    }
                 }
                 break;
             case MENU_TYPE.RESOURCE:
@@ -199,13 +212,17 @@ class FolderTree extends React.Component {
                     },{
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
-                    },{
-                        txt: '编辑',
-                        cb: this.editFolder.bind(this, data, treeType)
-                    }, {
-                        txt: '删除',
-                        cb: this.deleteFolder.bind(this, data, treeType)
                     }])
+
+                    if (!isRootFolder(data)) {
+                        operations = operations.concat([{
+                            txt: '编辑',
+                            cb: this.editFolder.bind(this, data, treeType)
+                        }, {
+                            txt: '删除',
+                            cb: this.deleteFolder.bind(this, data, treeType)
+                        }])
+                    }
                 }
                 break;
             case MENU_TYPE.SYSFUC:
@@ -213,15 +230,13 @@ class FolderTree extends React.Component {
                 break;
             case MENU_TYPE.SCRIPT:
                 if (type === 'file') {
-                    const readWriteLockVO = data.readWriteLockVO
-
-                    operations = readWriteLockVO.getLock ? arr.concat([{
+                    operations = arr.concat([{
                         txt: '编辑',
                         cb: this.editScript.bind(this, data)
                     }, {
                         txt: '删除',
                         cb: this.deleteScript.bind(this, data)
-                    }]) : []
+                    }])
                 }
                 else {
                     operations = arr.concat([{
@@ -230,13 +245,17 @@ class FolderTree extends React.Component {
                     }, {
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
-                    }, {
-                        txt: '编辑',
-                        cb: this.editFolder.bind(this, data, treeType)
-                    }, {
-                        txt: '删除',
-                        cb: this.deleteFolder.bind(this, data, treeType)
                     }])
+
+                    if (!isRootFolder(data)) {
+                        operations = operations.concat([{
+                            txt: '编辑',
+                            cb: this.editFolder.bind(this, data, treeType)
+                        }, {
+                            txt: '删除',
+                            cb: this.deleteFolder.bind(this, data, treeType)
+                        }])
+                    }
                 }
             break;
         }
@@ -466,6 +485,7 @@ class FolderTree extends React.Component {
                 }
                 key={`${taskType}-${id}`}
                 value={ id }
+                name={name}
                 isLeaf={type === 'file'}
                 disabled={id === '0'}
                 data={data}

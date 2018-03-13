@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tag, Badge, Tooltip } from 'antd'
 import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE } from '../../comm/const'
-import { Circle } from '../circle' 
+import { Circle } from 'widgets/circle' 
 
 export function ProjectStatus(props) {
     const value = props.value
@@ -24,7 +24,7 @@ export function TaskStatus(props) {
     switch (value) {
         case 4:
             return <span>
-                    <Circle style={{ background: '#2491F7' }} />&nbsp;
+                <Circle style={{ background: '#2491F7' }} />&nbsp;
                     运行中
                 </span>
         case 5:

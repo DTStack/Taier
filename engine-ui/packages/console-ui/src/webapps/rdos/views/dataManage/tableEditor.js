@@ -52,6 +52,8 @@ class TableEditor extends Component {
 
     render() {
         const { tableData, modifyDesc } = this.props;
+        const { getFieldDecorator } = this.props.form;
+
         const { 
             tableName, project, createTime,
             desc, userName, lifeDay, catalogueId,
@@ -120,11 +122,22 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="描述"
                             >
-                                <Input type="textarea"
+                                {/* <Input type="textarea"
                                     name="desc"
                                     value={desc}
-                                    onChange={this.changeTable.bind(this)}
-                                ></Input>
+                                ></Input> */}
+                                {getFieldDecorator('desc', {
+                                    rules: [{
+                                        max: 200,
+                                        message: '描述不得超过200个字符！',
+                                    }],
+                                    initialValue: desc
+                                })(
+                                    <Input 
+                                        onChange={this.changeTable.bind(this)}
+                                        type="textarea" placeholder="描述信息" 
+                                    />
+                                )}
                             </FormItem>
                         </Form>
                     </Row>
@@ -208,7 +221,7 @@ class TableEditor extends Component {
 
     changeTable(evt) {
         const { name, value } = evt.target;
-        this.props.modifyDesc({name, value});
+        this.props.modifyDesc({ name, value });
     }
     
     delTable() {
@@ -233,11 +246,16 @@ class TableEditor extends Component {
     }
 
     saveTable() {
-        const { tableData } = this.props;
+        const { tableData, form } = this.props;
+        const ctx = this;
         if (this.checkColumnsIsNull(tableData.columns)) {
             message.error('新建字段名称不可为空！')
         } else {
-            this.props.saveTable(tableData);
+            form.validateFields((err) => {
+                if (!err) {
+                    ctx.props.saveTable(tableData);
+                }
+            });
         }
     }
 
@@ -277,8 +295,11 @@ const mapDispatch = dispatch => ({
     }
 });
 
+
+const BaseFormWrapper = Form.create()(TableEditor);
+
 export default connect((state) => {
     return {
         tableData: state.dataManage.tableManage.tableCurrent
     }
-}, mapDispatch)(TableEditor);
+}, mapDispatch)(BaseFormWrapper);

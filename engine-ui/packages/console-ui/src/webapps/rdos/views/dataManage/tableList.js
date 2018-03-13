@@ -25,6 +25,7 @@ class TableList extends Component {
         super(props);
         this.state = {
             visible: false,
+            tableName: '',
             filterDropdownVisible: false,
             dataCatalogue: [],
             catalogue: undefined,
@@ -32,8 +33,40 @@ class TableList extends Component {
     }
 
     componentDidMount() {
-        this.props.searchTable();
+        this.search();
         this.loadCatalogue();
+    }
+
+    search = () => {
+        const params = this.getReqParams();
+        this.props.searchTable(params);
+    }
+
+    getReqParams = () => {
+        const { tableName, current, catalogue } = this.state;
+        const params = {
+            pageIndex: current || 1,
+            tableName: tableName || '',
+        }
+        if (catalogue) {
+            params.catalogueId = catalogue
+        }
+        return params;
+    }
+
+    showPage(page, pageSize) {
+        this.setState({
+            current: page,
+        }, this.search)
+    }
+
+    cleanSearch() {
+        const $input = findDOMNode(this.searchInput).querySelector('input');
+
+        if($input.value.trim() === '') return;
+
+        $input.value = '';
+        this.search();
     }
 
     loadCatalogue = () => {
@@ -44,14 +77,16 @@ class TableList extends Component {
         })
     }
 
+    onTableNameChange = (e) => {
+        this.setState({
+            tableName: e.target.value
+        })
+    }
+
     catalogueChange = (value) => {
         this.setState({
             catalogue: value,
-        }, () => {
-            this.props.searchTable({
-                catalogueId: value
-            })
-        })
+        }, this.search)
     }
 
     render() {
@@ -133,7 +168,7 @@ class TableList extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem>
-                    <span style={{ width: '200px', display: 'inline-block' }}>
+                    <span style={{ width: '200px', display: 'inline-block'}}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
@@ -150,7 +185,8 @@ class TableList extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
-                        onSearch={ this.searchTableByName.bind(this) }
+                        onChange={ this.onTableNameChange }
+                        onSearch={ this.search }
                         ref={ el => this.searchInput = el }
                     />
                 </FormItem>
@@ -168,38 +204,40 @@ class TableList extends Component {
             </div>
         )
 
-        return <div className="m-tablelist section">
+        return <div className="m-tablelist">
             <h1 className="box-title"> 表管理 </h1>
-            <div className="box-2 m-card" style={{ paddingBottom: 20 }}>
+            <div className="box-2 m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title} extra={extra}>
-                    <Table
-                        rowKey="id"
-                        className="m-table"
-                        columns={ columns }
-                        dataSource={ listData }
-                        pagination={ false }
-                        onChange={ this.handleTableChange.bind(this) }
-                    />
-                    <div className="pager" style={{ float: 'right', margin: '16px 20px 0 0' }}>
-                        <Pagination
-                            pageSize={ 10 }
-                            current={ currentPage }
-                            total={ totalCount }
-                            onChange={ this.showPage.bind(this) }
+                    <div style={{ marginTop: '1px' }}>
+                        <Table
+                            rowKey="id"
+                            className="m-table"
+                            columns={ columns }
+                            dataSource={ listData }
+                            pagination={ false }
+                            onChange={ this.handleTableChange.bind(this) }
                         />
+                        <div className="pager" style={{ float: 'right', margin: '16px 20px 0 0' }}>
+                            <Pagination
+                                pageSize={ 10 }
+                                current={ currentPage }
+                                total={ totalCount }
+                                onChange={ this.showPage.bind(this) }
+                            />
+                        </div>
+                        <Modal className="m-codemodal"
+                            width="750"
+                            title="DDL建表"
+                            visible={this.state.visible}
+                            onOk={this.handleOk.bind(this)}
+                            onCancel={this.handleCancel.bind(this)}
+                        >
+                            <Editor
+                                onChange={ this.handleDdlChange.bind(this) } 
+                                value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
+                            />
+                        </Modal>
                     </div>
-                    <Modal className="m-codemodal"
-                        width="750"
-                        title="DDL建表"
-                        visible={this.state.visible}
-                        onOk={this.handleOk.bind(this)}
-                        onCancel={this.handleCancel.bind(this)}
-                    >
-                        <Editor
-                            onChange={ this.handleDdlChange.bind(this) } 
-                            value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
-                        />
-                    </Modal>
                 </Card>
             </div>
         </div>
@@ -212,14 +250,13 @@ class TableList extends Component {
     }
 
     handleTableChange(pagination, filters, sorter) {
-        if(isEmpty(sorter)) this.props.searchTable();
-        else {
+        const params = this.getReqParams();
+        if (sorter) {
             let { field, order } = sorter;
-
-            this.props.searchTable({
-                [field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort']:
-                    order === 'descend' ? 'desc' : 'asc'
-            });
+            params[
+                field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort'
+            ] = order === 'descend' ? 'desc' : 'asc'
+            this.props.searchTable(params);
         }
     }
 
@@ -258,27 +295,6 @@ class TableList extends Component {
 
     handleDdlChange(previous, value) {
         this._DDL = value;
-    }
-
-    showPage(page, pageSize) {
-        this.props.searchTable({
-            pageIndex: page
-        });
-    }
-
-    searchTableByName(name) {
-        this.props.searchTable({
-            tableName: name
-        });
-    }
-
-    cleanSearch() {
-        const $input = findDOMNode(this.searchInput).querySelector('input');
-
-        if($input.value.trim() === '') return;
-
-        $input.value = '';
-        this.props.searchTable();
     }
 }
 

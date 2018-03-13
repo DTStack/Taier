@@ -7,6 +7,7 @@ import {
 import { Link } from 'react-router'
 
 import utils from 'utils'
+import { hasProject } from 'funcs'
 
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
@@ -20,6 +21,7 @@ class AdminRole extends Component {
         active: '',
         data: '',
         projects: [],
+        selectedProject: '',
         loading: 'success',
     }
 
@@ -30,17 +32,47 @@ class AdminRole extends Component {
             this.setState({
                 active: key
             })
-            this.loadData(key);
+            if (hasProject(key)) {
+                this.getProjects(key)
+            } else {
+                this.loadData(key);
+            }
         }
     }
 
     loadData = (key) => {
         this.setState({ loading: 'loading' })
-        Api.queryRole(key).then(res => {
+        const { active, selectedProject } = this.state
+        const params = {
+            pageSize: 10,
+            currentPage: 1,
+        }
+        const app = key || active;
+        
+        if (hasProject(app)) {
+            params.projectId = selectedProject
+        }
+        Api.queryRole(app, params).then(res => {
             this.setState({
                 data: res.data,
+            })
+
+            this.setState({
                 loading: 'success'
             })
+        })
+    }
+
+    getProjects = (app) => {
+        const ctx = this
+        Api.getProjects(app).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ projects: res.data })
+                const selectedProject = res.data[0].id
+                this.setState({
+                    selectedProject 
+                }, this.loadData)
+            }
         })
     }
 
@@ -61,6 +93,12 @@ class AdminRole extends Component {
         this.loadData(key)
     }
 
+    onProjectSelect = (value) => {
+        this.setState({
+            selectedProject: value
+        })
+    }
+
     initColums = () => {
         const { active } = this.state;
         const removeRole = this.removeRole;
@@ -69,7 +107,7 @@ class AdminRole extends Component {
             dataIndex: 'roleName',
             key: 'roleName',
             render(text, record) {
-                return <Link to={`message/detail/${record.id}`}>{text}</Link>
+                return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
         }, {
             title: '角色描述',
@@ -110,24 +148,30 @@ class AdminRole extends Component {
     }
 
     renderPane = () => {
-        const { data, loading, projects, active } = this.state;
+
+        const { 
+            data, loading, projects, 
+            active, selectedProject 
+        } = this.state;
 
         const projectOpts = projects && projects.map(project => 
             <Option value={project.id} key={project.id}>
-                { project.name }
+                { project.projectAlias }
             </Option>
         )
 
-        const title = (
+        const title = hasProject(active) && (
             <span
                 style={{ marginTop: '10px' }}
             >
                 选择项目：
                 <Select
                     showSearch
+                    value={ selectedProject }
                     style={{ width: 200 }}
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
+                    onSelect={ this.onProjectSelect }
                 >  
                   { projectOpts }
                 </Select>

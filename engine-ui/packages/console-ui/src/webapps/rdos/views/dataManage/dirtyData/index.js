@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { cloneDeep } from 'lodash'
 import { Link } from 'react-router'
+import { connect } from 'react-redux';
+
 import {
     Row, Col, Card, Button,
     Form, Select, Input, Table, 
@@ -12,15 +14,19 @@ import Resize from 'widgets/resize'
 
 import Api from '../../../api'
 import { lineAreaChartOptions } from '../../../comm/const'
-import taskOperation from '../../operation/offline/taskOperation';
+import taskOperation from '../../operation/offline/taskOperation'
+
+import {
+    workbenchActions
+} from '../../../store/modules/offlineTask/offlineAction'
 
 // 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
+const echarts = require('echarts/lib/echarts')
 // 引入柱状图
-require('echarts/lib/chart/line');
+require('echarts/lib/chart/line')
 // 引入提示框和标题组件
-require('echarts/lib/component/tooltip');
-require('echarts/lib/component/title');
+require('echarts/lib/component/tooltip')
+require('echarts/lib/component/title')
 
 const Search = Input.Search;
 const FormItem = Form.Item;
@@ -28,6 +34,14 @@ const Option = Select.Option;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
+@connect(null, (dispatch) => {
+    const actions = workbenchActions(dispatch)
+    return {
+        goToTaskDev: (id) => {
+            actions.openTaskInDev(id)
+        }
+    }
+})
 class DirtyData extends Component {
 
     state = {
@@ -39,7 +53,9 @@ class DirtyData extends Component {
         dirtyTables: [],
         taskList: [],
         timeRange: 3,
+        loadingTop: false,
         loading: false,
+        currentPage: 1,
     }
 
     componentDidMount() {
@@ -84,10 +100,16 @@ class DirtyData extends Component {
 
     loadProduceTop30 = (params) => {
         const ctx = this
+        this.setState({
+            loadingTop: 'loading',
+        })
         Api.top30DirtyData(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ top30: res.data })
             }
+            this.setState({
+                loadingTop: false,
+            })
         })
     }
 
@@ -96,8 +118,11 @@ class DirtyData extends Component {
         this.setState({ loading: true })
         Api.getDirtyDataTables(params).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ produceList: res.data, loading: false })
+                ctx.setState({ produceList: res.data })
             }
+            this.setState({
+                loading: false
+            })
         })
     }
 
@@ -108,6 +133,21 @@ class DirtyData extends Component {
                 ctx.setState({ taskList: res.data })
             }
         })
+    }
+
+    search = () => {
+        const { taskId, tableName, currentPage } = this.state
+        this.loadProduceData({
+            tableName: tableName,
+            taskId: taskId,
+            pageIndex: currentPage,
+        })
+    }
+
+    onTableChange = (pagination, filters, sorter) => {
+        this.setState({
+            currentPage: pagination.current
+        }, this.search)
     }
 
     onTimeRangeChange = (e) => {
@@ -135,16 +175,7 @@ class DirtyData extends Component {
     }
 
     onTableSelectTask = (value) => {
-        this.loadProduceData({ taskId: value, })
         this.setState({ taskId: value })
-    }
-
-    search = () => {
-        const { taskId, tableName } = this.state
-        this.loadProduceData({
-            tableName: tableName,
-            taskId: taskId,
-        })
     }
 
     getSeries = (data) => {
@@ -190,7 +221,7 @@ class DirtyData extends Component {
     }
 
     renderProduceTop30 = () => {
-        const top30 = this.state.top30
+        const { loadingTop, top30 } = this.state
         const columns = [
             {
                 title: '任务名称',
@@ -226,17 +257,18 @@ class DirtyData extends Component {
                 <Table
                     rowKey="taskName"
                     pagination={false}
-                    loading={this.state.loading}
+                    loading={ loadingTop }
                     style={{ height: '300px', }}
-                    columns={columns}
-                    dataSource={top30 || []}
+                    columns={ columns }
+                    dataSource={ top30 || [] }
                 />
             </Card>
         )
     }
 
     renderProduceList = (taskOptions) => {
-        const { produceList } = this.state
+        const { produceList, loading } = this.state
+        const ctx = this;
         const columns = [
             {
                 title: '表名',
@@ -247,8 +279,13 @@ class DirtyData extends Component {
                 dataIndex: 'tableId',
                 key: 'tableId',
                 render: function(text, record) {
-                    const arr = (record.tasks && record.tasks.map(task => task.name) ) || []
-                    return arr.join(',');
+                    const arr = (record.tasks && record.tasks.map(task => 
+                        <a onClick={
+                            () => {
+                                ctx.props.goToTaskDev(task.id)
+                            }
+                        }>{task.name}</a>) ) || []
+                    return arr;
                 }
             }, {
                 title: '创建者',
@@ -313,8 +350,8 @@ class DirtyData extends Component {
                         placeholder="按表名称搜索"
                         style={{ width: 150 }}
                         size="default"
-                        onChange={this.onTableNameChange}
-                        onSearch={this.search}
+                        onChange={ this.onTableNameChange }
+                        onSearch={ this.search }
                     />
                 </FormItem>
                 <FormItem>
@@ -322,10 +359,12 @@ class DirtyData extends Component {
                 </FormItem>
             </Form>
         );
+
         const pagination = {
             total: produceList.totalCount,
             defaultPageSize: 10,
         };
+
         return (
             <Card title={title} 
                 noHovering
@@ -338,7 +377,9 @@ class DirtyData extends Component {
                     className="m-table"
                     pagination={pagination}
                     style={{minHeight: '0'}}
+                    loading={ loading }
                     columns={columns}
+                    onChange={this.onTableChange}
                     dataSource={produceList.data || []}
                 />
             </Card>
@@ -383,6 +424,7 @@ class DirtyData extends Component {
                                 style={{ width: 150, marginTop: '10px' }}
                                 placeholder="请选择任务"
                                 onChange={this.onTrendSelectTask}
+                                optionFilterProp="name"
                             >
                                 { taskOptions }
                             </Select>

@@ -25,7 +25,7 @@ export default class ImportTarget extends Component {
 
     tableInput = (tableName) => {
         const { changeStatus } = this.props
-        if (tableName.length >= 2) {
+        if (tableName.length > 0) {
             API.getTablesByName({ tableName }).then((res) => {
                 if (res.code === 1) {
                     changeStatus({
@@ -37,9 +37,13 @@ export default class ImportTarget extends Component {
     }
 
     tbNameOnChange = (tableName) => {
-        this.props.changeStatus({
+        const params = {
             queryTable: tableName
-        });
+        }
+        if (tableName === '') {
+            params.tableData = {}
+        }
+        this.props.changeStatus(params);
     }
 
     debounceSearch = debounce(this.tableInput, 500, { 'maxWait': 2000 })
@@ -72,7 +76,6 @@ export default class ImportTarget extends Component {
             }
         })
     }
-
 
     // 检测分区十分存在
     checkPartition = () => {
@@ -180,6 +183,7 @@ export default class ImportTarget extends Component {
             title: '源字段',
             key: 'source_part',
             render: (text, record, index) => {
+                console.log('record:', record)
                 return (<span>
                     <Select
                         defaultValue={""}

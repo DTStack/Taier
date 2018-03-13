@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { hashHistory } from 'react-router'
 import { Card, Input, Radio, Button, Table, message } from 'antd'
 
 import utils from 'utils'
@@ -27,9 +27,9 @@ export default class ProjectList extends Component {
     }
 
     go = (project, url) => {
-        const { router, dispatch } = this.props
+        const { dispatch } = this.props
         dispatch(ProjectAction.getProject(project.id))
-        router.push(url)
+        hashHistory.push(url)
     }
 
     queryProjectList = (params) => {

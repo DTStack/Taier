@@ -17,6 +17,8 @@ module.exports = [
         link: 'rdos.html#/',
         target: '_blank',
         enable: true,
+        hasProject: true, // 是否拥有项目选择
+        default: true, // 是否为默认应用选项
         apiBase: '/rdos',
     },{
         id: 'dataQuality',

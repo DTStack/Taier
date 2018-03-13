@@ -8,11 +8,10 @@ import {
 import { isEmpty } from 'lodash';
 import  moment from 'moment';
 
-import SlidePane from 'widgets/slidePane'
+import SlidePane from 'widgets/slidePane';
 
 import ajax from '../../api';
 import actions from '../../store/modules/dataManage/actionCreator';
-
 
 const Search = Input.Search;
 const FormItem = Form.Item;
@@ -40,7 +39,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="操作人">
                     {getFieldDecorator('actionUserId')(
-                        <Select placeholder="请选择操作人" style={{width: 120}}>
+                        <Select allowClear placeholder="请选择操作人" style={{width: 120}}>
                             {projectUsers.map(o => <Option value={ `${o.userId}` }
                                 key={ o.userId }
                             >
@@ -51,7 +50,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{width: 105}}></Input>
+                        <Input placeholder="变更语句" size="default" style={{width: 110}}></Input>
                     )}
                 </FormItem>
                 <FormItem>
@@ -199,11 +198,15 @@ class Log extends React.Component {
             tableList: {},
             tableLog: this.props.routeParams,
             visibleSlidePane: false,
+            tableName: '',
         }
     }
 
     componentDidMount() {
-        this.searchTable();
+        const { tableName } = this.props.params
+        this.searchTable({
+            tableName: tableName || ''
+        });
         this.props.getUsers({
             projectId: this.props.projectId,
             currentPage: 1,
@@ -215,6 +218,7 @@ class Log extends React.Component {
         const params = Object.assign({
             timeSort: 'desc',
             tableName: '',
+            pageSize: 20
         }, args);
 
         ajax.searchTable(params).then(res => {
@@ -272,6 +276,7 @@ class Log extends React.Component {
             title: '表名',
             dataIndex: 'tableName',
             key: 'tableName',
+            width: 300,
             render(text, record) {
                 return <a href="javascript:void(0)"
                     onClick={ the.showTableLog.bind(the, record) }
@@ -294,11 +299,12 @@ class Log extends React.Component {
         }];
         const { tableList, tableLog, visibleSlidePane } = this.state;
         const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
-        const { projectUsers } = this.props;
+        const { projectUsers, params } = this.props;
 
         const title = (
             <Search style={{ width: 200, marginTop: 10 }}
                 placeholder="按表名搜索"
+                defaultValue={params.tableName}
                 onSearch={ value => { this.searchTable({tableName: value}) } }
             />
         )
@@ -318,7 +324,6 @@ class Log extends React.Component {
                         pagination={ false }
                         onChange={this.handleTableChange}
                         bordered
-                        scroll={{ y: '65%' }}
                     />}
                     <Pagination
                         pageSize={ 20 }

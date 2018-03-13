@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
-import { isArray } from 'lodash';
+import { isArray, isNumber } from 'lodash';
 import {
     Form, Input, Icon, Select,
     Radio, Modal,
 } from 'antd'
 
 import Api from '../../../api'
-import { formItemLayout } from '../../../comm/const'
+import { mergeArray } from 'funcs'
 import FolderPicker from './folderTree'
+import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -28,7 +29,28 @@ class TaskFormModal extends Component {
     }
 
     onChangeResList = (value) => {
-        console.log('onChangeResList:', value)
+        if (isArray(value)) {
+
+            const newVals = [...value]
+            
+            const { taskInfo } = this.props
+            const resourceList = isArray(taskInfo.resourceList) ?
+            taskInfo.resourceList.map(item => item.id) : []
+
+            newVals.forEach((v, i) => {
+                if (isNumber(v) && resourceList.indexOf(v) < 0) {
+                    resourceList.push(v)
+                }
+            })
+
+            this.setState({
+                selectedRes: resourceList,
+            })
+        } else {
+            this.setState({
+                selectedRes: value,
+            })
+        }
         this.props.form.setFieldsValue({
             resourceIdList: value,
         })
@@ -48,6 +70,7 @@ class TaskFormModal extends Component {
     submit = (e) => {
         e.preventDefault()
         const { handOk, form, taskInfo } = this.props
+        const { selectedRes } = this.state
         const task = this.props.form.getFieldsValue()
         const fileds = ['name', 'nodePid']
         task.computeType = 0 // 实时任务
@@ -56,8 +79,10 @@ class TaskFormModal extends Component {
             fileds.push('resourceIdList')
         }
 
-        if (task.resourceIdList && !Array.isArray(task.resourceIdList)) {
-            task.resourceIdList = [task.resourceIdList]
+        if (selectedRes && !Array.isArray(selectedRes)) {
+            task.resourceIdList = [selectedRes]
+        } else {
+            task.resourceIdList = selectedRes
         }
 
         // 如果为进行过更新操作，忽略资源列表

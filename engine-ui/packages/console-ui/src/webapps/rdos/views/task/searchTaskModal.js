@@ -18,11 +18,11 @@ import { MENU_TYPE } from '../../comm/const';
 const Option = Select.Option;
 
 function inOffline() {
-    return location.pathname.indexOf('offline') > -1;
+    return location.href.indexOf('offline') > -1;
 }
 
 function inRealtime() {
-    return location.pathname.indexOf('realtime') > -1;
+    return location.href.indexOf('realtime') > -1;
 }
 
 @pureRender

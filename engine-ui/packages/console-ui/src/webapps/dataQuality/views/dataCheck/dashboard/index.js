@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card } from 'antd';
 import moment from 'moment';
 import { dataCheckActions } from '../../../actions/dataCheck';
-import * as UserAction from '../../../actions/user';
+import { commonActions } from '../../../actions/common';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
 
@@ -14,8 +14,8 @@ const InputGroup = Input.Group;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { dataCheck, user } = state;
-    return { dataCheck, user }
+    const { dataCheck, common } = state;
+    return { dataCheck, common }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -23,7 +23,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(dataCheckActions.getLists(params));
     },
     getUserList(params) {
-        dispatch(UserAction.getUserList(params));
+        dispatch(commonActions.getUserList(params));
     },
 });
 
@@ -226,7 +226,7 @@ export default class DataCheck extends Component {
 
     render() {
         const { lists, loading } = this.props.dataCheck;
-        const { userList } = this.props.user;
+        const { userList } = this.props.common;
         const { params } = this.state;
 
         const pagination = {

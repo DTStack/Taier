@@ -2,12 +2,14 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { 
     Select, Table, Card,
-    Button, Tabs, Modal 
+    Button, Tabs, Modal, 
+    Popconfirm, message
 } from 'antd'
 import { Link } from 'react-router'
 
 import utils from 'utils'
 import { MY_APPS } from 'consts'
+import { hasProject } from 'funcs'
 
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
@@ -22,70 +24,106 @@ class AdminUser extends Component {
 
     state = {
         active: '',
-        data: '',
+        loading: 'success',
+
         users: {
             data: [],
         },
+
         projects: [],
-        project: '',
+        selectedProject: '',
         notProjectUsers: [],
-        loading: 'success',
         roles: [],
-        visible: false,
         editTarget: '',
+
+        visible: false,
         visibleEditRole: false,
     }
 
     componentDidMount() {
         const { apps } = this.props
+        
         if (apps && apps.length > 0 ) {
-            const key = apps[1].id;
+            const defaultApp = apps.find(app => app.default)
+            const appKey = defaultApp.id
             this.setState({
-                active: key
+                active: appKey 
             })
-            this.loadUsers(key);
-            this.loadRoles(key);
+            if (hasProject(appKey)) {
+                this.getProjects(appKey)
+            } else {
+                this.loadData();
+            }
         }
     }
 
-    loadUsers = (app, page) => {
+    loadData = () => {
+        const { active, selectedProject } = this.state;
+        const params = {
+            pageSize: 10,
+            currentPage: 1,
+        }
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+        this.loadUsers(active, params);
+        this.loadRoles(active, params);
+    }
+
+    loadUsers = (app, params) => {
         const ctx = this
         this.setState({ loading: true })
-        const { params } = this.props
-        Api.queryUser({
-            projectId: params.pid,
-            pageSize: 10,
-            currentPage: page || 1,
-        }).then((res) => {
+        Api.queryUser(app, params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ users: res.data, loading: false })
             }
         })
     }
 
-    loadRoles = (app, page) => {
+    loadRoles = (app, params) => {
         const ctx = this
-        Api.getRoleList({
-            currentPage: page || 1,
-        }).then((res) => {
+        Api.queryRole(app, params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ roles: res.data && res.data.data })
             }
         })
     }
 
+    getProjects = (app) => {
+        const ctx = this
+        Api.getProjects(app).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ projects: res.data })
+                const selectedProject = res.data[0].id
+                this.setState({
+                    selectedProject 
+                }, this.loadData)
+            }
+        })
+    }
+
+    loadUsersNotInProject = () => {
+        const { active } = this.state;
+        Api.loadUsersNotInProject(active).then((res) => {
+            if (res.code === 1) {
+                this.setState({ notProjectUsers: res.data })
+            }
+        })
+    }
+
     addMember = () => {
         const ctx = this
+        const { active } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
         form.validateFields((err) => {
             if (!err) {
-                Api.addRoleUser(projectRole).then((res) => {
+                Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
                             form.resetFields()
                         })
-                        ctx.loadUsers()
+                        ctx.loadData()
                         message.success('添加用户成功!')
                     }
                 })
@@ -93,18 +131,31 @@ class AdminUser extends Component {
         });
     }
 
+    removeUserFromProject = (member) => {
+        const ctx = this
+        const { active } = this.state
+        Api.removeProjectUser(active, {
+            targetUserId: member.userId,
+        }).then((res) => {
+            if (res.code === 1) {
+                ctx.loadData()
+                message.success('移出成员成功!')
+            }
+        })
+    }
+
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget } = this.state
+        const { editTarget, active } = this.state
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
-        Api.updateUserRole({
+        Api.updateUserRole(active, {
             targetUserId: editTarget.userId,
             roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
         }).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')
                 ctx.setState({ visibleEditRole: false })
-                ctx.loadUsers()
+                ctx.loadData()
             }
         })
     }
@@ -131,16 +182,35 @@ class AdminUser extends Component {
         this.setState({
             active: key,
         })
-        this.loadData(key)
+        this.loadUsers(key)
+    }
+
+    onProjectSelect = (value) => {
+        this.setState({
+            selectedProject: value
+        })
+    }
+
+    initAddMember = () => {
+        const { params } = this.props
+        this.loadUsersNotInProject();
+        this.setState({ visible: true })
     }
 
     initColums = () => {
+        const ctx = this;
+
         return [{
             title: '账号',
             dataIndex: 'user.userName',
             key: 'account',
             render(text, record) {
-                return <Link to={`message/detail/${record.id}`}>{text}</Link>
+                return <a onClick={() => {
+                    ctx.setState({ 
+                        visibleEditRole: true,
+                        editTarget: record
+                    })
+                }}>{text}</a>
             },
         }, {
             title: '邮箱',
@@ -156,10 +226,12 @@ class AdminUser extends Component {
             key: 'userName',
         }, {
             title: '角色',
+            width: 120,
             dataIndex: 'roles',
             key: 'roles',
             render(roles) {
-                return '-'
+                const roleNames = roles.map(role => role && role.roleName)
+                return roleNames.join(',')
             }
         }, {
             title: '加入时间',
@@ -174,44 +246,65 @@ class AdminUser extends Component {
             key: 'id',
             render(id, record) {
                 return <span>
-                    <a>编辑</a>
+                    <a onClick={() => {
+                        ctx.setState({ 
+                            visibleEditRole: true,
+                            editTarget: record
+                        })
+                    }}>编辑</a>
                     <span className="ant-divider" />
-                    <a>删除</a>
+                    <Popconfirm
+                        title="确认将该用户从项目中移除？"
+                        okText="确定" cancelText="取消"
+                        onConfirm={() => { ctx.removeUserFromProject(record) }}
+                        >
+                        <a>删除</a>
+                    </Popconfirm>
                 </span>
             }
         }]
     }
 
-    renderPane = () => {
-        const { data, loading, projects } = this.state;
+    renderTitle = () => {
+
+        const { projects, active, selectedProject } = this.state;
 
         const projectOpts = projects && projects.map(project => 
             <Option value={project.id} key={project.id}>
-                { project.name }
+                { project.projectAlias }
             </Option>
         )
 
-        const title = (
+        const title = hasProject(active) && (
             <span
-                style={{ marginTop: '10px' }}
+                style={{ marginTop: '10px', position: 'relative' }}
             >
                 选择项目：
                 <Select
                     showSearch
-                    style={{ width: 200 }}
+                    value={ selectedProject }
+                    style={ { width: 200 } }
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
+                    onSelect={ this.onProjectSelect }
                 >  
                   { projectOpts }
                 </Select>
             </span>
         )
 
+        return title
+    }
+
+    renderPane = () => {
+        const { apps } = this.props
+        const { users, loading } = this.state;
+
         const extra = (
             <Button 
                 style={{marginTop: '10px'}}
                 type="primary" 
-                onClick={() => { this.setState({ visible: true }) }}>
+                onClick={this.initAddMember}>
                 添加用户
             </Button>
         )
@@ -220,7 +313,7 @@ class AdminUser extends Component {
             <Card 
                 bordered={false}
                 noHovering
-                title={title} 
+                title={this.renderTitle()}
                 extra={extra}
             >
                 <Table 
@@ -229,19 +322,18 @@ class AdminUser extends Component {
                     columns={this.initColums()} 
                     onChange={this.handleTableChange}
                     loading={loading === 'loading'}
-                    dataSource={ data ? data.data : [] } 
+                    dataSource={ users.data || [] } 
                 />
             </Card>
         )
     }
 
-
     render() {
         const { apps } = this.props
 
         const { 
-            visible, users, roles, notProjectUsers,
-            visibleEditRole, editTarget, project
+            visible, roles, notProjectUsers,
+            visibleEditRole, editTarget
         } = this.state
 
         const content = this.renderPane();

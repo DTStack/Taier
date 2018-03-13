@@ -5,7 +5,6 @@ import { select, selectAll, mouse } from 'd3-selection';
 import { isEmpty, isEqual } from 'lodash';
 import { Table, Checkbox, TimePicker, Form, InputNumber, Button, Switch, Select, message, Row, Col } from 'antd';
 import { keyMapActions } from '../../../actions/dataSource/keyMapActions';
-
 import API from '../../../api/dataSource';
 
 const FormItem = Form.Item;

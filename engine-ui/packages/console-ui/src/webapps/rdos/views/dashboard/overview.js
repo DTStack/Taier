@@ -57,6 +57,9 @@ export default class ProjectList extends Component {
     componentWillReceiveProps(nextProps) {
         const nextProjects = nextProps.projects
         const old = this.props.projects
+
+        console.log('update:', old, nextProjects)
+
         if (old.length !== nextProjects.length) {
             this.setState({
                 selectedProject: nextProjects[0].id

@@ -117,10 +117,14 @@ export default class TableViewer extends React.Component{
 
     render() {
         const { showType, tableData, previewData } = this.state;
+
         const columns = [{
             title: '序号',
             dataIndex: 'index',
-            key: 'index'
+            key: 'index',
+            render(index) {
+                return ++index
+            }
         },{
             title: '字段名称',
             dataIndex: 'name',
@@ -246,12 +250,11 @@ export default class TableViewer extends React.Component{
                                 <TabPane tab="数据预览" key="3">
                                     <div className="box">
                                         { previewData ? <Table
-                                            columns={ this.previewCols.map(str => ({
+                                            columns={ this.previewCols.map((str,i) => ({
                                                 title: str,
                                                 dataIndex: str,
-                                                key: str
+                                                key: str + i
                                             })) }
-                                            rowKey="id"
                                             className="m-table"
                                             dataSource={ previewData }
                                             scroll={{ x: 200 * this.previewCols.length }}
@@ -261,7 +264,7 @@ export default class TableViewer extends React.Component{
                                                 textAlign: 'center',
                                                 fontSize: 12,
                                                 color: '#ddd'
-                                            }}><Icon type="exclamation-circle-o" /> 此表中没有字段信息 </p>
+                                            }}><Icon type="exclamation-circle-o" /> 此表中没有数据 </p>
                                         }
                                     </div>
                                 </TabPane>

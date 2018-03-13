@@ -28,13 +28,10 @@ const defaultConf =
 }`
 const hdfsConf = 
 `{
-"defaultFS": "",
-"hadoopConfig": {
-    "dfs.nameservices": "defaultDfs", 
-    "dfs.ha.namenodes.defaultDfs": "namenode1", 
-    "dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
-    "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
-}
+"dfs.nameservices": "defaultDfs", 
+"dfs.ha.namenodes.defaultDfs": "namenode1", 
+"dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
+"dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 const hBaseConf = 
 `{
@@ -536,7 +533,7 @@ class DataSourceForm extends Component {
                                 max: 128,
                                 message: '数据源名称不得超过128个字符！',
                             }, {
-                                pattern: /^[A-Za-z0-9_-]+$/,
+                                pattern: /^[A-Za-z0-9_]+$/,
                                 message: '名称只能由字母与数字、下划线组成',
                             }],
                             initialValue: sourceData.dataName || '',

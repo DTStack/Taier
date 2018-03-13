@@ -254,7 +254,7 @@ class RealTimeConfig extends Component {
             return (
                 <Option 
                     key={item.id} 
-                    value={`${item.userId}`} 
+                    value={`${item.user.dtuicUserId}`} 
                     name={item.user.userName}
                 >
                     {item.user.userName}
@@ -280,6 +280,7 @@ class RealTimeConfig extends Component {
                         >
                             <FormItem label="任务名称" >
                                 <Input
+                                    allowClear
                                     placeholder="任务名称"
                                     style={{ width: 200 }}
                                     size="default"

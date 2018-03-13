@@ -327,17 +327,19 @@ const keymap = (state = { source: [], target: [] }, action) => {
             let source = [], target = [];
 
             let targetNameCol = targetCol.map(o => o.key);
+            
             sourceCol.forEach((o, i) => {
                 let name = o.key;
                 let idx = targetNameCol.indexOf(name);
-
+                
                 if( idx !== -1) {
+                    const targetName = DATA_TYPE_ARRAY.indexOf(+targetSrcType) !== -1 ? name: targetCol[idx]
                     source.push(name);
-                    target.push(DATA_TYPE_ARRAY.indexOf(+targetSrcType) !== -1? name: targetCol[idx]);
+                    target.push(targetName);
                 }
             });
 
-            return {source, target};
+            return { source, target };
         }
 
         case keyMapAction.EDIT_KEYMAP_TARGET: {

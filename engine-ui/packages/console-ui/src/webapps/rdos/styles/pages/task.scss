@@ -35,7 +35,7 @@
             border-bottom: 0;
             position: absolute;
             right: 0;
-            z-index: 999;
+            z-index: 5;
 
             .ant-tabs-nav-container {
                 height: 30px;
@@ -253,6 +253,12 @@
             .tb-list {
                 overflow-y: auto;
                 overflow-x: hidden;
+                -ms-overflow-style: none;
+                overflow: -moz-scrollbars-none;
+                &::-webkit-scrollbar { 
+                    display: none; 
+                    width: 0 !important;
+                }
             }
             .ant-tree-title {
                 position: relative;
@@ -584,7 +590,7 @@
         left: 0;
         border: 1px solid #ddd;
         border-radius: 3px;
-        max-height: 200px;
+        max-height: 120px;
         overflow: auto;
         width: 100%;
         z-index: 100;

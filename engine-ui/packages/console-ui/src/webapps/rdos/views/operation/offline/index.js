@@ -36,7 +36,6 @@ class OfflineStatistics extends Component {
     }
 
     componentDidMount() {
-        this.loadOfflineData()
         this.loadChartData()
         this.getTopTaskTime()
         this.getTopJobError()
@@ -46,7 +45,6 @@ class OfflineStatistics extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.loadOfflineData()
             this.loadChartData()
             this.getTopTaskTime()
             this.getTopJobError()
@@ -55,15 +53,6 @@ class OfflineStatistics extends Component {
 
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
-    }
-
-    loadOfflineData = () => {
-        const ctx = this
-        Api.getJobStatistics().then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ offline: res.data})
-            }
-        })
     }
 
     loadChartData = () => {
@@ -206,7 +195,7 @@ class OfflineStatistics extends Component {
                     bordered={false}
                     loading={false} 
                     className="shadow"
-                    title="今日任务完成情况（12：00）" 
+                    title="今日任务完成情况" 
                 >
                     <Resize onResize={this.resize}>
                         <article id="TaskTrend" style={{width: '100%', height: '300px'}}/>

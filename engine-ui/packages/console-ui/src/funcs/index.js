@@ -91,3 +91,11 @@ export function replaceTreeNode(treeNode, replace) {
 export function openNewWindow(url, target) {
     window.open(url, target || '_blank')
 }
+
+/**
+ * 检验改应用是否包含项目选项
+ * @param {s} app 
+ */
+export function hasProject(app) {
+    return app === 'rdos'
+}

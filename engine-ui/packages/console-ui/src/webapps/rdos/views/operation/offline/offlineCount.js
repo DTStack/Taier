@@ -16,6 +16,11 @@ class OfflineCount extends Component {
         data: '',
     }
 
+    componentDidMount() {
+        this.loadOfflineData()
+    }
+
+
     componentWillReceiveProps(nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -35,32 +40,6 @@ class OfflineCount extends Component {
         })
     }
 
-    getSeriesData = (data) => {
-        if (!data) return []
-        return [{
-            name: '失败',
-            value: data.FAILED || 0
-        }, {
-            name: '运行中',
-            value: data.RUNNING || 0
-        }, {
-            name: '已完成',
-            value: data.FINISHED || 0
-        }, {
-            name: '等待运行',
-            value: data.WAITENGINE || 0
-        }, {
-            name: '提交中',
-            value: data.SUBMITTING || 0
-        }, {
-            name: '等待提交',
-            value: data.UNSUBMIT || 0
-        }, {
-            name: '冻结',
-            value: data.FROZEN || 0
-        }]
-    }
-
     render() {
         const { data } = this.state
         return (
@@ -68,7 +47,7 @@ class OfflineCount extends Component {
                 <h1 className="box-title box-title-bolder">
                     离线任务
                     <Button type="primary" className="right" style={{marginTop: '8px'}}>
-                        <Link to="/offline/operation">离线任务运维</Link>
+                        <Link to="/operation/offline-operation">离线任务运维</Link>
                     </Button>
                 </h1>
                 <div className="box-4 m-card m-card-small">
@@ -76,7 +55,7 @@ class OfflineCount extends Component {
                         noHovering
                         bordered={false}
                         loading={false} 
-                        title="今日任务完成情况（12：00）"
+                        title="今日任务完成情况"
                     >
                         <Row className="m-count">
                             <Col span={4}>

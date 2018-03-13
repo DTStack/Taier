@@ -64,7 +64,11 @@ export default class ImportSource extends Component {
                     const title = `col-${index + 1}`
                     arr.push({
                         key: title,
+                        width: 150,
                         title: title,
+                        render: (text, item) => {
+                            return item[index]
+                        }
                     })
                 }) 
                 return arr

@@ -2,16 +2,18 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Icon } from 'antd'
 
+import utils from 'utils'
+
 import GoBack from '../../components/go-back'
 import { tabBarStyle } from '../../consts'
 
-import DataSouceApi from 'dataQuality/api/dataSource'
+import Api from '../../api'
 
 class MsgDetail extends Component {
 
     state = {
-        active: 'all',
         msgInfo: '',
+        app: utils.getParameterByName('app'),
     }
 
     componentDidMount() {
@@ -20,23 +22,22 @@ class MsgDetail extends Component {
     }
 
     loadMsg = (msgId) => {
-        DataSouceApi.getDataSources({ msgId }).then(res => {
+        Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then(res => {
             this.setState({
                 msgInfo: res.data,
             })
         })
     }
 
-
     render() {
+        const { msgInfo } = this.state
         return (
             <div className="box-1">
                 <div className="box-card msg-box">
                     <main>
                         <h1 className="card-title"><GoBack /> 蚂蚁金服设计平台简介</h1>
                         <p>
-                            段落示意：蚂蚁金服设计平台 design.alipay.com，用最小的工作量，无缝接入蚂蚁金服生态，提供跨越设计与开发的体验解决方案。蚂蚁金服设计平台 design.alipay.com，
-                            用最小的工作量，无缝接入蚂蚁金服生态，提供跨越设计与开发的体验解决方案。
+                            {msgInfo.content}
                         </p>
                     </main>
                     <footer>

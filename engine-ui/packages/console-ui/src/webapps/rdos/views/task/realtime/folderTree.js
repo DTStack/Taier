@@ -104,6 +104,7 @@ class FolderTree extends Component {
                 return (
                     <TreeNode 
                         title={title}
+                        name={item.name}
                         key={key}
                         value={item.id}
                         treeType={treeType}
@@ -140,6 +141,7 @@ class FolderTree extends Component {
                     onSelect={onSelect}
                     disabled={disabled}
                     multiple={multiple}
+                    size="large"
                     treeNodeFilterProp="name"
                     getPopupContainer={() => this.selEle }
                     placeholder={placeholder || '请选择存储位置'}

@@ -136,8 +136,8 @@ class RealTimePanel extends Component {
             },
         }, {
             title: '触发方式',
-            dataIndex: 'triggerType',
-            key: 'triggerType',
+            dataIndex: 'myTrigger',
+            key: 'myTrigger',
             render: (text) => {
                 return <AlarmTriggerType value={text} />
             },
@@ -168,7 +168,7 @@ class RealTimePanel extends Component {
         const { projectUsers } = this.props
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.user.dtuicUserId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
@@ -187,13 +187,13 @@ class RealTimePanel extends Component {
                     </Col>
                     <Col span={12}>
                         <section className="m-count-section">
-                            <span className="m-count-title">本周</span>
+                            <span className="m-count-title">近7天</span>
                             <span className="m-count-content font-blue">{statistics.week || 0}</span>
                         </section>
                     </Col>
                     <Col span={6}>
                         <section className="m-count-section">
-                            <span className="m-count-title">本月</span>
+                            <span className="m-count-title">近30天</span>
                             <span className="m-count-content font-darkgreen">{statistics.month || 0}</span>
                         </section>
                     </Col>
@@ -217,6 +217,7 @@ class RealTimePanel extends Component {
                             <Input
                                 placeholder="任务名称"
                                 size="default"
+                                allowClear
                                 style={{ width: 120 }}
                                 onChange={this.changeTaskName} 
                             />
