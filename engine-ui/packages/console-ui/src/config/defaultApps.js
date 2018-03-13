@@ -14,7 +14,7 @@ module.exports = [
         id: 'rdos',
         name: '开发套件',
         filename: 'rdos.html',
-        link: 'rdos.html#/',
+        link: '/rdos.html#/',
         target: '_blank',
         enable: true,
         hasProject: true, // 是否拥有项目选择
@@ -23,7 +23,7 @@ module.exports = [
     },{
         id: 'dataQuality',
         name: '数据质量',
-        link: 'dataQuality.html#/',
+        link: '/dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_blank',
         enable: true,
