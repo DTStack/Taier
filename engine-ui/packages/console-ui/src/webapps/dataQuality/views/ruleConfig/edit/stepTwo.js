@@ -33,52 +33,88 @@ export default class StepTwo extends Component {
         })
     }
 
-    initColumns = () => {
-        return [{
-            title: '字段',
-            dataIndex: 'tableName',
-            key: 'tableName',
-            width: '15%'
-        }, {
-            title: '统计函数',
-            dataIndex: 'dataSourceType',
-            key: 'dataSourceType',
-            width: '15%',
-            render: (text, record) => {
-                return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
-            }
-        }, 
-        {
-            title: '过滤条件',
-            dataIndex: 'periodType',
-            key: 'periodType',
-            width: '8%'
-        }, {
-            title: '校验方法',
-            dataIndex: 'recentNotifyNum',
-            key: 'recentNotifyNum',
-            width: '10%',
-        }, {
-            title: '阈值配置',
-            dataIndex: 'isRemoteTrigger',
-            key: 'isRemoteTrigger',
-            render: (text, record) => {
-                if (text === 0) {
-                    return <Icon type="check-circle status-success" />
-                } else {
-                    return <Icon type="close-circle status-error" />
+    initColumns = (ab) => {
+        if (ab) {
+
+            return [{
+                title: '字段',
+                dataIndex: 'tableName',
+                key: 'tableName',
+                width: '15%'
+            }, {
+                title: '统计函数',
+                dataIndex: 'dataSourceType',
+                key: 'dataSourceType',
+                width: '15%',
+                render: (text, record) => {
+                    return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
                 }
-            },
-            width: '8%'
-        }, {
-            title: '操作',
-            width: '8%',
-            render: (text, record) => {
-                return (
-                    <a>订阅</a>
-                )
-            }
-        }]
+            }, 
+            {
+                title: '过滤条件',
+                dataIndex: 'periodType',
+                key: 'periodType',
+                width: '8%'
+            }, {
+                title: '校验方法',
+                dataIndex: 'recentNotifyNum',
+                key: 'recentNotifyNum',
+                width: '10%',
+            }, {
+                title: '阈值配置',
+                dataIndex: 'isRemoteTrigger',
+                key: 'isRemoteTrigger',
+                render: (text, record) => {
+                    if (text === 0) {
+                        return <Icon type="check-circle status-success" />
+                    } else {
+                        return <Icon type="close-circle status-error" />
+                    }
+                },
+                width: '8%'
+            }, {
+                title: '操作',
+                width: '8%',
+                render: (text, record) => {
+                    return (
+                        <a>订阅</a>
+                    )
+                }
+            }]
+        } else {
+            return [{
+                title: 'SQL',
+                dataIndex: 'SQL',
+                key: 'SQL',
+                width: '15%'
+            }, {
+                title: '校验方法',
+                dataIndex: 'recentNotifyNum',
+                key: 'recentNotifyNum',
+                width: '10%',
+            }, {
+                title: '阈值配置',
+                dataIndex: 'isRemoteTrigger',
+                key: 'isRemoteTrigger',
+                render: (text, record) => {
+                    if (text === 0) {
+                        return <Icon type="check-circle status-success" />
+                    } else {
+                        return <Icon type="close-circle status-error" />
+                    }
+                },
+                width: '8%'
+            }, {
+                title: '操作',
+                width: '8%',
+                render: (text, record) => {
+                    return (
+                        <a>订阅</a>
+                    )
+                }
+            }]
+        }
+
     }
 
     render() {
@@ -90,7 +126,7 @@ export default class StepTwo extends Component {
                     <Table 
                         rowKey="id"
                         className="m-table"
-                        columns={this.initColumns()} 
+                        columns={this.initColumns(1)} 
                         // loading={loading}
                         pagination={false}
                         dataSource={[]}
