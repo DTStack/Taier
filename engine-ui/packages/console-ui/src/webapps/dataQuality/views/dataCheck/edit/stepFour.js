@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import { isEmpty } from 'lodash';
+import moment from 'moment';
 import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox } from 'antd';
 import * as UserAction from '../../../actions/user';
 import { formItemLayout } from '../../../consts';
@@ -26,54 +28,85 @@ export default class StepFour extends Component {
         super(props);
         this.state = {
             executeType: 0,
-            isInform: false
+            isInform: false,
+            scheduleConfObj: {
+                beginDate: moment().format('YYYY-MM-DD'),
+                hour: 0,
+                min: 0,
+                endDate: '2121-01-01',
+                periodType: '2'
+            }
         }
     }
 
     componentDidMount() {
-        
+        this.props.getUserList();
+        this.initState();
+    }
+
+    initState = () => {
+        const { scheduleConf, notifyVO } = this.props.editParams;
+
+        if (scheduleConf) {
+            this.setState({ scheduleConfObj: JSON.parse(scheduleConf) });
+        } 
+
+        if (notifyVO) {
+            this.setState({ isInform: true });
+        } 
     }
 
     onExecuteTypeChange = (e) => {
-        console.log(e)
-        this.setState({ executeType: e.target.value });
         this.props.changeParams({
             executeType: e.target.value,
-            scheduleConf: `{"min":0,"hour":0,"periodType":"2","beginDate":"2018-03-06","endDate":"2121-01-01"}`
         });
     }
 
     onInformChange = (e) => {
-        console.log(e.target.checked);
         this.setState({ isInform: e.target.checked });
-        if (!this.props.user.userList.length) {
-            this.props.getUserList();
+
+        if (!e.target.checked) {
+            this.props.changeParams({
+                notifyVO: undefined
+            });
         }
     }
 
     onInformTypeChange = (value) => {
-        console.log(value)
-        const { notifyVO } = this.props.dataCheck.params;
+        const { notifyVO } = this.props.editParams;
         this.props.changeParams({
             notifyVO: { ...notifyVO, sendTypes: value }
-        })
+        });
     }
 
     onDateChange = (date, dateString) => {
-        console.log(date, dateString)
+        this.changeScheduleParams(dateString, 'beginDate');
     }
 
-    onTimeChange = (date, dateString) => {
-        console.log(date, dateString)
+    onHourChange = (date, dateString) => {
+        this.changeScheduleParams(dateString, 'hour');
     }
 
     onMinChange = (date, dateString) => {
-        console.log(date, dateString)
+        this.changeScheduleParams(dateString, 'min');
+    }
+
+    changeScheduleParams = (date, type) => {
+        const { scheduleConfObj } = this.state;
+
+        let newParams = {};
+        newParams[type] = date;
+
+        this.setState({
+            scheduleConfObj: {...scheduleConfObj, ...newParams}
+        });
+        this.props.changeParams({
+            scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
+        });
     }
 
     onInformUserChange = (value) => {
-        console.log(value)
-        const { notifyVO } = this.props.dataCheck.params;
+        const { notifyVO } = this.props.editParams;
         this.props.changeParams({
             notifyVO: { ...notifyVO, receivers: value }
         })
@@ -82,33 +115,53 @@ export default class StepFour extends Component {
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option value={item.id.toString()}>{item.userName}</Option>
+                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
             )
         })
     }
 
     prev = () => {
-        this.props.navToStep(2);
+        const { currentStep, navToStep } = this.props;
+        navToStep(currentStep - 1);
     }
 
-    add = () => {
-        this.props.editCheck(this.props.dataCheck.params)
+    save = () => {
+        const { form, editParams } = this.props;
+        form.validateFields({ force: true }, (err, values) => {
+            console.log(err,values)
+            if(!err) {
+                if (editParams.id) {
+                    this.props.updateCheck({...editParams});
+                } else {
+                    this.props.addCheck({...editParams});
+                }
+                location.href = "/dataQuality.html#/dq/dataCheck";
+            }
+        })
+
     }
 
     render() {
-        const { getFieldDecorator } = this.props.form;
-        const { userList } = this.props.user;
-        const { params } = this.props.dataCheck;
-        const { executeType, isInform } = this.state;
+        const { form, user, editParams, editStatus } = this.props;
+        const { isInform, scheduleConfObj } = this.state;
+        const { executeType, notifyVO, scheduleConf } = editParams;
+        const { getFieldDecorator } = form;
+
+        let receivers, sendTypes;
+        if (notifyVO) {
+            receivers = notifyVO.receivers;
+            sendTypes = notifyVO.sendTypes;
+        }
 
         return (
             <div>
                 <div className="steps-content">
                     <Form>
-                        <FormItem {...formItemLayout} label="执行时间" style={{ marginTop: 24, marginBottom: 5 }}>
+                        <FormItem {...formItemLayout} label="执行时间" key="executeType">
                             {
                                 getFieldDecorator('executeType', {
-                                    rules: [{ required: true, message: '不能为空' }], initialValue: params.executeType || 0
+                                    rules: [{ required: true, message: '不能为空' }], 
+                                    initialValue: executeType
                                 })(
                                     <RadioGroup onChange={this.onExecuteTypeChange} size="default">
                                         <Radio value={0}>立即执行</Radio>
@@ -121,11 +174,12 @@ export default class StepFour extends Component {
                         {
                             executeType === 1
                             &&
-                            <Row className="table-view">
+                            <Row style={{ marginBottom: 24 }}>
                                 <Col span={12} offset={6}>
                                     {
                                         getFieldDecorator('beginDate', {
-                                            rules: [{ required: true }]
+                                            rules: [{ required: true }],
+                                            initialValue: moment(scheduleConfObj.beginDate)
                                         })(
                                             <DatePicker
                                                 format="YYYY-MM-DD"
@@ -137,19 +191,21 @@ export default class StepFour extends Component {
                                     }
                                     {
                                         getFieldDecorator('hour', {
-                                            rules: [{ required: true }]
+                                            rules: [{ required: true }],
+                                            initialValue: moment(scheduleConfObj.hour, 'HH')
                                         })(
                                             <TimePicker
                                                 format="HH"
                                                 placeholder='小时'
-                                                onChange={this.onTimeChange}
+                                                onChange={this.onHourChange}
                                                 style={{ marginRight: 15 }}
                                             />
                                         )
                                     }
                                     {
                                         getFieldDecorator('min', {
-                                            rules: [{ required: true }]
+                                            rules: [{ required: true }],
+                                            initialValue: moment(scheduleConfObj.min, 'mm')
                                         })(
                                             <TimePicker
                                                 format="mm"
@@ -162,10 +218,12 @@ export default class StepFour extends Component {
                             </Row>
                         }
 
-                        <FormItem {...formItemLayout} label="通知设置" style={{ marginTop: 10 }}>
+                        <FormItem {...formItemLayout} label="通知设置">
                             {
                                 getFieldDecorator('informSetting', {
                                     rules: [],
+                                    valuePropName: 'checked',
+                                    initialValue: isInform
                                 })(
                                     <Checkbox onChange={this.onInformChange}>执行完成后发送通知</Checkbox>
                                 )
@@ -176,10 +234,11 @@ export default class StepFour extends Component {
                             isInform === true
                             &&
                             <Row>
-                                <FormItem {...formItemLayout} label="通知方式">
+                                <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
                                     {
                                         getFieldDecorator('sendTypes', {
-                                            rules: [{ required: true, message: '选择一种通知方式' }], initialValue: ['0']
+                                            rules: [{ required: true, message: '选择一种通知方式' }], 
+                                            initialValue: sendTypes ? sendTypes.map(item => item.toString()) : ['0']
                                         })(
                                             <Checkbox.Group onChange={this.onInformTypeChange}>
                                                 <Checkbox value="0">邮件</Checkbox>
@@ -188,14 +247,16 @@ export default class StepFour extends Component {
                                         )
                                     }
                                 </FormItem>
-                                <FormItem {...formItemLayout} label="通知接收人">
+                                
+                                <FormItem {...formItemLayout} label="通知接收人" key='receivers'>
                                     {
                                         getFieldDecorator('receivers', {
                                             rules: [{ required: true, message: '接收人不能为空' }],
+                                            initialValue: receivers ? receivers.map(item => item.toString()) : []
                                         })(
                                             <Select mode="multiple" allowClear onChange={this.onInformUserChange}>
                                                 {
-                                                    this.renderUserList(userList)
+                                                    this.renderUserList(user.userList)
                                                 }
                                             </Select>
                                         )
@@ -207,7 +268,7 @@ export default class StepFour extends Component {
                 </div>
                 <div className="steps-action">
                     <Button onClick={this.prev}>上一步</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.add}>新建</Button>
+                    <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
                     <Button className="m-l-8" type="primary"><Link to="/dq/dataCheck">校验列表</Link></Button>
                 </div>
             </div>

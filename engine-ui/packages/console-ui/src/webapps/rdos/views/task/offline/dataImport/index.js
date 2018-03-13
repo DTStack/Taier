@@ -164,7 +164,7 @@ export default class ImportLocalData extends Component {
                 value = ' '
                 break;
             case 'tab':
-                value = '   '
+                value = '\t'
 
         }
         return value

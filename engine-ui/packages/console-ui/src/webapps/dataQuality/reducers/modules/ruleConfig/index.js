@@ -1,13 +1,14 @@
-import { dataCheckActions as ACTION_TYPE } from '../../../consts/dataCheckActions';
+import { ruleConfigActions as ACTION_TYPE } from '../../../consts/ruleConfigActions';
 import { cloneDeep } from 'lodash';
 
 const initialState = {
     loading: false,
-    lists: [],
+    ruleLists: [],
 }
 
-export default function dataCheck(state = initialState, action) {
+export default function ruleConfig(state = initialState, action) {
     const { type, payload } = action;
+
     switch (type) {  
         case ACTION_TYPE.CHANGE_LOADING: {
             const clone = cloneDeep(state);
@@ -16,10 +17,10 @@ export default function dataCheck(state = initialState, action) {
             return clone;
         }
 
-        case ACTION_TYPE.GET_LIST: {
+        case ACTION_TYPE.GET_RULE_LIST: {
             const clone = cloneDeep(state);
-            const { lists } = clone;
-            clone.lists = payload;
+            const { ruleLists } = clone;
+            clone.ruleLists = payload;
             return clone;
         }
 

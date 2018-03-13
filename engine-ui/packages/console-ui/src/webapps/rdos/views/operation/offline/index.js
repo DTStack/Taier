@@ -195,7 +195,7 @@ class OfflineStatistics extends Component {
                     bordered={false}
                     loading={false} 
                     className="shadow"
-                    title="今日任务完成情况（12：00）" 
+                    title="今日任务完成情况" 
                 >
                     <Resize onResize={this.resize}>
                         <article id="TaskTrend" style={{width: '100%', height: '300px'}}/>

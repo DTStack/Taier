@@ -342,7 +342,7 @@ class PatchDataDetail extends Component {
             dataIndex: 'exeStartTime',
             key: 'exeStartTime',
         }, {
-            title: '运行时长（S）',
+            title: '运行时长（秒）',
             dataIndex: 'exeTime',
             key: 'exeTime',
         }, {

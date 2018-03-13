@@ -104,6 +104,7 @@ class FolderTree extends Component {
                 return (
                     <TreeNode 
                         title={title}
+                        name={item.name}
                         key={key}
                         value={item.id}
                         treeType={treeType}

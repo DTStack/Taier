@@ -47,7 +47,7 @@ class OfflineCount extends Component {
                 <h1 className="box-title box-title-bolder">
                     离线任务
                     <Button type="primary" className="right" style={{marginTop: '8px'}}>
-                        <Link to="/offline/operation">离线任务运维</Link>
+                        <Link to="/operation/offline-operation">离线任务运维</Link>
                     </Button>
                 </h1>
                 <div className="box-4 m-card m-card-small">
@@ -55,7 +55,7 @@ class OfflineCount extends Component {
                         noHovering
                         bordered={false}
                         loading={false} 
-                        title="今日任务完成情况（12：00）"
+                        title="今日任务完成情况"
                     >
                         <Row className="m-count">
                             <Col span={4}>

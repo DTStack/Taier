@@ -110,7 +110,6 @@ class Keymap extends React.Component{
         this.listenResize();
         this.loadColumnFamily();
         this.initData();
-        console.log(this,'this')
     }
 
     resize = () => {

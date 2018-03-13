@@ -30,11 +30,18 @@ export default class Console extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const newConsole = nextProps.data
-        if (newConsole.results && newConsole.results.length > 0 ) { // 如果成功获取结果，tab切换到结果界面
+        const newConsole = nextProps.data;
+        const oldConsole = this.props.data;
+        if (
+             newConsole.results 
+             && oldConsole.results !== newConsole.results
+             && newConsole.results.length > 0
+        ) { // 如果成功获取结果，tab切换到结果界面
             this.setState({ activeKey: `${newConsole.results.length - 1}` })
         }
-        this.appendLog(newConsole.log)
+        if (this.props.data.log !== newConsole.log) {
+            this.appendLog(newConsole.log)
+        }
     }
 
     onEdit = (targetKey, action) => {
@@ -43,6 +50,13 @@ export default class Console extends Component {
 
     onChange = (activeKey) => {
         this.setState({activeKey})
+        if (activeKey === 'console-log') {
+            const editor = this.editor.self
+            // const doc = editor.doc
+            console.log('editor:', editor)
+            editor.focus();
+            editor.setCursor(editor.lineCount(), null) // 控制滚动条在底部
+        }
     }
 
     remove = (targetKey) => {
@@ -58,11 +72,12 @@ export default class Console extends Component {
     appendLog = (log) => {
         if (log) {
             const editor = this.editor.self
-            const doc = editor.doc
-            doc.setValue(log)
-            doc.setCursor(doc.lineCount(), null) // 控制滚动条在底部
+            // const doc = editor.doc
+            editor.setValue(log)
+            editor.setCursor(editor.lineCount(), null) // 控制滚动条在底部
         }
     }
+
 
     exportCsv = () => {
         const { results } = this.props.data
@@ -120,6 +135,7 @@ export default class Console extends Component {
 
     render() {
         const { data, dispatch } = this.props
+        console.log('render:', data)
         return (
             <div className="ide-console">
                 <Tabs

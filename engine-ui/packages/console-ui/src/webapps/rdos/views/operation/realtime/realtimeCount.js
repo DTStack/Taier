@@ -66,7 +66,7 @@ class RealtimeCount extends Component {
                 <h1 className="box-title box-title-bolder">
                     实时任务
                     <Button type="primary" className="right" style={{marginTop: '8px'}}>
-                        <Link to="/realtime/operation">实时任务运维</Link>
+                        <Link to="/operation/realtime">实时任务运维</Link>
                     </Button>
                 </h1>
                 <div className="box-4 m-card m-card-small">

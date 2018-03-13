@@ -50,7 +50,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{width: 105}}></Input>
+                        <Input placeholder="变更语句" size="default" style={{width: 110}}></Input>
                     )}
                 </FormItem>
                 <FormItem>
@@ -324,7 +324,6 @@ class Log extends React.Component {
                         pagination={ false }
                         onChange={this.handleTableChange}
                         bordered
-                        scroll={{ y: '65%' }}
                     />}
                     <Pagination
                         pageSize={ 20 }

@@ -25,7 +25,7 @@ export default class ImportTarget extends Component {
 
     tableInput = (tableName) => {
         const { changeStatus } = this.props
-        if (tableName.length >= 2) {
+        if (tableName.length > 0) {
             API.getTablesByName({ tableName }).then((res) => {
                 if (res.code === 1) {
                     changeStatus({
@@ -183,6 +183,7 @@ export default class ImportTarget extends Component {
             title: '源字段',
             key: 'source_part',
             render: (text, record, index) => {
+                console.log('record:', record)
                 return (<span>
                     <Select
                         defaultValue={""}

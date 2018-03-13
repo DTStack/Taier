@@ -87,11 +87,9 @@ const console = (state = {}, action) => {
     }
     case editorAction.APPEND_CONSOLE_LOG: {// 追加日志
         const { key, data } = action
-        const newConso = cloneDeep(state)
-        newConso[key].log = newConso[key] ? 
-        `${newConso[key].log} \n ${data}` :
-        ` ${data}`
-        return newConso
+        const newLog = cloneDeep(state)
+        newLog[key].log = newLog[key] ? `${newLog[key].log} \n ${data}` : ` ${data}`
+        return newLog
     }
     case editorAction.SET_CONSOLE_LOG: {
         const { key, data } = action
