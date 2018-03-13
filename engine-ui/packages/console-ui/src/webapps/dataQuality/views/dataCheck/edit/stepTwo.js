@@ -36,7 +36,7 @@ export default class StepTwo extends Component {
             form.setFieldsValue({ targetColumn: '' });
             target.partitionColumn = undefined;
             target.partitionValue  = undefined;
-            
+
             DSApi.getDataSourcesPart({
                 sourceId: editParams.target.dataSourceId,
                 table: name
@@ -126,12 +126,7 @@ export default class StepTwo extends Component {
 
     renderPartText = () => {
         return (
-            <div className="preview-text">
-                <p>分区支持系统函数，例如:</p>
-                <p dangerouslySetInnerHTML={{ __html: '${bdp.system.bizdate}，业务日期变量' }}></p>
-                <p>————此处需补充其他变量</p>
-                <p>如果分区还不存在，可以直接输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
-            </div>
+            <p className="font-14">如果分区还不存在，可以直接输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
         )
     }
 
@@ -166,6 +161,7 @@ export default class StepTwo extends Component {
         const { getFieldDecorator } = this.props.form;
         const { origin, target } = this.props.editParams;
         const { sourcePreview, sourcePart } = this.state;
+        const { editStatus } = this.props;
 
         return (
             <div>
@@ -177,7 +173,7 @@ export default class StepTwo extends Component {
                                     rules: [{ required: true, message: '请选择右侧表' }],
                                     initialValue: target.table
                                 })(
-                                    <Select onChange={this.onTargetTableChange}>
+                                    <Select onChange={this.onTargetTableChange} disabled={editStatus === 'edit'}>
                                         {
                                             this.renderSourceTable(sourceTable)
                                         }
@@ -196,6 +192,7 @@ export default class StepTwo extends Component {
                                         initialValue: this.getPartTitle(target.partitionColumn, target.partitionValue) 
                                     })(
                                         <TreeSelect
+                                            disabled={editStatus === 'edit'}
                                             allowClear
                                             showSearch
                                             placeholder="分区列表"
@@ -209,11 +206,9 @@ export default class StepTwo extends Component {
                                 }
                             </FormItem>
                         }
-
-                        <Row>
-                            <Col span={14} offset={6}>
-                                <Button onClick={this.onSourcePreview}>数据预览<Icon type="down" /></Button>
-                            </Col>
+                        
+                        <Row type="flex" justify="center" className="font-14">
+                            <a onClick={this.onSourcePreview}>数据预览<Icon type="down" style={{ marginLeft: 5 }} /></a>
                         </Row>
                         
                         {

@@ -22,8 +22,8 @@ import RoleEdit from 'main/views/admin/role/edit'
 import Container from './views'
 import Dashboard from './views/dashboard'
 import TaskQuery from './views/taskQuery'
-import RuleConfig from './views/ruleConfig'
-import DataCheck from './views/dataCheck'
+import RuleConfigIndex from './views/ruleConfig/dashboard'
+import RuleConfigEdit from './views/ruleConfig/edit'
 import DataCheckIndex from './views/dataCheck/dashboard'
 import DataCheckEdit from './views/dataCheck/edit'
 import DataSourceIndex from './views/dataSource'
@@ -51,7 +51,9 @@ export default (
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="taskQuery" component={ TaskQuery }></Route>
-            <Route path="rule" component={ RuleConfig }></Route>
+            <Route path="rule" component={ RuleConfigIndex }></Route>
+            <Route path="rule/add" component={ RuleConfigEdit }></Route>
+            <Route path="rule/edit/:id" component={ RuleConfigEdit }></Route>
             <Route path="dataCheck" component={ DataCheckIndex }></Route>
             <Route path="dataCheck/add" component={ DataCheckEdit }></Route>
             <Route path="dataCheck/edit/:verifyId" component={ DataCheckEdit }></Route>

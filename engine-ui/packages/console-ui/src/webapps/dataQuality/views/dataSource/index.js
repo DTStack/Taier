@@ -55,9 +55,7 @@ export default class DataSource extends Component {
 
     editDataSource = (sourceFormData, formObj) => {
         const { title, status, source, params } = this.state;
-        console.log(sourceFormData,source,{
-                ...source, ...sourceFormData
-            });
+        
         if (status === 'edit') {
             Api.updateDataSource({
                 ...source, ...sourceFormData

@@ -41,31 +41,19 @@ export default class StepFour extends Component {
 
     componentDidMount() {
         this.props.getUserList();
-
-        this.setNotifyVO();
-        this.setScheduleConf();
-        console.log(this)
+        this.initState();
     }
 
-    setNotifyVO = () => {
-        const { notifyVO } = this.props.editParams;
-
-        if (!isEmpty(notifyVO)) {
-            this.setState({ isInform: true });
-        }
-    }
-
-    setScheduleConf = () => {
-        const { scheduleConf } = this.props.editParams;
-        const { scheduleConfObj } = this.state;
+    initState = () => {
+        const { scheduleConf, notifyVO } = this.props.editParams;
 
         if (scheduleConf) {
             this.setState({ scheduleConfObj: JSON.parse(scheduleConf) });
-        } else {
-            this.props.changeParams({
-                scheduleConf: JSON.stringify(scheduleConfObj)
-            });
-        }
+        } 
+
+        if (notifyVO) {
+            this.setState({ isInform: true });
+        } 
     }
 
     onExecuteTypeChange = (e) => {
@@ -79,7 +67,7 @@ export default class StepFour extends Component {
 
         if (!e.target.checked) {
             this.props.changeParams({
-                notifyVO: {}
+                notifyVO: undefined
             });
         }
     }
@@ -138,26 +126,33 @@ export default class StepFour extends Component {
     }
 
     save = () => {
-        const { form, routeParams, editParams } = this.props;
+        const { form, editParams } = this.props;
         form.validateFields({ force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-
-                this.props.editCheck({...editParams, verifyId: routeParams.verifyId });
-                // window.location.pathname = "dataQuality.html#/dq/dataCheck"
+                if (editParams.id) {
+                    this.props.updateCheck({...editParams});
+                } else {
+                    this.props.addCheck({...editParams});
+                }
+                location.href = "/dataQuality.html#/dq/dataCheck";
             }
         })
 
     }
 
     render() {
-        const { getFieldDecorator } = this.props.form;
-        const { userList } = this.props.user;
-        const { executeType, notifyVO, scheduleConf } = this.props.editParams;
-        const { routeParams } = this.props;
+        const { form, user, editParams, editStatus } = this.props;
         const { isInform, scheduleConfObj } = this.state;
-        const { receivers, sendTypes } = notifyVO;
-       
+        const { executeType, notifyVO, scheduleConf } = editParams;
+        const { getFieldDecorator } = form;
+
+        let receivers, sendTypes;
+        if (notifyVO) {
+            receivers = notifyVO.receivers;
+            sendTypes = notifyVO.sendTypes;
+        }
+
         return (
             <div>
                 <div className="steps-content">
@@ -252,6 +247,7 @@ export default class StepFour extends Component {
                                         )
                                     }
                                 </FormItem>
+                                
                                 <FormItem {...formItemLayout} label="通知接收人" key='receivers'>
                                     {
                                         getFieldDecorator('receivers', {
@@ -260,7 +256,7 @@ export default class StepFour extends Component {
                                         })(
                                             <Select mode="multiple" allowClear onChange={this.onInformUserChange}>
                                                 {
-                                                    this.renderUserList(userList)
+                                                    this.renderUserList(user.userList)
                                                 }
                                             </Select>
                                         )
@@ -272,7 +268,7 @@ export default class StepFour extends Component {
                 </div>
                 <div className="steps-action">
                     <Button onClick={this.prev}>上一步</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.save}>{routeParams.verifyId ? '保存' : '新建'}</Button>
+                    <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
                     <Button className="m-l-8" type="primary"><Link to="/dq/dataCheck">校验列表</Link></Button>
                 </div>
             </div>

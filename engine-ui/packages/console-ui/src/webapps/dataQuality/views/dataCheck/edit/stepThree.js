@@ -113,7 +113,7 @@ export default class StepThree extends Component {
     	const { mappedPK } = this.props.editParams;
 
     	// 填充keymap的checkbox
-		if (!isEmpty(mappedPK)) {
+		if (mappedPK) {
 			let sourceCheck = [],
 				targetCheck = [];
 
@@ -126,7 +126,7 @@ export default class StepThree extends Component {
   				selectedSource: sourceCheck,
   				selectedTarget: targetCheck
   			});
-		}
+		} 
     }
 
     listenResize() {
@@ -194,7 +194,7 @@ export default class StepThree extends Component {
             .attr('r', 5)
             .attr('stroke-width', 2)
             .attr('stroke', '#fff')
-            .attr('fill', 'rgba(0, 157, 126, 0.5)');
+            .attr('fill', '#2491F7');
 
         this.$canvas.append('g')
             .attr('class', 'dr')
@@ -210,7 +210,7 @@ export default class StepThree extends Component {
             .attr('r', 5)
             .attr('stroke-width', 2)
             .attr('stroke', '#fff')
-            .attr('fill', 'rgba(0, 157, 126, 0.5)');
+            .attr('fill', '#2491F7');
     }
 
     renderLines() {
@@ -286,7 +286,7 @@ export default class StepThree extends Component {
             .attr("y1", d => d.s.y)
             .attr("x2", d => d.e.x)
             .attr("y2", d => d.e.y)
-            .attr("stroke","rgba(0, 157, 126, 0.5)")
+            .attr("stroke","#2491F7")
             .attr("stroke-width", 2)
             .attr("marker-end","url(#arrow)");
     }
@@ -355,13 +355,13 @@ export default class StepThree extends Component {
                 select(nodes[i])
                     .select('line')
                     .attr('stroke-width', 3)
-                    .attr('stroke', 'rgba(0, 157, 126, 0.8)')
+                    .attr('stroke', '#2491F7')
             })
             .on('mouseout', (d, i, nodes) => {
                 select(nodes[i])
                     .select('line')
                     .attr('stroke-width', 2)
-                    .attr('stroke', 'rgba(0, 157, 126, 0.5)')
+                    .attr('stroke', '#2491F7')
             })
             .on('click', (d, i, nodes) => {
                 delLinkedKeys({
@@ -513,22 +513,39 @@ export default class StepThree extends Component {
         return left > right ? left : right;
     }
 
-	initTableColumns = () => {
+	initLeftTable = () => {
 		return [
             {
-                title: '字段名称',
+                title: '左侧表字段',
                 dataIndex: 'key',
                 key: 'key',
-                width: '50%'
+                width: '45%'
             }, 
             {
             	title: '类型',
                 dataIndex: 'type',
                 key: 'type',
-                width: '50%'
+                width: '40%'
             }
         ]
 	}
+
+    initRightTable = () => {
+        return [
+            {
+                title: '右侧表字段',
+                dataIndex: 'key',
+                key: 'key',
+                width: '45%'
+            }, 
+            {
+                title: '类型',
+                dataIndex: 'type',
+                key: 'type',
+                width: '40%'
+            }
+        ]
+    }
 
     prev = () => {
         const { currentStep, navToStep } = this.props;
@@ -540,11 +557,16 @@ export default class StepThree extends Component {
     	const { selectedSetting } = this.state;
 
     	if (!keymap.source.length) {
-    		message.error('请连接要比对的字段')
-    		return;
+    		message.error('请连接要比对的字段');
+    		return
     	} else {
+
+    		if (!editParams.mappedPK) {
+	    		message.error('请选择逻辑主键');
+	    		return
+	    	}
+
     		if (selectedSetting.length) {
-            	
 		        form.validateFields(selectedSetting, (err, values) => {
 		            console.log(err,values)
 		            if(!err) {
@@ -634,6 +656,7 @@ export default class StepThree extends Component {
 		  		if (selected) {
 		  			sourceCheck.push(record.key);
 	  				targetCheck.push(target[source.indexOf(record.key)]);
+
 		  			this.setState({
 		  				selectedSource: sourceCheck,
 		  				selectedTarget: targetCheck
@@ -641,6 +664,7 @@ export default class StepThree extends Component {
 		  		} else {
 		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
 		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
+
 		  			this.setState({
 		  				selectedTarget: targetCheck,
 		  				selectedSource: sourceCheck,
@@ -672,6 +696,7 @@ export default class StepThree extends Component {
 		  		if (selected) {
 		  			targetCheck.push(record.key);
 		  			sourceCheck.push(source[target.indexOf(record.key)]);
+
 		  			this.setState({
 		  				selectedSource: sourceCheck,
 		  				selectedTarget: targetCheck
@@ -679,6 +704,7 @@ export default class StepThree extends Component {
 		  		} else {
 		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
 		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
+
 		  			this.setState({
 		  				selectedSource: sourceCheck,
 		  				selectedTarget: targetCheck
@@ -707,7 +733,7 @@ export default class StepThree extends Component {
 
         return (
         	<div>
-                <div className="steps-content step-3">
+                <div className="steps-content">
                     <p className="keymap-title">
 		                您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
 		            </p>
@@ -716,8 +742,7 @@ export default class StepThree extends Component {
 		                <Col offset={2} span={6}>
 		                	<Table
 				                className="keymap-table m-table"
-				                bordered
-				                columns={this.initTableColumns()}
+				                columns={this.initLeftTable()}
 				                rowSelection={keymapSourceSelection}
 				                rowKey={record => record.key}
 				                dataSource={originColumn}
@@ -734,13 +759,13 @@ export default class StepThree extends Component {
 	                        >
 	                            <defs>
 	                                <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
-	                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: 'rgba(0, 157, 126, 0.5)' }}></path>
+	                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
 	                                </marker>
 	                            </defs>
 	                            <g>
 	                                <line id="activeLine"
 	                                    x1="-10" y1="-10" x2="-10" y2="-10"
-	                                    stroke="rgba(0, 157, 126, 0.5)"
+	                                    stroke="#2491F7"
 	                                    strokeWidth="2"
 	                                    markerEnd="url(#arrow)"
 	                                />
@@ -751,8 +776,7 @@ export default class StepThree extends Component {
 	                   	<Col span={6}>
 	                        <Table
 				                className="keymap-table m-table"
-				                bordered
-				                columns={this.initTableColumns()}
+				                columns={this.initRightTable()}
 				                rowSelection={keymapTargetSelection}
 				                rowKey={record => record.key}
 				                dataSource={targetColumn}
@@ -782,7 +806,7 @@ export default class StepThree extends Component {
 		            <Row className="keymap-content">
 		                <Col offset={2} span={20}>
 				            <Table
-				                className="m-table diffrule-table"
+				                className="m-table setting-table"
 				                showHeader={false}
 				                columns={this.initColumns()}
 				                rowSelection={settingRowSelection}

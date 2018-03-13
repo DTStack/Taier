@@ -236,7 +236,7 @@ export default class DataCheck extends Component {
         };
 
         const cardTitle = (
-            <div className="flex filter-action">
+            <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
                     style={{ width: 200, margin: '10px 0' }}

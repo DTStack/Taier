@@ -37,7 +37,18 @@ export default {
     // ===== 逐行校验 ===== //
     GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`,       // 逐行校验列表数据
     GET_CHECK_DETAIL: `${DQ_BASE_URL}/verify/getOne`,       // 单个数据详情
-    EDIT_CHECK: `${DQ_BASE_URL}/verify/add`,             // 编辑逐行校验
+    ADD_CHECK: `${DQ_BASE_URL}/verify/add`,             // 编辑逐行校验
+    UPDATE_CHECK: `${DQ_BASE_URL}/verify/update`,             // 编辑逐行校验
     DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,  // 删除逐行校验
     GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`, // 获取报告
+
+    // ===== 规则配置 ===== //
+    GET_RULE_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,       // 逐行校验列表数据
+    GET_RULE_DETAIL: `${DQ_BASE_URL}/monitor/getOne`,       // 单个数据详情
+    ADD_RULE: `${DQ_BASE_URL}/monitor/add`,             // 编辑逐行校验
+    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,             // 编辑逐行校验
+    DELETE_RULE: `${DQ_BASE_URL}/monitor/deleteVerify`,  // 删除逐行校验
+
+    SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`, // 订阅表
+    UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unsubscribe`, // 取消订阅表
 }

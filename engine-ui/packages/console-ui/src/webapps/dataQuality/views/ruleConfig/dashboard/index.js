@@ -1,26 +1,33 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message } from 'antd';
+import { Table, Button, Icon, Input, DatePicker, Select, Popconfirm, message, Card, Switch, Checkbox } from 'antd';
 import moment from 'moment';
-import { dataCheckActions } from '../../../actions/dataCheck';
+import { ruleConfigActions } from '../../../actions/ruleConfig';
+import { dataSourceActions } from '../../../actions/dataSource';
 import * as UserAction from '../../../actions/user';
-import DCApi from '../../../api/dataCheck';
-import '../../../styles/views/dataCheck.scss';
+import { dataSourceTypes } from '../../../consts';
+import RCApi from '../../../api/ruleConfig';
+import '../../../styles/views/ruleConfig.scss';
 
 const Search = Input.Search;
 const InputGroup = Input.Group;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { dataCheck, user } = state;
-    return { dataCheck, user }
+    const { ruleConfig, dataSource, user } = state;
+    return { ruleConfig, dataSource, user }
 };
 
 const mapDispatchToProps = dispatch => ({
-    getLists(params) {
-        dispatch(dataCheckActions.getLists(params));
+    getRuleLists(params) {
+        dispatch(ruleConfigActions.getRuleLists(params));
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
+    getDataSourcesType(params) {
+        dispatch(dataSourceActions.getDataSourcesType(params));
     },
     getUserList(params) {
         dispatch(UserAction.getUserList(params));
@@ -32,165 +39,154 @@ export default class RuleConfig extends Component {
 
     state = {
         params: {
-            currentPage: 1,
+            pageIndex: 1,
             pageSize: 20,
             tableName: undefined,
-            lastModifyUserId: undefined,
-            executeTime: undefined
+            modifyUserId: undefined,
+            sourceType: undefined,
+            dataSourceId: undefined,
+            isSubscribe: undefined,
+            periodType: undefined
         }
     }
 
     componentDidMount() {
-        this.props.getLists(this.state.params);
+        this.props.getRuleLists(this.state.params);
+        this.props.getDataSourcesList();
+        this.props.getDataSourcesType();
         this.props.getUserList();
+        console.log(this)
     }
 
     // table设置
     initColumns = () => {
         return [{
-            title: '左侧表',
-            dataIndex: 'originTableName',
-            key: 'originTableName',
-            width: '12%'
+            title: '表',
+            dataIndex: 'tableName',
+            key: 'tableName',
+            width: '15%'
         }, {
-            title: '分区',
-            dataIndex: 'originPartitionColumn',
-            key: 'originPartitionColumn',
-            width: '10%',
+            title: '类型',
+            dataIndex: 'dataSourceType',
+            key: 'dataSourceType',
+            width: '15%',
             render: (text, record) => {
-                return text ? `${text} -- ${record.originPartitionValue}` : '--';
+                return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
             }
         }, 
         {
-            title: '右侧表',
-            dataIndex: 'targetTableName',
-            key: 'targetTableName',
-            width: '12%'
+            title: '执行周期',
+            dataIndex: 'periodType',
+            key: 'periodType',
+            width: '8%'
         }, {
-            title: '分区',
-            dataIndex: 'targetPartitionColumn',
-            key: 'targetPartitionColumn',
+            title: '最近30天告警数',
+            dataIndex: 'recentNotifyNum',
+            key: 'recentNotifyNum',
             width: '10%',
-            render: (text, record) => {
-                return text ? `${text} -- ${record.targetPartitionValue}` : '--';
-            }
         }, {
-            title: '校验结果',
-            dataIndex: 'status',
-            key: 'status',
-            filters: [{
-                text: '无差异',
-                value: '0',
-            }, {
-                text: '有差异',
-                value: '1',
-            }, {
-                text: '进行中',
-                value: '2',
-            }, {
-                text: '未开始',
-                value: '3',
-            }],
-            width: '8%',
-            filterMultiple: false,
-            onFilter: (value, record) => console.log(value,record),
-        }, {
-            title: '差异总数',
-            dataIndex: 'diverseNum',
-            key: 'diverseNum',
-            width: '8%',
+            title: '远程触发',
+            dataIndex: 'isRemoteTrigger',
+            key: 'isRemoteTrigger',
             render: (text, record) => {
-                return text ? text : '--';
+                if (text === 0) {
+                    return <Icon type="check-circle status-success" />
+                } else {
+                    return <Icon type="close-circle status-error" />
+                }
             },
-            sorter: true
-        }, {
-            title: '差异比例',
-            dataIndex: 'diverseRatio',
-            key: 'diverseRatio',
-            width: '8%',
-            render: (text, record) => {
-                 return text ? text : '--';
-            },
-            sorter: true
+            width: '8%'
         }, {
             title: '最近修改人',
-            dataIndex: 'modifyUserName',
-            key: 'modifyUserName',
-            width: '11%'
+            dataIndex: 'modifyUser',
+            key: 'modifyUser',
+            width: '14%'
         }, {
-            title: '执行时间',
-            dataIndex: 'executeTimeFormat',
-            key: 'executeTimeFormat',
+            title: '最近修改时间',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: (text, record) => {
-                return text ? text : '--';
+                return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
             },
-            width: '11%'
+            width: '14%'
+        }, {
+            title: '告警开关',
+            render: (text, record) => {
+                return <Switch checkedChildren="开" unCheckedChildren="关" onChange={this.onNotifyChange.bind(this, record)}/>
+            },
+            width: '8%'
         }, {
             title: '操作',
-            width: '10%',
+            width: '8%',
             render: (text, record) => {
-                let menu = (
-                    <Menu>
-                        {
-                            record.status === 0
-                            &&
-                            <Menu.Item>
-                                <a>查看报告</a>
-                            </Menu.Item>
-                        }
-                        <Menu.Item>
-                            <Link to={`dq/dataCheck/edit/${record.verifyId}`}>编辑</Link>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <Popconfirm
-                                title="确定删除此校验？"
-                                okText="确定" cancelText="取消"
-                                onConfirm={() => { this.deleteDataCheck(record) }}
-                            >
-                                <a type="danger">删除</a>
-                            </Popconfirm>
-                        </Menu.Item>
-                    </Menu>
-                );
                 return (
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <Button>操作<Icon type="down" /></Button>
-                    </Dropdown>
+                    <a>订阅</a>
                 )
             }
         }]
     }
 
-    deleteDataCheck = (record) => {
-        Api.deleteCheck({ verifyId: record.id }).then((res) => {
-            if (res.code === 1) {
-                message.success("删除成功！");
-                this.props.getLists(this.state.params);
-            }
-        })
+    onNotifyChange = (record, status) => {
+        console.log(record,status)
     }
 
-    // 表名
-    onInputChange = (e) => {
-        let tableName = e.target.value ? e.target.value : undefined;
-        let params = {...this.state.params, tableName: tableName};
-        this.setState({ params });
+    deleteRuleConfig = (record) => {
+        Api.deleteRule({ id: record.id }).then((res) => {
+            if (res.code === 1) {
+                message.success("删除成功！");
+                this.props.getRuleLists(this.state.params);
+            }
+        })
     }
 
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         console.log(page, filter, sorter)
         let params = {...this.state.params, 
-            currentPage: page.current,
+            pageIndex: page.current,
             // sortBy: sorter.columnKey ? sorter.columnKey : '',
             // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
         }
         // this.props.getFileList(params);
         this.setState({ params });
-        this.props.getLists(params);
+        this.props.getRuleLists(params);
     }
 
-    // user的select选项
+    // 数据源类型下拉框
+    renderSourceType = (data) => {
+        return data.map((source) => {
+            return (
+                <Option key={source.value} value={source.value.toString()}>{source.name}</Option>
+            )
+        });
+    }
+
+    onSourceChange = (type) => {
+        let sourceType = type ? type : undefined;
+        let params = {...this.state.params, sourceType};
+        
+        this.setState({ params });
+        this.props.getRuleLists(params);
+    }
+
+    // 数据源下拉框
+    renderUserSource = (data) => {
+        return data.map((source) => {
+            return (
+                <Option key={source.id} value={source.id.toString()}>{source.dataName}（{dataSourceTypes[source.type]}）</Option>
+            )
+        });
+    }
+
+    onUserSourceChange = (id) => {
+        let dataSourceId = id ? id : undefined;
+        let params = {...this.state.params, dataSourceId};
+        
+        this.setState({ params });
+        this.props.getRuleLists(params);
+    }
+
+    // user下拉框
     renderUserList = (data) => {
         return data.map((item) => {
             return (
@@ -200,10 +196,12 @@ export default class RuleConfig extends Component {
     }
 
     // 监听userList的select
-    onUserChange = (value) => {
-        let params = {...this.state.params, lastModifyUserId: value};
+    onUserChange = (id) => {
+        let modifyUserId = id ? id : undefined;
+        let params = {...this.state.params, modifyUserId};
+        
         this.setState({ params });
-        this.props.getLists(params);
+        this.props.getRuleLists(params);
     }
 
     // 执行时间改变
@@ -212,74 +210,115 @@ export default class RuleConfig extends Component {
         let params = {...this.state.params, executeTime: executeTime};
         
         this.setState({ params });
-        this.props.getLists(params);
+        this.props.getRuleLists(params);
     }
 
     // table搜索
-    handleSearch = () => {
-        this.props.getLists(this.state.params);
+    handleSearch = (name) => {
+        let tableName = name ? name : undefined;
+        let params = {...this.state.params, tableName: tableName};
+
+        this.setState({ params });
+        this.props.getRuleLists(params);
     }
 
     render() {
-        const { lists, loading } = this.props.dataCheck;
+        const { ruleLists, loading } = this.props.ruleConfig;
+        const { sourceType, sourceList } = this.props.dataSource;
         const { userList } = this.props.user;
         const { params } = this.state;
 
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
-            total: lists.totalCount,
+            total: ruleLists.totalCount,
         };
 
-        return (
-        	<div className="inner-container check-page">
-        		<div className="action-panel">
-                    <div className="flex">
-            			<InputGroup compact>
-                            <Input 
-                                placeholder="输入表名搜索" 
-                                style={{ width: 300 }} 
-                                onChange={this.onInputChange} 
-                            />
-                            <Button type="primary" onClick={this.handleSearch}>搜索</Button>
-                        </InputGroup>
+        const cardTitle = (
+            <div className="flex font-12">
+                <Search
+                    placeholder="输入表名搜索"
+                    style={{ width: 200, margin: '10px 0' }}
+                    onSearch={this.handleSearch}
+                />
 
-                        <div className="m-l-8">
-                            最近修改人：
-                            <Select allowClear onChange={this.onUserChange} style={{ width: 200 }}>
-                                {
-                                    this.renderUserList(userList)
-                                }
-                            </Select>
-                        </div>
-
-                        <div className="m-l-8">
-                            执行时间：
-                            <DatePicker
-                                format="YYYY-MM-DD"
-                                placeholder="选择日期"
-                                onChange={this.onDateChange}
-                            />
-                        </div>
-                    </div>
-
-                    <Button type="primary">
-                        <Link to="/dq/dataCheck/add">
-                            新建逐行校验
-                        </Link>
-                    </Button>
+                <div className="m-l-8">
+                    类型：
+                    <Select allowClear onChange={this.onSourceChange} style={{ width: 150 }}>
+                        {
+                            this.renderSourceType(sourceType)
+                        }
+                    </Select>
                 </div>
 
-                <Table 
-                    rowKey="id"
-                    className="m-table box-5"
-                    columns={this.initColumns()} 
-                    loading={loading}
-                    pagination={pagination}
-                    dataSource={lists.data}
-                    onChange={this.onTableChange}
-                />
-        	</div>
+                <div className="m-l-8">
+                    数据源：
+                    <Select allowClear onChange={this.onUserSourceChange} style={{ width: 150 }}>
+                        {
+                            this.renderUserSource(sourceList)
+                        }
+                    </Select>
+                </div>
+
+                <div className="m-l-8">
+                    执行周期：
+                    <Select allowClear onChange={this.onPeriodTypeChange} style={{ width: 150 }}>
+                        <Option key="1" value="1">天</Option>
+                        <Option key="2" value="2">小时</Option>
+                        <Option key="3" value="3">分钟</Option>
+                    </Select>
+                </div>
+
+                <div className="m-l-8">
+                    最近修改人：
+                    <Select allowClear onChange={this.onUserChange} style={{ width: 150 }}>
+                        {
+                            this.renderUserList(userList)
+                        }
+                    </Select>
+                </div>
+
+                <div className="m-l-8">
+                    <Checkbox onChange={this.onSubscribeChange}>我订阅的表</Checkbox>
+                </div>
+
+            </div>
+        )
+
+        const cardExtra = (
+            <Button type="primary" style={{ margin: '10px 0' }}>
+                <Link to="/dq/rule/add">
+                    新建监控规则
+                </Link>
+            </Button>
+        )
+
+        return (
+            <div className="rule-dashboard">
+                <h1 className="box-title">
+                    监控规则
+                </h1>
+
+                <div className="box-2 m-card shadow">
+                    <Card 
+                        title={cardTitle} 
+                        extra={cardExtra} 
+                        noHovering 
+                        bordered={false}
+                    >
+                        <Table 
+                            rowKey="id"
+                            className="m-table"
+                            columns={this.initColumns()} 
+                            loading={loading}
+                            pagination={pagination}
+                            dataSource={ruleLists.data}
+                            onChange={this.onTableChange}
+                        />
+                    </Card>
+                </div>
+
+            </div>
         )
     }
 }
