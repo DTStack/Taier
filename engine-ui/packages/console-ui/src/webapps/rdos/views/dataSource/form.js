@@ -504,7 +504,7 @@ class DataSourceForm extends Component {
             item => (
                 <Option
                     key={item.value}
-                    value={`${item.value}`}
+                    value={item.value}
                 >
                     {item.name}
                 </Option>
@@ -533,7 +533,7 @@ class DataSourceForm extends Component {
                                 max: 128,
                                 message: '数据源名称不得超过128个字符！',
                             }, {
-                                pattern: /^[A-Za-z0-9_-]+$/,
+                                pattern: /^[A-Za-z0-9_]+$/,
                                 message: '名称只能由字母与数字、下划线组成',
                             }],
                             initialValue: sourceData.dataName || '',
