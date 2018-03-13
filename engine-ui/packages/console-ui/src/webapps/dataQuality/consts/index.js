@@ -7,6 +7,7 @@ export const DATA_SOURCE = {
     HIVE: 7,
     HBASE: 8,
     FTP: 9,
+    MAXCOMPUTE: 10,
 }
 
 export const dataSourceTypes = [ // 数据源类型
@@ -20,16 +21,29 @@ export const dataSourceTypes = [ // 数据源类型
     'Hive',
     'HBase',
     'FTP',
-    'ODPS'
+    'MaxCompute'
 ]
 
-export const formItemLayout = {
+export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },
         sm: { span: 6 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 12 },
+        sm: { span: 14 },
     },
 };
+
+export const tailFormItemLayout = { // 表单末尾布局
+    wrapperCol: {
+        xs: {
+            span: 24,
+            offset: 0,
+        },
+        sm: {
+            span: 14,
+            offset: 6,
+        },
+    },
+}

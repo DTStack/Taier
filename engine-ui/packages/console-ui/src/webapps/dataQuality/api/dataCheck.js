@@ -10,8 +10,11 @@ export default {
     getCheckDetail(params) {
     	return http.post(req.GET_CHECK_DETAIL, params);
     },
-    editCheck(params) {
-    	return http.post(req.EDIT_CHECK, params);
+    addCheck(params) {
+    	return http.post(req.ADD_CHECK, params);
+    },
+    updateCheck(params) {
+        return http.post(req.UPDATE_CHECK, params);
     },
     deleteCheck(params) {
     	return http.post(req.DELETE_CHECK, params);

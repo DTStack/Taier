@@ -41,9 +41,18 @@ export const dataCheckActions = {
 			});
 		}
 	},
-	editCheck(params) {
+	addCheck(params) {
 		return dispatch => {
-			API.editCheck(params).then((res) => {
+			API.addCheck(params).then((res) => {
+				if (res.code === 1) {
+					message.success("操作成功", 2);
+				}
+			});
+		}
+	},
+	updateCheck(params) {
+		return dispatch => {
+			API.updateCheck(params).then((res) => {
 				if (res.code === 1) {
 					message.success("操作成功", 2);
 				}

@@ -27,8 +27,14 @@ export default {
     MASSAGE_DELETE: `${DQ_BASE_URL}/notify/delete`,
 
     // ===== 数据源管理 ===== //
-    GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`, // 查询数据源
-    GET_DATA_SOURCES_TYPE: `${DQ_BASE_URL}/dataSource/list`, // 查询数据源类型
+    GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`, // 通过查询数据源
+    CHECK_CONNECTION: `${DQ_BASE_URL}/dataSource/checkConnection`, // 检查数据库连接
+    ADD_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/addSource`, // 新增数据源
+    UPDATE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/updateSource`, // 新增数据源
+    DELETE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/deleteSource`, // 删除数据源
+
+    GET_DATA_SOURCES_LIST: `${DQ_BASE_URL}/dataSource/list`, // 查询已添加的数据源类型
+    GET_DATA_SOURCES_TYPE: `${DQ_BASE_URL}/dataSource/getTypes`, // 查询所有数据源类型
     GET_DATA_SOURCES_TABLE: `${DQ_BASE_URL}/dataSource/tablelist`, // 查询数据源下的表
     GET_DATA_SOURCES_COLUMN: `${DQ_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
     GET_DATA_SOURCES_PART: `${DQ_BASE_URL}/dataSource/getPartValue`, // 查询数据源下的分区
@@ -38,7 +44,18 @@ export default {
     // ===== 逐行校验 ===== //
     GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`,       // 逐行校验列表数据
     GET_CHECK_DETAIL: `${DQ_BASE_URL}/verify/getOne`,       // 单个数据详情
-    EDIT_CHECK: `${DQ_BASE_URL}/verify/add`,             // 编辑逐行校验
+    ADD_CHECK: `${DQ_BASE_URL}/verify/add`,             // 编辑逐行校验
+    UPDATE_CHECK: `${DQ_BASE_URL}/verify/update`,             // 编辑逐行校验
     DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,  // 删除逐行校验
     GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`, // 获取报告
+
+    // ===== 规则配置 ===== //
+    GET_RULE_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,       // 逐行校验列表数据
+    GET_RULE_DETAIL: `${DQ_BASE_URL}/monitor/getOne`,       // 单个数据详情
+    ADD_RULE: `${DQ_BASE_URL}/monitor/add`,             // 编辑逐行校验
+    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,             // 编辑逐行校验
+    DELETE_RULE: `${DQ_BASE_URL}/monitor/deleteVerify`,  // 删除逐行校验
+
+    SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`, // 订阅表
+    UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unsubscribe`, // 取消订阅表
 }
