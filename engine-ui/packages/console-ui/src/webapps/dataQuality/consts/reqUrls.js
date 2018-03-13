@@ -58,4 +58,7 @@ export default {
 
     SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`, // 订阅表
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unsubscribe`, // 取消订阅表
+
+    // ===== common ===== //
+    DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
 }

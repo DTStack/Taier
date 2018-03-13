@@ -62,7 +62,6 @@ export default class ProjectList extends Component {
     componentWillReceiveProps(nextProps) {
         const nextProjects = nextProps.projects
         const old = this.props.projects
-
         if (old.length !== nextProjects.length) {
             const pid = nextProjects[0].id
             this.setState({
