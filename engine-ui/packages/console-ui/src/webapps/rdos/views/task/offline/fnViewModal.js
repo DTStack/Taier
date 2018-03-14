@@ -32,10 +32,12 @@ class FnViewModal extends React.Component {
         .then(res => {
             if(res.code === 1) {
                 this.setState({
-                    loading: false,
                     data: res.data
                 });
             }
+            this.setState({
+                loading: false,
+            })
         })
     }
 

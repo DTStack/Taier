@@ -86,7 +86,6 @@ class TaskFlowView extends Component {
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
-        this.listenDoubleClick()
         this.listenOnClick()
         this.hideMenu()
         this.loadTaskChidren({
@@ -350,7 +349,7 @@ class TaskFlowView extends Component {
             )
 
             menu.addItem('刷新任务实例', null, function() {
-                ctx.refreshTask(cell)
+                ctx.resetGraph(cell)
             })
 
             menu.addItem('重跑并恢复调度', null, function() {
@@ -394,18 +393,20 @@ class TaskFlowView extends Component {
             } else {
                 message.error('任务终止提交失败！')
             }
-            this.refreshTask()
+            this.resetGraph()
         })
     }
 
     restartAndResume = (params, msg) => { // 重跑并恢复任务
+        const { reload } = this.props
         Api.restartAndResume(params).then(res => {
             if (res.code === 1 ) {
                 message.success(`${msg}命令已提交!`)
+                if (reload) reload();
             } else {
                 message.error(`${msg}提交失败！`)
             }
-            this.refreshTask()
+            this.resetGraph()
         })
     }
 
@@ -430,31 +431,36 @@ class TaskFlowView extends Component {
         })
     }
 
-    resetGraph = () => {
-        const { taskFlow } = this.props
-        if (taskFlow) {
-            this.loadTaskChidren({
-                jobId: taskFlow.id,
-                level: 2,
-            })
-        }
-    }
-
     refreshTask = () => {
         const ctx = this
         const { selectedJob, data, sort } = this.state
         this.setState({ loading: 'loading' })
         if (selectedJob) {
             Api.getJobChildren({ jobId: selectedJob.id, level: 1, }).then(res => {
+                if (ctx.graph) {
+                    console.log('graph:', ctx.graph)
+                    ctx.graph.getModel().clear();
+                }
                 const task = res.data
                 const tree = Object.assign({}, data)
                 replaceTreeNode(tree, task)
-                ctx.doInsertVertex(tree, sort)
+                console.log('tree:', tree)
+                ctx.doInsertVertex(tree, 'children')
                 ctx.setState({
                     selectedJob: Object.assign(selectedJob, task),
                     data: tree,
                     loading: 'success',
                 })
+            })
+        }
+    }
+
+    resetGraph = () => {
+        const { taskJob } = this.props
+        if (taskJob) {
+            this.loadTaskChidren({
+                jobId: taskJob.id,
+                level: 6,
             })
         }
     }
@@ -522,7 +528,7 @@ class TaskFlowView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refreshTask}/>
+                        <Icon type="reload" onClick={this.refresh}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>

@@ -553,6 +553,7 @@ class PatchDataDetail extends Component {
                                 goToTaskDev={goToTaskDev} 
                                 taskJob={selectedTask} 
                                 project={project}
+                                realod={this.search}
                             />
                         </SlidePane>
                     </Card>

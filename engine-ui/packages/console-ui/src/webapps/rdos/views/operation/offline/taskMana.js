@@ -51,6 +51,7 @@ class OfflineTaskMana extends Component {
         selectedTask: '',
         startTime: '',
         endTime: '',
+        checkVals: [],
         selectedRowKeys: [],
     }
 
@@ -161,7 +162,22 @@ class OfflineTaskMana extends Component {
     }
 
     changePerson = (target) => { // 责任人变更
-        this.setState({ person: target, current: 1 }, this.search)
+        const { user } = this.props
+        const { checkVals } = this.state
+        const setVals = {
+            person: target,
+            current: 1,
+        }
+        if (target == user.dtuicUserId) {
+            setVals.checkVals = ['person']
+        } else {
+            const i = checkVals.indexOf('person');
+            if (i > -1 ) {
+                checkVals.splice(i, 1) 
+            }
+            setVals.checkVals = [...checkVals]
+        }
+        this.setState(setVals, this.search)
     }
 
     changeTaskName = (e) => {// 任务名变更
@@ -187,10 +203,11 @@ class OfflineTaskMana extends Component {
             startTime: '',
             endTime: '',
             scheduleStatus: 1,
+            checkVals: checkedList
         };
         checkedList.forEach(item => {
             if (item === 'person') {
-                conditions.person  = user.id;
+                conditions.person = `${user.dtuicUserId}`;
             } else if (item === 'todayUpdate') {
                 conditions.startTime = moment().set({
                     'hour': 0,
@@ -301,13 +318,13 @@ class OfflineTaskMana extends Component {
     render() {
         const { projectUsers, project } = this.props
         const { 
-            tasks, patchDataVisible, selectedTask, 
+            tasks, patchDataVisible, selectedTask, person, checkVals,
             current, taskName, visibleSlidePane, selectedRowKeys
         } = this.state;
 
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.user.dtuicUserId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
@@ -358,13 +375,14 @@ class OfflineTaskMana extends Component {
                                     style={{ width: 150 }}
                                     placeholder="责任人"
                                     optionFilterProp="name"
+                                    value={person}
                                     onChange={this.changePerson}
                                 >
                                     {userItems}
                                 </Select>
                             </FormItem>
                             <FormItem>
-                                <Checkbox.Group onChange={this.onCheckChange} >
+                                <Checkbox.Group value={checkVals} onChange={this.onCheckChange} >
                                     <Checkbox value="person">我的任务</Checkbox>
                                     <Checkbox value="todayUpdate">今日修改</Checkbox>
                                     <Checkbox value="stopped">冻结的任务</Checkbox>

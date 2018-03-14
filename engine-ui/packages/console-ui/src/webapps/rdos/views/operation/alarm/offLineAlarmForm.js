@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
+import { isEmpty } from 'lodash'
 import {
     Form, Input, Checkbox, InputNumber,
     Select, Modal, TimePicker,
@@ -23,7 +24,11 @@ class AlarmForm extends Component {
     componentWillReceiveProps(nextProps) {
         const alarmInfo = nextProps.alarmInfo
         const old = this.props.alarmInfo
-        if (alarmInfo && alarmInfo.id !== old.id) {
+        console.log('next alarmInfo:', alarmInfo);
+        console.log('old alarmInfo:', old);
+        if ( (!old && !isEmpty(alarmInfo)) || (old.alarmId !== alarmInfo.alarmId )) {
+            console.log('set myTrigger:', alarmInfo.myTrigger);
+
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
             })
@@ -86,13 +91,16 @@ class AlarmForm extends Component {
             form, title, projectUsers,
             visible, alarmInfo, taskList, user,
         } = this.props
+
         const { getFieldDecorator } = form
+
         const taskItems = taskList && taskList.length > 0 ?
         taskList.map((item) => {
             return (<Option key={item.id} value={item.id} name={item.name}>
                 {item.name}
             </Option>)
         }) : []
+
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
             return (<Option key={item.id} value={item.userId} name={item.user.userName}>
