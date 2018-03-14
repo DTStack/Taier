@@ -154,7 +154,7 @@ export default class TaskView extends Component {
                 const task = data ? JSON.parse(data) : '';
                 const taskType = taskTypeText(task.taskType);
                 if (task) {
-                    return `<div class="vertex"><span>${task.name || ''}</span>
+                    return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
                     <span style="font-size:10px; color: #666666;">${taskType}</span>
                     </div>`
                 }

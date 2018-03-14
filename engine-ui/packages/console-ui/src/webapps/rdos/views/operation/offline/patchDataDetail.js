@@ -304,11 +304,6 @@ class PatchDataDetail extends Component {
 
     initTaskColumns = () => {
         return [{
-            title: '业务日期',
-            dataIndex: 'bizDay',
-            width: 100,
-            key: 'bizDay'
-        }, {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
@@ -318,6 +313,11 @@ class PatchDataDetail extends Component {
                     <a onClick={() => { this.showTask(record) }}>{ text }</a>
                 )
             },
+        }, {
+            title: '业务日期',
+            dataIndex: 'bizDay',
+            width: 100,
+            key: 'bizDay'
         }, {
             title: '状态',
             width: 80,

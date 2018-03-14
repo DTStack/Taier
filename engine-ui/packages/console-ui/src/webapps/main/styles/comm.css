@@ -97,6 +97,11 @@
     height: 50%;
 }
 
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .Resizer {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;

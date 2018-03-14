@@ -35,6 +35,7 @@ class PatchDataList extends Component {
         runDay: '',
         bizDay: '',
         dutyUserId: '',
+        checkVals: [],
     }
 
     componentDidMount() {
@@ -114,17 +115,33 @@ class PatchDataList extends Component {
     }
 
     onOwnerChange = (value) => {
-        const state = { dutyUserId: value, current: 1, }
-        this.setState(state, this.loadPatchData);
+        const { user } = this.props
+        const { checkVals } = this.state
+        const setVals = {
+            dutyUserId: value,
+            current: 1,
+        }
+        if (value == user.id) {
+            setVals.checkVals = ['person']
+        } else {
+            const i = checkVals.indexOf('person');
+            if (i > -1 ) {
+                checkVals.splice(i, 1) 
+            }
+            setVals.checkVals = [...checkVals]
+        }
+
+        this.setState(setVals, this.loadPatchData);
     }
 
     onCheckChange = (checkedList) => {
         const { user } = this.props;
         const conditions = {
-            person: '',
+            dutyUserId: '',
             startTime: '',
             endTime: '',
             scheduleStatus: 1,
+            checkVals: checkedList,
         };
         checkedList.forEach(item => {
             if (item === 'person') {
@@ -186,7 +203,7 @@ class PatchDataList extends Component {
     render() {
 
         const {
-            tasks, current,
+            tasks, current, checkVals,
             dutyUserId, bizDay,
             runDay, jobName,
         } = this.state
@@ -257,7 +274,7 @@ class PatchDataList extends Component {
                     </Select>
                 </FormItem>
                 <FormItem>
-                    <Checkbox.Group onChange={this.onCheckChange}>
+                    <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
                         <Checkbox value="person">我的任务</Checkbox>
                         <Checkbox value="todayUpdate">我今天补的</Checkbox>
                     </Checkbox.Group>

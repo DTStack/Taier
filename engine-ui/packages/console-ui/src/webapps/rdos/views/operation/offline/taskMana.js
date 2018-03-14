@@ -168,7 +168,7 @@ class OfflineTaskMana extends Component {
             person: target,
             current: 1,
         }
-        if (target == user.dtuicUserId) {
+        if (target == user.id) {
             setVals.checkVals = ['person']
         } else {
             const i = checkVals.indexOf('person');
@@ -207,7 +207,7 @@ class OfflineTaskMana extends Component {
         };
         checkedList.forEach(item => {
             if (item === 'person') {
-                conditions.person = `${user.dtuicUserId}`;
+                conditions.person = `${user.id}`;
             } else if (item === 'todayUpdate') {
                 conditions.startTime = moment().set({
                     'hour': 0,
@@ -324,7 +324,7 @@ class OfflineTaskMana extends Component {
 
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.user.dtuicUserId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []

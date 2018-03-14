@@ -185,7 +185,7 @@ class PatchData extends Component {
         if (data && data.length > 0) {
             const nodes = data.map((item) => {
                 const content = <Row>
-                        <Col span="12">{item.name}</Col>
+                        <Col span="12" className="ellipsis" title={item.name}>{item.name}</Col>
                         <Col span="12"><TaskType value={item.taskType} /></Col>
                     </Row>
                 if (item.taskVOS) {

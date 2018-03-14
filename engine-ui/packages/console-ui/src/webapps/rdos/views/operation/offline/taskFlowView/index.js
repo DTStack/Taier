@@ -178,8 +178,8 @@ class TaskFlowView extends Component {
                 const task = data ? JSON.parse(data).batchTask : '';
                 const taskType = taskTypeText(task.taskType);
                 if (task) {
-                    return `<div class="vertex"><span>${task.name || ''}</span>
-                    <span style="font-size:10px; color: #666666;">${taskType}</span>
+                    return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
+                    <span style="font-size:10px; color: #666666;">${taskType}</span></span>
                     </div>`
                 }
             }
@@ -343,7 +343,6 @@ class TaskFlowView extends Component {
                 // 显示终止操作
                 currentNode.status === TASK_STATUS.RUNNING || // 运行中
                 currentNode.status === TASK_STATUS.RESTARTING || // 重启中
-                currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
                 currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
                 currentNode.status === TASK_STATUS.WAIT_RUN
             )
@@ -390,10 +389,8 @@ class TaskFlowView extends Component {
         Api.stopJob(params).then(res => {
             if (res.code === 1 ) {
                 message.success('任务终止运行命令已提交！')
-            } else {
-                message.error('任务终止提交失败！')
             }
-            this.resetGraph()
+            this.refresh()
         })
     }
 
@@ -406,7 +403,7 @@ class TaskFlowView extends Component {
             } else {
                 message.error(`${msg}提交失败！`)
             }
-            this.resetGraph()
+            this.refresh()
         })
     }
 
@@ -438,13 +435,11 @@ class TaskFlowView extends Component {
         if (selectedJob) {
             Api.getJobChildren({ jobId: selectedJob.id, level: 1, }).then(res => {
                 if (ctx.graph) {
-                    console.log('graph:', ctx.graph)
                     ctx.graph.getModel().clear();
                 }
                 const task = res.data
                 const tree = Object.assign({}, data)
                 replaceTreeNode(tree, task)
-                console.log('tree:', tree)
                 ctx.doInsertVertex(tree, 'children')
                 ctx.setState({
                     selectedJob: Object.assign(selectedJob, task),
@@ -481,7 +476,7 @@ class TaskFlowView extends Component {
     }
 
     refresh = () => {
-        this.initGraph(this.props.tabData.id)
+        this.initGraph(this.props.taskJob.id)
     }
     
     zoomIn = () => {
@@ -518,13 +513,13 @@ class TaskFlowView extends Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                      <div 
-                            className="editor pointer" 
-                            ref={(e) => { this.Container = e }} 
-                            style={{
-                                position: 'relative', 
-                            }}
-                        />
+                    <div 
+                        className="editor pointer" 
+                        ref={(e) => { this.Container = e }} 
+                        style={{
+                            position: 'relative', 
+                        }}
+                    />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">

@@ -124,33 +124,25 @@ table.mxPopupMenu tr {
 }
 
 .vertex {
-    word-break: break-all;
-    font-family: PingFangSC-Regular;
-    font-size: 12px;
-    color: #333333;
 
-    .vertex-content {
-        height: 30px;
-        left: 0;
-        top: 0;
-        padding: 7px 5px;
-        width: 100px;
-        text-align: left;
+    .vertex-title {
+        padding: 5px 0 0 0;
+        width: 120px;
+        text-align: center;
         display: inline-block;
+        overflow: hidden;
         text-overflow: ellipsis;
-
-        .vertex-title {
-            font-family: PingFangSC-Regular;
-            font-size: 12px;
-            color: #333333;
-        }
-
-        .vertex-desc {
-            font-family: PingFangSC-Regular;
-            font-size: 10px;
-            color: #666666;
-        }
+        font-family: PingFangSC-Regular;
+        font-size: 12px;
+        color: #333333;
     }
+
+    .vertex-desc {
+        font-family: PingFangSC-Regular;
+        font-size: 10px;
+        color: #666666;
+    }
+    
 }
 
 

@@ -188,9 +188,9 @@ class TaskIndex extends Component {
                         </Button>
                     </Col>
                     <Col className="right">
-                        <Button disabled={!canSubmit}>
+                        {/* <Button disabled={!canSubmit}>
                             <MyIcon className="my-icon" type="fly" /> 发布
-                        </Button>
+                        </Button> */}
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
                             <Button>
                                 <MyIcon className="my-icon" type="goin" /> 运维
