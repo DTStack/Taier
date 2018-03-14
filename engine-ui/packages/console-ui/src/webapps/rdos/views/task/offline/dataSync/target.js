@@ -127,6 +127,17 @@ class TargetForm extends React.Component{
                 }
             }
 
+            // 分区，获取任务自定义参数
+            if (values.partition) {
+                const taskVariables = matchTaskParams(taskCustomParams, values.partition)
+                if (taskVariables.length > 0) {
+                    updateTaskFields({
+                        id: currentTab,
+                        taskVariables
+                    })
+                }
+            }
+
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
