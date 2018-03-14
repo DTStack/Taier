@@ -53,11 +53,12 @@ public class ApiCallbackMethod {
 				errorCode = ErrorCode.SERVER_EXCEPTION;
 				errorMsg = ErrorCode.SERVER_EXCEPTION.getDescription();
 			}
-
 			apiResult.setCode(errorCode.getCode());
 			String errMsg = e.getCause() != null ? e.getCause().toString() : e.getMessage();
 			apiResult.setErrorMsg(errMsg);
-			logger.error("ApiCallbackMethod error:", e);
+			if(logger.isDebugEnabled()){
+				logger.debug("ApiCallbackMethod error:", e);
+			}
 			try {
                 ResponseUtil.res500(context, ApiResult.createErrorResultJsonStr(errorCode.getCode(), errorMsg));
 			} catch (Throwable e1) {
