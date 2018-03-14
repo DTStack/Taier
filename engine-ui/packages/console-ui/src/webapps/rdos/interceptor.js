@@ -10,7 +10,6 @@ export function authBeforeFormate(response) {
     case 402:
     case 200:
         return response;
-
     case 302:
         message.info('登录超时, 请重新登录！')
     default:

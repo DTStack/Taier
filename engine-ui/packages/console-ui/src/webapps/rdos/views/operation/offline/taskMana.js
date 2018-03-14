@@ -43,6 +43,8 @@ class OfflineTaskMana extends Component {
         loading: false,
         patchDataVisible: false,
         visibleSlidePane: false,
+        checkAll: false,
+
         current: 1, // 当前页
         person: '',
         taskName: utils.getParameterByName('tname') ? utils.getParameterByName('tname') : '',
@@ -128,7 +130,11 @@ class OfflineTaskMana extends Component {
             params.status = filters.status[0]
         }
         params.currentPage = pagination.current
-        this.setState({ current: pagination.current })
+        this.setState({ 
+            checkAll: false, 
+            selectedRowKeys: [], 
+            current: pagination.current, 
+        })
         this.loadTaskList(params)
     }
 
@@ -163,16 +169,15 @@ class OfflineTaskMana extends Component {
     }
 
     onCheckAllChange = (e) => {
+        let selectedRowKeys = []
         if (e.target.checked) {
-            const selectedRowKeys = this.state.tasks.data.map(item => item.id)
-            this.setState({
-                selectedRowKeys
-            })
-        } else {
-            this.setState({
-                selectedRowKeys: []
-            })
+            selectedRowKeys = this.state.tasks.data.map(item => item.id)
         }
+
+        this.setState({
+            selectedRowKeys,
+            checkAll: e.target.checked,
+        })
     }
 
     onCheckChange = (checkedList) => {
@@ -269,7 +274,7 @@ class OfflineTaskMana extends Component {
             <Row>
                 <Col className="inline" style={{ padding: '15px 10px 10px 30px' }}>
                     <Checkbox
-                        indeterminate={this.state.indeterminate}
+                        checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
