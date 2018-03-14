@@ -24,11 +24,7 @@ class AlarmForm extends Component {
     componentWillReceiveProps(nextProps) {
         const alarmInfo = nextProps.alarmInfo
         const old = this.props.alarmInfo
-        console.log('next alarmInfo:', alarmInfo);
-        console.log('old alarmInfo:', old);
         if ( (!old && !isEmpty(alarmInfo)) || (old.alarmId !== alarmInfo.alarmId )) {
-            console.log('set myTrigger:', alarmInfo.myTrigger);
-
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
             })
