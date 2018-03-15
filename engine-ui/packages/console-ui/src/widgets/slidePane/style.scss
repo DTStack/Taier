@@ -9,7 +9,7 @@ $prefix: 'slide-pane';
     position: absolute;
     display: inline-block;
     transition: transform .3s ease-in;
-    z-index: 9999;
+    z-index: 99;
     
     .#{$prefix}-conent {
         position: relative;

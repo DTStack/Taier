@@ -546,6 +546,7 @@ class TaskFlowView extends Component {
                 </div>
                 <Modal
                     title="查看属性"
+                    width="60%"
                     wrapClassName="vertical-center-modal"
                     visible={this.state.visible}
                     onCancel={() => { this.setState({ visible: false }) }}
@@ -554,7 +555,7 @@ class TaskFlowView extends Component {
                     <TaskInfo task={selectedJob} project={project} />
                 </Modal>
                 <Modal
-                    width="60%"
+                    width={600}
                     title="运行日志"
                     wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
                     visible={ this.state.logVisible }

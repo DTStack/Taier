@@ -291,7 +291,7 @@ export default class TableViewer extends React.Component{
                     </CopyToClipboard>
                 ]}
             >
-                <Editor value={ this.state.code } readOnly />
+                <Editor value={ this.state.code } readOnly style={{height: '400px'}}/>
             </Modal>
         </div>
     }

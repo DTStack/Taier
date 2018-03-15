@@ -28,6 +28,14 @@ function renderMenuItems(menuItems) {
     ) : []
 }
 
+function renderATagMenuItems(menuItems) {
+    return menuItems && menuItems.length > 0 ? menuItems.map(menu => 
+        menu.enable ? <Menu.Item key={menu.id}>
+            <a href={menu.link} target={menu.target}>{menu.name}</a>
+        </Menu.Item> : ''
+    ) : []
+}
+
 export function Logo(props) {
     const { linkTo, img } = props
     return (
@@ -66,10 +74,10 @@ export function MenuRight(props) {
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">
-                <Link to="/admin/user">用户管理</Link>
+                <a href="/admin/user">用户管理</a>
             </Menu.Item>
             <Menu.Item key="setting:2">
-                <Link to="/admin/role">角色管理</Link>
+                <a href="/admin/role">角色管理</a>
             </Menu.Item>
             {renderMenuItems(settingMenus)}
         </Menu>
@@ -77,7 +85,7 @@ export function MenuRight(props) {
 
     const appMenus = (
         <Menu>
-            {renderMenuItems(apps)}
+            {renderATagMenuItems(apps)}
         </Menu>
     )
 
@@ -92,11 +100,11 @@ export function MenuRight(props) {
                 </Dropdown>
                 <span className="divide"></span>
                 <span>
-                    <Link to="/message" style={{color: '#ffffff'}}>
+                    <a href="/message" style={{color: '#ffffff'}}>
                         <Badge dot>
                             <Icon type="message" />
                         </Badge>
-                    </Link>
+                    </a>
                 </span>
                 <Dropdown overlay={settingMenuItems} trigger={['click']}>
                     <span><Icon type="setting" /> </span>

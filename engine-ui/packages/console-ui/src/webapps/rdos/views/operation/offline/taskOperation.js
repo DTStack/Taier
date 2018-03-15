@@ -367,6 +367,7 @@ class OfflineTaskList extends Component {
             key: 'execStartDate',
         }, {
             title: '运行时长',
+            width: 80,
             dataIndex: 'execTime',
             key: 'execTime',
         }, {

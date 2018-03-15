@@ -69,7 +69,7 @@ class RealTimeTaskList extends Component {
         this.setState({ loading: true })
         const reqParams = Object.assign({
             pageIndex: 1,
-            pageSize: 10,
+            pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
         }, params)

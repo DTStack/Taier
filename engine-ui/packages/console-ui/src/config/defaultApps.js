@@ -23,7 +23,7 @@ module.exports = [
     },{
         id: 'dataQuality',
         name: '数据质量',
-        link: '/dataQuality.html#/',
+        link: 'dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_blank',
         enable: true,
