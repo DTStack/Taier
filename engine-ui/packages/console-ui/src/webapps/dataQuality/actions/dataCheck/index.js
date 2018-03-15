@@ -1,22 +1,23 @@
-import { dataCheckActions as ACTION_TYPE } from '../../consts/dataCheckActions';
+import { dataCheckActionType } from '../../consts/dataCheckActions';
 import { message } from 'antd';
 import API from '../../api/dataCheck';
+import DSAPI from '../../api/dataSource';
 
 export const dataCheckActions = {
 	getLists(params) {
 		return dispatch => {
 			dispatch({
-				type: ACTION_TYPE.CHANGE_LOADING
+				type: dataCheckActionType.CHANGE_LOADING
 			});
 			API.getLists(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_LIST,
+						type: dataCheckActionType.GET_LIST,
 						payload: res.data
 					});
 				} 
 				dispatch({
-					type: ACTION_TYPE.CHANGE_LOADING
+					type: dataCheckActionType.CHANGE_LOADING
 				});
 			});
 		}
@@ -26,17 +27,40 @@ export const dataCheckActions = {
 			API.getCheckDetail(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_CHECK_DETAIL,
+						type: dataCheckActionType.GET_CHECK_DETAIL,
 						payload: res.data
 					});
 				}
 			});
 		}
 	},
+	getSourcePart(params, type) {
+		return dispatch => {
+			DSAPI.getDataSourcesPart(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: dataCheckActionType.GET_SOURCE_PART,
+						payload: {
+							data: res.data,
+							type: type
+						}
+					});
+				}
+			});
+		}
+	},
+	resetSourcePart(params) {
+		return dispatch => {
+			dispatch({
+				type: dataCheckActionType.RESET_SOURCE_PART,
+				payload: params
+			});
+		}
+	},
 	changeParams(params) {
 		return dispatch => {
 			dispatch({
-				type: ACTION_TYPE.CHANGE_PARAMS,
+				type: dataCheckActionType.CHANGE_PARAMS,
 				payload: params
 			});
 		}

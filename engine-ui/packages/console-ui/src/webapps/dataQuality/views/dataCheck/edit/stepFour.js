@@ -4,6 +4,8 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox } from 'antd';
+
+import { dataCheckActions } from '../../../actions/dataCheck';
 import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 
@@ -19,6 +21,12 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
+    },
+    addCheck(params) {
+        dispatch(dataCheckActions.addCheck(params));
+    },
+    updateCheck(params) {
+        dispatch(dataCheckActions.updateCheck(params));
     },
 })
 
@@ -46,10 +54,15 @@ export default class StepFour extends Component {
 
     initState = () => {
         const { scheduleConf, notifyVO } = this.props.editParams;
+        const { scheduleConfObj } = this.state;
 
         if (scheduleConf) {
             this.setState({ scheduleConfObj: JSON.parse(scheduleConf) });
-        } 
+        } else {
+            this.props.changeParams({
+                scheduleConf: JSON.stringify(scheduleConfObj)
+            });
+        }
 
         if (notifyVO) {
             this.setState({ isInform: true });
@@ -79,23 +92,11 @@ export default class StepFour extends Component {
         });
     }
 
-    onDateChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'beginDate');
-    }
-
-    onHourChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'hour');
-    }
-
-    onMinChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'min');
-    }
-
-    changeScheduleParams = (date, type) => {
+    changeScheduleParams = (type, date, dateString) => {
         const { scheduleConfObj } = this.state;
 
         let newParams = {};
-        newParams[type] = date;
+        newParams[type] = dateString;
 
         this.setState({
             scheduleConfObj: {...scheduleConfObj, ...newParams}
@@ -184,7 +185,7 @@ export default class StepFour extends Component {
                                             <DatePicker
                                                 format="YYYY-MM-DD"
                                                 placeholder="开始时间"
-                                                onChange={this.onDateChange}
+                                                onChange={this.changeScheduleParams.bind(this, 'beginDate')}
                                                 style={{ width: 150, marginRight: 15 }}
                                             />
                                         )
@@ -197,7 +198,7 @@ export default class StepFour extends Component {
                                             <TimePicker
                                                 format="HH"
                                                 placeholder='小时'
-                                                onChange={this.onHourChange}
+                                                onChange={this.changeScheduleParams.bind(this, 'hour')}
                                                 style={{ marginRight: 15 }}
                                             />
                                         )
@@ -210,7 +211,7 @@ export default class StepFour extends Component {
                                             <TimePicker
                                                 format="mm"
                                                 placeholder='分钟'
-                                                onChange={this.onMinChange}
+                                                onChange={this.changeScheduleParams.bind(this, 'min')}
                                             />
                                         )
                                     }
@@ -237,8 +238,8 @@ export default class StepFour extends Component {
                                 <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
                                     {
                                         getFieldDecorator('sendTypes', {
-                                            rules: [{ required: true, message: '选择一种通知方式' }], 
-                                            initialValue: sendTypes ? sendTypes.map(item => item.toString()) : ['0']
+                                            rules: [{ required: true, message: '选择通知方式' }], 
+                                            initialValue: sendTypes ? sendTypes.map(item => item.toString()) : []
                                         })(
                                             <Checkbox.Group onChange={this.onInformTypeChange}>
                                                 <Checkbox value="0">邮件</Checkbox>
@@ -251,7 +252,7 @@ export default class StepFour extends Component {
                                 <FormItem {...formItemLayout} label="通知接收人" key='receivers'>
                                     {
                                         getFieldDecorator('receivers', {
-                                            rules: [{ required: true, message: '接收人不能为空' }],
+                                            rules: [{ required: true, message: '选择接收人' }],
                                             initialValue: receivers ? receivers.map(item => item.toString()) : []
                                         })(
                                             <Select mode="multiple" allowClear onChange={this.onInformUserChange}>
@@ -266,6 +267,7 @@ export default class StepFour extends Component {
                         }
                     </Form>
                 </div>
+
                 <div className="steps-action">
                     <Button onClick={this.prev}>上一步</Button>
                     <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
