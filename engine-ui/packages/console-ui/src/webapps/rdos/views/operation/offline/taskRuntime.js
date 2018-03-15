@@ -150,7 +150,7 @@ export default class TaskLog extends Component {
             alignWithLabel: true,
         }
 
-        option.xAxis[0].boundaryGap = ['10%', '10%'];
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
         option.xAxis[0].axisLabel ={
             align: 'center',
             color: '#666666',
