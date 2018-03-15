@@ -3,7 +3,19 @@
 }
 
 .rule-dashboard {
-	
+
+	.monitor-table {
+		
+		.status-success {
+			font-size: 14px;
+			color: #00A755;
+		}
+
+		.status-error {
+			font-size: 14px;
+			color: #EF5350;
+		}
+	}
 }
 
 .rule-edit {
