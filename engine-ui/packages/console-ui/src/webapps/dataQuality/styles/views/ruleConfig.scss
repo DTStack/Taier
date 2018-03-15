@@ -1,5 +1,48 @@
+.m-8 {
+	margin: 0 8px;
+}
 
 .rule-dashboard {
 	
 }
 
+.rule-edit {
+ 	h3 {
+	    font-size: 16px;
+	    padding-bottom: 10px;
+
+	    a {
+	    	color: #9fa9ba
+	    }
+ 	}
+
+	.preview-table {
+		margin-top: 10px;
+	}
+	
+	.rule-action {
+		padding: 16px 20px;
+		text-align: right;
+	}
+
+ 	.rule-table {
+ 		margin: 0 20px;
+ 		background: #fff;
+
+		.ant-table-tbody {
+	        &>tr>td {
+	            padding: 10px 8px;
+	            font-size: 12px;
+	        }
+	    }
+		/*.rule-editable-cell {
+			margin: 3px 0;
+			font-size: 14px;
+		}*/
+		.editable-row-operations {
+			a {
+				padding: 0 5px;
+			}
+		}
+ 	}
+}

@@ -1,14 +1,34 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Row, Col, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 import { dataSourceTypes, formItemLayout } from '../../../consts';
+import { dataSourceActions } from '../../../actions/dataSource';
 import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 const TreeNode = TreeSelect.TreeNode;
 
+const mapStateToProps = state => {
+    const { dataSource } = state;
+    return { dataSource }
+}
+
+const mapDispatchToProps = dispatch => ({
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
+    getDataSourcesTable(params) {
+        dispatch(dataSourceActions.getDataSourcesTable(params));
+    },
+    getDataSourcesPart(params) {
+        dispatch(dataSourceActions.getDataSourcesPart(params));
+    }
+})
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class StepOne extends Component {
     constructor(props) {
         super(props);
@@ -175,7 +195,7 @@ export default class StepOne extends Component {
         let tableName = form.getFieldValue('sourceTable');
 
         if(!sourceId || !tableName) {
-            message.error('未选择数据源或左侧表');
+            message.error('未选择数据源或表');
             return;
         }
 
@@ -261,10 +281,10 @@ export default class StepOne extends Component {
                             }
                         </FormItem>
 
-                        <FormItem {...formItemLayout} label="选择左侧表">
+                        <FormItem {...formItemLayout} label="选择数据表">
                             {
                                 getFieldDecorator('sourceTable', {
-                                    rules: [{ required: true, message: '请选择左侧表' }],
+                                    rules: [{ required: true, message: '请选择数据表' }],
                                     initialValue: tableName
                                 })(
                                     <Select onChange={this.onTableChange} disabled={editStatus === 'edit'}>
@@ -323,7 +343,7 @@ export default class StepOne extends Component {
 
                 <div className="steps-action">
                     <Button>
-                        <Link to="/dq/dataCheck">取消</Link>
+                        <Link to="/dq/rule">取消</Link>
                     </Button>
                     <Button className="m-l-8" type="primary" onClick={this.next}>
                         下一步

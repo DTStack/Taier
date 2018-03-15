@@ -15,6 +15,18 @@ export const commonActions = {
 			});
 		}
 	},
+	getAllDict(params) {
+		return dispatch => {
+			API.getAllDict(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: commonActionType.GET_ALL_DICT,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 
 
 }

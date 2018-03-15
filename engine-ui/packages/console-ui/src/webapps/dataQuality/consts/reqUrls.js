@@ -50,15 +50,26 @@ export default {
     GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`, // 获取报告
 
     // ===== 规则配置 ===== //
-    GET_RULE_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,       // 逐行校验列表数据
-    GET_RULE_DETAIL: `${DQ_BASE_URL}/monitor/getOne`,       // 单个数据详情
-    ADD_RULE: `${DQ_BASE_URL}/monitor/add`,             // 编辑逐行校验
-    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,             // 编辑逐行校验
-    DELETE_RULE: `${DQ_BASE_URL}/monitor/deleteVerify`,  // 删除逐行校验
+    GET_RULE_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,         // 规则配置列表
+    ADD_RULE: `${DQ_BASE_URL}/monitor/add`,                    // 新增规则配置
+    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,              // 编辑规则配置
+    GET_RULE_PART: `${DQ_BASE_URL}/monitor/getPart`,           // 获取规则分区
+    CHANGE_RULE_STATUS: `${DQ_BASE_URL}/monitor/closeOrOpen`,         // 开启关闭监控
+    // GET_RULE_DETAIL: `${DQ_BASE_URL}/monitor/getOne`,          // 单个数据详情
+    RULE_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/remoteTrigger`,   // 远程触发
+    EXECUTE_RULE: `${DQ_BASE_URL}/monitor/immediatelyExecuted`,    // 立即执行
+
+    GET_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/getRules`,     // 获取监控规则
+    SAVE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/save`,       // 保存监控规则
+    DELETE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/delete`,           // 删除监控规则
+
+    GET_MONITOR_FUNCTION: `${DQ_BASE_URL}/function/getFunctions`,  // 统计函数
 
     SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`, // 订阅表
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unsubscribe`, // 取消订阅表
 
     // ===== common ===== //
     DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
+    DQ_GET_ALL_DICT: `${DQ_BASE_URL}/dict/allDicts`,
+    
 }
