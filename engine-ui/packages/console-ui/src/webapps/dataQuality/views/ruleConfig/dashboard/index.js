@@ -110,18 +110,14 @@ export default class RuleConfig extends Component {
             },
             width: '14%'
         }, {
-            title: '告警开关',
-            render: (text, record) => {
-                return <Switch checkedChildren="开" unCheckedChildren="关" onChange={this.onNotifyChange.bind(this, record)}/>
-            },
-            width: '8%'
-        }, {
             title: '操作',
             width: '8%',
             render: (text, record) => {
-                return (
-                    <a>订阅</a>
-                )
+                return record.isSubscribe ? <a>取消订阅</a> : <a>订阅</a>
+                // if (record.isSubscribe) {
+                //     return <a>取消订阅</a>
+                // }
+                
             }
         }]
     }
@@ -197,8 +193,8 @@ export default class RuleConfig extends Component {
 
     // 监听userList的select
     onUserChange = (id) => {
-        let modifyUserId = id ? id : undefined;
-        let params = {...this.state.params, modifyUserId};
+        let lastModifyUserId = id ? id : undefined;
+        let params = {...this.state.params, lastModifyUserId};
         
         this.setState({ params });
         this.props.getRuleLists(params);
@@ -307,7 +303,7 @@ export default class RuleConfig extends Component {
                         bordered={false}
                     >
                         <Table 
-                            rowKey="id"
+                            rowKey="tableId"
                             className="m-table"
                             columns={this.initColumns()} 
                             loading={loading}

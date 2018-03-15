@@ -162,7 +162,7 @@ export default class DataCheck extends Component {
     }
 
     deleteDataCheck = (record) => {
-        Api.deleteCheck({ verifyId: record.id }).then((res) => {
+        DCApi.deleteCheck({ verifyId: record.verifyId }).then((res) => {
             if (res.code === 1) {
                 message.success("删除成功！");
                 this.props.getLists(this.state.params);

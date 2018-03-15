@@ -1,48 +1,12 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Steps, Button, Icon } from 'antd';
-
 import StepOne from './stepOne';
 import StepTwo from './stepTwo';
 import StepThree from './stepThree';
 
-import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { dataSourceActions } from '../../../actions/dataSource';
-import DCApi from '../../../api/ruleConfig';
-
 const Step = Steps.Step;
 
-const mapStateToProps = state => {
-    const { ruleConfig, dataSource } = state;
-    return { ruleConfig, dataSource }
-}
-
-const mapDispatchToProps = dispatch => ({
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
-    getDataSourcesTable(params) {
-        dispatch(dataSourceActions.getDataSourcesTable(params));
-    },
-    getDataSourcesPart(params) {
-        dispatch(dataSourceActions.getDataSourcesPart(params));
-    },
-    getDataSourcesPreview(params) {
-        dispatch(dataSourceActions.getDataSourcesPreview(params));
-    },
-    getRuleDetail(params) {
-        dispatch(ruleConfigActions.getRuleDetail(params));
-    },
-    addRule(params) {
-        dispatch(ruleConfigActions.addRule(params));
-    },
-    updateRule(params) {
-        dispatch(ruleConfigActions.updateRule(params));
-    }
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class RuleConfigEdit extends Component {
     constructor(props) {
         super(props);
@@ -53,40 +17,17 @@ export default class RuleConfigEdit extends Component {
                 tableName: undefined,
                 partitionColumn: undefined,
                 partitionValue: undefined,
-                isSubscribe: undefined,
+                isSubscribe: 0,
                 scheduleConf: '',
                 sendTypes: ['0'],
                 notifyUser: [],
-                rules: {}
+                rules: []
             },
             editStatus: 'new'
         }
     }
 
-    componentWillMount() {
-        // const { id } = this.props.routeParams;
-        // const { editParams } = this.state;
-
-        // if (verifyId) {
-        //     this.setState({ editStatus: 'edit' });
-        //     DCApi.getCheckDetail({ verifyId: verifyId }).then((res) => {
-        //         if (res.code === 1) {
-        //             this.setState({ 
-        //                 editParams: { ...editParams, 
-        //                     id: res.data.id,
-        //                     origin: res.data.origin,
-        //                     target: res.data.target,
-        //                     setting: res.data.setting,
-        //                     scheduleConf: res.data.scheduleConf,
-        //                     executeType: res.data.executeType,
-        //                     mappedPK: res.data.mappedPK,
-        //                     notifyVO: res.data.notifyVO
-        //                 }
-        //             });
-        //         }
-        //     });
-        // }
-    }
+    componentWillMount() {}
 
     componentDidMount() {}
 
@@ -135,7 +76,7 @@ export default class RuleConfigEdit extends Component {
             }
         ];
         return (
-            <div className="inner-container check-setting">
+            <div className="inner-container rule-edit">
                 <h3>
                     <Link to="/dq/rule">
                         <Icon type="left-circle-o m-r-8" />新建质量监控

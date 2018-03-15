@@ -1,8 +1,8 @@
 import mc from 'mirror-creator';
 
-export const ruleConfigActions = mc([
+export const ruleConfigActionType = mc([
     'CHANGE_LOADING',
     'GET_RULE_LIST',
-    'GET_CHECK_DETAIL',
+    'GET_RULE_FUNCTION',
     'CHANGE_PARAMS'
 ], { prefix: 'ruleConfig/' });
