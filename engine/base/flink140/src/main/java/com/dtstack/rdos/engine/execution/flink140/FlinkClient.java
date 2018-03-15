@@ -76,7 +76,6 @@ import org.apache.http.conn.HttpHostConnectException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -139,23 +138,19 @@ public class FlinkClient extends AbsClient {
     //默认使用异步提交
     private boolean isDetact = true;
 
-    // 同步模块在flink集群加载插件
+    //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
 
-    // 同步模块的monitorAddress, 用于获取错误记录数等信息
+    //同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
+
+    private  FlinkConfig flinkConfig;
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
     @Override
     public void init(Properties prop) throws Exception {
-
-        FlinkConfig flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
-        String clusterMode = flinkConfig.getClusterMode();
-        if(StringUtils.isEmpty(clusterMode)) {
-            clusterMode = Deploy.standalone.name();
-        }
-
+        flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
         File sqlPluginDirFile = new File(localSqlPluginDir);
@@ -163,7 +158,6 @@ public class FlinkClient extends AbsClient {
         if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
             throw new RdosException("not exists flink sql dir:" + localSqlPluginDir + ", please check it!!!");
         }
-
         String remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
         PluginSourceUtil.setSourceJarRootDir(localSqlPluginDir);
         PluginSourceUtil.setRemoteSourceJarRootDir(remoteSqlPluginDir);
@@ -172,6 +166,20 @@ public class FlinkClient extends AbsClient {
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
+        String localSyncPluginDir =  getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
+        FlinkUtil.setLocalSyncFileDir(localSyncPluginDir);
+
+        String remoteSyncPluginDir = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
+        this.flinkRemoteSyncPluginRoot = remoteSyncPluginDir;
+        this.monitorAddress = flinkConfig.getMonitorAddress();
+        initClient();
+    }
+
+    private void initClient(){
+        String clusterMode = flinkConfig.getClusterMode();
+        if(StringUtils.isEmpty(clusterMode)) {
+            clusterMode = Deploy.standalone.name();
+        }
         if(clusterMode.equals( Deploy.standalone.name())) {
             if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
                 Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
@@ -180,17 +188,10 @@ public class FlinkClient extends AbsClient {
                 initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
             }
         } else if (clusterMode.equals(Deploy.yarn.name())) {
-            initYarnClusterClient(flinkConfig);
+                initYarnClusterClient(flinkConfig);
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
-
-        String localSyncPluginDir =  getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
-        FlinkUtil.setLocalSyncFileDir(localSyncPluginDir);
-
-        String remoteSyncPluginDir = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
-        this.flinkRemoteSyncPluginRoot = remoteSyncPluginDir;
-        this.monitorAddress = flinkConfig.getMonitorAddress();
     }
 
 
@@ -200,7 +201,7 @@ public class FlinkClient extends AbsClient {
      * @return
      * @throws Exception
      */
-    public void initClusterClientByURL(String jobMgrURL){
+    private void initClusterClientByURL(String jobMgrURL){
 
         String[] splitInfo = jobMgrURL.split(":");
         if(splitInfo.length < 2){
@@ -224,7 +225,7 @@ public class FlinkClient extends AbsClient {
     /**
      * 根据yarn方式获取ClusterClient
      */
-    public void initYarnClusterClient(FlinkConfig flinkConfig){
+    private void initYarnClusterClient(FlinkConfig flinkConfig){
 
         hadoopConf = HadoopConf.getYarnConfiguration();
 
@@ -314,7 +315,7 @@ public class FlinkClient extends AbsClient {
      * 根据zk获取clusterclient
      * @param zkNamespace
      */
-    public void initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId,String flinkHighAvailabilityStorageDir){
+    private void initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId,String flinkHighAvailabilityStorageDir){
 
         Configuration config = new Configuration();
         config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
@@ -816,8 +817,9 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     private String getReqUrl(){
-        logger.info("hyf getrequrl=" + client.getWebInterfaceURL());
-        return client.getWebInterfaceURL();
+        String url = client.getWebInterfaceURL();
+        logger.info("getrequrl=" + url);
+        return url;
     }
 
     @Override
@@ -923,7 +925,7 @@ public class FlinkClient extends AbsClient {
         return resourceInfo;
     }
 
-    public boolean existsJobOnFlink(String engineJobId){
+    private boolean existsJobOnFlink(String engineJobId){
         RdosTaskStatus taskStatus = getJobStatus(engineJobId);
         if(taskStatus == null){
             return false;

@@ -55,8 +55,6 @@ public class SparkYarnClient extends AbsClient {
 
     private SparkYarnConfig sparkYarnConfig;
 
-//    private String deployMode = "cluster";
-
     private Configuration yarnConf = new YarnConfiguration();
 
     private YarnClient yarnClient = YarnClient.createYarnClient();
