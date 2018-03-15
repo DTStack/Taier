@@ -70,26 +70,28 @@ class RoleManagement extends Component {
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
-        }, {
-            title: '操作',
-            width: 120,
-            key: 'operation',
-            render: (text, record) => {
-                return (
-                    <span key={record.id}>
-                        <Link to={`${location.pathname}/edit/${record.id}`}>编辑</Link>
-                        <span className="ant-divider" />
-                        <Popconfirm
-                            title="确认将该角色移除？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.removeRole(record) }}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
-                    </span>
-                )
-            },
-        }]
+        }, 
+        // {
+        //     title: '操作',
+        //     width: 120,
+        //     key: 'operation',
+        //     render: (text, record) => {
+        //         return (
+        //             <span key={record.id}>
+        //                 <Link to={`${location.pathname}/edit/${record.id}`}>编辑</Link>
+        //                 <span className="ant-divider" />
+        //                 <Popconfirm
+        //                     title="确认将该角色移除？"
+        //                     okText="确定" cancelText="取消"
+        //                     onConfirm={() => { this.removeRole(record) }}
+        //                 >
+        //                     <a>删除</a>
+        //                 </Popconfirm>
+        //             </span>
+        //         )
+        //     },
+        // }
+        ]
     }
 
     render() {
@@ -121,7 +123,7 @@ class RoleManagement extends Component {
                         bordered={false}
                         loading={false}
                         title="角色列表" 
-                        extra={extra}
+                        extra={''}
                     >
                         <Table
                             rowKey="id"
