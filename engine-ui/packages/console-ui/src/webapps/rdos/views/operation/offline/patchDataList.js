@@ -34,7 +34,7 @@ class PatchDataList extends Component {
         jobName: '',
         runDay: '',
         bizDay: '',
-        dutyUserId: '',
+        dutyUserId: undefined,
         checkVals: [],
     }
 
@@ -260,12 +260,12 @@ class PatchDataList extends Component {
                         onChange={this.onRunningTime}
                     />
                 </FormItem>
-                <FormItem label="责任人">
+                <FormItem label="操作人">
                     <Select
                         allowClear
                         showSearch
                         style={{ width: '120px' }}
-                        placeholder="责任人"
+                        placeholder="操作人"
                         optionFilterProp="name"
                         value={dutyUserId}
                         onChange={this.onOwnerChange}

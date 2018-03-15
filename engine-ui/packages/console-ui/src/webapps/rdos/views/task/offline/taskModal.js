@@ -434,6 +434,7 @@ dispatch => {
                         }
                         else {
                             let newData = Object.assign(defaultData, res.data);
+                            newData.originPid = defaultData.nodePid
                             dispatch({
                                 type: taskTreeAction.EDIT_FOLDER_CHILD,
                                 payload: newData

@@ -51,6 +51,7 @@ class OfflineTaskMana extends Component {
         selectedTask: '',
         startTime: '',
         endTime: '',
+        scheduleStatus: 1,
         checkVals: [],
         selectedRowKeys: [],
     }
@@ -75,7 +76,8 @@ class OfflineTaskMana extends Component {
         const reqParams = {}
         const {
             taskName, person,
-            startTime, endTime,
+            startTime, endTime, 
+            scheduleStatus,
         } = this.state
         if (taskName) {
             reqParams.name = taskName
@@ -86,6 +88,9 @@ class OfflineTaskMana extends Component {
         }
         if (person) {
             reqParams.ownerId = person
+        }
+        if (scheduleStatus) {
+            reqParams.scheduleStatus = scheduleStatus
         }
         this.loadTaskList(reqParams)
     }
@@ -126,17 +131,11 @@ class OfflineTaskMana extends Component {
     }
 
     handleTableChange = (pagination, filters) => {
-        const params = {}
-        if (filters.status) {
-            params.status = filters.status[0]
-        }
-        params.currentPage = pagination.current
         this.setState({ 
             checkAll: false, 
             selectedRowKeys: [], 
             current: pagination.current, 
-        })
-        this.loadTaskList(params)
+        }, this.search)
     }
 
     clickPatchData = (task) => {

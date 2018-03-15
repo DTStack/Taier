@@ -9,6 +9,8 @@ import { Row,
     message
  } from 'antd';
 
+ import HelpDoc from '../../helpDoc';
+
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
 
@@ -44,6 +46,7 @@ class TaskParams extends React.Component {
             >
                 <Input 
                     defaultValue={param.paramCommand} 
+                    disabled={param.type === 0}
                     onChange={(e) => { this.onChange(index, e.target.value) }}
                 />
             </FormItem>
@@ -70,7 +73,11 @@ class TaskParams extends React.Component {
         return (
             <Form>
                 <Collapse bordered={false} defaultActiveKey={['1', '2']}>
-                    <Panel key="1" header="系统参数配置">
+                    <Panel key="1" header={<span>
+                            系统参数配置 <HelpDoc style={{position: 'inherit'}} doc="customSystemParams" />
+                        </span>
+                    }>
+                       
                         {formItems.sysItems}
                     </Panel>
                     <Panel key="2" header="自定义参数配置">

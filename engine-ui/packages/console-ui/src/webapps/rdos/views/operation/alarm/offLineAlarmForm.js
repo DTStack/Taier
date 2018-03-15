@@ -199,10 +199,10 @@ class AlarmForm extends Component {
                         >
                             {getFieldDecorator('uncompleteTime', {
                                 rules: [{
-                                    required: true, message: '请您选择[未完成]任务的定时时长！',
+                                    required: true, message: '请您设置任务的定时时长！',
                                 }],
                             })(
-                                <TimePicker format={'HH:mm'} />
+                                <TimePicker format={'HH:mm'} style={{ width: 200 }} />
                             )}
                     </FormItem>
                     <FormItem
@@ -213,7 +213,7 @@ class AlarmForm extends Component {
                         >
                             {getFieldDecorator('runTime', { // 换算成秒
                                 rules: [{
-                                    required: true, message: '请您选择[未完成]任务的运行时间触发条件！',
+                                    required: true, message: '请您设置运行时长触发条件！',
                                 }],
                             })(
                                 <div>

@@ -114,7 +114,7 @@ class TableEditor extends Component {
                                     width={80}
                                     value={lifeDay}
                                     onChange={(val) => {
-                                        modifyDesc({name: 'lifeDay', value: val})
+                                        modifyDesc({name: 'lifeDay', value: val < 0 ? val : val })
                                     }}
                                 />
                             </FormItem>

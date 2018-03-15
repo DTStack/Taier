@@ -24,7 +24,6 @@ class NormalTaskForm extends React.Component {
 
         const acceptType = isMrTask ? RESOURCE_TYPE.JAR : isPyTask ? RESOURCE_TYPE.PY : '';
 
-        console.log('taskData:', taskData)
         return <Form>
                 <FormItem
                     {...formItemLayout}

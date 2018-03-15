@@ -110,3 +110,16 @@ export const errorPercentConfig = (
     </div>
 )
 
+export const customSystemParams = (
+    <div>
+         <p>
+            常用系统变量:
+        </p>
+        <p>
+            <span>bdp.system.premonth</span><br/>
+            <span>bdp.system.cyctime</span><br/>
+            <span>bdp.system.bizdate</span><br/>
+            <span>bdp.system.currmonth</span>
+        </p>
+    </div>
+)

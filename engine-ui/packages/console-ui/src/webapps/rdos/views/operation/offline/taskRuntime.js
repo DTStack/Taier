@@ -78,7 +78,7 @@ export default class TaskLog extends Component {
         const stayTiming = [], readData = [], dirtyData = [];
 
         if (data) {
-            for (let i = 0; i < data.length; i++) {
+            for (let i = data.length - 1; i >= 0; i--) {
                 const item = data[i]
                 xAxis.push(moment(item.exeStartTime).format('YYYY-MM-DD HH:mm:ss'))
                 stayTiming.push(item.exeTime)
@@ -166,6 +166,7 @@ export default class TaskLog extends Component {
         option.yAxis[1].name = '数据量（条）'
         option.yAxis[1].axisLine.show = false
         option.yAxis[1].splitLine.show = false
+        option.yAxis[1].minInterval = 1// 刻度为整数
         option.yAxis[1].axisLabel.formatter = '{value} 条'
         
 
@@ -187,7 +188,7 @@ export default class TaskLog extends Component {
         const { data } = this.state
 
         const tStyle = {
-            width: '50px',
+            width: '55px',
             margin: 0,
             marginTop: '10px',
         }

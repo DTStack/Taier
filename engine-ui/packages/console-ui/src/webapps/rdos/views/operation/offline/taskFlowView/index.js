@@ -489,10 +489,9 @@ class TaskFlowView extends Component {
 
     hideMenu = () => {
         document.addEventListener('click', (e) => {
-            const graph = this.graph
-            const menu = graph.popupMenuHandler
-            if (graph.popupMenuHandler.isMenuShowing()) {
-                graph.popupMenuHandler.hideMenu()
+            const popMenus = document.querySelector('.mxPopupMenu')
+            if (popMenus) {
+                document.body.removeChild(popMenus)
             }
         })
     }

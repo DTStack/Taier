@@ -81,7 +81,8 @@ class LifeCycle extends React.Component {
     customChange = (e) => {
         const value = e.target.value
         if (this.state.showCustom) {
-            this.props.onChange(value)
+            // 不可小于0
+            this.props.onChange(value < 0 ? null : value)
         }
     }
 
