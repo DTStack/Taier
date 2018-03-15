@@ -24,6 +24,15 @@ export const dataSourceTypes = [ // 数据源类型
     'MaxCompute'
 ]
 
+export const periodType = [ // 调度类型
+    '未知类型', 
+    '小时', 
+    '天', 
+    '周', 
+    '月', 
+    '手动触发'
+]
+
 export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },

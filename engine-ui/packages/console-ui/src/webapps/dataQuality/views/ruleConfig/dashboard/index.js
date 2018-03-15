@@ -6,7 +6,7 @@ import moment from 'moment';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { commonActions } from '../../../actions/common';
-import { dataSourceTypes } from '../../../consts';
+import { dataSourceTypes, periodType } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 import '../../../styles/views/ruleConfig.scss';
 
@@ -32,6 +32,9 @@ const mapDispatchToProps = dispatch => ({
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
     },
+    getAllDict(params) {
+        dispatch(commonActions.getAllDict(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -55,6 +58,7 @@ export default class RuleConfig extends Component {
         this.props.getDataSourcesList();
         this.props.getDataSourcesType();
         this.props.getUserList();
+        this.props.getAllDict();
         console.log(this)
     }
 
@@ -64,43 +68,46 @@ export default class RuleConfig extends Component {
             title: '表',
             dataIndex: 'tableName',
             key: 'tableName',
-            width: '15%'
+            // width: '15%'
         }, {
             title: '类型',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
-            width: '15%',
             render: (text, record) => {
                 return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
-            }
+            },
+            // width: '15%',
         }, 
         {
             title: '执行周期',
             dataIndex: 'periodType',
             key: 'periodType',
-            width: '8%'
+            render: (text, record) => {
+                return periodType[text];
+            },
+            // width: '8%'
         }, {
             title: '最近30天告警数',
             dataIndex: 'recentNotifyNum',
             key: 'recentNotifyNum',
-            width: '10%',
+            // width: '10%',
         }, {
             title: '远程触发',
             dataIndex: 'isRemoteTrigger',
             key: 'isRemoteTrigger',
             render: (text, record) => {
                 if (text === 0) {
-                    return <Icon type="check-circle status-success" />
-                } else {
                     return <Icon type="close-circle status-error" />
+                } else {
+                    return <Icon type="check-circle status-success" />
                 }
             },
-            width: '8%'
+            // width: '8%'
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUser',
             key: 'modifyUser',
-            width: '14%'
+            // width: '14%'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
@@ -108,16 +115,12 @@ export default class RuleConfig extends Component {
             render: (text, record) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
             },
-            width: '14%'
+            // width: '14%'
         }, {
             title: '操作',
-            width: '8%',
+            // width: '8%',
             render: (text, record) => {
                 return record.isSubscribe ? <a>取消订阅</a> : <a>订阅</a>
-                // if (record.isSubscribe) {
-                //     return <a>取消订阅</a>
-                // }
-                
             }
         }]
     }
@@ -182,6 +185,23 @@ export default class RuleConfig extends Component {
         this.props.getRuleLists(params);
     }
 
+    // 调度周期下拉框
+    renderPeriodType = (data) => {
+        return data.map((item) => {
+            return (
+                <Option key={item.value} value={item.value.toString()}>{item.name}</Option>
+            )
+        })
+    }
+
+    onPeriodTypeChange = (type) => {
+        let periodType = type ? type : undefined;
+        let params = {...this.state.params, periodType};
+        
+        this.setState({ params });
+        this.props.getRuleLists(params);
+    }
+
     // user下拉框
     renderUserList = (data) => {
         return data.map((item) => {
@@ -203,7 +223,15 @@ export default class RuleConfig extends Component {
     // 执行时间改变
     onDateChange = (date, dateString) => {
         let executeTime = date ? date.valueOf() : undefined;
-        let params = {...this.state.params, executeTime: executeTime};
+        let params = {...this.state.params, executeTime};
+        
+        this.setState({ params });
+        this.props.getRuleLists(params);
+    }
+
+    onSubscribeChange = (e) => {
+        let isSubscribe = e.target.checked ? 1 : undefined;
+        let params = {...this.state.params, isSubscribe};
         
         this.setState({ params });
         this.props.getRuleLists(params);
@@ -221,14 +249,16 @@ export default class RuleConfig extends Component {
     render() {
         const { ruleLists, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
-        const { userList } = this.props.common;
+        const { userList, allDict } = this.props.common;
         const { params } = this.state;
 
         const pagination = {
-            current: params.currentPage,
+            current: params.pageIndex,
             pageSize: params.pageSize,
             total: ruleLists.totalCount,
         };
+
+        let periodType = allDict.periodType ? allDict.periodType : [];
 
         const cardTitle = (
             <div className="flex font-12">
@@ -259,13 +289,13 @@ export default class RuleConfig extends Component {
                 <div className="m-l-8">
                     执行周期：
                     <Select allowClear onChange={this.onPeriodTypeChange} style={{ width: 150 }}>
-                        <Option key="1" value="1">天</Option>
-                        <Option key="2" value="2">小时</Option>
-                        <Option key="3" value="3">分钟</Option>
+                        {
+                            this.renderPeriodType(periodType)
+                        }
                     </Select>
                 </div>
 
-                <div className="m-l-8">
+                <div className="m-l-8 m-r-8">
                     最近修改人：
                     <Select allowClear onChange={this.onUserChange} style={{ width: 150 }}>
                         {
@@ -304,7 +334,7 @@ export default class RuleConfig extends Component {
                     >
                         <Table 
                             rowKey="tableId"
-                            className="m-table"
+                            className="m-table monitor-table"
                             columns={this.initColumns()} 
                             loading={loading}
                             pagination={pagination}
