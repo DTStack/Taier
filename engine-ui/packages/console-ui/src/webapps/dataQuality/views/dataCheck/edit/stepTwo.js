@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message } from 'antd';
+
+import { dataCheckActions } from '../../../actions/dataCheck';
 import { formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
 
@@ -8,18 +11,32 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const TreeNode = TreeSelect.TreeNode;
 
+const mapStateToProps = state => {
+    const { dataCheck, dataSource } = state;
+    return { dataCheck, dataSource }
+}
+
+const mapDispatchToProps = dispatch => ({
+    getSourcePart(params, type) {
+        dispatch(dataCheckActions.getSourcePart(params, type));
+    },
+    resetSourcePart(params) {
+        dispatch(dataCheckActions.resetSourcePart(params));
+    }
+})
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class StepTwo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sourcePart: [],
             sourcePreview: {}
         };
     }
 
     componentDidMount() {}
 
-    renderSourceTable = (data) => {
+    renderTargetTable = (data) => {
         return data.map((tableName) => {
             return (
                 <Option key={tableName} value={tableName}>{tableName}</Option>
@@ -31,26 +48,26 @@ export default class StepTwo extends Component {
         const { editParams, form, changeParams } = this.props;
         let target = { ...editParams.target, table: name };
 
+        this.setState({ 
+            sourcePreview: {}
+        });
+
         // 重置分区表单和参数
         if (editParams.origin.partitionColumn) {
             form.setFieldsValue({ targetColumn: '' });
             target.partitionColumn = undefined;
             target.partitionValue  = undefined;
+            this.props.resetSourcePart('target');
 
-            DSApi.getDataSourcesPart({
-                sourceId: editParams.target.dataSourceId,
+            this.props.getSourcePart({
+                sourceId: target.dataSourceId,
                 table: name
-            }).then((res) => {
-                if (res.code === 1) {
-                    this.setState({ sourcePart: res.data.children });
-                }
-            });
+            }, 'target');
         }
 
         changeParams({
             target: { ...editParams.target, ...target }
         });
-
     }
 
     // 预览数据源的数据
@@ -59,7 +76,7 @@ export default class StepTwo extends Component {
         let tableName = form.getFieldValue('table');
 
         if(!tableName) {
-            message.error('未选择右侧表');
+            message.error('未选择数据表');
             return;
         }
 
@@ -157,11 +174,12 @@ export default class StepTwo extends Component {
     }
 
     render() {
-        const { sourceTable } = this.props.dataSource;
-        const { getFieldDecorator } = this.props.form;
-        const { origin, target } = this.props.editParams;
-        const { sourcePreview, sourcePart } = this.state;
-        const { editStatus } = this.props;
+        const { editStatus, editParams, dataCheck, dataSource, form } = this.props;
+        const { sourceTable } = dataSource;
+        const { targetPart } = dataCheck;
+        const { getFieldDecorator } = form;
+        const { origin, target } = editParams;
+        const { sourcePreview } = this.state;
 
         return (
             <div>
@@ -175,7 +193,7 @@ export default class StepTwo extends Component {
                                 })(
                                     <Select onChange={this.onTargetTableChange} disabled={editStatus === 'edit'}>
                                         {
-                                            this.renderSourceTable(sourceTable)
+                                            this.renderTargetTable(sourceTable)
                                         }
                                     </Select>
                                 )
@@ -199,7 +217,7 @@ export default class StepTwo extends Component {
                                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                                             onChange={this.handlePartChange}>
                                             {
-                                                this.renderTreeSelect(sourcePart)
+                                                this.renderTreeSelect(targetPart)
                                             }
                                         </TreeSelect>
                                     )
@@ -214,18 +232,14 @@ export default class StepTwo extends Component {
                         {
                             !isEmpty(sourcePreview)
                             &&
-                            <Row>
-                                <Col span={14} offset={6}>
-                                    <Table 
-                                        rowKey="key"
-                                        className="m-table preview-table"
-                                        columns={this.initColumns(sourcePreview.columnList)} 
-                                        dataSource={sourcePreview.dataList}
-                                        pagination={false}
-                                        scroll={{ x: '200%', y: 400 }}
-                                    />
-                                </Col>
-                            </Row>
+                            <Table 
+                                rowKey="key"
+                                className="m-table preview-table"
+                                columns={this.initColumns(sourcePreview.columnList)} 
+                                dataSource={sourcePreview.dataList}
+                                pagination={false}
+                                scroll={{ x: '120%', y: 400 }}
+                            />
                         }
                     </Form>
                 </div>

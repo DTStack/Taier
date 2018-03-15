@@ -8,42 +8,10 @@ import StepTwo from './stepTwo';
 import StepThree from './stepThree';
 import StepFour from './stepFour';
 
-import { dataCheckActions } from '../../../actions/dataCheck';
-import { dataSourceActions } from '../../../actions/dataSource';
 import DCApi from '../../../api/dataCheck';
 
 const Step = Steps.Step;
 
-const mapStateToProps = state => {
-    const { dataCheck, dataSource } = state;
-    return { dataCheck, dataSource }
-}
-
-const mapDispatchToProps = dispatch => ({
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
-    getDataSourcesTable(params) {
-        dispatch(dataSourceActions.getDataSourcesTable(params));
-    },
-    getDataSourcesPart(params) {
-        dispatch(dataSourceActions.getDataSourcesPart(params));
-    },
-    getDataSourcesPreview(params) {
-        dispatch(dataSourceActions.getDataSourcesPreview(params));
-    },
-    getCheckDetail(params) {
-        dispatch(dataCheckActions.getCheckDetail(params));
-    },
-    addCheck(params) {
-        dispatch(dataCheckActions.addCheck(params));
-    },
-    updateCheck(params) {
-        dispatch(dataCheckActions.updateCheck(params));
-    }
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class DataCheckEdit extends Component {
     constructor(props) {
         super(props);
@@ -106,7 +74,7 @@ export default class DataCheckEdit extends Component {
                 title: '选择左侧表', content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
@@ -116,7 +84,7 @@ export default class DataCheckEdit extends Component {
                 title: '选择右侧表', content: <StepTwo
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
@@ -126,7 +94,7 @@ export default class DataCheckEdit extends Component {
                 title: '选择字段', content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
@@ -136,7 +104,7 @@ export default class DataCheckEdit extends Component {
                 title: '执行配置', content: <StepFour
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
