@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Row, Col, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
-import { dataSourceTypes, formItemLayout } from '../../../consts';
+
 import { dataSourceActions } from '../../../actions/dataSource';
+import { dataSourceTypes, formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
@@ -25,6 +26,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getDataSourcesPart(params) {
         dispatch(dataSourceActions.getDataSourcesPart(params));
+    },
+    resetDataSourcesPart() {
+        dispatch(dataSourceActions.resetDataSourcesPart());
     }
 })
 
@@ -34,33 +38,12 @@ export default class StepOne extends Component {
         super(props);
         this.state = {
             havePart: false,
-            sourcePart: [],
             sourcePreview: {}
         }
     }
     
     componentDidMount() {
         this.props.getDataSourcesList();
-    }
-
-    componentWillReceiveProps(nextProps) {
-        console.log(this.props, 'prev')
-        console.log(nextProps, 'next')
-        let newParams = nextProps.editParams,
-            oldParams = this.props.editParams;
-
-        if (newParams.dataSourceId != oldParams.dataSourceId) {
-            this.props.getDataSourcesTable({ sourceId: newParams.dataSourceId });
-
-            if (oldParams.partitionValue != newParams.partitionValue) {
-                this.props.getDataSourcesPart({
-                    sourceId: newParams.dataSourceId,
-                    table: newParams.tableName
-                });
-
-                this.setState({ havePart: true });
-            }
-        }
     }
 
     // 数据源下拉框
@@ -127,65 +110,61 @@ export default class StepOne extends Component {
     // 数据源变化回调
     onSourceTypeChange = (id) => {
         const { editParams, form, changeParams, getDataSourcesPart } = this.props;
-        const { havePart } = this.state;
         let params = { dataSourceId: id };
 
         this.isHiveOrMaxCompute(id);
-        form.setFieldsValue({ sourceTable: '' });
+        this.props.getDataSourcesTable({ sourceId: id });
 
         // 重置分区表单和参数
-        if (havePart) {
+        if (editParams.partitionColumn) {
+            this.props.resetDataSourcesPart();
             form.setFieldsValue({ part: '' });
+
             params.partitionColumn = undefined;
             params.partitionValue  = undefined;
         }
 
+        form.setFieldsValue({ sourceTable: '' });
+        this.setState({ sourcePreview: {} });
         changeParams(params);
 
-        // 如果id和表都有则请求分区数据
+        // 如果数据和表都有则请求分区数据
         let tableName = form.getFieldValue('sourceTable');
-        this.getColumnAndValue(id, tableName);
+        this.getSourcesPart(id, tableName);
     }
 
     // 数据表变化回调
     onTableChange = (name) => {
         const { editParams, form, changeParams, getDataSourcesPart } = this.props;
-        const { havePart } = this.state;
         let params = { tableName: name };
 
         // 重置分区表单和参数
-        if (havePart) {
+        if (editParams.partitionColumn) {
+            this.props.resetDataSourcesPart();
             form.setFieldsValue({ part: '' });
+
             params.partitionColumn = undefined;
             params.partitionValue  = undefined;
         }
 
+        this.setState({ sourcePreview: {} });
         changeParams(params);
 
-        // 如果id和表都有则请求分区数据
+        // 如果数据和表都有则请求分区数据
         let sourceId = form.getFieldValue('sourceId');
-        this.getColumnAndValue(sourceId, name);
+        this.getSourcesPart(sourceId, name);
     }
 
     // 获取分区数据
-    getColumnAndValue = (id, name) => {
+    getSourcesPart = (id, name) => {
         const { havePart } = this.state;
 
         if (id && name && havePart) {
-            DSApi.getDataSourcesPart({
+            this.props.getDataSourcesPart({
                 sourceId: id,
                 table: name
-            }).then((res) => {
-                if (res.code === 1) {
-                    this.setState({ sourcePart: res.data.children });
-                }
             });
         }
-    }
-
-    // 重置预览数据
-    resetSourcePreview = () => {
-        this.setState({ sourcePreview: {} });
     }
 
     // 获取预览数据
@@ -257,9 +236,9 @@ export default class StepOne extends Component {
 
     render() {
         const { editStatus, editParams, form, dataSource } = this.props;
-        const { havePart, sourcePreview, sourcePart } = this.state;
+        const { havePart, sourcePreview } = this.state;
         const { dataSourceId, tableName, partitionColumn, partitionValue } = editParams;
-        const { sourceList, sourceTable } = dataSource;
+        const { sourceList, sourceTable, sourcePart } = dataSource;
         const { getFieldDecorator } = form;
 
         return (

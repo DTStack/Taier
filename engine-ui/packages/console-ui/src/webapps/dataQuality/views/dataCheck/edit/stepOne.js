@@ -136,7 +136,6 @@ export default class StepOne extends Component {
      */
     onSourceTypeChange = (id) => {
         const { editParams, form, changeParams } = this.props;
-        const { havePart } = this.state;
         let origin = { ...editParams.origin, dataSourceId: id };
 
         this.isHiveOrMaxCompute(id);
@@ -149,6 +148,7 @@ export default class StepOne extends Component {
         if (origin.partitionColumn) {
             this.props.resetSourcePart('origin');
             form.setFieldsValue({ originColumn: '' });
+
             origin.partitionColumn = undefined;
             origin.partitionValue  = undefined;
         }
@@ -169,7 +169,6 @@ export default class StepOne extends Component {
      */
     onOriginTableChange = (name) => {
         const { editParams, form, changeParams } = this.props;
-        const { havePart } = this.state;
         let origin = { ...editParams.origin, table: name };
 
         this.setState({ sourcePreview: {} });
@@ -178,6 +177,7 @@ export default class StepOne extends Component {
         if (origin.partitionColumn) {
             this.props.resetSourcePart('origin');
             form.setFieldsValue({ originColumn: '' });
+            
             origin.partitionColumn = undefined;
             origin.partitionValue  = undefined;
         }
