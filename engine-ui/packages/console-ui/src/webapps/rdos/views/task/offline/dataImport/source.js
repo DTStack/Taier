@@ -14,7 +14,6 @@ const RadioGroup = Radio.Group
 export default class ImportSource extends Component {
 
     state = {
-        file: '',
         radio: 1,
     }
 
@@ -35,7 +34,10 @@ export default class ImportSource extends Component {
     }
 
     changeStartLine = (e) => {
-        this.props.changeStatus({ startLine: e.target.value })
+        const { formState } = this.props
+        let value = e.target.value 
+        value = value > formState.originLineCount ? formState.originLineCount : value
+        this.props.changeStatus({ startLine: value })
     }
 
     radioChange = (e) => {
@@ -147,6 +149,7 @@ export default class ImportSource extends Component {
                                 onChange={this.changeStartLine}
                                 type="number" 
                                 min={1}
+                                max={data.length}
                                 value={formState.startLine} 
                             />
                         </FormItem>

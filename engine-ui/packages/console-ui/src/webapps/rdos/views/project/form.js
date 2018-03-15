@@ -63,9 +63,6 @@ class ProjectForm extends Component {
                     >
                         {getFieldDecorator('projectAlias', {
                             rules: [{
-                                required: true,
-                                message: '项目别名不可为空！',
-                            }, {
                                 max: 20,
                                 message: '项目别名不得超过20个字符！',
                             }],

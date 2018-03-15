@@ -331,7 +331,7 @@ class TargetForm extends React.Component{
                             rules: [{
                                 required: true
                             }],
-                            initialValue: targetMap && targetMap.type ? targetMap.type.writeMode : 'replace'
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="replace" style={{ float: 'left' }}>

@@ -78,9 +78,19 @@ class OfflinePanel extends Component {
     }
 
     rangeTimeChange = (date) => { // 缺少时间过滤条件
+        const start = (date && date[0] ) ? date[0].set({
+            'hour': 0,
+            'minute': 0,
+            'second': 0,
+        }) : ''
+        const end = (date && date[1] ) ? date[1].set({
+            'hour': 23,
+            'minute': 59,
+            'second': 59,
+        }) : ''
         this.setState({
-            startTime: date[0],
-            endTime: date[1],
+            startTime: start,
+            endTime: end,
         })
     }
 

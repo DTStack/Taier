@@ -669,7 +669,7 @@ class SchedulingConfig extends React.Component {
             {
                 title: '责任人',
                 dataIndex: 'createUser.userName',
-                key: 'createUser',
+                key: 'createUser.userName',
             },
             {
                 title: '操作',

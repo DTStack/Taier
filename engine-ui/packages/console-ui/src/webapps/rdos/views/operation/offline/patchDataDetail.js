@@ -334,7 +334,7 @@ class PatchDataDetail extends Component {
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
-                return  <TaskType value={record.batchTask && record.batchTask.taskType} />
+                return  <TaskType value={text} />
             },
         }, {
             title: '定时时间',

@@ -206,7 +206,6 @@ class TaskFormModal extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="资源"
-                        hasFeedback
                     >
                         {getFieldDecorator('resourceIdList', {
                             rules: [{

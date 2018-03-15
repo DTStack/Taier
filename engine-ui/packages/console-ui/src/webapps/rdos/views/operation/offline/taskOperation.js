@@ -51,7 +51,6 @@ class OfflineTaskList extends Component {
         continue: false,
         current: 1,
         person: '',
-        choose: '0',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: '',
         bussinessDate: '',
@@ -95,24 +94,9 @@ class OfflineTaskList extends Component {
             reqParams.ownerId = person
         }
         if (bussinessDate) {
-            reqParams.startTime = bussinessDate.set({
-                'hour': 0,
-                'minute': 0,
-                'second': 0,
-            }).unix()
-            reqParams.endTime = bussinessDate.set({
-                'hour': 23,
-                'minute': 59,
-                'second': 59,
-            }).unix()
+            reqParams.bizDay = bussinessDate.unix()
         }
-        if (execTime.length > 0) {
-            reqParams.execStartTime = execTime[0].unix()
-            reqParams.execEndTime = execTime[1].unix()
-        }
-        if (execSpendTime) {// 执行时长
-            reqParams.execTime = execSpendTime
-        }
+       
         if (jobType !== undefined && jobType !== '') {
             reqParams.type = jobType
         }
@@ -296,36 +280,7 @@ class OfflineTaskList extends Component {
     }
 
     changeBussinessDate = (value) => {
-        const yesterday = moment().subtract(1, 'days').format('YYYY-MM-DD')
-        const beforeDay = moment().subtract(2, 'days').format('YYYY-MM-DD')
-        const selected = value ? value.format('YYYY-MM-DD') : ''
-        let choose = '';
-        if (selected === yesterday) {
-            choose = '0'
-        } else if (selected === beforeDay) {
-            choose = '1'
-        }
-        this.setState({ choose: choose, bussinessDate: value, current: 1 }, () => {
-            this.search()
-        })
-    }
-
-    onTimeChange = (e) => {
-        const val = e.target.value
-        if (val === '0') {
-            this.setState({ bussinessDate: moment().subtract(1, 'days') })
-        } else if (val === '1') {
-            this.setState({ bussinessDate: moment().subtract(2, 'days') })
-        } else {
-            this.setState({ bussinessDate: '' })
-        }
-        this.setState({ choose: val, current: 1 }, () => {
-            this.search()
-        });
-    }
-
-    onExecTimeChange = (dates) => {
-        this.setState({ execTime: dates, current: 1 }, () => {
+        this.setState({ bussinessDate: value, current: 1 }, () => {
             this.search()
         })
     }
@@ -559,17 +514,6 @@ class OfflineTaskList extends Component {
                                         placeholder="业务日期"
                                         value={bussinessDate}
                                         onChange={this.changeBussinessDate}
-                                    />
-                                </FormItem>
-                                <FormItem
-                                    label="执行时间"
-                                >
-                                    <RangePicker
-                                        style={{ width: 180 }}
-                                        size="default"
-                                        format="YYYY-MM-DD"
-                                        disabledDate={this.disabledDate}
-                                        onChange={this.onExecTimeChange}
                                     />
                                 </FormItem>
                             </Form>

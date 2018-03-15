@@ -17,6 +17,7 @@ export default class ImportLocalData extends Component {
         startLine: 1,
         asTitle: true,
         visible: false,
+        sourceFile: '',
         data: [],
         splitSymbol: ',',
         charset: 'UTF-8',
@@ -32,6 +33,7 @@ export default class ImportLocalData extends Component {
         sqlText: '', // SQL text
         queryTable: '', // 查询表
         overwriteFlag: 0, // 导入模式
+        originLineCount: 0, // 原数据总条数
     }
 
     importData = () => {
@@ -133,19 +135,17 @@ export default class ImportLocalData extends Component {
             const type = file.type.split('/')[1];
             reader.onload = ((data) => {
                 return (e) => {
-                    const result = this.parseFile(e.target.result, type) 
-                    this.setState({ 
-                        data: result, 
-                        step: 'source',
-                        visible: true, 
+                    this.setState({
+                        sourceFile: e.target.result, 
                     })
+                    this.parseFile(e.target.result) 
                 }
             })(file)
             reader.readAsText(file, charset)
         }
     }
 
-    parseFile(data, type) {
+    parseFile(data) {
         const { splitSymbol, startLine } = this.state
         const arr = []
         const splitVal = this.parseSplitSymbol(splitSymbol)
@@ -155,7 +155,12 @@ export default class ImportLocalData extends Component {
             arr.push(str.split(splitVal))
         } 
         const subArr = arr.slice(startLine - 1)
-        return subArr;
+        this.setState({ 
+            data: subArr, 
+            step: 'source',
+            visible: true, 
+            originLineCount: data.length,
+        })
     }
 
     parseSplitSymbol(value) {
@@ -171,9 +176,9 @@ export default class ImportLocalData extends Component {
     }
 
     changeStatus = (items) => {
-        const { file } = this.state
+        const { sourceFile } = this.state
         this.setState(items, () => {
-            this.readFile(file)
+            this.parseFile(sourceFile)
         })
     }
 
