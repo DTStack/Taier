@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message, Popconfirm } from 'antd';
+import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message, Popconfirm, InputNumber } from 'antd';
 
 import RuleEditTD from './ruleEditTD';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { commonActions } from '../../../actions/common';
-import { formItemLayout } from '../../../consts';
+import { formItemLayout, rowFormItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
@@ -15,8 +15,8 @@ const Option = Select.Option;
 const TreeNode = TreeSelect.TreeNode;
 
 const mapStateToProps = state => {
-    const { ruleConfig, common } = state;
-    return { ruleConfig, common }
+    const { ruleConfig, common, dataSource } = state;
+    return { ruleConfig, common, dataSource }
 }
 
 const mapDispatchToProps = dispatch => ({
@@ -37,6 +37,8 @@ export default class StepTwo extends Component {
         super(props);
         this.state = {
             currentRule: {},
+            SQLFields: ['customizeSql', 'verifyType', 'operator', 'threshold'],
+            columnFields: ['columnName', 'functionId', 'verifyType', 'operator', 'threshold']
         };
     }
 
@@ -62,13 +64,13 @@ export default class StepTwo extends Component {
     }
 
     next = () => {
-        const { currentStep, navToStep, form } = this.props;
-        form.validateFields({ force: true }, (err, values) => {
-            console.log(err,values)
-            if(!err) {
-                navToStep(currentStep + 1);
-            }
-        })
+        const { currentStep, navToStep, editParams } = this.props;
+
+        if (!isEmpty(editParams.rules) && isEmpty(this.state.currentRule)) {
+            navToStep(currentStep + 1);
+        } else {
+            message.error('请添加监控规则');
+        }
     }
 
     initColumns = () => {
@@ -134,15 +136,14 @@ export default class StepTwo extends Component {
     renderColumns(text, record, type) {
         const { currentRule } = this.state;
         let obj = {
-            children: <RuleEditTD
-                editable={record.editable}
-                editParams={this.props.editParams}
-                type={type}
-                value={text}
-                record={record}
-                data={currentRule}
-                changeCurrentRule={this.changeCurrentRule}
-            />,
+            children: <Form layout="inline">
+            {
+                record.editable ?
+                this.renderEditTD(text, record, type)
+                :
+                this.renderTD(text, record, type)
+            }
+            </Form>,
             props: {},
         };
 
@@ -165,6 +166,210 @@ export default class StepTwo extends Component {
         return obj;
     }
 
+    changeRuleParams = (type, value) => {
+        let obj = {};
+        obj[type] = value.target ? value.target.value : value;
+        this.changeCurrentRule(obj);
+    }
+
+    renderEditTD = (text, record, type) => {
+        const { getFieldDecorator } = this.props.form;
+        const { sourceColumn } = this.props.dataSource;
+        const { monitorFunction } = this.props.ruleConfig;
+        const { allDict } = this.props.common;
+        const { currentRule } = this.state;
+
+        switch(type) {
+            case 'columnName': {
+                if (record.isCustomizeSql) {
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                        {
+                            getFieldDecorator('customizeSql', {
+                                rules: [{
+                                    required: true, message: '自定义SQL不可为空！',
+                                }],
+                                initialValue: record.customizeSql
+                            })(
+                                <Input onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
+                            )
+                        }
+                    </FormItem>
+                } else {
+                    return (
+                        <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                        {
+                            getFieldDecorator('columnName', {
+                                rules: [{
+                                    required: true, message: '字段不可为空！',
+                                }],
+                                initialValue: record.columnName
+                            })(
+                                <Select 
+                                    style={{ width: '100%' }} 
+                                    onChange={this.changeRuleParams.bind(this, 'columnName')} 
+                                    disabled={record.isTable}>
+                                    {
+                                        sourceColumn.map((item) => {
+                                            return <Option key={item.key} value={item.key}>
+                                                {item.key}
+                                            </Option>
+                                        })
+                                    }
+                                </Select>
+                            )
+                        }
+                        </FormItem>
+                    )
+                }
+            }
+
+            case 'functionId': {
+                return (
+                    <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    {
+                        getFieldDecorator('functionId', {
+                            rules: [{
+                                required: true, message: '统计函数不可为空！',
+                            }],
+                            initialValue: record.functionId
+                        })(
+                            <Select 
+                                style={{ width: '100%' }} 
+                                onChange={this.changeRuleParams.bind(this, 'functionId')}>
+                                {
+                                    monitorFunction.map((item) => {
+                                        return <Option key={item.id} value={item.id.toString()}>
+                                            {item.nameZc}
+                                        </Option>
+                                    })
+                                }
+                            </Select>
+                        )
+                    }
+                    </FormItem>
+                )
+            }
+
+            case 'filter': {
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    {
+                        getFieldDecorator('filter', {
+                            rules: [],
+                            initialValue: record.filter
+                        })(
+                            <Input onChange={this.changeRuleParams.bind(this, 'filter')}/>
+                        )
+                    }
+                </FormItem>
+            }
+
+            case 'verifyType': {
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    {
+                        getFieldDecorator('verifyType', {
+                            rules: [{
+                                required: true, message: '校验方法不可为空！',
+                            }],
+                            initialValue: record.verifyType
+                        })(
+                            <Select 
+                                style={{ width: '100%' }} 
+                                onChange={this.changeRuleParams.bind(this, 'verifyType')}>
+                                {
+                                    allDict.verifyType.map((item) => {
+                                        return <Option key={item.value} value={item.value.toString()}>
+                                            {item.name}
+                                        </Option>
+                                    })
+                                }
+                            </Select>
+                        )
+                    }
+                </FormItem>
+            }
+
+            case 'threshold': {
+                return <div>
+                    <FormItem>
+                    {
+                        getFieldDecorator('operator', {
+                            rules: [{
+                                required: true, message: '阈值配置不可为空！',
+                            }],
+                            initialValue: record.operator
+                        })(
+                            <Select 
+                                style={{ width: 70, marginRight: 10 }} 
+                                onChange={this.changeRuleParams.bind(this, 'operator')}>
+                                <Option value=">"> {`>`} </Option>
+                                <Option value=">="> {`>=`} </Option>
+                                <Option value="="> {`=`} </Option>
+                                <Option value="<"> {`<`} </Option>
+                                <Option value="<="> {`<=`} </Option>
+                                <Option value="!="> {`!=`} </Option>
+                            </Select>
+                        )
+                    }
+                    </FormItem>
+                    <FormItem>
+                    {
+                        getFieldDecorator('threshold', {
+                            rules: [{
+                                required: true, message: '阈值不可为空！',
+                            }],
+                            initialValue: record.threshold
+                        })(
+                            <InputNumber
+                              min={0}
+                              max={100}
+                              style={{ marginRight: 10 }}
+                              onChange={this.changeRuleParams.bind(this, 'threshold')}
+                            /> 
+                        )
+                    }
+                    </FormItem>
+                    {
+                        currentRule.verifyType != 1
+                        &&
+                        <span style={{ height: 32, lineHeight: '32px' }}>%</span>
+                    }
+                </div>
+            }
+        }
+    }
+
+    // 固定的值
+    renderTD = (text, record, type) => {
+        const { monitorFunction } = this.props.ruleConfig;
+        const { allDict } = this.props.common;
+
+        switch (type) {
+            case 'columnName': {
+                if (record.isCustomizeSql) {
+                    return record.customizeSql
+                } else {
+                    return text
+                }
+            }
+
+            case 'functionId': {
+                return  text ? monitorFunction[text-1].nameZc : undefined
+            }
+
+            case 'verifyType': {
+                return allDict.verifyType[text-1].name || undefined
+            }
+
+            case 'threshold': {
+                return text ? `${record.operator}  ${text}` : 0
+            }
+
+            default:
+                return text
+        }
+    }
+
+    // 编辑
     edit(id) {
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0];
@@ -172,20 +377,19 @@ export default class StepTwo extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
+
             this.setState({ currentRule: target });
-            this.props.changeParams({
-                rules: newData
-            });
+            this.props.changeParams({ rules: newData });
         }
     }
 
+    // 取消编辑
     cancel(id) {
-        const { currentRule } = this.state;
         let newData = [...this.props.editParams.rules],
             target  = newData.filter(item => id === item.id)[0],
             index   = newData.indexOf(target);
 
-        if (target.editStatus) {
+        if (target.editStatus === 'edit') {
             delete target.editable;
             delete target.editStatus;
         } else {
@@ -193,44 +397,43 @@ export default class StepTwo extends Component {
         }
 
         this.setState({ currentRule: [] });
-        this.props.changeParams({
-            rules: newData
-        });
+        this.props.changeParams({ rules: newData });
     }
 
+    // 删除
     delete(id) {
         let newData = [...this.props.editParams.rules],
             target  = newData.filter(item => id === item.id)[0],
             index   = newData.indexOf(target);
         
-        if (index > -1) {
+        if (target) {
             newData.splice(index, 1);
-            this.props.changeParams({
-                rules: newData
-            });
+            this.props.changeParams({ rules: newData });
         }
     }
 
+    // 保存
     save(id) {
-        const { currentRule } = this.state;
+        const { currentRule, SQLFields, columnFields } = this.state;
         let newData = [...this.props.editParams.rules],
             target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target);
+            index   = newData.indexOf(target),
+            fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
 
-        for (let [k, v] of Object.entries(currentRule)) {
-            if (v === undefined) {
-                message.error('请填写相应规则')
-                return
+        this.props.form.validateFields(fields, { force: true }, (err, values) => {
+            console.log(err,values)
+            if(!err) {
+                if (currentRule.editStatus) {
+                    delete currentRule.editStatus;
+                }
+                delete currentRule.editable;
+                newData[index] = currentRule;
+
+                this.setState({ currentRule: [] });
+                this.props.changeParams({ rules: newData });
             }
-        }
-
-        delete currentRule.editable;
-        newData[index] = currentRule;
-
-        this.setState({ currentRule: [] });
-        this.props.changeParams({
-            rules: newData
         });
+
     }
 
     addColumnRule = () => {
@@ -249,9 +452,9 @@ export default class StepTwo extends Component {
             isCustomizeSql: false,
             columnName: undefined,
             functionId: undefined,
-            filter: undefined,
-            verifyType: '1',
-            operator: '>',
+            filter: '',
+            verifyType: undefined,
+            operator: undefined,
             threshold: undefined,
         };
 
@@ -277,8 +480,39 @@ export default class StepTwo extends Component {
             editable: true,
             isCustomizeSql: true,
             customizeSql: undefined,
-            verifyType: '1',
-            operator: '>',
+            filter: '',
+            verifyType: undefined,
+            operator: undefined,
+            threshold: undefined,
+        };
+        newData.unshift(target);
+        this.setState({ currentRule: target });
+        this.props.changeParams({
+            rules: newData
+        });
+    }
+
+    addTableRule = () => {
+        const { editParams } = this.props;
+        let newData = [...editParams.rules],
+            firstData = newData[0],
+            firstId = firstData ? firstData.id : undefined;
+
+        if (firstData && firstData.editable) {
+            newData.shift();
+            firstId = undefined;
+        }
+
+        let target = {
+            id: firstId ? firstId + 1 : 1,
+            editable: true,
+            isCustomizeSql: false,
+            isTable: true,
+            columnName: editParams.tableName,
+            functionId: undefined,
+            filter: '',
+            verifyType: undefined,
+            operator: undefined,
             threshold: undefined,
         };
         newData.unshift(target);

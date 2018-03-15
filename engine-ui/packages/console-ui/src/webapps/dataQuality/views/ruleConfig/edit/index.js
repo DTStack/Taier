@@ -19,7 +19,7 @@ export default class RuleConfigEdit extends Component {
                 partitionValue: undefined,
                 isSubscribe: 0,
                 scheduleConf: '',
-                sendTypes: ['0'],
+                sendTypes: [],
                 notifyUser: [],
                 rules: []
             },

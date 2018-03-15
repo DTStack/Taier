@@ -47,10 +47,17 @@
 	            font-size: 12px;
 	        }
 	    }
-		/*.rule-editable-cell {
-			margin: 3px 0;
-			font-size: 14px;
-		}*/
+
+		.rule-edit-td {
+			width: 100%;
+		}
+
+		.ant-form-inline {
+		 	.ant-form-item {
+		 		margin-right: 0;
+		 	}
+		}
+
 		.editable-row-operations {
 			a {
 				padding: 0 5px;

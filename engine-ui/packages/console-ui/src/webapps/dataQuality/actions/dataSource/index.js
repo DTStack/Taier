@@ -85,6 +85,13 @@ export const dataSourceActions = {
 			});
 		}
 	},
+	resetDataSourcesPart() {
+		return dispatch => {
+			dispatch({
+				type: ACTION_TYPE.RESET_DATA_SOURCES_PART
+			});
+		}
+	},
 	getDataSourcesPreview(params) {
 		return dispatch => {
 			API.getDataSourcesPreview(params).then((res) => {
