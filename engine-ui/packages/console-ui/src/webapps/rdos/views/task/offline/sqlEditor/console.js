@@ -53,7 +53,6 @@ export default class Console extends Component {
         if (activeKey === 'console-log') {
             const editor = this.editor.self
             // const doc = editor.doc
-            console.log('editor:', editor)
             editor.focus();
             editor.setCursor(editor.lineCount(), null) // 控制滚动条在底部
         }

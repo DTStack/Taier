@@ -81,9 +81,9 @@ export default class TaskLog extends Component {
             for (let i = data.length - 1; i >= 0; i--) {
                 const item = data[i]
                 xAxis.push(moment(item.exeStartTime).format('YYYY-MM-DD HH:mm:ss'))
-                stayTiming.push(item.exeTime)
-                readData.push(item.totalCount)
-                dirtyData.push(item.dirtyNum)
+                stayTiming.push(item.exeTime || 0)
+                readData.push(item.totalCount || 0)
+                dirtyData.push(item.dirtyNum || 0)
             }
         }
         return {

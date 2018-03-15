@@ -138,6 +138,7 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             clone.tabs = clone.tabs.map(tab => {
                 if(tab.id === clone.currentTab) {
                     tab.submitStatus = submitStatus;
+                    tab.notSynced = false;
                     return tab;
                 }
                 else{
