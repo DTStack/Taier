@@ -63,7 +63,7 @@ public class MasterNode {
     private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
 
     /**key: 执行引擎的名称*/
-    private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newHashMap();
+    private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newConcurrentMap();
 
     private Map<String, SendDealer> sendDealerMap = Maps.newHashMap();
 
@@ -99,7 +99,8 @@ public class MasterNode {
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
             if(groupQueue == null){
-                throw new RdosException("not support for engine type:" + jobClient.getEngineType());
+                groupQueue = new GroupPriorityQueue();
+                priorityQueueMap.put(jobClient.getEngineType(), groupQueue);
             }
 
             groupQueue.add(jobClient);
