@@ -266,6 +266,7 @@ public class RdbsExeQueue {
                     RdbsExe rdbsExe = new RdbsExe(taskName, sql, jobId);
                     try{
                         jobExecutor.submit(rdbsExe);
+                        threadCache.put(jobId, rdbsExe);
                     }catch (RejectedExecutionException e){
                         //等待继续执行---说明当时执行队列处于满状态-->先等2s
                         waitQueue.add(jobClient);
