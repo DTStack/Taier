@@ -10,7 +10,7 @@ import com.dtstack.rdos.engine.execution.odps.util.OdpsUtil;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.aliyun.odps.task.SQLCostTask;
+import com.aliyun.odps.task.SQLTask;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -47,7 +47,7 @@ public class OdpsClient extends AbsClient {
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
         try {
-            Instance instance = SQLCostTask.run(odps, jobClient.getSql());
+            Instance instance = SQLTask.run(odps, jobClient.getSql());
             return JobResult.createSuccessResult(instance.getId());
         } catch (OdpsException e) {
             return JobResult.createErrorResult(e);
