@@ -166,7 +166,7 @@ public class TaskStatusListener implements Runnable{
                     if(rdosTaskStatus != null){
                         Integer status = rdosTaskStatus.getStatus();
                         zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
-                        rdosBatchJobDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
+                        rdosBatchJobDAO.updateJobStatusAndExecTime(taskId, status);
                         updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                         dealBatchJobAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     }
@@ -301,7 +301,7 @@ public class TaskStatusListener implements Runnable{
 
             status = RdosTaskStatus.CANCELED.getStatus();
             zkDistributed.updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
-            rdosBatchJobDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
+            rdosBatchJobDAO.updateJobStatusAndExecTime(jobId, status);
             updateJobEngineLog(jobId, engineTaskId, engineTypeName, computeType, pluginInfo);
 
             jobStatusFrequency.remove(jobId);

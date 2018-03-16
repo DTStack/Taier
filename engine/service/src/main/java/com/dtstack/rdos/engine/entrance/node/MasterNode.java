@@ -244,8 +244,7 @@ public class MasterNode {
         engineJobCacheDao.deleteJob(taskId);
 
         if(ComputeType.BATCH.typeEqual(computeType)){
-            rdosEngineBatchJobDao.updateJobStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
-            rdosEngineBatchJobDao.updateSubmitLog(taskId, generateErrorMsg(errorMsg));
+            rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
 
         }else if(ComputeType.STREAM.typeEqual(computeType)){
             rdosEngineStreamJobDao.updateTaskStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
