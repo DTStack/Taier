@@ -210,7 +210,7 @@ public class ExeQueueMgr {
         /**5s 检查一次队列*/
         private static final long CHECK_INTERVAL = 5 * 1000;
 
-        /**TODO 调整成对象*/
+        /**TODO 调整成对象(engineType, groupName, value)*/
         private Map<String, Map<String, Integer>> cache = Maps.newHashMap();
 
         public TimerClear(List<String> engineTypeList){
@@ -226,7 +226,8 @@ public class ExeQueueMgr {
 
                 try{
                     engineTypeQueueMap.forEach((engineType, engineTypeQueue) -> {
-                        Map<String, Integer> engineTypeCache = cache.get(engineType);
+                        Map<String, Integer> engineTypeCache = cache.computeIfAbsent(engineType, key -> Maps.newHashMap());
+
                         engineTypeQueue.getGroupExeQueueMap().forEach((name, queue) ->{
                             int currVal = 0;
                             if(queue == null || queue.size() == 0){
