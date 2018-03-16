@@ -108,7 +108,7 @@ public class ExeQueueMgr {
         }
 
         EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(engineType);
-        if(engineType == null){
+        if(engineTypeQueue == null){
             engineTypeQueue = new EngineTypeQueue(engineType);
             engineTypeQueueMap.put(engineType, engineTypeQueue);
         }
