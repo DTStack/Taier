@@ -182,7 +182,7 @@ public class ExeQueueMgr {
                         needBreak[0] = true;
                         add(jobClient);
                     } catch (InterruptedException e1) {
-                        LOG.error("add jobClient back to queue error:", e1);
+                        LOG.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e1);
                     }
                 } catch (Exception e){
                     LOG.error("", e);

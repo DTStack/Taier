@@ -11,7 +11,7 @@ import java.util.Properties;
  * spark yarn 资源相关
  * Date: 2017/11/30
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class SparkYarnResourceInfo extends EngineResourceInfo {
@@ -61,8 +61,10 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         }
 
         Properties properties = jobClient.getConfProperties();
-        int instances = properties.containsKey(EXECUTOR_INSTANCES_KEY) ?
-                MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY)) : DEFAULT_INSTANCES;
+        int instances = DEFAULT_INSTANCES;
+        if(properties != null){
+            instances = properties.containsKey(EXECUTOR_INSTANCES_KEY) ? MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY)) : DEFAULT_INSTANCES;
+        }
 
         return judgeCores(jobClient, instances, totalFreeCore) && judgeMem(jobClient, instances, totalFreeMem);
     }
