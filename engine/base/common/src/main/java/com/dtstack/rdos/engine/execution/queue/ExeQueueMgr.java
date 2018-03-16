@@ -108,8 +108,9 @@ public class ExeQueueMgr {
         }
 
         EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(engineType);
-        if(engineTypeQueue == null){
-            throw new RdosException("not support engineType:" + engineType);
+        if(engineType == null){
+            engineTypeQueue = new EngineTypeQueue(engineType);
+            engineTypeQueueMap.put(engineType, engineTypeQueue);
         }
 
         return engineTypeQueue.checkCanAddToWaitQueue(groupName);
