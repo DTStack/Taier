@@ -62,8 +62,8 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
 
         Properties properties = jobClient.getConfProperties();
         int instances = DEFAULT_INSTANCES;
-        if(properties != null){
-            instances = properties.containsKey(EXECUTOR_INSTANCES_KEY) ? MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY)) : DEFAULT_INSTANCES;
+        if(properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)){
+            instances = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
         }
 
         return judgeCores(jobClient, instances, totalFreeCore) && judgeMem(jobClient, instances, totalFreeMem);
@@ -72,24 +72,26 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
     private boolean judgeCores(JobClient jobClient, int instances, int freeCore){
 
         Properties properties = jobClient.getConfProperties();
-        int executorCores = properties.containsKey(EXECUTOR_CORES_KEY) ?
-                MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY)) : DEFAULT_CORES;
+        int executorCores = DEFAULT_CORES;
+        if(properties != null && properties.containsKey(EXECUTOR_CORES_KEY)){
+            executorCores = MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY));
+        }
 
         int needCores = instances * executorCores;
         return needCores <= freeCore;
     }
 
-    public boolean judgeMem(JobClient jobClient, int instances, int freeMem){
+    private boolean judgeMem(JobClient jobClient, int instances, int freeMem){
         Properties properties = jobClient.getConfProperties();
 
         int oneNeedMem = DEFAULT_MEM;
-        if(properties.containsKey(EXECUTOR_MEM_KEY)){
+        if(properties != null && properties.containsKey(EXECUTOR_MEM_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
             oneNeedMem = UnitConvertUtil.convert2MB(setMemStr);
         }
 
         int executorJvmMem = DEFAULT_MEM_OVERHEAD;
-        if(properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
+        if(properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
             executorJvmMem = UnitConvertUtil.convert2MB(setMemStr);
         }
