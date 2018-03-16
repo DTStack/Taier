@@ -156,6 +156,11 @@ public class SparkYarnClient extends AbsClient {
      * @param confProperties
      */
     private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
+
+        if(confProperties == null){
+            return;
+        }
+
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();

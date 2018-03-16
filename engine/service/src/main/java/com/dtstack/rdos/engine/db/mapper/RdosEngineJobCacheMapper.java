@@ -24,5 +24,5 @@ public interface RdosEngineJobCacheMapper {
 
     int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage);
 
-    List<RdosEngineJobCache> listByStage(@Param("stage") int stage, @Param("engineType") String engineType);
+    List<RdosEngineJobCache> listByStage(@Param("stage") int stage);
 }
