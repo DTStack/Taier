@@ -309,8 +309,9 @@ class PatchDataDetail extends Component {
             key: 'jobName',
             width: 120,
             render: (text, record) => {
+                const showName = record.isDeleted === 1 ? `${text} (已删除)` : text;
                 return (
-                    <a onClick={() => { this.showTask(record) }}>{ text }</a>
+                    <a onClick={() => { this.showTask(record) }}>{ showName }</a>
                 )
             },
         }, {

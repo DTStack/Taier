@@ -322,11 +322,9 @@ class OfflineTaskList extends Component {
             key: 'id',
             width: 100,
             render: (text, record) => {
-                return (
-                    <a onClick={() => { this.showTask(record) }}>{
-                        record.batchTask && record.batchTask.name
-                    }</a>
-                )
+                const name = record.batchTask && record.batchTask.name
+                const showName = record.isDeleted === 1 ? `${name} (已删除)` : name;
+                return <a onClick={() => { this.showTask(record) }}>{showName}</a>;
             },
         }, {
             title: '状态',

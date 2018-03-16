@@ -10,6 +10,7 @@ import utils from 'utils'
 import API from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import CodeEditor from '../../../../components/code-editor'
+import { matchTaskParams } from '../../../../comm'
 
 import { updateUser } from '../../../../store/modules/user';
 
@@ -27,6 +28,7 @@ export default class Toolbar extends Component {
 
     state = {
         currentSql: '',
+        confirmCode: '',
         running: false,
         disabledStopJob: true,
         execConfirmVisible: false,
@@ -65,15 +67,15 @@ export default class Toolbar extends Component {
             currentTabData, project, dispatch,
         } = this.props;
 
+        const params = { 
+            projectId: project.id, 
+            isCheckDDL: user.isCheckDDL, 
+            taskVariables: currentTabData.taskVariables,
+        }
+
         this.setState({ execConfirmVisible: false })
 
         const code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText
-
-        const params = { 
-            projectId: project.id, 
-            isCheckDDL: user.isCheckDDL,
-            taskVariables: currentTabData.taskVariables,
-        }
 
         const sqls = this.filterSql(code)
 
@@ -151,12 +153,13 @@ export default class Toolbar extends Component {
 
         let code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
         code = this.filterComments(code);
+
         // 匹配DDL执行语句，如果符合条件，则提醒
         const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;
         const ctx = this;
         
         if (regex.test(code)) {
-            this.setState({ execConfirmVisible: true });
+            this.setState({ execConfirmVisible: true, confirmCode: code });
         } else {
             this.execSQL()
             this.setState({ execConfirmVisible: false })
@@ -191,9 +194,8 @@ export default class Toolbar extends Component {
     }
 
     render() {
-        const { disabledStopJob, running, execConfirmVisible } = this.state
+        const { disabledStopJob, running, execConfirmVisible, confirmCode } = this.state
         const { currentTabData } = this.props;
-        const code = currentTabData.sqlText || currentTabData.scriptText;
         return (
             <div className="ide-toolbar toolbar">
                 <Button
@@ -234,7 +236,7 @@ export default class Toolbar extends Component {
                     }
                 >
                     <div style={{height: '400px'}}>
-                        <CodeEditor value={code} />
+                        <CodeEditor value={confirmCode} />
                     </div>
                 </Modal>
             </div>

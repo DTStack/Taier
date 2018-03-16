@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, assign, isEqual, isObject } from 'lodash'
+import { isNumber, assign, isEqual, isObject, isNaN } from 'lodash'
 import { 
     Button, Row, Col, Modal, 
     Form, Select, Input, Tooltip,
@@ -433,6 +433,7 @@ class Keymap extends React.Component{
             </div>
             switch(sourceType) {
                 case DATA_SOURCE.HDFS: {
+                    console.log('col index:', col)
                     const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '索引位' 
                     return <div>
                         <div className="cell" title={name}>{name}</div>
@@ -810,7 +811,7 @@ class Keymap extends React.Component{
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
-                sPlaceholder = '1: STRING, 2: INTEGER,...'
+                sPlaceholder = '0: STRING, 1: INTEGER,...'
                 sDesc = 'index: type, index: type'
                 break;
             }
@@ -1169,14 +1170,16 @@ class Keymap extends React.Component{
                     const item = arr[i]
                     if (!item) continue;
                     const map = item.split(':')
-                    const index = utils.trim(map[0])
+                    const index = parseInt(utils.trim(map[0]), 10)
                     const type = utils.trim(map[1])
-                    if (isNumber(+index)) {
-                        if (hdfsFieldTypes.includes(type)) {
-                            params.push({
-                                index: parseInt(index, 10),
-                                type,
-                            })
+                    if (!isNaN(index) && isNumber(index)) {
+                        if (hdfsFieldTypes.includes(type) ) {
+                            if (!params.find(pa => pa.index === index )) {
+                                params.push({
+                                    index: index,
+                                    type,
+                                })
+                            }
                         } else {
                             message.error(`字段${index}的数据类型错误！`)
                             return

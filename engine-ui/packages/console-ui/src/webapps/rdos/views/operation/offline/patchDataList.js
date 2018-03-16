@@ -25,11 +25,12 @@ function getTimeString(date) {
 }
 
 class PatchDataList extends Component {
+
     state = {
         loading: false,
         current: 1 ,
         tasks: { data: [] },
-
+        
         // 参数
         jobName: '',
         runDay: '',
@@ -75,7 +76,8 @@ class PatchDataList extends Component {
 
     getReqParams = () => {
         const {
-            jobName, runDay, bizDay, dutyUserId, current,
+            jobName, runDay, bizDay,
+            dutyUserId, current,
         } = this.state
 
         let reqParams = { currentPage: current || 1, pageSize: 20 }
@@ -86,6 +88,7 @@ class PatchDataList extends Component {
         if (bizDay) {
             reqParams.bizDay = moment(bizDay).unix()
         }
+      
         if (runDay) {
             reqParams.runDay = moment(runDay).unix()
         }
@@ -121,44 +124,39 @@ class PatchDataList extends Component {
             dutyUserId: value,
             current: 1,
         }
+        let checkArr = [...checkVals]
         if (value == user.id) {
-            setVals.checkVals = ['person']
-        } else {
-            const i = checkVals.indexOf('person');
-            if (i > -1 ) {
-                checkVals.splice(i, 1) 
+            if (checkArr.indexOf('person') === -1 ) {
+                checkArr.push('person')
             }
-            setVals.checkVals = [...checkVals]
+        } else {
+            checkArr = []
         }
-
+        setVals.checkVals = checkArr
         this.setState(setVals, this.loadPatchData);
     }
 
     onCheckChange = (checkedList) => {
         const { user } = this.props;
+        const { dutyUserId } = this.state;
+
         const conditions = {
-            dutyUserId: '',
-            startTime: '',
-            endTime: '',
-            scheduleStatus: 1,
             checkVals: checkedList,
         };
+
         checkedList.forEach(item => {
             if (item === 'person') {
                 conditions.dutyUserId  = `${user.id}`;
             } else if (item === 'todayUpdate') {
-                conditions.startTime = moment().set({
-                    'hour': 0,
-                    'minute': 0,
-                    'second': 0,
-                }).unix()
-                conditions.endTime = moment().set({
-                    'hour': 23,
-                    'minute': 59,
-                    'second': 59,
-                }).unix()
+                conditions.runDay = moment()
+                conditions.dutyUserId  = `${user.id}`;
             }
         })
+
+        // 清理掉责任人信息
+        if (!conditions.dutyUserId && dutyUserId === `${user.id}`) {
+            conditions.dutyUserId = '';
+        }
 
         this.setState(conditions, this.loadPatchData)
     }

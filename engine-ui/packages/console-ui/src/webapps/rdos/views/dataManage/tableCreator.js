@@ -140,9 +140,6 @@ class BaseForm extends React.Component {
                     rules: [{
                         required: true,
                         message: '生命周期不可为空！'
-                    }, {
-                        min: 0,
-                        message: '请填写有效的周期值！'
                     }],
                     initialValue: lifeDay || 90
                 })(

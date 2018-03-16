@@ -65,6 +65,7 @@ class CodeEditor extends Component {
         if (this.props.value !== value) {
             if (cursor) this.self.doc.setCursor(cursor)
             if (sync) {
+                console.log('update code editor:', nextProps)
                 if (!value) this.self.setValue('')
                 else this.self.setValue(value)
             }

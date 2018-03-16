@@ -64,22 +64,28 @@ class OfflineCount extends Component {
                                     <span className="m-count-content font-red">{data.FAILED || 0}</span>
                                 </section>
                             </Col>
-                            <Col span={8}>
+                            <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">运行</span>
                                     <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
                                 </section>
                             </Col>
-                            <Col span={8}>
+                            <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">未运行</span>
                                     <span className="m-count-content font-gray">{data.WAITENGINE || 0}</span>
                                 </section>
                             </Col>
-                            <Col span={4}>
+                            <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">成功</span>
                                     <span className="m-count-content font-green">{data.FINISHED || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={4}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">取消</span>
+                                    <span className="m-count-content font-black">{data.CANCELED || 0}</span>
                                 </section>
                             </Col>
                         </Row>

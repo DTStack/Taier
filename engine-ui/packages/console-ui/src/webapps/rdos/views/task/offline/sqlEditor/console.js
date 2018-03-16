@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { isEqual } from 'lodash'
 import { Table, Tabs, Icon, Tooltip, Button } from 'antd'
 
 import CodeEditor from '../../../../components/code-editor'
@@ -6,13 +7,15 @@ import {
     removeRes, resetConsole 
 } from '../../../../store/modules/offlineTask/sqlEditor'
 
+// import { isEqual } from 'utils/pureRender'
+
 const TabPane = Tabs.TabPane
 
 const editorOptions = {
     mode: 'text/x-sql',
     lineNumbers: false,
     readOnly: true,
-    autofocus: true,
+    autofocus: false,
     indentWithTabs: true,
     smartIndent: true,
 }
@@ -23,152 +26,6 @@ const exportStyle = {
     height: '30px',
 }
 
-export default class Console extends Component {
-
-    state = {
-        activeKey: 'console-log',
-    }
-
-    componentWillReceiveProps(nextProps) {
-        const newConsole = nextProps.data;
-        const oldConsole = this.props.data;
-        if (
-             newConsole.results 
-             && oldConsole.results !== newConsole.results
-             && newConsole.results.length > 0
-        ) { // 如果成功获取结果，tab切换到结果界面
-            this.setState({ activeKey: `${newConsole.results.length - 1}` })
-        }
-        if (this.props.data.log !== newConsole.log) {
-            this.appendLog(newConsole.log)
-        }
-    }
-
-    onEdit = (targetKey, action) => {
-        this[action](targetKey);
-    }
-
-    onChange = (activeKey) => {
-        this.setState({activeKey})
-        if (activeKey === 'console-log') {
-            const editor = this.editor.self
-            // const doc = editor.doc
-            editor.focus();
-            editor.setCursor(editor.lineCount(), null) // 控制滚动条在底部
-        }
-    }
-
-    remove = (targetKey) => {
-        const { currentTab, dispatch } = this.props
-        dispatch(removeRes(currentTab, parseInt(targetKey, 10)))
-    }
-
-    closeConsole = () => {
-        const { currentTab, dispatch } = this.props
-        dispatch(resetConsole(currentTab))
-    }
-
-    appendLog = (log) => {
-        if (log) {
-            const editor = this.editor.self
-            // const doc = editor.doc
-            editor.setValue(log)
-            editor.setCursor(editor.lineCount(), null) // 控制滚动条在底部
-        }
-    }
-
-
-    exportCsv = () => {
-        const { results } = this.props.data
-        const index = parseInt(this.state.activeKey, 10)
-        const currentData = results[index]
-        let csvContent = "";
-        currentData.forEach((row, i) => {
-            const dataStr = row.join(',')
-            csvContent += i < currentData.length ? 
-            dataStr + '\n' : dataStr;
-        })
-        // var encodedUri = encodeURI(csvContent);
-        // window.open(encodedUri);
-        var blob = new Blob([csvContent]);
-        if (window.navigator.msSaveOrOpenBlob)  // IE hack; see http://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
-            window.navigator.msSaveBlob(blob, "下载.csv");
-        else
-        {
-            var a = window.document.createElement("a");
-            a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
-            a.download = "下载.csv";
-            document.body.appendChild(a);
-            a.click();  // IE: "Access is denied"; see: https://connect.microsoft.com/IE/feedback/details/797361/ie-10-treats-blob-url-as-cross-origin-and-denies-access
-            document.body.removeChild(a);
-        }
-    }
-
-
-
-    renderTabs(tabs) {
-        if (tabs && tabs.length > 0) {
-            return tabs.map((tab, index) => {
-                const title = (<span>
-                    结果{index+1}
-                </span>);
-                return (
-                    <TabPane
-                      style={{ height: '0px' }}
-                      tab={title}
-                      key={`${index}`}
-                    >
-                        <Result data={tab} />
-                        <Button 
-                            style={exportStyle} 
-                            onClick={this.exportCsv}
-                        >
-                            下载
-                        </Button>
-                    </TabPane>
-                );
-            });
-        }
-        return []
-    }
-
-    render() {
-        const { data, dispatch } = this.props
-        console.log('render:', data)
-        return (
-            <div className="ide-console">
-                <Tabs
-                    hideAdd
-                    type="editable-card"
-                    activeKey={this.state.activeKey}
-                    onChange={this.onChange}
-                    onEdit={this.onEdit}
-                >
-                    <TabPane tab="日志" key="console-log">
-                        <div style={{ position: 'relative' }}>
-                            <CodeEditor 
-                                ref={(e) => { this.editor = e }}
-                                options={editorOptions} 
-                                key="output-log" 
-                            />
-                        </div>
-                    </TabPane>
-                    { this.renderTabs(data.results) }
-                </Tabs>
-                <Tooltip 
-                    placement="top" 
-                    title="关闭控制台"
-                >
-                    <Icon 
-                        className="close-console" 
-                        type="close"
-                        onClick={this.closeConsole}
-                    />
-                </Tooltip>
-            </div>
-        )
-    }
-}
 
 function generateCols(data) {
     if (data && data.length > 0) {
@@ -208,3 +65,161 @@ function Result(props) {
         />
     )
 }
+
+class Console extends Component {
+
+    state = {
+        activeKey: 'console-log',
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const newConsole = nextProps.data;
+        const oldConsole = this.props.data;
+        if (
+             newConsole.showRes && 
+             newConsole.results.length > 0 &&
+             !isEqual(newConsole.results, oldConsole.results)
+        ) { // 如果成功获取结果，tab切换到结果界面
+            this.setState({ activeKey: `${newConsole.results.length - 1}` })
+        } else if (
+            ((
+                !newConsole.showRes &&
+                newConsole.log !== oldConsole.log
+            ) ||
+             newConsole.results.length === 0) 
+        ) {
+            this.setState({ activeKey: `console-log` }, this.focusEditor)
+        }
+    }
+
+    onEdit = (targetKey, action) => {
+        this[action](targetKey);
+    }
+
+    onChange = (activeKey) => {
+        this.setState({activeKey}, () => {
+            if (activeKey === 'console-log') {
+                this.focusEditor();
+            }
+        })
+    }
+
+    focusEditor = () => {
+        const editor = this.editor.self
+        // editor.focus();
+        const doc = editor.doc
+        doc.setCursor(editor.lineCount(), null) // 控制滚动条在底部
+    }
+
+    remove = (targetKey) => {
+        const { currentTab, dispatch } = this.props
+        dispatch(removeRes(currentTab, parseInt(targetKey, 10)))
+    }
+
+    closeConsole = () => {
+        const { currentTab, dispatch } = this.props
+        dispatch(resetConsole(currentTab))
+    }
+
+    appendLog = (log) => {
+        if (log) {
+            const editor = this.editor.self
+            const doc = editor.doc
+            doc.setValue(log)
+            doc.setCursor(doc.lineCount(), null) // 控制滚动条在底部
+        }
+    }
+
+    exportCsv = () => {
+        const { results } = this.props.data
+        const index = parseInt(this.state.activeKey, 10)
+        const currentData = results[index]
+        let csvContent = "";
+        currentData.forEach((row, i) => {
+            const dataStr = row.join(',')
+            csvContent += i < currentData.length ? 
+            dataStr + '\n' : dataStr;
+        })
+        // var encodedUri = encodeURI(csvContent);
+        // window.open(encodedUri);
+        var blob = new Blob([csvContent]);
+        if (window.navigator.msSaveOrOpenBlob)  // IE hack; see http://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
+            window.navigator.msSaveBlob(blob, "下载.csv");
+        else
+        {
+            var a = window.document.createElement("a");
+            a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
+            a.download = "下载.csv";
+            document.body.appendChild(a);
+            a.click();  // IE: "Access is denied"; see: https://connect.microsoft.com/IE/feedback/details/797361/ie-10-treats-blob-url-as-cross-origin-and-denies-access
+            document.body.removeChild(a);
+        }
+    }
+
+    renderTabs(tabs) {
+        if (tabs && tabs.length > 0) {
+            return tabs.map((tab, index) => {
+                const title = (<span>
+                    结果{index+1}
+                </span>);
+                return (
+                    <TabPane
+                      style={{ height: '0px' }}
+                      tab={title}
+                      key={`${index}`}
+                    >
+                        <Result data={tab} />
+                        <Button 
+                            style={exportStyle} 
+                            onClick={this.exportCsv}
+                        >
+                            下载
+                        </Button>
+                    </TabPane>
+                );
+            });
+        }
+        return []
+    }
+
+    render() {
+        const { data, dispatch } = this.props
+        return (
+            <div className="ide-console">
+                <Tabs
+                    hideAdd
+                    type="editable-card"
+                    activeKey={this.state.activeKey}
+                    onChange={this.onChange}
+                    onEdit={this.onEdit}
+                >
+                    <TabPane tab="日志" key="console-log">
+                        <div style={{ position: 'relative' }}>
+                            <CodeEditor 
+                                ref={(e) => { this.editor = e }}
+                                options={editorOptions} 
+                                key="output-log" 
+                                sync={true}
+                                value={data.log}
+                            />
+                        </div>
+                    </TabPane>
+                    { this.renderTabs(data.results) }
+                </Tabs>
+                <Tooltip 
+                    placement="top" 
+                    title="关闭控制台"
+                >
+                    <Icon 
+                        className="close-console" 
+                        type="close"
+                        onClick={this.closeConsole}
+                    />
+                </Tooltip>
+            </div>
+        )
+    }
+}
+
+export default Console
+

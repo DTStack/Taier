@@ -190,6 +190,7 @@ class RealTimeTabPane extends Component {
                     if (task.nodePid !== activeNode.parentId) {
                         dispatch(TreeAction.removeRealtimeTree(activeNode))
                     }
+
                     dispatch(TreeAction.getRealtimeTree({
                         id: task.nodePid,
                         catalogueType: MENU_TYPE.TASK_DEV
