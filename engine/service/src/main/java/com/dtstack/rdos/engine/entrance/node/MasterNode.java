@@ -33,8 +33,6 @@ import java.util.concurrent.Executors;
 /**
  * 处理任务优先级队列
  * 1--n 数值越大表明优先级越高
- * flink优先级队列和spark优先级队列---根据配置文件的信息生成
- *
  * 任务停止队列
  * Date: 2018/1/8
  * Company: www.dtstack.com
@@ -63,9 +61,9 @@ public class MasterNode {
     private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
 
     /**key: 执行引擎的名称*/
-    private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newHashMap();
+    private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newConcurrentMap();
 
-    private Map<String, SendDealer> sendDealerMap = Maps.newHashMap();
+    private SendDealer sendDealer;
 
     private String localAddress = ConfigParse.getLocalAddress();
 
@@ -88,8 +86,8 @@ public class MasterNode {
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             priorityQueueMap.put(key, new GroupPriorityQueue());
         }
-
-        senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
+        //TODO 初始化有问题---当前是会变化的
+        senderExecutor = Executors.newSingleThreadExecutor();
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
     }
@@ -99,7 +97,8 @@ public class MasterNode {
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
             if(groupQueue == null){
-                throw new RdosException("not support for engine type:" + jobClient.getEngineType());
+                groupQueue = new GroupPriorityQueue();
+                priorityQueueMap.put(jobClient.getEngineType(), groupQueue);
             }
 
             groupQueue.add(jobClient);
@@ -144,18 +143,15 @@ public class MasterNode {
                 senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
             }
 
-            for(Map.Entry<String, GroupPriorityQueue> entry : priorityQueueMap.entrySet()){
-                SendDealer sendDealer = new SendDealer(entry.getKey(), entry.getValue());
-                sendDealerMap.put(entry.getKey(), sendDealer);
-                senderExecutor.submit(sendDealer);
-            }
-
+            sendDealer = new SendDealer(priorityQueueMap);
+            senderExecutor.submit(sendDealer);
             LOG.warn("---start master node deal thread------");
         }else if (!isMaster && currIsMaster){
             currIsMaster = false;
-            sendDealerMap.forEach((name, sendDealer) -> {
+
+            if(sendDealer != null){
                 sendDealer.stop();
-            });
+            }
 
             senderExecutor.shutdownNow();
             LOG.warn("---stop master node deal thread------");
@@ -248,8 +244,7 @@ public class MasterNode {
         engineJobCacheDao.deleteJob(taskId);
 
         if(ComputeType.BATCH.typeEqual(computeType)){
-            rdosEngineBatchJobDao.updateJobStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
-            rdosEngineBatchJobDao.updateSubmitLog(taskId, generateErrorMsg(errorMsg));
+            rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
 
         }else if(ComputeType.STREAM.typeEqual(computeType)){
             rdosEngineStreamJobDao.updateTaskStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
@@ -266,13 +261,10 @@ public class MasterNode {
 
     /**
      * 转变为master之后
-     * TODO 修改rdos_engine_job_cache表添加engine_type字段
      * 如果不修改当前的已经停止机器的任务恢复的话，需要修改rdos_engine_job_cache添加字段stage:用于标识任务是否已经下发。
-     * @param engineType
-     * @param groupQueue
      */
-    public void loadQueueFromDB(String engineType, GroupPriorityQueue groupQueue){
-        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+    public void loadQueueFromDB(){
+        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
         if(CollectionUtils.isEmpty(jobCaches)){
             return;
         }
@@ -282,9 +274,9 @@ public class MasterNode {
             try{
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
-                //更新任务状态为submitted
-                rdosEngineBatchJobDao.updateJobStatus(jobCache.getJobId(), RdosTaskStatus.SUBMITTED.getStatus());
-                groupQueue.add(jobClient);
+                //更新任务状态为engineAccepted
+                rdosEngineBatchJobDao.updateJobStatus(jobCache.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                MasterNode.getInstance().addStartJob(jobClient);
             }catch (Exception e){
                 //数据转换异常--打日志
                 LOG.error("", e);
@@ -304,31 +296,30 @@ public class MasterNode {
 
     class SendDealer implements Runnable{
 
-        private String name;
-
-        private GroupPriorityQueue groupQueue;
+        private Map<String, GroupPriorityQueue> groupPriorityQueueMap;
 
         private boolean isRun = true;
 
-        public SendDealer(String name, GroupPriorityQueue groupQueue){
-            this.name = name;
-            this.groupQueue = groupQueue;
+        public SendDealer(Map<String, GroupPriorityQueue> groupPriorityQueueMap){
+            this.groupPriorityQueueMap = groupPriorityQueueMap;
         }
 
         @Override
         public void run() {
-            LOG.info("-----{}:优先级队列触发开始执行----", name);
+            LOG.info("-----{}:优先级队列发送任务线程触发开始执行----");
 
             try{
-                loadQueueFromDB(name, groupQueue);
+                loadQueueFromDB();
             }catch (Exception e){
                 LOG.error("----load data from DB error:", e);
             }
 
             while (isRun){
                 try{
-                    for(OrderLinkedBlockingQueue queue : groupQueue.getOrderList()) {
-                        sendJobClient(queue);
+                    for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
+                        for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
+                            sendJobClient(queue);
+                        }
                     }
 
                 }catch (Exception e){
@@ -342,7 +333,7 @@ public class MasterNode {
                 }
             }
 
-            LOG.info("-----{}:优先级队列停止执行----", name);
+            LOG.info("-----{}:优先级队列发送线程停止执行----");
         }
 
         public void stop(){

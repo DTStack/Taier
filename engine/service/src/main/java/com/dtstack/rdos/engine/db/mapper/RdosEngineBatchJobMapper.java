@@ -14,12 +14,14 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 public interface RdosEngineBatchJobMapper {
 	
 	void insert(RdosEngineBatchJob rdosEngineBatchJob);
+
+	void jobFail(@Param("jobId") String jobId, @Param("status") int status, @Param("logInfo") String logInfo);
 	
-	void updateJobStatus(@Param("jobId") String jobId, @Param("status") int stauts);
+	void updateJobStatus(@Param("jobId") String jobId, @Param("status") int status);
 
 	void updateJobPluginId(@Param("jobId") String jobId, @Param("pluginId") long pluginId);
 
-	void updateJobEngineIdAndStatus(@Param("jobId") String jobId,@Param("engineId") String engineId, @Param("status") int stauts);
+	void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
 
 	void updateJobEngineId(@Param("jobId") String jobId,@Param("engineId") String engineId);
 

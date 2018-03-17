@@ -19,15 +19,19 @@
     </resultMap>
 	
    <insert id="insert" parameterType="com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob">
-	   insert into rdos_engine_batch_job(gmt_create,gmt_modified,exec_start_time,job_id,status)
-	   values(now(),now(),now(),#{jobId},#{status})
+	   insert into rdos_engine_batch_job(gmt_create,gmt_modified,job_id,status)
+	   values(now(),now(),#{jobId},#{status})
 	   <selectKey resultType="long" keyProperty="id" order="AFTER">
 	      SELECT LAST_INSERT_ID() AS ID
 	   </selectKey>
     </insert>
+
+    <update id="jobFail" parameterType="java.util.HashMap">
+        update rdos_engine_batch_job set exec_start_time=now(), exec_end_time=now(), exec_time = 0,gmt_modified=now(),status=#{status}, log_info = #{logInfo} where job_id=#{jobId};
+    </update>
 	
    <update id="updateJobStatus" parameterType="java.util.HashMap">
-	   update rdos_engine_batch_job set gmt_modified=now(),status=#{status},exec_end_time=now(),exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+	   update rdos_engine_batch_job set gmt_modified=now(),status=#{status} where job_id=#{jobId};
    </update>
 
     <update id="updateJobPluginId" parameterType="java.util.HashMap">
@@ -35,11 +39,11 @@
     </update>
    
    <update id="updateJobEngineId" parameterType="java.util.HashMap">
-	   update rdos_engine_batch_job set gmt_modified=now(),exec_end_time=now(),engine_job_id=#{engineId},exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+	   update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId} where job_id=#{jobId};
    </update>
    
-   <update id="updateJobEngineIdAndStatus" parameterType="java.util.HashMap">
-	   update rdos_engine_batch_job set gmt_modified=now(),exec_end_time=now(),engine_job_id=#{engineId},status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
+   <update id="updateJobStatusAndExecTime" parameterType="java.util.HashMap">
+	   update rdos_engine_batch_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};
    </update>
    
    <select id="getRdosJobByJobId" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">

@@ -1,7 +1,5 @@
 package com.dtstack.rdos.engine.execution.odps;
 
-import com.aliyun.odps.*;
-import com.aliyun.odps.task.SQLTask;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -12,10 +10,13 @@ import com.dtstack.rdos.engine.execution.odps.util.OdpsUtil;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.aliyun.odps.task.SQLTask;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import com.aliyun.odps.Instance;
+import com.aliyun.odps.OdpsException;
+import com.aliyun.odps.Odps;
 
 
 /**
@@ -166,4 +167,5 @@ public class OdpsClient extends AbsClient {
             throw new RuntimeException(e);
         }
     }
+
 }

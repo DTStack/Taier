@@ -71,16 +71,15 @@ public class RdosEngineJobCacheDAO {
     /**
      * 根据阶段信息加载: stage 1:处于master-queue阶段， 2: 处于worker-exe-queue阶段
      * @param stage
-     * @param engineType
      * @return
      */
-    public List<RdosEngineJobCache> getJobForPriorityQueue(int stage, String engineType){
+    public List<RdosEngineJobCache> getJobForPriorityQueue(int stage){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listByStage(stage, engineType);
+                return mapper.listByStage(stage);
             }
         });
     }

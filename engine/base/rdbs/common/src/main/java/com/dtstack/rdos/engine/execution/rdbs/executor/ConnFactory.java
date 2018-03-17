@@ -95,10 +95,10 @@ public abstract class ConnFactory {
     public abstract String getCreateProcedureHeader(String procName);
 
     public String getCallProc(String procName) {
-        return String.format("call %s()", procName);
+        return String.format("call \"%s\"()", procName);
     }
 
     public String getDropProc(String procName) {
-        return String.format("DROP PROCEDURE %s", procName);
+        return String.format("DROP PROCEDURE \"%s\"", procName);
     }
 }
