@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Icon, Input, DatePicker, Select, Popconfirm, message, Card, Switch, Checkbox } from 'antd';
+import { 
+    Table, Button, Icon, Input, 
+    DatePicker, Select, Popconfirm, 
+    message, Card, Checkbox,
+    Tabs, Row, Col
+} from 'antd';
 import moment from 'moment';
+
+import RuleEditPane from './ruleEditPane';
+import SlidePane from 'widgets/slidePane';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { commonActions } from '../../../actions/common';
@@ -13,6 +21,7 @@ import '../../../styles/views/ruleConfig.scss';
 const Search = Input.Search;
 const InputGroup = Input.Group;
 const Option = Select.Option;
+const TabPane = Tabs.TabPane;
 
 const mapStateToProps = state => {
     const { ruleConfig, dataSource, common } = state;
@@ -20,8 +29,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getRuleLists(params) {
-        dispatch(ruleConfigActions.getRuleLists(params));
+    getMonitorLists(params) {
+        dispatch(ruleConfigActions.getMonitorLists(params));
     },
     getDataSourcesList(params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
@@ -50,11 +59,13 @@ export default class RuleConfig extends Component {
             dataSourceId: undefined,
             isSubscribe: undefined,
             periodType: undefined
-        }
+        },
+        visibleSlidePane: false,
+        currentTable: {}
     }
 
     componentDidMount() {
-        this.props.getRuleLists(this.state.params);
+        this.props.getMonitorLists(this.state.params);
         this.props.getDataSourcesList();
         this.props.getDataSourcesType();
         this.props.getUserList();
@@ -68,6 +79,9 @@ export default class RuleConfig extends Component {
             title: '表',
             dataIndex: 'tableName',
             key: 'tableName',
+            render: (text, record) => (
+                <a onClick={this.showSlidePane.bind(this, record)}>{text}</a>
+            )
             // width: '15%'
         }, {
             title: '类型',
@@ -82,7 +96,7 @@ export default class RuleConfig extends Component {
             title: '执行周期',
             dataIndex: 'periodType',
             key: 'periodType',
-            render: (text, record) => {
+            render: (text) => {
                 return periodType[text];
             },
             // width: '8%'
@@ -90,12 +104,13 @@ export default class RuleConfig extends Component {
             title: '最近30天告警数',
             dataIndex: 'recentNotifyNum',
             key: 'recentNotifyNum',
+            sorter: true
             // width: '10%',
         }, {
             title: '远程触发',
             dataIndex: 'isRemoteTrigger',
             key: 'isRemoteTrigger',
-            render: (text, record) => {
+            render: (text) => {
                 if (text === 0) {
                     return <Icon type="close-circle status-error" />
                 } else {
@@ -112,7 +127,7 @@ export default class RuleConfig extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: (text, record) => {
+            render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
             },
             // width: '14%'
@@ -120,35 +135,47 @@ export default class RuleConfig extends Component {
             title: '操作',
             // width: '8%',
             render: (text, record) => {
-                return record.isSubscribe ? <a>取消订阅</a> : <a>订阅</a>
+                return <a onClick={this.onSubscribe.bind(this, record)}>{record.isSubscribe ? '取消订阅' : '订阅'}</a>
             }
         }]
     }
 
-    onNotifyChange = (record, status) => {
-        console.log(record,status)
+    onSubscribe = (record) => {
+        if (record.isSubscribe) {
+            RCApi.unsubscribeTable({ tableId: record.tableId }).then((res) => {
+                if (res.code === 1) {
+                    message.success('取消订阅成功');
+                    this.props.getMonitorLists(this.state.params);
+                }
+            });
+        } else {
+            RCApi.subscribeTable({ tableId: record.tableId }).then((res) => {
+                if (res.code === 1) {
+                    message.success('订阅成功');
+                    this.props.getMonitorLists(this.state.params);
+                }
+            })
+        }
     }
 
     deleteRuleConfig = (record) => {
         Api.deleteRule({ id: record.id }).then((res) => {
             if (res.code === 1) {
                 message.success("删除成功！");
-                this.props.getRuleLists(this.state.params);
+                this.props.getMonitorLists(this.state.params);
             }
         })
     }
 
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
-        console.log(page, filter, sorter)
         let params = {...this.state.params, 
             pageIndex: page.current,
-            // sortBy: sorter.columnKey ? sorter.columnKey : '',
-            // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
+            sort: sorter.columnKey ? (sorter.order === 'descend' ? 'desc' : 'asc') : undefined
         }
-        // this.props.getFileList(params);
+
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
     // 数据源类型下拉框
@@ -165,7 +192,7 @@ export default class RuleConfig extends Component {
         let params = {...this.state.params, sourceType};
         
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
     // 数据源下拉框
@@ -182,7 +209,7 @@ export default class RuleConfig extends Component {
         let params = {...this.state.params, dataSourceId};
         
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
     // 调度周期下拉框
@@ -194,12 +221,13 @@ export default class RuleConfig extends Component {
         })
     }
 
+    // 调度周期变化回调
     onPeriodTypeChange = (type) => {
         let periodType = type ? type : undefined;
         let params = {...this.state.params, periodType};
         
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
     // user下拉框
@@ -217,24 +245,25 @@ export default class RuleConfig extends Component {
         let params = {...this.state.params, lastModifyUserId};
         
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
-    // 执行时间改变
+    // 执行时间变化回调
     onDateChange = (date, dateString) => {
         let executeTime = date ? date.valueOf() : undefined;
         let params = {...this.state.params, executeTime};
         
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
+    // 是否订阅
     onSubscribeChange = (e) => {
         let isSubscribe = e.target.checked ? 1 : undefined;
         let params = {...this.state.params, isSubscribe};
         
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
     }
 
     // table搜索
@@ -243,14 +272,28 @@ export default class RuleConfig extends Component {
         let params = {...this.state.params, tableName: tableName};
 
         this.setState({ params });
-        this.props.getRuleLists(params);
+        this.props.getMonitorLists(params);
+    }
+
+    showSlidePane = (record) => {
+        this.setState({
+            visibleSlidePane: true,
+            currentTable: record
+        })
+    }
+
+    closeSlidePane = () => {
+        this.setState({
+            visibleSlidePane: false,
+            currentTable: {}
+        })
     }
 
     render() {
         const { ruleLists, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
         const { userList, allDict } = this.props.common;
-        const { params } = this.state;
+        const { params, visibleSlidePane } = this.state;
 
         const pagination = {
             current: params.pageIndex,
@@ -341,6 +384,30 @@ export default class RuleConfig extends Component {
                             dataSource={ruleLists.data}
                             onChange={this.onTableChange}
                         />
+
+                        <SlidePane 
+                            onClose={ this.closeSlidePane }
+                            visible={ visibleSlidePane } 
+                            style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                        >
+                            <div className="m-tabs m-card bd" style={{height: '100%'}}>
+                                <Tabs 
+                                    animated={false}
+                                    // onChange={ this.getPreview.bind(this) }
+                                >
+                                    
+                                    <TabPane tab="规则管理" key="1">
+                                        <RuleEditPane data={this.state.currentTable}>
+                                        </RuleEditPane>
+                                    </TabPane>
+                                    <TabPane tab="远程调用" key="2">
+                                        <div className="box">
+                                            
+                                        </div>
+                                    </TabPane>
+                                </Tabs>
+                            </div>
+                        </SlidePane>
                     </Card>
                 </div>
 
