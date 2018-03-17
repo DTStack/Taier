@@ -95,6 +95,7 @@ const console = (state = {}, action) => {
         const { key, data } = action
         const newLog = cloneDeep(state)
         newLog[key].log = action.data
+        newLog[key].showRes = false
         return newLog;
     }
     case editorAction.UPDATE_RESULTS: {// 更新结果
@@ -104,6 +105,9 @@ const console = (state = {}, action) => {
         if (updated[updatedKey] && action.data) {
             update_arr.push(action.data)
             updated[updatedKey].results = update_arr
+            updated[updatedKey].showRes = true
+        } else {
+            updated[updatedKey].showRes = false
         }
         return updated;
     }

@@ -25,16 +25,18 @@ function getTimeString(date) {
 }
 
 class PatchDataList extends Component {
+
     state = {
         loading: false,
         current: 1 ,
         tasks: { data: [] },
-
+        
         // 参数
         jobName: '',
         runDay: '',
         bizDay: '',
-        dutyUserId: '',
+        dutyUserId: undefined,
+        checkVals: [],
     }
 
     componentDidMount() {
@@ -74,7 +76,8 @@ class PatchDataList extends Component {
 
     getReqParams = () => {
         const {
-            jobName, runDay, bizDay, dutyUserId, current,
+            jobName, runDay, bizDay,
+            dutyUserId, current,
         } = this.state
 
         let reqParams = { currentPage: current || 1, pageSize: 20 }
@@ -85,6 +88,7 @@ class PatchDataList extends Component {
         if (bizDay) {
             reqParams.bizDay = moment(bizDay).unix()
         }
+      
         if (runDay) {
             reqParams.runDay = moment(runDay).unix()
         }
@@ -114,34 +118,45 @@ class PatchDataList extends Component {
     }
 
     onOwnerChange = (value) => {
-        const state = { dutyUserId: value, current: 1, }
-        this.setState(state, this.loadPatchData);
+        const { user } = this.props
+        const { checkVals } = this.state
+        const setVals = {
+            dutyUserId: value,
+            current: 1,
+        }
+        let checkArr = [...checkVals]
+        if (value == user.id) {
+            if (checkArr.indexOf('person') === -1 ) {
+                checkArr.push('person')
+            }
+        } else {
+            checkArr = []
+        }
+        setVals.checkVals = checkArr
+        this.setState(setVals, this.loadPatchData);
     }
 
     onCheckChange = (checkedList) => {
         const { user } = this.props;
+        const { dutyUserId } = this.state;
+
         const conditions = {
-            person: '',
-            startTime: '',
-            endTime: '',
-            scheduleStatus: 1,
+            checkVals: checkedList,
         };
+
         checkedList.forEach(item => {
             if (item === 'person') {
                 conditions.dutyUserId  = `${user.id}`;
             } else if (item === 'todayUpdate') {
-                conditions.startTime = moment().set({
-                    'hour': 0,
-                    'minute': 0,
-                    'second': 0,
-                }).unix()
-                conditions.endTime = moment().set({
-                    'hour': 23,
-                    'minute': 59,
-                    'second': 59,
-                }).unix()
+                conditions.runDay = moment()
+                conditions.dutyUserId  = `${user.id}`;
             }
         })
+
+        // 清理掉责任人信息
+        if (!conditions.dutyUserId && dutyUserId === `${user.id}`) {
+            conditions.dutyUserId = '';
+        }
 
         this.setState(conditions, this.loadPatchData)
     }
@@ -186,7 +201,7 @@ class PatchDataList extends Component {
     render() {
 
         const {
-            tasks, current,
+            tasks, current, checkVals,
             dutyUserId, bizDay,
             runDay, jobName,
         } = this.state
@@ -243,12 +258,12 @@ class PatchDataList extends Component {
                         onChange={this.onRunningTime}
                     />
                 </FormItem>
-                <FormItem label="责任人">
+                <FormItem label="操作人">
                     <Select
                         allowClear
                         showSearch
                         style={{ width: '120px' }}
-                        placeholder="责任人"
+                        placeholder="操作人"
                         optionFilterProp="name"
                         value={dutyUserId}
                         onChange={this.onOwnerChange}
@@ -257,7 +272,7 @@ class PatchDataList extends Component {
                     </Select>
                 </FormItem>
                 <FormItem>
-                    <Checkbox.Group onChange={this.onCheckChange}>
+                    <Checkbox.Group value={checkVals} onChange={this.onCheckChange}>
                         <Checkbox value="person">我的任务</Checkbox>
                         <Checkbox value="todayUpdate">我今天补的</Checkbox>
                     </Checkbox.Group>

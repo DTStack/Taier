@@ -139,7 +139,9 @@ class OfflineStatistics extends Component {
             dataIndex: 'taskName',
             key: 'taskName',
             render: (text, record) => {
-                return <a onClick={this.props.goToTaskDev.bind(this, record.taskId)}>{text}</a>
+                const content = record.isDeleted === 1 ? `${text}(已删除)` :
+                <a onClick={this.props.goToTaskDev.bind(this, record.taskId)}>{text}</a>
+                return content;
             },
         },{
             title: '任务类型',
@@ -169,7 +171,9 @@ class OfflineStatistics extends Component {
             dataIndex: 'taskName',
             key: 'taskName',
             render: (text, record) => {
-                return <a onClick={this.props.goToTaskDev.bind(this, record.taskId)}>{text}</a>
+                const content = record.isDeleted === 1 ? `${text} (已删除)` :
+                <a onClick={this.props.goToTaskDev.bind(this, record.taskId)}>{text}</a>
+                return content;
             },
         }, {
             title: '责任人',

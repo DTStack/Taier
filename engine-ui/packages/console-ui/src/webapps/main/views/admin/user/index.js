@@ -188,7 +188,7 @@ class AdminUser extends Component {
     onProjectSelect = (value) => {
         this.setState({
             selectedProject: value
-        })
+        }, this.loadData)
     }
 
     initAddMember = () => {

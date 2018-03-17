@@ -96,6 +96,7 @@ class TableList extends Component {
         const columns = [
             {
                 title: '表名',
+                width: 120,
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
@@ -139,6 +140,7 @@ class TableList extends Component {
             {
                 title: '占用存储',
                 key: 'storeSize',
+                width: 90,
                 dataIndex: 'storeSize',
                 sorter: true
             },

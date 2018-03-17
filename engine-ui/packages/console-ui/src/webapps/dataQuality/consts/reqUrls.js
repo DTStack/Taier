@@ -12,7 +12,10 @@ export default {
     DQ_ROLE_PERMISSION_TREE: `${DQ_BASE_URL}/permission/tree`,
     DQ_ROLE_PERMISSION: `${DQ_BASE_URL}/permission/getPermissionIdsByRoleId`,
 
+    // ===== 用户相关 ===== //
     DQ_GET_USER_BY_ID: `${DQ_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
+    DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
+    DQ_GET_USER_PAGES: `${DQ_BASE_URL}/user/pageQuery`,
     DQ_USER_ROLE_ADD: `${DQ_BASE_URL}/roleUser/addRoleUser`,
     DQ_USER_ROLE_DELETE: `${DQ_BASE_URL}/roleUser/deleteRole`,
     DQ_USER_ROLE_UPDATE: `${DQ_BASE_URL}/roleUser/updateUserRole`,
@@ -67,7 +70,6 @@ export default {
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unSubscribe`,     // 取消订阅
 
     // ===== common ===== //
-    DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
     DQ_GET_ALL_DICT: `${DQ_BASE_URL}/dict/allDicts`,
     
 }

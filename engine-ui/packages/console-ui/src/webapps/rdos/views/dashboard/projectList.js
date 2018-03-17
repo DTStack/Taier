@@ -17,6 +17,7 @@ export default class ProjectList extends Component {
         current: 1,
         loading: 'success',
         visible: false,
+        projectName: undefined,
         projectList: {
             data: [],
         },
@@ -66,24 +67,30 @@ export default class ProjectList extends Component {
         this.setState({ choose: val, current: 1 });
         this.queryProjectList({
             isAdmin: val === '1',
+            currentPage: 1,
+            projectName: this.state.projectName,
         })
     }
 
     handleTableChange = (pagination) => {
         this.setState({ current: pagination.current })
+        const { projectName, choose } = this.state
         this.queryProjectList({
             currentPage: pagination.current,
-            isAdmin: this.state.choose === '1',
+            isAdmin: choose === '1',
+            projectName,
         })
     }
 
     onSearch = (queryProjectName) => {
-        if (queryProjectName !== '') {
-            this.queryProjectList({
-                projectName: queryProjectName,
-                isAdmin: this.state.choose === '1',
-            })
-        }
+        this.queryProjectList({
+            projectName: queryProjectName,
+            isAdmin: this.state.choose === '1',
+        })
+    }
+
+    changeProjectName = (e) => {
+        this.setState({ projectName: e.target.value })
     }
 
     initColumns = () => {
@@ -144,7 +151,7 @@ export default class ProjectList extends Component {
     }
 
     render() {
-        const { projectList, visible, loading } = this.state
+        const { projectList, visible, loading, projectName } = this.state
         const extra = (
             <Button 
                 style={{ marginTop: 10 }}
@@ -158,6 +165,8 @@ export default class ProjectList extends Component {
                 <Search
                   placeholder="按项目名称搜索"
                   style={{ width: 200 }}
+                  value={projectName}
+                  onChange={this.changeProjectName}
                   onSearch={this.onSearch}
                 />&nbsp;&nbsp;
                 <Radio.Group value={this.state.choose} onChange={this.handleChange}>

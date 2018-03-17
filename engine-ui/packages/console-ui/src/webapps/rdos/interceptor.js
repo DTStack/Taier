@@ -20,12 +20,13 @@ export function authBeforeFormate(response) {
     }
 }
 
+// 状态码这块还是太乱
 export function authAfterFormated(response) {
     switch (response.code) {
     case 1:
         return response;
     case 0: // 需要登录
-        Api.logout()
+        Api.openLogin()
         return Promise.reject(response);
     case 3: // 功能无权限
         notification['error']({
@@ -33,10 +34,6 @@ export function authAfterFormated(response) {
             description: response.message,
         });
         return Promise.reject(response);
-    // 状态码这块还是太乱
-    // case 11: // 验证异常
-    //         console.error(response.message)
-    //         return response;
     case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
         hashHistory.push('/');
     default:

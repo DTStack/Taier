@@ -10,6 +10,7 @@ import utils from 'utils'
 import API from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import CodeEditor from '../../../../components/code-editor'
+import { matchTaskParams } from '../../../../comm'
 
 import { updateUser } from '../../../../store/modules/user';
 
@@ -27,6 +28,7 @@ export default class Toolbar extends Component {
 
     state = {
         currentSql: '',
+        confirmCode: '',
         running: false,
         disabledStopJob: true,
         execConfirmVisible: false,
@@ -37,30 +39,45 @@ export default class Toolbar extends Component {
         this.props.dispatch(updateUser({ isCheckDDL }))
     }
 
+    filterComments = (sql) => {
+        return sql.replace(/(--)+(.)+(\n|\s)+/g, '')
+    }
+
+    filterSql = (sql) => {
+        const arr = []
+        let sqls = this.filterComments(sql);
+        // 如果有有效内容
+        if (sqls) { sqls = sqls.split(';') }
+
+        if (sqls && sqls.length > 0) {
+            for (let i = 0; i < sqls.length; i++) {
+                let sql = sqls[i]
+                const trimed = utils.trim(sql)
+                if (trimed !== '') { // 过滤语句前后空格
+                    arr.push(utils.trimlr(sql))
+                }
+            }
+        }
+        return arr
+    }
+
     execSQL = () => {
         const { 
             currentTab, sqlEditor, user,
             currentTabData, project, dispatch,
         } = this.props;
 
-        this.setState({ execConfirmVisible: false })
-
-        const code = currentTabData.sqlText || currentTabData.scriptText
-
         const params = { 
             projectId: project.id, 
-            isCheckDDL: user.isCheckDDL,
+            isCheckDDL: user.isCheckDDL, 
             taskVariables: currentTabData.taskVariables,
         }
 
-        let sqls = []
-        if (sqlEditor.selection) { // 如果剪切板有内容，先执行剪切板的内容
-            sqls = sqlEditor.selection.split(';')
-        } else if (code) { // 获取全部SQL文本
-            sqls = code.split(';')
-        }
+        this.setState({ execConfirmVisible: false })
 
-        sqls = this.filterSQL(sqls)
+        const code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText
+
+        const sqls = this.filterSql(code)
 
         if (sqls && sqls.length > 0) {
             let i = 0;
@@ -125,36 +142,24 @@ export default class Toolbar extends Component {
         }
     }
 
-    filterSQL = (sqls) => {
-        const arr = []
-        if (sqls && sqls.length > 0) {
-            for (let i = 0; i < sqls.length; i++) {
-                let sql = sqls[i]
-                const trimed = utils.trim(sql)
-                if (trimed !== '' && trimed.indexOf('--') !== 0) { // 过滤空串和注释
-                    arr.push(utils.trimlr(sql))
-                }
-            }
-        }
-        return arr
-    }
-
     // 执行确认
     execConfirm = () => {
         const { currentTab, currentTabData, dispatch, user, sqlEditor } = this.props;
+        
         if (user.isCheckDDL === 1) { // 不检测，直接执行
             this.execSQL()
             return;
         } 
 
-        const code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
-    
+        let code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
+        code = this.filterComments(code);
+
         // 匹配DDL执行语句，如果符合条件，则提醒
         const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;
         const ctx = this;
         
         if (regex.test(code)) {
-            this.setState({ execConfirmVisible: true });
+            this.setState({ execConfirmVisible: true, confirmCode: code });
         } else {
             this.execSQL()
             this.setState({ execConfirmVisible: false })
@@ -189,9 +194,8 @@ export default class Toolbar extends Component {
     }
 
     render() {
-        const { disabledStopJob, running, execConfirmVisible } = this.state
+        const { disabledStopJob, running, execConfirmVisible, confirmCode } = this.state
         const { currentTabData } = this.props;
-        const code = currentTabData.sqlText || currentTabData.scriptText;
         return (
             <div className="ide-toolbar toolbar">
                 <Button
@@ -222,6 +226,7 @@ export default class Toolbar extends Component {
                     visible={execConfirmVisible}
                     title="执行的语句中包含DDL语句，是否确认执行？"
                     wrapClassName="vertical-center-modal modal-body-nopadding"
+                    onClose={() => {this.setState({ execConfirmVisible: false })}}
                     footer={
                         <div>
                             <Checkbox onChange={this.onNeverWarning}>不在提示</Checkbox>
@@ -231,7 +236,7 @@ export default class Toolbar extends Component {
                     }
                 >
                     <div style={{height: '400px'}}>
-                        <CodeEditor value={code} />
+                        <CodeEditor value={confirmCode} />
                     </div>
                 </Modal>
             </div>

@@ -51,6 +51,8 @@ class OfflineTaskMana extends Component {
         selectedTask: '',
         startTime: '',
         endTime: '',
+        scheduleStatus: 1,
+        checkVals: [],
         selectedRowKeys: [],
     }
 
@@ -64,18 +66,23 @@ class OfflineTaskMana extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (project && oldProj.id !== project.id) {
-            this.setState({current: 1}, () => {
+            this.setState({ current: 1, taskName: '' }, () => {
                 this.search()
             })
         }
     }
 
     search = () => {
-        const reqParams = {}
         const {
             taskName, person,
-            startTime, endTime,
+            startTime, endTime, 
+            scheduleStatus, current,
         } = this.state
+
+        const reqParams = {
+            currentPage: current || 1,
+        }
+
         if (taskName) {
             reqParams.name = taskName
         }
@@ -85,6 +92,9 @@ class OfflineTaskMana extends Component {
         }
         if (person) {
             reqParams.ownerId = person
+        }
+        if (scheduleStatus) {
+            reqParams.scheduleStatus = scheduleStatus
         }
         this.loadTaskList(reqParams)
     }
@@ -118,24 +128,18 @@ class OfflineTaskMana extends Component {
             scheduleStatus: mode  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
         }).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ selectedRowKeys: [] })
+                ctx.setState({ selectedRowKeys: [], checkAll: false })
                 ctx.search()
             }
         })
     }
 
     handleTableChange = (pagination, filters) => {
-        const params = {}
-        if (filters.status) {
-            params.status = filters.status[0]
-        }
-        params.currentPage = pagination.current
         this.setState({ 
             checkAll: false, 
             selectedRowKeys: [], 
             current: pagination.current, 
-        })
-        this.loadTaskList(params)
+        }, this.search)
     }
 
     clickPatchData = (task) => {
@@ -161,7 +165,24 @@ class OfflineTaskMana extends Component {
     }
 
     changePerson = (target) => { // 责任人变更
-        this.setState({ person: target, current: 1 }, this.search)
+        const { user } = this.props
+        const { checkVals } = this.state
+        const setVals = {
+            person: target,
+            current: 1,
+        }
+        if (target == user.id) {
+            if (checkVals.indexOf('person') === -1 ) {
+                checkVals.push('person')
+            }
+        } else {
+            const i = checkVals.indexOf('person');
+            if (i > -1 ) {
+                checkVals.splice(i, 1) 
+            }
+        }
+        setVals.checkVals = [...checkVals]
+        this.setState(setVals, this.search)
     }
 
     changeTaskName = (e) => {// 任务名变更
@@ -182,15 +203,16 @@ class OfflineTaskMana extends Component {
 
     onCheckChange = (checkedList) => {
         const { user } = this.props;
+        const { person } = this.state;
         const conditions = {
-            person: '',
             startTime: '',
             endTime: '',
             scheduleStatus: 1,
+            checkVals: checkedList
         };
         checkedList.forEach(item => {
             if (item === 'person') {
-                conditions.person  = user.id;
+                conditions.person = `${user.id}`;
             } else if (item === 'todayUpdate') {
                 conditions.startTime = moment().set({
                     'hour': 0,
@@ -206,7 +228,10 @@ class OfflineTaskMana extends Component {
                 conditions.scheduleStatus = 2; // 任务状态(1:正常 2：冻结)
             }
         })
-
+        // 清理掉责任人信息
+        if (!conditions.person && person === `${user.id}`) {
+            conditions.person = '';
+        }
         this.setState(conditions, this.search)
     }
 
@@ -223,7 +248,9 @@ class OfflineTaskMana extends Component {
             key: 'name',
             width: 120,
             render: (text, record) => {
-                return <a onClick={() => { this.showTask(record) }}>{record.name}</a>
+                const content = record.isDeleted === 1 ? `${text} (已删除)` :
+                <a onClick={() => { this.showTask(record) }}>{record.name}</a>
+                return content;
             },
         }, {
             title: '发布时间',
@@ -301,7 +328,7 @@ class OfflineTaskMana extends Component {
     render() {
         const { projectUsers, project } = this.props
         const { 
-            tasks, patchDataVisible, selectedTask, 
+            tasks, patchDataVisible, selectedTask, person, checkVals,
             current, taskName, visibleSlidePane, selectedRowKeys
         } = this.state;
 
@@ -358,13 +385,14 @@ class OfflineTaskMana extends Component {
                                     style={{ width: 150 }}
                                     placeholder="责任人"
                                     optionFilterProp="name"
+                                    value={person}
                                     onChange={this.changePerson}
                                 >
                                     {userItems}
                                 </Select>
                             </FormItem>
                             <FormItem>
-                                <Checkbox.Group onChange={this.onCheckChange} >
+                                <Checkbox.Group value={checkVals} onChange={this.onCheckChange} >
                                     <Checkbox value="person">我的任务</Checkbox>
                                     <Checkbox value="todayUpdate">今日修改</Checkbox>
                                     <Checkbox value="stopped">冻结的任务</Checkbox>

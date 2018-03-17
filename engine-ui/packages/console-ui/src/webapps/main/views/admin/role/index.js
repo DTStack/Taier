@@ -127,24 +127,26 @@ class AdminRole extends Component {
             render(text) {
                 return text || '-'
             }
-        }, {
-            title: '操作',
-            dataIndex: 'id',
-            key: 'id',
-            render(id, record) {
-                return <span>
-                    <Link to={`/admin/role/edit/${id}?app=${active}`}>编辑</Link>
-                    <span className="ant-divider" />
-                    <Popconfirm
-                            title="确认将该角色移除？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { removeRole(record) }}
-                        >
-                            <a>删除</a>
-                    </Popconfirm>
-                </span>
-            }
-        }]
+        }, 
+        // {
+        // title: '操作',
+        // dataIndex: 'id',
+        // key: 'id',
+        // render(id, record) {
+        //     return <span>
+        //         <Link to={`/admin/role/edit/${id}?app=${active}`}>编辑</Link>
+        //         <span className="ant-divider" />
+        //         <Popconfirm
+        //                 title="确认将该角色移除？"
+        //                 okText="确定" cancelText="取消"
+        //                 onConfirm={() => { removeRole(record) }}
+        //             >
+        //                 <a>删除</a>
+        //         </Popconfirm>
+        //     </span>
+        // }
+        // }
+        ]
     }
 
     renderPane = () => {
@@ -189,7 +191,7 @@ class AdminRole extends Component {
                 bordered={false}
                 noHovering
                 title={title}
-                extra={extra}
+                extra={''}
             >
                 <Table 
                     rowKey="id"

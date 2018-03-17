@@ -38,33 +38,6 @@ import {
         }
     }
 
-    matchTaskParams(sqlText) {
-        const regx = /\$\{([.\w]+)\}/g;
-        const { taskCustomParams } = this.props;
-        const data = [];
-        let res = null;
-        while ((res = regx.exec(sqlText)) !== null) {
-            const name = res[1]
-            const param = {
-                paramName: name,
-                paramCommand: '',
-            };
-            const sysParam = taskCustomParams.find(item => item.paramName === name)
-            if (sysParam) {
-                param.type = 0
-                param.paramCommand = sysParam.paramCommand
-            } else { 
-                param.type = 1 
-            } 
-            // 去重
-            const exist = data.find(item => name === item.paramName)
-            if (!exist) {
-                data.push(param)
-            }
-        }
-        return data
-    }
-
     handleEditorTxtChange = (old, newVal, doc) => {
         const task = this.props.currentTabData
         const taskCustomParams = this.props.taskCustomParams;
@@ -135,7 +108,8 @@ import {
                             </div>
                             <Console
                                 data={data}
-                                {...this.props} 
+                                currentTab={currentTab}
+                                dispatch={this.props.dispatch}
                             /> 
                         </SplitPane> : 
                         <div className="ide-editor bd-bottom">

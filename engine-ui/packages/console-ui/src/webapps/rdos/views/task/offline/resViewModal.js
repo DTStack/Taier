@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { Modal, Button, Spin } from 'antd';
 import moment from 'moment';
 
+import utils from 'utils';
+
 import ajax from '../../../api';
 import { RESOURCE_TYPE } from '../../../comm/const';
 import { ResType } from '../../../components/status';
@@ -73,11 +75,11 @@ class ResViewModal extends React.Component {
                         </tr>
                         <tr>
                             <td>创建</td>
-                            <td>{ data.createUser.userName } 于 { moment(data.gmtCreate).format('YYYY-MM-DD hh:mm:ss') }</td>
+                            <td>{ data.createUser.userName } 于 { utils.formatDateTime(data.gmtCreate) }</td>
                         </tr>
                         <tr>
                             <td>修改时间</td>
-                            <td>{ moment(data.gmtModified).format('YYYY-MM-DD hh:mm:ss') }</td>
+                            <td>{ utils.formatDateTime(data.gmtModified) }</td>
                         </tr>
                     </tbody>
                 </table>

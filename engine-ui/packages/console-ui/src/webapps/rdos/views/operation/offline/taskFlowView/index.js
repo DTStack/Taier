@@ -86,7 +86,6 @@ class TaskFlowView extends Component {
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
-        this.listenDoubleClick()
         this.listenOnClick()
         this.hideMenu()
         this.loadTaskChidren({
@@ -179,8 +178,8 @@ class TaskFlowView extends Component {
                 const task = data ? JSON.parse(data).batchTask : '';
                 const taskType = taskTypeText(task.taskType);
                 if (task) {
-                    return `<div class="vertex"><span>${task.name || ''}</span>
-                    <span style="font-size:10px; color: #666666;">${taskType}</span>
+                    return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
+                    <span style="font-size:10px; color: #666666;">${taskType}</span></span>
                     </div>`
                 }
             }
@@ -344,13 +343,12 @@ class TaskFlowView extends Component {
                 // 显示终止操作
                 currentNode.status === TASK_STATUS.RUNNING || // 运行中
                 currentNode.status === TASK_STATUS.RESTARTING || // 重启中
-                currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
                 currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
                 currentNode.status === TASK_STATUS.WAIT_RUN
             )
 
             menu.addItem('刷新任务实例', null, function() {
-                ctx.refreshTask(cell)
+                ctx.resetGraph(cell)
             })
 
             menu.addItem('重跑并恢复调度', null, function() {
@@ -391,21 +389,21 @@ class TaskFlowView extends Component {
         Api.stopJob(params).then(res => {
             if (res.code === 1 ) {
                 message.success('任务终止运行命令已提交！')
-            } else {
-                message.error('任务终止提交失败！')
             }
-            this.refreshTask()
+            this.refresh()
         })
     }
 
     restartAndResume = (params, msg) => { // 重跑并恢复任务
+        const { reload } = this.props
         Api.restartAndResume(params).then(res => {
             if (res.code === 1 ) {
                 message.success(`${msg}命令已提交!`)
+                if (reload) reload();
             } else {
                 message.error(`${msg}提交失败！`)
             }
-            this.refreshTask()
+            this.refresh()
         })
     }
 
@@ -430,31 +428,34 @@ class TaskFlowView extends Component {
         })
     }
 
-    resetGraph = () => {
-        const { taskFlow } = this.props
-        if (taskFlow) {
-            this.loadTaskChidren({
-                jobId: taskFlow.id,
-                level: 2,
-            })
-        }
-    }
-
     refreshTask = () => {
         const ctx = this
         const { selectedJob, data, sort } = this.state
         this.setState({ loading: 'loading' })
         if (selectedJob) {
             Api.getJobChildren({ jobId: selectedJob.id, level: 1, }).then(res => {
+                if (ctx.graph) {
+                    ctx.graph.getModel().clear();
+                }
                 const task = res.data
                 const tree = Object.assign({}, data)
                 replaceTreeNode(tree, task)
-                ctx.doInsertVertex(tree, sort)
+                ctx.doInsertVertex(tree, 'children')
                 ctx.setState({
                     selectedJob: Object.assign(selectedJob, task),
                     data: tree,
                     loading: 'success',
                 })
+            })
+        }
+    }
+
+    resetGraph = () => {
+        const { taskJob } = this.props
+        if (taskJob) {
+            this.loadTaskChidren({
+                jobId: taskJob.id,
+                level: 6,
             })
         }
     }
@@ -475,7 +476,7 @@ class TaskFlowView extends Component {
     }
 
     refresh = () => {
-        this.initGraph(this.props.tabData.id)
+        this.initGraph(this.props.taskJob.id)
     }
     
     zoomIn = () => {
@@ -488,10 +489,9 @@ class TaskFlowView extends Component {
 
     hideMenu = () => {
         document.addEventListener('click', (e) => {
-            const graph = this.graph
-            const menu = graph.popupMenuHandler
-            if (graph.popupMenuHandler.isMenuShowing()) {
-                graph.popupMenuHandler.hideMenu()
+            const popMenus = document.querySelector('.mxPopupMenu')
+            if (popMenus) {
+                document.body.removeChild(popMenus)
             }
         })
     }
@@ -512,17 +512,17 @@ class TaskFlowView extends Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                      <div 
-                            className="editor pointer" 
-                            ref={(e) => { this.Container = e }} 
-                            style={{
-                                position: 'relative', 
-                            }}
-                        />
+                    <div 
+                        className="editor pointer" 
+                        ref={(e) => { this.Container = e }} 
+                        style={{
+                            position: 'relative', 
+                        }}
+                    />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refreshTask}/>
+                        <Icon type="reload" onClick={this.refresh}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -545,6 +545,7 @@ class TaskFlowView extends Component {
                 </div>
                 <Modal
                     title="查看属性"
+                    width="60%"
                     wrapClassName="vertical-center-modal"
                     visible={this.state.visible}
                     onCancel={() => { this.setState({ visible: false }) }}
@@ -553,7 +554,7 @@ class TaskFlowView extends Component {
                     <TaskInfo task={selectedJob} project={project} />
                 </Modal>
                 <Modal
-                    width="60%"
+                    width={600}
                     title="运行日志"
                     wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
                     visible={ this.state.logVisible }

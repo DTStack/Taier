@@ -171,8 +171,8 @@ class TableLog extends React.Component {
         const params = this.searchForm.getFieldsValue();
         if(params.range) {
             var [startTime, endTime] = params.range;
-            startTime = startTime.format('X');
-            endTime = endTime.format('X');
+            startTime = startTime && startTime.format('X');
+            endTime = endTime && endTime.format('X');
         }
 
         delete params.range;

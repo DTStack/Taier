@@ -119,7 +119,7 @@ class DataSourceForm extends Component {
     }
 
     sourceChange = (value) => {
-        this.setState({sourceType: value})
+        this.setState({ sourceType: value, hasHdfsConfig: false })
         this.props.form.resetFields();
     }
 
@@ -293,10 +293,13 @@ class DataSourceForm extends Component {
                         {...formItemLayout}
                         label="高可用配置"
                         key="hadoopConfig"
+                        hasFeedback
                         style={{display: hasHdfsConfig ? 'block' : 'none'}}
                     >
                         {getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [],
+                            rules: [{
+                                required: true, message: 'Hadoop配置不可为空！',
+                            }],
                             initialValue: config.hadoopConfig || ''
                         })(
                             <Input type="textarea" rows={5} placeholder={hdfsConf} />,

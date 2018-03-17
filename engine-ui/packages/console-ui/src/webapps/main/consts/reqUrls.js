@@ -16,6 +16,5 @@ export default {
     TEST_DATA_SOURCE_CONNECTION: `${BASE_URL}/batch/batchDataSource/checkConnection`, // 测试数据源连通性
     GET_DATA_SOURCE_TYPES: `${BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
-
 }
 

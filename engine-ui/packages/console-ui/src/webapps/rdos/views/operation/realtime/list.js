@@ -68,8 +68,8 @@ class RealTimeTaskList extends Component {
         const ctx = this
         this.setState({ loading: true })
         const reqParams = Object.assign({
-            pageIndex: 1,
-            pageSize: 10,
+            currentPage: 1,
+            pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
         }, params)
@@ -133,7 +133,7 @@ class RealTimeTaskList extends Component {
         if (filters.status) {
             params.status = filters.status[0]
         }
-        params.pageIndex = pagination.current
+        params.currentPage = pagination.current
         this.setState({ current: pagination.current })
         this.loadTaskList(params)
     }

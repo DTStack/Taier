@@ -322,11 +322,9 @@ class OfflineTaskList extends Component {
             key: 'id',
             width: 100,
             render: (text, record) => {
-                return (
-                    <a onClick={() => { this.showTask(record) }}>{
-                        record.batchTask && record.batchTask.name
-                    }</a>
-                )
+                const name = record.batchTask && record.batchTask.name
+                const showName = record.isDeleted === 1 ? `${name} (已删除)` : name;
+                return <a onClick={() => { this.showTask(record) }}>{showName}</a>;
             },
         }, {
             title: '状态',
@@ -367,6 +365,7 @@ class OfflineTaskList extends Component {
             key: 'execStartDate',
         }, {
             title: '运行时长',
+            width: 80,
             dataIndex: 'execTime',
             key: 'execTime',
         }, {
@@ -462,6 +461,10 @@ class OfflineTaskList extends Component {
                             <Circle style={{ background: '#009944' }} />&nbsp;
                             完成: {statistics.FINISHED || 0}
                         </span>&nbsp;
+                        <span style={{color: "#F5A623"}}>
+                            <Circle style={{ background: '#F5A623 ' }} />&nbsp;
+                            取消: {statistics.CANCELED || 0}
+                        </span>&nbsp;
                         <span style={{color: "#d62119"}}>
                             <Circle style={{ background: '#d62119' }} />&nbsp;
                             失败: {statistics.FAILED || 0}
@@ -545,11 +548,12 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={this.props.goToTaskDev} 
+                                reload={this.search}
                                 taskJob={selectedTask} 
                                 project={project}
                             />

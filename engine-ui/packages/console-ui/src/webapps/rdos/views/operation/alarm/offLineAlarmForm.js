@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
+import { isEmpty } from 'lodash'
 import {
     Form, Input, Checkbox, InputNumber,
     Select, Modal, TimePicker,
@@ -23,7 +24,7 @@ class AlarmForm extends Component {
     componentWillReceiveProps(nextProps) {
         const alarmInfo = nextProps.alarmInfo
         const old = this.props.alarmInfo
-        if (alarmInfo && alarmInfo.id !== old.id) {
+        if ( (!old && !isEmpty(alarmInfo)) || (old.alarmId !== alarmInfo.alarmId )) {
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
             })
@@ -86,13 +87,16 @@ class AlarmForm extends Component {
             form, title, projectUsers,
             visible, alarmInfo, taskList, user,
         } = this.props
+
         const { getFieldDecorator } = form
+
         const taskItems = taskList && taskList.length > 0 ?
         taskList.map((item) => {
             return (<Option key={item.id} value={item.id} name={item.name}>
                 {item.name}
             </Option>)
         }) : []
+
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
             return (<Option key={item.id} value={item.userId} name={item.user.userName}>
@@ -195,10 +199,10 @@ class AlarmForm extends Component {
                         >
                             {getFieldDecorator('uncompleteTime', {
                                 rules: [{
-                                    required: true, message: '请您选择[未完成]任务的定时时长！',
+                                    required: true, message: '请您设置任务的定时时长！',
                                 }],
                             })(
-                                <TimePicker format={'HH:mm'} />
+                                <TimePicker format={'HH:mm'} style={{ width: 200 }} />
                             )}
                     </FormItem>
                     <FormItem
@@ -209,7 +213,7 @@ class AlarmForm extends Component {
                         >
                             {getFieldDecorator('runTime', { // 换算成秒
                                 rules: [{
-                                    required: true, message: '请您选择[未完成]任务的运行时间触发条件！',
+                                    required: true, message: '请您设置运行时长触发条件！',
                                 }],
                             })(
                                 <div>

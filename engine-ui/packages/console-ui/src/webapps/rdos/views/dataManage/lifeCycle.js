@@ -81,7 +81,8 @@ class LifeCycle extends React.Component {
     customChange = (e) => {
         const value = e.target.value
         if (this.state.showCustom) {
-            this.props.onChange(value)
+            // 不可小于0
+            this.props.onChange(value < 0 ? 1 : value)
         }
     }
 
@@ -108,7 +109,7 @@ class LifeCycle extends React.Component {
                         value={value}
                         style={{ width: '45%'}}
                         type="number"
-                        min={0}
+                        min={1}
                         onChange={this.customChange}
                     />
                     &nbsp;天

@@ -93,7 +93,7 @@ class Workbench extends React.Component {
             currentTabData && currentTabData.taskType !== TASK_TYPE.SYNC
         ) isSaveAvaliable = true;
 
-        if (currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {
+        if (currentTabData && currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {
             isSaveAvaliable = false;
         }
 
@@ -131,7 +131,7 @@ class Workbench extends React.Component {
                     >
                         <MyIcon className="my-icon" type="fly" />发布
                     </Button>
-                    <Link to={`/operation/offline-management?tname=${currentTabData.name}`}>
+                    <Link to={`/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
                         <Button disabled={!isTask}>
                             <MyIcon className="my-icon" type="goin" /> 运维
                         </Button>

@@ -59,7 +59,7 @@ class RestartModal extends Component {
     }
     
     restartChildNodes = () => {
-        const { handCancel, router, restartNode } = this.props
+        const { onCancel, router, restartNode } = this.props
         const checked = this.state.checkedKeys
 
         if (checked.length === 0) {
@@ -77,7 +77,7 @@ class RestartModal extends Component {
         Api.restartAndResume(reqParams).then((res) => {
             if (res.code === 1) {
                 message.success('重跑成功!')
-                handCancel();
+                onCancel();
             }
         })
     }
@@ -119,7 +119,7 @@ class RestartModal extends Component {
         this.setState({
             selected: [],
         })
-        this.props.handCancel()
+        this.props.onCancel()
     }
 
     onCheck = (checkedKeys, info) => {
@@ -154,10 +154,12 @@ class RestartModal extends Component {
             const nodes = data.map((item) => {
                 const disabed = item.id === currentNode.id
                 const id = `${item.id}`
+                const name = (item.batchTask && item.batchTask.name) || item.jobName
+                const taskType = item.batchTask && item.batchTask.taskType
                 const content = <Row>
-                    <Col span="8">{item.batchTask.name}</Col>
+                    <Col span="8" className="ellipsis" title={item.name}>{name}</Col>
                     <Col span="8"><TaskStatus value={item.status} /></Col>
-                    <Col span="8"><TaskType value={item.batchTask.taskType} /></Col>
+                    <Col span="8"><TaskType value={taskType} /></Col>
                 </Row>
 
                 if (item.children) {
@@ -173,7 +175,7 @@ class RestartModal extends Component {
                 return (<TreeNode
                     data={item}
                     disableCheckbox={disabed}
-                    name={item.batchTask.name}
+                    name={name}
                     value={id}
                     title={content}
                     key={id}

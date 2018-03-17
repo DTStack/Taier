@@ -162,9 +162,19 @@ class SourceForm extends React.Component {
                 }
             }
 
-            // 获取任务自定义参数
+            // where, 获取任务自定义参数
             if (values.where) {
                 const taskVariables = matchTaskParams(taskCustomParams, values.where)
+                if (taskVariables.length > 0) {
+                    updateTaskFields({
+                        id: currentTab,
+                        taskVariables
+                    })
+                }
+            }
+            // 分区，获取任务自定义参数
+            if (values.partition) {
+                const taskVariables = matchTaskParams(taskCustomParams, values.partition)
                 if (taskVariables.length > 0) {
                     updateTaskFields({
                         id: currentTab,

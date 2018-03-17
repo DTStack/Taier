@@ -42,12 +42,14 @@ class AlarmForm extends Component {
             visible, alarmInfo, taskList, user,
         } = this.props
         const { getFieldDecorator } = form
+        
         const taskItems = taskList && taskList.length > 0 ?
         taskList.map((item) => {
             return (<Option key={item.id} value={item.id} name={item.name}>
                 {item.name}
             </Option>)
         }) : []
+
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
             return (<Option key={item.id} value={item.userId} name={item.user.userName}>

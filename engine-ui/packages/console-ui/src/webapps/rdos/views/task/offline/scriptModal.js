@@ -350,6 +350,7 @@ dispatch => {
                         }
                         else {
                             let newData = Object.assign(defaultData, res.data);
+                            newData.originPid = defaultData.nodePid
                             dispatch({
                                 type: scriptTreeAction.EDIT_FOLDER_CHILD,
                                 payload: newData

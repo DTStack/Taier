@@ -304,20 +304,21 @@ class PatchDataDetail extends Component {
 
     initTaskColumns = () => {
         return [{
-            title: '业务日期',
-            dataIndex: 'bizDay',
-            width: 100,
-            key: 'bizDay'
-        }, {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
             width: 120,
             render: (text, record) => {
+                const showName = record.isDeleted === 1 ? `${text} (已删除)` : text;
                 return (
-                    <a onClick={() => { this.showTask(record) }}>{ text }</a>
+                    <a onClick={() => { this.showTask(record) }}>{ showName }</a>
                 )
             },
+        }, {
+            title: '业务日期',
+            dataIndex: 'bizDay',
+            width: 100,
+            key: 'bizDay'
         }, {
             title: '状态',
             width: 80,
@@ -553,6 +554,7 @@ class PatchDataDetail extends Component {
                                 goToTaskDev={goToTaskDev} 
                                 taskJob={selectedTask} 
                                 project={project}
+                                realod={this.search}
                             />
                         </SlidePane>
                     </Card>

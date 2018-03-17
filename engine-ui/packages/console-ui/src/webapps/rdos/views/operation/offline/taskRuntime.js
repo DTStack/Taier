@@ -74,16 +74,16 @@ export default class TaskLog extends Component {
     handData = (data) => {
         
         let arr = [], xAxis = [], series = [];
-        const legend = ['持续时长', '读取数据', '脏数据'];
+        const legend = ['执行时长', '读取数据', '脏数据'];
         const stayTiming = [], readData = [], dirtyData = [];
 
         if (data) {
-            for (let i = 0; i < data.length; i++) {
+            for (let i = data.length - 1; i >= 0; i--) {
                 const item = data[i]
                 xAxis.push(moment(item.exeStartTime).format('YYYY-MM-DD HH:mm:ss'))
-                stayTiming.push(item.exeTime)
-                readData.push(item.totalCount)
-                dirtyData.push(item.dirtyNum)
+                stayTiming.push(item.exeTime || 0)
+                readData.push(item.totalCount || 0)
+                dirtyData.push(item.dirtyNum || 0)
             }
         }
         return {
@@ -91,18 +91,30 @@ export default class TaskLog extends Component {
             xAxis,
             series: [
                 {
-                    name: '持续时长',
+                    name: '执行时长',
                     symbol: 'none',
                     type:'line',
+                    yAxisIndex: 0,
+                    markLine: {
+                        precision: 1,
+                    },
                     data: stayTiming,
                 }, {
                     name: '读取数据',
                     symbol: 'none',
                     type:'line',
+                    yAxisIndex: 1,
+                    markLine: {
+                        precision: 1,
+                    },
                     data: readData,
                 }, {
                     name: '脏数据',
                     symbol: 'none',
+                    yAxisIndex: 1,
+                    markLine: {
+                        precision: 1,
+                    },
                     type:'line',
                     data: dirtyData,
                 }
@@ -110,44 +122,55 @@ export default class TaskLog extends Component {
         }
     }
 
-
-
     initLineChart(chartData) {
 
         const data = this.handData(chartData);
 
         let myChart = echarts.init(document.getElementById('RunTimeTrend'));
         const option = cloneDeep(lineAreaChartOptions);
-        
+
         option.grid = {
             left: 75,
             right: 50
         }
 
         option.title.text = ''
-        option.tooltip.axisPointer.label.formatter = '{value}: 00'
+        option.legend.data = data.legend;
+        option.tooltip.formatter = function (params) {
+            return `${params[0] && params[0].axisValue}
+                <br />${params[0] && params[0].seriesName}: ${params[0] && params[0].value} 秒
+                <br />${params[1] && params[1].seriesName}: ${params[1] && params[1].value} 条
+                <br />${params[2] && params[2].seriesName}: ${params[2] && params[2].value} 条
+                `
+        }
+        // option.tooltip.axisPointer.label.formatter = '{value}: 00'
+
         option.xAxis[0].axisTick = {
             show: false,
             alignWithLabel: true,
         }
-        option.xAxis[0].boundaryGap = ['10%', '10%'];
+
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
         option.xAxis[0].axisLabel ={
             align: 'center',
             color: '#666666',
             margin: 12,
+            formatter: '{value}'
         }
-        option.legend.data = data.legend;
         option.xAxis[0].data = data.xAxis;
-        option.series = data.series;
 
-        option.yAxis[0].minInterval = 1
         option.yAxis[0].name = '执行时长（秒）'
-
+        option.yAxis[0].axisLabel.formatter = '{value} 秒'
+        
         option.yAxis[1] = cloneDeep(option.yAxis[0])
         option.yAxis[1].name = '数据量（条）'
         option.yAxis[1].axisLine.show = false
         option.yAxis[1].splitLine.show = false
+        option.yAxis[1].minInterval = 1// 刻度为整数
+        option.yAxis[1].axisLabel.formatter = '{value} 条'
+        
 
+        option.series = data.series;
         // 绘制图表
         myChart.setOption(option);
 
@@ -165,7 +188,7 @@ export default class TaskLog extends Component {
         const { data } = this.state
 
         const tStyle = {
-            width: '50px',
+            width: '55px',
             margin: 0,
             marginTop: '10px',
         }

@@ -83,22 +83,28 @@ class RealtimeCount extends Component {
                                     <span className="m-count-content font-black">{data.ALL || 0}</span>
                                 </section>
                             </Col>
-                            <Col span={8}>
+                            <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
                                     <span className="m-count-content font-red">{data.FAILED || 0}</span>
                                 </section>
                             </Col>
-                            <Col span={8}>
+                            <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">运行</span>
                                     <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
                                 </section>
                             </Col>
-                            <Col span={4}>
+                            <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">停止</span>
                                     <span className="m-count-content font-darkgreen">{data.CANCELED || 0}</span>
+                                </section>
+                            </Col>
+                            <Col span={4}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">取消</span>
+                                    <span className="m-count-content font-green">{data.CANCELED || 0}</span>
                                 </section>
                             </Col>
                         </Row>

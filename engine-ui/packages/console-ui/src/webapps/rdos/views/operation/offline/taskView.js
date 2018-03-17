@@ -154,7 +154,7 @@ export default class TaskView extends Component {
                 const task = data ? JSON.parse(data) : '';
                 const taskType = taskTypeText(task.taskType);
                 if (task) {
-                    return `<div class="vertex"><span>${task.name || ''}</span>
+                    return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
                     <span style="font-size:10px; color: #666666;">${taskType}</span>
                     </div>`
                 }
@@ -380,10 +380,9 @@ export default class TaskView extends Component {
 
     hideMenu = () => {
         document.addEventListener('click', (e) => {
-            const graph = this.graph
-            const menu = graph.popupMenuHandler
-            if (graph.popupMenuHandler.isMenuShowing()) {
-                graph.popupMenuHandler.hideMenu()
+            const popMenus = document.querySelector('.mxPopupMenu')
+            if (popMenus) {
+                document.body.removeChild(popMenus)
             }
         })
     }

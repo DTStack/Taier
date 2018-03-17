@@ -420,6 +420,7 @@ class DirtyData extends Component {
                     <Col span={12} style={{ paddingRight: '10px' }}>
                         <Card className="shadow" noHovering bordered={false} title="脏数据产生趋势" extra={
                             <Select  
+                                allowClear
                                 showSearch
                                 style={{ width: 150, marginTop: '10px' }}
                                 placeholder="请选择任务"

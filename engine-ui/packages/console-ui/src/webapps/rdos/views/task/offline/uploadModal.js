@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select } from 'antd';
+import { Modal, Button, Form, Icon, Input, Select, message } from 'antd';
 import assign from 'object-assign';
 
 import ajax from '../../../api';
@@ -454,6 +454,7 @@ dispatch => {
                     let {data} = res;
 
                     if(res.code === 1) {
+                        message.success('资源上传成功！')
                         dispatch({
                             type: resTreeAction.ADD_FOLDER_CHILD,
                             payload: data
