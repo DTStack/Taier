@@ -8,10 +8,21 @@ import DqSysApi from 'dataQuality/api/sysAdmin'
 import DqApi from 'dataQuality/api'
 
 import req from '../consts/reqUrls'
+import RdosReq from '../consts/rdosUrls'
+import rdosUrls from '../consts/rdosUrls';
 
 export default {
 
-    // =========== datasource数据源模块 ==================//
+    // ================== 公共模块 ==================//
+    getProjects(app, params) {
+        switch( app ) {
+            case MY_APPS.RDOS: 
+                return RdosApi.getProjects(params);
+            default: return;
+        }
+    },
+
+    // ================== 数据源模块 ==================//
     addOrUpdateSource(source) {
         return http.post(offlineReq.SAVE_DATA_SOURCE, source)
     },
@@ -33,7 +44,7 @@ export default {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
 
-    // ========== 角色相关 ==========
+    // ================== 角色相关 ==================//
     queryRole(app, params) {
         switch( app ) {
             case MY_APPS.DATA_QUALITY:
@@ -85,9 +96,11 @@ export default {
         }
     },
 
-    // ========== 消息相关 ==========
+    // ================== 消息相关 ================== //
     getMessage(app, params) {
         switch( app ) {
+            case MY_APPS.RDOS: 
+                return http.post(rdosUrls.MASSAGE_QUERY, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.getMessage(params);
             default: return null;
@@ -96,6 +109,8 @@ export default {
 
     getMsgById(app, params) {
         switch( app ) {
+            case MY_APPS.RDOS: 
+                return http.post(rdosUrls.GET_MASSAGE_BY_ID, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.getMsgById(params);
             default: return null;
@@ -104,6 +119,8 @@ export default {
 
     markAsRead(app, params) {
         switch( app ) {
+            case MY_APPS.RDOS: 
+                return http.post(rdosUrls.MASSAGE_MARK_AS_READ, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsRead(params);
             default: return null;
@@ -112,6 +129,8 @@ export default {
 
     markAsAllRead(app,  params) {
         switch( app ) {
+            case MY_APPS.RDOS: 
+                return http.post(rdosUrls.MASSAGE_MARK_AS_ALL_READ, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsAllRead(params);
             default: return null;
@@ -120,27 +139,21 @@ export default {
 
     deleteMsgs(app,  params) {
         switch( app ) {
+            case MY_APPS.RDOS: 
+                return http.post(rdosUrls.MASSAGE_DELETE, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.deleteMsgs(params);
             default: return null;
         }
     },
-    
-    getProjects(app, params) {
-        switch( app ) {
-            case MY_APPS.RDOS: 
-                return RdosApi.getProjects(params);
-            default: return;
-        }
-    },
 
-    // ========== 用户相关 ==========
+    // ================== 用户相关 ================== //
     queryUser(app, params) {
         switch( app ) {
             case MY_APPS.RDOS: 
                 return RdosApi.getProjectUsers(params);
             case MY_APPS.DATA_QUALITY:
-                return DqSysApi.getUsers(params);
+                return DqSysApi.getUserPages(params);
             default: return;
         }
     },

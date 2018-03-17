@@ -35,6 +35,9 @@ export default {
     getUsers(params) {
         return http.post(req.DQ_GET_USER_LIST, params)
     }, 
+    getUserPages(params) {
+        return http.post(req.DQ_GET_USER_PAGES, params)
+    }, 
     getUsersNotInProject(params) {
         return http.post(req.DQ_GET_USER_NOT_IN_PROJECT, params)
     }, 
