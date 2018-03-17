@@ -14,11 +14,12 @@ const defaultPro = {
     children: [],
 }
 
+@connect()
 class Main extends Component {
 
     componentDidMount() {
-        // const { dispatch } = this.props
-        // dispatch(UserAction.getUser())
+        const { dispatch } = this.props
+        dispatch(UserAction.getUser())
     }
 
     render() {
