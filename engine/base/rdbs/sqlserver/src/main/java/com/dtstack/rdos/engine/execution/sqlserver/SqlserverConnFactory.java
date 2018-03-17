@@ -12,7 +12,7 @@ public class SqlserverConnFactory extends ConnFactory {
 
     @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("create procedure %s as\n", procName);
+        return String.format("create procedure \"%s\" as\n", procName);
     }
 
     @Override
