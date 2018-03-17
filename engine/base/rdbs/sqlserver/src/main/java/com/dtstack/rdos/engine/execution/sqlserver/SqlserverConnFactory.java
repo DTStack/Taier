@@ -17,6 +17,6 @@ public class SqlserverConnFactory extends ConnFactory {
 
     @Override
     public String getCallProc(String procName) {
-        return String.format("execute %s", procName);
+        return String.format("execute \"%s\"", procName);
     }
 }
