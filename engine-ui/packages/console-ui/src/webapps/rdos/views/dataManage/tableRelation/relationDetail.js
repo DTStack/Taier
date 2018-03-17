@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Row, Col, Table, Pagination, Modal } from 'antd'
 
 import utils from 'utils'
+import scrollText from 'widgets/scrollText';
 
 import Api from '../../../api'
 import Editor from '../../../components/code-editor'
@@ -131,7 +132,7 @@ class RelationDetail extends React.Component {
                             <tbody className="ant-table-tbody" >
                                 <tr><td>创建者：</td><td>{data.createUser}</td></tr>
                                 <tr><td>创建时间：</td><td>{utils.formatDateTime(data.createTime)}</td></tr>
-                                <tr><td>描述：</td><td>{data.comment}</td></tr>
+                                <tr><td>描述：</td><td>{ data.comment }</td></tr>
                             </tbody>
                         </table>
                         <table>

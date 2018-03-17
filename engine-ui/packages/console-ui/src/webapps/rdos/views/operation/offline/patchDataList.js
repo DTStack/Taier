@@ -142,6 +142,7 @@ class PatchDataList extends Component {
 
         const conditions = {
             checkVals: checkedList,
+            runDay: '',
         };
 
         checkedList.forEach(item => {
@@ -150,9 +151,9 @@ class PatchDataList extends Component {
             } else if (item === 'todayUpdate') {
                 conditions.runDay = moment()
                 conditions.dutyUserId  = `${user.id}`;
-            }
+            } 
         })
-
+        
         // 清理掉责任人信息
         if (!conditions.dutyUserId && dutyUserId === `${user.id}`) {
             conditions.dutyUserId = '';

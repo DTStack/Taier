@@ -8,6 +8,7 @@ import {
 } from 'antd';
 
 import { select, selectAll, mouse } from 'd3-selection';
+import scrollText from 'widgets/scrollText';
 
 import { 
     keyMapActions 
@@ -49,10 +50,6 @@ function isHdfsType(type) {
  */
 function isRDB(type) {
     return DATA_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1
-}
-
-function scrollText(value) {
-    return <input className="cell-input" defaultValue={value} />
 }
 
 class Keymap extends React.Component{
@@ -433,7 +430,6 @@ class Keymap extends React.Component{
             </div>
             switch(sourceType) {
                 case DATA_SOURCE.HDFS: {
-                    console.log('col index:', col)
                     const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '索引位' 
                     return <div>
                         <div className="cell" title={name}>{name}</div>

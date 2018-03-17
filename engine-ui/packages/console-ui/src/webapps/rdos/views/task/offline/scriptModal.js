@@ -328,24 +328,23 @@ dispatch => {
                 .then(res => {
                     if(res.code === 1) {
                         if(!isEditExist) {
+                            const newScript = res.data;
+                            if (newScript.catalogueType) {
+                                newScript.catalogueType = MENU_TYPE.SCRIPT
+                            }
                             dispatch({
                                 type: scriptTreeAction.ADD_FOLDER_CHILD,
-                                payload: res.data
+                                payload: newScript
                             });
 
-                            ajax.getScriptById({
-                                id: res.data.id
-                            }).then(res2 => {
-                                if(res2.code === 1) {
-                                    dispatch({
-                                        type: workbenchAction.LOAD_TASK_DETAIL,
-                                        payload: res2.data
-                                    });
-                                    dispatch({
-                                        type: workbenchAction.OPEN_TASK_TAB,
-                                        payload: res.data.id
-                                    });
-                                }
+                            dispatch({
+                                type: workbenchAction.LOAD_TASK_DETAIL,
+                                payload: newScript
+                            });
+
+                            dispatch({
+                                type: workbenchAction.OPEN_TASK_TAB,
+                                payload: newScript.id
                             });
                         }
                         else {
@@ -354,6 +353,17 @@ dispatch => {
                             dispatch({
                                 type: scriptTreeAction.EDIT_FOLDER_CHILD,
                                 payload: newData
+                            });
+
+                            ajax.getScriptById({
+                                id: res.data.id
+                            }).then(res2 => {
+                                if(res2.code === 1) {
+                                    dispatch({
+                                        type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                                        payload: res2.data
+                                    });
+                                }
                             });
                         }
                     }

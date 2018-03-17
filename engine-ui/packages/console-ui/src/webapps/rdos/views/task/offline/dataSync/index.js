@@ -182,12 +182,14 @@ const mapDispatch = dispatch => {
         getDataSource: () => {
             ajax.getOfflineDataSource()
                 .then(res => {
+                    let data = []
                     if(res.code === 1) {
-                        dispatch({
-                            type: dataSourceListAction.LOAD_DATASOURCE,
-                            payload: res.data
-                        });
+                        data = res.data
                     }
+                    dispatch({
+                        type: dataSourceListAction.LOAD_DATASOURCE,
+                        payload: data
+                    });
                 });
         },
         getJobData: (params) => {

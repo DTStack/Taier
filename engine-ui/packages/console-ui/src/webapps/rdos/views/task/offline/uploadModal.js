@@ -380,7 +380,6 @@ class ResModal extends React.Component {
 
     handleCancel() {
         const { isModalShow, toggleUploadModal } = this.props;
-
         this.closeModal();
     }
 
