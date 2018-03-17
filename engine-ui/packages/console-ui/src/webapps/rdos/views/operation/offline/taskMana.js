@@ -128,7 +128,7 @@ class OfflineTaskMana extends Component {
             scheduleStatus: mode  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
         }).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ selectedRowKeys: [] })
+                ctx.setState({ selectedRowKeys: [], checkAll: false })
                 ctx.search()
             }
         })

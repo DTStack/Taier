@@ -27,43 +27,58 @@ const exportStyle = {
 }
 
 
-function generateCols(data) {
-    if (data && data.length > 0) {
-        const arr = [{
-            title: '序号',
-            key: 't-id',
-            render: (text, item, index) => {
-                return index + 1
-            },
-        }]
-        data.forEach((item, index) => {
-            arr.push({
-                title: item,
-                key: index + item,
-                render: (text, item) => {
-                    return <textarea title={item[index]} value={item[index]} />
-                },
-            })
-        })
-        return arr
-    }
-    return []
-}
+class Result extends Component {
 
-function Result(props) {
-    const data = props.data
-    const showData = data.slice(1, data.length)
-    const columns = generateCols(data[0])
-    return (
-        <Table
-            rowKey="id"
-            scroll={{ x: true }} 
-            className="console-table"
-            bordered 
-            dataSource={showData} 
-            columns={columns}
-        />
-    )
+    state = {
+        currentPage: 1,
+    }
+
+    onChange = (page) => {
+        this.setState({
+            currentPage: page.current,
+        })
+    }
+
+    generateCols(data) {
+        const { currentPage } = this.state
+        if (data && data.length > 0) {
+            const arr = [{
+                title: '序号',
+                key: 't-id',
+                render: (text, item, index) => {
+                    return (currentPage - 1) * 10 + (index +1)
+                },
+            }]
+            data.forEach((item, index) => {
+                arr.push({
+                    title: item,
+                    key: index + item,
+                    render: (text, item) => {
+                        return <textarea title={item[index]} value={item[index]} />
+                    },
+                })
+            })
+            return arr
+        }
+        return []
+    }
+
+    render() {
+        const data = this.props.data
+        const showData = data.slice(1, data.length)
+        const columns = this.generateCols(data[0])
+        return (
+            <Table
+                rowKey="id"
+                scroll={{ x: true }} 
+                className="console-table"
+                bordered 
+                dataSource={showData} 
+                onChange={this.onChange}
+                columns={columns}
+            />
+        )
+    }
 }
 
 class Console extends Component {
