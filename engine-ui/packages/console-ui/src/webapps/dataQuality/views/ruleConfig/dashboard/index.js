@@ -67,16 +67,17 @@ export default class RuleConfig extends Component {
     }
 
     componentDidMount() {
-        this.props.getMonitorLists(this.state.params);
+        this.props.getAllDict();
+        this.props.getUserList();
         this.props.getDataSourcesList();
         this.props.getDataSourcesType();
-        this.props.getUserList();
-        this.props.getAllDict();
+        this.props.getMonitorLists(this.state.params);
         console.log(this)
     }
 
     // table设置
     initColumns = () => {
+        const { dataSourceType } = this.props.common.allDict;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -90,7 +91,8 @@ export default class RuleConfig extends Component {
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             render: (text, record) => {
-                return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
+                return text ? `${dataSourceType.filter(item => item.value === text)[0].name} / ${record.dataName}` : '--';
+                // return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
             },
             // width: '15%',
         }, 

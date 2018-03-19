@@ -56,24 +56,27 @@ export default class RuleEditPane extends Component {
             let monitorId = newData.monitorPartVOS[0].monitorId;
 
             if (monitorId) {
-                this.props.getMonitorDetail({ monitorId });
-                RCApi.getMonitorRule({ monitorId }).then((res) => {
-                    if (res.code === 1) {
-                        this.setState({
-                            rules: res.data
-                        });
-                    }
-                });
-                this.props.getRuleFunction();
-                this.props.getDataSourcesColumn({
-                    sourceId: newData.dataSourceType,
-                    tableName: newData.tableName
-                });
-
+                this.initData(monitorId, newData);
                 this.setState({ monitorId });
             }
 
         }
+    }
+
+    initData = (monitorId, data) => {
+        this.props.getMonitorDetail({ monitorId });
+        RCApi.getMonitorRule({ monitorId }).then((res) => {
+            if (res.code === 1) {
+                this.setState({
+                    rules: res.data
+                });
+            }
+        });
+        this.props.getRuleFunction();
+        this.props.getDataSourcesColumn({
+            sourceId: data.dataSourceType,
+            tableName: data.tableName
+        });
     }
 
     initColumns = () => {
@@ -575,19 +578,7 @@ export default class RuleEditPane extends Component {
         const { data } = this.props;
         let monitorId = value;
         
-        this.props.getMonitorDetail({ monitorId });
-        RCApi.getMonitorRule({ monitorId }).then((res) => {
-            if (res.code === 1) {
-                this.setState({
-                    rules: res.data
-                });
-            }
-        });
-        this.props.getRuleFunction();
-        this.props.getDataSourcesColumn({
-            sourceId: data.dataSourceType,
-            tableName: data.tableName
-        });
+        this.initData(monitorId, data);
         this.setState({ monitorId });
     }
 
