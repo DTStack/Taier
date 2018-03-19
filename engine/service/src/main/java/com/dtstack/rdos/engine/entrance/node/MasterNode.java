@@ -131,6 +131,8 @@ public class MasterNode {
         boolean result = groupPriorityQueue.remove(groupName, jobId);
         if(result){
             engineJobCacheDao.deleteJob(jobId);
+            //修改任务状态
+            rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
         }
 
         return result;
