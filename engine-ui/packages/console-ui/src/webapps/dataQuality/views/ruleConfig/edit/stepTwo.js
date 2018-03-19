@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message, Popconfirm, InputNumber } from 'antd';
+import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber } from 'antd';
 
 import RuleEditTD from './ruleEditTD';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -12,7 +12,6 @@ import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const TreeNode = TreeSelect.TreeNode;
 
 const mapStateToProps = state => {
     const { ruleConfig, common, dataSource } = state;
@@ -20,8 +19,8 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getMonitorFunction(params) {
-        dispatch(ruleConfigActions.getMonitorFunction(params));
+    getRuleFunction(params) {
+        dispatch(ruleConfigActions.getRuleFunction(params));
     },
     getDataSourcesColumn(params) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
@@ -45,7 +44,7 @@ export default class StepTwo extends Component {
     componentDidMount() {
         const { editParams } = this.props;
         this.props.getAllDict();
-        this.props.getMonitorFunction();
+        this.props.getRuleFunction();
         this.props.getDataSourcesColumn({
             sourceId: editParams.dataSourceId,
             tableName: editParams.tableName
@@ -536,7 +535,7 @@ export default class StepTwo extends Component {
 
                     <Table 
                         rowKey="id"
-                        className="m-table rule-table"
+                        className="m-table rule-edit-table"
                         columns={this.initColumns()}
                         pagination={false}
                         dataSource={rules}

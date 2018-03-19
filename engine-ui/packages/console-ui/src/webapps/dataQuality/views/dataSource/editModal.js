@@ -80,7 +80,7 @@ export default class DataSourceModal extends Component {
         ];
 
         if (sourceType === 10) {
-            field = [...field, 'dataJson.project', 'dataJson.endPoint'];
+            field = [...field, 'dataJson.project', 'dataJson.endPoint', 'dataJson.accessKey', 'dataJson.accessId'];
         }
 
         form.validateFields(field, (err, values) => {
@@ -195,27 +195,27 @@ export default class DataSourceModal extends Component {
 
             case DATA_SOURCE.MAXCOMPUTE: {
                 return [
-                    <FormItem {...formItemLayout} label="用户名" key="username" hasFeedback>
+                    <FormItem {...formItemLayout} label="AI" key="accessId" hasFeedback>
                         {
-                            getFieldDecorator('dataJson.username', {
+                            getFieldDecorator('dataJson.accessId', {
                                 rules: [{
-                                    required: true, message: '用户名不可为空！',
+                                    required: true, message: 'access ID不可为空！',
                                 }],
-                                initialValue: config.username || '',
+                                initialValue: config.accessId || '',
                             })(
                                 <Input autoComplete="off" />,
                             )
                         }
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="密码" key="password" hasFeedback>
+                    <FormItem {...formItemLayout} label="AK" key="accessKey" hasFeedback>
                         {
-                            getFieldDecorator('dataJson.password', {
+                            getFieldDecorator('dataJson.accessKey', {
                                 rules: [{
-                                    required: true, message: '密码不可为空！',
+                                    required: true, message: 'access Key不可为空！',
                                 }],
-                                initialValue: '',
+                                initialValue: config.accessKey || '',
                             })(
-                                <Input type="password"/>,
+                                <Input autoComplete="off" />,
                             )
                         }
                     </FormItem>,

@@ -4,11 +4,11 @@ import req from '../consts/reqUrls'
 
 export default {
 
-    getRuleLists(params) {
-        return http.post(req.GET_RULE_LIST, params);
+    getMonitorLists(params) {
+        return http.post(req.GET_MONITOR_LIST, params);
     },
-    getMonitorFunction(params) {
-        return http.post(req.GET_MONITOR_FUNCTION, params);
+    getRuleFunction(params) {
+        return http.post(req.GET_RULE_FUNCTION, params);
     },
     getMonitorRule(params) {
         return http.post(req.GET_MONITOR_RULE, params);
@@ -19,8 +19,22 @@ export default {
     deleteMonitorRule(params) {
         return http.post(req.DELETE_MONITOR_RULE, params);
     },
-    addRule(params) {
-        return http.post(req.ADD_RULE, params);
+    addMonitor(params) {
+        return http.post(req.ADD_MONITOR, params);
     },
-
+    subscribeTable(params) {
+        return http.post(req.SUBSCRIBE_TABLE, params);
+    },
+    unsubscribeTable(params) {
+        return http.post(req.UNSUBSCRIBE_TABLE, params);
+    },
+    changeMonitorStatus(params) {
+        return http.post(req.CHANGE_MONITOR_STATUS, params);
+    },
+    executeMonitor(params) {
+        return http.post(req.EXECUTE_MONITOR, params);
+    },
+    getMonitorDetail(params) {
+        return http.post(req.GET_MONITOR_DETAIL, params);
+    },
 }

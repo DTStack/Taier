@@ -3,15 +3,15 @@ import { message } from 'antd';
 import API from '../../api/ruleConfig';
 
 export const ruleConfigActions = {
-	getRuleLists(params) {
+	getMonitorLists(params) {
 		return dispatch => {
 			dispatch({
 				type: ruleConfigActionType.CHANGE_LOADING
 			});
-			API.getRuleLists(params).then((res) => {
+			API.getMonitorLists(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ruleConfigActionType.GET_RULE_LIST,
+						type: ruleConfigActionType.GET_MONITOR_LIST,
 						payload: res.data
 					});
 				} 
@@ -21,9 +21,9 @@ export const ruleConfigActions = {
 			});
 		}
 	},
-	getMonitorFunction(params) {
+	getRuleFunction(params) {
 		return dispatch => {
-			API.getMonitorFunction(params).then((res) => {
+			API.getRuleFunction(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
 						type: ruleConfigActionType.GET_RULE_FUNCTION,
@@ -33,17 +33,55 @@ export const ruleConfigActions = {
 			});
 		}
 	},
-	addRule(params) {
+	addMonitor(params) {
 		return dispatch => {
-			API.addRule(params).then((res) => {
+			API.addMonitor(params).then((res) => {
+				if (res.code === 1) {
+					message.success('添加成功！');
+				}
+			});
+		}
+	},
+	getMonitorRule(params) {
+		return dispatch => {
+			API.getMonitorRule(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ruleConfigActionType.GET_RULE_FUNCTION,
+						type: ruleConfigActionType.GET_MONITOR_RULE,
 						payload: res.data
 					});
 				}
 			});
 		}
-	}
-
+	},
+	changeMonitorStatus(params) {
+		return dispatch => {
+			API.changeMonitorStatus(params).then((res) => {
+				if (res.code === 1) {
+					message.success('操作成功！');
+				}
+			});
+		}
+	},
+	getMonitorDetail(params) {
+		return dispatch => {
+			API.getMonitorDetail(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: ruleConfigActionType.GET_MONITOR_DETAIL,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
+	executeMonitor(params) {
+		return dispatch => {
+			API.executeMonitor(params).then((res) => {
+				if (res.code === 1) {
+					message.success('操作成功！');
+				}
+			});
+		}
+	},
 }
