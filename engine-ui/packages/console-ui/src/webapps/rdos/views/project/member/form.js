@@ -27,6 +27,7 @@ class MemberForm extends Component {
         .map(item => 
             <Option 
                 key={item.id}
+                name={item.userName}
                 value={`${item.id}`}
             >
                 {item.userName}
@@ -67,6 +68,7 @@ class MemberForm extends Component {
                             mode="multiple"
                             style={{ width: '100%' }}
                             placeholder="请选择用户"
+                            optionFilterProp="name"
                         >
                             {userOptions}
                         </Select>,

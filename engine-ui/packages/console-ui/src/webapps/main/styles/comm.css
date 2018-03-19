@@ -28,6 +28,21 @@
     white-space: nowrap;
 }
 
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-scroll-bar {
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
+}
+
+.no-scroll-bar::-webkit-scrollbar { 
+    display: none; 
+    width: 0 !important;
+} 
+
 .relative {
     position: relative;
 }
@@ -35,6 +50,7 @@
 .absolute {
     position: absolute;
 }
+
 
 .pointer {
     cursor: pointer;
@@ -97,10 +113,6 @@
     height: 50%;
 }
 
-.ellipsis {
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 .Resizer {
     -moz-box-sizing: border-box;

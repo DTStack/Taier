@@ -277,8 +277,9 @@ export default class ProjectList extends Component {
     }
 
     changeDate = (selectedDate) => {
+        const { selectedProject } = this.state
         this.setState({ selectedDate }, () => {
-            this.loadDataOverview()
+            this.loadDataOverview(selectedProject)
         })
     }
 

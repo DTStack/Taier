@@ -179,9 +179,11 @@ class TargetForm extends React.Component{
                         showSearch
                         onChange={ this.changeSource.bind(this) }
                         disabled={ !isCurrentTabNew }
+                        optionFilterProp="name"
                     >
                         {dataSourceList.map(src => {
                             return <Option key={ src.id } 
+                                name={src.dataName}
                                 value={ `${src.id}` }>
                                 { src.dataName }( { dataSourceTypes[src.type] } )
                             </Option>
@@ -226,6 +228,7 @@ class TargetForm extends React.Component{
                             showSearch
                             onChange={ this.changeTable.bind(this) }
                             disabled={ !isCurrentTabNew }
+                            optionFilterProp="value"
                         >
                             {this.state.tableList.map(table => {
                                 return <Option key={ `rdb-target-${table}` } value={ table }>
@@ -308,6 +311,7 @@ class TargetForm extends React.Component{
                                 showSearch
                                 onChange={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
+                                optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
                                     return <Option key={`rdb-target-${table}`} value={table}>
@@ -477,6 +481,7 @@ class TargetForm extends React.Component{
                             showSearch
                             onChange={ this.changeTable.bind(this) }
                             disabled={ !isCurrentTabNew }
+                            optionFilterProp="value"
                         >
                             {this.state.tableList.map(table => {
                                 return <Option key={ `hbase-target-${table}` } value={ table }>

@@ -84,7 +84,7 @@ export default class ImportTarget extends Component {
             const item = partitions[i]
             const key = originPartitions[i].name
             if (utils.trim(item[key]) === '') {
-                message.warning('分区值不可为空！')
+                message.error('分区值不可为空！')
                 return
             }
         }
@@ -96,7 +96,7 @@ export default class ImportTarget extends Component {
             if (res.data) {
                 message.success('分区存在！')
             } else {
-                message.warning('分区不存在！')
+                message.error('分区不存在！')
             }
         })
     }
@@ -108,7 +108,7 @@ export default class ImportTarget extends Component {
                 this.setState({
                     visible: false
                 })
-                message.info('表创建成功!')
+                message.success('表创建成功!')
             }
         })
     }
@@ -206,7 +206,11 @@ export default class ImportTarget extends Component {
         return data.map((item, index) => {
             return (
                 <Row key={`partition-${index}`}>
-                    <div style={{width: '60px', display: 'inline-block'}} >
+                    <div 
+                        className="ellipsis" 
+                        title={item.name}
+                        style={{width: '60px', display: 'inline-block'}} 
+                    >
                         {item.name}
                     </div>
                     <Input 
@@ -319,6 +323,7 @@ export default class ImportTarget extends Component {
                 </Row>
                 <Row>
                     <Table 
+                        className="m-table"
                         bordered
                         columns={columns}
                         dataSource={dataSource} 

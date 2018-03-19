@@ -52,6 +52,25 @@ function isRDB(type) {
     return DATA_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1
 }
 
+/**
+ * 判断字段是否匹配
+ * @param {*} source 
+ * @param {*} target 
+ */
+function isFieldMatch(source, target) {
+    if (isObject(source) && isObject(target)) {
+        return isEqual(source, target);
+    } else if(isObject(source) && !isObject(target) ) {
+        const sourceVal = source.key || source.index
+        return sourceVal === target
+    } else if (!isObject(source) && isObject(target)) {
+        const targetVal = target.key || target.index
+        return source === targetVal
+    } else {
+        return source === target
+    }
+}
+
 class Keymap extends React.Component{
 
     constructor(props) {
@@ -196,9 +215,9 @@ class Keymap extends React.Component{
             if (isRDB(sourceSrcType)) {// sql/oracle/sqlserver
                 isMatch = columnItem.key === keymapItem;
             } else {
-                isMatch = isEqual(columnItem, keymapItem);
+                // isMatch = isEqual(columnItem, keymapItem);
+                isMatch = isFieldMatch(columnItem, keymapItem);
             }
-            
             return isMatch;
         };
 
@@ -207,7 +226,8 @@ class Keymap extends React.Component{
             if (isRDB(targetSrcType)) { // sql/oracle/sqlserver/hive
                 isMatch = columnItem.key === keymapItem;
             } else {
-                isMatch = isEqual(columnItem, keymapItem);
+                // isMatch = isEqual(columnItem, keymapItem);
+                isMatch = isFieldMatch(columnItem, keymapItem)
             }
             return isMatch;
         }
@@ -422,6 +442,7 @@ class Keymap extends React.Component{
         const colStyle = { left: padding, top: padding, width: w, height: h, }
 
         const renderTableRow = (sourceType, col, i) => {
+
             const removeOperation = <div className="remove-cell"
                 onClick={() => removeSourceKeyRow(col, i)}>
                 <Tooltip title="删除当前列">
@@ -1152,7 +1173,7 @@ class Keymap extends React.Component{
     doBatchAddSourceFields = () => {
         const { batchSourceModal } = this.state
         const { batchText } = batchSourceModal
-        const { addBatchSourceKeyRow, sourceSrcType } = this.props
+        const { addBatchSourceKeyRow, sourceSrcType, sourceCol } = this.props
 
         const str = utils.trim(batchText)
         const arr = batchText.split(',')
