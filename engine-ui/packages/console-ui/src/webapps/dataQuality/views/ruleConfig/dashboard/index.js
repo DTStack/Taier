@@ -306,7 +306,7 @@ export default class RuleConfig extends Component {
 
 
     render() {
-        const { ruleLists, loading } = this.props.ruleConfig;
+        const { monitorList, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
         const { userList, allDict } = this.props.common;
         const { params, visibleSlidePane, currentMonitor, showRemoteModal } = this.state;
@@ -314,7 +314,7 @@ export default class RuleConfig extends Component {
         const pagination = {
             current: params.pageIndex,
             pageSize: params.pageSize,
-            total: ruleLists.totalCount,
+            total: monitorList.totalCount,
         };
 
         let periodType = allDict.periodType ? allDict.periodType : [];
@@ -397,7 +397,7 @@ export default class RuleConfig extends Component {
                             columns={this.initColumns()} 
                             loading={loading}
                             pagination={pagination}
-                            dataSource={ruleLists.data}
+                            dataSource={monitorList.data}
                             onChange={this.onTableChange}
                         />
 

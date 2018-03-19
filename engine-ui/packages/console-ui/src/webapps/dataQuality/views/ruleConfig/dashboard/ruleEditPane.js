@@ -24,9 +24,6 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesColumn(params) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
     },
-    getMonitorRule(params) {
-        dispatch(ruleConfigActions.getMonitorRule(params));
-    },
     getMonitorDetail(params) {
         dispatch(ruleConfigActions.getMonitorDetail(params));
     },
@@ -35,8 +32,7 @@ const mapDispatchToProps = dispatch => ({
     },
     executeMonitor(params) {
         dispatch(ruleConfigActions.executeMonitor(params));
-    },
-    
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -48,13 +44,8 @@ export default class RuleEditPane extends Component {
             columnFields: ['columnName', 'functionId', 'verifyType', 'operator', 'threshold'],
             rules: [],
             currentRule: {},
-            monitorPart: {},
-            detail: {},
+            monitorId: undefined
         };
-    }
-
-    componentDidMount() {
-        console.log(this.props.data, 'mount')
     }
 
     componentWillReceiveProps(nextProps) {
@@ -62,29 +53,26 @@ export default class RuleEditPane extends Component {
             newData = nextProps.data;
 
         if (isEmpty(oldData) && !isEmpty(newData)) {
-            console.log(this.props,nextProps, 'havedata')
-            this.props.getRuleFunction();
-            this.props.getDataSourcesColumn({
-                sourceId: newData.dataSourceType,
-                tableName: newData.tableName
-            });
-            this.props.getMonitorDetail({
-                monitorId: newData.monitorPartVOS[0].monitorId
-            });
+            let monitorId = newData.monitorPartVOS[0].monitorId;
 
-            RCApi.getMonitorRule({
-                monitorId: newData.monitorPartVOS[0].monitorId
-            }).then((res) => {
-                if (res.code === 1) {
-                    this.setState({
-                        rules: res.data
-                    });
-                }
-            });
+            if (monitorId) {
+                this.props.getMonitorDetail({ monitorId });
+                RCApi.getMonitorRule({ monitorId }).then((res) => {
+                    if (res.code === 1) {
+                        this.setState({
+                            rules: res.data
+                        });
+                    }
+                });
+                this.props.getRuleFunction();
+                this.props.getDataSourcesColumn({
+                    sourceId: newData.dataSourceType,
+                    tableName: newData.tableName
+                });
 
-            this.setState({
-                monitorPart: newData.monitorPartVOS[0]
-            });
+                this.setState({ monitorId });
+            }
+
         }
     }
 
@@ -432,7 +420,7 @@ export default class RuleEditPane extends Component {
 
     // 删除
     delete(record) {
-        const { monitorPart } = this.state;
+        const { monitorId } = this.state;
         let newData = [...this.state.rules],
             target  = newData.filter(item => record.id === item.id)[0],
             index   = newData.indexOf(target);
@@ -444,9 +432,7 @@ export default class RuleEditPane extends Component {
             }).then((res) => {
                 if (res.code === 1) {
                     message.success('删除成功');
-                    RCApi.getMonitorRule({
-                        monitorId: monitorPart.monitorId
-                    }).then((res) => {
+                    RCApi.getMonitorRule({ monitorId }).then((res) => {
                         if (res.code === 1) {
                             this.setState({
                                 rules: res.data
@@ -460,14 +446,14 @@ export default class RuleEditPane extends Component {
 
     // 保存
     save(id) {
-        const { currentRule, SQLFields, columnFields, monitorPart } = this.state;
+        const { currentRule, SQLFields, columnFields, monitorId } = this.state;
         let fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
 
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
                 if (!currentRule.editStatus) {
-                    currentRule.monitorId = monitorPart.monitorId;
+                    currentRule.monitorId = monitorId;
                 }
 
                 delete currentRule.editable;
@@ -477,7 +463,7 @@ export default class RuleEditPane extends Component {
                     if (res.code === 1) {
                         message.success('保存成功');
                         RCApi.getMonitorRule({
-                            monitorId: monitorPart.monitorId
+                            monitorId: monitorId
                         }).then((res) => {
                             if (res.code === 1) {
                                 this.setState({
@@ -586,7 +572,23 @@ export default class RuleEditPane extends Component {
     }
 
     onMonitorIdChange = (value) => {
-
+        const { data } = this.props;
+        let monitorId = value;
+        
+        this.props.getMonitorDetail({ monitorId });
+        RCApi.getMonitorRule({ monitorId }).then((res) => {
+            if (res.code === 1) {
+                this.setState({
+                    rules: res.data
+                });
+            }
+        });
+        this.props.getRuleFunction();
+        this.props.getDataSourcesColumn({
+            sourceId: data.dataSourceType,
+            tableName: data.tableName
+        });
+        this.setState({ monitorId });
     }
 
     initMonitorInfoColumns = () => {
@@ -622,13 +624,12 @@ export default class RuleEditPane extends Component {
     render() {
         const { data, ruleConfig, form, common } = this.props;
         const { getFieldDecorator } = form;
-        const { rules, monitorPart } = this.state;
+        const { rules, monitorId } = this.state;
         // const { executeTime, notifyUser, periodType, scheduleConf, sendTypes } = ruleConfig.monitorDetail;
         const { periodType, notifyType } = common.allDict;
         const { monitorDetail } = ruleConfig;
 
         let monitorPartVOS = data.monitorPartVOS ? data.monitorPartVOS : [];
-        let monitorId = monitorPart.monitorId ? monitorPart.monitorId.toString() : '';
 
         let monitorInfoData = [{
             column1: '执行周期',
@@ -655,7 +656,7 @@ export default class RuleEditPane extends Component {
                             <div>
                                 分区：
                                 <Select 
-                                    value={monitorId}
+                                    value={monitorId ? monitorId.toString() : undefined}
                                     style={{ width: 150 }}
                                     onChange={this.onMonitorIdChange}>
                                     {
@@ -669,9 +670,23 @@ export default class RuleEditPane extends Component {
                     </Col>
 
                     <Col span={12}>
-                        <Button type="primary" onClick={this.executeMonitor.bind(this, monitorId)}>立即执行</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.editMonitorInfo}>编辑执行信息</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.changeMonitorStatus.bind(this, monitorId)}>关闭检测</Button>
+                        <Button 
+                            type="primary" 
+                            onClick={this.executeMonitor.bind(this, monitorId)}>
+                            立即执行
+                        </Button>
+                        <Button 
+                            className="m-l-8" 
+                            type="primary" 
+                            onClick={this.editMonitorInfo}>
+                            编辑执行信息
+                        </Button>
+                        <Button 
+                            className="m-l-8" 
+                            type="primary" 
+                            onClick={this.changeMonitorStatus.bind(this, monitorId)}>
+                            关闭检测
+                        </Button>
                     </Col>
                 </Row>
 
@@ -686,9 +701,23 @@ export default class RuleEditPane extends Component {
                 />
 
                 <div className="rule-action">
-                    <Button type="primary" onClick={this.addTableRule}>添加表级规则</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.addColumnRule}>添加字段级规则</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.addSQLRule}>添加自定义SQL</Button>
+                    <Button 
+                        type="primary" 
+                        onClick={this.addTableRule}>
+                        添加表级规则
+                    </Button>
+                    <Button 
+                        className="m-l-8" 
+                        type="primary" 
+                        onClick={this.addColumnRule}>
+                        添加字段级规则
+                    </Button>
+                    <Button 
+                        className="m-l-8" 
+                        type="primary" 
+                        onClick={this.addSQLRule}>
+                        添加自定义SQL
+                    </Button>
                 </div>
 
                 <Table 
@@ -697,7 +726,6 @@ export default class RuleEditPane extends Component {
                     columns={this.initColumns()}
                     pagination={false}
                     dataSource={rules}
-                    onChange={this.onTableChange}
                 />
             </div>
         );

@@ -19,6 +19,9 @@ const mapDispatchToProps = dispatch => ({
     getRemoteTrigger(params) {
         dispatch(ruleConfigActions.getRemoteTrigger(params));
     },
+    getMonitorRule(params) {
+        dispatch(ruleConfigActions.getMonitorRule(params));
+    },
     
 })
 
@@ -28,32 +31,19 @@ export default class RemoteTriggerPane extends Component {
         super(props);
         this.state = {
             visible: false,
-            monitorPart: {},
             selectedIds: [],
-            rules: [],
-            detail: {},
-            remark: undefined
+            remark: undefined,
+            monitorId: undefined,
         };
     }
 
     componentDidMount() {
         const { data } = this.props;
+        let monitorId = data.monitorPartVOS[0].monitorId;
 
         this.props.getRemoteTrigger({ tableId: data.tableId });
-        
-        RCApi.getMonitorRule({
-            monitorId: data.monitorPartVOS[0].monitorId
-        }).then((res) => {
-            if (res.code === 1) {
-                this.setState({
-                    rules: res.data
-                });
-            }
-        });
-
-        this.setState({
-            monitorPart: data.monitorPartVOS[0]
-        });
+        this.props.getMonitorRule({ monitorId });
+        this.setState({ monitorId });
     }
 
     initTriggerColumns = () => {
@@ -112,7 +102,7 @@ export default class RemoteTriggerPane extends Component {
 
         if (monitorPart) {
             this.setState({ 
-                monitorPart, 
+                monitorId: record.id, 
                 selectedIds: record.ruleIds,
                 remark: record.remark
             });
@@ -125,7 +115,7 @@ export default class RemoteTriggerPane extends Component {
             if (res.code === 1) {
                 message.success('删除成功！');
             }
-        })
+        });
     }
 
     initColumns = () => {
@@ -233,7 +223,12 @@ export default class RemoteTriggerPane extends Component {
     }
 
     onMonitorIdChange = (value) => {
-
+        const { data } = this.props;
+        let monitorId = value;
+        
+        this.props.getRemoteTrigger({ tableId: data.tableId });
+        this.props.getMonitorRule({ monitorId });
+        this.setState({ monitorId });
     }
 
     onRemarkChange = (e) => {
@@ -254,12 +249,12 @@ export default class RemoteTriggerPane extends Component {
     }
 
     onRemoteTrigger = () => {
-        const { selectedIds, monitorPart, remark } = this.state;
+        const { selectedIds, monitorId, remark } = this.state;
         const { data } = this.props;
         
         if (selectedIds.length) {
             RCApi.addRemoteTrigger({
-                monitorId: monitorPart.monitorId,
+                monitorId: monitorId,
                 ruleIds: selectedIds,
                 remark: remark
             }).then((res) => {
@@ -276,10 +271,9 @@ export default class RemoteTriggerPane extends Component {
 
     render() {
         const { data, ruleConfig, common } = this.props;
-        const { rules, monitorPart, visible, selectedIds, remark } = this.state;
-        const { loading, triggerList } = ruleConfig;
+        const { monitorId, visible, selectedIds, remark } = this.state;
+        const { loading, triggerList, monitorRules } = ruleConfig;
 
-        let monitorId = monitorPart.monitorId ? monitorPart.monitorId.toString() : '';
         let rowSelection = {
             selectedRowKeys: selectedIds,
             onChange: (selectedIds, selectedRows) => {
@@ -339,7 +333,7 @@ export default class RemoteTriggerPane extends Component {
                         <div>
                             分区：
                             <Select 
-                                value={monitorId}
+                                value={monitorId ? monitorId.toString() : undefined}
                                 style={{ width: 150 }}
                                 onChange={this.onMonitorIdChange}>
                                 {
@@ -357,7 +351,7 @@ export default class RemoteTriggerPane extends Component {
                         rowSelection={rowSelection}
                         columns={this.initColumns()}
                         pagination={false}
-                        dataSource={rules}
+                        dataSource={monitorRules}
                     />
                     
                     <TextArea 
