@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox } from 'antd';
+import { Button, Form, Select, DatePicker, Checkbox } from 'antd';
+
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 
 const FormItem = Form.Item;
-const RadioGroup = Radio.Group;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
@@ -21,8 +21,8 @@ const mapDispatchToProps = dispatch => ({
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
     },
-    addRule(params) {
-        dispatch(ruleConfigActions.addRule(params));
+    addMonitor(params) {
+        dispatch(ruleConfigActions.addMonitor(params));
     }
 })
 
@@ -156,11 +156,13 @@ export default class StepFour extends Component {
         form.validateFields({ force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-                editParams.rules.forEach((rule) => {
-                    delete rule.id
-                    delete rule.isCustomizeSql
-                })
-                this.props.addRule({...editParams});
+                // editParams.rules.forEach((rule) => {
+                //     delete rule.id
+                //     delete rule.isCustomizeSql
+                //     delete rule.isTable
+                //     delete rule.editStatus
+                // })
+                this.props.addMonitor({...editParams});
                 // location.href = "/dataQuality.html#/dq/rule";
             }
         })
@@ -179,6 +181,267 @@ export default class StepFour extends Component {
         this.props.changeParams({
             scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
         });
+    }
+
+    renderDynamic() {
+        const { form, common, editParams, editStatus } = this.props;
+        const { scheduleConfObj } = this.state;
+        const { allDict, userList } = common;
+        const { notifyUser, sendTypes } = editParams;
+        const { getFieldDecorator } = form;
+
+        let periodType = allDict.periodType ? allDict.periodType : [];
+
+        const generateHours = (type) => {
+            let options = [];
+
+            for (let i = 0; i <= 23; i++) {
+                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
+            }
+            return <Select style={{ width: 150, marginRight: 8 }} onChange={this.changeScheduleConfTime.bind(this, type)}>{ options }</Select>;
+        };
+
+        const generateMins = (type) => {
+            let options = [];
+
+            for (let i = 0, l = 59; i <= l; i++) {
+                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
+            }
+            return <Select style={{ width: 150, margin: '0 8px' }} onChange={this.changeScheduleConfTime.bind(this, type)}>{ options }</Select>;
+        };
+
+        const generateDate = () => {
+            let options = [];
+
+            for (let i = 1; i <= 31; i++) {
+                options.push(<Option key={i} value={`${i}`}>{`每月${i}号`}</Option>);
+            }
+            return <Select
+                mode="multiple"
+                style={{ width: 325 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'day')}
+            >{ options }</Select>;
+        };
+
+        const generateDays = () => {
+            return <Select
+                mode="multiple"
+                style={{ width: 325 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}
+            >
+                <Option key={1} value="1">星期一</Option>
+                <Option key={2} value="2">星期二</Option>
+                <Option key={3} value="3">星期三</Option>
+                <Option key={4} value="4">星期四</Option>
+                <Option key={5} value="5">星期五</Option>
+                <Option key={6} value="6">星期六</Option>
+                <Option key={7} value="7">星期天</Option>
+            </Select>
+        }
+
+        switch (scheduleConfObj.periodType) {
+            case '1': {
+                return <div>
+                    <FormItem {...formItemLayout} label="开始时间">
+                        {
+                            getFieldDecorator('beginHour', {
+                                rules: [{
+                                        required: true, message: '开始时间不能为空'
+                                    },{
+                                        // validator: ctx.checkTimeS.bind(ctx)
+                                    }
+                                ],
+                                initialValue: `${scheduleConfObj.beginHour}`
+                            })(
+                                generateHours('beginHour')
+                            )
+                        }
+                        时
+                        {
+                            getFieldDecorator('beginMin', {
+                                rules: [{
+                                    required: true, message: '开始时间不能为空'
+                                }],
+                                initialValue: `${scheduleConfObj.beginMin}`
+                            })(
+                                generateMins('beginMin')
+                            )
+                        }
+                        分
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="间隔时间">
+                        {
+                            getFieldDecorator('gapHour', {
+                                rules: [{
+                                    required: true, message: '间隔时间不能为空'
+                                }],
+                                initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
+                            })(
+                                <Select
+                                    style={{ width: 150 }}
+                                    onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }
+                                >
+                                    {
+                                        (function() {
+                                            let options = [];
+
+                                            for(let i = 1, l = 23; i <= l; i++) {
+                                                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
+                                            }
+                                            return options;
+                                        })()
+                                    }
+                                </Select>
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="结束时间">
+                        {
+                            getFieldDecorator('endHour', {
+                                rules: [{
+                                    required: true, message: '结束时间不能为空'
+                                }, {
+                                    // validator: ctx.checkTimeE1.bind(ctx)
+                                }],
+                                initialValue: `${scheduleConfObj.endHour}`
+                            })(
+                                generateHours('endHour')
+                            )
+                        }
+                        时
+                        {
+                            getFieldDecorator('endMin', {
+                                rules: [{
+                                    required: true, message: '结束时间不能为空'
+                                }],
+                                initialValue: `${scheduleConfObj.endMin}`
+                            })(
+                                generateMins('endMin')
+                            )
+                        }
+                        分
+                    </FormItem>
+                </div>
+            }
+
+            case '2': {
+                return <FormItem {...formItemLayout} label="起调周期">
+                    {
+                        getFieldDecorator('hour', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: `${scheduleConfObj.hour}`
+                        })(
+                            generateHours('hour')
+                        )
+                    }
+                    时
+                    {
+                        getFieldDecorator('min', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: `${scheduleConfObj.min}`
+
+                        })(
+                            generateMins('min')
+                        )
+                    }
+                    分
+                </FormItem>
+            }
+
+            case '3': {
+                return <div>
+                    <FormItem {...formItemLayout} label="选择时间">
+                        {
+                            getFieldDecorator('weekDay', {
+                                rules: [{
+                                    required: true, message: '周内天数不能为空'
+                                }],
+                                initialValue: scheduleConfObj.weekDay ? `${scheduleConfObj.weekDay}`.split(',') : []
+                            })(
+                                generateDays()
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="起调周期">
+                        {
+                            getFieldDecorator('hour', {
+                                rules: [{
+                                    required: true
+                                }],
+                                initialValue: `${scheduleConfObj.hour}`
+                            })(
+                                generateHours('hour')
+                            )
+                        }
+                        时
+                        {
+                            getFieldDecorator('min', {
+                                rules: [{
+                                    required: true
+                                }],
+                                initialValue: `${scheduleConfObj.min}`
+
+                            })(
+                                generateMins('min')
+                            )
+                        }
+                        分
+                    </FormItem>
+                </div>
+            }
+
+            case '4': {
+                return <div>
+                    <FormItem {...formItemLayout} label="选择时间">
+                        {
+                            getFieldDecorator('day', {
+                                rules: [{
+                                    required: true, message: '月内天数不能为空'
+                                }],
+                                initialValue: scheduleConfObj.day ? `${scheduleConfObj.day}`.split(',') : []
+                            })(
+                                generateDate()
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="起调周期">
+                        {
+                            getFieldDecorator('hour', {
+                                rules: [{
+                                    required: true
+                                }],
+                                initialValue: `${scheduleConfObj.hour}`
+                            })(
+                                generateHours('hour')
+                            )
+                        }
+                        时
+                        {
+                            getFieldDecorator('min', {
+                                rules: [{
+                                    required: true
+                                }],
+                                initialValue: `${scheduleConfObj.min}`
+
+                            })(
+                                generateMins('min')
+                            )
+                        }
+                        分
+                    </FormItem>
+                </div>
+            }
+
+            case '5': 
+            default: {
+                break;
+            }
+        }
+        
     }
 
     render() {
@@ -291,162 +554,7 @@ export default class StepFour extends Component {
                         }
 
                         {
-                            ((type) => {
-                                switch (type) {
-                                    case '1': {
-                                        return <div>
-                                            <FormItem {...formItemLayout} label="开始时间">
-                                                {
-                                                    getFieldDecorator('beginHour', {
-                                                        rules: [{
-                                                                required: true
-                                                            },{
-                                                                // validator: ctx.checkTimeS.bind(ctx)
-                                                            }
-                                                        ],
-                                                        initialValue: `${scheduleConfObj.beginHour}`
-                                                    })(
-                                                        generateHours('beginHour')
-                                                    )
-                                                }
-                                                时
-                                                {
-                                                    getFieldDecorator('beginMin', {
-                                                        rules: [{
-                                                            required: true
-                                                        }],
-                                                        initialValue: `${scheduleConfObj.beginMin}`
-                                                    })(
-                                                        generateMins('beginMin')
-                                                    )
-                                                }
-                                                分
-                                            </FormItem>
-
-                                            <FormItem {...formItemLayout} label="间隔时间">
-                                                {
-                                                    getFieldDecorator('gapHour', {
-                                                        rules: [{
-                                                            required: true
-                                                        }],
-                                                        initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
-                                                    })(
-                                                        <Select
-                                                            style={{ width: 150 }}
-                                                            onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }
-                                                        >
-                                                            {
-                                                                (function() {
-                                                                    let options = [];
-
-                                                                    for(let i = 1, l = 23; i <= l; i++) {
-                                                                        options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
-                                                                    }
-                                                                    return options;
-                                                                })()
-                                                            }
-                                                        </Select>
-                                                    )
-                                                }
-                                            </FormItem>
-
-                                            <FormItem {...formItemLayout} label="结束时间">
-                                                {
-                                                    getFieldDecorator('endHour', {
-                                                        rules: [{
-                                                            required: true
-                                                        }, {
-                                                            // validator: ctx.checkTimeE1.bind(ctx)
-                                                        }],
-                                                        initialValue: `${scheduleConfObj.endHour}`
-                                                    })(
-                                                        generateHours('endHour')
-                                                    )
-                                                }
-                                                时
-                                                {
-                                                    getFieldDecorator('endMin', {
-                                                        rules: [{
-                                                            required: true
-                                                        }],
-                                                        initialValue: `${scheduleConfObj.endMin}`
-                                                    })(
-                                                        generateMins('endMin')
-                                                    )
-                                                }
-                                                分
-                                            </FormItem>
-                                        </div>
-                                    }
-
-                                    case '3': {
-                                        return <FormItem {...formItemLayout} label="选择时间">
-                                            <Col span="13">
-                                                {
-                                                    getFieldDecorator('weekDay', {
-                                                        rules: [{
-                                                            required: true
-                                                        }],
-                                                        initialValue: scheduleConfObj.weekDay ? `${scheduleConfObj.weekDay}`.split(',') : []
-                                                    })(
-                                                        generateDays()
-                                                    )
-                                                }
-                                            </Col>
-                                        </FormItem>
-                                    }
-
-                                    case '4': {
-                                        return <FormItem {...formItemLayout} label="选择时间">
-                                            <Col span="13">
-
-                                                {
-                                                    getFieldDecorator('day', {
-                                                        rules: [{
-                                                            required: true
-                                                        }],
-                                                        initialValue: scheduleConfObj.day ? `${scheduleConfObj.day}`.split(',') : []
-                                                    })(
-                                                        generateDate()
-                                                    )
-                                                }
-                                            </Col>
-                                        </FormItem>
-                                    }
-
-                                    case '5': {
-                                        break;
-                                    }
-
-                                    default: {
-                                        return <FormItem {...formItemLayout} label="起调周期">
-                                            {
-                                                getFieldDecorator('hour', {
-                                                    rules: [{
-                                                        required: true
-                                                    }],
-                                                    initialValue: `${scheduleConfObj.hour}`
-                                                })(
-                                                    generateHours('hour')
-                                                )
-                                            }
-                                            时
-                                            {
-                                                getFieldDecorator('min', {
-                                                    rules: [{
-                                                        required: true
-                                                    }],
-                                                    initialValue: `${scheduleConfObj.min}`
-
-                                                })(
-                                                    generateMins('min')
-                                                )
-                                            }
-                                            分
-                                        </FormItem>
-                                    }
-                                }
-                            })(scheduleConfObj.periodType)
+                            this.renderDynamic()
                         }
                         
                         <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
@@ -456,8 +564,11 @@ export default class StepFour extends Component {
                                     initialValue: sendTypes.map(item => item.toString())
                                 })(
                                     <Checkbox.Group onChange={this.onSendTypeChange}>
-                                        <Checkbox value="0">邮件</Checkbox>
-                                        <Checkbox value="1">短信</Checkbox>
+                                        {
+                                            allDict.notifyType.map((item) => {
+                                                return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
+                                            })
+                                        }
                                     </Checkbox.Group>
                                 )
                             }

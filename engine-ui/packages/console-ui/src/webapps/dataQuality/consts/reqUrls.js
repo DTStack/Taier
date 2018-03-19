@@ -61,6 +61,10 @@ export default {
     RULE_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/remoteTrigger`,   // 远程触发
     EXECUTE_MONITOR: `${DQ_BASE_URL}/monitor/immediatelyExecuted`, // 立即执行
 
+    GET_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/getRemoteTrigger`,// 远程触发
+    ADD_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/addRemoteTriger`, // 远程触发
+    DEL_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/deleteRemoteTrigger`,   // 远程触发
+
     GET_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/getRules`,       // 获取监控规则
     SAVE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/save`,          // 保存监控规则
     DELETE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/delete`,      // 删除监控规则

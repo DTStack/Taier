@@ -3,9 +3,9 @@
 }
 
 .rule-dashboard {
+	overflow-x: hidden;
 
 	.monitor-table {
-		
 		.status-success {
 			font-size: 14px;
 			color: #00A755;
@@ -16,7 +16,59 @@
 			color: #EF5350;
 		}
 	}
+
+	.rule-manage {
+		.rule-manage-action {
+			text-align: right;
+			margin: 20px 20px 0;
+		}
+		
+		.rule-action {
+			margin: 20px;
+			text-align: right;
+		}
+
+		.monitor-info-table {
+			margin: 20px;
+
+			.column-key {
+				background: #f7f7f7;
+			}
+		}
+	}
+
+	.trigger-box {
+		margin: 20px;
+		
+		h2 {
+			margin: 10px 0;
+			color: #333333;
+		}
+
+		p {
+			margin: 2px 0;
+			font-size: 12px;
+			color: #2A2A2A;
+		}
+
+	}
+
 }
+
+
+
+.common-table {
+	margin: 15px 0;
+	.ant-table-thead {
+        &>tr>th {
+            font-size: 12px;
+            color: #333333;
+            letter-spacing: 0;
+            padding: 8.5px 8px;
+        }
+    }
+}
+
 
 .rule-edit {
  	h3 {
@@ -64,4 +116,32 @@
 			}
 		}
  	}
+}
+
+.rule-edit-table {
+	margin: 0 20px;
+	background: #fff;
+
+	.ant-table-tbody {
+        &>tr>td {
+            padding: 10px 8px;
+            font-size: 12px;
+        }
+    }
+
+	.rule-edit-td {
+		width: 100%;
+	}
+
+	.ant-form-inline {
+	 	.ant-form-item {
+	 		margin-right: 0;
+	 	}
+	}
+
+	.editable-row-operations {
+		a {
+			padding: 0 5px;
+		}
+	}
 }

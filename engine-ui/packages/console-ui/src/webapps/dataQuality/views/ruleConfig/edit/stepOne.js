@@ -208,7 +208,7 @@ export default class StepOne extends Component {
 
     renderPartText = () => {
         return (
-            <p className="font-14">如果分区还不存在，可以直接输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
+            <p className="font-14">如果分区还不存在，可以<a>直接输入</a>未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
         )
     }
 
@@ -281,7 +281,7 @@ export default class StepOne extends Component {
                             <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                                 {
                                     getFieldDecorator('part', {
-                                        rules: [{ required: true, message: '请选择分区' }],
+                                        rules: [],
                                         initialValue: this.getPartTitle(partitionColumn, partitionValue) 
                                     })(
                                         <TreeSelect

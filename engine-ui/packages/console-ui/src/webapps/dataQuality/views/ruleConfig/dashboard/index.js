@@ -5,11 +5,12 @@ import {
     Table, Button, Icon, Input, 
     DatePicker, Select, Popconfirm, 
     message, Card, Checkbox,
-    Tabs, Row, Col
+    Tabs, Row, Col, Modal
 } from 'antd';
 import moment from 'moment';
 
 import RuleEditPane from './ruleEditPane';
+import RemoteTriggerPane from './remoteTriggerPane';
 import SlidePane from 'widgets/slidePane';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
@@ -61,7 +62,8 @@ export default class RuleConfig extends Component {
             periodType: undefined
         },
         visibleSlidePane: false,
-        currentTable: {}
+        showRemoteModal: false,
+        currentMonitor: {}
     }
 
     componentDidMount() {
@@ -278,22 +280,36 @@ export default class RuleConfig extends Component {
     showSlidePane = (record) => {
         this.setState({
             visibleSlidePane: true,
-            currentTable: record
+            currentMonitor: record
         })
     }
 
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
-            currentTable: {}
+            currentMonitor: {}
         })
     }
+
+    showRemoteModal = () => {
+        this.setState({
+            showRemoteModal: true
+        })
+    }
+
+    closeRemoteModal = () => {
+        this.setState({
+            showRemoteModal: false
+        })
+    }
+
+
 
     render() {
         const { ruleLists, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
         const { userList, allDict } = this.props.common;
-        const { params, visibleSlidePane } = this.state;
+        const { params, visibleSlidePane, currentMonitor, showRemoteModal } = this.state;
 
         const pagination = {
             current: params.pageIndex,
@@ -397,13 +413,12 @@ export default class RuleConfig extends Component {
                                 >
                                     
                                     <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane data={this.state.currentTable}>
+                                        <RuleEditPane data={currentMonitor}>
                                         </RuleEditPane>
                                     </TabPane>
-                                    <TabPane tab="远程调用" key="2">
-                                        <div className="box">
-                                            
-                                        </div>
+                                    <TabPane tab="远程触发" key="2">
+                                        <RemoteTriggerPane data={currentMonitor}>
+                                        </RemoteTriggerPane>
                                     </TabPane>
                                 </Tabs>
                             </div>

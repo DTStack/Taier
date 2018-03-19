@@ -27,12 +27,16 @@ const mapDispatchToProps = dispatch => ({
     getMonitorRule(params) {
         dispatch(ruleConfigActions.getMonitorRule(params));
     },
+    getMonitorDetail(params) {
+        dispatch(ruleConfigActions.getMonitorDetail(params));
+    },
     changeMonitorStatus(params) {
         dispatch(ruleConfigActions.changeMonitorStatus(params));
     },
-    getMonitorDetail(params) {
-        dispatch(ruleConfigActions.getMonitorDetail(params));
-    }
+    executeMonitor(params) {
+        dispatch(ruleConfigActions.executeMonitor(params));
+    },
+    
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -40,10 +44,10 @@ export default class RuleEditPane extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentRule: {},
             SQLFields: ['customizeSql', 'verifyType', 'operator', 'threshold'],
             columnFields: ['columnName', 'functionId', 'verifyType', 'operator', 'threshold'],
             rules: [],
+            currentRule: {},
             monitorPart: {},
             detail: {},
         };
@@ -66,7 +70,7 @@ export default class RuleEditPane extends Component {
             });
             this.props.getMonitorDetail({
                 monitorId: newData.monitorPartVOS[0].monitorId
-            })
+            });
 
             RCApi.getMonitorRule({
                 monitorId: newData.monitorPartVOS[0].monitorId
@@ -132,7 +136,7 @@ export default class RuleEditPane extends Component {
                         : 
                         <span>
                             <a onClick={() => this.edit(record.id)}>编辑</a>
-                            <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
+                            <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record)}>
                                 <a>删除</a>
                             </Popconfirm>
                         </span>
@@ -150,7 +154,7 @@ export default class RuleEditPane extends Component {
             children: <Form layout="inline">
             {
                 record.editable ?
-                this.renderEditTD(text, record, type)
+                this.renderEditTD(text, type)
                 :
                 this.renderTD(text, record, type)
             }
@@ -186,25 +190,28 @@ export default class RuleEditPane extends Component {
         // this.changeCurrentRule(obj);
     }
 
-    renderEditTD = (text, record, type) => {
-        const { getFieldDecorator } = this.props.form;
-        const { sourceColumn } = this.props.dataSource;
-        const { monitorFunction } = this.props.ruleConfig;
-        const { allDict } = this.props.common;
+    renderEditTD = (text, type) => {
+        const { form, dataSource, ruleConfig, common } = this.props;
+        const { getFieldDecorator } = form;
+        const { sourceColumn } = dataSource;
+        const { monitorFunction } = ruleConfig;
+        const { verifyType } = common.allDict;
         const { currentRule } = this.state;
 
         switch(type) {
             case 'columnName': {
-                if (record.isCustomizeSql) {
+                if (currentRule.isCustomizeSql) {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
                                     required: true, message: '自定义SQL不可为空！',
                                 }],
-                                initialValue: record.customizeSql
+                                initialValue: currentRule.customizeSql
                             })(
-                                <Input onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
+                                <Input 
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
+                                    disabled={currentRule.editStatus === 'edit'} />
                             )
                         }
                     </FormItem>
@@ -216,12 +223,12 @@ export default class RuleEditPane extends Component {
                                 rules: [{
                                     required: true, message: '字段不可为空！',
                                 }],
-                                initialValue: record.columnName
+                                initialValue: currentRule.columnName
                             })(
                                 <Select 
                                     style={{ width: '100%' }} 
                                     onChange={this.changeRuleParams.bind(this, 'columnName')} 
-                                    disabled={record.isTable}>
+                                    disabled={currentRule.isTable || currentRule.editStatus === 'edit'}>
                                     {
                                         sourceColumn.map((item) => {
                                             return <Option key={item.key} value={item.key}>
@@ -245,11 +252,12 @@ export default class RuleEditPane extends Component {
                             rules: [{
                                 required: true, message: '统计函数不可为空！',
                             }],
-                            initialValue: record.functionId
+                            initialValue: currentRule.functionId ? currentRule.functionId.toString() : undefined
                         })(
                             <Select 
                                 style={{ width: '100%' }} 
-                                onChange={this.changeRuleParams.bind(this, 'functionId')}>
+                                onChange={this.changeRuleParams.bind(this, 'functionId')}
+                                disabled={currentRule.editStatus === 'edit'}>
                                 {
                                     monitorFunction.map((item) => {
                                         return <Option key={item.id} value={item.id.toString()}>
@@ -269,9 +277,11 @@ export default class RuleEditPane extends Component {
                     {
                         getFieldDecorator('filter', {
                             rules: [],
-                            initialValue: record.filter
+                            initialValue: currentRule.filter
                         })(
-                            <Input onChange={this.changeRuleParams.bind(this, 'filter')}/>
+                            <Input 
+                                onChange={this.changeRuleParams.bind(this, 'filter')} 
+                                disabled={currentRule.editStatus === 'edit'} />
                         )
                     }
                 </FormItem>
@@ -284,13 +294,14 @@ export default class RuleEditPane extends Component {
                             rules: [{
                                 required: true, message: '校验方法不可为空！',
                             }],
-                            initialValue: record.verifyType
+                            initialValue: currentRule.verifyType ? currentRule.verifyType.toString() : undefined
                         })(
                             <Select 
                                 style={{ width: '100%' }} 
-                                onChange={this.changeRuleParams.bind(this, 'verifyType')}>
+                                onChange={this.changeRuleParams.bind(this, 'verifyType')}
+                                disabled={currentRule.editStatus === 'edit'}>
                                 {
-                                    allDict.verifyType.map((item) => {
+                                    verifyType.map((item) => {
                                         return <Option key={item.value} value={item.value.toString()}>
                                             {item.name}
                                         </Option>
@@ -310,10 +321,10 @@ export default class RuleEditPane extends Component {
                             rules: [{
                                 required: true, message: '阈值配置不可为空！',
                             }],
-                            initialValue: record.operator
+                            initialValue: currentRule.operator
                         })(
                             <Select 
-                                style={{ width: 70, marginRight: 10 }} 
+                                style={{ width: 50, marginRight: 5 }} 
                                 onChange={this.changeRuleParams.bind(this, 'operator')}>
                                 <Option value=">"> {`>`} </Option>
                                 <Option value=">="> {`>=`} </Option>
@@ -331,12 +342,12 @@ export default class RuleEditPane extends Component {
                             rules: [{
                                 required: true, message: '阈值不可为空！',
                             }],
-                            initialValue: record.threshold
+                            initialValue: currentRule.threshold
                         })(
                             <InputNumber
                               min={0}
                               max={100}
-                              style={{ marginRight: 10 }}
+                              style={{ width: 50, marginRight: 10 }}
                               onChange={this.changeRuleParams.bind(this, 'threshold')}
                             /> 
                         )
@@ -354,8 +365,9 @@ export default class RuleEditPane extends Component {
 
     // 固定的值
     renderTD = (text, record, type) => {
-        const { monitorFunction } = this.props.ruleConfig;
-        const { allDict } = this.props.common;
+        const { ruleConfig, common } = this.props;
+        const { monitorFunction } = ruleConfig;
+        const { verifyType } = common.allDict;
 
         switch (type) {
             case 'columnName': {
@@ -371,7 +383,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'verifyType': {
-                return allDict.verifyType[text-1].name || undefined;
+                return verifyType[text - 1].name || undefined;
             }
 
             case 'threshold': {
@@ -419,15 +431,29 @@ export default class RuleEditPane extends Component {
     }
 
     // 删除
-    delete(id) {
+    delete(record) {
+        const { monitorPart } = this.state;
         let newData = [...this.state.rules],
-            target  = newData.filter(item => id === item.id)[0],
+            target  = newData.filter(item => record.id === item.id)[0],
             index   = newData.indexOf(target);
         
         if (target) {
-            newData.splice(index, 1);
-            this.setState({ 
-                rules: newData
+            RCApi.deleteMonitorRule({
+                ruleIds: [record.id],
+                monitorId: record.monitorId
+            }).then((res) => {
+                if (res.code === 1) {
+                    message.success('删除成功');
+                    RCApi.getMonitorRule({
+                        monitorId: monitorPart.monitorId
+                    }).then((res) => {
+                        if (res.code === 1) {
+                            this.setState({
+                                rules: res.data
+                            });
+                        }
+                    });
+                }
             });
         }
     }
@@ -435,30 +461,36 @@ export default class RuleEditPane extends Component {
     // 保存
     save(id) {
         const { currentRule, SQLFields, columnFields, monitorPart } = this.state;
-        let newData = [...this.state.rules],
-            target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target),
-            fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
+        let fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
 
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-                if (currentRule.editStatus) {
+                if (!currentRule.editStatus) {
                     currentRule.monitorId = monitorPart.monitorId;
-                    console.log(currentRule)
-                    // delete currentRule.editStatus;
                 }
-                // delete currentRule.editable;
-                // newData[index] = currentRule;
 
-                this.setState({ 
-                    // currentRule: [],
-                    // rules: newData
+                delete currentRule.editable;
+                delete currentRule.editStatus;
+
+                RCApi.saveMonitorRule({...currentRule}).then((res) => {
+                    if (res.code === 1) {
+                        message.success('保存成功');
+                        RCApi.getMonitorRule({
+                            monitorId: monitorPart.monitorId
+                        }).then((res) => {
+                            if (res.code === 1) {
+                                this.setState({
+                                    rules: res.data
+                                });
+                            }
+                        });
+                    }
                 });
 
-                RCApi.saveMonitorRule({
-
-                })
+                this.setState({ 
+                    currentRule: []
+                });
             }
         });
 
@@ -475,7 +507,8 @@ export default class RuleEditPane extends Component {
         }
 
         let target = {
-            id: firstId ? firstId + 1 : 1,
+            id: undefined,
+            // id: firstId ? firstId + 1 : 1,
             editable: true,
             isCustomizeSql: false,
             columnName: undefined,
@@ -504,7 +537,8 @@ export default class RuleEditPane extends Component {
         }
 
         let target = {
-            id: firstId ? firstId + 1 : 1,
+            id: undefined,
+            // id: firstId ? firstId + 1 : 1,
             editable: true,
             isCustomizeSql: true,
             customizeSql: undefined,
@@ -532,7 +566,8 @@ export default class RuleEditPane extends Component {
         }
 
         let target = {
-            id: firstId ? firstId + 1 : 1,
+            id: undefined,
+            // id: firstId ? firstId + 1 : 1,
             editable: true,
             isCustomizeSql: false,
             isTable: true,
@@ -562,7 +597,7 @@ export default class RuleEditPane extends Component {
             width: '12%',
         }, {
             dataIndex: 'value1',
-            key: 'value1',
+            key: 'value1',  
             width: '34%',
         }, {
             dataIndex: 'column2',
@@ -574,6 +609,14 @@ export default class RuleEditPane extends Component {
             key: 'value2',
             width: '34%',
         }]
+    }
+
+    executeMonitor = (monitorId) => {
+        this.props.executeMonitor({ monitorId });
+    }
+
+    changeMonitorStatus = (monitorId) => {
+        this.props.changeMonitorStatus({ monitorId });
     }
 
     render() {
@@ -626,9 +669,9 @@ export default class RuleEditPane extends Component {
                     </Col>
 
                     <Col span={12}>
-                        <Button type="primary" >立即执行</Button>
-                        <Button className="m-l-8" type="primary">编辑执行信息</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.props.changeRuleStatus}>关闭检测</Button>
+                        <Button type="primary" onClick={this.executeMonitor.bind(this, monitorId)}>立即执行</Button>
+                        <Button className="m-l-8" type="primary" onClick={this.editMonitorInfo}>编辑执行信息</Button>
+                        <Button className="m-l-8" type="primary" onClick={this.changeMonitorStatus.bind(this, monitorId)}>关闭检测</Button>
                     </Col>
                 </Row>
 
