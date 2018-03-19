@@ -165,8 +165,6 @@ export default class TaskView extends Component {
 
             if (exist) {
                 this.insertEdge(graph, type, parent, exist)
-                // graph.insertEdge(parent, null, '', parent, exist)
-                // current = exist.node
             } else {
 
                 // 创建节点
@@ -181,7 +179,7 @@ export default class TaskView extends Component {
                     VertexSize.width, VertexSize.height, style
                 )
 
-                this.insertEdge(graph, type, parent, newVertex)
+                this.insertEdge(graph, type, newVertex, parent)
 
                 // 缓存节点
                 this._vertexCells.push(newVertex)

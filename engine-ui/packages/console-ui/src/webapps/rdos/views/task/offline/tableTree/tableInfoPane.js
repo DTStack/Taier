@@ -153,7 +153,7 @@ export default class TableInfoPane extends React.Component {
                             rowKey="id"
                             columns={this.initColums()}
                             dataSource={tableData.column}
-                            pagination={{ simple: true, size: 'small' }}
+                            pagination={{ simple: true, size: 'small'}}
                         />
                     </div>
                 </TabPane>
