@@ -11,7 +11,8 @@ import  moment from 'moment';
 import SlidePane from 'widgets/slidePane';
 
 import ajax from '../../api';
-import actions from '../../store/modules/dataManage/actionCreator';
+// import actions from '../../store/modules/dataManage/actionCreator';
+import * as UserAction from '../../store/modules/user'
 
 const Search = Input.Search;
 const FormItem = Form.Item;
@@ -43,7 +44,7 @@ class LogSearchForm extends React.Component {
                             {projectUsers.map(o => <Option value={ `${o.userId}` }
                                 key={ o.userId }
                             >
-                                {o.userName}
+                                {o.user && o.user.userName}
                             </Option>)}
                         </Select>
                     )}
@@ -87,22 +88,22 @@ class TableLog extends React.Component {
         const { logs } = this.state;
         const columns = [{
             title: '变更时间',
+            width: 200,
             dataIndex: 'gmtCreate',
-            width: '200px',
             key: 'gmtCreate',
             render(text, record) {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }, {
             title: '操作人',
+            width: 200,
             dataIndex: 'userId',
-            width: '200px',
             key: 'userId',
             render(text, record) {
                 let userName;
 
                 projectUsers.forEach(function(o) {
-                    if(o.userId == text) userName = o.userName;
+                    if(o.userId == text) userName = o.user && o.user.userName;
                 }, this);
 
                 return <span>{ userName }</span>
@@ -112,7 +113,7 @@ class TableLog extends React.Component {
             dataIndex: 'actionSql',
             key: 'actionSql',
             render(text) {
-                return <code style={{ wordBreak: 'normal' }}>{text}</code>
+                return <code style={{ maxWidth: '400px', maxHeight: '100px' }}>{text}</code>
             }
         }];
 
@@ -199,6 +200,7 @@ class Log extends React.Component {
             tableLog: this.props.routeParams,
             visibleSlidePane: false,
             tableName: '',
+            isDeleted: '',
         }
     }
 
@@ -207,18 +209,16 @@ class Log extends React.Component {
         this.searchTable({
             tableName: tableName || ''
         });
-        this.props.getUsers({
-            projectId: this.props.projectId,
-            currentPage: 1,
-            pageSize: 1000
-        })
+        this.props.getUsers()
     }
 
     searchTable(args) {
+        const { isDeleted, tableName } = this.state
         const params = Object.assign({
             timeSort: 'desc',
-            tableName: '',
-            pageSize: 20
+            pageSize: 20,
+            tableName,
+            isDeleted,
         }, args);
 
         ajax.searchTable(params).then(res => {
@@ -230,15 +230,18 @@ class Log extends React.Component {
         });
     }
 
+    onTableNameChange = (e) => {
+        this.setState({
+            tableName: e.target.value
+        })
+    }
+
     handleTableChange = (pagination, filters) => {
         if (filters.tableName) {
             const isDeleted = filters.tableName[0]
-            this.searchTable({
-                isDeleted,
-            })
             this.setState({
                 isDeleted,
-            })
+            }, this.searchTable)
         }
     }
 
@@ -297,7 +300,7 @@ class Log extends React.Component {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }];
-        const { tableList, tableLog, visibleSlidePane } = this.state;
+        const { tableList, tableLog, visibleSlidePane, isDeleted } = this.state;
         const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
         const { projectUsers, params } = this.props;
 
@@ -305,7 +308,8 @@ class Log extends React.Component {
             <Search style={{ width: 200, marginTop: 10 }}
                 placeholder="按表名搜索"
                 defaultValue={params.tableName}
-                onSearch={ value => { this.searchTable({tableName: value}) } }
+                onChange={this.onTableNameChange}
+                onSearch={ value => { this.searchTable({tableName: value, isDeleted}) } }
             />
         )
 
@@ -357,12 +361,12 @@ class Log extends React.Component {
 
 const mapState = state => ({
     projectId: state.project.id,
-    projectUsers: state.dataManage.log.projectUsers
+    projectUsers: state.projectUsers
 });
 
 const mapDispatch = dispatch => ({
-    getUsers(params) {
-        dispatch(actions.getUsers(params))
+    getUsers() {
+        dispatch(UserAction.getProjectUsers())
     }
 });
 
