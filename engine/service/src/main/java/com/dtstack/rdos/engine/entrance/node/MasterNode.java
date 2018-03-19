@@ -261,7 +261,6 @@ public class MasterNode {
 
     /**
      * 转变为master之后
-     * 如果不修改当前的已经停止机器的任务恢复的话，需要修改rdos_engine_job_cache添加字段stage:用于标识任务是否已经下发。
      */
     public void loadQueueFromDB(){
         List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage());

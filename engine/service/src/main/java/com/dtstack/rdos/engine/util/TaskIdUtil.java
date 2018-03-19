@@ -12,6 +12,7 @@ public class TaskIdUtil {
 
     private final static String interval = "_";
 
+    /**1: 表明是迁移到该节点的数据*/
     private final static String MIGRATION_FLAG = "1";
 
     private final static String NO_MIGRATION_FLAG = "0";

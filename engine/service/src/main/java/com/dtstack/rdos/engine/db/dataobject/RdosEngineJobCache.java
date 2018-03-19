@@ -4,7 +4,7 @@ package com.dtstack.rdos.engine.db.dataobject;
  * Reason:
  * Date: 2017/11/6
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class RdosEngineJobCache extends DataObject{
