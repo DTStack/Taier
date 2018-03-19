@@ -290,13 +290,13 @@ export default class TaskQuery extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
-                    style={{ width: 200, margin: '10px 0' }}
+                    style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch}
                 />
 
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.onSourceChange} style={{ width: 150 }}>
+                    <Select allowClear onChange={this.onSourceChange} style={{ width: 100 }}>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -317,6 +317,7 @@ export default class TaskQuery extends Component {
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
+                        style={{ width: 100 }}
                         onChange={this.onBizTimeChange}
                     />
                 </div>
@@ -326,6 +327,7 @@ export default class TaskQuery extends Component {
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
+                        style={{ width: 100 }}
                         onChange={this.onExecuteTimeChange}
                     />
                 </div>
