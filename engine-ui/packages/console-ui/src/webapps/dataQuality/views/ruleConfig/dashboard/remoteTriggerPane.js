@@ -19,7 +19,9 @@ const mapDispatchToProps = dispatch => ({
     getRemoteTrigger(params) {
         dispatch(ruleConfigActions.getRemoteTrigger(params));
     },
-    
+    getMonitorRule(params) {
+        dispatch(ruleConfigActions.getMonitorRule(params));
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -28,34 +30,22 @@ export default class RemoteTriggerPane extends Component {
         super(props);
         this.state = {
             visible: false,
-            monitorPart: {},
             selectedIds: [],
-            rules: [],
-            detail: {},
-            remark: undefined
+            remark: undefined,
+            monitorId: undefined,
         };
     }
 
     componentDidMount() {
         const { data } = this.props;
+        let monitorId = data.monitorPartVOS[0].monitorId;
 
         this.props.getRemoteTrigger({ tableId: data.tableId });
-        
-        RCApi.getMonitorRule({
-            monitorId: data.monitorPartVOS[0].monitorId
-        }).then((res) => {
-            if (res.code === 1) {
-                this.setState({
-                    rules: res.data
-                });
-            }
-        });
-
-        this.setState({
-            monitorPart: data.monitorPartVOS[0]
-        });
+        this.props.getMonitorRule({ monitorId });
+        this.setState({ monitorId });
     }
 
+    // 远程调用table设置
     initTriggerColumns = () => {
         return [{
             title: '分区',
@@ -102,17 +92,17 @@ export default class RemoteTriggerPane extends Component {
                     </div>
                 );
             },
-        }]  
-
+        }]
     }
 
+    // 编辑远程调用
     editTrigger = (record) => {
         const { data } = this.props;
         let monitorPart = data.monitorPartVOS.filter(item => record.id === item.monitorId)[0];
-
+        this.props.getMonitorRule({ monitorId });
         if (monitorPart) {
             this.setState({ 
-                monitorPart, 
+                monitorId: record.id, 
                 selectedIds: record.ruleIds,
                 remark: record.remark
             });
@@ -120,45 +110,85 @@ export default class RemoteTriggerPane extends Component {
         }
     }
 
+    // 删除远程调用
     deleteTrigger = (id) => {
+        const { data } = this.props;
         RCApi.delRemoteTrigger({ monitorId: id }).then((res) => {
             if (res.code === 1) {
                 message.success('删除成功！');
+                this.props.getRemoteTrigger({ tableId: data.tableId });
             }
-        })
+        });
     }
 
-    initColumns = () => {
+    initRulesColumns = () => {
         return [{
             title: '字段',
             dataIndex: 'columnName',
             key: 'columnName',
-            render: (text, record) => this.renderColumns(text, record, 'columnName'),
+            render: (text, record) => {
+                let value = record.isCustomizeSql ? record.customizeSql : text;
+                let obj = {
+                    children: value,
+                    props: {
+                        colSpan: record.isCustomizeSql ? 3 : 1
+                    },
+                };
+
+                return obj;
+            },
             width: '17%',
         }, {
             title: '统计函数',
             dataIndex: 'functionId',
             key: 'functionId',
-            render: (text, record) => this.renderColumns(text, record, 'functionId'),
+            render: (text, record) => {
+                let obj = {
+                    children: record.functionName,
+                    props: {
+                        colSpan: record.isCustomizeSql ? 0 : 1
+                    },
+                };
+
+                return obj;
+            },
             width: '17%',
         }, 
         {
             title: '过滤条件',
             dataIndex: 'filter',
             key: 'filter',
-            render: (text, record) => this.renderColumns(text, record, 'filter'),
+            render: (text, record) => {
+                let obj = {
+                    children: text,
+                    props: {
+                        colSpan: record.isCustomizeSql ? 0 : 1
+                    },
+                };
+
+                return obj;
+            },
             width: '16%'
         }, {
             title: '校验方法',
             dataIndex: 'verifyType',
             key: 'verifyType',
-            render: (text, record) => this.renderColumns(text, record, 'verifyType'),
+            render: (text, record) => {
+                const { verifyType } = this.props.common.allDict;
+                return verifyType[text - 1].name || undefined;
+            },
             width: '14%',
         }, {
             title: '阈值配置',
             dataIndex: 'threshold',
             key: 'threshold',
-            render: (text, record) => this.renderColumns(text, record, 'threshold'),
+            render: (text, record) => {
+                if (record.verifyType !== 1) {
+                    return `${record.operator}  ${text}  %`;
+                } else {
+                    return `${record.operator}  ${text}`;
+                }
+            },
             width: '10%'
         }, {
             title: '最近修改人',
@@ -175,65 +205,11 @@ export default class RemoteTriggerPane extends Component {
         }]  
     }
 
-    renderColumns(text, record, type) {
-        const { currentRule } = this.state;
-        let obj = {
-            children: this.renderTD(text, record, type),
-            props: {},
-        };
-
-        if (record.isCustomizeSql) {
-            switch(type) {
-                case 'columnName':
-                    obj.props.colSpan = 3;
-                    break;
-                case 'functionId':
-                    obj.props.colSpan = 0;
-                    break;
-                case 'filter':
-                    obj.props.colSpan = 0;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return obj;
-    }
-
-    renderTD = (text, record, type) => {
-        const { ruleConfig, common } = this.props;
-        const { monitorFunction } = ruleConfig;
-        const { verifyType } = common.allDict;
-
-        switch (type) {
-            case 'columnName': {
-                if (record.isCustomizeSql) {
-                    return record.customizeSql;
-                } else {
-                    return text;
-                }
-            }
-
-            case 'functionId': {
-                return  record.functionName;
-            }
-
-            case 'verifyType': {
-                return verifyType[text - 1].name || undefined;
-            }
-
-            case 'threshold': {
-                return text ? `${record.operator}  ${text}` : 0;
-            }
-
-            default:
-                return text;
-        }
-    }
-
     onMonitorIdChange = (value) => {
+        let monitorId = value;
 
+        this.props.getMonitorRule({ monitorId });
+        this.setState({ monitorId });
     }
 
     onRemarkChange = (e) => {
@@ -254,12 +230,12 @@ export default class RemoteTriggerPane extends Component {
     }
 
     onRemoteTrigger = () => {
-        const { selectedIds, monitorPart, remark } = this.state;
+        const { selectedIds, monitorId, remark } = this.state;
         const { data } = this.props;
         
         if (selectedIds.length) {
             RCApi.addRemoteTrigger({
-                monitorId: monitorPart.monitorId,
+                monitorId: monitorId,
                 ruleIds: selectedIds,
                 remark: remark
             }).then((res) => {
@@ -276,10 +252,9 @@ export default class RemoteTriggerPane extends Component {
 
     render() {
         const { data, ruleConfig, common } = this.props;
-        const { rules, monitorPart, visible, selectedIds, remark } = this.state;
-        const { loading, triggerList } = ruleConfig;
+        const { monitorId, visible, selectedIds, remark } = this.state;
+        const { loading, triggerList, monitorRules } = ruleConfig;
 
-        let monitorId = monitorPart.monitorId ? monitorPart.monitorId.toString() : '';
         let rowSelection = {
             selectedRowKeys: selectedIds,
             onChange: (selectedIds, selectedRows) => {
@@ -339,7 +314,7 @@ export default class RemoteTriggerPane extends Component {
                         <div>
                             分区：
                             <Select 
-                                value={monitorId}
+                                value={monitorId ? monitorId.toString() : undefined}
                                 style={{ width: 150 }}
                                 onChange={this.onMonitorIdChange}>
                                 {
@@ -355,9 +330,9 @@ export default class RemoteTriggerPane extends Component {
                         rowKey="id"
                         className="m-table common-table"
                         rowSelection={rowSelection}
-                        columns={this.initColumns()}
+                        columns={this.initRulesColumns()}
                         pagination={false}
-                        dataSource={rules}
+                        dataSource={monitorRules}
                     />
                     
                     <TextArea 

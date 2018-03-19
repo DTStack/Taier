@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
     loading: false,
-    ruleLists: [],
+    monitorList: [],
     monitorFunction: [],
     monitorRules: [],
     monitorDetail: {},
@@ -23,8 +23,8 @@ export default function ruleConfig(state = initialState, action) {
 
         case ruleConfigActionType.GET_MONITOR_LIST: {
             const clone = cloneDeep(state);
-            const { ruleLists } = clone;
-            clone.ruleLists = payload;
+            const { monitorList } = clone;
+            clone.monitorList = payload;
             return clone;
         }
 

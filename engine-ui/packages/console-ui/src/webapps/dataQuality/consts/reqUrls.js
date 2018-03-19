@@ -28,12 +28,18 @@ export default {
     MASSAGE_MARK_AS_ALL_READ: `${DQ_BASE_URL}/notify/allRead`,
     MASSAGE_DELETE: `${DQ_BASE_URL}/notify/delete`,
 
+    // ===== 总览 ===== //
+    GET_TOP_RECORD: `${DQ_BASE_URL}/monitorRecord/countTopRecord`,    // 查询告警top20的表
+    GET_SUM_ALARM: `${DQ_BASE_URL}/monitorRecord/sumAlarm`,           // 告警汇总（今日告警总数/最近7天告警总数/最近30天告警总数）
+    GET_MONTH_ALARM: `${DQ_BASE_URL}/monitorRecord/monthAlarm`,       // 近30天每日告警数
+    GET_DASHBOARD_USAGE: `${DQ_BASE_URL}/monitorRecord/usage`,        // 使用情况（已配置表数 / 已配置规则数 / 昨日新增表数 / 昨日新增规则数）
+
     // ===== 数据源管理 ===== //
-    GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`,       // 通过查询数据源
-    CHECK_CONNECTION: `${DQ_BASE_URL}/dataSource/checkConnection`, // 检查数据库连接
-    ADD_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/addSource`,       // 新增数据源
-    UPDATE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/updateSource`, // 新增数据源
-    DELETE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/deleteSource`, // 删除数据源
+    GET_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/pageQuery`,          // 通过查询数据源
+    CHECK_CONNECTION: `${DQ_BASE_URL}/dataSource/checkConnection`,    // 检查数据库连接
+    ADD_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/addSource`,          // 新增数据源
+    UPDATE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/updateSource`,    // 新增数据源
+    DELETE_DATA_SOURCES: `${DQ_BASE_URL}/dataSource/deleteSource`,    // 删除数据源
 
     GET_DATA_SOURCES_LIST: `${DQ_BASE_URL}/dataSource/list`,          // 查询已添加的数据源类型
     GET_DATA_SOURCES_TYPE: `${DQ_BASE_URL}/dataSource/getTypes`,      // 查询所有数据源类型
@@ -44,34 +50,40 @@ export default {
     
 
     // ===== 逐行校验 ===== //
-    GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`,       // 逐行校验列表数据
-    GET_CHECK_DETAIL: `${DQ_BASE_URL}/verify/getOne`,        // 单个数据详情
-    ADD_CHECK: `${DQ_BASE_URL}/verify/add`,                  // 编辑逐行校验
-    UPDATE_CHECK: `${DQ_BASE_URL}/verify/update`,            // 编辑逐行校验
-    DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,      // 删除逐行校验
-    GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`,     // 获取报告
+    GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`,                // 逐行校验列表数据
+    GET_CHECK_DETAIL: `${DQ_BASE_URL}/verify/getOne`,                 // 单个数据详情
+    ADD_CHECK: `${DQ_BASE_URL}/verify/add`,                           // 编辑逐行校验
+    UPDATE_CHECK: `${DQ_BASE_URL}/verify/update`,                     // 编辑逐行校验
+    DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,               // 删除逐行校验
+    GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`,              // 获取报告
 
     // ===== 规则配置 ===== //
-    GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,          // 规则配置列表
-    ADD_MONITOR: `${DQ_BASE_URL}/monitor/add`,                     // 新增规则配置
-    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,                  // 编辑规则配置
-    GET_RULE_PART: `${DQ_BASE_URL}/monitor/getPart`,               // 获取规则分区
-    CHANGE_MONITOR_STATUS: `${DQ_BASE_URL}/monitor/closeOrOpen`,   // 开启关闭监控
-    GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,           // 告警信息详情
-    RULE_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/remoteTrigger`,   // 远程触发
-    EXECUTE_MONITOR: `${DQ_BASE_URL}/monitor/immediatelyExecuted`, // 立即执行
+    GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,             // 规则配置列表
+    ADD_MONITOR: `${DQ_BASE_URL}/monitor/add`,                        // 新增规则配置
+    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,                     // 编辑规则配置
+    GET_RULE_PART: `${DQ_BASE_URL}/monitor/getPart`,                  // 获取规则分区
+    CHANGE_MONITOR_STATUS: `${DQ_BASE_URL}/monitor/closeOrOpen`,      // 开启关闭监控
+    GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,              // 告警信息详情
+    RULE_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/remoteTrigger`,      // 远程触发
+    EXECUTE_MONITOR: `${DQ_BASE_URL}/monitor/immediatelyExecuted`,    // 立即执行
 
-    GET_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/getRemoteTrigger`,// 远程触发
-    ADD_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/addRemoteTriger`, // 远程触发
-    DEL_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/deleteRemoteTrigger`,   // 远程触发
+    GET_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/getRemoteTrigger`,    // 获取配置的远程触发
+    ADD_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/addRemoteTriger`,     // 新增和更新远程触发
+    DEL_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/deleteRemoteTrigger`, // 删除远程触发
 
-    GET_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/getRules`,       // 获取监控规则
-    SAVE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/save`,          // 保存监控规则
-    DELETE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/delete`,      // 删除监控规则
-    GET_RULE_FUNCTION: `${DQ_BASE_URL}/function/getFunctions`,     // 统计函数
+    GET_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/getRules`,          // 获取监控规则
+    SAVE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/save`,             // 保存监控规则
+    DELETE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/delete`,         // 删除监控规则
+    GET_RULE_FUNCTION: `${DQ_BASE_URL}/function/getFunctions`,        // 统计函数
 
-    SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`,         // 订阅
-    UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unSubscribe`,     // 取消订阅
+    SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`,            // 订阅
+    UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unSubscribe`,        // 取消订阅
+
+    // ===== 任务查询 ===== //
+    GET_TASK_LIST: `${DQ_BASE_URL}/monitorRecord/pageQuery`,          // 查询任务列表
+    GET_TASK_DETAIL: `${DQ_BASE_URL}/monitorRecord/detailReport`,     // 任务详细报告
+    GET_TABLE_REPORT: `${DQ_BASE_URL}/monitorRecord/tableReport`,     // 任务表级报告
+    GET_TASK_ALARM_NUM: `${DQ_BASE_URL}/monitorRecord/ruleMonthAlarm`,// 任务报警统计值
 
     // ===== common ===== //
     DQ_GET_ALL_DICT: `${DQ_BASE_URL}/dict/allDicts`,
