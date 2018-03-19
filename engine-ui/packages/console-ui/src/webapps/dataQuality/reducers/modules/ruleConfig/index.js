@@ -6,7 +6,8 @@ const initialState = {
     ruleLists: [],
     monitorFunction: [],
     monitorRules: [],
-    monitorDetail: {}
+    monitorDetail: {},
+    triggerList: []
 }
 
 export default function ruleConfig(state = initialState, action) {
@@ -45,6 +46,13 @@ export default function ruleConfig(state = initialState, action) {
             const clone = cloneDeep(state);
             const { monitorDetail } = clone;
             clone.monitorDetail = payload;
+            return clone;
+        }
+
+        case ruleConfigActionType.GET_REMOTE_TRIGGER: {
+            const clone = cloneDeep(state);
+            const { triggerList } = clone;
+            clone.triggerList = payload;
             return clone;
         }
 

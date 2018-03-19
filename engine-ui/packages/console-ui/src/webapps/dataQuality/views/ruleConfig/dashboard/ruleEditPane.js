@@ -611,6 +611,14 @@ export default class RuleEditPane extends Component {
         }]
     }
 
+    executeMonitor = (monitorId) => {
+        this.props.executeMonitor({ monitorId });
+    }
+
+    changeMonitorStatus = (monitorId) => {
+        this.props.changeMonitorStatus({ monitorId });
+    }
+
     render() {
         const { data, ruleConfig, form, common } = this.props;
         const { getFieldDecorator } = form;
@@ -661,9 +669,9 @@ export default class RuleEditPane extends Component {
                     </Col>
 
                     <Col span={12}>
-                        <Button type="primary" onClick={this.props.executeMonitor}>立即执行</Button>
-                        <Button className="m-l-8" type="primary">编辑执行信息</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.props.changeRuleStatus}>关闭检测</Button>
+                        <Button type="primary" onClick={this.executeMonitor.bind(this, monitorId)}>立即执行</Button>
+                        <Button className="m-l-8" type="primary" onClick={this.editMonitorInfo}>编辑执行信息</Button>
+                        <Button className="m-l-8" type="primary" onClick={this.changeMonitorStatus.bind(this, monitorId)}>关闭检测</Button>
                     </Col>
                 </Row>
 

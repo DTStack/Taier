@@ -37,4 +37,14 @@ export default {
     getMonitorDetail(params) {
         return http.post(req.GET_MONITOR_DETAIL, params);
     },
+    getRemoteTrigger(params) {
+        return http.post(req.GET_REMOTE_TRIGGER, params);
+    },
+    addRemoteTrigger(params) {
+        return http.post(req.ADD_REMOTE_TRIGGER, params);
+    },
+    delRemoteTrigger(params) {
+        return http.post(req.DEL_REMOTE_TRIGGER, params);
+    },
+    
 }

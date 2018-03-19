@@ -6,5 +6,6 @@ export const ruleConfigActionType = mc([
     'GET_RULE_FUNCTION',
     'CHANGE_PARAMS',
     'GET_MONITOR_RULE',
-    'GET_MONITOR_DETAIL'
+    'GET_MONITOR_DETAIL',
+    'GET_REMOTE_TRIGGER'
 ], { prefix: 'ruleConfig/' });

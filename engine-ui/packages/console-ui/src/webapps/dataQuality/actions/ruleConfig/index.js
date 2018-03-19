@@ -76,11 +76,30 @@ export const ruleConfigActions = {
 		}
 	},
 	executeMonitor(params) {
+		console.log(111)
 		return dispatch => {
 			API.executeMonitor(params).then((res) => {
 				if (res.code === 1) {
 					message.success('操作成功！');
 				}
+			});
+		}
+	},
+	getRemoteTrigger(params) {
+		return dispatch => {
+			dispatch({
+				type: ruleConfigActionType.CHANGE_LOADING
+			});
+			API.getRemoteTrigger(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: ruleConfigActionType.GET_REMOTE_TRIGGER,
+						payload: res.data
+					});
+				} 
+				dispatch({
+					type: ruleConfigActionType.CHANGE_LOADING
+				});
 			});
 		}
 	},
