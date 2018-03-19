@@ -49,9 +49,9 @@ public class ActionServiceImpl {
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     private RdosEngineStreamJobDAO streamTaskDAO = new RdosEngineStreamJobDAO();
-    
+
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
-    
+
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
@@ -342,7 +342,7 @@ public class ActionServiceImpl {
         return result;
     }
 
-    
+
     @Forbidden
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
         if (ComputeType.STREAM.getType().equals(computeType)) {
@@ -444,6 +444,31 @@ public class ActionServiceImpl {
             }
         }
         return status;
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job开始运行的时间
+     * return 毫秒级时间戳
+     */
+    public Long startTime(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId)||computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        Long startTime = null;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            if (streamJob != null) {
+                startTime = streamJob.getExecStartTime().getTime();
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if (batchJob != null) {
+                startTime = batchJob.getExecStartTime().getTime();
+            }
+        }
+        return startTime;
     }
 
     public String generateUniqueSign(){
