@@ -86,7 +86,7 @@ public class MasterNode {
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             priorityQueueMap.put(key, new GroupPriorityQueue());
         }
-        //TODO 初始化有问题---当前是会变化的
+
         senderExecutor = Executors.newSingleThreadExecutor();
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
@@ -122,7 +122,7 @@ public class MasterNode {
      * @param jobId
      * @return
      */
-    public boolean stopTaskIfExists(String engineType, String groupName, String jobId){
+    public boolean stopTaskIfExists(String engineType, String groupName, String jobId, Integer computeType){
         GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(engineType);
         if(groupPriorityQueue == null){
             throw new RdosException("not support engine type:" + engineType);
@@ -131,6 +131,12 @@ public class MasterNode {
         boolean result = groupPriorityQueue.remove(groupName, jobId);
         if(result){
             engineJobCacheDao.deleteJob(jobId);
+            //修改任务状态
+            if(ComputeType.BATCH.getType().equals(computeType)){
+                rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            }else if(ComputeType.STREAM.getType().equals(computeType)){
+                rdosEngineStreamJobDao.updateTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            }
         }
 
         return result;
@@ -261,7 +267,6 @@ public class MasterNode {
 
     /**
      * 转变为master之后
-     * 如果不修改当前的已经停止机器的任务恢复的话，需要修改rdos_engine_job_cache添加字段stage:用于标识任务是否已经下发。
      */
     public void loadQueueFromDB(){
         List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage());

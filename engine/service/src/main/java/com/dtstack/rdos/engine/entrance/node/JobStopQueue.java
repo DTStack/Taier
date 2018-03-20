@@ -78,7 +78,7 @@ public class JobStopQueue {
                     String jobId = paramAction.getTaskId();
 
                     //在master等待队列中查找
-                    if(masterNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), jobId)){
+                    if(masterNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), jobId, paramAction.getComputeType())){
                         LOG.info("stop job:{} success." + paramAction.getTaskId());
                         continue;
                     }
@@ -95,7 +95,7 @@ public class JobStopQueue {
                     String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
                     String addr = zkDistributed.getJobLocationAddr(zkTaskId);
                     if(addr == null){
-                        LOG.info("can't get info from engine zk for jobId:" + jobId);
+                        LOG.info("can't get info from engine zk for jobId" + jobId);
                         continue;
                     }
 
