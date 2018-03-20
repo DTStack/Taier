@@ -33,4 +33,28 @@ export const taskQueryActions = {
 			});
 		}
 	},
+	getTaskTableReport(params) {
+		return dispatch => {
+			API.getTaskTableReport(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: taskQueryActionType.GET_TASK_TABLE_REPORT,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
+	getTaskAlarmNum(params) {
+		return dispatch => {
+			API.getTaskAlarmNum(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: taskQueryActionType.GET_TASK_ALARM_NUM,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 }

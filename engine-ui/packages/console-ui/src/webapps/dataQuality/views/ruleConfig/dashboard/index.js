@@ -61,6 +61,7 @@ export default class RuleConfig extends Component {
             isSubscribe: undefined,
             periodType: undefined
         },
+        tabKey: '1',
         visibleSlidePane: false,
         showRemoteModal: false,
         currentMonitor: {}
@@ -289,7 +290,8 @@ export default class RuleConfig extends Component {
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
-            currentMonitor: {}
+            currentMonitor: {},
+            tabKey: '1'
         })
     }
 
@@ -305,13 +307,15 @@ export default class RuleConfig extends Component {
         })
     }
 
-
+    onTabChange = (key) => {
+        this.setState({ tabKey: key });
+    }
 
     render() {
         const { monitorList, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
         const { userList, allDict } = this.props.common;
-        const { params, visibleSlidePane, currentMonitor, showRemoteModal } = this.state;
+        const { params, visibleSlidePane, currentMonitor, showRemoteModal, tabKey } = this.state;
 
         const pagination = {
             current: params.pageIndex,
@@ -411,7 +415,8 @@ export default class RuleConfig extends Component {
                             <div className="m-tabs m-card bd" style={{height: '100%'}}>
                                 <Tabs 
                                     animated={false}
-                                    // onChange={ this.getPreview.bind(this) }
+                                    activeKey={tabKey}
+                                    onChange={this.onTabChange}
                                 >
                                     
                                     <TabPane tab="规则管理" key="1">

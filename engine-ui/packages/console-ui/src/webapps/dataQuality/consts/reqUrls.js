@@ -30,8 +30,8 @@ export default {
 
     // ===== 总览 ===== //
     GET_TOP_RECORD: `${DQ_BASE_URL}/monitorRecord/countTopRecord`,    // 查询告警top20的表
-    GET_SUM_ALARM: `${DQ_BASE_URL}/monitorRecord/sumAlarm`,           // 告警汇总（今日告警总数/最近7天告警总数/最近30天告警总数）
-    GET_MONTH_ALARM: `${DQ_BASE_URL}/monitorRecord/monthAlarm`,       // 近30天每日告警数
+    GET_ALARM_SUM: `${DQ_BASE_URL}/monitorRecord/sumAlarm`,           // 告警汇总（今日告警总数/最近7天告警总数/最近30天告警总数）
+    GET_ALARM_TREND: `${DQ_BASE_URL}/monitorRecord/monthAlarm`,       // 近30天每日告警数
     GET_DASHBOARD_USAGE: `${DQ_BASE_URL}/monitorRecord/usage`,        // 使用情况（已配置表数 / 已配置规则数 / 昨日新增表数 / 昨日新增规则数）
 
     // ===== 数据源管理 ===== //
