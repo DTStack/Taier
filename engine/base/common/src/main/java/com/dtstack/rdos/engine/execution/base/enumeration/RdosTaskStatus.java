@@ -2,8 +2,11 @@ package com.dtstack.rdos.engine.execution.base.enumeration;
 
 import com.google.common.base.Strings;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * 
@@ -20,6 +23,15 @@ public enum RdosTaskStatus {
     FROZEN(18), ENGINEACCEPTED(19), ENGINEDISTRIBUTE(20);
 	
 	private int status;
+
+    private static List<Integer> canStopStatus = Lists.newArrayList(
+            UNSUBMIT.getStatus(),
+            CREATED.getStatus(), SCHEDULED.getStatus(),
+            DEPLOYING.getStatus(), RUNNING.getStatus(),
+            SUBMITTING.getStatus(), RESTARTING.getStatus(),
+            SUBMITTED.getStatus(), WAITENGINE.getStatus(),
+            WAITCOMPUTE.getStatus(), ENGINEACCEPTED.getStatus(),
+            ENGINEDISTRIBUTE.getStatus());
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 	
@@ -88,6 +100,10 @@ public enum RdosTaskStatus {
         }
 
         return false;
+    }
+
+    public static List<Integer> getCanStopStatus(){
+        return canStopStatus;
     }
     
     public static void main(String[] args){

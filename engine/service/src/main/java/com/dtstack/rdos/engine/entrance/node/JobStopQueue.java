@@ -1,8 +1,14 @@
 package com.dtstack.rdos.engine.entrance.node;
 
+import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
+import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
@@ -33,6 +39,10 @@ public class JobStopQueue {
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+
+    private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
+
+    private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
 
     private JobStopAction jobStopAction = new JobStopAction();
 
@@ -77,6 +87,10 @@ public class JobStopQueue {
                     ParamAction paramAction = queue.take();
                     String jobId = paramAction.getTaskId();
 
+                    if(!checkCanStop(jobId, paramAction.getComputeType())){
+                        continue;
+                    }
+
                     //在master等待队列中查找
                     if(masterNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), jobId, paramAction.getComputeType())){
                         LOG.info("stop job:{} success." + paramAction.getTaskId());
@@ -110,6 +124,28 @@ public class JobStopQueue {
 
         }
 
+        /**
+         * 判断任务是否可停止
+         * @param taskId
+         * @param computeType
+         * @return
+         */
+        private boolean checkCanStop(String taskId, Integer computeType){
+
+            Integer sta;
+            if(ComputeType.BATCH.getType().equals(computeType)){
+                RdosEngineBatchJob rdosEngineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(taskId);
+                sta = rdosEngineBatchJob.getStatus().intValue();
+            }else if(ComputeType.STREAM.getType().equals(computeType)){
+                RdosEngineStreamJob rdosEngineStreamJob = engineStreamJobDAO.getRdosTaskByTaskId(taskId);
+                sta = rdosEngineStreamJob.getStatus().intValue();
+            }else{
+                LOG.error("invalid compute type:{}", computeType);
+                return false;
+            }
+
+            return RdosTaskStatus.getCanStopStatus().contains(sta);
+        }
 
 
         public void stop(){
