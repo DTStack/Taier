@@ -33,7 +33,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -54,8 +53,6 @@ public class SparkYarnClient extends AbsClient {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private SparkYarnConfig sparkYarnConfig;
-
-//    private String deployMode = "cluster";
 
     private Configuration yarnConf = new YarnConfiguration();
 
@@ -135,16 +132,7 @@ public class SparkYarnClient extends AbsClient {
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
         sparkConf.remove("spark.files");
-//        sparkConf.set("spark.master", "yarn");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
-//        sparkConf.set("spark.submit.deployMode", deployMode);
-//
-//        //----设定spark 执行的executor数量(默认为1)
-//        sparkConf.set("spark.executor.instances", SparkYarnResourceInfo.DEFAULT_INSTANCES + "");
-//        //----设定每个executor 的cpu(默认为1)
-//        sparkConf.set("spark.executor.cores", SparkYarnResourceInfo.DEFAULT_CORES + "");
-//        //----设定每个executor 的mem(默认为512m)
-//        sparkConf.set("spark.executor.memory", SparkYarnResourceInfo.DEFAULT_MEM + "m");
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
