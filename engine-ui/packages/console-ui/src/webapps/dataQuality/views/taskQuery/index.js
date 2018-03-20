@@ -374,7 +374,10 @@ export default class TaskQuery extends Component {
                             onChange={this.onTableChange}
                         />
 
-                        <SlidePane 
+                        
+                    </Card>
+                </div>
+                <SlidePane 
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
                             style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
@@ -386,19 +389,16 @@ export default class TaskQuery extends Component {
                                 >
                                     
                                     <TabPane tab="详细报告" key="1">
-                                    	<TaskDetailPane data={currentTask}>
-                                    	</TaskDetailPane>
+                                        <TaskDetailPane data={currentTask}>
+                                        </TaskDetailPane>
                                     </TabPane>
                                     <TabPane tab="表级报告" key="2">
-                                    	<TaskTablePane data={currentTask}>
-                                    	</TaskTablePane>
+                                        <TaskTablePane data={currentTask}>
+                                        </TaskTablePane>
                                     </TabPane>
                                 </Tabs>
                             </div>
                         </SlidePane>
-                    </Card>
-                </div>
-
             </div>
         )
     }
