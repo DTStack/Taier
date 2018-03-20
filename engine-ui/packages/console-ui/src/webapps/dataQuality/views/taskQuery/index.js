@@ -11,12 +11,13 @@ import moment from 'moment';
 
 import SlidePane from 'widgets/slidePane';
 import TaskDetailPane from './taskDetailPane';
+import TaskTablePane from './taskTablePane';
 import { taskQueryActions } from '../../actions/taskQuery';
 import { dataSourceActions } from '../../actions/dataSource';
 import { commonActions } from '../../actions/common';
 import { dataSourceTypes, periodType } from '../../consts';
 
-// import '../../../styles/views/taskQuery.scss';
+import '../../styles/views/taskQuery.scss';
 
 const Search = Input.Search;
 const InputGroup = Input.Group;
@@ -59,8 +60,8 @@ export default class TaskQuery extends Component {
             dataSourceId: undefined,
             dataSourceType: undefined,
             subscribe: undefined,
-            executeTime: undefined,
-            bizTime: undefined
+            executeTime: 0,
+            bizTime: 0
         },
         visibleSlidePane: false,
         currentTask: {}
@@ -87,7 +88,10 @@ export default class TaskQuery extends Component {
         }, {
             title: '分区',
             dataIndex: 'partationValue',
-            key: 'partationValue'
+            key: 'partationValue',
+            render: (text, record) => {
+                return text ? text : '--';
+            }
         }, 
         {
             title: '状态',
@@ -115,7 +119,7 @@ export default class TaskQuery extends Component {
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             render: (text, record) => {
-                return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
+                return text ? `${dataSourceTypes[text]} / ${record.sourceName}` : '--';
             }
         }, {
             title: '配置人',
@@ -221,7 +225,7 @@ export default class TaskQuery extends Component {
 
     // 业务日期变化回调
     onBizTimeChange = (date, dateString) => {
-        let bizTime = date ? date.valueOf() : undefined;
+        let bizTime = date ? date.valueOf() : 0;
         let params = {...this.state.params, bizTime};
         
         this.setState({ params });
@@ -230,7 +234,7 @@ export default class TaskQuery extends Component {
 
     // 执行时间变化回调
     onExecuteTimeChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined;
+        let executeTime = date ? date.valueOf() : 0;
         let params = {...this.state.params, executeTime};
         
         this.setState({ params });
@@ -290,13 +294,13 @@ export default class TaskQuery extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
-                    style={{ width: 200, margin: '10px 0' }}
+                    style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch}
                 />
 
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.onSourceChange} style={{ width: 150 }}>
+                    <Select allowClear onChange={this.onSourceChange} style={{ width: 100 }}>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -317,6 +321,7 @@ export default class TaskQuery extends Component {
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
+                        style={{ width: 100 }}
                         onChange={this.onBizTimeChange}
                     />
                 </div>
@@ -326,6 +331,7 @@ export default class TaskQuery extends Component {
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
+                        style={{ width: 100 }}
                         onChange={this.onExecuteTimeChange}
                     />
                 </div>
@@ -347,7 +353,7 @@ export default class TaskQuery extends Component {
         )
 
         return (
-            <div className="rule-dashboard">
+            <div className="task-dashboard">
                 <h1 className="box-title">
                     任务查询
                 </h1>
@@ -373,18 +379,19 @@ export default class TaskQuery extends Component {
                             visible={ visibleSlidePane } 
                             style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                         >
-                            <div className="m-tabs m-card bd" style={{height: '100%'}}>
+                            <div className="m-tabs m-card bd" style={{ height: '100%' }}>
                                 <Tabs 
                                     animated={false}
                                     // onChange={ this.getPreview.bind(this) }
                                 >
                                     
-                                    <TabPane tab="规则管理" key="1">
+                                    <TabPane tab="详细报告" key="1">
                                     	<TaskDetailPane data={currentTask}>
                                     	</TaskDetailPane>
                                     </TabPane>
-                                    <TabPane tab="远程触发" key="2">
-                                        22
+                                    <TabPane tab="表级报告" key="2">
+                                    	<TaskTablePane data={currentTask}>
+                                    	</TaskTablePane>
                                     </TabPane>
                                 </Tabs>
                             </div>

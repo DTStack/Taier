@@ -45,6 +45,22 @@ export default class RemoteTriggerPane extends Component {
         this.setState({ monitorId });
     }
 
+    componentWillReceiveProps(nextProps) {
+        let oldData = this.props.data,
+            newData = nextProps.data;
+
+        if (isEmpty(oldData) && !isEmpty(newData)) {
+            console.log(oldData,newData,'trigger')
+            let monitorId = newData.monitorPartVOS[0].monitorId;
+
+            if (monitorId) {
+                this.props.getRemoteTrigger({ tableId: newData.tableId });
+                this.props.getMonitorRule({ monitorId });
+                this.setState({ monitorId });
+            }
+        }
+    }
+
     // 远程调用table设置
     initTriggerColumns = () => {
         return [{
@@ -99,7 +115,7 @@ export default class RemoteTriggerPane extends Component {
     editTrigger = (record) => {
         const { data } = this.props;
         let monitorPart = data.monitorPartVOS.filter(item => record.id === item.monitorId)[0];
-        this.props.getMonitorRule({ monitorId });
+        this.props.getMonitorRule({ monitorId: record.id });
         if (monitorPart) {
             this.setState({ 
                 monitorId: record.id, 

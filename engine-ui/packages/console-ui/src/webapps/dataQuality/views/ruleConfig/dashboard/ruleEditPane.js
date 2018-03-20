@@ -74,7 +74,7 @@ export default class RuleEditPane extends Component {
         });
         this.props.getRuleFunction();
         this.props.getDataSourcesColumn({
-            sourceId: data.dataSourceType,
+            sourceId: data.sourceId,
             tableName: data.tableName
         });
     }
