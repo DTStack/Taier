@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -456,19 +458,22 @@ public class ActionServiceImpl {
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        Long startTime = null;
+        Date startTime = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
             RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
-                startTime = streamJob.getExecStartTime().getTime();
+                startTime = streamJob.getExecStartTime();
             }
         } else if (ComputeType.BATCH.getType().equals(computeType)) {
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
             if (batchJob != null) {
-                startTime = batchJob.getExecStartTime().getTime();
+                startTime = batchJob.getExecStartTime();
             }
         }
-        return startTime;
+        if (startTime!=null){
+            return startTime.getTime();
+        }
+        return null;
     }
 
     public String generateUniqueSign(){
