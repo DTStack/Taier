@@ -82,6 +82,7 @@ public class TaskStatusListener implements Runnable{
 	  	while(true){
 	  		try{
 		  		++index;
+                Thread.sleep(listener);
 		  		if(PublicUtil.count(index, 5)){logger.warn("\n" +
                         "\t\t  \t\tThread.sleep(listener);TaskStatusListener start again...");}
 		  		updateTaskStatus();
