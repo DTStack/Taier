@@ -10,7 +10,6 @@ import {
 } from 'antd';
 
 import GoBack from 'main/components/go-back';
-import scrollText from 'widgets/scrollText';
 
 import Editor from '../../components/code-editor';
 import ajax from '../../api';
@@ -179,7 +178,9 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>描述</th>
-                                        <td>{ scrollText(tableData.table.tableDesc) }</td>
+                                        <td style={{maxWidth: '200px', wordBreak: 'break-all'}} className="no-scroll-bar">
+                                            {tableData.table.tableDesc}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table> }

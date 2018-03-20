@@ -8,7 +8,7 @@ export function taskTypeText(type) {
         case TASK_TYPE.MR:
             return 'MR';
         case TASK_TYPE.SYNC:
-            return 'Sync';
+            return '数据同步';
         case TASK_TYPE.VIRTUAL_NODE:
             return 'Virtual';
         case TASK_TYPE.PYTHON:

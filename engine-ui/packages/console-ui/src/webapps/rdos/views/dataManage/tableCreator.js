@@ -284,7 +284,28 @@ export class RowItem extends React.Component {
             if(!newData.varcharLen) newData.varcharLen = 10;
         }
 
-        replaceRow(newData);
+        if (this.checkParams(newData)) {
+            replaceRow(newData);
+        }
+    }
+
+    checkParams(params) {
+        const reg = /^[A-Za-z0-9_]+$/;
+        if (params.name) {
+            if (!reg.test(params.name)) {
+                message.error('字段名称只能由字母、数字、下划线组成！')
+                return false;
+            }
+            if (params.name.length > 20) {
+                message.error('字段名称不可超过20个字符！')
+                return false;
+            }
+        }
+        if (params.comment && params.comment.length > 100) {
+            message.error('字段备注不可超过100个字符！')
+            return false;
+        }
+        return true;
     }
 
     shouldComponentUpdate(nextProps, nextState) {

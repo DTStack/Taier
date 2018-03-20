@@ -188,7 +188,7 @@ export const offlineTaskTypeFilter = [{
     value: TASK_TYPE.MR,
 }, {
     id: 3,
-    text: 'Sync',
+    text: '数据同步',
     value: TASK_TYPE.SYNC,
 }, {
     id: 4,

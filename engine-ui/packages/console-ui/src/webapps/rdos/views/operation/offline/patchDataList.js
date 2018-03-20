@@ -180,7 +180,7 @@ class PatchDataList extends Component {
                 return <span>{ record.fromDay} ~ {record.toDay }</span>
             },
         }, {
-            title: '开始运行时间',
+            title: '实例生成时间',
             dataIndex: 'createTime',
             key: 'createTime',
         }, {

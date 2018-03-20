@@ -25,7 +25,7 @@ export default class TableAnalytics extends Component {
     componentDidMount() {
         const tableId = this.state.tableId;
         this.getTableAnalytics({ tableId, limit: 10, errorType: 0 });
-        this.getTablePartitions({ tableId, pageSize: 100 });
+        this.getTablePartitions({ tableId, pageSize: 1000 });
         this.getTableCountInfo({ tableId });
     }
 
@@ -109,7 +109,7 @@ export default class TableAnalytics extends Component {
         const { data, tablePartitions, tableCountInfo } = this.state
   
         const partitionsOptions = tablePartitions && tablePartitions.map(p => 
-            <Option id={p.partId} value={`${p.partId}`}>
+            <Option id={p.partId} value={`${p.partId}`} title={p.name}>
                 {p.name}
             </Option>
         )

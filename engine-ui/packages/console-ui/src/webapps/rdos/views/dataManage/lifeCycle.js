@@ -82,7 +82,7 @@ class LifeCycle extends React.Component {
         const value = e.target.value
         if (this.state.showCustom) {
             // 不可小于0
-            this.props.onChange(value < 0 ? 1 : value)
+            this.props.onChange(value < 1 ? 1 : value)
         }
     }
 
