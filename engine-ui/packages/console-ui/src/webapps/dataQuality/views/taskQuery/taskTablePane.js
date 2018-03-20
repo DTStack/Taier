@@ -35,14 +35,14 @@ export default class TaskTablePane extends Component {
 
     componentDidMount() {
         const { data } = this.props;
-        this.props.getTaskTableReport({
-            tableId: 87,
-            recordId: 21
-        });
         // this.props.getTaskTableReport({
-        //     recordId: data.id,
-        //     tableId: data.tableId
+        //     tableId: 87,
+        //     recordId: 21
         // });
+        this.props.getTaskTableReport({
+            recordId: data.id,
+            tableId: data.tableId
+        });
     }
 
     componentWillReceiveProps(nextProps) {
@@ -54,10 +54,11 @@ export default class TaskTablePane extends Component {
         }
 
         if (isEmpty(this.props.data) && !isEmpty(nextProps.data)) {
-            // this.props.getTaskTableReport({
-            //     recordId: newData.id,
-            //     tableId: newData.tableId
-            // });
+            console.log(nextProps.data)
+            this.props.getTaskTableReport({
+                recordId: nextProps.data.id,
+                tableId: nextProps.data.tableId
+            });
         }
     }
 
@@ -132,11 +133,13 @@ export default class TaskTablePane extends Component {
         return [{
             title: '记录数',
             dataIndex: 'countData',
-            key: 'countData'
+            key: 'countData',
+            width: '50%'
         }, {
             title: '报警数',
             dataIndex: 'countTrigger',
-            key: 'countTrigger'
+            key: 'countTrigger',
+            width: '50%'
         }]  
     }
 
@@ -165,15 +168,18 @@ export default class TaskTablePane extends Component {
             title: '业务日期',
             dataIndex: 'bizTime',
             key: 'bizTime',
-            render: (value) => (moment(value).format("YYYY-MM-DD HH:mm:ss"))
+            render: (value) => (moment(value).format("YYYY-MM-DD HH:mm:ss")),
+            width: '40%'
         }, {
             title: '记录数',
             dataIndex: 'dayCountRecord',
-            key: 'dayCountRecord'
+            key: 'dayCountRecord',
+            width: '30%'
         }, {
             title: '总告警数',
             dataIndex: 'dayCountTrigger',
-            key: 'dayCountTrigger'
+            key: 'dayCountTrigger',
+            width: '30%'
         }]  
     }
 
@@ -181,6 +187,8 @@ export default class TaskTablePane extends Component {
         const { data, taskQuery, common } = this.props;
         const { monitorId, visible, selectedIds, remark } = this.state;
         const { loading, tableReport } = taskQuery;
+
+        let reportData = !isEmpty(tableReport) ? [tableReport] : [];
 
         const tableReportTitle = (
             <div>
@@ -196,7 +204,7 @@ export default class TaskTablePane extends Component {
                     className="m-table txt-center-table"
                     columns={this.initTableInfoColumns()}
                     pagination={false}
-                    dataSource={[tableReport]}
+                    dataSource={reportData}
                 />
 
                 <Row style={{ margin: '20px 0' }} gutter={16}>
@@ -213,7 +221,7 @@ export default class TaskTablePane extends Component {
                                 className="m-table txt-center-table"
                                 columns={this.initTableReportColumns()}
                                 pagination={false}
-                                dataSource={[tableReport]}
+                                dataSource={reportData}
                             />
                         </Card>
                     </Col>
@@ -230,7 +238,7 @@ export default class TaskTablePane extends Component {
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesInfo()}
                                 pagination={false}
-                                dataSource={[tableReport]}
+                                dataSource={reportData}
                             />
                         </Card>
                     </Col>
@@ -251,6 +259,7 @@ export default class TaskTablePane extends Component {
                                 columns={this.init30TimesTableReport()}
                                 pagination={false}
                                 dataSource={tableReport.usage ? tableReport.usage : []}
+                                scroll={{ y: 250 }}
                             />
                         </Card>
                     </Col>
