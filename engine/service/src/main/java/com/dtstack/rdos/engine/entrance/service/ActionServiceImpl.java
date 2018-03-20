@@ -48,7 +48,7 @@ public class ActionServiceImpl {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private RdosEngineStreamJobDAO streamTaskDAO = new RdosEngineStreamJobDAO();
+    private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
 
@@ -262,7 +262,7 @@ public class ActionServiceImpl {
         Integer computerType = paramAction.getComputeType();
 
         if (ComputeType.STREAM.getType().equals(computerType)) {
-            RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if(rdosEngineStreamJob == null){
                 logger.error("can't find job from engineStreamJob:" + paramAction);
                 return false;
@@ -302,12 +302,12 @@ public class ActionServiceImpl {
         }
 
         if (ComputeType.STREAM.getType().equals(computerType)) {
-            RdosEngineStreamJob rdosEngineStreamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if(rdosEngineStreamJob == null){
                 rdosEngineStreamJob = new RdosEngineStreamJob();
                 rdosEngineStreamJob.setTaskId(jobId);
                 rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-                streamTaskDAO.insert(rdosEngineStreamJob);
+                engineStreamTaskDAO.insert(rdosEngineStreamJob);
                 result =  true;
             }else{
                 if(RdosTaskStatus.SUBMITTING.getStatus().equals(rdosEngineStreamJob.getStatus().intValue())){
@@ -316,7 +316,7 @@ public class ActionServiceImpl {
 
                 result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
                 if(result){
-                    streamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                    engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                 }
             }
         }else{
@@ -346,7 +346,7 @@ public class ActionServiceImpl {
     @Forbidden
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            streamTaskDAO.updateTaskStatus(jobId, status);
+            engineStreamTaskDAO.updateTaskStatus(jobId, status);
         } else {
             batchJobDAO.updateJobStatus(jobId, status);
         }
@@ -367,7 +367,7 @@ public class ActionServiceImpl {
 
         //更新任务ref的pluginInfo
         if(ComputeType.STREAM.getType().equals(computeType)){
-            streamTaskDAO.updateTaskPluginId(jobId, refPluginInfoId);
+            engineStreamTaskDAO.updateTaskPluginId(jobId, refPluginInfoId);
         } else{
             batchJobDAO.updateJobPluginId(jobId, refPluginInfoId);
         }
@@ -406,7 +406,7 @@ public class ActionServiceImpl {
         if(paramAction.getEngineTaskId() == null){
             //从数据库补齐数据
             if(ComputeType.STREAM.getType().equals(computeType)){
-                RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+                RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
                 if(streamJob != null){
                     paramAction.setEngineTaskId(streamJob.getEngineTaskId());
                 }
@@ -433,7 +433,7 @@ public class ActionServiceImpl {
 
         Integer status = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
                 status = streamJob.getStatus().intValue();
             }
@@ -458,7 +458,7 @@ public class ActionServiceImpl {
 
         Long startTime = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
                 startTime = streamJob.getExecStartTime().getTime();
             }

@@ -86,7 +86,7 @@ public class MasterNode {
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
             priorityQueueMap.put(key, new GroupPriorityQueue());
         }
-        //TODO 初始化有问题---当前是会变化的
+
         senderExecutor = Executors.newSingleThreadExecutor();
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
@@ -122,7 +122,7 @@ public class MasterNode {
      * @param jobId
      * @return
      */
-    public boolean stopTaskIfExists(String engineType, String groupName, String jobId){
+    public boolean stopTaskIfExists(String engineType, String groupName, String jobId, Integer computeType){
         GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(engineType);
         if(groupPriorityQueue == null){
             throw new RdosException("not support engine type:" + engineType);
@@ -132,7 +132,11 @@ public class MasterNode {
         if(result){
             engineJobCacheDao.deleteJob(jobId);
             //修改任务状态
-            rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            if(ComputeType.BATCH.getType().equals(computeType)){
+                rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            }else if(ComputeType.STREAM.getType().equals(computeType)){
+                rdosEngineStreamJobDao.updateTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            }
         }
 
         return result;
