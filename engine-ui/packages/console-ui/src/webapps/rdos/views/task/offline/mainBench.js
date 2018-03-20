@@ -101,8 +101,8 @@ export default class MainBench extends React.Component {
     render() {
         const { tabData } = this.props;
         return <div className="m-mainbench editor-container">
-            { this.renderBench(tabData) }
-            { this.renderLock(tabData) }
+            { tabData && this.renderBench(tabData) }
+            { tabData && this.renderLock(tabData) }
         </div>
     }
 

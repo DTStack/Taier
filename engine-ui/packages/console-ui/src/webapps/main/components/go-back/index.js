@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import { Icon } from 'antd'
-import { browserHistory } from 'react-router'
+import { browserHistory, hashHistory } from 'react-router'
 
 export default class GoBack extends Component {
 
     go = () => {
         const url = this.props.url
         if (url) {
-            browserHistory.push(url)
+            hashHistory.push(url)
         } else {
             browserHistory.go(-1)
         }

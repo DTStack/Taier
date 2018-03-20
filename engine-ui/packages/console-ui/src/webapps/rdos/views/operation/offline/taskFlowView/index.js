@@ -204,17 +204,14 @@ class TaskFlowView extends Component {
                 const dataStr = cell.getAttribute('data')
                 if (!dataStr) return null
                 const itemData = JSON.parse(dataStr)
-                return itemData.id === data.id
+                return itemData.taskId === data.taskId
             })
 
-            let newVertex = '';
+            let newVertex = exist;
 
-            if (exist) {
+            if (exist && parent.id !== '1') {
                 this.insertEdge(graph, type, parent, exist)
-                // graph.insertEdge(parent, null, '', parent, exist)
-                // current = exist.node
-            } else {
-
+            } else if (!exist) {
                 // 创建节点
                 const doc = mxUtils.createXmlDocument()
                 const taskInfo = doc.createElement('Task')
@@ -233,8 +230,8 @@ class TaskFlowView extends Component {
                 this._vertexCells.push(newVertex)
             }
 
-            if (data.taskVOS) {
-                const children = data.taskVOS
+            if (data.jobVOS) {
+                const children = data.jobVOS
                 for (let i = 0; i < children.length; i++) {
                     this.insertVertex(graph, children[i], newVertex, type)
                 }
@@ -252,7 +249,7 @@ class TaskFlowView extends Component {
         }
         const cx = (graph.container.clientWidth - VertexSize.width) / 2;
         const cy = 200;
-        
+
         const parent = graph.getDefaultParent()
         const model = graph.getModel()
         model.beginUpdate()

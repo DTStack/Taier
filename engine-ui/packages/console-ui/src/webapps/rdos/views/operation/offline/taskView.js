@@ -11,7 +11,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
 import { taskTypeText } from '../../../components/display'
-import { TASK_STATUS, TASK_TYPE } from '../../../comm/const'
+import { TASK_STATUS, TASK_TYPE, SCHEDULE_STATUS } from '../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -269,6 +269,7 @@ export default class TaskView extends Component {
         }).then((res) => {
             if (res.code === 1) {
                 message.success('操作成功！');
+                ctx.props.reload();
             }
         })
     }
@@ -298,11 +299,13 @@ export default class TaskView extends Component {
                 goToTaskDev(currentNode.id)
             })
             menu.addItem('冻结', null, function() {
-                ctx.forzenTasks([currentNode.id], 2)
-            })
+                ctx.forzenTasks([currentNode.id], SCHEDULE_STATUS.STOPPED)
+            }, null, null, currentNode.scheduleStatus === SCHEDULE_STATUS.NORMAL) // 正常状态
+
             menu.addItem('解冻', null, function() {
-                ctx.forzenTasks([currentNode.id], 1)
-            })
+                ctx.forzenTasks([currentNode.id], SCHEDULE_STATUS.NORMAL);
+            }, null, null, currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED) // 冻结状态
+
             menu.addItem('查看实例', null, function() {
                 hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
             })

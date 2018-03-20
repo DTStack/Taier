@@ -16,9 +16,11 @@ import {
  import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
-import { taskStatusFilter } from '../../../comm/const'
+import { taskStatusFilter, offlineTaskTypeFilter, offlineTaskPeriodFilter } from '../../../comm/const'
+
 import { TaskTimeType, TaskType } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
+import { TaskScheduleStatus } from '../../../components/display'
 
 import PatchDataModal from './patchDataModal'
 import TaskView from './taskView'
@@ -51,7 +53,9 @@ class OfflineTaskMana extends Component {
         selectedTask: '',
         startTime: '',
         endTime: '',
-        scheduleStatus: 1,
+        taskType: '',
+        taskPeriodId: '',
+        scheduleStatus: '',
         checkVals: [],
         selectedRowKeys: [],
     }
@@ -75,8 +79,8 @@ class OfflineTaskMana extends Component {
     search = () => {
         const {
             taskName, person,
-            startTime, endTime, 
-            scheduleStatus, current,
+            startTime, endTime, taskType,
+            scheduleStatus, current, taskPeriodId,
         } = this.state
 
         const reqParams = {
@@ -95,6 +99,12 @@ class OfflineTaskMana extends Component {
         }
         if (scheduleStatus) {
             reqParams.scheduleStatus = scheduleStatus
+        }
+        if (taskType) {
+            reqParams.taskType = taskType.join(',')
+        }
+        if (taskPeriodId) {
+            reqParams.taskPeriodId = taskPeriodId.join(',')
         }
         this.loadTaskList(reqParams)
     }
@@ -139,6 +149,8 @@ class OfflineTaskMana extends Component {
             checkAll: false, 
             selectedRowKeys: [], 
             current: pagination.current, 
+            taskType: filters.taskType,
+            taskPeriodId: filters.taskPeriodId,
         }, this.search)
     }
 
@@ -207,7 +219,7 @@ class OfflineTaskMana extends Component {
         const conditions = {
             startTime: '',
             endTime: '',
-            scheduleStatus: 1,
+            scheduleStatus: '',
             checkVals: checkedList
         };
         checkedList.forEach(item => {
@@ -246,10 +258,12 @@ class OfflineTaskMana extends Component {
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
-            width: 120,
+            width: 150,
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)` :
-                <a onClick={() => { this.showTask(record) }}>{record.name}</a>
+                <a onClick={() => { this.showTask(record) }}>
+                    <TaskScheduleStatus value={record.scheduleStatus} />&nbsp; {record.name}
+                </a>
                 return content;
             },
         }, {
@@ -266,6 +280,7 @@ class OfflineTaskMana extends Component {
             render: (text) => {
                 return <TaskType value={text}/>
             },
+            filters: offlineTaskTypeFilter,
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -273,6 +288,7 @@ class OfflineTaskMana extends Component {
             render: (text) => {
                 return <TaskTimeType value={text} />
             },
+            filters: offlineTaskPeriodFilter,
         }, {
             title: '责任人',
             dataIndex: 'userName',
@@ -412,6 +428,7 @@ class OfflineTaskMana extends Component {
                         dataSource={tasks.data || []}
                         onChange={this.handleTableChange}
                         footer={this.tableFooter}
+                        scroll={{ y: '60%' }}
                     />
                     <SlidePane 
                         className="m-tabs bd-top bd-right m-slide-pane"
@@ -422,6 +439,7 @@ class OfflineTaskMana extends Component {
                         <Tabs animated={false}>
                             <TabPane tab="依赖视图" key="taskFlow"> 
                                 <TaskView 
+                                    reload={this.search}
                                     visibleSlidePane={visibleSlidePane}
                                     goToTaskDev={this.props.goToTaskDev} 
                                     clickPatchData={this.clickPatchData}

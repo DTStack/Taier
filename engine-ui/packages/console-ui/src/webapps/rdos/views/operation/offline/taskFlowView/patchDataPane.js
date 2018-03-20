@@ -41,7 +41,6 @@ function getTimeString(date) {
     return date ? date.format('HH:mm') : ''
 }
 
-
 class PatchData extends Component {
 
     state = {

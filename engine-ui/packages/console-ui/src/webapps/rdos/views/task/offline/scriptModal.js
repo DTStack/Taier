@@ -125,7 +125,7 @@ class ScriptForm extends React.Component {
                         <Input type="hidden"></Input>
                     )}
                     <FolderPicker
-                        type={MENU_TYPE.TASK}
+                        type={MENU_TYPE.SCRIPT}
                         ispicker
                         treeData={ this.props.treeData }
                         onChange={ this.handleSelectTreeChange.bind(this) }
@@ -326,25 +326,29 @@ dispatch => {
         createScript: function(params, isEditExist, defaultData) {
             ajax.saveScript(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    ajax.getScriptById({
+                        id: res.data.id
+                    }).then(res2 => {
                         if(!isEditExist) {
-                            const newScript = res.data;
-                            if (newScript.catalogueType) {
-                                newScript.catalogueType = MENU_TYPE.SCRIPT
+
+                            const newScriptCata = res.data;
+                            if (newScriptCata.catalogueType) {
+                                newScriptCata.catalogueType = MENU_TYPE.SCRIPT
                             }
+
                             dispatch({
                                 type: scriptTreeAction.ADD_FOLDER_CHILD,
-                                payload: newScript
+                                payload: newScriptCata
                             });
 
                             dispatch({
                                 type: workbenchAction.LOAD_TASK_DETAIL,
-                                payload: newScript
+                                payload: res2.data
                             });
 
                             dispatch({
                                 type: workbenchAction.OPEN_TASK_TAB,
-                                payload: newScript.id
+                                payload: res2.data.id
                             });
                         }
                         else {
@@ -355,18 +359,12 @@ dispatch => {
                                 payload: newData
                             });
 
-                            ajax.getScriptById({
-                                id: res.data.id
-                            }).then(res2 => {
-                                if(res2.code === 1) {
-                                    dispatch({
-                                        type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                                        payload: res2.data
-                                    });
-                                }
+                            dispatch({
+                                type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                                payload: res2.data
                             });
                         }
-                    }
+                    })
                 });
         },
 

@@ -74,10 +74,10 @@ export function MenuRight(props) {
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">
-                <a href="/admin/user">用户管理</a>
+                <Link to="/admin/user">用户管理</Link>
             </Menu.Item>
             <Menu.Item key="setting:2">
-                <a href="/admin/role">角色管理</a>
+                <Link to="/admin/role">角色管理</Link>
             </Menu.Item>
             {renderMenuItems(settingMenus)}
         </Menu>
@@ -100,11 +100,16 @@ export function MenuRight(props) {
                 </Dropdown>
                 <span className="divide"></span>
                 <span>
-                    <a href="/message" style={{color: '#ffffff'}}>
+                    {/* <a href="/message" style={{color: '#ffffff'}}>
                         <Badge dot>
                             <Icon type="message" />
                         </Badge>
-                    </a>
+                    </a> */}
+                    <Link to="/message" style={{color: '#ffffff'}}>
+                        <Badge dot>
+                            <Icon type="message" />
+                        </Badge>
+                    </Link>
                 </span>
                 <Dropdown overlay={settingMenuItems} trigger={['click']}>
                     <span><Icon type="setting" /> </span>
