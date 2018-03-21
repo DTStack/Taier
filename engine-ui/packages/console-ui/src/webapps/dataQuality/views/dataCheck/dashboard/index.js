@@ -125,10 +125,10 @@ export default class DataCheck extends Component {
                 let menu = (
                     <Menu>
                         {
-                            record.status === 0
+                            record.status === 2
                             &&
                             <Menu.Item>
-                                <a>查看报告</a>
+                                <Link to={`dq/dataCheck/report/${record.id}`}>查看报告</Link>
                             </Menu.Item>
                         }
                         <Menu.Item>

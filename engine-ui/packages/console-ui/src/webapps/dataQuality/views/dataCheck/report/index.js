@@ -45,7 +45,7 @@ export default class DataCheckReport extends Component {
     }
 
     initColumns = (data) => {
-        return data.map((item) => {
+        return Object.keys(data).map((item) => {
             return {
                 title: item,
                 key: item,
@@ -58,6 +58,14 @@ export default class DataCheckReport extends Component {
     render() {
         const { dataCheck, common } = this.props;
         const { verifyVO, lAll, rAll, mapSuccess, mapFailure, rightUnfound, leftUnfound, dataSourceEN } = dataCheck.checkReport;
+        const { reportTable } = dataCheck;
+        const { params } = this.state;
+
+        const pagination = {
+            current: params.currentPage,
+            pageSize: params.pageSize,
+            total: reportTable.totalCount
+        }
 
         return (
             <div className="box-1">
@@ -121,15 +129,19 @@ export default class DataCheckReport extends Component {
                     </table>
                 </Row>
                 <Row>
-                    {/*<Table 
-                                            rowKey="key"
-                                            // bordered
-                                            className="m-table preview-table"
-                                            columns={this.initColumns(sourcePreview.columnList)} 
-                                            dataSource={sourcePreview.dataList}
-                                            pagination={false}
-                                            scroll={{ x: '120%', y: 400 }}
-                                        />*/}
+                    <h3 className="table-h3-title">
+                        具体差异
+                    </h3>
+                    <Table 
+                        // rowKey="key"
+                        // bordered
+                        className="m-table"
+                        style={{ margin: '0 20px' }}
+                        columns={this.initColumns(reportTable.data ? reportTable.data[0]: [])} 
+                        dataSource={reportTable.data ? reportTable.data : []}
+                        pagination={pagination}
+                        scroll={{ x: '120%' }}
+                    />
                 </Row>
             </div>
         );
