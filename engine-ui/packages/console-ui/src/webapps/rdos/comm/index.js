@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { debounce } from 'lodash';
 
-import {  TASK_TYPE } from './const'
+import {  TASK_TYPE, TASK_STATUS } from './const'
 
 // 请求防抖动
 export function debounceEventHander(...args) {
@@ -149,4 +149,27 @@ export function matchTaskParams(taskCustomParams, sqlText) {
         }
     }
     return data
+}
+
+export function getVertxtStyle(type) {
+    switch (type) {
+        case TASK_STATUS.FINISHED: // 完成
+        case TASK_STATUS.SET_SUCCESS:
+            return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;'
+        case TASK_STATUS.RUNNING: // 进行中
+        case TASK_STATUS.SUBMITTING:
+        case TASK_STATUS.RESTARTING:
+        case TASK_STATUS.STOPING:
+        case TASK_STATUS.DEPLOYING:
+        case TASK_STATUS.WAIT_RUN:
+            return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;'
+        case TASK_STATUS.RUN_FAILED:
+        case TASK_STATUS.SUBMIT_FAILED:
+            return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;'
+        case TASK_STATUS.STOPED:// 等待
+        case TASK_STATUS.FROZEN:
+        case TASK_STATUS.WAIT_SUBMIT:
+        default: // 默认
+            return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;'
+    }
 }

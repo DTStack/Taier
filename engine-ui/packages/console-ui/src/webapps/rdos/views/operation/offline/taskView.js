@@ -125,22 +125,6 @@ export default class TaskView extends Component {
         this.initContextMenu(graph)
     }
 
-    getStyles = (type) => {
-        switch (type) {
-            case TASK_STATUS.RUNNING:
-            case TASK_STATUS.FINISHED:
-            case TASK_STATUS.SUBMITTING:
-            case TASK_STATUS.RESTARTING:
-            case TASK_STATUS.SET_SUCCESS:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-            case TASK_STATUS.RUN_FAILED:
-            case TASK_STATUS.SUBMIT_FAILED:
-                return 'whiteSpace=wrap;fillColor=#ef53503d;strokeColor=#ef5350;'
-            default:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-        }
-    }
-
     formatTooltip = (cell) => {
         const data = cell.getAttribute('data');
         const task = data ? JSON.parse(data) : ''; 
@@ -161,6 +145,10 @@ export default class TaskView extends Component {
             }
         }
         return '';
+    }
+
+    getStyles = (type) => {
+        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
     insertEdge = (graph, type, parent, child) => {

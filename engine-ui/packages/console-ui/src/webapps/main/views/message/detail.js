@@ -35,7 +35,7 @@ class MsgDetail extends Component {
             <div className="box-1">
                 <div className="box-card msg-box">
                     <main>
-                        <h1 className="card-title"><GoBack /> 蚂蚁金服设计平台简介</h1>
+                        <h1 className="card-title"><GoBack /> 消息详情 </h1>
                         <p>
                             {msgInfo.content}
                         </p>

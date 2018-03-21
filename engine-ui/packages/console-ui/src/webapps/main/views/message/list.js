@@ -92,17 +92,14 @@ class MessageList extends Component {
         
         const unReadRows = this.getUnreadRows()
 
-        if (this.selectedNotNull(unReadRows)) {
-
-            Api.markAsAllRead(selectedApp, {
-                notifyRecordIds: unReadRows
-            }).then(res => {
-                if (res.code === 1) {
-                    this.resetRowKeys();
-                    this.loadMsg();
-                }
-            })
-        }
+        Api.markAsAllRead(selectedApp, {
+            notifyRecordIds: unReadRows
+        }).then(res => {
+            if (res.code === 1) {
+                this.resetRowKeys();
+                this.loadMsg();
+            }
+        })
     }
 
     deleteMsg = () => {

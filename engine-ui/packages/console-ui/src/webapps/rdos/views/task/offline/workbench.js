@@ -326,6 +326,12 @@ class Workbench extends React.Component {
         
         // 添加发布描述信息
         if (publishDesc) {
+
+            if (publishDesc.length > 200) {
+                message.error('备注信息不可超过200个字符！')
+                return false;
+            }
+
             result.publishDesc = publishDesc;
             // 添加发布信息到发布记录
             const publishRecords = currentTabData.taskVersions || []
