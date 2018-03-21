@@ -112,14 +112,28 @@ export const errorPercentConfig = (
 
 export const customSystemParams = (
     <div>
-         <p>
+        <p>
             常用系统变量:
         </p>
         <p>
-            <span>bdp.system.premonth</span><br/>
-            <span>bdp.system.cyctime</span><br/>
-            <span>bdp.system.bizdate</span><br/>
-            <span>bdp.system.currmonth</span>
+            <span>${`{bdp.system.premonth}`}</span><br/>
+            <span>${`{bdp.system.cyctime}`}</span><br/>
+            <span>${`{bdp.system.bizdate}`}</span><br/>
+            <span>${`{bdp.system.currmonth}`}</span>
+        </p>
+    </div>
+)
+
+export const partitionDesc = (
+    
+    <div>
+        <p>功能释义</p>
+        <p>分区配置支持调度参数，比如常用系统变量:</p>
+        <p>
+            <span>${`{bdp.system.premonth}`}</span><br/>
+            <span>${`{bdp.system.cyctime}`}</span><br/>
+            <span>${`{bdp.system.bizdate}`}</span><br/>
+            <span>${`{bdp.system.currmonth}`}</span>
         </p>
     </div>
 )

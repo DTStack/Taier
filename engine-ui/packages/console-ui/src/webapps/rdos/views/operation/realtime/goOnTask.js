@@ -4,31 +4,32 @@ import moment from 'moment'
 import {
     message, Modal, 
     DatePicker, TimePicker,
-    Select, Alert,
+    Select, Alert, Button,
  } from 'antd'
 
  import utils from 'utils'
+ import pureRender from 'utils/pureRender'
  
 import Api from '../../../api'
 
 const { RangePicker } = DatePicker;
 const Option = Select.Option
 
-export default class GoOnTask extends Component {
+@pureRender
+class GoOnTask extends Component {
 
     state = {
         checkPoints: [],
-        dateRange: {},
+        dateRange: null,
         externalPath: '',
-        rangeValue: [
-            moment().hour(0).minute(0).second(0), 
-            moment().hour(23).minute(59).second(59)
-        ],
+        rangeValue: [],
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps, nextState) {
         const taskId = nextProps.taskId
         const old = this.props.taskId
+        console.log('taskId:', taskId)
+
         if (taskId && old !== taskId) {
             this.getCheckPointRange({
                 taskId,
@@ -74,6 +75,8 @@ export default class GoOnTask extends Component {
     }
 
     getCheckPoints = (params) => {
+        const { dateRange } = this.state
+        if (!dateRange) return;
         Api.getCheckPoints(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -84,17 +87,15 @@ export default class GoOnTask extends Component {
     }
 
     taskReadRangeChange = (value) => {
+        if (!value || value.length === 0) return;
+
         const start = value[0].hour(0).minute(0).second(0)
         const end = value[1].hour(23).minute(59).second(59)
 
-        this.setState({
-            rangeValue: [start, end],
-        }, () => {
-            this.getCheckPoints({
-                taskId: this.props.taskId,
-                startTime: start.valueOf(),
-                endTime: end.valueOf(),
-            })
+        this.getCheckPoints({
+            taskId: this.props.taskId,
+            startTime: start.valueOf(),
+            endTime: end.valueOf(),
         })
     }
 
@@ -105,15 +106,25 @@ export default class GoOnTask extends Component {
     }
 
     disabledDate = (current) => {
-        const data = this.state.dateRange
-        const min = data ? data.left : moment().valueOf()
-        const max = data ? data.right : moment().valueOf()
-        return current && (current.valueOf() < min || current.valueOf() > max)
+        const { dateRange } = this.state
+        if (dateRange) {
+
+            const min = moment(dateRange.left)
+            const max = moment(dateRange.right)
+
+            min.subtract('day', 1)
+            max.add('day', 1)
+
+            return current && ( 
+                current.valueOf() < min.unix() || current.valueOf() > max.valueOf()
+            )
+        }
+        return false;
     }
 
     render() {
         const { visible } = this.props
-        const checkPoints = this.state.checkPoints
+        const { dateRange, checkPoints } = this.state;
 
         const options = checkPoints && checkPoints.map(item => {
             const time = utils.formatDateTime(item.time)
@@ -126,11 +137,15 @@ export default class GoOnTask extends Component {
             <Modal
                 title="续跑任务"
                 visible={visible}
-                onOk={this.doGoOn}
-                onCancel={this.cancel}
                 okText="确认"
                 cancelText="取消"
-                >
+                footer={
+                    <span>
+                        <Button onClick={this.cancel}>取消</Button>
+                        <Button disabled={!dateRange} type="primary" onClick={this.doGoOn}>确认</Button>
+                    </span>
+                }
+            >
                 <Alert message="续跑，任务将恢复至停止前的状态继续运行!" type="warning" />
                 <div style={{lineHeight: '30px'}}>指定读取数据时间:</div>
                 <div> 
@@ -139,7 +154,6 @@ export default class GoOnTask extends Component {
                             format="YYYY-MM-DD HH:mm:ss"
                             disabledDate={this.disabledDate}
                             onChange={this.taskReadRangeChange}
-                            value={this.state.rangeValue}
                         />
                     </span>
                     <span>
@@ -158,5 +172,6 @@ export default class GoOnTask extends Component {
             </Modal>
         )
     }
-
 }
+
+export default GoOnTask

@@ -63,7 +63,7 @@ export default class RoleEdit extends Component {
         return (
             <div className="box-1">
                 <div className="box-card">
-                    <h1 className="card-title"><GoBack /> 编辑 {AppName(app)}角色</h1>
+                    <h1 className="card-title"><GoBack /> 查看 {AppName(app)}角色</h1>
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <article className="section">
                             <RoleForm 
@@ -74,7 +74,7 @@ export default class RoleEdit extends Component {
                             <Row>
                                 <Col {...formItemLayout.labelCol}></Col>
                                 <Col {...formItemLayout.wrapperCol}>
-                                    <Button type="primary" onClick={this.submit}>确认更新</Button>
+                                    <Button type="primary" disabled onClick={this.submit}>确认更新</Button>
                                     <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
                                 </Col>
                             </Row>

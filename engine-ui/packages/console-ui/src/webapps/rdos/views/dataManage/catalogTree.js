@@ -70,19 +70,23 @@ class CatalogueTree extends Component {
         this._inputEle.setAttribute('contenteditable', false)
         const value = this._inputEle.innerHTML;
         const originVal = node.bindData.name;
+        const callback = (res) => {
+            if (res.code !== 1)
+            this._inputEle.innerHTML = originVal
+        }
         if (this.checkVal(value)) {
             if (node.isNew) {
                 this.props.onTreeNodeEdit({
                     nodeName: value,
                     nodePid: node.parentId,
                     tmpId: node.nodeId
-                }, 'add')
+                }, 'add', callback)
             } else {
                 const editNode = {
                     id: node.nodeId,
                     nodeName: value,
                 }
-                this.props.onTreeNodeEdit(editNode, 'edit')
+                this.props.onTreeNodeEdit(editNode, 'edit', callback)
             }
         } else {
             this._inputEle.innerHTML = originVal
@@ -204,7 +208,7 @@ class CatalogueTree extends Component {
                                 {
                                     isLeaf && !isTable &&
                                     <Tooltip title="删除表">
-                                        <Popconfirm title="您确认删除当前目录吗？"
+                                        <Popconfirm title="您确认删除当前目录及下面的表吗？"
                                             onConfirm={onTreeNodeEdit.bind(this, data, 'delete')}
                                             okText="确定" cancelText="取消">
                                             &nbsp;
