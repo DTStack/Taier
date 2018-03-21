@@ -270,6 +270,7 @@ export default class TaskView extends Component {
             if (res.code === 1) {
                 message.success('操作成功！');
                 ctx.props.reload();
+                ctx.refresh();
             }
         })
     }

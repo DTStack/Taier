@@ -82,14 +82,14 @@ class OfflineCount extends Component {
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">未提交</span>
-                                    <span className="m-count-content font-gray">{data.UNSUBMIT || 0}</span>
+                                    <span className="m-count-title" >待运行</span>
+                                    <span className="m-count-content font-gray">{data.WAITENGINE || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title" >待运行</span>
-                                    <span className="m-count-content font-gray">{data.WAITENGINE || 0}</span>
+                                    <span className="m-count-title">成功</span>
+                                    <span className="m-count-content font-green">{data.FINISHED || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>
@@ -100,14 +100,14 @@ class OfflineCount extends Component {
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">运行</span>
-                                    <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
+                                    <span className="m-count-title">未提交</span>
+                                    <span className="m-count-content font-gray">{data.UNSUBMIT || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">成功</span>
-                                    <span className="m-count-content font-green">{data.FINISHED || 0}</span>
+                                    <span className="m-count-title">运行</span>
+                                    <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>

@@ -146,7 +146,7 @@ class OfflineStatistics extends Component {
                 return content;
             },
         },{
-            title: '任务类型',
+            title: '任务实例类型',
             dataIndex: 'type',
             key: 'type',
             render: (text, record) => {
