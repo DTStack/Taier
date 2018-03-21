@@ -26,6 +26,7 @@ import RuleConfigIndex from './views/ruleConfig/dashboard'
 import RuleConfigEdit from './views/ruleConfig/edit'
 import DataCheckIndex from './views/dataCheck/dashboard'
 import DataCheckEdit from './views/dataCheck/edit'
+import DataCheckReport from './views/dataCheck/report'
 import DataSourceIndex from './views/dataSource'
 
 // ======= 测试 =======
@@ -57,6 +58,7 @@ export default (
             <Route path="dataCheck" component={ DataCheckIndex }></Route>
             <Route path="dataCheck/add" component={ DataCheckEdit }></Route>
             <Route path="dataCheck/edit/:verifyId" component={ DataCheckEdit }></Route>
+            <Route path="dataCheck/report/:verifyRecordId" component={ DataCheckReport }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
     </Route>

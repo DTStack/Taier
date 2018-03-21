@@ -98,3 +98,54 @@
     background-image: none;
     border: none;
 }
+
+.table-h3-title {
+	margin-left: 20px;
+    margin-bottom: 10px;
+    border-left: 3px solid #2491F7;
+	padding-left: 5px;
+	font-size: 14px;
+}
+
+.m-report-table {
+    padding: 20px;
+
+    h3 {
+        margin-bottom: 10px;
+        border-left: 3px solid #2491F7;
+    	padding-left: 5px;
+    	font-size: 14px;
+    }
+
+    table {
+        margin-bottom: 20px;
+        border-collapse: collapse;
+        border-radius: 3px;
+        border: 1px solid #E6E6E6;
+        td,
+        th {
+        	font-size: 12px;
+            height: 40px;
+            border: 1px solid #E6E6E6;
+            padding: 0 10px;
+        }
+        th {
+            text-align: left;
+            background: #FAFAFA;
+            width: 20%;
+        }
+        td {
+            text-align: left;
+            width: 40%;
+        }
+        .width-2 {
+        	width: 20%;
+        }
+        .width-3 {
+        	width: 30%;
+        }
+        .width-5 {
+        	width: 50%;
+        }
+    }
+}

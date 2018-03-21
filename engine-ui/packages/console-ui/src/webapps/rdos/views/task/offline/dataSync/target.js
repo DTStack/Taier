@@ -332,9 +332,10 @@ class TargetForm extends React.Component{
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                placeholder="请输入分区"
+                                placeholder="pt1=params1;pt2=params2;"
                             ></Input>
                             )}
+                            <HelpDoc doc="partitionDesc" />
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}

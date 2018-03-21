@@ -195,7 +195,7 @@ export default class DataSourceModal extends Component {
 
             case DATA_SOURCE.MAXCOMPUTE: {
                 return [
-                    <FormItem {...formItemLayout} label="AI" key="accessId" hasFeedback>
+                    <FormItem {...formItemLayout} label="AccessId" key="accessId" hasFeedback>
                         {
                             getFieldDecorator('dataJson.accessId', {
                                 rules: [{
@@ -207,7 +207,7 @@ export default class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="AK" key="accessKey" hasFeedback>
+                    <FormItem {...formItemLayout} label="AccessKey" key="accessKey" hasFeedback>
                         {
                             getFieldDecorator('dataJson.accessKey', {
                                 rules: [{

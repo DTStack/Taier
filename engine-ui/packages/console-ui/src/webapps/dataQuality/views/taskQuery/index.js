@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { 
-    Table, Button, Icon, Input, 
-    DatePicker, Select, Popconfirm, 
-    message, Card, Checkbox,
-    Tabs, Row, Col, Modal
-} from 'antd';
+import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs } from 'antd';
 import moment from 'moment';
 
 import SlidePane from 'widgets/slidePane';
@@ -20,7 +15,6 @@ import { dataSourceTypes, periodType } from '../../consts';
 import '../../styles/views/taskQuery.scss';
 
 const Search = Input.Search;
-const InputGroup = Input.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
@@ -55,7 +49,6 @@ export default class TaskQuery extends Component {
             currentPage: 1,
             pageSize: 20,
             fuzzyName: undefined,
-            userId: undefined,
             configureId: undefined,
             dataSourceId: undefined,
             dataSourceType: undefined,
@@ -216,8 +209,8 @@ export default class TaskQuery extends Component {
 
     // 监听userList的select
     onUserChange = (id) => {
-        let userId = id ? id : undefined;
-        let params = {...this.state.params, userId};
+        let configureId = id ? id : undefined;
+        let params = {...this.state.params, configureId};
         
         this.setState({ params });
         this.props.getTaskList(params);
@@ -300,7 +293,7 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.onSourceChange} style={{ width: 100 }}>
+                    <Select allowClear onChange={this.onSourceChange} style={{ width: 120 }}>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -321,7 +314,7 @@ export default class TaskQuery extends Component {
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
-                        style={{ width: 100 }}
+                        style={{ width: 120 }}
                         onChange={this.onBizTimeChange}
                     />
                 </div>
@@ -331,7 +324,7 @@ export default class TaskQuery extends Component {
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
-                        style={{ width: 100 }}
+                        style={{ width: 120 }}
                         onChange={this.onExecuteTimeChange}
                     />
                 </div>
@@ -374,31 +367,31 @@ export default class TaskQuery extends Component {
                             onChange={this.onTableChange}
                         />
 
-                        
-                    </Card>
-                </div>
-                <SlidePane 
+                        <SlidePane 
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                            style={{ right: '-20px', width: '80%', minHeight: '600px' }}
                         >
-                            <div className="m-tabs m-card bd" style={{ height: '100%' }}>
+                            <div className="m-tabs">
                                 <Tabs 
                                     animated={false}
                                     // onChange={ this.getPreview.bind(this) }
                                 >
                                     
                                     <TabPane tab="详细报告" key="1">
-                                        <TaskDetailPane data={currentTask}>
-                                        </TaskDetailPane>
+                                    	<TaskDetailPane data={currentTask}>
+                                    	</TaskDetailPane>
                                     </TabPane>
                                     <TabPane tab="表级报告" key="2">
-                                        <TaskTablePane data={currentTask}>
-                                        </TaskTablePane>
+                                    	<TaskTablePane data={currentTask}>
+                                    	</TaskTablePane>
                                     </TabPane>
                                 </Tabs>
                             </div>
                         </SlidePane>
+                    </Card>
+                </div>
+
             </div>
         )
     }

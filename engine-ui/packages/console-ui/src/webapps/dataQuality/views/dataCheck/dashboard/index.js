@@ -76,42 +76,35 @@ export default class DataCheck extends Component {
             }
         }, {
             title: '校验结果',
-            dataIndex: 'status',
-            key: 'status',
-            filters: [{
-                text: '无差异',
-                value: '0',
-            }, {
-                text: '有差异',
-                value: '1',
-            }, {
-                text: '进行中',
-                value: '2',
-            }, {
-                text: '未开始',
-                value: '3',
-            }],
+            dataIndex: 'statusEN',
+            key: 'statusEN',
+            // filters: [{
+            //     text: '无差异',
+            //     value: '0',
+            // }, {
+            //     text: '有差异',
+            //     value: '1',
+            // }, {
+            //     text: '进行中',
+            //     value: '2',
+            // }, {
+            //     text: '未开始',
+            //     value: '3',
+            // }],
             width: '8%',
-            filterMultiple: false,
-            onFilter: (value, record) => console.log(value,record),
+            // filterMultiple: false,
         }, {
             title: '差异总数',
             dataIndex: 'diverseNum',
             key: 'diverseNum',
             width: '8%',
-            render: (text, record) => {
-                return text ? text : '--';
-            },
-            sorter: true
+            // sorter: true
         }, {
             title: '差异比例',
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
             width: '8%',
-            render: (text, record) => {
-                 return text ? text : '--';
-            },
-            sorter: true
+            // sorter: true
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
@@ -132,10 +125,10 @@ export default class DataCheck extends Component {
                 let menu = (
                     <Menu>
                         {
-                            record.status === 0
+                            record.status === 2
                             &&
                             <Menu.Item>
-                                <a>查看报告</a>
+                                <Link to={`dq/dataCheck/report/${record.id}`}>查看报告</Link>
                             </Menu.Item>
                         }
                         <Menu.Item>

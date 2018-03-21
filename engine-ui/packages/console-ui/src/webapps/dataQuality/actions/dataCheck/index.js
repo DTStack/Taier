@@ -92,4 +92,28 @@ export const dataCheckActions = {
 			});
 		}
 	},
+	getCheckReport(params) {
+		return dispatch => {
+			API.getCheckReport(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: dataCheckActionType.GET_CHECK_REPORT,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
+	getCheckReportTable(params) {
+		return dispatch => {
+			API.getCheckReportTable(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: dataCheckActionType.GET_CHECK_REPORT_TABLE,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 }

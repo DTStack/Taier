@@ -62,8 +62,7 @@ export default class RuleConfig extends Component {
             periodType: undefined
         },
         tabKey: '1',
-        visibleSlidePane: false,
-        showRemoteModal: false,
+        showSlidePane: false,
         currentMonitor: {}
     }
 
@@ -84,9 +83,8 @@ export default class RuleConfig extends Component {
             dataIndex: 'tableName',
             key: 'tableName',
             render: (text, record) => (
-                <a onClick={this.showSlidePane.bind(this, record)}>{text}</a>
+                <a onClick={this.openSlidePane.bind(this, record)}>{text}</a>
             )
-            // width: '15%'
         }, {
             title: '类型',
             dataIndex: 'dataSourceType',
@@ -94,8 +92,7 @@ export default class RuleConfig extends Component {
             render: (text, record) => {
                 return text ? `${dataSourceType.filter(item => item.value === text)[0].name} / ${record.dataName}` : '--';
                 // return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
-            },
-            // width: '15%',
+            }
         }, 
         {
             title: '执行周期',
@@ -103,14 +100,12 @@ export default class RuleConfig extends Component {
             key: 'periodType',
             render: (text) => {
                 return periodType[text];
-            },
-            // width: '8%'
+            }
         }, {
             title: '最近30天告警数',
             dataIndex: 'recentNotifyNum',
             key: 'recentNotifyNum',
             sorter: true
-            // width: '10%',
         }, {
             title: '远程触发',
             dataIndex: 'isRemoteTrigger',
@@ -121,24 +116,20 @@ export default class RuleConfig extends Component {
                 } else {
                     return <Icon type="check-circle status-success" />
                 }
-            },
-            // width: '8%'
+            }
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUser',
-            key: 'modifyUser',
-            // width: '14%'
+            key: 'modifyUser'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
-            },
-            // width: '14%'
+            }
         }, {
             title: '操作',
-            // width: '8%',
             render: (text, record) => {
                 return <a onClick={this.onSubscribe.bind(this, record)}>{record.isSubscribe ? '取消订阅' : '订阅'}</a>
             }
@@ -280,31 +271,19 @@ export default class RuleConfig extends Component {
         this.props.getMonitorLists(params);
     }
 
-    showSlidePane = (record) => {
+    openSlidePane = (record) => {
         this.setState({
-            visibleSlidePane: true,
+            showSlidePane: true,
             currentMonitor: record
-        })
+        });
     }
 
     closeSlidePane = () => {
         this.setState({
-            visibleSlidePane: false,
+            showSlidePane: false,
             currentMonitor: {},
             tabKey: '1'
-        })
-    }
-
-    showRemoteModal = () => {
-        this.setState({
-            showRemoteModal: true
-        })
-    }
-
-    closeRemoteModal = () => {
-        this.setState({
-            showRemoteModal: false
-        })
+        });
     }
 
     onTabChange = (key) => {
@@ -315,7 +294,7 @@ export default class RuleConfig extends Component {
         const { monitorList, loading } = this.props.ruleConfig;
         const { sourceType, sourceList } = this.props.dataSource;
         const { userList, allDict } = this.props.common;
-        const { params, visibleSlidePane, currentMonitor, showRemoteModal, tabKey } = this.state;
+        const { params, showSlidePane, currentMonitor, tabKey } = this.state;
 
         const pagination = {
             current: params.pageIndex,
@@ -407,15 +386,13 @@ export default class RuleConfig extends Component {
                             onChange={this.onTableChange}
                         />
 
-                        
-                    </Card>
-                </div>
-<SlidePane 
-                            onClose={ this.closeSlidePane }
-                            visible={ visibleSlidePane } 
-                            style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                        <SlidePane 
+                            onClose={this.closeSlidePane}
+                            visible={showSlidePane}
+                            className="slide-pane-box"
+                            style={{ right: '-20px', width: '80%', minHeight: '600px' }}
                         >
-                            <div className="m-tabs m-card bd" style={{height: '100%'}}>
+                            <div className="m-tabs">
                                 <Tabs 
                                     animated={false}
                                     activeKey={tabKey}
@@ -433,6 +410,9 @@ export default class RuleConfig extends Component {
                                 </Tabs>
                             </div>
                         </SlidePane>
+                    </Card>
+                </div>
+
             </div>
         )
     }

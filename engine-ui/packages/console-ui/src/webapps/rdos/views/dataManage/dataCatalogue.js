@@ -65,7 +65,7 @@ class DataCatalogue extends React.Component {
         })
     }
 
-    onTreeNodeEdit = (node, type) => {
+    onTreeNodeEdit = (node, type, callback) => {
         const self = this
         const treeData = cloneDeep(self.state.treeData)
 
@@ -104,6 +104,7 @@ class DataCatalogue extends React.Component {
                     self.setState({
                         treeData,
                     })
+                    if (callback) callback(res)
                 })
                 break;
             }
@@ -131,6 +132,7 @@ class DataCatalogue extends React.Component {
                     if (res.code === 1) {
                         message.success('数据类目更新成功！')
                     }
+                    if (callback) callback(res)
                 })
                 break;
             }

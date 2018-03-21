@@ -311,7 +311,7 @@ export default class RemoteTriggerPane extends Component {
                 {
                     triggerList.length < 1
                     &&
-                    <Button style={{ margin: '10px' }} type="primary" onClick={this.showRemoteModal}>配置远程触发</Button>
+                    <Button style={{ marginTop: 10 }} type="primary" onClick={this.showRemoteModal}>配置远程触发</Button>
                 }
 
                 <Modal
@@ -325,7 +325,7 @@ export default class RemoteTriggerPane extends Component {
                     onOk={this.onRemoteTrigger}
                     onCancel={this.closeRemoteModal}>
                     {
-                        data.monitorPartVOS.length > 1
+                        data.monitorPartVOS && data.monitorPartVOS.length > 1
                         &&
                         <div>
                             分区：

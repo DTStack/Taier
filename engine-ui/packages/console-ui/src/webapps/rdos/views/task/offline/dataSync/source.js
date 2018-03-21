@@ -433,9 +433,11 @@ class SourceForm extends React.Component {
                     })(
                         <Input
                             placeholder="请填写分区"
+                            placeholder="pt1=params1;pt2=params2;"
                             onChange={ this.submitForm.bind(this) }
                         ></Input>,
                     )}
+                    <HelpDoc doc="partitionDesc" />
                     </FormItem>
                 ];
                 break;

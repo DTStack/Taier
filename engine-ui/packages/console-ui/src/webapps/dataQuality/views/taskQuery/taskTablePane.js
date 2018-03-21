@@ -119,8 +119,7 @@ export default class TaskTablePane extends Component {
             title: '总分区数量',
             dataIndex: 'partitionNum',
             key: 'partitionNum',
-            width: '20%',
-            render: (text) => (text ? text : '--')
+            width: '20%'
         }, {
             title: '类型',
             dataIndex: 'dataSourceType',

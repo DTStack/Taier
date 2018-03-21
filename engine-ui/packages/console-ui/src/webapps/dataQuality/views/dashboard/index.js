@@ -112,7 +112,12 @@ export default class DashBoard extends Component {
         option.legend.data = ['告警数'];
         option.xAxis[0].axisLabel.formatter = '{value}';
         option.xAxis[0].data = chartData && xData ? xData : [];
-
+        option.grid = {
+            left: '3%',
+            right: '4%',
+            bottom: '8%',
+            containLabel: true
+        },
         option.yAxis[0].axisLabel.formatter = '{value}';
         option.yAxis[0].minInterval = 1;
         option.series = [{
@@ -183,7 +188,7 @@ export default class DashBoard extends Component {
                                 title="告警趋势(最近30天)"
                             >
                                 <Resize onResize={this.resize}>
-                                    <article id="AlarmTrend" style={{ width: '100%', height: '350px' }}/>
+                                    <article id="AlarmTrend" style={{ width: '100%', height: '300px' }}/>
                                 </Resize>
                             </Card>
                         </Row>
@@ -235,7 +240,7 @@ export default class DashBoard extends Component {
                                 title="告警TOP20"
                             >
                                 <Table 
-                                    rowKey="id"
+                                    rowKey="monitorId"
                                     className="m-table"
                                     style={{ marginTop: 2 }}
                                     columns={this.initColumns()} 
