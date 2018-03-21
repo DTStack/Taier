@@ -4,8 +4,10 @@ import { cloneDeep } from 'lodash';
 const initialState = {
     loading: false,
     lists: [],
+    checkReport: {},
     originPart: [],
     targetPart: [],
+    reportTable: []
 }
 
 export default function dataCheck(state = initialState, action) {
@@ -48,6 +50,22 @@ export default function dataCheck(state = initialState, action) {
 
             return clone;
         }
+
+        case dataCheckActionType.GET_CHECK_REPORT: {
+            const clone = cloneDeep(state);
+            const { checkReport } = clone;
+            clone.checkReport = payload;
+            return clone;
+        }
+
+        case dataCheckActionType.GET_CHECK_REPORT_TABLE: {
+            const clone = cloneDeep(state);
+            const { reportTable } = clone;
+            clone.reportTable = payload;
+            return clone;
+        }
+
+        
 
         default:
             return state;

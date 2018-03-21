@@ -55,7 +55,8 @@ export default {
     ADD_CHECK: `${DQ_BASE_URL}/verify/add`,                           // 编辑逐行校验
     UPDATE_CHECK: `${DQ_BASE_URL}/verify/update`,                     // 编辑逐行校验
     DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,               // 删除逐行校验
-    GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/getReport`,              // 获取报告
+    GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/report`,                 // 获取报告信息
+    GET_CHECK_REPORT_TABLE: `${DQ_BASE_URL}/verify/reportTable`,      // 获取报告差异表格数据
 
     // ===== 规则配置 ===== //
     GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,             // 规则配置列表

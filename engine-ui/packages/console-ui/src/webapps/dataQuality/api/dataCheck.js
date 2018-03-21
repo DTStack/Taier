@@ -21,6 +21,9 @@ export default {
     },
     getCheckReport(params) {
     	return http.post(req.GET_CHECK_REPORT, params);
+    },
+    getCheckReportTable(params) {
+        return http.post(req.GET_CHECK_REPORT_TABLE, params);
     }
 
 }
