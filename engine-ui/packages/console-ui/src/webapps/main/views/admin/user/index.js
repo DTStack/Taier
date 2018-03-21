@@ -124,7 +124,7 @@ class AdminUser extends Component {
                             form.resetFields()
                         })
                         ctx.loadData()
-                        message.success('添加用户成功!')
+                        message.success('添加成员成功!')
                     }
                 })
             }
@@ -254,7 +254,7 @@ class AdminUser extends Component {
                     }}>编辑</a>
                     <span className="ant-divider" />
                     <Popconfirm
-                        title="确认将该用户从项目中移除？"
+                        title="确认将该成员从项目中移除？"
                         okText="确定" cancelText="取消"
                         onConfirm={() => { ctx.removeUserFromProject(record) }}
                         >
@@ -305,7 +305,7 @@ class AdminUser extends Component {
                 style={{marginTop: '10px'}}
                 type="primary" 
                 onClick={this.initAddMember}>
-                添加用户
+                添加成员
             </Button>
         )
 

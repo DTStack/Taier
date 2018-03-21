@@ -104,7 +104,7 @@ class ScheduleForm extends React.Component {
             })(
                 <Checkbox
                     onChange={ this.changeScheduleStatus.bind(this) }
-                >停止</Checkbox>
+                >冻结</Checkbox>
             )}
             </FormItem>
             <FormItem

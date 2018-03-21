@@ -114,7 +114,8 @@ class Header extends Component {
         const userMenu = this.initUserDropMenu()
         const display = current !== 'overview' ? 'inline-block' : 'none'
         const pid = project && project.id ? project.id : ''
-
+        
+        const basePath = '/rdos.html#'
         return (
             <div className="header">
                 <div className="logo left txt-left">
@@ -145,32 +146,33 @@ class Header extends Component {
                           className="my-menu-item"
                           key="database"
                           style={{ display }}>
-                            <Link to={`/database`}>数据集成</Link>
+                            <a href={`${basePath}/database`}>数据集成</a>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
                           key="realtime"
                           style={{ display }}>
-                            <Link to={ devPath }>数据开发</Link>
+                            <a href={`${basePath}${devPath}`}>数据开发</a>
+                            {/* <Link to={ devPath }>数据开发</Link> */}
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
                           key="operation"
                           style={{ display }}>
-                            <Link to={`/operation`}>运维中心</Link>
+                            <a href={`${basePath}/operation`}>运维中心</a>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
                           key="data-manage"
                           style={{ display }}>
-                            <Link to={`/data-manage/table`}>数据管理</Link>
+                            <a href={`${basePath}/data-manage/table`}>数据管理</a>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
                           key="project"
                           style={{ display }}
                         >
-                            <Link to={`/project/${pid}/config`}>项目管理</Link>
+                            <a href={`${basePath}/project/${pid}/config`}>项目管理</a>
                         </Menu.Item>
                     </Menu>
                 </div>

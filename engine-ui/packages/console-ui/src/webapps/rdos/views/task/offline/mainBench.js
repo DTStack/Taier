@@ -101,8 +101,8 @@ export default class MainBench extends React.Component {
     render() {
         const { tabData } = this.props;
         return <div className="m-mainbench editor-container">
-            { this.renderBench(tabData) }
-            { this.renderLock(tabData) }
+            { tabData && this.renderBench(tabData) }
+            { tabData && this.renderLock(tabData) }
         </div>
     }
 
@@ -129,7 +129,7 @@ export default class MainBench extends React.Component {
         defaultEditorOptions.indentWithTabs = false;
 
         // 任务类型
-        if (utils.checkExist(tabData.taskType)) {
+        if (utils.checkExist(tabData && tabData.taskType)) {
             switch(tabData.taskType) {
                 case TASK_TYPE.MR:
                 case TASK_TYPE.PYTHON:
@@ -151,7 +151,7 @@ export default class MainBench extends React.Component {
                     </p>
             }
         // 脚本类型
-        } else if (utils.checkExist(tabData.type)) {
+        } else if (utils.checkExist(tabData && tabData.type)) {
             return <SQLEditor
                 options={defaultEditorOptions}
                 key={tabData.id}

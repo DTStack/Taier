@@ -15,6 +15,14 @@ export function getUser() {
     }
 }
 
+export function getInitUser() {
+    const user = UserApi.getInitUser()
+    return {
+        type: userActions.GET_USER,
+        data: user,
+    }
+}
+
 export function updateUser(fields) {
     return {
         type: userActions.UPDATE_USER,

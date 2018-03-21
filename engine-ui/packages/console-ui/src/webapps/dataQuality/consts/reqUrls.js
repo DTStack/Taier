@@ -1,7 +1,5 @@
- // API 地址
- // '/api/dq/service';
- //const DQ_BASE_URL = 'http://api.dtstack.com/server/index.php?g=Web&c=Mock&o=simple&projectID=3&uri=/api/dq/service'; // 从config文件全局读取
-const DQ_BASE_URL = '/api/dq/service'; // 从config文件全局读取
+// 从config文件全局读取
+import { DQ_BASE_URL } from 'config/base';
 
 export default {
 

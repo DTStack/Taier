@@ -224,13 +224,12 @@
                 color: $color2;
             }
             .tab-search {
-                min-width: 165px;
+                min-width: 140px;
                 position: absolute;
-                top: 35px;
-                left: -140;
+                top: 40px;
+                left: -120;
                 height: 30px;
                 background: #fff;
-                padding: 5px 10px;
                 z-index: 999;
 
                 .ant-input-search {

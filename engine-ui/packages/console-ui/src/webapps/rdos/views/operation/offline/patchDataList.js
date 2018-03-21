@@ -142,6 +142,7 @@ class PatchDataList extends Component {
 
         const conditions = {
             checkVals: checkedList,
+            runDay: '',
         };
 
         checkedList.forEach(item => {
@@ -150,9 +151,9 @@ class PatchDataList extends Component {
             } else if (item === 'todayUpdate') {
                 conditions.runDay = moment()
                 conditions.dutyUserId  = `${user.id}`;
-            }
+            } 
         })
-
+        
         // 清理掉责任人信息
         if (!conditions.dutyUserId && dutyUserId === `${user.id}`) {
             conditions.dutyUserId = '';
@@ -179,7 +180,7 @@ class PatchDataList extends Component {
                 return <span>{ record.fromDay} ~ {record.toDay }</span>
             },
         }, {
-            title: '开始运行时间',
+            title: '实例生成时间',
             dataIndex: 'createTime',
             key: 'createTime',
         }, {

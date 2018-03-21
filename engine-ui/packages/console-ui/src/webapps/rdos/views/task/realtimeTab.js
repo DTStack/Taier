@@ -216,8 +216,8 @@ class RealTimeTabPane extends Component {
         const { dispatch } = this.props
         Api.uploadRes(file).then((res) => {
             if (res.code === 1) {
-                message.success('资源上传成功！')
                 this.closeModal()
+                message.success('资源上传成功！')
                 dispatch(ResAction.getResources())
                 dispatch(TreeAction.getRealtimeTree({
                     id: file.nodePid,
@@ -423,14 +423,14 @@ class RealTimeTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="task:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="task:newTask">
                                             新建任务
                                         </Menu.Item>
                                         <Menu.Item key="task:search">
                                             搜索任务（Ctrl + P）
+                                        </Menu.Item>
+                                        <Menu.Item key="task:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>
@@ -452,11 +452,11 @@ class RealTimeTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="resource:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="resource:upload">
                                             上传资源
+                                        </Menu.Item>
+                                        <Menu.Item key="resource:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>
@@ -485,11 +485,11 @@ class RealTimeTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="function:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="function:newFunc">
                                             新建函数
+                                        </Menu.Item>
+                                        <Menu.Item key="function:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>

@@ -20,8 +20,7 @@ class CatalogueTree extends Component {
     _expendKeys = []
     _expanded = true
 
-    componentDidMount() {
-    }
+    componentDidMount() {}
 
     componentDidUpdate() {
         if (this._active) {
@@ -91,7 +90,7 @@ class CatalogueTree extends Component {
     }
 
     checkVal = (value) => {
-        const reg = /^([\w|\u4e00-\u9fa5]{1,20})$/ // [A-Za-z0-9]|汉字 长度6-20
+        const reg = /^([\w|\u4e00-\u9fa5]{1,20})$/ // [A-Za-z0-9]|汉字 长度1-20
         const isValid = reg.test(value)
         if (!isValid) {
             message.error('类目名称只能不超过20位字母，下划线，汉字组成！')
@@ -204,7 +203,7 @@ class CatalogueTree extends Component {
                                 }
                                 {
                                     isLeaf && !isTable &&
-                                    <Tooltip title="删除表或目录">
+                                    <Tooltip title="删除表">
                                         <Popconfirm title="您确认删除当前目录吗？"
                                             onConfirm={onTreeNodeEdit.bind(this, data, 'delete')}
                                             okText="确定" cancelText="取消">

@@ -160,3 +160,15 @@ table {
         }
     }
 }
+
+.no-table-padding {
+    table {
+        .ant-table-thead > tr > th {
+            min-width: 100px;
+        }
+        .ant-table-tbody > tr > td {
+            padding: 0;
+            background: #fff;
+        }
+    }
+}

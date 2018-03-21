@@ -8,7 +8,6 @@ import DqSysApi from 'dataQuality/api/sysAdmin'
 import DqApi from 'dataQuality/api'
 
 import req from '../consts/reqUrls'
-import RdosReq from '../consts/rdosUrls'
 import rdosUrls from '../consts/rdosUrls';
 
 export default {
@@ -21,29 +20,6 @@ export default {
             default: return;
         }
     },
-
-    // ================== 数据源模块 ==================//
-    addOrUpdateSource(source) {
-        return http.post(offlineReq.SAVE_DATA_SOURCE, source)
-    },
-
-    deleteDataSource(params) {
-        return http.post(offlineReq.DELETE_DATA_SOURCE, params)
-    },
-    queryDataSource(params) {
-        return http.post(offlineReq.QUERY_DATA_SOURCE, params)
-    },
-
-    getDataSourceById(params) {
-        return http.post(offlineReq.GET_DATA_SOURCE_BY_ID, params)
-    },
-    testDSConnection(params) {
-        return http.post(offlineReq.TEST_DATA_SOURCE_CONNECTION, params)
-    },
-    getDataSourceTypes(params) {
-        return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
-    },
-
     // ================== 角色相关 ==================//
     queryRole(app, params) {
         switch( app ) {

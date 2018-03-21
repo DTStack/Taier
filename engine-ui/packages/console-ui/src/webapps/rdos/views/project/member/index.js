@@ -99,7 +99,7 @@ class ProjectMember extends Component {
                             form.resetFields()
                         })
                         ctx.loadUsers()
-                        message.success('添加用户成功!')
+                        message.success('添加成员成功!')
                     }
                 })
             }
@@ -200,7 +200,7 @@ class ProjectMember extends Component {
                 const setRemove = record.roles && 
                 record.roles.find((role => role.id !== 2 )) ? (
                 <Popconfirm
-                  title="确认将该用户从项目中移除？"
+                  title="确认将该成员从项目中移除？"
                   okText="确定" cancelText="取消"
                   onConfirm={() => { this.removeUserFromProject(record) }}
                 >

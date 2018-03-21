@@ -115,8 +115,27 @@ const sourceMap = (state = {}, action) => {
         case sourceMapAction.ADD_BATCH_SOURCE_KEYROW: {
             const colData = action.payload;
             const clone = cloneDeep(state);
-            if (colData) {
-                clone.column = colData;
+            if (colData && colData.length > 0) {
+                // 不存在直接赋值
+                if (!clone.column || clone.column.length === 0) {
+                    clone.column = colData;
+                } else { // 否则数据合并
+                    const originArr = [...clone.column]
+                    for (let i = 0; i < colData.length; i++) {
+                        const col = colData[i]
+                        let findOut = null;
+                        if (col.index !== undefined) {
+                            findOut = clone.column.find(c => c.index == col.index)
+                        } else if (col.key !== undefined) {
+                            findOut = clone.column.find(c => c.key == col.key)
+                        }
+
+                        if (!findOut) {
+                            originArr.push(col)
+                        }
+                    }
+                    clone.column = originArr;
+                }
             }
             return clone;
         }
@@ -219,8 +238,21 @@ const targetMap = (state = {}, action) => {
         case targetMapAction.ADD_BATCH_TARGET_KEYROW: {
             const colData = action.payload;
             const clone = cloneDeep(state);
-            if (colData) {
-                clone.column = colData;
+            if (colData && colData.length > 0) {
+                 // 不存在直接赋值
+                 if (!clone.column || clone.column.length === 0) {
+                    clone.column = colData;
+                } else { // 否则数据合并
+                    const originArr = [...clone.column]
+                    for (let i = 0; i < colData.length; i++) {
+                        const col = colData[i]
+                        let findOut = clone.column.find(c => c.key == col.key);
+                        if (!findOut) {
+                            originArr.push(col)
+                        }
+                    }
+                    clone.column = originArr;
+                }
             }
             return clone;
         }

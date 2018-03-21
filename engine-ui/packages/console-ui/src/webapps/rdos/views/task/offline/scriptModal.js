@@ -125,7 +125,7 @@ class ScriptForm extends React.Component {
                         <Input type="hidden"></Input>
                     )}
                     <FolderPicker
-                        type={MENU_TYPE.TASK}
+                        type={MENU_TYPE.SCRIPT}
                         ispicker
                         treeData={ this.props.treeData }
                         onChange={ this.handleSelectTreeChange.bind(this) }
@@ -326,26 +326,29 @@ dispatch => {
         createScript: function(params, isEditExist, defaultData) {
             ajax.saveScript(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    ajax.getScriptById({
+                        id: res.data.id
+                    }).then(res2 => {
                         if(!isEditExist) {
+
+                            const newScriptCata = res.data;
+                            if (newScriptCata.catalogueType) {
+                                newScriptCata.catalogueType = MENU_TYPE.SCRIPT
+                            }
+
                             dispatch({
                                 type: scriptTreeAction.ADD_FOLDER_CHILD,
-                                payload: res.data
+                                payload: newScriptCata
                             });
 
-                            ajax.getScriptById({
-                                id: res.data.id
-                            }).then(res2 => {
-                                if(res2.code === 1) {
-                                    dispatch({
-                                        type: workbenchAction.LOAD_TASK_DETAIL,
-                                        payload: res2.data
-                                    });
-                                    dispatch({
-                                        type: workbenchAction.OPEN_TASK_TAB,
-                                        payload: res.data.id
-                                    });
-                                }
+                            dispatch({
+                                type: workbenchAction.LOAD_TASK_DETAIL,
+                                payload: res2.data
+                            });
+
+                            dispatch({
+                                type: workbenchAction.OPEN_TASK_TAB,
+                                payload: res2.data.id
                             });
                         }
                         else {
@@ -355,8 +358,13 @@ dispatch => {
                                 type: scriptTreeAction.EDIT_FOLDER_CHILD,
                                 payload: newData
                             });
+
+                            dispatch({
+                                type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                                payload: res2.data
+                            });
                         }
-                    }
+                    })
                 });
         },
 

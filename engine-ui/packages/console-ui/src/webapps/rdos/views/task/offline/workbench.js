@@ -166,7 +166,7 @@ class Workbench extends React.Component {
                         updateTaskFields={ this.props.updateTaskFields }
                         updateCatalogue={ this.props.updateCatalogue }
                     />
-                    <SiderBench tabData={ currentTabData } key={ currentTabData.id }/>
+                    <SiderBench tabData={ currentTabData } key={ currentTabData && currentTabData.id }/>
                 </div>
             </Row>
             <ImportData visible={this.state.visible}/>

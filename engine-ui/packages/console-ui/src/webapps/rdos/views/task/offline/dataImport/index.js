@@ -64,14 +64,16 @@ export default class ImportLocalData extends Component {
         }
 
         if (originPartitions && originPartitions.length > 0) {
+            let filledParitions = true;
             for (let i = 0; i < partitions.length; i++) {
                 const item = partitions[i]
                 const key = originPartitions[i].name
                 if (item[key] === '') {
-                    message.error('分区每项值必填！')
                     flag = false
+                    filledParitions = false;
                 }
             }
+            if (!filledParitions) message.error('分区每项值必填！')
         }
         return flag
     }

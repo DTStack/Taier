@@ -22,6 +22,7 @@ const echarts = require('echarts/lib/echarts');
 // 引入柱状图
 require('echarts/lib/chart/line');
 // 引入提示框和标题组件
+require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
@@ -103,6 +104,7 @@ class OfflineStatistics extends Component {
                 arr.push({
                     name: legend[i],
                     symbol: 'none',
+                    smooth: true,
                     type:'line',
                     data: data.y[i].data,
                 })
@@ -144,7 +146,7 @@ class OfflineStatistics extends Component {
                 return content;
             },
         },{
-            title: '任务类型',
+            title: '任务实例类型',
             dataIndex: 'type',
             key: 'type',
             render: (text, record) => {

@@ -28,9 +28,10 @@ class ResFormModal extends Component {
                 resource.file = file.files[0]
                 handOk(resource)
                 setTimeout(() => {
-                    form.resetFields()
                     this.setState({ file: '' })
-                }, 100)
+                    this.resetInput();
+                    this.props.form.resetFields()
+                }, 500)
             }
         });
     }
@@ -50,6 +51,10 @@ class ResFormModal extends Component {
             callback('资源文件只能是Jar文件!');
         }
         callback();
+    }
+
+    resetInput = () => {
+        document.getElementById('myFile').value = ''
     }
 
     changeFileType = (value) => {
@@ -127,7 +132,7 @@ class ResFormModal extends Component {
                                   style={{ lineHeight: '28px' }}
                                   className="ant-btn"
                                   htmlFor="myFile">选择文件</label>
-                                <span> {file.files && file.files[0].name}</span>
+                                <span> {file.files && file.files[0] && file.files[0].name}</span>
                                 <input
                                   name="file"
                                   type="file"

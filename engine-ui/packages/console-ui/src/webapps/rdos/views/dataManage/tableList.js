@@ -25,6 +25,7 @@ class TableList extends Component {
         super(props);
         this.state = {
             visible: false,
+            current: 1,
             tableName: '',
             filterDropdownVisible: false,
             dataCatalogue: [],
@@ -73,13 +74,15 @@ class TableList extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
+                current: 1,
             })
         })
     }
 
     onTableNameChange = (e) => {
         this.setState({
-            tableName: e.target.value
+            tableName: e.target.value,
+            current: 1,
         })
     }
 

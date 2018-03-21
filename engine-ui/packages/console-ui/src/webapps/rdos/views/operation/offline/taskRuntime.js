@@ -20,6 +20,7 @@ const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 // 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
+require('echarts/lib/component/legend');
 require('echarts/lib/component/title');
 
 const RadioButton = Radio.Button;
@@ -130,12 +131,19 @@ export default class TaskLog extends Component {
         const option = cloneDeep(lineAreaChartOptions);
 
         option.grid = {
-            left: 75,
-            right: 50
+            left: '3%',
+            right: '4%',
+            bottom: '10%',
+            containLabel: true
         }
 
         option.title.text = ''
-        option.legend.data = data.legend;
+
+        option.legend = {
+            data: data.legend,
+            y: 'bottom',
+        }
+
         option.tooltip.formatter = function (params) {
             return `${params[0] && params[0].axisValue}
                 <br />${params[0] && params[0].seriesName}: ${params[0] && params[0].value} 秒
@@ -143,8 +151,6 @@ export default class TaskLog extends Component {
                 <br />${params[2] && params[2].seriesName}: ${params[2] && params[2].value} 条
                 `
         }
-        // option.tooltip.axisPointer.label.formatter = '{value}: 00'
-
         option.xAxis[0].axisTick = {
             show: false,
             alignWithLabel: true,
@@ -157,6 +163,7 @@ export default class TaskLog extends Component {
             margin: 12,
             formatter: '{value}'
         }
+        option.xAxis[0].type = 'category';
         option.xAxis[0].data = data.xAxis;
 
         option.yAxis[0].name = '执行时长（秒）'
@@ -168,9 +175,9 @@ export default class TaskLog extends Component {
         option.yAxis[1].splitLine.show = false
         option.yAxis[1].minInterval = 1// 刻度为整数
         option.yAxis[1].axisLabel.formatter = '{value} 条'
-        
 
         option.series = data.series;
+        console.log('option:', option)
         // 绘制图表
         myChart.setOption(option);
 
@@ -234,7 +241,7 @@ export default class TaskLog extends Component {
                         </Col>
                     </Row>
                     <Resize onResize={this.resizeChart}>
-                        <div id="RunTimeTrend" style={{width: '100%', height: '330px'}}></div>
+                        <div id="RunTimeTrend" style={{width: '100%', height: '350px'}}></div>
                     </Resize>
                 </Card>
             </div>

@@ -182,32 +182,32 @@ const mapDispatch = dispatch => {
         getDataSource: () => {
             ajax.getOfflineDataSource()
                 .then(res => {
+                    let data = []
                     if(res.code === 1) {
-                        dispatch({
-                            type: dataSourceListAction.LOAD_DATASOURCE,
-                            payload: res.data
-                        });
+                        data = res.data
                     }
+                    dispatch({
+                        type: dataSourceListAction.LOAD_DATASOURCE,
+                        payload: data
+                    });
                 });
         },
         getJobData: (params) => {
             ajax.getOfflineJobData(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    dispatch({
+                        type: dataSyncAction.INIT_JOBDATA,
+                        payload: res.data
+                    });
+                    if(res.data === null) {
                         dispatch({
-                            type: dataSyncAction.INIT_JOBDATA,
-                            payload: res.data
+                            type: workbenchAction.SET_CURRENT_TAB_NEW
                         });
-                        if(res.data === null) {
-                            dispatch({
-                                type: workbenchAction.SET_CURRENT_TAB_NEW
-                            });
-                        }
-                        else{
-                            dispatch({
-                                type: workbenchAction.SET_CURRENT_TAB_SAVED
-                            });
-                        }
+                    }
+                    else{
+                        dispatch({
+                            type: workbenchAction.SET_CURRENT_TAB_SAVED
+                        });
                     }
                 })
         },

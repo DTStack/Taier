@@ -205,14 +205,14 @@ class OfflineTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="task:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="task:newTask">
                                             新建任务
                                         </Menu.Item>
                                         <Menu.Item key="task:search">
                                             搜索任务（Ctrl + P）
+                                        </Menu.Item>
+                                        <Menu.Item key="task:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>
@@ -236,11 +236,11 @@ class OfflineTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="script:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="script:newScript">
                                             新建脚本
+                                        </Menu.Item>
+                                        <Menu.Item key="script:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>
@@ -264,14 +264,14 @@ class OfflineTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="resource:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="resource:upload">
                                             上传资源
                                         </Menu.Item>
                                         <Menu.Item key="resource:replace">
                                             替换资源
+                                        </Menu.Item>
+                                        <Menu.Item key="resource:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>
@@ -295,11 +295,11 @@ class OfflineTabPane extends Component {
                             <header>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="function:newFolder">
-                                            新建文件夹
-                                        </Menu.Item>
                                         <Menu.Item key="function:newFunc">
                                             新建函数
+                                        </Menu.Item>
+                                        <Menu.Item key="function:newFolder">
+                                            新建文件夹
                                         </Menu.Item>
                                     </Menu>
                                 } trigger={['click']}>

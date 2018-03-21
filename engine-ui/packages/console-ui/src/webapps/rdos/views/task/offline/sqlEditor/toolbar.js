@@ -226,7 +226,7 @@ export default class Toolbar extends Component {
                     visible={execConfirmVisible}
                     title="执行的语句中包含DDL语句，是否确认执行？"
                     wrapClassName="vertical-center-modal modal-body-nopadding"
-                    onClose={() => {this.setState({ execConfirmVisible: false })}}
+                    onCancel={() => {this.setState({ execConfirmVisible: false })}}
                     footer={
                         <div>
                             <Checkbox onChange={this.onNeverWarning}>不在提示</Checkbox>

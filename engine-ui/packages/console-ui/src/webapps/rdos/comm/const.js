@@ -22,6 +22,12 @@ export const RESOURCE_TYPE = {
     PY: 2,
 }
 
+// 调度状态
+export const SCHEDULE_STATUS = {
+    NORMAL: 1,
+    STOPPED: 2,
+}
+
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
@@ -172,6 +178,54 @@ export const offlineTaskStatusFilter = [{
     value: 18,
 }]
 
+export const offlineTaskTypeFilter = [{
+    id: 1,
+    text: 'SQL',
+    value: TASK_TYPE.SQL,
+}, {
+    id: 2,
+    text: 'MR',
+    value: TASK_TYPE.MR,
+}, {
+    id: 3,
+    text: '数据同步',
+    value: TASK_TYPE.SYNC,
+}, {
+    id: 4,
+    text: 'Virtual',
+    value: TASK_TYPE.VIRTUAL_NODE,
+}, {
+    id: 5,
+    text: 'Python',
+    value: TASK_TYPE.PYTHON,
+}, {
+    id: 6,
+    text: 'R',
+    value: TASK_TYPE.R,
+}]
+
+export const offlineTaskPeriodFilter = [{
+    id: 1,
+    text: '分钟任务',
+    value: 0,
+}, {
+    id: 2,
+    text: '小时任务',
+    value: 1,
+}, {
+    id: 3,
+    text: '天任务',
+    value: 2,
+}, {
+    id: 4,
+    text: '周任务',
+    value: 4,
+}, {
+    id: 5,
+    text: '月任务',
+    value: 5,
+}]
+
 export const ScheduleTypeFilter = [{ // 调度过滤
     text: '周期调度',
     value: 0,
@@ -280,7 +334,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     },
     color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
     legend: {
-        data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+        data:['邮件营销','联盟广告','视频广告']
     },
     toolbox: {
         feature: {

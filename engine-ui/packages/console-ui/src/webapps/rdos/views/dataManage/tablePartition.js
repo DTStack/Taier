@@ -62,9 +62,9 @@ export default class TablePartition extends React.Component {
         const { result } = this.state
         const { pagination } = this.props
         const realPagination = pagination || {
-            total: result.totalCount,
             defaultPageSize: 10,
         };
+        realPagination.total = result.totalCount
         return (
             <div className="box">
                 <Table 

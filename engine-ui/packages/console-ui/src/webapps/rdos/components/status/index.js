@@ -206,7 +206,7 @@ export function TaskType(props) {
         case TASK_TYPE.MR:
             return <span>MR</span>
         case TASK_TYPE.SYNC:
-            return <span>Sync</span>
+            return <span>数据同步</span>
         case TASK_TYPE.PYTHON:
             return <span>Python</span>
         case TASK_TYPE.SQL:

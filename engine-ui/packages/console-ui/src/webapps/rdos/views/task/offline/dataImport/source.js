@@ -5,7 +5,9 @@ import {
     Icon, Input, Select, Row, Radio,
 } from 'antd';
 
+import TableCell from 'widgets/tableCell'
 import { formItemLayout } from '../../../../comm/const'
+
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -56,7 +58,7 @@ export default class ImportSource extends Component {
                         width: 150,
                         key: index + item,
                         render: (text, item) => {
-                            return item[index]
+                            return <TableCell value={item[index]} />
                         },
                     })
                 })
@@ -69,7 +71,7 @@ export default class ImportSource extends Component {
                         width: 150,
                         title: title,
                         render: (text, item) => {
-                            return item[index]
+                            return <TableCell value={item[index]} />
                         }
                     })
                 }) 
@@ -166,7 +168,7 @@ export default class ImportSource extends Component {
                         </FormItem>
                     </Form>
                 </Row>
-                <Row>
+                <Row className="no-table-padding">
                     <Table 
                         rowKey="id"
                         scroll={{ y: 240, x: 800, }} 

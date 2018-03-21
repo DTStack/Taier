@@ -64,7 +64,7 @@ class SiderBench extends React.Component {
                 <TaskView tabData={tabData} />
             </TabPane>
         ]
-        if (utils.checkExist(tabData.taskType) && tabData.taskType !== TASK_TYPE.VIRTUAL_NODE) {
+        if (tabData && utils.checkExist(tabData.taskType) && tabData.taskType !== TASK_TYPE.VIRTUAL_NODE) {
             panes.push([<TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                 <SQLEditor
                     options={propEditorOptions}
