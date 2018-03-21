@@ -163,8 +163,11 @@ public class FlinkClient extends AbsClient {
         PluginSourceUtil.setRemoteSourceJarRootDir(remoteSqlPluginDir);
 
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
-        Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
-                "flink client can not init for host and zkNamespace is null at the same time.");
+
+        if(flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
+            Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
+                    "flink client can not init for host and zkNamespace is null at the same time.");
+        }
 
         String localSyncPluginDir =  getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
         FlinkUtil.setLocalSyncFileDir(localSyncPluginDir);
@@ -230,9 +233,6 @@ public class FlinkClient extends AbsClient {
         hadoopConf = HadoopConf.getYarnConfiguration();
 
         Configuration config = new Configuration();
-        config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-        config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
-        config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
 
         if(System.getenv("HADOOP_CONF_DIR") != null) {
             config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
