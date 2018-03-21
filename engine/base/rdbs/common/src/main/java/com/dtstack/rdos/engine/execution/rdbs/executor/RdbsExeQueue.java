@@ -63,7 +63,7 @@ public class RdbsExeQueue {
     public void init(){
         queue = new ArrayBlockingQueue<>(1);
         jobExecutor = new ThreadPoolExecutor(minSize, maxSize, 0, TimeUnit.MILLISECONDS, queue,
-                new CustomThreadFactory("mysql-job-exe"));
+                new CustomThreadFactory("rdb-job-exe"));
 
         monitorExecutor = new ThreadPoolExecutor(2, 2, 0, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(1), new CustomThreadFactory("monitor-exe"));
