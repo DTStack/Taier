@@ -234,6 +234,12 @@ public class FlinkClient extends AbsClient {
 
         Configuration config = new Configuration();
 
+        if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
+            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
+            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
+        }
+
         if(System.getenv("HADOOP_CONF_DIR") != null) {
             config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
         }
