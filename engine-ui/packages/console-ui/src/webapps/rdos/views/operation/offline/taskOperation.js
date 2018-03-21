@@ -20,7 +20,8 @@ import { Circle } from 'widgets/circle'
 import Api from '../../../api'
 import { 
     offlineTaskStatusFilter, jobTypes, 
-    ScheduleTypeFilter, TASK_STATUS
+    ScheduleTypeFilter, TASK_STATUS,
+    offlineTaskTypeFilter
 } from '../../../comm/const'
 
 import { 
@@ -58,6 +59,7 @@ class OfflineTaskList extends Component {
         checkAll: false,
         execTime: '', // 执行时间
         jobType: '', // 调度类型
+        taskType: '',
         statistics: '',
         execSpendTime: '', // 执行时长
         visibleSlidePane: false,
@@ -82,7 +84,7 @@ class OfflineTaskList extends Component {
         const {
             jobName, person, taskStatus,
             bussinessDate, jobType, current,
-            execTime, execSpendTime,
+            execTime, execSpendTime, taskType
         } = this.state
         const reqParams = {
             currentPage: current,
@@ -102,6 +104,9 @@ class OfflineTaskList extends Component {
         }
         if (taskStatus && taskStatus.length > 0) {
             reqParams.jobStatuses = taskStatus.join(',')
+        }
+        if (taskType) {
+            reqParams.taskType = taskType.join(',')
         }
         this.loadTaskList(reqParams)
     }
@@ -253,6 +258,7 @@ class OfflineTaskList extends Component {
             taskStatus: status,
             jobType,
             selectedRowKeys: [],
+            taskType: filters.taskType,
             checkAll: false,
         }, () => {
             this.search()
@@ -328,7 +334,7 @@ class OfflineTaskList extends Component {
             },
         }, {
             title: '状态',
-            width: 80,
+            width: 100,
             dataIndex: 'status',
             key: 'status',
             render: (text) => {
@@ -338,13 +344,15 @@ class OfflineTaskList extends Component {
             filterMultiple: true,
         }, {
             title: '任务类型',
-            width: 80,
+            width: 100,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
                 return  <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
+            filters: offlineTaskTypeFilter,
         }, {
+            width: 120,
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
@@ -352,20 +360,23 @@ class OfflineTaskList extends Component {
                 return <TaskTimeType value={text} />
             },
         }, {
+            width: 120,
             title: '业务日期',
             dataIndex: 'businessDate',
             key: 'businessDate'
         }, {
+            width: 120,
             title: '定时时间',
             dataIndex: 'cycTime',
             key: 'cycTime'
         }, {
+            width: 120,
             title: '开始时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
         }, {
             title: '运行时长',
-            width: 80,
+            width: 100,
             dataIndex: 'execTime',
             key: 'execTime',
         }, {
@@ -469,6 +480,10 @@ class OfflineTaskList extends Component {
                             <Circle style={{ background: '#d62119' }} />&nbsp;
                             失败: {statistics.FAILED || 0}
                         </span>&nbsp;
+                        <span style={{color: "#26dad2"}}>
+                            <Circle style={{ background: '#26dad2' }} />&nbsp;
+                            冻结: {statistics.FROZEN || 0}
+                        </span>&nbsp;
                     </span>
                     </div>
                 </h1>
@@ -548,7 +563,7 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '400px' }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}

@@ -21,7 +21,8 @@ import GoBack from 'main/components/go-back'
 import Api from '../../../api'
 import { 
     offlineTaskStatusFilter, jobTypes, 
-    ScheduleTypeFilter, TASK_STATUS
+    ScheduleTypeFilter, TASK_STATUS,
+    offlineTaskTypeFilter,
 } from '../../../comm/const'
 
 import { 
@@ -56,6 +57,7 @@ class PatchDataDetail extends Component {
         jobStatuses: '',
         taskName: '',
         bizDay: '',
+        taskType: '',
         
         table: {
             data: [],
@@ -85,7 +87,7 @@ class PatchDataDetail extends Component {
     search = () => {
         const {
             fillJobName, dutyUserId, jobStatuses,
-            bizDay, current, taskName
+            bizDay, current, taskName, taskType
         } = this.state;
         const reqParams = {
             currentPage: current,
@@ -106,6 +108,9 @@ class PatchDataDetail extends Component {
         if (jobStatuses && jobStatuses.length > 0) {
             reqParams.jobStatuses = jobStatuses.join(',')
         }
+        if (taskType) {
+            reqParams.taskType = taskType.join(',')
+        }
         this.loadPatchRecords(reqParams)
     }
 
@@ -123,7 +128,6 @@ class PatchDataDetail extends Component {
     
     loadJobStatics(params) {
         const ctx = this
-        // type:  NORMAL_SCHEDULE(0), FILL_DATA(1);
         params.type = 1;
         params.fillTaskName = params.fillJobName;
         Api.queryJobStatics(params).then((res) => {
@@ -241,12 +245,10 @@ class PatchDataDetail extends Component {
 
     handleTableChange = (pagination, filters) => {
         let status;
-        if (filters.status) {
-            status = filters.status
-        }
         this.setState({ 
             current: pagination.current, 
-            jobStatuses: status,
+            jobStatuses: filters.status,
+            taskType: filters.taskType,
             selectedRowKeys: []
         }, () => {
             this.search()
@@ -315,11 +317,6 @@ class PatchDataDetail extends Component {
                 )
             },
         }, {
-            title: '业务日期',
-            dataIndex: 'bizDay',
-            width: 100,
-            key: 'bizDay'
-        }, {
             title: '状态',
             width: 80,
             dataIndex: 'status',
@@ -331,27 +328,36 @@ class PatchDataDetail extends Component {
             filterMultiple: true,
         }, {
             title: '任务类型',
-            width: 80,
+            width: 100,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
                 return  <TaskType value={text} />
             },
+            filters: offlineTaskTypeFilter,
         }, {
+            title: '业务日期',
+            dataIndex: 'bizDay',
+            width: 120,
+            key: 'bizDay'
+        }, {
+            width: 120,
             title: '定时时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
         }, {
+            width: 120,
             title: '开始时间',
             dataIndex: 'exeStartTime',
             key: 'exeStartTime',
         }, {
+            width: 120,
             title: '运行时长（秒）',
             dataIndex: 'exeTime',
             key: 'exeTime',
         }, {
             title: '责任人',
-            width: 80,
+            width: 100,
             dataIndex: 'dutyUserName',
             key: 'dutyUserName',
         }]
@@ -440,9 +446,17 @@ class PatchDataDetail extends Component {
                             <Circle style={{ background: '#009944' }} />&nbsp;
                             完成: {statistics.FINISHED || 0}
                         </span>&nbsp;
+                        <span style={{color: "#F5A623"}}>
+                            <Circle style={{ background: '#F5A623 ' }} />&nbsp;
+                            取消: {statistics.CANCELED || 0}
+                        </span>&nbsp;
                         <span style={{color: "#d62119"}}>
                             <Circle style={{ background: '#d62119' }} />&nbsp;
                             失败: {statistics.FAILED || 0}
+                        </span>&nbsp;
+                        <span style={{color: "#26dad2"}}>
+                            <Circle style={{ background: '#26dad2' }} />&nbsp;
+                            冻结: {statistics.FROZEN || 0}
                         </span>&nbsp;
                     </span>
                     </div>
@@ -546,12 +560,13 @@ class PatchDataDetail extends Component {
                             dataSource={(table.data && table.data.recordList) || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
+                            scroll={{ y: '60%' }}
                         />
                         <SlidePane 
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px'  }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '400px'  }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}

@@ -9,13 +9,12 @@ import {
 import utils from 'utils'
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
+import { getVertxtStyle } from '../../../../comm'
 import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
 import { taskTypeText } from '../../../../components/display'
-
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
-
 
 import {
     workbenchActions
@@ -74,7 +73,7 @@ class TaskFlowView extends Component {
         loading: 'success',
         lastVertex: '',
         sort: 'children',
-        logInfo: {},
+        taskLog: {},
         logVisible: false,
         visible: false,
         visibleRestart: false,
@@ -155,22 +154,6 @@ class TaskFlowView extends Component {
         return task ? task.name : ''
     }
 
-    getStyles = (type) => {
-        switch (type) {
-            case TASK_STATUS.RUNNING:
-            case TASK_STATUS.FINISHED:
-            case TASK_STATUS.SUBMITTING:
-            case TASK_STATUS.RESTARTING:
-            case TASK_STATUS.SET_SUCCESS:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-            case TASK_STATUS.RUN_FAILED:
-            case TASK_STATUS.SUBMIT_FAILED:
-                return 'whiteSpace=wrap;fillColor=#ef53503d;strokeColor=#ef5350;'
-            default:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-        }
-    }
-
     corvertValueToString = (cell) => {
         if (mxUtils.isNode(cell.value)) {
             if (cell.value.nodeName.toLowerCase() == 'task') {
@@ -198,7 +181,7 @@ class TaskFlowView extends Component {
     insertVertex = (graph, data, parent, type) => {
         if (data) {
 
-            const style = this.getStyles(data.status)
+            const style = getVertxtStyle(data.status)
 
             const exist = this._vertexCells.find((cell) => {
                 const dataStr = cell.getAttribute('data')
@@ -460,9 +443,7 @@ class TaskFlowView extends Component {
     showJobLog = (jobId) => {
         Api.getOfflineTaskLog({ jobId: jobId }).then((res) => {
             if (res.code === 1) {
-                const logInfo = res.data && res.data.logInfo
-                const log = logInfo ? JSON.parse(logInfo) : {}
-                this.setState({ logInfo: log, logVisible: true })
+                this.setState({ taskLog: res.data, logVisible: true })
             }
         })
     }
@@ -496,7 +477,7 @@ class TaskFlowView extends Component {
     /* eslint-enable */
     render() {
         const selectedJob = this.state.selectedJob
-        const logInfo = this.state.logInfo
+        const taskLog = this.state.taskLog
         const { goToTaskDev, project, taskJob } = this.props
         return (
             <div className="graph-editor"
@@ -553,12 +534,16 @@ class TaskFlowView extends Component {
                 <Modal
                     width={600}
                     title="运行日志"
-                    wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
+                    wrapClassName="vertical-center-modal m-log-modal"
                     visible={ this.state.logVisible }
                     onCancel={() => { this.setState({ logVisible: false }) }}
                     footer={null}
                 >
-                    <LogInfo log={logInfo} height="520px"/>
+                    <LogInfo 
+                        log={taskLog.logInfo} 
+                        syncJobInfo={taskLog.syncJobInfo}
+                        height="520px"
+                    />
                 </Modal>
                 <RestartModal 
                     restartNode={selectedJob}
