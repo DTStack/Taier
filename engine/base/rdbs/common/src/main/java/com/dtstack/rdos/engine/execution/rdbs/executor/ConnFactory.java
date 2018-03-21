@@ -38,13 +38,14 @@ public abstract class ConnFactory {
 
     protected String testSql = null;
 
-
     public void init(Properties properties) throws ClassNotFoundException {
-        if(isFirstLoaded.get()){
-            Class.forName(driverName);
-            isFirstLoaded.set(false);
-        }
+        synchronized (ConnFactory.class){
+            if(isFirstLoaded.get()){
+                Class.forName(driverName);
+                isFirstLoaded.set(false);
+            }
 
+        }
         dbURL = MathUtil.getString(properties.get(ConfigConstant.DB_URL));
         userName = MathUtil.getString(properties.get(ConfigConstant.USER_NAME));
         pwd = MathUtil.getString(properties.get(ConfigConstant.PWD));
