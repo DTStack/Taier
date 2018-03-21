@@ -1,7 +1,6 @@
 package com.dtstack.sql.main;
 
 import com.google.common.base.Charsets;
-import org.apache.parquet.Strings;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class SqlProxy {
 
         String[] sqlArray = submitSql.split(";");
         for(String sql : sqlArray){
-            if(Strings.isNullOrEmpty(sql)){
+            if(sql == null || sql.trim().length() == 0){
                 continue;
             }
 
