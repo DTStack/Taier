@@ -16,6 +16,9 @@ import {
     dataSourceTypes,
     DATA_SOURCE,
 } from '../../../../comm/const';
+
+import HelpDoc from '../../../helpDoc';
+
 import { matchTaskParams } from '../../../../comm';
 
 const FormItem = Form.Item;
@@ -332,7 +335,7 @@ class TargetForm extends React.Component{
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                placeholder="pt1=params1;pt2=params2;"
+                                placeholder="pt=${bdp.system.bizdate};"
                             ></Input>
                             )}
                             <HelpDoc doc="partitionDesc" />

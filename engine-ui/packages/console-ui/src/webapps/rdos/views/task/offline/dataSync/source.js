@@ -433,7 +433,7 @@ class SourceForm extends React.Component {
                     })(
                         <Input
                             placeholder="请填写分区"
-                            placeholder="pt1=params1;pt2=params2;"
+                            placeholder="pt=${bdp.system.bizdate};"
                             onChange={ this.submitForm.bind(this) }
                         ></Input>,
                     )}
