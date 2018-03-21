@@ -89,10 +89,14 @@ public class SparkYarnClient extends AbsClient {
 
         if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
             errorMessage = "you need to set sparkYarnArchive when used spark engine.";
-        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
+        }
+
+        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
             logger.info("use default spark proxy jar with path:{}", DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
             sparkYarnConfig.setSparkSqlProxyPath(DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
-        }else if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
+        }
+
+        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
             logger.info("use default spark proxy jar with main class:{}", DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
             sparkYarnConfig.setSparkSqlProxyMainClass(DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
         }
