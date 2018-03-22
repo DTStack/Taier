@@ -3,23 +3,24 @@
 # git branch
 dev="dev"
 master="master"
+dateTime=date +"%Y_%m_%d_%H_%M_%S"
 
 # Build dist, and push it to gitlab.
 git pull origin $dev
-echo "git pull origin $dev."
+echo "Git pull origin $dev."
 
 git add -A
-git commit -m 'update'
+git commit -m "release_$dateTime"
 
 git checkout $master
-echo "git branch is $master."
+echo "Current branch is $master."
 git merge $dev
-echo "git branch master merged  $dev."
+echo "Current branch master merged $dev."
 
 git push origin $master
-echo "git push origin $master."
+echo "Git push origin $master."
 
 git checkout $dev
-echo "current branch is $dev."
+echo "Current branch is $dev."
 
 
