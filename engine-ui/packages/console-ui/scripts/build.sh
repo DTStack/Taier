@@ -3,14 +3,13 @@
 # git branch
 dev="dev"
 master="master"
-dateTime= "date +%Y_%m_%d_%H_%M_%S"
-
+currentTime="$(date +"%Y_%m_%d_%H_%M_%S")"
 # Build dist, and push it to gitlab.
 git pull origin $dev
 echo "Git pull origin $dev."
 
 git add -A
-git commit -m "release_$dateTime"
+git commit -m "release_$currentTime"
 
 git checkout $master
 echo "Current branch is $master."
