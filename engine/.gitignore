@@ -4,6 +4,5 @@ target/
 .classpath
 .idea/
 base/base.iml
-plugin/
 logs/
 *.iml
