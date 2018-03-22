@@ -15,16 +15,16 @@
 		<module>entrance</module>
 		<module>common</module>
 		<module>base/common</module>
-		<module>base/spark</module>
-		<module>base/flink</module>
-		<module>base/datax</module>
+		<module>base/plugin/spark</module>
+		<module>base/plugin/flink</module>
+		<module>base/plugin/datax</module>
 		<module>web</module>
 		<module>service</module>
-		<module>base/flink130</module>
-		<module>base/spark-yarn</module>
-		<module>base/flink140</module>
-		<module>base/odps</module>
-		<module>base/rdbs</module>
+		<module>base/plugin/flink130</module>
+		<module>base/plugin/spark-yarn</module>
+		<module>base/plugin/flink140</module>
+		<module>base/plugin/odps</module>
+		<module>base/plugin/rdbs</module>
 	</modules>
 
 	<dependencies>

@@ -1,6 +1,0 @@
-版本兼容说明 yarn 模式:
-1.apache hadoop-2.7.3 版本
-2.cloudera 产品 2.6.0-cdh5.14.0
-
-fink 编译源码 切换开源 hadoop版本 到 Cloudera 版本
-mvn clean package -DskipTests -Pvendor-repos -Dhadoop.version=2.6.0-cdh5.14.0
