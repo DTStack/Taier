@@ -30,6 +30,7 @@ class OfflinePanel extends Component {
         taskName: '',
         alarmPe: '',
         statistics: '',
+        current: 1,
     }
 
     componentDidMount() {
@@ -66,14 +67,15 @@ class OfflinePanel extends Component {
     }
 
     search = () => {
-        const { startTime, endTime, taskName, alarmPe } = this.state
-        const params = { pageIndex: 1 }
+        const { startTime, endTime, taskName, alarmPe, current } = this.state
+        const params = { pageIndex: current }
         if (startTime && endTime) {
             params.startTime = startTime.unix()
             params.endTime = endTime.unix()
         }
         if (taskName) { params.taskName = taskName }
         if (alarmPe) { params.receive = alarmPe }
+
         this.loadAlarms(params)
     }
 
@@ -95,16 +97,9 @@ class OfflinePanel extends Component {
     }
 
     handleTableChange = (pagination, filters) => {
-        if (filters.status) {
-            this.loadAlarms({
-                pageIndex: pagination.current,
-                status: filters.status[0],
-            })
-        } else {
-            this.loadAlarms({
-                pageIndex: pagination.current,
-            })
-        }
+        this.setState({
+            current: pagination.current,
+        }, this.search)
     }
 
     changeReceive = (target) => {
@@ -189,7 +184,7 @@ class OfflinePanel extends Component {
             return (
                 <Option
                     key={item.id}
-                    value={`${item.user.dtuicUserId}`}
+                    value={`${item.user.id}`}
                     name={item.user.userName}
                 >
                     {item.user.userName}

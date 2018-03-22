@@ -121,9 +121,9 @@ class RelationDetail extends React.Component {
         return (
             <div className="task-floating-window rel-table-info ant-table bd"
                 style={{ width: '90%'}}>
-                <header style={{ padding: '5px' }} className="bd-bottom">
+                <header style={{ padding: '5px' }} className="bd-bottom overflow ellipsis">
                     <span style={{ fontSize: '12px' }}>{data.catalogue}/</span>
-                    <span><b>{data.tableName}</b></span>
+                    <span title={data.tableName}><b>{data.tableName}</b></span>
                 </header>
                 <Row>
                     <Col span={12} 

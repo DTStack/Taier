@@ -31,6 +31,7 @@ class RealTimeConfig extends Component {
         taskName: '',
         alarmPeo: '',
         alarmStatus: '',
+        current: 1,
     }
 
     componentDidMount() {
@@ -57,19 +58,21 @@ class RealTimeConfig extends Component {
     }
 
     search = () => {
-        const { taskName, alarmPeo } = this.state
-        const params = { pageIndex: 1 }
+        const { taskName, alarmPeo, current, alarmStatus } = this.state
+
+        const params = { pageIndex: current }
         if (taskName) { params.taskName = taskName }
         if (alarmPeo) { params.ownerId = alarmPeo }
+        if (alarmStatus !== '') { params.alarmStatus = alarmStatus }
+
         this.loadAlarmRules(params)
     }
 
     handleTableChange = (pagination, filters) => {
-        const params = { pageIndex: pagination.current }
-        if (filters.alarmStatus) {
-            params.alarmStatus = filters.alarmStatus[0]
-        }
-        this.loadAlarmRules(params)
+        this.setState({
+            current: pagination.current,
+            alarmStatus: filters.alarmStatus ? filters.alarmStatus[0] : ''
+        }, this.search)
     }
 
     addAlarm = (alarm) => {
@@ -254,7 +257,7 @@ class RealTimeConfig extends Component {
             return (
                 <Option 
                     key={item.id} 
-                    value={`${item.user.dtuicUserId}`} 
+                    value={`${item.user.id}`} 
                     name={item.user.userName}
                 >
                     {item.user.userName}

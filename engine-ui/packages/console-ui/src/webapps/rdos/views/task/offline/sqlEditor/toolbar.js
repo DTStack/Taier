@@ -6,6 +6,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { filterComments } from 'funcs'
 
 import API from '../../../../api'
 import MyIcon from '../../../../components/icon'
@@ -39,13 +40,9 @@ export default class Toolbar extends Component {
         this.props.dispatch(updateUser({ isCheckDDL }))
     }
 
-    filterComments = (sql) => {
-        return sql.replace(/(--)+(.)+(\n|\s)+/g, '')
-    }
-
     filterSql = (sql) => {
         const arr = []
-        let sqls = this.filterComments(sql);
+        let sqls = filterComments(sql);
         // 如果有有效内容
         if (sqls) { sqls = sqls.split(';') }
 
@@ -152,7 +149,7 @@ export default class Toolbar extends Component {
         } 
 
         let code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
-        code = this.filterComments(code);
+        code = filterComments(code);
 
         // 匹配DDL执行语句，如果符合条件，则提醒
         const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;

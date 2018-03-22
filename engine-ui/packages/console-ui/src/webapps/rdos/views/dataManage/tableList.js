@@ -30,6 +30,8 @@ class TableList extends Component {
             filterDropdownVisible: false,
             dataCatalogue: [],
             catalogue: undefined,
+            timeSort: '',
+            sizeSort: '',
         }
     }
 
@@ -44,13 +46,19 @@ class TableList extends Component {
     }
 
     getReqParams = () => {
-        const { tableName, current, catalogue } = this.state;
+        const { tableName, current, catalogue, timeSort, sizeSort } = this.state;
         const params = {
             pageIndex: current || 1,
             tableName: tableName || '',
         }
         if (catalogue) {
             params.catalogueId = catalogue
+        }
+        if (timeSort) {
+            params.timeSort = timeSort
+        }
+        if (sizeSort) {
+            params.sizeSort = sizeSort
         }
         return params;
     }
@@ -77,6 +85,19 @@ class TableList extends Component {
                 current: 1,
             })
         })
+    }
+
+    handleTableChange(pagination, filters, sorter) {
+        const params = {
+            current: pagination.current,
+        };
+        if (sorter) {
+            let { field, order } = sorter;
+            params[
+                field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort'
+            ] = order === 'descend' ? 'desc' : 'asc'
+        }
+        this.setState(params, this.search)
     }
 
     onTableNameChange = (e) => {
@@ -252,17 +273,6 @@ class TableList extends Component {
         this.setState({
             visible: true
         });
-    }
-
-    handleTableChange(pagination, filters, sorter) {
-        const params = this.getReqParams();
-        if (sorter) {
-            let { field, order } = sorter;
-            params[
-                field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort'
-            ] = order === 'descend' ? 'desc' : 'asc'
-            this.props.searchTable(params);
-        }
     }
 
     handleOk() {

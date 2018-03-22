@@ -26,6 +26,7 @@ class RealTimePanel extends Component {
         taskName: '',
         alarmPe: '',
         statistics: '',
+        current: 1,
     }
 
     componentDidMount() {
@@ -62,8 +63,8 @@ class RealTimePanel extends Component {
     }
 
     search = () => {
-        const { startTime, endTime, taskName, alarmPe } = this.state
-        const params = { pageIndex: 1 }
+        const { startTime, endTime, taskName, alarmPe, current } = this.state
+        const params = { pageIndex: current }
         if (startTime && endTime) {
             params.startTime = startTime.unix()
             params.endTime = endTime.unix()
@@ -91,18 +92,10 @@ class RealTimePanel extends Component {
     }
 
     handleTableChange = (pagination, filters) => {
-        if (filters.status) {
-            this.loadAlarms({
-                pageIndex: pagination.current,
-                status: filters.status[0],
-            })
-        } else {
-            this.loadAlarms({
-                pageIndex: pagination.current,
-            })
-        }
+        this.setState({
+            current: pagination.current,
+        }, this.search)
     }
-
 
     changeReceive = (target) => {
         this.setState({ alarmPe: target })
@@ -169,7 +162,7 @@ class RealTimePanel extends Component {
         const { projectUsers } = this.props
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.user.dtuicUserId}`} name={item.user.userName}>
+            return (<Option key={item.id} value={`${item.user.id}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
