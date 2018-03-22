@@ -6,5 +6,4 @@ target/
 base/base.iml
 plugin/
 logs/
-base/plugin/datax/base.sync.iml
 *.iml
