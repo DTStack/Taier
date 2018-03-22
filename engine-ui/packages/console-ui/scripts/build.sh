@@ -3,7 +3,7 @@
 # git branch
 dev="dev"
 master="master"
-dateTime= "`date +%Y_%m_%d_%H_%M_%S`"
+dateTime= "date +%Y_%m_%d_%H_%M_%S"
 
 # Build dist, and push it to gitlab.
 git pull origin $dev
