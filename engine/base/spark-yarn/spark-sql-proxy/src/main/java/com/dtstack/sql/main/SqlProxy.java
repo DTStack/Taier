@@ -1,6 +1,5 @@
 package com.dtstack.sql.main;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ public class SqlProxy {
 
         if(args.length < 1){
             logger.error("must set args for sql job!!!");
-            throw new RdosException("must set args for sql job!!!");
+            throw new RuntimeException("must set args for sql job!!!");
         }
 
         SqlProxy sqlProxy = new SqlProxy();
@@ -62,7 +61,7 @@ public class SqlProxy {
             argsMap = objMapper.readValue(argInfo, Map.class);
         }catch (Exception e){
             logger.error("", e);
-            throw new RdosException("parse args json error, message " + e.getMessage());
+            throw new RuntimeException("parse args json error, message " + e.getMessage());
         }
 
         String sql = (String) argsMap.get("sql");
