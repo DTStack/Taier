@@ -304,7 +304,7 @@ public class FlinkUtil {
      */
     public static long getBufferTimeoutMillis(Properties properties){
         String mills = properties.getProperty(ConfigConstrant.SQL_BUFFER_TIMEOUT_MILLIS);
-        return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0l;
+        return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0L;
     }
 
     public static URLClassLoader createNewClassLoader(List<URL> jarURLList, ClassLoader superClassLoader){
