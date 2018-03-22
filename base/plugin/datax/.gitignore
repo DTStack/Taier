@@ -3,6 +3,5 @@ target/
 .project
 .classpath
 .idea/
-base/base.iml
-logs/
 *.iml
+lib/

@@ -1,0 +1,8 @@
+.settings/
+target/
+.project
+.classpath
+.idea/
+*.iml
+metastore_db/
+*.log

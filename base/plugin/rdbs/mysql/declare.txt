@@ -1,0 +1,3 @@
+使用 mysql插件注意事项:
+
+用户需要create 权限并且mysql配置要设置 enforce_gtid_consistency=OFF gtid_mode=OFF
