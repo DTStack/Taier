@@ -221,6 +221,7 @@ class MessageList extends Component {
                 </Link>
             },
         }, {
+            width: 100,
             title: '状态',
             dataIndex: 'readStatus',
             key: 'readStatus',
@@ -232,6 +233,7 @@ class MessageList extends Component {
                 return display
             }
         }, {
+            width: 120,
             title: '发送时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
@@ -239,6 +241,7 @@ class MessageList extends Component {
                 return utils.formatDateTime(text)
             }
         }, {
+            width: 120,
             title: '类型',
             dataIndex: 'triggerType',
             key: 'triggerType',

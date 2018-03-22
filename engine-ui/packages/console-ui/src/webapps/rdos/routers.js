@@ -41,7 +41,6 @@ import OpeAlarm from './views/operation/alarm/list'
 import OpeAlarmConfig from './views/operation/alarm/config'
 import OpeOfflineList from './views/operation/offline/taskOperation'
 import OpeOfflineTaskMana from './views/operation/offline/taskMana'
-import OpeOfflineTaskLog from './views/operation/offline/taskLog'
 import OpeOfflineTaskRunTime from './views/operation/offline/taskRuntime'
 import OperationPatchData from './views/operation/offline/patchDataList'
 import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
@@ -137,7 +136,6 @@ export default (
                 <Route path="realtime" component={OpeRealTimeList} />
                 <Route path="offline-operation" component={OpeOfflineList} />
                 <Route path="offline-management" component={OpeOfflineTaskMana} />
-                <Route path="task-log/:jobId" component={OpeOfflineTaskLog} />
                 <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
                 <Route path="task-patch-data" component={OperationPatchData} />
                 <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />

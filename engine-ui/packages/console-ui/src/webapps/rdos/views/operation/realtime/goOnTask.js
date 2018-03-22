@@ -115,9 +115,7 @@ class GoOnTask extends Component {
             min.subtract('day', 1)
             max.add('day', 1)
 
-            return current && ( 
-                current.valueOf() < min.unix() || current.valueOf() > max.valueOf()
-            )
+            return current.valueOf() < min.valueOf() || current.valueOf() > max.valueOf()
         }
         return false;
     }
@@ -138,6 +136,7 @@ class GoOnTask extends Component {
                 title="续跑任务"
                 visible={visible}
                 okText="确认"
+                onCancel={this.cancel}
                 cancelText="取消"
                 footer={
                     <span>

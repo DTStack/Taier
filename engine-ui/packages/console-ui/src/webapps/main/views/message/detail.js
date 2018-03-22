@@ -19,6 +19,7 @@ class MsgDetail extends Component {
     componentDidMount() {
         const { msgId } = this.props.router.params
         this.loadMsg(msgId);
+        this.markAsRead(msgId);
     }
 
     loadMsg = (msgId) => {
@@ -27,6 +28,13 @@ class MsgDetail extends Component {
                 msgInfo: res.data,
             })
         })
+    }
+
+    markAsRead = (msgId) => {
+        const { app } = this.state;
+        Api.markAsRead(app, {
+            notifyRecordIds: [msgId]
+        });
     }
 
     render() {

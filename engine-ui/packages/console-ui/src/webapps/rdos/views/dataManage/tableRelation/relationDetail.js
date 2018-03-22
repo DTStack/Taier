@@ -115,7 +115,9 @@ class RelationDetail extends React.Component {
     render() {
         const { data, relationTasks } = this.props
         const { recordInfo, visibleRecord } = this.state
-
+        const tdStyle = {
+            width: '100px',
+        }
         return (
             <div className="task-floating-window rel-table-info ant-table bd"
                 style={{ width: '90%'}}>
@@ -130,9 +132,13 @@ class RelationDetail extends React.Component {
                     >
                         <table>
                             <tbody className="ant-table-tbody" >
-                                <tr><td>创建者：</td><td>{data.createUser}</td></tr>
-                                <tr><td>创建时间：</td><td>{utils.formatDateTime(data.createTime)}</td></tr>
-                                <tr><td>描述：</td><td>{ data.comment }</td></tr>
+                                <tr><td style={tdStyle}>创建者：</td><td>{data.createUser}</td></tr>
+                                <tr><td style={tdStyle}>创建时间：</td><td>{utils.formatDateTime(data.createTime)}</td></tr>
+                                <tr><td style={tdStyle}>描述：</td>
+                                <td style={{maxHeight: '50px', width: '100%',}} className="cell-overflow no-scroll-bar">
+                                    { data.comment }
+                                </td>
+                                </tr>
                             </tbody>
                         </table>
                         <table>

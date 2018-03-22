@@ -15,7 +15,7 @@ export default {
     DQ_GET_USER_LIST: `${DQ_BASE_URL}/user/list`,
     DQ_GET_USER_PAGES: `${DQ_BASE_URL}/user/pageQuery`,
     DQ_USER_ROLE_ADD: `${DQ_BASE_URL}/roleUser/addRoleUser`,
-    DQ_USER_ROLE_DELETE: `${DQ_BASE_URL}/roleUser/deleteRole`,
+    DQ_USER_ROLE_DELETE: `${DQ_BASE_URL}/roleUser/remove`,
     DQ_USER_ROLE_UPDATE: `${DQ_BASE_URL}/roleUser/updateUserRole`,
     DQ_GET_USER_NOT_IN_PROJECT: `${DQ_BASE_URL}/user/listNotIn`,
 
