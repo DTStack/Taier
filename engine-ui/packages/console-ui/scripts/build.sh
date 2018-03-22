@@ -1,21 +1,25 @@
 #!/bin/bash
 
 # git branch
-branch="dev"
+dev="dev"
+master="master"
 
 # Build dist, and push it to gitlab.
-git pull origin $branch
-npm run build
-git add dist
-git commit -m 'build'
-
-git add src
-git commit -m 'bug fixed'
+git pull origin $dev
+echo "git pull origin $dev."
 
 git add -A
 git commit -m 'update'
 
-git push origin $branch
+git checkout $master
+echo "git branch is $master."
+git merge $dev
+echo "git branch master merged  $dev."
 
-# Connect to ssh server
-./scripts/ssh_server.sh
+git push origin $master
+echo "git push origin $master."
+
+git checkout $dev
+echo "current branch is $dev."
+
+
