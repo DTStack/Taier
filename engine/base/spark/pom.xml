@@ -13,7 +13,8 @@
   <url>http://maven.apache.org</url>
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spark.version>2.1.0</spark.version> 
+		<spark.version>2.1.0</spark.version>
+	    <spark.hadoop.version>2.7.3</spark.hadoop.version>
  </properties>
 
   <dependencies>
