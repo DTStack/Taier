@@ -1,9 +1,8 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import java.io.IOException;
-import java.util.Map;
 
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import org.slf4j.Logger;

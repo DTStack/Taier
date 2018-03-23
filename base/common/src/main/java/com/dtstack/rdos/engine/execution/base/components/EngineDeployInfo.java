@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.components;
 
-import com.dtstack.rdos.engine.execution.base.enumeration.EDeployType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
+import com.dtstack.rdos.engine.execution.base.enums.EDeployType;
+import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

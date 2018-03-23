@@ -8,13 +8,12 @@ import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.components.OrderObject;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 
 import java.util.List;
 import java.util.Map;

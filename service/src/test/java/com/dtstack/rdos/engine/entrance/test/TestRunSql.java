@@ -2,9 +2,8 @@ package com.dtstack.rdos.engine.entrance.test;
 
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.google.common.collect.Maps;

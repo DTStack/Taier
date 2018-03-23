@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.enumeration;
+package com.dtstack.rdos.engine.execution.base.enums;
 
 /**
  * 区分engine接收到任务之后所处的阶段,用于在master切换之后主动恢复队列数据

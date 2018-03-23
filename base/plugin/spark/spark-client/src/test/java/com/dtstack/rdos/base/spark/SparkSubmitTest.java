@@ -2,9 +2,8 @@ package com.dtstack.rdos.base.spark;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobType;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchExecutionOperator;
 import com.google.common.collect.Maps;

@@ -10,7 +10,6 @@ import java.util.Random;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.ssh.SSHClient;
-import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Preconditions;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -20,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.collect.Lists;
 

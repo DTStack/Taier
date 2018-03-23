@@ -11,16 +11,16 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
-import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
+import com.dtstack.rdos.engine.entrance.enums.RequestStart;
 import com.dtstack.rdos.engine.entrance.node.JobStopAction;
 import com.dtstack.rdos.engine.entrance.node.MasterNode;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.EJobCacheStage;
-import com.dtstack.rdos.engine.execution.base.enumeration.EPluginType;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
+import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -474,6 +473,30 @@ public class ActionServiceImpl {
             return startTime.getTime();
         }
         return null;
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job的日志
+     */
+    public String log(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId)||computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        String log = null;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            if (streamJob != null) {
+                log = "logInfo:"+streamJob.getLogInfo()+"\nengineLog:"+streamJob.getEngineLog();
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if (batchJob != null) {
+                log = "logInfo:"+batchJob.getLogInfo()+"\nengineLog:"+batchJob.getEngineLog();
+            }
+        }
+        return log;
     }
 
     public String generateUniqueSign(){

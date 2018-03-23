@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.enumeration;
+package com.dtstack.rdos.engine.execution.base.enums;
 
 /**
  * Created by sishu.yss on 2017/3/9.
