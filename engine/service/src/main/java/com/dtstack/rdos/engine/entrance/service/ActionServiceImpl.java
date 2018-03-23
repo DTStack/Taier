@@ -476,6 +476,30 @@ public class ActionServiceImpl {
         return null;
     }
 
+    /**
+     * 根据jobid 和 计算类型，查询job的日志
+     */
+    public String log(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId)||computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        String log = null;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            if (streamJob != null) {
+                log = "logInfo:"+streamJob.getLogInfo()+"\nengineLog:"+streamJob.getEngineLog();
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            if (batchJob != null) {
+                log = "logInfo:"+batchJob.getLogInfo()+"\nengineLog:"+batchJob.getEngineLog();
+            }
+        }
+        return log;
+    }
+
     public String generateUniqueSign(){
 
         String uniqueSign;
