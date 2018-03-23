@@ -90,6 +90,8 @@ class TableList extends Component {
     handleTableChange(pagination, filters, sorter) {
         const params = {
             current: pagination.current,
+            timeSort: '',
+            sizeSort: '',
         };
         if (sorter) {
             let { field, order } = sorter;

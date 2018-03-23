@@ -9,6 +9,7 @@ import {
 } from 'antd';
 
 import ajax from '../../../../api';
+import TableCell from 'widgets/tableCell'
 import TablePartition from '../../../dataManage/tablePartition';
 
 const TabPane = Tabs.TabPane;
@@ -167,11 +168,15 @@ export default class TableInfoPane extends React.Component {
                     <div className="box">
                         {previewData ? <Table
                             columns={this.previewCols.map(str => ({
-                                width: 100,
+                                width: 80,
                                 title: str,
                                 dataIndex: str,
-                                key: str
+                                key: str,
+                                render(text) {
+                                    return <TableCell style={{minWidth: 80}} value={text} />
+                                }
                             }))}
+                            bordered
                             rowKey="key"
                             pagination={{ simple: true, size: 'small' }}
                             dataSource={previewData}

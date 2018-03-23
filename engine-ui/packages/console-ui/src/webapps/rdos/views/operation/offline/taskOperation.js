@@ -261,8 +261,11 @@ class OfflineTaskList extends Component {
             jobType: filters.type ? ilters.type[0] : '',
             selectedRowKeys: [],
             taskType: filters.taskType,
+            taskPeriodId: filters.taskPeriodId,
             checkAll: false,
+            execTimeSort: '',
         }
+
         if (sorter) {
             let { field, order } = sorter;
             if (field === 'execTime') { // 运行时长排序
@@ -429,7 +432,7 @@ class OfflineTaskList extends Component {
         } = this.state
 
         const { projectUsers, project } = this.props
-        
+
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
             return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>

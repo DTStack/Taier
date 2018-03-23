@@ -519,7 +519,7 @@ class TaskFlowView extends Component {
                     <span>{ (taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
                     <span>{ taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified) }</span>&nbsp;
-                    <a onClick={ () => { goToTaskDev(taskJob.taskId) }}>查看代码</a>
+                    <a onClick={ () => { goToTaskDev(taskJob.batchTask.id) }}>查看代码</a>
                 </div>
                 <Modal
                     title="查看属性"
