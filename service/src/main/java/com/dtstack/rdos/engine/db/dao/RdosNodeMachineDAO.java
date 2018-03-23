@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.db.dao;
 
-import com.dtstack.rdos.engine.entrance.enumeration.MachineAppType;
+import com.dtstack.rdos.engine.entrance.enums.MachineAppType;
 import org.apache.ibatis.session.SqlSession;
 
 import com.dtstack.rdos.engine.db.callback.MybatisSessionCallback;

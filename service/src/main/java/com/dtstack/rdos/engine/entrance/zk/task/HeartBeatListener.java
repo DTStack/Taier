@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
-import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
+import com.dtstack.rdos.engine.entrance.enums.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.google.common.collect.Maps;

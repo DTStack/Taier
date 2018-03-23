@@ -11,7 +11,7 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
-import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
+import com.dtstack.rdos.engine.entrance.enums.RequestStart;
 import com.dtstack.rdos.engine.entrance.node.JobStopAction;
 import com.dtstack.rdos.engine.entrance.node.MasterNode;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;

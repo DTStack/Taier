@@ -7,7 +7,7 @@ import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.entrance.enumeration.RequestStart;
+import com.dtstack.rdos.engine.entrance.enums.RequestStart;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
