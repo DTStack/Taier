@@ -138,7 +138,7 @@ export default class DataCheck extends Component {
                             <Popconfirm
                                 title="确定删除此校验？"
                                 okText="确定" cancelText="取消"
-                                onConfirm={() => { this.deleteDataCheck(record) }}
+                                onConfirm={() => {this.deleteDataCheck(record.id)}}
                             >
                                 <a type="danger">删除</a>
                             </Popconfirm>
@@ -154,8 +154,8 @@ export default class DataCheck extends Component {
         }]
     }
 
-    deleteDataCheck = (record) => {
-        DCApi.deleteCheck({ verifyId: record.verifyId }).then((res) => {
+    deleteDataCheck = (id) => {
+        DCApi.deleteCheck({ verifyRecordId: id }).then((res) => {
             if (res.code === 1) {
                 message.success("删除成功！");
                 this.props.getLists(this.state.params);

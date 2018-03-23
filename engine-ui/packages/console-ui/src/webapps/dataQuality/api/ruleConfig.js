@@ -25,8 +25,11 @@ export default {
     subscribeTable(params) {
         return http.post(req.SUBSCRIBE_TABLE, params);
     },
-    unsubscribeTable(params) {
+    unSubscribeTable(params) {
         return http.post(req.UNSUBSCRIBE_TABLE, params);
+    },
+    checkSubscribe(params) {
+        return http.post(req.CHECK_SUBSCRIBE, params);
     },
     changeMonitorStatus(params) {
         return http.post(req.CHANGE_MONITOR_STATUS, params);

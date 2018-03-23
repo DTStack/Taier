@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Row, Col, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
+import { Row, Col, Table, Button, Form, Select, Input, TreeSelect, Icon, message, Checkbox } from 'antd';
 
 import { dataSourceActions } from '../../../actions/dataSource';
 import { dataSourceTypes, formItemLayout } from '../../../consts';
@@ -235,6 +235,11 @@ export default class StepOne extends Component {
         });
     }
 
+    onSubscribeChange = (e) => {
+        let isSubscribe = e.target.checked ? 1 : 0;
+        this.props.changeParams({ isSubscribe });
+    }
+
     render() {
         const { editStatus, editParams, form, dataSource } = this.props;
         const { havePart, sourcePreview } = this.state;
@@ -247,47 +252,46 @@ export default class StepOne extends Component {
                 <div className="steps-content">
                     <Form>
                         <FormItem {...formItemLayout} label="选择数据源">
-                            <Col span={20}>
-                                {
-                                    getFieldDecorator('sourceId', {
-                                        rules: [{ required: true, message: '请选择数据源' }],
-                                        initialValue: dataSourceId ? dataSourceId.toString() : ''
-                                    })(
-                                        <Select size="large" onChange={this.onSourceTypeChange} disabled={editStatus === 'edit'}>
-                                            {
-                                                this.renderSourceType(sourceList)
-                                            }
-                                        </Select>
-                                    )
-                                }
-                            </Col>
-                            <Col span={4}>
-                                <Link to="/dq/dataSource" className="m-l-8">添加数据源</Link>
-                            </Col>
+                            {
+                                getFieldDecorator('sourceId', {
+                                    rules: [{ required: true, message: '请选择数据源' }],
+                                    initialValue: dataSourceId ? dataSourceId.toString() : ''
+                                })(
+                                    <Select 
+                                        showSearch
+                                        style={{ width: '85%', marginRight: 15 }} 
+                                        onChange={this.onSourceTypeChange} 
+                                        disabled={editStatus === 'edit'}>
+                                        {
+                                            this.renderSourceType(sourceList)
+                                        }
+                                    </Select>
+                                )
+                            }
+                            <Link to="/dq/dataSource">添加数据源</Link>
                         </FormItem>
 
                         <FormItem {...formItemLayout} label="选择数据表">
-                            <Col span={20}>
-                                {
-                                    getFieldDecorator('sourceTable', {
-                                        rules: [{ required: true, message: '请选择数据表' }],
-                                        initialValue: tableName
-                                    })(
-                                        <Select onChange={this.onTableChange} disabled={editStatus === 'edit'}>
-                                            {
-                                                this.renderSourceTable(sourceTable)
-                                            }
-                                        </Select>
-                                    )
-                                }
-                            </Col>
-                            <Col span={4}>
-                                {
-                                    tableName
-                                    &&
-                                    <Link className="m-l-8">订阅</Link>
-                                }
-                            </Col>
+                            {
+                                getFieldDecorator('sourceTable', {
+                                    rules: [{ required: true, message: '请选择数据表' }],
+                                    initialValue: tableName
+                                })(
+                                    <Select 
+                                        showSearch
+                                        style={{ width: '85%', marginRight: 15 }} 
+                                        onChange={this.onTableChange} 
+                                        disabled={editStatus === 'edit'}>
+                                        {
+                                            this.renderSourceTable(sourceTable)
+                                        }
+                                    </Select>
+                                )
+                            }
+                            {
+                                tableName &&
+                                <Checkbox onChange={this.onSubscribeChange}>订阅</Checkbox>
+                            }
                         </FormItem>
 
                         {
