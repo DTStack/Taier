@@ -1,13 +1,15 @@
 package com.dtstack.rdos.engine.execution.base.pluginlog;
 
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Collection;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.ResultSet;
+import java.util.Collection;
 
 /**
  * 操作
@@ -26,7 +28,7 @@ public class PluginJobInfoComponent {
 
     private static final String UPDATE_MODIFY_TIME_SQL = "update rdos_plugin_job_info set gmt_modified = NOW() where job_id = ?";
 
-    private static final String UPDATE_JOB_ERRINFO_SQL = "update rdos_plugin_job_info set log_info = ?, gmt_modified = NOW() where job_id = ?";
+    private static final String UPDATE_JOB_ERRINFO_SQL = "update rdos_plugin_job_info set log_info = ?, status = ?, gmt_modified = NOW() where job_id = ?";
 
     private static final String GET_STATUS_BY_JOB_ID = "select status from rdos_plugin_job_info where job_id = ?";
 
@@ -165,7 +167,8 @@ public class PluginJobInfoComponent {
             connection = dataConnPool.getConn();
             pstmt = connection.prepareStatement(UPDATE_JOB_ERRINFO_SQL);
             pstmt.setString(1, errorLog);
-            pstmt.setString(2, jobId);
+            pstmt.setInt(2, RdosTaskStatus.FAILED.getStatus());
+            pstmt.setString(3, jobId);
 
             pstmt.executeUpdate();
         } catch (SQLException e) {

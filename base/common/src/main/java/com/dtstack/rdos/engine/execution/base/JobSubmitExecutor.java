@@ -1,8 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;

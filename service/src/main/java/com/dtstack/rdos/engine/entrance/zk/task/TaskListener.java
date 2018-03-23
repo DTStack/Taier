@@ -7,20 +7,15 @@ import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enumeration.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
-import com.dtstack.rdos.engine.task.RestartDealer;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.task.RestartDealer;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.LinkedBlockingQueue;
-import com.dtstack.rdos.commom.exception.ExceptionUtil;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 
 /**
  * 
@@ -53,6 +48,11 @@ public class TaskListener implements Runnable{
 		while(true){
 			try {
 				JobClient jobClient  = queue.take();
+
+				if(RestartDealer.getInstance().checkAndRestartForSubmitResult(jobClient)){
+					continue;
+				}
+
 				logger.warn("{}:{} addTaskIdToEngineTaskId...", jobClient.getTaskId(), jobClient.getEngineTaskId());
 				//存储执行日志
 				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());

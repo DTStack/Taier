@@ -1,40 +1,94 @@
+#engine
 slots: 10
-localAddress: 172.16.6.153:8080
-nodeZkAddress: node01:2181,node02:2181,node03:2181/ysq_engine
+#localAddress: 127.0.0.1:8080
+localAddress: localhost:8080
+nodeZkAddress: localhost:2181/engine
+exeQueueSize: 1
+#debug模式关闭数据校验
+isDebug: true
+
+#选配参数--如果包含mysql,oracle,sqlserver插件则需要该配置,存储元数据信息
+pluginStoreInfo:
+    dbUrl: jdbc:mysql://172.16.8.104:3306/rdos?charset=utf8
+    dbUserName: dtstack
+    dbPwd: abc123
 
 engineTypes:
+    #-
+    #    typeName: flink120
+    #    flinkZkAddress: 172.16.10.135:2181,172.16.10.136:2181,172.16.10.138:2181
+    #    flinkZkNamespace: /flink120ha
+    #    flinkClusterId: /default
+    #    flinkHighAvailabilityStorageDir: hdfs://172.16.10.135:9000/flink120ha/ha
+    #    jarTmpDir: ../tmp
+    #    sqlPluginRootDir: ./sqlplugin
+    #    remotePluginRootDir: /opt/dtstack/flinksqlplugin
+
+    #-
+#
+    #    typeName: flink130
+    #    clusterMode: standalone
+    #    flinkZkAddress: node01:2181,node02:2181,node03:2181
+    #    flinkZkNamespace: /flink130
+    #    flinkHighAvailabilityStorageDir: hdfs://ns1/flink130/ha
+    #    jarTmpDir: ../tmp130
+    #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
+    #    remotePluginRootDir: /opt/dtstack/flinkplugin
+    #    monitorAddress: node02:8081,node03:8081
+        #yarnConfPath: D:\yarn-site.xml
+
+    #-
+    #    typeName: flink140
+    #    clusterMode: standalone
+    #    flinkZkAddress: 172.16.8.104:2181,172.16.8.105:2181,172.16.8.106:2181
+    #    flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
+    #    flinkZkNamespace: /flink140
+    #    jarTmpDir: ../tmp140
+    #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
+    #    remotePluginRootDir: /opt/dtstack/flinkplugin
+    #    monitorAddress: node02:8081,node03:8081
+        #yarnConfPath: D:\yarn-site.xml
+
+    #-
+    #    typeName: flink140
+    #    clusterMode: yarn
+    #    flinkZkAddress: node01:2181,node02:2181,node03:2181
+    #    flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
+    #    flinkZkNamespace: /flink140
+    #    jarTmpDir: ../tmp140
+    #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
+    #    remotePluginRootDir: /opt/dtstack/flinkplugin
 
     -
-        typeName: flink130
-        clusterMode: standalone
-        flinkZkAddress: node01:2181,node02:2181,node03:2181
-        flinkZkNamespace: /flink130
-        flinkHighAvailabilityStorageDir: hdfs://ns1/flink130/ha
-        jarTmpDir: ./tmp
-        flinkPluginRoot: /opt/dtstack/plugins
-#        yarnConfPath: /Users/softfly/test/hadoop/yarn-site.xml
-        flinkPluginRoot: /Users/sishuyss/ysq/dtstack/flinkplugin
-        remotePluginRootDir: /opt/dtstack/flinkplugin
-        monitorAddress: node02:8081,node03:8081
+        typeName: spark_yarn
+        sparkYarnArchive: hdfs://ns1/sparkjars/jars
+        sparkSqlProxyPath: hdfs://ns1/user/spark/spark-0.0.1-SNAPSHOT.jar
+        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+        sparkPythonExtLibPath: hdfs://ns1/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip
 
+    #-
+    #    typeName: datax
+    #    dataxSSHAddress: 172.16.1.155 #可以多个
+    #    userName: root
+    #    password: abc123 #可以不填 打通ssh免登陆
+    #    dataxBinDir: /opt/dtstack/datax/bin
 
-#    -
-#        typeName: sparkyarn
-#        yarnConfDir: /Users/softfly/test/hadoop
-#        sparkYarnArchive: hdfs://node02:9000/jars
-#        sparkSqlProxyPath: /Users/softfly/company/rdos-execution-engine/engine/base/spark-yarn/target/base.spark-yarn-1.0.0.jar
-#        sparkSqlProxyMainClass: com.dtstack.rdos.engine.execution.sparkyarn.sqlproxy.SqlProxy
+    #-
+    #    typeName: spark
+    #    sparkWebMaster: node03:8080,node02:8080
+    #    sparkMaster: spark://node03:6066,node02:6066
+    #    sparkSqlProxyPath: hdfs://ns1/user/spark/spark-0.0.1-SNAPSHOT.jar
+    #    sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
 
- #   -    
- #       typeName: datax
- #       dataxSSHAddress: 172.16.1.155 #可以多个
- #       userName: root
- #       password: abc123 #可以不填 打通ssh免登陆
- #       dataxBinDir: /opt/dtstack/datax/bin
+    #-
+    #    typeName: mysql
+    #    dbUrl: jdbc:mysql://172.16.8.104:3306/rdos?charset=utf8
+    #    userName: dtstack
+    #    pwd: abc123
 
-#    -
-#        typeName: spark
-#        sparkWebMaster: 172.16.10.136:8080,172.16.10.135:8080
-#        sparkMaster: spark://172.16.10.135:6066,172.16.10.136
-#        sparkSqlProxyPath: hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
-#        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+    #-
+    #    typeName: spark_yarn
+    #    sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
+    #    sparkSqlProxyPath: hdfs://kudu1:9000/hyf/spark-0.0.1-SNAPSHOT.jar
+    #    sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+    #    sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1/pythons/py4j-0.10.4-src.zip
