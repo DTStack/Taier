@@ -25,7 +25,7 @@ import com.dtstack.rdos.engine.entrance.enumeration.RdosNodeMachineType;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

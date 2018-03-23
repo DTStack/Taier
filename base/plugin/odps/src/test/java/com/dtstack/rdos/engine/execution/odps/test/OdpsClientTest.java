@@ -5,7 +5,7 @@ import com.aliyun.odps.FileResource;
 import com.aliyun.odps.Odps;
 import com.aliyun.odps.Resource;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.odps.OdpsClient;
 import org.codehaus.jackson.map.ObjectMapper;

@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.base.util;
 
 import com.dtstack.rdos.engine.execution.base.ClientOperator;
 import com.dtstack.rdos.engine.execution.base.ResultMsgDealerUtil;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
+import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 
 /**
  * FIXME

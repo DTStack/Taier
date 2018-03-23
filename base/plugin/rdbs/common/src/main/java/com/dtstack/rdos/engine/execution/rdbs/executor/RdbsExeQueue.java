@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.rdbs.executor;
 
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pluginlog.PluginJobInfoComponent;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;

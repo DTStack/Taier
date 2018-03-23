@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.enumeration;
+package com.dtstack.rdos.engine.execution.base.enums;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

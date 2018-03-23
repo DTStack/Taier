@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.enumeration;
+package com.dtstack.rdos.engine.execution.base.enums;
 
 import com.google.common.base.Strings;
 
