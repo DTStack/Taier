@@ -433,9 +433,11 @@ class SourceForm extends React.Component {
                     })(
                         <Input
                             placeholder="请填写分区"
+                            placeholder="pt=${bdp.system.bizdate};"
                             onChange={ this.submitForm.bind(this) }
                         ></Input>,
                     )}
+                    <HelpDoc doc="partitionDesc" />
                     </FormItem>
                 ];
                 break;

@@ -267,6 +267,7 @@ class OfflineTaskMana extends Component {
                 return content;
             },
         }, {
+            width: 120,
             title: '发布时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
@@ -274,6 +275,7 @@ class OfflineTaskMana extends Component {
                 return <span>{utils.formatDateTime(text)}</span>
             },
         }, {
+            width: 120,
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
@@ -282,6 +284,7 @@ class OfflineTaskMana extends Component {
             },
             filters: offlineTaskTypeFilter,
         }, {
+            width: 120,
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
@@ -290,6 +293,7 @@ class OfflineTaskMana extends Component {
             },
             filters: offlineTaskPeriodFilter,
         }, {
+            width: 100,
             title: '责任人',
             dataIndex: 'userName',
             key: 'userName',
@@ -434,7 +438,7 @@ class OfflineTaskMana extends Component {
                         className="m-tabs bd-top bd-right m-slide-pane"
                         onClose={ this.closeSlidePane }
                         visible={ visibleSlidePane } 
-                        style={{ right: '0px', width: '80%', height: '100%', minHeight: '600px'  }}
+                        style={{ right: '0px', width: '80%', height: '100%', minHeight: '400px'  }}
                     >
                         <Tabs animated={false}>
                             <TabPane tab="依赖视图" key="taskFlow"> 

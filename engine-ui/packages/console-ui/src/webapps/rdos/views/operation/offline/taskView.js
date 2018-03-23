@@ -125,22 +125,6 @@ export default class TaskView extends Component {
         this.initContextMenu(graph)
     }
 
-    getStyles = (type) => {
-        switch (type) {
-            case TASK_STATUS.RUNNING:
-            case TASK_STATUS.FINISHED:
-            case TASK_STATUS.SUBMITTING:
-            case TASK_STATUS.RESTARTING:
-            case TASK_STATUS.SET_SUCCESS:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-            case TASK_STATUS.RUN_FAILED:
-            case TASK_STATUS.SUBMIT_FAILED:
-                return 'whiteSpace=wrap;fillColor=#ef53503d;strokeColor=#ef5350;'
-            default:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-        }
-    }
-
     formatTooltip = (cell) => {
         const data = cell.getAttribute('data');
         const task = data ? JSON.parse(data) : ''; 
@@ -163,6 +147,10 @@ export default class TaskView extends Component {
         return '';
     }
 
+    getStyles = (type) => {
+        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
+    }
+
     insertEdge = (graph, type, parent, child) => {
         if (type === 'children') {
             graph.insertEdge(parent, null, '', parent, child)
@@ -171,7 +159,7 @@ export default class TaskView extends Component {
         }
     }
 
-    insertVertex = (graph, data, parent, type) => {
+    insertVertex = (graph, data, parent) => {
         if (data) {
 
             const style = this.getStyles(data.status)
@@ -183,12 +171,11 @@ export default class TaskView extends Component {
                 return itemData.id === data.id
             })
 
-            let newVertex = '';
+            let newVertex = exist;
 
-            if (exist) {
-                this.insertEdge(graph, type, parent, exist)
-            } else {
-
+            if (exist && parent.id !== '1') {
+                graph.insertEdge(parent, null, '', parent, exist)
+            } else if(!exist) {
                 // 创建节点
                 const doc = mxUtils.createXmlDocument()
                 const taskInfo = doc.createElement('Task')
@@ -201,7 +188,7 @@ export default class TaskView extends Component {
                     VertexSize.width, VertexSize.height, style
                 )
 
-                this.insertEdge(graph, type, parent, newVertex)
+                graph.insertEdge(parent, null, '', parent, newVertex)
 
                 // 缓存节点
                 this._vertexCells.push(newVertex)
@@ -210,13 +197,13 @@ export default class TaskView extends Component {
             if (data.taskVOS) {
                 const children = data.taskVOS
                 for (let i = 0; i < children.length; i++) {
-                    this.insertVertex(graph, children[i], newVertex, type)
+                    this.insertVertex(graph, children[i], newVertex)
                 }
             }
         }
     }
 
-    doInsertVertex = (data, type) => {
+    doInsertVertex = (data) => {
         const graph = this.graph
         const model = graph.getModel()
         const layout = new mxCompactTreeLayout(graph, false)
@@ -226,7 +213,7 @@ export default class TaskView extends Component {
         model.beginUpdate()
         const parent = graph.getDefaultParent()
         try {
-            this.insertVertex(graph, data, parent, type)
+            this.insertVertex(graph, data, parent)
             // Executes the layout
             layout.execute(parent);
             graph.view.setTranslate(cx, cy);
@@ -241,21 +228,8 @@ export default class TaskView extends Component {
         Api.getTaskChildren(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                ctx.setState({ selectedTask: data, data, sort: 'children' })
-                ctx.doInsertVertex(data, 'children')
-            }
-            ctx.setState({ loading: 'success' })
-        })
-    }
-
-    loadTaskParent = (params) => {
-        const ctx = this
-        this.setState({ loading: 'loading' })
-        Api.getTaskParents(params).then(res => {
-            if (res.code === 1) {
-                const data = res.data
-                ctx.setState({ data, selectedTask: data, sort: 'parent' })
-                ctx.doInsertVertex(data, 'parent')
+                ctx.setState({ selectedTask: data, data})
+                ctx.doInsertVertex(data)
             }
             ctx.setState({ loading: 'success' })
         })

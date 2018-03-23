@@ -124,7 +124,7 @@ class AdminUser extends Component {
                             form.resetFields()
                         })
                         ctx.loadData()
-                        message.success('添加成员成功!')
+                        message.success('添加项目成员成功!')
                     }
                 })
             }
@@ -139,7 +139,7 @@ class AdminUser extends Component {
         }).then((res) => {
             if (res.code === 1) {
                 ctx.loadData()
-                message.success('移出成员成功!')
+                message.success('移出项目成员成功!')
             }
         })
     }
@@ -181,8 +181,7 @@ class AdminUser extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
-        })
-        this.loadUsers(key)
+        }, this.loadData)
     }
 
     onProjectSelect = (value) => {
@@ -298,14 +297,14 @@ class AdminUser extends Component {
 
     renderPane = () => {
         const { apps } = this.props
-        const { users, loading } = this.state;
+        const { users, loading, active } = this.state;
 
-        const extra = (
+        const extra = active !== MY_APPS.DATA_QUALITY && (
             <Button 
                 style={{marginTop: '10px'}}
                 type="primary" 
                 onClick={this.initAddMember}>
-                添加成员
+                添加项目成员
             </Button>
         )
 

@@ -77,7 +77,7 @@ class PatchDataList extends Component {
     getReqParams = () => {
         const {
             jobName, runDay, bizDay,
-            dutyUserId, current,
+            dutyUserId, current
         } = this.state
 
         let reqParams = { currentPage: current || 1, pageSize: 20 }
@@ -167,12 +167,14 @@ class PatchDataList extends Component {
             title: '补数据名称',
             dataIndex: 'fillDataJobName',
             key: 'fillDataJobName',
+            width: 150,
             render: (text, record) => {
                 return (
                     <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
                 )
             },
         }, {
+            width: 150,
             title: '业务日期',
             dataIndex: 'fromDay',
             key: 'fromDay',
@@ -180,14 +182,17 @@ class PatchDataList extends Component {
                 return <span>{ record.fromDay} ~ {record.toDay }</span>
             },
         }, {
+            width: 150,
             title: '实例生成时间',
             dataIndex: 'createTime',
             key: 'createTime',
         }, {
+            width: 100,
             title: '操作人',
             dataIndex: 'dutyUserName',
             key: 'dutyUserName',
         }, {
+            width: 100,
             title: '操作',
             dataIndex: 'id',
             key: 'id',
@@ -197,6 +202,10 @@ class PatchDataList extends Component {
                 )
             }
         }]
+    }
+
+    disabledDate = (current) => {
+        return current && current.valueOf() > Date.now();
     }
 
     render() {
@@ -231,7 +240,7 @@ class PatchDataList extends Component {
             >
                 <FormItem>
                     <Search
-                        placeholder="按补数据名称搜索"
+                        placeholder="按任务名称搜索"
                         style={{ width: '130px' }}
                         value={jobName}
                         size="default"
@@ -256,6 +265,7 @@ class PatchDataList extends Component {
                         style={{ width: '120px' }}
                         size="default"
                         value={runDay}
+                        disabledDate={this.disabledDate}
                         onChange={this.onRunningTime}
                     />
                 </FormItem>

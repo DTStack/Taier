@@ -85,7 +85,7 @@ export function OfflineTaskStatus(props) {
         case 5:
             return <span color="green">
                 <Circle style={{ background: '#00A755' }} />&nbsp;
-                已完成
+                完成
             </span>
         case 7:
             return <span>

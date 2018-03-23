@@ -16,6 +16,9 @@ import {
     dataSourceTypes,
     DATA_SOURCE,
 } from '../../../../comm/const';
+
+import HelpDoc from '../../../helpDoc';
+
 import { matchTaskParams } from '../../../../comm';
 
 const FormItem = Form.Item;
@@ -332,9 +335,10 @@ class TargetForm extends React.Component{
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                placeholder="请输入分区"
+                                placeholder="pt=${bdp.system.bizdate};"
                             ></Input>
                             )}
+                            <HelpDoc doc="partitionDesc" />
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}

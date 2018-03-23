@@ -172,3 +172,13 @@ table {
         }
     }
 }
+
+.cell-overflow {
+    max-height: 40px;
+    width: 100%;
+    border: 0;
+    height: 50px;
+    display: inline-block;
+    overflow: auto;
+    word-break: break-all;
+}

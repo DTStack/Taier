@@ -19,6 +19,7 @@ class MsgDetail extends Component {
     componentDidMount() {
         const { msgId } = this.props.router.params
         this.loadMsg(msgId);
+        this.markAsRead(msgId);
     }
 
     loadMsg = (msgId) => {
@@ -29,13 +30,20 @@ class MsgDetail extends Component {
         })
     }
 
+    markAsRead = (msgId) => {
+        const { app } = this.state;
+        Api.markAsRead(app, {
+            notifyRecordIds: [msgId]
+        });
+    }
+
     render() {
         const { msgInfo } = this.state
         return (
             <div className="box-1">
                 <div className="box-card msg-box">
                     <main>
-                        <h1 className="card-title"><GoBack /> 蚂蚁金服设计平台简介</h1>
+                        <h1 className="card-title"><GoBack /> 消息详情 </h1>
                         <p>
                             {msgInfo.content}
                         </p>

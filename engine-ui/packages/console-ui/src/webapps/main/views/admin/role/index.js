@@ -128,25 +128,24 @@ class AdminRole extends Component {
                 return text || '-'
             }
         }, 
-        // {
-        // title: '操作',
-        // dataIndex: 'id',
-        // key: 'id',
-        // render(id, record) {
-        //     return <span>
-        //         <Link to={`/admin/role/edit/${id}?app=${active}`}>编辑</Link>
-        //         <span className="ant-divider" />
-        //         <Popconfirm
-        //                 title="确认将该角色移除？"
-        //                 okText="确定" cancelText="取消"
-        //                 onConfirm={() => { removeRole(record) }}
-        //             >
-        //                 <a>删除</a>
-        //         </Popconfirm>
-        //     </span>
-        // }
-        // }
-        ]
+        {
+            title: '操作',
+            dataIndex: 'id',
+            key: 'id',
+            render(id, record) {
+                return <span>
+                    <Link to={`/admin/role/edit/${id}?app=${active}`}>查看</Link>
+                    {/* <span className="ant-divider" />
+                    <Popconfirm
+                            title="确认将该角色移除？"
+                            okText="确定" cancelText="取消"
+                            onConfirm={() => { removeRole(record) }}
+                        >
+                            <a>删除</a>
+                    </Popconfirm> */}
+                </span>
+            }
+        }]
     }
 
     renderPane = () => {

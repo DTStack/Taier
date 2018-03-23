@@ -87,6 +87,7 @@ export const TASK_STATUS = { // 任务状态
     RESTARTING: 11,
     SET_SUCCESS: 12,
     WAIT_RUN: 16,
+    FROZEN: 18,
 }
 
 export const hdfsFieldTypes = [ // hdfs 类型
@@ -162,11 +163,11 @@ export const offlineTaskStatusFilter = [{
     value: 4,
 }, {
     id: 5,
-    text: '已完成',
+    text: '完成',
     value: 5,
 }, {
     id: 6,
-    text: '已停止',
+    text: '取消',
     value: 7,
 }, {
     id: 7,

@@ -178,7 +178,7 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>描述</th>
-                                        <td style={{maxWidth: '200px', wordBreak: 'break-all'}} className="no-scroll-bar">
+                                        <td style={{height: '50px', width: '100%', border: 0 }} className="cell-overflow no-scroll-bar">
                                             {tableData.table.tableDesc}
                                         </td>
                                     </tr>
