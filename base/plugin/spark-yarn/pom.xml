@@ -12,6 +12,7 @@
     <artifactId>base.spark-yarn</artifactId>
     <packaging>pom</packaging>
     <name>base.spark-yarn</name>
+
     <modules>
         <module>spark-sql-proxy</module>
         <module>spark-yarn-client</module>
