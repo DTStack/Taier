@@ -1,5 +1,10 @@
-.idea
-plugin
-logs
-.gitignore
+.idea/
+/plugin/
+logs/
+target/
+*.iml
+.project
+.settings/
+.classpath
+
 
