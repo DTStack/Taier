@@ -23,12 +23,14 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
 
-	void updateJobEngineId(@Param("jobId") String jobId,@Param("engineId") String engineId);
+	void updateJobEngineId(@Param("jobId") String jobId, @Param("engineId") String engineId);
 
-	RdosEngineBatchJob getRdosJobByJobId(@Param("jobId")String jobId);
+	void updateJobEngineIdAndStatus(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("status") int status);
 
-	void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
+	RdosEngineBatchJob getRdosJobByJobId(@Param("jobId") String jobId);
 
-	void updateSubmitLog(@Param("jobId")String jobId, @Param("submitLog")String submitLog);
+	void updateEngineLog(@Param("jobId") String jobId, @Param("engineLog") String engineLog);
+
+	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
 }

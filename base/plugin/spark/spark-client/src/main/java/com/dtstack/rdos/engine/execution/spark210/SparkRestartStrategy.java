@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark210;
 
-import com.dtstack.rdos.engine.execution.base.IResultMsgDealer;
+import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.IRestartStrategy;
 
 /**
  * Reason:
@@ -9,7 +10,7 @@ import com.dtstack.rdos.engine.execution.base.IResultMsgDealer;
  * @author xuchao
  */
 
-public class SparkResultMsgDealer implements IResultMsgDealer {
+public class SparkRestartStrategy implements IRestartStrategy {
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
@@ -24,6 +25,11 @@ public class SparkResultMsgDealer implements IResultMsgDealer {
 
     @Override
     public boolean checkNOResource(String msg) {
+        return false;
+    }
+
+    @Override
+    public boolean checkCanRestart(String engineJobId, IClient client) {
         return false;
     }
 }

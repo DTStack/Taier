@@ -1,10 +1,10 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
+import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +24,8 @@ public class JobSubmitProcessor implements Runnable{
 
     private JobClient jobClient;
 
-    private SlotNoAvailableJobClient slotNoAvailableJobClient;
-
-
-    public JobSubmitProcessor(JobClient jobClient, SlotNoAvailableJobClient slotNoAvailableJobClient) throws Exception{
+    public JobSubmitProcessor(JobClient jobClient) throws Exception{
         this.jobClient = jobClient;
-        this.slotNoAvailableJobClient = slotNoAvailableJobClient;
     }
 
     @Override
@@ -42,14 +38,12 @@ public class JobSubmitProcessor implements Runnable{
             jobClient.doJobClientCallBack(updateStatus);
             JobResult jobResult = null;
 
-
             try {
                 IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
 
                 if(clusterClient == null){
-                    jobResult = JobResult.createErrorResult("setting client type " +
-                            "(" + jobClient.getEngineType()  +") don't found.");
-                    listenerJobStatus(jobClient, jobResult);
+                    jobResult = JobResult.createErrorResult("client type (" + jobClient.getEngineType()  +") don't found.");
+                    addToTaskListener(jobClient, jobResult);
                     return;
                 }
 
@@ -57,16 +51,12 @@ public class JobSubmitProcessor implements Runnable{
 
                 if(resourceInfo.judgeSlots(jobClient)){
                     if(logger.isInfoEnabled()){
-                        logger.info("--------submit job:{} to engine start----.", jobClient.getTaskId());
+                        logger.info("--------submit job:{} to engine start----.", jobClient.toString());
                     }
 
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTED.getStatus());
                     jobClient.doJobClientCallBack(updateStatus);
                     jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
-
-                    if(logger.isInfoEnabled()){
-                        logger.info("-----jobInfo---->"+jobClient.toString());
-                    }
 
                     jobResult = clusterClient.submitJob(jobClient);
 
@@ -76,24 +66,28 @@ public class JobSubmitProcessor implements Runnable{
 
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
+                    jobClient.setJobResult(jobResult);
+                    addToTaskListener(jobClient, jobResult);
+                    if(logger.isInfoEnabled()){
+                        logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
+                    }
+                }else{
+                    //back to wait queue
+                    ExeQueueMgr.getInstance().add(jobClient);
                 }
 
             }catch (Throwable e){
                 //捕获未处理异常,防止跳出执行线程
                 jobClient.setEngineTaskId(null);
                 jobResult = JobResult.createErrorResult(e);
-                logger.error("get unexpected exception", e);
-            }finally {
                 jobClient.setJobResult(jobResult);
-                slotNoAvailableJobClient.put(jobClient);
-                if(logger.isInfoEnabled()){
-                    logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
-                }
+                addToTaskListener(jobClient, jobResult);
+                logger.error("get unexpected exception", e);
             }
         }
     }
 
-    private void listenerJobStatus(JobClient jobClient, JobResult jobResult){
+    private void addToTaskListener(JobClient jobClient, JobResult jobResult){
         jobClient.setJobResult(jobResult);
         JobSubmitExecutor.getInstance().addJobIntoTaskListenerQueue(jobClient);//添加触发读取任务状态消息
     }

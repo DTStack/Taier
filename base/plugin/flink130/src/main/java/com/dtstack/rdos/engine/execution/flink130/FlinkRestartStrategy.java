@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.flink120;
+package com.dtstack.rdos.engine.execution.flink130;
 
-import com.dtstack.rdos.engine.execution.base.IResultMsgDealer;
+import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.IRestartStrategy;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -10,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author xuchao
  */
 
-public class FlinkResultMsgDealer implements IResultMsgDealer {
+public class FlinkRestartStrategy implements IRestartStrategy {
 
     private final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
@@ -31,6 +32,11 @@ public class FlinkResultMsgDealer implements IResultMsgDealer {
         if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION)){
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean checkCanRestart(String engineJobId, IClient client) {
         return false;
     }
 }

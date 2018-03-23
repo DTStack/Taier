@@ -1,24 +1,14 @@
 package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
-import com.dtstack.rdos.engine.execution.base.enumeration.EngineType;
 import com.dtstack.rdos.engine.execution.base.enumeration.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
 import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -50,8 +40,6 @@ public class JobSubmitExecutor{
 
     private boolean hasInit = false;
 
-    private SlotNoAvailableJobClient slotNoAvailableJobClients = new SlotNoAvailableJobClient();
-
     /**用于taskListener处理*/
     private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();
 
@@ -80,9 +68,8 @@ public class JobSubmitExecutor{
                     new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
 
             clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
-            ResultMsgDealerUtil.getInstance();
+            RestartStrategyUtil.getInstance();
             executionJob();
-            noAvailSlotsJobaddExecutionQueue();
             hasInit = true;
         }
     }
@@ -95,7 +82,7 @@ public class JobSubmitExecutor{
 
                 while (true){
                     try{
-                        exeQueueMgr.checkQueueAndSubmit(slotNoAvailableJobClients);
+                        exeQueueMgr.checkQueueAndSubmit();
                     }catch (Throwable e){
                         //防止退出循环
                         logger.error("----提交任务返回异常----", e);
@@ -110,22 +97,7 @@ public class JobSubmitExecutor{
             }
         });
     }
-    
-    private void noAvailSlotsJobaddExecutionQueue(){
-    	queExecutor.submit(new Runnable(){
-			@Override
-			public void run() {
-				for(;;){
-					try {
-						Thread.sleep(CHECK_INTERVAL);
-						slotNoAvailableJobClients.noAvailSlotsJobAddExecutionQueue();
-					} catch (InterruptedException e) {
-						logger.error("", e);
-					}
-				}
-			}
-    	});
-    }
+
 
     public void submitJob(JobClient jobClient) throws Exception{
         ExeQueueMgr.getInstance().add(jobClient);
@@ -138,8 +110,7 @@ public class JobSubmitExecutor{
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
-        if(ExeQueueMgr.getInstance().remove(jobClient.getEngineType(), jobClient.getGroupName(), jobClient.getTaskId())
-                || slotNoAvailableJobClients.remove(jobClient.getTaskId())){
+        if(ExeQueueMgr.getInstance().remove(jobClient.getEngineType(), jobClient.getGroupName(), jobClient.getTaskId())){
             //直接移除
             Map<String, Integer> jobStatus = Maps.newHashMap();
             jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());

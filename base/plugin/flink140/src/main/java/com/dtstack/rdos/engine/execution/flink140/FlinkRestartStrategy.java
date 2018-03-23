@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.flink130;
+package com.dtstack.rdos.engine.execution.flink140;
 
-import com.dtstack.rdos.engine.execution.base.IResultMsgDealer;
+import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.IRestartStrategy;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -10,12 +11,13 @@ import org.apache.commons.lang3.StringUtils;
  * @author xuchao
  */
 
-public class FlinkResultMsgDealer implements IResultMsgDealer {
+public class FlinkRestartStrategy implements IRestartStrategy {
+
+    private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 
     private final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
     private final static String FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
-
 
     @Override
     public boolean checkFailureForEngineDown(String msg) {
@@ -31,6 +33,18 @@ public class FlinkResultMsgDealer implements IResultMsgDealer {
         if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION)){
             return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean checkCanRestart(String engineJobId, IClient client) {
+        //Flink 只能资源部足的的任务做重启---不限制重启次数
+        String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
+        String msg = client.getMessageByHttp(reqURL);
+        if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION)){
+            return true;
+        }
+
         return false;
     }
 }

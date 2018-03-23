@@ -41,6 +41,10 @@
    <update id="updateJobEngineId" parameterType="java.util.HashMap">
 	   update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId} where job_id=#{jobId};
    </update>
+
+   <update id="updateJobEngineIdAndStatus" parameterType="java.util.HashMap">
+       update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId},status=#{status} where job_id=#{jobId};
+   </update>
    
    <update id="updateJobStatusAndExecTime" parameterType="java.util.HashMap">
 	   update rdos_engine_batch_job set gmt_modified=now(), exec_end_time=now(), status=#{status}, exec_time=timestampdiff(SECOND, exec_start_time, now()) where job_id=#{jobId};

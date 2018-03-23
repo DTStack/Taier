@@ -251,11 +251,9 @@ public class SparkYarnClient extends AbsClient {
             appArgs = exeArgsStr.split("\\s+");
         }
 
-        if(appArgs != null) {
-            for(String appArg : appArgs) {
-                argList.add("--arg");
-                argList.add(appArg);
-            }
+        for(String appArg : appArgs) {
+            argList.add("--arg");
+            argList.add(appArg);
         }
 
         String pythonExtPath = sparkYarnConfig.getSparkPythonExtLibPath();
