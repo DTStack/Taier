@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message } from 'antd';
 
@@ -53,10 +54,11 @@ export default class StepTwo extends Component {
         });
 
         // 重置分区表单和参数
-        if (editParams.origin.partitionColumn) {
+        if (editParams.origin.partition) {
             form.setFieldsValue({ targetColumn: '' });
-            target.partitionColumn = undefined;
-            target.partitionValue  = undefined;
+            target.partition = undefined;
+            // target.partitionColumn = undefined;
+            // target.partitionValue  = undefined;
             this.props.resetSourcePart('target');
 
             this.props.getSourcePart({
@@ -135,8 +137,9 @@ export default class StepTwo extends Component {
         
         this.props.changeParams({
             target: { ...target, 
-                partitionColumn: value ? extra.triggerNode.props.dataRef.partName : undefined, 
-                partitionValue: value ? extra.triggerNode.props.dataRef.partValue : undefined
+                partition: value ? extra.triggerNode.props.dataRef.partColumn : undefined,
+                // partitionColumn: value ? extra.triggerNode.props.dataRef.partName : undefined, 
+                // partitionValue: value ? extra.triggerNode.props.dataRef.partValue : undefined
             }
         });
     }
@@ -186,28 +189,33 @@ export default class StepTwo extends Component {
                 <div className="steps-content">
                     <Form>
                         <FormItem {...formItemLayout} label="选择右侧表">
-                            {
-                                getFieldDecorator('table', {
-                                    rules: [{ required: true, message: '请选择右侧表' }],
-                                    initialValue: target.table
-                                })(
-                                    <Select onChange={this.onTargetTableChange} disabled={editStatus === 'edit'}>
-                                        {
-                                            this.renderTargetTable(sourceTable)
-                                        }
-                                    </Select>
-                                )
-                            }
+                            <Col span={20}>
+                                {
+                                    getFieldDecorator('table', {
+                                        rules: [{ required: true, message: '请选择右侧表' }],
+                                        initialValue: target.table
+                                    })(
+                                        <Select onChange={this.onTargetTableChange} disabled={editStatus === 'edit'}>
+                                            {
+                                                this.renderTargetTable(sourceTable)
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </Col>
+                            <Col span={4}>
+                                <Link className="m-l-8">订阅</Link>
+                            </Col>
                         </FormItem>
 
                         {
-                            origin.partitionColumn
+                            origin.partition
                             &&
                             <FormItem {...formItemLayout} label="选择分区" style={{ marginBottom: 5 }} extra={this.renderPartText()}>
                                 {
                                     getFieldDecorator('targetColumn', {
                                         rules: [{ required: true, message: '请选择分区' }],
-                                        initialValue: this.getPartTitle(target.partitionColumn, target.partitionValue) 
+                                        initialValue: target.partition
                                     })(
                                         <TreeSelect
                                             disabled={editStatus === 'edit'}

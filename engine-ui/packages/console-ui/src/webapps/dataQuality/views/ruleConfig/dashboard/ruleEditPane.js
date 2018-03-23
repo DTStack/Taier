@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber } from 'antd';
+import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber, Modal } from 'antd';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
 
+import ExecuteForm from './executeForm';
 import { formItemLayout, rowFormItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
 import RCApi from '../../../api/ruleConfig';
@@ -44,7 +45,8 @@ export default class RuleEditPane extends Component {
             columnFields: ['columnName', 'functionId', 'verifyType', 'operator', 'threshold'],
             rules: [],
             currentRule: {},
-            monitorId: undefined
+            monitorId: undefined,
+            showExecuteModal: false
         };
     }
 
@@ -582,60 +584,42 @@ export default class RuleEditPane extends Component {
         this.setState({ monitorId });
     }
 
-    initMonitorInfoColumns = () => {
-        return [{
-            dataIndex: 'column1',
-            className: 'column-key',
-            key: 'column1',
-            width: '12%',
-        }, {
-            dataIndex: 'value1',
-            key: 'value1',  
-            width: '34%',
-        }, {
-            dataIndex: 'column2',
-            className: 'column-key',
-            key: 'column2',
-            width: '12%',
-        }, {
-            dataIndex: 'value2',
-            key: 'value2',
-            width: '34%',
-        }]
-    }
-
     executeMonitor = (monitorId) => {
         this.props.executeMonitor({ monitorId });
+        this.props.closeSlidePane();
     }
 
     changeMonitorStatus = (monitorId) => {
-        this.props.changeMonitorStatus({ monitorId });
+        RCApi.changeMonitorStatus({ monitorId }).then((res) => {
+            if (res.code === 1) {
+                message.success('操作成功');
+                this.props.getMonitorDetail({ monitorId });
+            }
+        });
+        // this.props.changeMonitorStatus({ monitorId });
+    }
+
+    openExecuteModal = () => {
+        this.setState({
+            showExecuteModal: true
+        });
+    }
+
+    closeExecuteModal = () => {
+        this.setState({
+            showExecuteModal: false
+        });
     }
 
     render() {
         const { data, ruleConfig, form, common } = this.props;
         const { getFieldDecorator } = form;
-        const { rules, monitorId } = this.state;
+        const { rules, monitorId, showExecuteModal } = this.state;
         // const { executeTime, notifyUser, periodType, scheduleConf, sendTypes } = ruleConfig.monitorDetail;
         const { periodType, notifyType } = common.allDict;
         const { monitorDetail } = ruleConfig;
 
         let monitorPartVOS = data.monitorPartVOS ? data.monitorPartVOS : [];
-
-        let monitorInfoData = [{
-            column1: '执行周期',
-            value1: monitorDetail.periodType ? periodType[monitorDetail.periodType - 1].name : '',
-            column2: '告警方式',
-            value2: monitorDetail.sendTypes ? monitorDetail.sendTypes.map((item) => {
-
-                        return notifyType[item - 1] ? notifyType[item - 1].name : ''
-                        }).join('，') : '' 
-        }, {
-            column1: '执行时间',
-            value1: monitorDetail.executeTime ? monitorDetail.executeTime : '',
-            column2: '接收人',
-            value2: monitorDetail.notifyUser ? monitorDetail.notifyUser.join('，') : ''
-        }]
 
         return (
             <div className="rule-manage">
@@ -669,27 +653,39 @@ export default class RuleEditPane extends Component {
                         <Button 
                             className="m-l-8" 
                             type="primary" 
-                            onClick={this.editMonitorInfo}>
+                            onClick={this.openExecuteModal}>
                             编辑执行信息
                         </Button>
                         <Button 
                             className="m-l-8" 
                             type="primary" 
                             onClick={this.changeMonitorStatus.bind(this, monitorId)}>
-                            关闭检测
+                            {monitorDetail.isClosed ? '开启检测' : '关闭检测'}
                         </Button>
                     </Col>
                 </Row>
 
-                <Table 
-                    rowKey="column1"
-                    bordered
-                    className="m-table monitor-info-table"
-                    columns={this.initMonitorInfoColumns()}
-                    showHeader={false}
-                    pagination={false}
-                    dataSource={monitorInfoData}
-                />
+                <Row className="monitor-info-table">
+                    <table width="100%" cellPadding="0" cellSpacing="0">
+                        <tbody>
+                            <tr>
+                                <th>执行周期</th>
+                                <td className="width-3">{monitorDetail.periodType ? periodType[monitorDetail.periodType - 1].name : ''}</td>
+                                <th>告警方式</th>
+                                <td className="width-3">{monitorDetail.sendTypes ? monitorDetail.sendTypes.map((item) => {
+                                    return notifyType[item - 1] ? notifyType[item - 1].name : ''
+                                }).join('，') : '' }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>执行时间</th>
+                                <td className="width-3">{monitorDetail.executeTime ? monitorDetail.executeTime : ''}</td>
+                                <th>接收人</th>
+                                <td className="width-3">{monitorDetail.notifyUser ? monitorDetail.notifyUser.join('，') : ''}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </Row>
 
                 <div className="rule-action">
                     <Button 
@@ -718,6 +714,12 @@ export default class RuleEditPane extends Component {
                     pagination={false}
                     dataSource={rules}
                 />
+                
+                <ExecuteForm 
+                    visible={showExecuteModal} 
+                    closeModal={this.closeExecuteModal}
+                    data={monitorDetail}>
+                </ExecuteForm>
             </div>
         );
     }

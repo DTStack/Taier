@@ -215,7 +215,7 @@ export default class DataSourceModal extends Component {
                                 }],
                                 initialValue: config.accessKey || '',
                             })(
-                                <Input autoComplete="off" />,
+                                <Input type="password" autoComplete="off" />,
                             )
                         }
                     </FormItem>,

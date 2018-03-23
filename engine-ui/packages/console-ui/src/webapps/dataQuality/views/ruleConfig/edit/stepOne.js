@@ -200,6 +200,7 @@ export default class StepOne extends Component {
     }
 
     handlePartChange = (value, label, extra) => {
+        console.log(value,label,extra)
         this.props.changeParams({
             partitionColumn: value ? extra.triggerNode.props.dataRef.partName : undefined, 
             partitionValue: value ? extra.triggerNode.props.dataRef.partValue : undefined
@@ -246,33 +247,47 @@ export default class StepOne extends Component {
                 <div className="steps-content">
                     <Form>
                         <FormItem {...formItemLayout} label="选择数据源">
-                            {
-                                getFieldDecorator('sourceId', {
-                                    rules: [{ required: true, message: '请选择数据源' }],
-                                    initialValue: dataSourceId ? dataSourceId.toString() : ''
-                                })(
-                                    <Select onChange={this.onSourceTypeChange} disabled={editStatus === 'edit'}>
-                                        {
-                                            this.renderSourceType(sourceList)
-                                        }
-                                    </Select>
-                                )
-                            }
+                            <Col span={20}>
+                                {
+                                    getFieldDecorator('sourceId', {
+                                        rules: [{ required: true, message: '请选择数据源' }],
+                                        initialValue: dataSourceId ? dataSourceId.toString() : ''
+                                    })(
+                                        <Select size="large" onChange={this.onSourceTypeChange} disabled={editStatus === 'edit'}>
+                                            {
+                                                this.renderSourceType(sourceList)
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </Col>
+                            <Col span={4}>
+                                <Link to="/dq/dataSource" className="m-l-8">添加数据源</Link>
+                            </Col>
                         </FormItem>
 
                         <FormItem {...formItemLayout} label="选择数据表">
-                            {
-                                getFieldDecorator('sourceTable', {
-                                    rules: [{ required: true, message: '请选择数据表' }],
-                                    initialValue: tableName
-                                })(
-                                    <Select onChange={this.onTableChange} disabled={editStatus === 'edit'}>
-                                        {
-                                            this.renderSourceTable(sourceTable)
-                                        }
-                                    </Select>
-                                )
-                            }
+                            <Col span={20}>
+                                {
+                                    getFieldDecorator('sourceTable', {
+                                        rules: [{ required: true, message: '请选择数据表' }],
+                                        initialValue: tableName
+                                    })(
+                                        <Select onChange={this.onTableChange} disabled={editStatus === 'edit'}>
+                                            {
+                                                this.renderSourceTable(sourceTable)
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </Col>
+                            <Col span={4}>
+                                {
+                                    tableName
+                                    &&
+                                    <Link className="m-l-8">订阅</Link>
+                                }
+                            </Col>
                         </FormItem>
 
                         {

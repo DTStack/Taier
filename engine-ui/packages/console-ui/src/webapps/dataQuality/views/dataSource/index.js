@@ -154,7 +154,7 @@ export default class DataSource extends Component {
             render: (text) => dataSourceTypes[text]
         }, 
         {
-            title: '连接信息',
+            title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
         }, {

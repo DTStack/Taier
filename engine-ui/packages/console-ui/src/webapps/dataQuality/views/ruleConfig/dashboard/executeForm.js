@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { Button, Form, Select, DatePicker, Checkbox } from 'antd';
+import { Button, Form, Select, DatePicker, Checkbox, Modal } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { commonActions } from '../../../actions/common';
@@ -27,7 +27,7 @@ const mapDispatchToProps = dispatch => ({
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class StepThree extends Component {
+export default class ExecuteForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -44,6 +44,12 @@ export default class StepThree extends Component {
                 gapHour: undefined,
                 endHour: 0,
                 endMin: 0
+            },
+            params: {
+                scheduleConf: '',
+                notifyUser: [],
+                sendTypes: [],
+                periodType: ''
             }
         }
     }
@@ -51,12 +57,13 @@ export default class StepThree extends Component {
     componentDidMount() {
         this.props.getUserList();
         this.initState();
+        console.log(this)
     }
 
     initState = () => {
-        const { scheduleConf } = this.props.editParams;
+        const { data } = this.props;
 
-        if (scheduleConf) {
+        if (data.scheduleConf) {
             this.setState({ scheduleConfObj: JSON.parse(scheduleConf) });
         }
     }
@@ -184,10 +191,10 @@ export default class StepThree extends Component {
     }
 
     renderDynamic() {
-        const { form, common, editParams, editStatus } = this.props;
+        const { form, common, data, editStatus } = this.props;
         const { scheduleConfObj } = this.state;
         const { allDict, userList } = common;
-        const { notifyUser, sendTypes } = editParams;
+        const { notifyUser, sendTypes } = data;
         const { getFieldDecorator } = form;
 
         let periodType = allDict.periodType ? allDict.periodType : [];
@@ -445,111 +452,113 @@ export default class StepThree extends Component {
     }
 
     render() {
-        const { form, common, editParams, editStatus } = this.props;
+        const { form, common, data, visible, closeModal } = this.props;
         const { scheduleConfObj } = this.state;
         const { allDict, userList } = common;
-        const { notifyUser, sendTypes } = editParams;
         const { getFieldDecorator } = form;
+        const { notifyUser, sendTypes } = data;
 
         let periodType = allDict.periodType ? allDict.periodType : [];
 
         return (
-            <div>
-                <div className="steps-content">
-                    <Form>
-                        <FormItem {...formItemLayout} label="调度周期" key="periodType">
-                            {
-                                getFieldDecorator('periodType', {
-                                    rules: [{ required: true, message: '执行周期不能为空' }], 
-                                    initialValue: scheduleConfObj.periodType
-                                })(
-                                    <Select style={{ width: 325 }} onChange={this.onPeriodTypeChange}>
-                                        {
-                                            this.renderPeriodType(periodType)
-                                        }
-                                    </Select>
-                                )
-                            }
-                        </FormItem>
-
+            <Modal
+                title="编辑执行信息"
+                wrapClassName="editExecuteModal"
+                maskClosable={false}
+                visible={visible}
+                width={'70%'}
+                okText="保存"
+                cancelText="取消"
+                onOk={closeModal}
+                onCancel={closeModal}>  
+                <Form>
+                    <FormItem {...formItemLayout} label="调度周期" key="periodType">
                         {
-                            scheduleConfObj.periodType != 5
-                            &&
-                            <FormItem {...formItemLayout} label="生效日期">
-                                {
-                                    getFieldDecorator('beginDate', {
-                                    initialValue: moment(scheduleConfObj.beginDate)
-                                    })(
-                                        <DatePicker
-                                            size="large"
-                                            format="YYYY-MM-DD"
-                                            placeholder="开始日期"
-                                            style={{ width: 150, marginRight: 8 }}
-                                            onChange={this.onBeginDateChange}
-                                        />
-                                    )
-                                }
-                                到
-                                {
-                                    getFieldDecorator('endDate', {
-                                        initialValue: moment(scheduleConfObj.endDate)
-                                    })(
-                                        <DatePicker
-                                            size="large"
-                                            format="YYYY-MM-DD"
-                                            placeholder="结束日期"
-                                            style={{ width: 150, marginLeft: 8 }}
-                                            onChange={this.onEndDateChange}
-                                        />
-                                    )
-                                }
-                            </FormItem>
+                            getFieldDecorator('periodType', {
+                                rules: [{ required: true, message: '执行周期不能为空' }], 
+                                initialValue: scheduleConfObj.periodType
+                            })(
+                                <Select style={{ width: 325 }} onChange={this.onPeriodTypeChange}>
+                                    {
+                                        this.renderPeriodType(periodType)
+                                    }
+                                </Select>
+                            )
                         }
+                    </FormItem>
 
+                    {
+                        scheduleConfObj.periodType != 5
+                        &&
+                        <FormItem {...formItemLayout} label="生效日期">
+                            {
+                                getFieldDecorator('beginDate', {
+                                initialValue: moment(scheduleConfObj.beginDate)
+                                })(
+                                    <DatePicker
+                                        size="large"
+                                        format="YYYY-MM-DD"
+                                        placeholder="开始日期"
+                                        style={{ width: 150, marginRight: 8 }}
+                                        onChange={this.onBeginDateChange}
+                                    />
+                                )
+                            }
+                            到
+                            {
+                                getFieldDecorator('endDate', {
+                                    initialValue: moment(scheduleConfObj.endDate)
+                                })(
+                                    <DatePicker
+                                        size="large"
+                                        format="YYYY-MM-DD"
+                                        placeholder="结束日期"
+                                        style={{ width: 150, marginLeft: 8 }}
+                                        onChange={this.onEndDateChange}
+                                    />
+                                )
+                            }
+                        </FormItem>
+                    }
+
+                    {
+                        this.renderDynamic()
+                    }
+                    
+                    <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
                         {
-                            this.renderDynamic()
+                            getFieldDecorator('sendTypes', {
+                                rules: [{ required: true, message: '选择一种通知方式' }], 
+                                // initialValue: sendTypes.map(item => item.toString())
+                            })(
+                                <Checkbox.Group onChange={this.onSendTypeChange}>
+                                    {
+                                        // allDict.notifyType.map((item) => {
+                                        //     return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
+                                        // })
+                                    }
+                                </Checkbox.Group>
+                            )
                         }
-                        
-                        <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
-                            {
-                                getFieldDecorator('sendTypes', {
-                                    rules: [{ required: true, message: '选择一种通知方式' }], 
-                                    initialValue: sendTypes.map(item => item.toString())
-                                })(
-                                    <Checkbox.Group onChange={this.onSendTypeChange}>
-                                        {
-                                            allDict.notifyType.map((item) => {
-                                                return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
-                                            })
-                                        }
-                                    </Checkbox.Group>
-                                )
-                            }
-                        </FormItem>
-                        
-                        <FormItem {...formItemLayout} label="通知接收人" key='notifyUser'>
-                            {
-                                getFieldDecorator('notifyUser', {
-                                    rules: [{ required: true, message: '接收人不能为空' }],
-                                    initialValue: notifyUser.map(item => item.toString())
-                                })(
-                                    <Select style={{ width: 325 }} mode="multiple" allowClear onChange={this.onNotifyUserChange}>
-                                        {
-                                            this.renderUserList(userList)
-                                        }
-                                    </Select>
-                                )
-                            }
-                        </FormItem>
-                    </Form>
-                </div>
-
-                <div className="steps-action">
-                    <Button onClick={this.prev}>上一步</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
-                </div>
-            </div>
+                    </FormItem>
+                    
+                    <FormItem {...formItemLayout} label="通知接收人" key='notifyUser'>
+                        {
+                            getFieldDecorator('notifyUser', {
+                                rules: [{ required: true, message: '接收人不能为空' }],
+                                // initialValue: notifyUser.map(item => item.toString())
+                            })(
+                                <Select style={{ width: 325 }} mode="multiple" allowClear onChange={this.onNotifyUserChange}>
+                                    {
+                                        this.renderUserList(userList)
+                                    }
+                                </Select>
+                            )
+                        }
+                    </FormItem>
+                </Form>
+            </Modal>
         )
     }
 }
-StepThree = Form.create()(StepThree);
+ExecuteForm = Form.create()(ExecuteForm);
