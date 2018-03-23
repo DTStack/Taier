@@ -400,11 +400,11 @@ export default class RuleConfig extends Component {
                                 >
                                     
                                     <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane data={currentMonitor}>
+                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane}>
                                         </RuleEditPane>
                                     </TabPane>
                                     <TabPane tab="远程触发" key="2">
-                                        <RemoteTriggerPane data={currentMonitor}>
+                                        <RemoteTriggerPane data={currentMonitor} closeSlidePane={this.closeSlidePane}>
                                         </RemoteTriggerPane>
                                     </TabPane>
                                 </Tabs>

@@ -30,12 +30,28 @@
 		}
 
 		.monitor-info-table {
-			margin: 20px;
+		    margin: 20px;
 
-			.column-key {
-				background: #f7f7f7;
-			}
+		    table {
+		        border-collapse: collapse;
+		        border-radius: 3px;
+		        border: 1px solid #E6E6E6;
+		        td,
+		        th {
+		           	padding: 6px 8px;
+		        	font-size: 12px;
+		            border: 1px solid #E6E6E6;
+		        }
+		        th {
+		            background: #FAFAFA;
+		            width: 12%;
+		        }
+		        td {
+		            width: 38%;
+		        }
+		    }
 		}
+
 	}
 
 	.trigger-box {

@@ -110,7 +110,7 @@ export default class StepOne extends Component {
      */
     getPartTitle = (name, value) => {
         if (value) {
-            return `分区字段：${name}  分区值：${value}`;
+            return `分区字段：${name}   分区值：${value}`;
         } else {
             return name;
         }
@@ -145,12 +145,12 @@ export default class StepOne extends Component {
         this.setState({ sourcePreview: {} });
 
         // 重置分区表单和参数
-        if (origin.partitionColumn) {
+        if (origin.partition) {
             this.props.resetSourcePart('origin');
             form.setFieldsValue({ originColumn: '' });
-
-            origin.partitionColumn = undefined;
-            origin.partitionValue  = undefined;
+            origin.partition = undefined;
+            // origin.partitionColumn = undefined;
+            // origin.partitionValue  = undefined;
         }
 
         changeParams({
@@ -174,12 +174,12 @@ export default class StepOne extends Component {
         this.setState({ sourcePreview: {} });
 
         // 重置分区表单和参数
-        if (origin.partitionColumn) {
+        if (origin.partition) {
             this.props.resetSourcePart('origin');
             form.setFieldsValue({ originColumn: '' });
-            
-            origin.partitionColumn = undefined;
-            origin.partitionValue  = undefined;
+            origin.partition = undefined;
+            // origin.partitionColumn = undefined;
+            // origin.partitionValue  = undefined;
         }
 
         changeParams({
@@ -245,8 +245,9 @@ export default class StepOne extends Component {
 
         this.props.changeParams({
             origin: { ...origin, 
-                partitionColumn: value ? extra.triggerNode.props.dataRef.partName : undefined, 
-                partitionValue: value ? extra.triggerNode.props.dataRef.partValue : undefined
+                partition: value ? extra.triggerNode.props.dataRef.partColumn : undefined,
+                // partitionColumn: value ? extra.triggerNode.props.dataRef.partName : undefined, 
+                // partitionValue: value ? extra.triggerNode.props.dataRef.partValue : undefined
             }
         });
     }
@@ -281,7 +282,7 @@ export default class StepOne extends Component {
 
     render() {
         const { editStatus, editParams, form, dataSource, dataCheck } = this.props;
-        const { dataSourceId, table, partitionColumn, partitionValue } = editParams.origin;
+        const { dataSourceId, table, partitionColumn, partitionValue, partition } = editParams.origin;
         const { sourceList, sourceTable } = dataSource;
         const { originPart } = dataCheck;
         const { havePart, sourcePreview } = this.state;
@@ -292,43 +293,53 @@ export default class StepOne extends Component {
                 <div className="steps-content">
                     <Form>
                         <FormItem {...formItemLayout} label="选择数据源">
-                            {
-                                getFieldDecorator('sourceId', {
-                                    rules: [{ required: true, message: '请选择数据源' }],
-                                    initialValue: dataSourceId ? dataSourceId.toString() : ''
-                                })(
-                                    <Select onChange={this.onSourceTypeChange} disabled={editStatus === 'edit'}>
-                                        {
-                                            this.renderSourceType(sourceList)
-                                        }
-                                    </Select>
-                                )
-                            }
+                            <Col span={20}>
+                                {
+                                    getFieldDecorator('sourceId', {
+                                        rules: [{ required: true, message: '请选择数据源' }],
+                                        initialValue: dataSourceId ? dataSourceId.toString() : ''
+                                    })(
+                                        <Select onChange={this.onSourceTypeChange} disabled={editStatus === 'edit'}>
+                                            {
+                                                this.renderSourceType(sourceList)
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </Col>
+                            <Col span={4}>
+                                <Link to="/dq/dataSource" className="m-l-8">添加数据源</Link>
+                            </Col>
                         </FormItem>
 
                         <FormItem {...formItemLayout} label="选择左侧表">
-                            {
-                                getFieldDecorator('sourceTable', {
-                                    rules: [{ required: true, message: '请选择左侧表' }],
-                                    initialValue: table
-                                })(
-                                    <Select onChange={this.onOriginTableChange} disabled={editStatus === 'edit'}>
-                                        {
-                                            this.renderSourceTable(sourceTable)
-                                        }
-                                    </Select>
-                                )
-                            }
+                            <Col span={20}>
+                                {
+                                    getFieldDecorator('sourceTable', {
+                                        rules: [{ required: true, message: '请选择左侧表' }],
+                                        initialValue: table
+                                    })(
+                                        <Select onChange={this.onOriginTableChange} disabled={editStatus === 'edit'}>
+                                            {
+                                                this.renderSourceTable(sourceTable)
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </Col>
+                            <Col span={4}>
+                                <Link className="m-l-8">订阅</Link>
+                            </Col>
                         </FormItem>
 
                         {
-                            (havePart || partitionColumn)
+                            (havePart || partition)
                             &&
                             <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                                 {
                                     getFieldDecorator('originColumn', {
                                         rules: [{ required: true, message: '请选择分区' }],
-                                        initialValue: this.getPartTitle(partitionColumn, partitionValue) 
+                                        initialValue: partition
                                     })(
                                         <TreeSelect
                                             disabled={editStatus === 'edit'}
