@@ -195,10 +195,6 @@ export const offlineTaskTypeFilter = [{
     id: 5,
     text: 'Python',
     value: TASK_TYPE.PYTHON,
-}, {
-    id: 6,
-    text: 'R',
-    value: TASK_TYPE.R,
 }]
 
 export const offlineTaskPeriodFilter = [{

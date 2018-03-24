@@ -569,7 +569,7 @@ class OfflineTaskList extends Component {
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
-                            scroll={{ y: '60%' }}
+                            scroll={{ y: '58%' }}
                         />
                         <SlidePane 
                             className="m-tabs bd-top bd-right m-slide-pane"
