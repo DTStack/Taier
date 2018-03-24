@@ -47,7 +47,10 @@ export default class ScriptDetail extends React.Component {
                         </Row>
                         <Row>
                             <Col span="10" className="txt-right">描述：</Col>
-                            <Col span="14">{scriptInfo.scriptDesc}</Col>
+                            <Col span="14" style={{
+                                lineHeight: '20px',
+                                padding: '10 0'
+                            }}>{scriptInfo.scriptDesc}</Col>
                         </Row>
                     </Row>
                 </Panel>

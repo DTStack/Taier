@@ -60,7 +60,10 @@ function TaskInfo(props) {
             </Row>
             <Row>
                 <Col span="10" className="txt-right">描述：</Col>
-                <Col span="14">{taskInfo.taskDesc}</Col>
+                <Col span="14" style={{
+                                lineHeight: '20px',
+                                padding: '10 0'
+                            }}>{taskInfo.taskDesc}</Col>
             </Row>
         </Row>
     )

@@ -101,9 +101,9 @@ export function MenuRight(props) {
                 <span className="divide"></span>
                 <span>
                     <a href="/message" target="blank" style={{color: '#ffffff'}}>
-                        <Badge dot>
-                            <Icon type="message" />
-                        </Badge>
+                        <Icon type="message" />
+                        {/* <Badge dot>
+                        </Badge> */}
                     </a>
                 </span>
                 <Dropdown overlay={settingMenuItems} trigger={['click']}>
