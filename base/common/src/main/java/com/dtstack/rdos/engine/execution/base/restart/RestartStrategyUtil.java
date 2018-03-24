@@ -85,7 +85,7 @@ public class RestartStrategyUtil {
     }
 
     public boolean checkFailureForEngineDown(String engineType, String msg){
-        IRestartStrategy dealer = dealerMap.get(engineType);
+        IRestartStrategy dealer = getDealer(engineType);
         if(dealer == null){
             throw new RdosException("can't find result dealer with engine type:" + engineType);
         }
@@ -94,7 +94,7 @@ public class RestartStrategyUtil {
     }
 
     public boolean checkNOResource(String engineType, String msg){
-        IRestartStrategy dealer = dealerMap.get(engineType);
+        IRestartStrategy dealer = getDealer(engineType);
         if(dealer == null){
             throw new RdosException("can't find result dealer with engine type:" + engineType);
         }
@@ -103,10 +103,30 @@ public class RestartStrategyUtil {
     }
 
     public boolean checkCanRestart(String engineJobId, String engineType, IClient client){
-        IRestartStrategy dealer = dealerMap.get(engineType);
+        IRestartStrategy dealer = getDealer(engineType);
         if(dealer == null){
             throw new RdosException("can't find result dealer with engine type:" + engineType);
         }
         return dealer.checkCanRestart(engineJobId, client);
+    }
+
+    public IRestartStrategy getDealer(String engineType){
+        IRestartStrategy dealer = dealerMap.get(engineType);
+
+
+        if(dealer == null){
+            String dealerClassName = "com.dtstack.rdos.engine.execution.base.DefaultRestartStrategy";
+            try {
+                ClassLoader loader = ClientFactory.getClassLoader(engineType);
+                String key = EngineType.getEngineTypeWithoutVersion(engineType);
+                dealer  = Class.forName(dealerClassName, false, loader)
+                        .asSubclass(IRestartStrategy.class).newInstance();
+                dealerMap.put(key, dealer);
+            }catch (Exception e){
+                throw new RdosException("can't find result dealer with engine type:" + engineType);
+            }
+        }
+
+        return dealer;
     }
 }
