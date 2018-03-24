@@ -12,6 +12,8 @@ export function authBeforeFormate(response) {
         return response;
     case 302:
         message.info('登录超时, 请重新登录！')
+    case 413:
+        message.error(response.message)
     default:
         if (process.env.NODE_ENV !== 'production') {
             console.error('Request error: ', response.code, response.message)

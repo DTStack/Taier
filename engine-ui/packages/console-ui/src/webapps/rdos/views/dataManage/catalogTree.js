@@ -15,6 +15,7 @@ class CatalogueTree extends Component {
     state = {
         expendKeys: [],
         autoExpandParent: false,
+        disabledAdd: false,
     }
 
     _expendKeys = []
@@ -71,7 +72,10 @@ class CatalogueTree extends Component {
         const value = this._inputEle.innerHTML;
         const originVal = node.bindData.name;
         const callback = (res) => {
-            if (res.code !== 1)
+            
+            this.setState({ disabledAdd: false, })
+
+            if (res.code !== 1 && this._inputEle)
             this._inputEle.innerHTML = originVal
         }
         if (this.checkVal(value)) {
@@ -146,6 +150,7 @@ class CatalogueTree extends Component {
         expendKeys.push(`${data.bindData.id}`)
         this.setState({
             expendKeys,
+            disabledAdd: true,
         }, () => {
             this.props.onTreeNodeEdit(data, 'initAdd')
         })
@@ -153,7 +158,7 @@ class CatalogueTree extends Component {
 
     renderTreeNodes = () => {
         const { treeData, onTreeNodeEdit, isPicker, isFolderPicker } = this.props
-        
+        const { disabledAdd } = this.state
         const loopTree = (tree) => {
 
             return tree && tree.map(data => {
@@ -190,9 +195,14 @@ class CatalogueTree extends Component {
                     &nbsp;
                     <span className="node-operation">
                         {
-                        !isTable && 
+                        !isTable &&
                         <Tooltip title="添加新目录">
-                            <Icon type="plus-square-o" onClick={this.onInitAdd.bind(this, data)} />
+                            {
+                                disabledAdd ? 
+                                <Icon type="plus-square-o" style={{color: '#bfbfbf'}}/>
+                                :
+                                <Icon type="plus-square-o" onClick={this.onInitAdd.bind(this, data)} />
+                            }
                         </Tooltip>
                         }
                         {

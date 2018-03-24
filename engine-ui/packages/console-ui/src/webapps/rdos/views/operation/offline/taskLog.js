@@ -77,7 +77,7 @@ export function LogInfo(props) {
                         <span>读取数据：{syncJobInfo.readNum}条</span>&nbsp;&nbsp; 
                         <span>写入数据：{syncJobInfo.writeNum}条</span>&nbsp;&nbsp;
                         <span>脏数据：{syncJobInfo.dirtyPercent}%</span>&nbsp;&nbsp;
-                        <span><Link to={`/data-manage/dirty-data/table/${syncJobInfo.tableId}`}>查看脏数据</Link></span>
+                        {/* <span><Link to={`/data-manage/dirty-data/table/${syncJobInfo.tableId}`}>查看脏数据</Link></span> */}
                     </p>
                 </Row>
                 :

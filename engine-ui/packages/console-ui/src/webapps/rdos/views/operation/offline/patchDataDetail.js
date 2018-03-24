@@ -311,10 +311,10 @@ class PatchDataDetail extends Component {
             key: 'jobName',
             width: 120,
             render: (text, record) => {
-                const showName = record.isDeleted === 1 ? `${text} (已删除)` : text;
-                return (
-                    <a onClick={() => { this.showTask(record) }}>{ showName }</a>
-                )
+                const showName = record.batchTask.isDeleted === 1 
+                ? `${text} (已删除)` : 
+                <a onClick={() => { this.showTask(record) }}>{ text }</a>;
+                return showName
             },
         }, {
             title: '状态',

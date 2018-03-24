@@ -42,6 +42,7 @@ const {
     mxPerimeter,
     mxUndoManager,
     mxCompactTreeLayout,
+    mxMorphing,
     mxUtils,
 } = Mx
 
@@ -82,6 +83,8 @@ class TaskFlowView extends Component {
     initGraph = (id) => {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
+        this.graph = "";
+        this.layout = "";
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
@@ -202,12 +205,19 @@ class TaskFlowView extends Component {
                 taskInfo.setAttribute('data', JSON.stringify(data))
 
                 // 插入当前节点
-                newVertex = graph.insertVertex(
-                    graph.getDefaultParent(), null, taskInfo, 0, 0,
-                    VertexSize.width, VertexSize.height, style
-                )
+                newVertex = ''
+                this.executeLayout(() => {
 
-                this.insertEdge(graph, type, parent, newVertex)
+                    newVertex = graph.insertVertex(
+                        graph.getDefaultParent(), null, taskInfo, 0, 0,
+                        VertexSize.width, VertexSize.height, style
+                    )
+                    this.insertEdge(graph, type, parent, newVertex)
+                    graph.view.refresh(newVertex)
+
+                }, () => {
+                    graph.scrollCellToVisible(newVertex);
+                });
 
                 // 缓存节点
                 this._vertexCells.push(newVertex)
@@ -225,27 +235,51 @@ class TaskFlowView extends Component {
     doInsertVertex = (data, type) => {
         const graph = this.graph
         let layout = this.layout;
-
-        if (!layout) {
-            layout = new mxCompactTreeLayout(graph, false)
-            this.layout = layout;
-        }
         const cx = (graph.container.clientWidth - VertexSize.width) / 2;
         const cy = 200;
 
         const parent = graph.getDefaultParent()
         const model = graph.getModel()
-        model.beginUpdate()
 
-        try {
-            this.insertVertex(graph, data, parent, type)
-            // Executes the layout
-            layout.execute(parent);
-            graph.view.setTranslate(cx, cy);
+        if (!layout) {
+            layout = new mxCompactTreeLayout(graph, false)
+            layout.horizontal = false;
+            layout.useBoundingBox = false;
+            layout.edgeRouting = false;
+            layout.levelDistance = 30;
+            layout.nodeDistance = 10;
+            this.layout = layout;
 
-        } finally {
-            model.endUpdate()
+            this.executeLayout = function(change, post) {
+
+                model.beginUpdate();
+
+                try {
+                    if (change != null) { change(); }
+                    layout.execute(parent);
+                } catch (e) {
+                    throw e;
+                } finally {
+                    var morph = new mxMorphing(graph);
+                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
+                        graph.getModel().endUpdate();
+                        if (post != null) { post();}
+                    }));
+                    morph.startAnimation();
+                }
+            }
         }
+
+        graph.view.setTranslate(cx, cy);
+        this.insertVertex(graph, data, parent, type)
+        this.executeLayout();
+        // model.beginUpdate()
+        // try {
+        //     // Executes the layout
+        //     layout.execute(parent);
+        // } finally {
+        //     model.endUpdate()
+        // }
     }
 
     loadTaskChidren = (params) => {

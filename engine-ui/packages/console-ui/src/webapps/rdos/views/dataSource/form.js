@@ -6,14 +6,17 @@ import {
     Radio, Modal, Popconfirm,
 } from 'antd'
 
+import utils from 'utils';
+
 import { 
     formItemLayout, 
     tailFormItemLayout, 
     DataSourceTypeFilter,
     DATA_SOURCE,
-} from '../../comm/const'
+} from '../../comm/const';
 
-import Api from '../../api'
+
+import Api from '../../api';
 import HelpDoc from '../helpDoc';
 
 const FormItem = Form.Item
@@ -96,6 +99,14 @@ class DataSourceForm extends Component {
         const { handOk, form } = this.props
         const source = form.getFieldsValue()
         const { sourceType } = this.state
+        
+        if (source.dataJson.jdbcUrl) {
+            source.dataJson.jdbcUrl = utils.trim(source.dataJson.jdbcUrl)
+        }
+        if (source.dataJson.defaultFS) {
+            source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
+        }
+
         form.validateFields((err) => {
             if (!err) {
                 handOk(source, form)
