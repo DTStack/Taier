@@ -138,7 +138,7 @@ export default class RuleConfig extends Component {
 
     onSubscribe = (record) => {
         if (record.isSubscribe) {
-            RCApi.unsubscribeTable({ tableId: record.tableId }).then((res) => {
+            RCApi.unSubscribeTable({ tableId: record.tableId }).then((res) => {
                 if (res.code === 1) {
                     message.success('取消订阅成功');
                     this.props.getMonitorLists(this.state.params);

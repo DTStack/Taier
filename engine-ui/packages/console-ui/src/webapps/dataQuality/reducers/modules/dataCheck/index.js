@@ -31,9 +31,9 @@ export default function dataCheck(state = initialState, action) {
             const clone = cloneDeep(state);
             const { originPart, targetPart } = clone;
             if (payload.type === 'origin') {
-                clone.originPart = payload.data.children;
+                clone.originPart = payload.data;
             } else {
-                clone.targetPart = payload.data.children;
+                clone.targetPart = payload.data;
             }
 
             return clone;

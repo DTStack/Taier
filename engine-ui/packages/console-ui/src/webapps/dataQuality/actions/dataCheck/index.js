@@ -41,7 +41,7 @@ export const dataCheckActions = {
 					dispatch({
 						type: dataCheckActionType.GET_SOURCE_PART,
 						payload: {
-							data: res.data,
+							data: res.data ? res.data : [],
 							type: type
 						}
 					});

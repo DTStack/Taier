@@ -77,7 +77,7 @@ export default {
 
     SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`,            // 订阅
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unSubscribe`,        // 取消订阅
-
+    CHECK_SUBSCRIBE: `${DQ_BASE_URL}/subscribe/isSubscribe`,          // 是否订阅
     // ===== 任务查询 ===== //
     GET_TASK_LIST: `${DQ_BASE_URL}/monitorRecord/pageQuery`,          // 查询任务列表
     GET_TASK_DETAIL: `${DQ_BASE_URL}/monitorRecord/detailReport`,     // 任务详细报告
