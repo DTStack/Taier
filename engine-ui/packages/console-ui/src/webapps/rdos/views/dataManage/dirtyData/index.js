@@ -280,11 +280,14 @@ class DirtyData extends Component {
                 key: 'tableId',
                 render: function(text, record) {
                     const arr = (record.tasks && record.tasks.map(task => 
+                        task.isDeleted === 1 ? 
+                        `${task.name} (已删除)` :
                         <a onClick={
                             () => {
                                 ctx.props.goToTaskDev(task.id)
                             }
-                        }>{task.name}</a>) ) || []
+                        }>{task.name}</a>) 
+                    ) || []
                     return arr;
                 }
             }, {
