@@ -28,6 +28,8 @@ public class RestartStrategyUtil {
 
     private Map<String, String> dealerClassNameMap = Maps.newHashMap();
 
+    private static String DEFAULT_DEALER_CLASS_NAME = "com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy";
+
     private static RestartStrategyUtil singleton = new RestartStrategyUtil();
 
     private RestartStrategyUtil(){
@@ -70,7 +72,7 @@ public class RestartStrategyUtil {
 
             String dealerClassName = dealerClassNameMap.get(type);
             if(dealerClassName == null){
-                dealerClassName = "com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy";
+                dealerClassName = DEFAULT_DEALER_CLASS_NAME;
             }
 
             try {
@@ -113,16 +115,16 @@ public class RestartStrategyUtil {
     public IRestartStrategy getDealer(String engineType){
         IRestartStrategy dealer = dealerMap.get(engineType);
 
-
         if(dealer == null){
-            String dealerClassName = "com.dtstack.rdos.engine.execution.base.DefaultRestartStrategy";
+            String dealerClassName = DEFAULT_DEALER_CLASS_NAME;
             try {
                 ClassLoader loader = ClientFactory.getClassLoader(engineType);
                 String key = EngineType.getEngineTypeWithoutVersion(engineType);
-                dealer  = Class.forName(dealerClassName, false, loader)
+                dealer = Class.forName(dealerClassName, false, loader)
                         .asSubclass(IRestartStrategy.class).newInstance();
                 dealerMap.put(key, dealer);
             }catch (Exception e){
+                LOG.error("", e);
                 throw new RdosException("can't find result dealer with engine type:" + engineType);
             }
         }

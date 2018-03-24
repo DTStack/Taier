@@ -190,9 +190,9 @@ public class RestartDealer {
         //清理engineJobId , 更新db/zk状态为waitCompute
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
         zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.WAITCOMPUTE.getStatus());
-        if(ComputeType.STREAM.equals(computeType)){
+        if(ComputeType.STREAM.getType().equals(computeType)){
             engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITCOMPUTE.getStatus());
-        }else if(ComputeType.BATCH.equals(computeType)){
+        }else if(ComputeType.BATCH.getType().equals(computeType)){
             engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITCOMPUTE.getStatus());
         }else{
             LOG.error("not support for computeType:{}", computeType);
