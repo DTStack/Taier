@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

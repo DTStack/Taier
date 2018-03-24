@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import org.apache.commons.lang3.StringUtils;
 
 /**

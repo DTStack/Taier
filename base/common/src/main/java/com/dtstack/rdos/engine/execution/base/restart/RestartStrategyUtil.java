@@ -1,7 +1,9 @@
-package com.dtstack.rdos.engine.execution.base;
+package com.dtstack.rdos.engine.execution.base.restart;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
+import com.dtstack.rdos.engine.execution.base.ClientFactory;
+import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -68,7 +70,7 @@ public class RestartStrategyUtil {
 
             String dealerClassName = dealerClassNameMap.get(type);
             if(dealerClassName == null){
-                dealerClassName = "com.dtstack.rdos.engine.execution.base.DefaultRestartStrategy";
+                dealerClassName = "com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy";
             }
 
             try {
