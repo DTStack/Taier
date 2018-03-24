@@ -166,10 +166,16 @@ export default class TableRelation extends React.Component {
             tableInfo.setAttribute('id', data.id)
             tableInfo.setAttribute('data', JSON.stringify(data))
 
-            const newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
-                VertexSize.width, VertexSize.height, style
-            )
-            graph.insertEdge(parent, null, '', parent, newVertex)
+            let newVertex = '';
+            this.executeLayout(() => {
+                newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+                    VertexSize.width, VertexSize.height, style
+                )
+                graph.view.refresh(newVertex)
+                graph.insertEdge(parent, null, '', parent, newVertex)
+            }, () => {
+                graph.scrollCellToVisible(newVertex);
+            })
             // 缓存节点
             this._vertexCells.push(newVertex)
 
@@ -225,28 +231,38 @@ export default class TableRelation extends React.Component {
         const cx = (graph.container.clientWidth - VertexSize.width) / 3
         const cy = 10
 
+        const model = graph.getModel();
+        const parent = graph.getDefaultParent();
+
         if (!layout) {
             layout = new mxCircleLayout(graph)
             // layout = new mxCompactTreeLayout(graph)
             this.layout = layout
+            this.executeLayout = function(change, post) {
+
+                model.beginUpdate();
+
+                try {
+                    if (change != null) {
+                        change();
+                    }
+                    layout.execute(parent);
+                } catch (e) {
+                    throw e;
+                } finally {
+                    var morph = new mxMorphing(graph);
+                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
+                        graph.getModel().endUpdate();
+                        if (post != null) { post();}
+                    }));
+                    morph.startAnimation();
+                }
+            }
         }
 
-        const model = graph.getModel();
-        const parent = graph.getDefaultParent();
-
-        model.beginUpdate();
-
-        try {
-            this.loopTree(graph, data)
-            layout.execute(parent);
-            graph.view.setTranslate(cx, cy);
-        } catch(e) {
-            throw e;
-        } finally {
-            var morph = new mxMorphing(graph);
-            morph.startAnimation();
-            model.endUpdate();
-        }
+        this.loopTree(graph, data);
+        this.executeLayout();
+        graph.view.setTranslate(cx, cy);
     }
 
     loadEditor = (container) => {

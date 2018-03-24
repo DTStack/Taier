@@ -72,6 +72,7 @@ export default class TaskVersion extends React.Component {
         const taskInfo = this.props.taskInfo
         return [
             {
+                width: 120,
                 title: '发布时间',
                 dataIndex: 'gmtCreate',
                 key: 'gmtCreate',
@@ -83,6 +84,7 @@ export default class TaskVersion extends React.Component {
                 dataIndex: 'userName',
                 key: 'userName',
             }, {
+                width: 120,
                 title: '描述',
                 dataIndex: 'publishDesc',
                 key: 'publishDesc',

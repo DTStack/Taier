@@ -82,11 +82,13 @@ class CatalogueTree extends Component {
                     tmpId: node.nodeId
                 }, 'add', callback)
             } else {
-                const editNode = {
-                    id: node.nodeId,
-                    nodeName: value,
+                if (originVal !== value) {
+                    const editNode = {
+                        id: node.nodeId,
+                        nodeName: value,
+                    }
+                    this.props.onTreeNodeEdit(editNode, 'edit', callback)
                 }
-                this.props.onTreeNodeEdit(editNode, 'edit', callback)
             }
         } else {
             this._inputEle.innerHTML = originVal

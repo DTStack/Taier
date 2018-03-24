@@ -24,6 +24,7 @@ class BaseForm extends React.Component {
     
     constructor(props) {
         super(props);
+
         this.state = {
             type: '1', // 1: 内部表 2:外部表
             dataCatalogue: [],
@@ -48,7 +49,7 @@ class BaseForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { tableName, desc, delim, location, lifeDay, catalogue } = this.props;
+        const { tableName, desc, delim, location, lifeDay, catalogueId } = this.props;
         const { type, dataCatalogue } = this.state;
 
         return <Form>
@@ -61,8 +62,8 @@ class BaseForm extends React.Component {
                     rules: [{
                         required: true, message: '表名不可为空！',
                     }, {
-                        max: 64,
-                        message: '名称不得超过64个字符！',
+                        pattern: /^([A-Za-z0-9_]{1,64})$/,
+                        message: '表名称只能的字母、数字、下划线组成，且长度不超过64个字符!',
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
@@ -103,7 +104,8 @@ class BaseForm extends React.Component {
             >
                 {getFieldDecorator('location', {
                     rules: [{
-                        required: true
+                        required: true,
+                        message: '外部表地址不可为空！',
                     }, {
                         validator: this.validateLoc.bind(this)
                     }],
@@ -122,7 +124,7 @@ class BaseForm extends React.Component {
                         required: true,
                         message: '表所在类目不可为空！'
                     }],
-                    initialValue: undefined,
+                    initialValue: catalogueId || undefined,
                 })(
                     <CatalogueTree
                         isPicker
@@ -200,22 +202,16 @@ class BaseForm extends React.Component {
 
     validateTableName(rule, value, callback) {
         const ctx = this;
-        const regx = /^[A-Za-z0-9_-]+$/;
-        if (regx.test(value)) {
-            value ? ajax.checkTableExist({
-                tableName: value
-            }).then(res => {
-                if(res.code === 1) {
-                    // 转换为小写
-                    ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
-                    if(res.data) callback('该表已经存在！');
-                }
-            })
-            .then(callback) : callback();
-        } else {
-            callback('表名称只能由字母、数字、下划线组成!')
-        }
-        callback()
+        value ? ajax.checkTableExist({
+            tableName: value
+        }).then(res => {
+            if(res.code === 1) {
+                // 转换为小写
+                ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
+                if(res.data) callback('该表已经存在！');
+            }
+        })
+        .then(callback) : callback();
     }
 
     validateLoc(rule, value, callback) {
@@ -420,7 +416,6 @@ export class RowItem extends React.Component {
                     </Tooltip>
                 </span>
                 break;
-
             case 'VARCHAR':
                 result = <span className="extra-ipt">
                     <InputNumber name="varcharLen" defaultValue={ varcharLen || 10 }
@@ -538,6 +533,7 @@ class TableCreator extends React.Component {
 
         this.state = {
             current: 0,
+
             table: {
                 tableName: '',
                 desc: '',
@@ -555,6 +551,20 @@ class TableCreator extends React.Component {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        let shouldUpdate = false;
+
+        if(this.state.current === 0) {
+            if(this.state.type !== nextState.type) shouldUpdate = true;
+            else shouldUpdate = this.state.current !== nextState.current;
+        }
+        else {
+            shouldUpdate = true;
+        }
+
+        return shouldUpdate;
     }
 
     next() {
@@ -620,20 +630,6 @@ class TableCreator extends React.Component {
         });
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        let shouldUpdate = false;
-
-        if(this.state.current === 0) {
-            if(this.state.type !== nextState.type) shouldUpdate = true;
-            else shouldUpdate = this.state.current !== nextState.current;
-        }
-        else {
-            shouldUpdate = true;
-        }
-
-        return shouldUpdate;
-    }
-
     dosth() {
         console.log(arguments);
     }
@@ -645,6 +641,7 @@ class TableCreator extends React.Component {
      * @memberof TableCreator
      */
     addRow(data, type) {
+
         let { table } = this.state;
         let { columns, partition_keys } = table;
 
@@ -773,7 +770,8 @@ class TableCreator extends React.Component {
 
         const steps = [{
             title: '基本信息',
-            content: <BaseFormWrapper {...this.state.table}
+            content: <BaseFormWrapper
+                {...this.state.table}
                 ref={ el => this.baseForm = el }
                 resetLoc={ this.resetLoc.bind(this) }
             />
