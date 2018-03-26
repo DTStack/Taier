@@ -144,11 +144,11 @@ class RealTimeConfig extends Component {
     }
 
     changeTaskName = (evt) => {
-        this.setState({ taskName: evt.target.value })
+        this.setState({ taskName: evt.target.value, current: 1  })
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPeo: target })
+        this.setState({ alarmPeo: target, current: 1  })
     }
 
     initEdit = (alarm) => {

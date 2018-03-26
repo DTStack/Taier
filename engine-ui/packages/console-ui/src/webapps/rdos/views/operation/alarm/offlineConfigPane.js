@@ -130,7 +130,7 @@ class OfflineConfig extends Component {
         const ctx = this
         const params = {
             pageIndex: 1,
-            pageSize: 100,
+            pageSize: 1000,
         }
         Api.getOfflineTasksByProject(params).then((res) => {
             if (res.code === 1) {
@@ -143,11 +143,11 @@ class OfflineConfig extends Component {
     }
 
     changeTaskName = (evt) => {
-        this.setState({ taskName: evt.target.value })
+        this.setState({ taskName: evt.target.value, current: 1  })
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPeo: target })
+        this.setState({ alarmPeo: target, current: 1  })
     }
 
     initEdit = (alarm) => {

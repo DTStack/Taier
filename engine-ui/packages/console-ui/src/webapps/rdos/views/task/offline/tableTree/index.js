@@ -160,7 +160,7 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list" style={{maxHeight: tableId ? '500px' : '100%' }}>
+                <div className="tb-list" style={{maxHeight: tableId ? '500px' : '100%', minHeight: '200px' }}>
                     <Tree
                         showIcon={true}
                         loadData={this.onLoadData}

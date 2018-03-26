@@ -103,8 +103,12 @@ class AdminUser extends Component {
     }
 
     loadUsersNotInProject = () => {
-        const { active } = this.state;
-        Api.loadUsersNotInProject(active).then((res) => {
+        const { active, selectedProject } = this.state;
+        const params = {}
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+        Api.loadUsersNotInProject(active, params).then((res) => {
             if (res.code === 1) {
                 this.setState({ notProjectUsers: res.data })
             }
@@ -113,11 +117,14 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active } = this.state
+        const { active, selectedProject } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
         form.validateFields((err) => {
             if (!err) {
+                if (hasProject(active)) {
+                    projectRole.projectId = selectedProject
+                }
                 Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
@@ -133,10 +140,14 @@ class AdminUser extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
-        const { active } = this.state
-        Api.removeProjectUser(active, {
+        const { active, selectedProject } = this.state
+        const params = {
             targetUserId: member.userId,
-        }).then((res) => {
+        }
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+        Api.removeProjectUser(active, params).then((res) => {
             if (res.code === 1) {
                 ctx.loadData()
                 message.success('移出项目成员成功!')
@@ -299,7 +310,7 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = active !== MY_APPS.DATA_QUALITY && (
+        const extra = active === MY_APPS.RDOS && (
             <Button 
                 style={{marginTop: '10px'}}
                 type="primary" 

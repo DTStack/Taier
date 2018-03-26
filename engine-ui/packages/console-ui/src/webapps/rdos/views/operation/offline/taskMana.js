@@ -438,10 +438,10 @@ class OfflineTaskMana extends Component {
                         className="m-tabs bd-top bd-right m-slide-pane"
                         onClose={ this.closeSlidePane }
                         visible={ visibleSlidePane } 
-                        style={{ right: '0px', width: '80%', height: '100%', minHeight: '400px'  }}
+                        style={{ right: '0px', width: '80%', height: '100%', minHeight: '530px'  }}
                     >
                         <Tabs animated={false}>
-                            <TabPane tab="依赖视图" key="taskFlow"> 
+                            <TabPane tab="依赖视图" key="taskFlow">
                                 <TaskView 
                                     reload={this.search}
                                     visibleSlidePane={visibleSlidePane}
