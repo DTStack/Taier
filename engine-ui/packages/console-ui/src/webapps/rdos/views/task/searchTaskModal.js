@@ -42,19 +42,10 @@ class SearchTaskModal extends React.Component {
         addEventListener('keyup', this.bindEvent, false)
     }
 
-    componentWillReceiveProps(nextProps) {
-        const key = nextProps.myKey
-        const oldKey = this.props.myKey
-        if (key !== oldKey) {
-            this.setState({ visible: true }, () => {
-                this.onfocus()
-            })
-        }
-    }
-
     componentWillUnmount() {
         removeEventListener('keydown', this.bindEvent, false)
         removeEventListener('keyup', this.bindEvent, false)
+        this.setState({  keyStack: {} })
     }
 
     bindEvent = (target) => {
@@ -158,7 +149,7 @@ class SearchTaskModal extends React.Component {
         )
 
         return <Modal
-            title="搜索任务"
+            title="打开任务"
             visible={visible}
             footer=""
             onCancel={this.close}
@@ -168,7 +159,7 @@ class SearchTaskModal extends React.Component {
                 mode="combobox"
                 showSearch
                 style={{width: '100%'}}
-                placeholder="输入所要搜索的任务名称"
+                placeholder="按任务名称搜索"
                 notFoundContent="没有发现相关任务"
                 defaultActiveFirstOption={true}
                 showArrow={false}
@@ -186,7 +177,7 @@ class SearchTaskModal extends React.Component {
 export default connect(state => {
     const { workbench } = state.offlineTask;
     const { tabs, currentTab } = workbench;
-    return { tabs, currentTab, myKey: state.visibleSearchTask }
+    return { tabs, currentTab }
 }, dispatch => {
     const actions = workbenchActions(dispatch)
     return {
