@@ -77,14 +77,16 @@ export default class TaskQuery extends Component {
             key: 'tableName',
             render: (text, record) => (
                 <a onClick={this.showSlidePane.bind(this, record)}>{text}</a>
-            )
+            ),
+            width: '15%'
         }, {
             title: '分区',
             dataIndex: 'partationValue',
             key: 'partationValue',
             render: (text, record) => {
                 return text ? text : '--';
-            }
+            },
+            width: '15%'
         }, 
         {
             title: '状态',
@@ -95,45 +97,51 @@ export default class TaskQuery extends Component {
             		case 1:
             			return '运行中';
             		case 2:
-            			return '失败';
+            			return '运行失败';
             		case 3:
-            			return '通过';
+            			return '校验通过';
                     case 4:
-                        return '未通过';
+                        return '校验未通过';
             		default:
             			// statements_def
             			break;
             	}
-            }
+            },
+            width: '10%'
         }, {
             title: '告警总数',
             dataIndex: 'alarmSum',
-            key: 'alarmSum'
+            key: 'alarmSum',
+            width: '8%'
         }, {
             title: '类型',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             render: (text, record) => {
                 return text ? `${dataSourceTypes[text]} / ${record.sourceName}` : '--';
-            }
+            },
+            width: '15%'
         }, {
             title: '配置人',
             dataIndex: 'configureUserName',
-            key: 'configureUserName'
+            key: 'configureUserName',
+            width: '12%'
         }, {
             title: '业务日期',
             dataIndex: 'bizTime',
             key: 'bizTime',
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
-            }
+            },
+            width: '12%'
         }, {
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
-            }
+            },
+            width: '12%'
         }]
     }
 

@@ -50,10 +50,11 @@ export default (
         <Route path="/api" component={ Container }>
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
-            <Route path="approval" component={ TaskQuery }></Route>
+            <Route path="approval" component={ APIApproval }></Route>
             <Route path="manage" component={ APIManage }></Route>
             <Route path="market" component={ APIMarket }></Route>
             <Route path="mine" component={ MyAPI }></Route>
+            <Route path="dataSource" component={ DataSource }></Route>
         </Route>
     </Route>
 )
