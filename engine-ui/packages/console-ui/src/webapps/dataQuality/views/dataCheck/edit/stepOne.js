@@ -95,7 +95,7 @@ export default class StepOne extends Component {
             if (item.children.length) {
                 return (
                     <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
-                        {this.renderTreeSelect(item.children)}
+                        {this.renderTreeSelect(item)}
                     </TreeNode>
                 )
             } else {
@@ -212,7 +212,7 @@ export default class StepOne extends Component {
         let sourceId   = form.getFieldValue('sourceId'),
             tableName  = form.getFieldValue('sourceTable');
 
-        if(!sourceId || !tableName) {
+        if (!sourceId || !tableName) {
             message.error('未选择数据源或数据表');
             return;
         }
@@ -269,7 +269,7 @@ export default class StepOne extends Component {
 
         form.validateFields({ force: true }, (err, values) => {
             console.log(err,values)
-            if(!err) {
+            if (!err) {
                 navToStep(currentStep + 1);
             }
         })
@@ -291,7 +291,7 @@ export default class StepOne extends Component {
         const { partition } = editParams.origin;
         const { originPart } = dataCheck;
         const { getFieldDecorator } = form;
-
+        console.log(originPart,'renderColumnPart')
         if (!isEmpty(originPart)) {
             return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                 {
