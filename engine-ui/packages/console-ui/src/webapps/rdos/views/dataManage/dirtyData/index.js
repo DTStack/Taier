@@ -204,16 +204,17 @@ class DirtyData extends Component {
             bottom: 20,
             top: 30,
         }
-
+        option.legend.show = false
         option.title.text = ''
         option.tooltip.axisPointer.label.formatter = function(obj) {
             return obj ? utils.formatDate(+obj.value) : null;
         };
 
         option.xAxis[0].boundaryGap = ['5%', '5%'];
-        option.xAxis[0].axisLabel.formatter = function(obj) {
-            return obj ? utils.formatDate(obj.value) : null;
+        option.xAxis[0].axisLabel.formatter = function(value) {
+            return value ? utils.formatDate(+value) : null;
         };
+
         option.yAxis[0].minInterval = 1
         option.legend.data = chartData && chartData.type ? chartData.type.data : []
         option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
@@ -228,6 +229,7 @@ class DirtyData extends Component {
         const columns = [
             {
                 title: '任务名称',
+                width: 120,
                 dataIndex: 'taskName',
                 key: 'taskName'
             }, {
@@ -261,7 +263,6 @@ class DirtyData extends Component {
                     rowKey="taskName"
                     pagination={false}
                     loading={ loadingTop }
-                    style={{ height: '300px', }}
                     columns={ columns }
                     dataSource={ top30 || [] }
                 />
