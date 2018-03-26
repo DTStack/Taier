@@ -93,6 +93,7 @@ class OfflinePanel extends Component {
         this.setState({
             startTime: start,
             endTime: end,
+            current: 1
         })
     }
 
@@ -103,11 +104,11 @@ class OfflinePanel extends Component {
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPe: target })
+        this.setState({ alarmPe: target, current: 1 })
     }
 
     changeTaskName = (evt) => {
-        this.setState({ taskName: evt.target.value })
+        this.setState({ taskName: evt.target.value, current: 1 })
     }
 
     disabledDate = (current) => {

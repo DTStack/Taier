@@ -277,6 +277,7 @@ class MessageList extends Component {
                         dataSource={ table.data || [] } 
                         rowSelection={rowSelection} 
                         footer={this.tableFooter}
+                        scroll={{ y: 560 }}
                     />
                 </main>
             </div>
