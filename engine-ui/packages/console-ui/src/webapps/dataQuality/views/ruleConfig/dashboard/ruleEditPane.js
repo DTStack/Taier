@@ -376,7 +376,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'verifyType': {
-                return verifyType[text - 1].name || undefined;
+                return text ? verifyType.filter(item => parseInt(text) === item.value)[0].name : undefined;
             }
 
             case 'threshold': {

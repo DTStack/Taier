@@ -110,7 +110,7 @@ export const dataCheckActions = {
 				if (res.code === 1) {
 					dispatch({
 						type: dataCheckActionType.GET_CHECK_REPORT_TABLE,
-						payload: res.data
+						payload: res.data ? res.data : {}
 					});
 				}
 			});

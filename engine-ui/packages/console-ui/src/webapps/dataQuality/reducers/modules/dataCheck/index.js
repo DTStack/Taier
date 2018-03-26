@@ -7,7 +7,7 @@ const initialState = {
     checkReport: {},
     originPart: [],
     targetPart: [],
-    reportTable: []
+    reportTable: {}
 }
 
 export default function dataCheck(state = initialState, action) {

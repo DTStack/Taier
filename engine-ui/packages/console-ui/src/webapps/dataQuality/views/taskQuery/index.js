@@ -92,12 +92,14 @@ export default class TaskQuery extends Component {
             key: 'status',
             render: (text) => {
             	switch (text) {
-            		case 0:
-            			return '成功';
             		case 1:
             			return '运行中';
             		case 2:
             			return '失败';
+            		case 3:
+            			return '通过';
+                    case 4:
+                        return '未通过';
             		default:
             			// statements_def
             			break;
@@ -105,8 +107,8 @@ export default class TaskQuery extends Component {
             }
         }, {
             title: '告警总数',
-            dataIndex: 'allAlarmSum',
-            key: 'allAlarmSum'
+            dataIndex: 'alarmSum',
+            key: 'alarmSum'
         }, {
             title: '类型',
             dataIndex: 'dataSourceType',
