@@ -169,7 +169,7 @@ public class ExeQueueMgr {
                 }
 
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-                if(!resourceInfo.judgeSlots(jobClient)){
+                if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
                     return;
                 }
 

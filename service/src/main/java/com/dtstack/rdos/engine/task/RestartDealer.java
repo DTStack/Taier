@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +59,7 @@ public class RestartDealer {
 
     private ExecutorService es =  new ThreadPoolExecutor(1, 1,
             0L, TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(1), new CustomThreadFactory("restartDealer"));
+            new LinkedBlockingQueue<>(), new CustomThreadFactory("restart_dealer"));
 
     private static RestartDealer sigleton = new RestartDealer();
 
