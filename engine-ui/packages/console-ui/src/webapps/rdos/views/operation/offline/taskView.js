@@ -33,6 +33,7 @@ const {
     mxPerimeter,
     mxUndoManager,
     mxCompactTreeLayout,
+    mxMorphing,
     mxUtils,
     mxXmlCanvas2D,
     mxImageExport,
@@ -42,6 +43,14 @@ const {
 const VertexSize = { // vertex大小
     width: 150,
     height: 36,
+}
+
+const getVertexNode = (obj) => {
+    // return {
+    //     id: obj.id,
+    //     name: obj.name
+    // }
+    return obj;
 }
 
 export default class TaskView extends Component {
@@ -58,6 +67,8 @@ export default class TaskView extends Component {
     initGraph = (id) => {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
+        this.graph = "";
+        this.layout = "";
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
@@ -72,10 +83,153 @@ export default class TaskView extends Component {
 
     componentWillReceiveProps(nextProps) {
         const currentTask = this.props.tabData
-        const { tabData, visibleSlidePane} = nextProps
+        const graph = this.graph;
+        const { tabData, visibleSlidePane } = nextProps
         if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
             this.initGraph(tabData.id)
         }
+    }
+
+    loadTaskChidren = (params) => {
+        const ctx = this
+        this.setState({ loading: 'loading' })
+        Api.getTaskChildren(params).then(res => {
+            if (res.code === 1) {
+                const data = res.data
+                ctx.setState({ selectedTask: data, data })
+                ctx.doInsertVertex(data)
+            }
+            ctx.setState({ loading: 'success' })
+        })
+    }
+
+    insertVertex = (parent, data) => {
+
+        const graph = this.graph;
+        const rootCell = graph.getDefaultParent()
+
+        const exist = this._vertexCells.find((cell) => {
+            const dataStr = cell.getAttribute('data')
+            if (!dataStr) return null
+            const itemData = JSON.parse(dataStr)
+            return itemData.id === data.id
+        })
+
+        if (exist) {
+            const edges = graph.getEdgesBetween(parent, exist)
+            if (edges.length === 0) {
+                graph.insertEdge(parent, null, '', parent, exist)
+            }
+            return exist;
+        } else {// 如果该节点为新节点， 则从新生成并创建
+            const style = this.getStyles(data)
+
+            // 创建节点
+            const doc = mxUtils.createXmlDocument()
+            const tableInfo = doc.createElement('Task')
+            tableInfo.setAttribute('id', data.id)
+            tableInfo.setAttribute('data', JSON.stringify(data))
+
+            let newVertex = '';
+            this.executeLayout(() => {
+                newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+                    VertexSize.width, VertexSize.height, style
+                )
+                graph.insertEdge(parent, null, '', parent, newVertex)
+                graph.view.refresh(newVertex)
+            }, () => {
+                graph.scrollCellToVisible(newVertex);
+            })
+            // 缓存节点
+            this._vertexCells.push(newVertex)
+
+            return newVertex;
+        }
+    }
+
+    loopTree = (graph, treeNodeData) => {
+
+        if (treeNodeData) {
+
+            const rootCell = graph.getDefaultParent()
+
+            const parentNodes = treeNodeData.taskVOS; // 父节点
+            const childNodes = treeNodeData.subTaskVOS; // 子节点
+
+            const currentNodeData = getVertexNode(treeNodeData)
+            const currentNode = this.insertVertex(rootCell, currentNodeData)
+
+            // 处理依赖节点
+            if (parentNodes && parentNodes.length > 0) {
+                for (let i = 0; i < parentNodes.length; i++) {
+                    const nodeData = getVertexNode(parentNodes[i])
+                    // 插入新节点
+                    const newNode = this.insertVertex(rootCell, nodeData)
+                    // 创建连接线
+                    const newEdge = this.insertVertex(newNode, currentNodeData)
+
+                    if (parentNodes[i].taskVOS) {
+                        this.loopTree(graph, parentNodes[i])
+                    }
+                }
+            }
+
+            // 处理被依赖节点
+            if (childNodes && childNodes.length > 0) {
+                for (let i = 0; i < childNodes.length; i++) {
+                    const nodeData = getVertexNode(childNodes[i])
+                    // 插入新节点
+                    const newNode = this.insertVertex(rootCell, nodeData)
+                    const newEdge = this.insertVertex(currentNode, nodeData)
+                    if (childNodes[i].subTaskVOS) {
+                        this.loopTree(graph, childNodes[i])
+                    }
+                }
+            }
+        }
+    }
+
+    doInsertVertex = (data) => {
+        const graph = this.graph;
+        let layout = this.layout;
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2
+        const cy = 200
+
+        const model = graph.getModel();
+        const parent = graph.getDefaultParent();
+
+        if (!layout) {
+            layout = new mxCompactTreeLayout(graph)
+            layout.horizontal = false;
+            layout.useBoundingBox = false;
+            layout.edgeRouting = false;
+            layout.levelDistance = 30;
+            layout.nodeDistance = 10;
+
+            this.layout = layout
+            this.executeLayout = function(change, post) {
+
+                model.beginUpdate();
+
+                try {
+                    if (change != null) { change(); }
+                    layout.execute(parent);
+                } catch (e) {
+                    throw e;
+                } finally {
+                    var morph = new mxMorphing(graph);
+                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
+                        graph.getModel().endUpdate();
+                        if (post != null) { post();}
+                    }));
+                    morph.startAnimation();
+                }
+            }
+        }
+
+        graph.view.setTranslate(cx, cy);
+        this.loopTree(graph, data);
+        this.executeLayout();
     }
 
     loadEditor = (container) => {
@@ -151,90 +305,6 @@ export default class TaskView extends Component {
         return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
-    insertEdge = (graph, type, parent, child) => {
-        if (type === 'children') {
-            graph.insertEdge(parent, null, '', parent, child)
-        } else {
-            graph.insertEdge(parent, null, '', child, parent)
-        }
-    }
-
-    insertVertex = (graph, data, parent) => {
-        if (data) {
-
-            const style = this.getStyles(data.status)
-
-            const exist = this._vertexCells.find((cell) => {
-                const dataStr = cell.getAttribute('data')
-                if (!dataStr) return null
-                const itemData = JSON.parse(dataStr)
-                return itemData.id === data.id
-            })
-
-            let newVertex = exist;
-
-            if (exist && parent.id !== '1') {
-                graph.insertEdge(parent, null, '', parent, exist)
-            } else if(!exist) {
-                // 创建节点
-                const doc = mxUtils.createXmlDocument()
-                const taskInfo = doc.createElement('Task')
-                taskInfo.setAttribute('id', data.id)
-                taskInfo.setAttribute('data', JSON.stringify(data))
-
-                // 插入当前节点
-                newVertex = graph.insertVertex(
-                    graph.getDefaultParent(), null, taskInfo, 0, 0,
-                    VertexSize.width, VertexSize.height, style
-                )
-
-                graph.insertEdge(parent, null, '', parent, newVertex)
-
-                // 缓存节点
-                this._vertexCells.push(newVertex)
-            }
-
-            if (data.taskVOS) {
-                const children = data.taskVOS
-                for (let i = 0; i < children.length; i++) {
-                    this.insertVertex(graph, children[i], newVertex)
-                }
-            }
-        }
-    }
-
-    doInsertVertex = (data) => {
-        const graph = this.graph
-        const model = graph.getModel()
-        const layout = new mxCompactTreeLayout(graph, false)
-        model.clear()
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
-        const cy = 200;
-        model.beginUpdate()
-        const parent = graph.getDefaultParent()
-        try {
-            this.insertVertex(graph, data, parent)
-            // Executes the layout
-            layout.execute(parent);
-            graph.view.setTranslate(cx, cy);
-        } finally {
-            model.endUpdate()
-        }
-    }
-
-    loadTaskChidren = (params) => {
-        const ctx = this
-        this.setState({ loading: 'loading' })
-        Api.getTaskChildren(params).then(res => {
-            if (res.code === 1) {
-                const data = res.data
-                ctx.setState({ selectedTask: data, data})
-                ctx.doInsertVertex(data)
-            }
-            ctx.setState({ loading: 'success' })
-        })
-    }
-
     forzenTasks = (ids, mode) => {
         const ctx = this
         Api.forzenTask({
@@ -266,7 +336,6 @@ export default class TaskView extends Component {
             if (!cell) return
 
             const currentNode = JSON.parse(cell.getAttribute('data'))
-
             menu.addItem('补数据', null, function() {
                 clickPatchData(currentNode)
             })
@@ -402,6 +471,7 @@ export default class TaskView extends Component {
                     发布于&nbsp;
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
+                    {/* <a href={`/rdos.html#/view/task/${task.id}`} target="_blank">查看代码</a> */}
                 </div>
             </div>
         )

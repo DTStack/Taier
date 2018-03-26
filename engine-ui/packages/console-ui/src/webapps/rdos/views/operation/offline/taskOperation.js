@@ -21,7 +21,8 @@ import Api from '../../../api'
 import { 
     offlineTaskStatusFilter, jobTypes, 
     ScheduleTypeFilter, TASK_STATUS,
-    offlineTaskTypeFilter
+    offlineTaskTypeFilter,
+    offlineTaskPeriodFilter,
 } from '../../../comm/const'
 
 import { 
@@ -61,7 +62,8 @@ class OfflineTaskList extends Component {
         jobType: '', // 调度类型
         taskType: '',
         statistics: '',
-        execSpendTime: '', // 执行时长
+        taskPeriodId: '',
+        execTimeSort: '',
         visibleSlidePane: false,
         selectedTask: '',
     }
@@ -84,7 +86,8 @@ class OfflineTaskList extends Component {
         const {
             jobName, person, taskStatus,
             bussinessDate, jobType, current,
-            execTime, execSpendTime, taskType
+            execTime, taskType,
+            taskPeriodId, execTimeSort,
         } = this.state
         const reqParams = {
             currentPage: current,
@@ -107,6 +110,12 @@ class OfflineTaskList extends Component {
         }
         if (taskType) {
             reqParams.taskType = taskType.join(',')
+        }
+        if (taskPeriodId) {
+            reqParams.taskPeriodId = taskPeriodId.join(',')
+        }
+        if (execTimeSort) {
+            reqParams.execTimeSort = execTimeSort
         }
         this.loadTaskList(reqParams)
     }
@@ -244,23 +253,27 @@ class OfflineTaskList extends Component {
         }
     }
 
-    handleTableChange = (pagination, filters) => {
-        let status;
-        let jobType;
-        if (filters.status) {
-            status = filters.status
-        }
-        if (filters.type) {
-            jobType = filters.type[0]
-        }
-        this.setState({ 
-            current: pagination.current, 
-            taskStatus: status,
-            jobType,
+    handleTableChange = (pagination, filters, sorter) => {
+        
+        const params = { 
+            current: pagination.current,
+            taskStatus: filters.status,
+            jobType: filters.type ? ilters.type[0] : '',
             selectedRowKeys: [],
             taskType: filters.taskType,
+            taskPeriodId: filters.taskPeriodId,
             checkAll: false,
-        }, () => {
+            execTimeSort: '',
+        }
+
+        if (sorter) {
+            let { field, order } = sorter;
+            if (field === 'execTime') { // 运行时长排序
+                // 排序
+                params.execTimeSort = order === 'descend' ? 'desc' : 'asc'
+            }
+        }
+        this.setState(params, () => {
             this.search()
         })
     }
@@ -287,12 +300,6 @@ class OfflineTaskList extends Component {
 
     changeBussinessDate = (value) => {
         this.setState({ bussinessDate: value, current: 1 }, () => {
-            this.search()
-        })
-    }
-
-    onExecSpendTime = (execSpendTime) => {
-        this.setState({ execSpendTime, current: 1 }, () => {
             this.search()
         })
     }
@@ -329,8 +336,11 @@ class OfflineTaskList extends Component {
             width: 100,
             render: (text, record) => {
                 const name = record.batchTask && record.batchTask.name
-                const showName = record.isDeleted === 1 ? `${name} (已删除)` : name;
-                return <a onClick={() => { this.showTask(record) }}>{showName}</a>;
+                const showName = record.batchTask.isDeleted === 1 ? 
+                    `${name} (已删除)` 
+                    : 
+                    <a onClick={() => { this.showTask(record) }}>{name}</a>;
+                return showName;
             },
         }, {
             title: '状态',
@@ -359,6 +369,7 @@ class OfflineTaskList extends Component {
             render: (text) => {
                 return <TaskTimeType value={text} />
             },
+            filters: offlineTaskPeriodFilter,
         }, {
             width: 120,
             title: '业务日期',
@@ -379,6 +390,7 @@ class OfflineTaskList extends Component {
             width: 100,
             dataIndex: 'execTime',
             key: 'execTime',
+            sorter: true,
         }, {
             title: '责任人',
             width: 100,
@@ -423,7 +435,7 @@ class OfflineTaskList extends Component {
         } = this.state
 
         const { projectUsers, project } = this.props
-        
+
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
             return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>

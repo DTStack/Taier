@@ -99,3 +99,12 @@ export function openNewWindow(url, target) {
 export function hasProject(app) {
     return app === 'rdos'
 }
+
+
+/**
+ * 检验改应用是否包含项目选项
+ * @param {s} app 
+ */
+export function filterComments(sql) {
+    return sql.replace(/(--)+(.)+(\n|\s)+/g, '')
+}

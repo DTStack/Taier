@@ -33,8 +33,6 @@ import MyIcon from '../../components/icon';
 const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 
-// const MenuItemGroup = Menu.ItemGroup;
-
 class OfflineTabPane extends Component {
 
     constructor(props) {
@@ -384,6 +382,10 @@ dispatch => {
     return {
         showSeachTask: function() {
             dispatch(showSeach())
+        },
+
+        goToTaskDev: (id) => {
+            actions.openTaskInDev(id)
         },
 
         toggleCreateTask: function() {

@@ -39,3 +39,17 @@ export function AppName(app) {
     }
 }
 
+export function MsgTypeDesc(type) {
+    switch(type) {
+        case 1: 
+            return '监控任务运行失败'
+        case 2: 
+            return '监控任务不通过'
+        case 3: 
+            return '逐行校验任务取消'
+        case 4: 
+            return '逐行校验任务失败'
+        default: return '-';
+    }
+}
+

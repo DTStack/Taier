@@ -147,9 +147,9 @@ class ScriptForm extends React.Component {
                             max: 200,
                             message: '描述请控制在200个字符以内！',
                         }],
-                        initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.taskDesc
+                        initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.scriptDesc
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入任务描述"/>,
+                        <Input type="textarea" rows={4} placeholder="请输入脚本描述"/>,
                     )}
                 </FormItem>
             </Form>

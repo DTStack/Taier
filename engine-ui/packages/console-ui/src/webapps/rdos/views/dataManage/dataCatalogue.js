@@ -98,7 +98,7 @@ class DataCatalogue extends React.Component {
                     const source = { nodeId: node.tmpId }
                     if (res.code === 1) {
                         replaceTreeNode(treeData, source, res.data)
-                    } else if (res.code === 12) {
+                    } else {
                         removeTreeNode(treeData, source)
                     }
                     self.setState({

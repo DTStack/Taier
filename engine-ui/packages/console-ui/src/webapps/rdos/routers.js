@@ -33,6 +33,7 @@ import RoleEdit from './views/project/role/edit'
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
 import Default from './views/task/realtime/default'
+import OpenOfflineTask from './views/task/offline/openOfflineTask'
 // import OfflineDefault from '././views/task/offline/default'
 
 // ======= 运维 =======
@@ -129,8 +130,8 @@ export default (
             <Route path="/offline" component={TaskContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={OfflineDefault} />
                 <Route path="task" component={TaskOffline} />
-                <Route path="task/:tid" component={TaskOffline} />
             </Route>
+            <Route path="/view/task/:taskId" component={OpenOfflineTask} />
             <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
                 <IndexRoute component={OperationOverview} />
                 <Route path="realtime" component={OpeRealTimeList} />

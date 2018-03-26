@@ -33,6 +33,7 @@ const {
     mxPerimeter,
     mxUndoManager,
     mxCompactTreeLayout,
+    mxMorphing,
     mxUtils,
     mxXmlCanvas2D,
     mxImageExport,
@@ -44,6 +45,13 @@ const VertexSize = { // vertex大小
     height: 36,
 }
 
+const getVertexNode = (obj) => {
+    return {
+        id: obj.id,
+        name: obj.name
+    }
+}
+
 export default class TaskView extends Component {
 
     state = {
@@ -51,7 +59,6 @@ export default class TaskView extends Component {
         data: {}, // 数据
         loading: 'success',
         lastVertex: '',
-        sort: 'children',
         visible: false,
     }
 
@@ -69,6 +76,149 @@ export default class TaskView extends Component {
             level: 6,
         })
     }
+
+    loadTaskChidren = (params) => {
+        const ctx = this
+        this.setState({ loading: 'loading' })
+        Api.getTaskChildren(params).then(res => {
+            if (res.code === 1) {
+                const data = res.data
+                ctx.setState({ selectedTask: data, data })
+                ctx.doInsertVertex(data)
+            }
+            ctx.setState({ loading: 'success' })
+        })
+    }
+
+    insertVertex = (parent, data) => {
+
+        const graph = this.graph;
+        const rootCell = graph.getDefaultParent()
+
+        const exist = this._vertexCells.find((cell) => {
+            const dataStr = cell.getAttribute('data')
+            if (!dataStr) return null
+            const itemData = JSON.parse(dataStr)
+            return itemData.id === data.id
+        })
+
+        if (exist) {
+            const edges = graph.getEdgesBetween(parent, exist)
+            if (edges.length === 0) {
+                graph.insertEdge(parent, null, '', parent, exist)
+            }
+            return exist;
+        } else {// 如果该节点为新节点， 则从新生成并创建
+            const style = this.getStyles(data)
+
+            // 创建节点
+            const doc = mxUtils.createXmlDocument()
+            const tableInfo = doc.createElement('Task')
+            tableInfo.setAttribute('id', data.id)
+            tableInfo.setAttribute('data', JSON.stringify(data))
+
+            let newVertex = '';
+            this.executeLayout(() => {
+                newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+                    VertexSize.width, VertexSize.height, style
+                )
+                graph.view.refresh(newVertex)
+                graph.insertEdge(parent, null, '', parent, newVertex)
+            }, () => {
+                graph.scrollCellToVisible(newVertex);
+            })
+            // 缓存节点
+            this._vertexCells.push(newVertex)
+
+            return newVertex;
+        }
+    }
+
+    loopTree = (graph, treeNodeData) => {
+
+        if (treeNodeData) {
+
+            const rootCell = graph.getDefaultParent()
+
+            const parentNodes = treeNodeData.taskVOS; // 父节点
+            const childNodes = treeNodeData.subTaskVOS; // 子节点
+
+            const currentNodeData = getVertexNode(treeNodeData)
+            const currentNode = this.insertVertex(rootCell, currentNodeData)
+
+            // 处理依赖节点
+            if (parentNodes && parentNodes.length > 0) {
+                for (let i = 0; i < parentNodes.length; i++) {
+                    const nodeData = getVertexNode(parentNodes[i])
+                    // 插入新节点
+                    const newNode = this.insertVertex(rootCell, nodeData)
+                    // 创建连接线
+                    const newEdge = this.insertVertex(newNode, currentNodeData)
+
+                    if (parentNodes[i].taskVOS) {
+                        this.loopTree(graph, parentNodes[i])
+                    }
+                }
+            }
+
+            // 处理被依赖节点
+            if (childNodes && childNodes.length > 0) {
+                for (let i = 0; i < childNodes.length; i++) {
+                    const nodeData = getVertexNode(childNodes[i])
+                    // 插入新节点
+                    const newNode = this.insertVertex(rootCell, nodeData)
+                    const newEdge = this.insertVertex(currentNode, nodeData)
+                    if (childNodes[i].subTaskVOS) {
+                        this.loopTree(graph, childNodes[i])
+                    }
+                }
+            }
+        }
+    }
+
+    doInsertVertex = (data) => {
+        const graph = this.graph;
+        let layout = this.layout;
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2
+        const cy = 200
+
+        const model = graph.getModel();
+        const parent = graph.getDefaultParent();
+
+        if (!layout) {
+            layout = new mxCompactTreeLayout(graph)
+            layout.horizontal = false;
+            layout.useBoundingBox = false;
+            layout.edgeRouting = false;
+            // layout = new mxCompactTreeLayout(graph)
+            this.layout = layout
+            this.executeLayout = function(change, post) {
+
+                model.beginUpdate();
+
+                try {
+                    if (change != null) {
+                        change();
+                    }
+                    layout.execute(parent);
+                } catch (e) {
+                    throw e;
+                } finally {
+                    var morph = new mxMorphing(graph);
+                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
+                        graph.getModel().endUpdate();
+                        if (post != null) { post();}
+                    }));
+                    morph.startAnimation();
+                }
+            }
+        }
+
+        this.loopTree(graph, data);
+        this.executeLayout();
+        graph.view.setTranslate(cx, cy);
+    }
+
 
     loadEditor = (container) => {
         // Disable default context menu
@@ -139,104 +289,6 @@ export default class TaskView extends Component {
             }
         }
         return '';
-    }
-
-    insertEdge = (graph, type, parent, child) => {
-        if (type === 'children') {
-            graph.insertEdge(parent, null, '', parent, child)
-        } else {
-            graph.insertEdge(parent, null, '', child, parent)
-        }
-    }
-
-    insertVertex = (graph, data, parent, type) => {
-        if (data) {
-
-            const style = this.getStyles(data.status)
-
-            const exist = this._vertexCells.find((cell) => {
-                const dataStr = cell.getAttribute('data')
-                if (!dataStr) return null
-                const itemData = JSON.parse(dataStr)
-                return itemData.id === data.id
-            })
-
-            let newVertex = '';
-
-            if (exist) {
-                this.insertEdge(graph, type, parent, exist)
-            } else {
-
-                // 创建节点
-                const doc = mxUtils.createXmlDocument()
-                const taskInfo = doc.createElement('Task')
-                taskInfo.setAttribute('id', data.id)
-                taskInfo.setAttribute('data', JSON.stringify(data))
-
-                // 插入当前节点
-                newVertex = graph.insertVertex(
-                    graph.getDefaultParent(), null, taskInfo, 0, 0,
-                    VertexSize.width, VertexSize.height, style
-                )
-
-                this.insertEdge(graph, type, parent, newVertex)
-
-                // 缓存节点
-                this._vertexCells.push(newVertex)
-            }
-
-            if (data.taskVOS) {
-                const children = data.taskVOS
-                for (let i = 0; i < children.length; i++) {
-                    this.insertVertex(graph, children[i], newVertex, type)
-                }
-            }
-        }
-    }
-
-    doInsertVertex = (data, type) => {
-        const graph = this.graph
-        const model = graph.getModel()
-        const layout = new mxCompactTreeLayout(graph, false)
-        model.clear()
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
-        const cy = 200;
-        model.beginUpdate()
-        const parent = graph.getDefaultParent()
-        try {
-            this.insertVertex(graph, data, parent, type)
-            // Executes the layout
-            layout.execute(parent);
-            graph.view.setTranslate(cx, cy);
-        } finally {
-            model.endUpdate()
-        }
-    }
-
-    loadTaskChidren = (params) => {
-        const ctx = this
-        this.setState({ loading: 'loading' })
-        Api.getTaskChildren(params).then(res => {
-            if (res.code === 1) {
-                const data = res.data
-                ctx.setState({ selectedTask: data, data, sort: 'children' })
-                ctx.doInsertVertex(data, 'children')
-            }
-            ctx.setState({ loading: 'success' })
-        })
-    }
-
-    loadTaskParent = (params) => {
-        const ctx = this
-        this.setState({ loading: 'loading' })
-        Api.getTaskParents(params).then(res => {
-            if (res.code === 1) {
-                const data = res.data
-                ctx.setState({ data, selectedTask: data, sort: 'parent' })
-                ctx.doInsertVertex(data, 'parent')
-            }
-            ctx.setState({ loading: 'success' })
-        })
     }
 
     listenDoubleClick() {

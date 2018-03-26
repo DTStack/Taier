@@ -77,7 +77,7 @@ class OfflineCount extends Component {
                             <Col style={flex}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">提交中</span>
-                                    <span className="m-count-content font-organge">{data.SUBMITTING || 0}</span>
+                                    <span className="m-count-content font-green">{data.SUBMITTING || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>
@@ -89,7 +89,7 @@ class OfflineCount extends Component {
                             <Col style={flex}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">成功</span>
-                                    <span className="m-count-content font-green">{data.FINISHED || 0}</span>
+                                    <span className="m-count-content font-organge">{data.FINISHED || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>

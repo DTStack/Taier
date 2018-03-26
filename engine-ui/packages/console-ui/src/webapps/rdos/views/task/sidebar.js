@@ -37,7 +37,7 @@ class Sidebar extends Component {
                                 <Icon type="usb" />
                             </Tooltip>
                         } key="offline">
-                            <OfflineTabPanel />
+                            <OfflineTabPanel/>
                         </TabPane>
                         <TabPane tab={
                             <Tooltip placement="bottom" title="实时任务">

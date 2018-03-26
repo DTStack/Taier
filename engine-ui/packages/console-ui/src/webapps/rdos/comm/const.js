@@ -192,10 +192,6 @@ export const offlineTaskTypeFilter = [{
     text: '数据同步',
     value: TASK_TYPE.SYNC,
 }, {
-    id: 4,
-    text: 'Virtual',
-    value: TASK_TYPE.VIRTUAL_NODE,
-}, {
     id: 5,
     text: 'Python',
     value: TASK_TYPE.PYTHON,
@@ -220,11 +216,11 @@ export const offlineTaskPeriodFilter = [{
 }, {
     id: 4,
     text: '周任务',
-    value: 4,
+    value: 3,
 }, {
     id: 5,
     text: '月任务',
-    value: 5,
+    value: 4,
 }]
 
 export const ScheduleTypeFilter = [{ // 调度过滤

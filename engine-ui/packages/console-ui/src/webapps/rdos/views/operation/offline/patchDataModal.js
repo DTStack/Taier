@@ -22,8 +22,8 @@ function replaceTreeNode(treeNode, replace) {
         treeNode = Object.assign(treeNode, replace);
         return;
     }
-    if (treeNode.taskVOS) {
-        const children = treeNode.taskVOS
+    if (treeNode.subTaskVOS) {
+        const children = treeNode.subTaskVOS
         for (let i = 0; i < children.length; i += 1) {
             replaceTreeNode(children[i], replace)
         }
@@ -41,11 +41,12 @@ class PatchData extends Component {
 
     componentWillReceiveProps(nextProps) {
         const task = nextProps.task
-        const oldTask = this.props.task
-        if (task && oldTask !== task) {
+        // const oldTask = this.props.task
+        if (nextProps.visible && task) {
             this.loadTaskTree({
                 taskId: task.id,
                 level: 2,
+                directType: 2, // 获取下游
             })
         }
     }
@@ -111,8 +112,8 @@ class PatchData extends Component {
             const newKey = key ? `${key}-${i}` : '0'
             data[i].key = newKey
             data[i].parentId = parent ? parent.id : 0
-            if (data[i].taskVOS) {
-                this.wrapTableTree(data[i].taskVOS, newKey, data[i])
+            if (data[i].subTaskVOS) {
+                this.wrapTableTree(data[i].subTaskVOS, newKey, data[i])
             }
         }
     }
@@ -130,9 +131,9 @@ class PatchData extends Component {
                     node.task = data[i].id
                     tree.push(node)
                 }
-                if (data[i].taskVOS) {
+                if (data[i].subTaskVOS) {
                     node.children = []
-                    loop(data[i].taskVOS, node.children)
+                    loop(data[i].subTaskVOS, node.children)
                 }
             }
         }
@@ -163,10 +164,11 @@ class PatchData extends Component {
         const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
-            if (!node.taskVOS || node.taskVOS.length === 0) {
+            if (!node.subTaskVOS || node.subTaskVOS.length === 0) {
                  Api.getTaskChildren({
                     taskId: node.id,
                     level: 2,
+                    directType: 2, // 获取下游
                  }).then(res => {
                     if (res.code === 1) {
                         const updated = ctx.state.treeData[0]
@@ -188,13 +190,13 @@ class PatchData extends Component {
                         <Col span="12" className="ellipsis" title={item.name}>{item.name}</Col>
                         <Col span="12"><TaskType value={item.taskType} /></Col>
                     </Row>
-                if (item.taskVOS) {
+                if (item.subTaskVOS) {
                     return (<TreeNode
                         data={item}
                         disableCheckbox={item.key === '0'}
                         value={`${item.id}`}
                         title={content}
-                        key={item.key}>{this.getTreeNodes(item.taskVOS)}
+                        key={item.key}>{this.getTreeNodes(item.subTaskVOS)}
                     </TreeNode>);
                 }
                 return (<TreeNode

@@ -45,6 +45,7 @@ class Workbench extends React.Component {
     state = {
         visible: false,
         showPublish: false,
+        theReqIsEnd: true,
     }
 
     handleMenuClick = (e) => {
@@ -86,6 +87,7 @@ class Workbench extends React.Component {
     render() {
         const { tabs, currentTab, currentTabData, dataSync, taskCustomParams } = this.props;
         const { sourceMap, targetMap } = dataSync;
+        const { theReqIsEnd } = this.state;
         let isSaveAvaliable = false;
 
         if(!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
@@ -111,7 +113,7 @@ class Workbench extends React.Component {
                     <Button
                         onClick={ this.saveTab.bind(this, true) }
                         title="保存任务"
-                        disabled={ !isSaveAvaliable || currentTabData.invalid}
+                        disabled={ !isSaveAvaliable || currentTabData.invalid || !theReqIsEnd}
                     >
                         <MyIcon className="my-icon" type="save" />保存
                     </Button>
@@ -301,6 +303,7 @@ class Workbench extends React.Component {
     }
 
     saveTab(isSave) {
+        this.setState({ theReqIsEnd: false, })
         const { saveTab, dataSync, currentTabData, currentTab } = this.props;
         let result = this.generateRqtBody(dataSync);
         let type = 'task'
@@ -313,6 +316,11 @@ class Workbench extends React.Component {
         result.preSave = true;
         result.submitStatus = 0;
         saveTab(result, isSave, type);
+        setTimeout(() => {
+            this.setState({
+                theReqIsEnd: true,
+            })
+        }, 500);
     }
 
     submitTab() {
@@ -523,7 +531,6 @@ const mapDispatch = dispatch => {
                 dispatch({
                     type: workbenchAction.MAKE_TAB_CLEAN
                 })
-
             }
 
             const succCallback = (res) => {

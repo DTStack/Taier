@@ -27,15 +27,20 @@ const formItemLayout = { // 表单正常布局
 
 class TaskParams extends React.Component {
 
-
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
-        const taskVariables = [...tabData.taskVariables];
-        taskVariables[index].paramCommand = value;
-        onChange({taskVariables})
+        const reg = /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/;
+        if (reg.test(value)) {
+            console.log('value:', value);
+            const taskVariables = [...tabData.taskVariables];
+            taskVariables[index].paramCommand = value;
+            onChange({taskVariables})
+        }
+    
     }
 
     getFormItems = () => {
+        const { getFieldDecorator } = this.props.form;
         const { taskVariables } = this.props.tabData;
         const sysArr = [], customArr = [];
         const getFormItem = (index, param) => (
@@ -44,11 +49,18 @@ class TaskParams extends React.Component {
                 {...formItemLayout}
                 label={param.paramName}
             >
-                <Input 
-                    defaultValue={param.paramCommand} 
-                    disabled={param.type === 0}
-                    onChange={(e) => { this.onChange(index, e.target.value) }}
-                />
+                {getFieldDecorator(param.paramName, {
+                    rules: [{
+                        pattern: /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/,
+                        message: '参数格式不正确',
+                    }],
+                    initialValue: param.paramCommand
+                })(
+                    <Input 
+                        disabled={param.type === 0}
+                        onChange={(e) => { this.onChange(index, e.target.value) }}
+                    />
+                )}
             </FormItem>
         )
         if (taskVariables) {
@@ -80,7 +92,10 @@ class TaskParams extends React.Component {
                        
                         {formItems.sysItems}
                     </Panel>
-                    <Panel key="2" header="自定义参数配置">
+                    <Panel key="2" header={
+                        <span>自定义参数配置 <HelpDoc style={{position: 'inherit'}} doc="customParams" />
+                        </span>
+                    }>
                         {formItems.customItems}
                     </Panel>
                 </Collapse>
@@ -89,4 +104,6 @@ class TaskParams extends React.Component {
     }
 }
 
-export default TaskParams;
+const FormWrapper = Form.create()(TaskParams);
+
+export default FormWrapper;

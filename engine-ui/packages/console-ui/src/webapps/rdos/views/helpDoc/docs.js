@@ -125,7 +125,6 @@ export const customSystemParams = (
 )
 
 export const partitionDesc = (
-    
     <div>
         <p>功能释义</p>
         <p>分区配置支持调度参数，比如常用系统变量:</p>
@@ -134,6 +133,19 @@ export const partitionDesc = (
             <span>${`{bdp.system.cyctime}`}</span><br/>
             <span>${`{bdp.system.bizdate}`}</span><br/>
             <span>${`{bdp.system.currmonth}`}</span>
+        </p>
+    </div>
+)
+
+// 自定义参数配置
+export const customParams = (
+    <div>
+        <p>
+            自定义参数有固定格式:
+        </p>
+        <p>
+            <span>（时间格式(4-14未字母表示) (+或-) 天数）</span>
+            <span>例如：yyyyMMhh+33</span>
         </p>
     </div>
 )

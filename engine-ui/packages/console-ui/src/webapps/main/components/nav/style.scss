@@ -55,8 +55,7 @@ $activeColor: #262e36; // 主色
     .ant-menu-horizontal>.ant-menu-submenu-active,
     .ant-menu-horizontal>.ant-menu-item-open,
     .ant-menu-horizontal>.ant-menu-submenu-open,
-    .ant-menu-horizontal>.ant-menu-item-selected,
-    .ant-menu-horizontal>.ant-menu-submenu-selected {
+    .ant-menu-horizontal>.ant-menu-item-selected {
         border-bottom: 2px solid $primaryColor;
         color: #fff;
         background: $activeColor;

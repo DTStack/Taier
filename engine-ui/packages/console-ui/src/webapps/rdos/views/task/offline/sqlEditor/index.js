@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { debounce } from 'lodash';
 
 import utils from 'utils'
+import { filterComments } from 'funcs'
 
 import Toolbar from './toolbar'
 import Console from './console'
@@ -48,7 +49,9 @@ import {
         if (old !== newVal) {
             if (utils.checkExist(task.taskType)) {
                 params.sqlText = newVal
-                params.taskVariables = matchTaskParams(taskCustomParams, newVal)//this.matchTaskParams(newVal)
+                // 过滤注释内容
+                const filterComm = filterComments(newVal)
+                params.taskVariables = matchTaskParams(taskCustomParams, filterComm)//this.matchTaskParams(newVal)
             } else if (utils.checkExist(task.type)) {
                 params.scriptText = newVal
             }

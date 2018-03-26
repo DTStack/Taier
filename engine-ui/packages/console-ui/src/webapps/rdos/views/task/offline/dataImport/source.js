@@ -55,10 +55,10 @@ export default class ImportSource extends Component {
                 data.forEach((item, index) => {
                     arr.push({
                         title: item,
-                        width: 150,
+                        width: 100,
                         key: index + item,
                         render: (text, item) => {
-                            return <TableCell value={item[index]} />
+                            return <TableCell style={{minWidth: 100}} value={item[index]} />
                         },
                     })
                 })
@@ -68,10 +68,10 @@ export default class ImportSource extends Component {
                     const title = `col-${index + 1}`
                     arr.push({
                         key: title,
-                        width: 150,
+                        width: 100,
                         title: title,
                         render: (text, item) => {
-                            return <TableCell value={item[index]} />
+                            return <TableCell style={{minWidth: 100}} value={item[index]} />
                         }
                     })
                 }) 

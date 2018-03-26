@@ -1,21 +1,25 @@
 #!/bin/bash
 
 # git branch
-branch="dev"
-
+dev="dev"
+master="master"
+currentTime="$(date +"%Y_%m_%d_%H_%M_%S")"
 # Build dist, and push it to gitlab.
-git pull origin $branch
-npm run build
-git add dist
-git commit -m 'build'
-
-git add src
-git commit -m 'bug fixed'
+git pull origin $dev
+echo "Git pull origin $dev."
 
 git add -A
-git commit -m 'update'
+git commit -m "release_$currentTime"
 
-git push origin $branch
+git checkout $master
+echo "Current branch is $master."
+git merge $dev
+echo "Current branch master merged $dev."
 
-# Connect to ssh server
-./scripts/ssh_server.sh
+git push origin $master
+echo "Git push origin $master."
+
+git checkout $dev
+echo "Current branch is $dev."
+
+

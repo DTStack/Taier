@@ -26,11 +26,12 @@ class ProjectMember extends Component {
         editTarget: '',
         loading: false,
         visible: false,
+        current: 1,
         visibleEditRole: false,
     }
 
     componentDidMount() {
-        this.loadUsers()
+        this.search()
         this.loadRoles()
     }
 
@@ -38,7 +39,7 @@ class ProjectMember extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.loadUsers()
+            this.search(project.id)
             this.loadRoles()
         }
     }
@@ -55,21 +56,27 @@ class ProjectMember extends Component {
             targetUserId: member.userId,
         }).then((res) => {
             if (res.code === 1) {
-                ctx.loadUsers()
+                ctx.search()
                 message.success('移出成员成功!')
             }
         })
     }
 
-    loadUsers = (page) => {
+    search = (projectId) => {
+        const { name, current } = this.state;
+        const { project } = this.props;
+        const params = {
+            projectId: projectId || project.id,
+            pageSize: 10,
+            currentPage: current || 1,
+        };
+        this.loadUsers(params)
+    }
+
+    loadUsers = (params) => {
         const ctx = this
         this.setState({ loading: true })
-        const { params } = this.props
-        Api.getProjectUsers({
-            projectId: params.pid,
-            pageSize: 10,
-            currentPage: page || 1,
-        }).then((res) => {
+        Api.getProjectUsers(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ users: res.data, loading: false })
             }
@@ -98,7 +105,7 @@ class ProjectMember extends Component {
                         ctx.setState({ visible: false }, () => {
                             form.resetFields()
                         })
-                        ctx.loadUsers()
+                        ctx.search()
                         message.success('添加成员成功!')
                     }
                 })
@@ -117,27 +124,22 @@ class ProjectMember extends Component {
             if (res.code === 1) {
                 message.success('设置成功！')
                 ctx.setState({ visibleEditRole: false })
-                ctx.loadUsers()
+                ctx.search()
             }
         })
     }
 
     searchUser = (query) => {
-        const ctx = this
-        const { params } = this.props
-        this.setState({ loading: true })
-        Api.getProjectUsers({
+        this.setState({
+            current: 1,
             name: query,
-            projectId: params.pid,
-        }).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ users: res.data, loading: false })
-            }
-        })
+        }, this.search)
     }
 
     handleTableChange = (pagination) => {
-        this.loadUsers(pagination.current)
+        this.setState({
+            current: pagination.current,
+        }, this.search)
     }
 
     onCancel = () => {

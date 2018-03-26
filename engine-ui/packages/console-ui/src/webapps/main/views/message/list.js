@@ -10,6 +10,7 @@ import { Link } from 'react-router'
 import utils from 'utils'
 import Api from '../../api'
 import MsgStatus from './msgStatus'
+import { MsgTypeDesc } from '../../components/display'
 
 const TabPane = Tabs.TabPane;
 const MenuItem = Menu.Item;
@@ -233,7 +234,7 @@ class MessageList extends Component {
                 return display
             }
         }, {
-            width: 120,
+            width: 150,
             title: '发送时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
@@ -242,11 +243,11 @@ class MessageList extends Component {
             }
         }, {
             width: 120,
-            title: '类型',
+            title: '类型描述',
             dataIndex: 'triggerType',
             key: 'triggerType',
             render(type) {
-                return type
+                return MsgTypeDesc(type)
             }
         }]
 
