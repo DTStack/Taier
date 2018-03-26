@@ -34,7 +34,7 @@ module.exports = [
         link: 'dataApi.html#/',
         filename: 'dataApi.html',
         target: '_blank',
-        enable: true,
+        enable: false,
         apiBase: '/dataApi',
     }, {
         id: 'label',
