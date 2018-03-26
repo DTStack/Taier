@@ -352,12 +352,11 @@ export default class StepTwo extends Component {
                 }
             }
             case 'functionId': {
-                console.log(monitorFunction.filter(item => text === item.id)[0],text,monitorFunction)
                 return  text ? monitorFunction.filter(item => parseInt(text) === item.id)[0].nameZc : undefined
             }
 
             case 'verifyType': {
-                return verifyType.filter(item => parseInt(text) === item.value)[0].name || undefined
+                return text ? verifyType.filter(item => parseInt(text) === item.value)[0].name : undefined
             }
 
             case 'threshold': {

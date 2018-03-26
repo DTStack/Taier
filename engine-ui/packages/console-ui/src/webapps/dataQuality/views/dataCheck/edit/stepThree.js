@@ -92,13 +92,12 @@ export default class StepThree extends Component {
 		const { form } = this.props;
 
 		if (!isEmpty(setting)) {
-			let settingCheck = [],
+			let selectedSetting = [],
 				fieldsValue = {};
 
 			Object.keys(setting).forEach((item) => {
 				if (setting[item]) {
-					console.log(item, setting[item], item.indexOf('matchCase'))
-					settingCheck.push(item);
+					selectedSetting.push(item);
 					if (item != 'matchCase' && item != 'matchNull') {
 						fieldsValue[item] = setting[item];
 					}
@@ -106,7 +105,7 @@ export default class StepThree extends Component {
 			});
 
 			form.setFieldsValue(fieldsValue);
-			this.setState({ selectedSetting: settingCheck });
+			this.setState({ selectedSetting });
 		}
 	}
 
@@ -131,7 +130,7 @@ export default class StepThree extends Component {
     }
 
     listenResize() {
-        if(window.addEventListener) {
+        if (window.addEventListener) {
             window.addEventListener('resize', this.resize, false);
         }
     }
@@ -242,24 +241,24 @@ export default class StepThree extends Component {
 
         /**
          * source中的元素 key_obj 类型：
-         * if(sourceSrcType === 1, 2, 3) string
-         * if( === 6) { index, type }
+         * if (sourceSrcType === 1, 2, 3) string
+         * if ( === 6) { index, type }
          */
         source.forEach((key_obj, ii) => {
             $dagL.each((dl, i) => {
                 let sx, sy, ex, ey;
 
-                if(matchKeymapToColumn_s(dl, key_obj)) {
+                if (matchKeymapToColumn_s(dl, key_obj)) {
                     sx = 15;
                     sy = (i + 1.5) * h;
 
                     $dagR.each((dr, j) => {
                         /**
                          * target[ii] 类型：
-                         * if(targetSrcType === 1, 2, 3) string
-                         * if( === 6)  obj{ key, type }
+                         * if (targetSrcType === 1, 2, 3) string
+                         * if ( === 6)  obj{ key, type }
                          */
-                        if(matchKeymapToColumn_t(dr, target[ii])) {
+                        if (matchKeymapToColumn_t(dr, target[ii])) {
                             ex = W - 15;
                             ey = (j + 1.5) * h;
 
@@ -315,12 +314,12 @@ export default class StepThree extends Component {
         });
 
         this.$canvas.on('mousemove', () => {
-            if(isMouseDown) {
+            if (isMouseDown) {
                 const xy = mouse(this.$canvas.node());
                 $line.attr('x2', xy[0]).attr('y2', xy[1]);
             }
         }).on('mouseup', () => {
-            if(isMouseDown) {
+            if (isMouseDown) {
                 const xy = mouse(this.$canvas.node());
                 const [ex, ey] = xy;
                 const threholdX = W - 15;
@@ -332,14 +331,14 @@ export default class StepThree extends Component {
                     const $dagR = selectAll('.col-dag-r');
 
                     $dagR.each((d, i) => {
-                        if(i === tidx) {
+                        if (i === tidx) {
                             targetKey_obj = d;
                         }
                     });
                 }
             }
 
-            if(sourceKey_obj && targetKey_obj) {
+            if (sourceKey_obj && targetKey_obj) {
                 addLinkedKeys({
                     source: sourceKey_obj.key,
                     target: targetKey_obj.key
@@ -569,17 +568,13 @@ export default class StepThree extends Component {
 
     		if (selectedSetting.length) {
 		        form.validateFields(selectedSetting, (err, values) => {
-		            console.log(err,values)
-		            if(!err) {
+		            if (!err) {
 		            	Object.keys(values).forEach((item) => {
 		            		if (item === 'matchCase' || item === 'matchNull') {
 		            			values[item] = true;
 		            		}
 		            	});
-		            	console.log(values)
-		                changeParams({
-		                	setting: { ...editParams.setting, ...values }
-		                });
+		                changeParams({ setting: values });
 		                navToStep(currentStep + 1);
 		            } else {
 		            	message.error('请填写已选中的差异设置');
