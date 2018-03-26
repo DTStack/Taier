@@ -38,7 +38,7 @@ export default class DataCheckReport extends Component {
     }
 
     initColumns = (data) => {
-        return data && Object.keys(data).map((item) => {
+        return Object.keys(data).map((item) => {
             return {
                 title: item,
                 key: item,
@@ -130,7 +130,7 @@ export default class DataCheckReport extends Component {
                         // bordered
                         className="m-table"
                         style={{ margin: '0 20px' }}
-                        columns={this.initColumns(reportTable.data ? reportTable.data[0]: [])} 
+                        columns={this.initColumns(reportTable.data ? reportTable.data[0]: {})} 
                         dataSource={reportTable.data ? reportTable.data : []}
                         pagination={pagination}
                         scroll={{ x: '120%' }}
