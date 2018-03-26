@@ -18,7 +18,7 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnAppStatusMonitor.class);
 
-    private static final Integer CHECK_INTERVAL = 1 * 1000;
+    private static final Integer CHECK_INTERVAL = 60 * 1000;
 
     private AtomicBoolean run = new AtomicBoolean(true);
 
