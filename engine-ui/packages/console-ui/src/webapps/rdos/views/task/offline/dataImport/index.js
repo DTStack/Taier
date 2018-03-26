@@ -101,9 +101,14 @@ export default class ImportLocalData extends Component {
 
     fileChange = (e) => {
         const file = e.target.files[0];
-        this.setState({ file: file }, () => {
-            this.readFile(file)
-        })
+        const sizeLimit = 50 * 1024 * 1024 // 50MB
+        if (file.size > sizeLimit) {
+            message.error('本地上传文件不可超过50MB!')
+        } else {
+            this.setState({ file: file }, () => {
+                this.readFile(file)
+            })
+        }
     }
 
     fileClick = (e) => {

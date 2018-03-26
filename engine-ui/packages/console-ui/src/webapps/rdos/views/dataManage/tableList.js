@@ -40,6 +40,16 @@ class TableList extends Component {
         this.loadCatalogue();
     }
 
+    componentWillReceiveProps(nextProps) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.setState({ current: 1 }, () => {
+                this.search()
+            })
+        }
+    }
+
     search = () => {
         const params = this.getReqParams();
         this.props.searchTable(params);
@@ -326,6 +336,7 @@ const mapDispatch = dispatch => ({
 
 export default connect((state) => {
     return {
+        project: state.project,
         tableList: state.dataManage.tableManage.tableList
     }
 }, mapDispatch)(TableList);

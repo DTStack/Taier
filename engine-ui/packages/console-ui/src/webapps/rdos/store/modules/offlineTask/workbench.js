@@ -25,11 +25,20 @@ export const workbenchReducer = (state = getCachedData(), action) => {
     switch(action.type) {
         case workbenchAction.LOAD_TASK_DETAIL: {
             const tab = action.payload;
-
-            nextState = assign({}, state, {
-                tabs: [...state.tabs, tab],
-                currentTab: tab.id
-            });
+            const index = state.tabs.findIndex(t => t.id === tab.id)
+            if (index > -1) {
+                const newTabs = [...state.tabs]
+                newTabs[index] = tab;
+                nextState = assign({}, state, {
+                    tabs: newTabs,
+                    currentTab: tab.id
+                });
+            } else {
+                nextState = assign({}, state, {
+                    tabs: [...state.tabs, tab],
+                    currentTab: tab.id
+                });
+            }
             break;
         }
 

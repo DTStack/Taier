@@ -204,13 +204,17 @@ class DirtyData extends Component {
             bottom: 20,
             top: 30,
         }
-
+        option.legend.show = false
         option.title.text = ''
-        const formatDate = function(obj) {
-            return obj ? utils.formatDate(obj.value) : null;
-        }
-        option.tooltip.axisPointer.label.formatter = formatDate;
-        option.xAxis[0].axisLabel.formatter = formatDate;
+        option.tooltip.axisPointer.label.formatter = function(obj) {
+            return obj ? utils.formatDate(+obj.value) : null;
+        };
+
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
+        option.xAxis[0].axisLabel.formatter = function(value) {
+            return value ? utils.formatDate(+value) : null;
+        };
+
         option.yAxis[0].minInterval = 1
         option.legend.data = chartData && chartData.type ? chartData.type.data : []
         option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
@@ -225,6 +229,7 @@ class DirtyData extends Component {
         const columns = [
             {
                 title: '任务名称',
+                width: 120,
                 dataIndex: 'taskName',
                 key: 'taskName'
             }, {
@@ -258,7 +263,6 @@ class DirtyData extends Component {
                     rowKey="taskName"
                     pagination={false}
                     loading={ loadingTop }
-                    style={{ height: '300px', }}
                     columns={ columns }
                     dataSource={ top30 || [] }
                 />
@@ -280,11 +284,14 @@ class DirtyData extends Component {
                 key: 'tableId',
                 render: function(text, record) {
                     const arr = (record.tasks && record.tasks.map(task => 
+                        task.isDeleted === 1 ? 
+                        `${task.name} (已删除)` :
                         <a onClick={
                             () => {
                                 ctx.props.goToTaskDev(task.id)
                             }
-                        }>{task.name}</a>) ) || []
+                        }>{task.name}</a>) 
+                    ) || []
                     return arr;
                 }
             }, {

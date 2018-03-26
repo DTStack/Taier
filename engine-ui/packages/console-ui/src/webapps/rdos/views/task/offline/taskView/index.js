@@ -65,6 +65,9 @@ export default class TaskView extends Component {
     componentDidMount() {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
+        this.graph = "";
+        this.layout = "";
+        
         const editor = this.Container
         const currentTask = this.props.tabData
         this.initEditor()

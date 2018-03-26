@@ -41,9 +41,9 @@ class Sidebar extends Component {
                         </TabPane>
                         <TabPane tab={
                             <Tooltip placement="bottom" title="实时任务">
-                                <Icon type="link" />
+                                <Icon type="link"/>
                             </Tooltip>
-                        } key="realtime">
+                        } key="realtime" style={{marginRight: 10}}>
                             <RealTimeTabPanel />
                         </TabPane>
                     </Tabs>
