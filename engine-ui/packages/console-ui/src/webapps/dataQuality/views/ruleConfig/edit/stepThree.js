@@ -34,7 +34,7 @@ export default class StepThree extends Component {
             scheduleConfObj: {
                 beginDate: moment().format('YYYY-MM-DD'),
                 endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
-                periodType: '1',
+                periodType: '2',
                 day: undefined,
                 weekDay: undefined,
                 hour: 0,
@@ -66,7 +66,7 @@ export default class StepThree extends Component {
             scheduleConfObj: {
                 beginDate: moment().format('YYYY-MM-DD'),
                 endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
-                periodType: '1',
+                periodType: '2',
                 day: undefined,
                 weekDay: undefined,
                 hour: 0,

@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs } from 'antd';
 import moment from 'moment';
 
 import SlidePane from 'widgets/slidePane';
 import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
+import { commonActions } from '../../actions/common';
 import { taskQueryActions } from '../../actions/taskQuery';
 import { dataSourceActions } from '../../actions/dataSource';
-import { commonActions } from '../../actions/common';
-import { dataSourceTypes, periodType } from '../../consts';
-
 import '../../styles/views/taskQuery.scss';
 
 const Search = Input.Search;
@@ -36,9 +33,6 @@ const mapDispatchToProps = dispatch => ({
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
     },
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
-    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -61,16 +55,14 @@ export default class TaskQuery extends Component {
     }
 
     componentDidMount() {
-        this.props.getAllDict();
         this.props.getUserList();
-        this.props.getDataSourcesList();
         this.props.getDataSourcesType();
+        this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
     }
 
     // table设置
     initColumns = () => {
-    	const { dataSourceType } = this.props.common.allDict;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -115,10 +107,10 @@ export default class TaskQuery extends Component {
             width: '8%'
         }, {
             title: '类型',
-            dataIndex: 'dataSourceType',
-            key: 'dataSourceType',
+            dataIndex: 'sourceTypeValue',
+            key: 'sourceTypeValue',
             render: (text, record) => {
-                return text ? `${dataSourceTypes[text]} / ${record.sourceName}` : '--';
+                return text ? `${text} / ${record.sourceName}` : '--';
             },
             width: '15%'
         }, {
@@ -126,15 +118,17 @@ export default class TaskQuery extends Component {
             dataIndex: 'configureUserName',
             key: 'configureUserName',
             width: '12%'
-        }, {
-            title: '业务日期',
-            dataIndex: 'bizTime',
-            key: 'bizTime',
-            render: (text) => {
-                return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
-            },
-            width: '12%'
-        }, {
+        }, 
+        // {
+        //     title: '业务日期',
+        //     dataIndex: 'bizTime',
+        //     key: 'bizTime',
+        //     render: (text) => {
+        //         return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
+        //     },
+        //     width: '12%'
+        // }, 
+        {
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
@@ -165,6 +159,7 @@ export default class TaskQuery extends Component {
         });
     }
 
+    // 数据源类型变化回调
     onSourceChange = (type) => {
         let dataSourceType = type ? type : undefined;
         let params = {...this.state.params, dataSourceType};
@@ -176,33 +171,22 @@ export default class TaskQuery extends Component {
     // 数据源下拉框
     renderUserSource = (data) => {
         return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
             return (
-                <Option key={source.id} value={source.id.toString()}>{source.dataName}（{dataSourceTypes[source.type]}）</Option>
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
             )
         });
     }
 
+    // 数据源变化回调
     onUserSourceChange = (id) => {
         let dataSourceId = id ? id : undefined;
         let params = {...this.state.params, dataSourceId};
-        
-        this.setState({ params });
-        this.props.getTaskList(params);
-    }
-
-    // 调度周期下拉框
-    renderPeriodType = (data) => {
-        return data.map((item) => {
-            return (
-                <Option key={item.value} value={item.value.toString()}>{item.name}</Option>
-            )
-        })
-    }
-
-    // 调度周期变化回调
-    onPeriodTypeChange = (type) => {
-        let periodType = type ? type : undefined;
-        let params = {...this.state.params, periodType};
         
         this.setState({ params });
         this.props.getTaskList(params);
@@ -217,7 +201,7 @@ export default class TaskQuery extends Component {
         })
     }
 
-    // 监听userList的select
+    // 配置人变化回调
     onUserChange = (id) => {
         let configureId = id ? id : undefined;
         let params = {...this.state.params, configureId};
@@ -227,13 +211,13 @@ export default class TaskQuery extends Component {
     }
 
     // 业务日期变化回调
-    onBizTimeChange = (date, dateString) => {
-        let bizTime = date ? date.valueOf() : 0;
-        let params = {...this.state.params, bizTime};
+    // onBizTimeChange = (date, dateString) => {
+    //     let bizTime = date ? date.valueOf() : 0;
+    //     let params = {...this.state.params, bizTime};
         
-        this.setState({ params });
-        this.props.getTaskList(params);
-    }
+    //     this.setState({ params });
+    //     this.props.getTaskList(params);
+    // }
 
     // 执行时间变化回调
     onExecuteTimeChange = (date, dateString) => {
@@ -244,7 +228,7 @@ export default class TaskQuery extends Component {
         this.props.getTaskList(params);
     }
 
-    // 是否订阅
+    // 是否订阅回调
     onSubscribeChange = (e) => {
         let subscribe = e.target.checked ? true : undefined;
         let params = {...this.state.params, subscribe};
@@ -276,12 +260,10 @@ export default class TaskQuery extends Component {
         })
     }
 
-	
-
     render() {
     	const { dataSource, taskQuery, common } = this.props;
         const { sourceType, sourceList } = dataSource;
-        const { userList, allDict } = common;
+        const { userList } = common;
         const { loading, taskList } = taskQuery;
         const { params, visibleSlidePane, currentTask } = this.state;
 
@@ -290,8 +272,6 @@ export default class TaskQuery extends Component {
             pageSize: params.pageSize,
             total: taskList.totalCount,
         };
-
-        let periodType = allDict.periodType ? allDict.periodType : [];
 
         const cardTitle = (
             <div className="flex font-12">
@@ -303,7 +283,7 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.onSourceChange} style={{ width: 120 }}>
+                    <Select allowClear onChange={this.onSourceChange} style={{ width: 150 }}>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -319,7 +299,7 @@ export default class TaskQuery extends Component {
                     </Select>
                 </div>
 
-                <div className="m-l-8">
+                {/*<div className="m-l-8">
                     业务日期：
                     <DatePicker
                         format="YYYY-MM-DD"
@@ -327,14 +307,14 @@ export default class TaskQuery extends Component {
                         style={{ width: 120 }}
                         onChange={this.onBizTimeChange}
                     />
-                </div>
+                </div>*/}
 
                 <div className="m-l-8">
                     执行时间：
                     <DatePicker
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
-                        style={{ width: 120 }}
+                        style={{ width: 150 }}
                         onChange={this.onExecuteTimeChange}
                     />
                 </div>
@@ -378,8 +358,8 @@ export default class TaskQuery extends Component {
                         />
 
                         <SlidePane 
-                            onClose={ this.closeSlidePane }
-                            visible={ visibleSlidePane } 
+                            onClose={this.closeSlidePane}
+                            visible={visibleSlidePane} 
                             style={{ right: '-20px', width: '80%', minHeight: '600px' }}
                         >
                             <div className="m-tabs">

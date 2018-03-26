@@ -4,10 +4,9 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber } from 'antd';
 
-import RuleEditTD from './ruleEditTD';
+import { commonActions } from '../../../actions/common';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { dataSourceActions } from '../../../actions/dataSource';
-import { commonActions } from '../../../actions/common';
 import { formItemLayout, rowFormItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
 
@@ -15,19 +14,19 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { ruleConfig, common, dataSource } = state;
-    return { ruleConfig, common, dataSource }
+    const { ruleConfig, dataSource, common } = state;
+    return { ruleConfig, dataSource, common }
 }
 
 const mapDispatchToProps = dispatch => ({
+    getAllDict(params) {
+        dispatch(commonActions.getAllDict(params));
+    },
     getRuleFunction(params) {
         dispatch(ruleConfigActions.getRuleFunction(params));
     },
     getDataSourcesColumn(params) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
-    },
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
     },
 })
 
@@ -65,12 +64,24 @@ export default class StepTwo extends Component {
 
     next = () => {
         const { currentStep, navToStep, editParams } = this.props;
+        const { currentRule } = this.state;
 
-        if (!isEmpty(editParams.rules) && isEmpty(this.state.currentRule)) {
-            navToStep(currentStep + 1);
+        if (editParams.rules.length) {
+            if (!isEmpty(currentRule)) {
+                // this.cancel(currentRule.id);
+                message.error('监控规则未保存');
+            } else {
+                navToStep(currentStep + 1);
+            }
         } else {
             message.error('请添加监控规则');
         }
+
+        // if (editParams.rules.length && isEmpty(currentRule)) {
+        //     navToStep(currentStep + 1);
+        // } else {
+        //     message.error('请添加监控规则');
+        // }
     }
 
     initColumns = () => {
@@ -370,8 +381,20 @@ export default class StepTwo extends Component {
 
     // 编辑
     edit(id) {
-        let newData = [...this.props.editParams.rules],
-            target = newData.filter(item => id === item.id)[0];
+        const { rules } = this.props.editParams;
+        const { currentRule } = this.state;
+
+        let newData = [...rules],
+            target  = newData.filter(item => id === item.id)[0];
+
+        if (!isEmpty(currentRule)) {
+            if (currentRule.editStatus === 'edit') {
+                delete currentRule.editable
+                delete currentRule.editStatus
+            } else {
+                newData.shift();
+            }
+        }
 
         if (target) {
             target.editable = true;
@@ -422,9 +445,8 @@ export default class StepTwo extends Component {
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-                if (currentRule.editStatus) {
-                    delete currentRule.editStatus;
-                }
+                
+                delete currentRule.editStatus;
                 delete currentRule.editable;
                 newData[index] = currentRule;
 
@@ -432,93 +454,60 @@ export default class StepTwo extends Component {
                 this.props.changeParams({ rules: newData });
             }
         });
-
     }
 
-    addColumnRule = () => {
-        let newData = [...this.props.editParams.rules],
-            firstData = newData[0],
-            firstId = firstData ? firstData.id : undefined;
+    addNewRule = (type) => {
+        const { editParams, form } = this.props;
+        const { currentRule } = this.state;
 
-        if (firstData && firstData.editable) {
-            newData.shift();
-            firstId = undefined;
+        let newData = [...editParams.rules];
+
+        if (!isEmpty(currentRule)) {
+            if (currentRule.editStatus === "edit") {
+                delete currentRule.editable
+                delete currentRule.editStatus
+            } else {
+                newData.shift();
+                form.resetFields();
+                this.setState({ currentRule: [] });
+            }
         }
 
         let target = {
-            id: firstId ? firstId + 1 : 1,
+            id: newData[0] ? newData[0].id + 1 : 1,
+            editStatus: 'new',
             editable: true,
-            isCustomizeSql: false,
-            columnName: undefined,
-            functionId: undefined,
             filter: '',
             verifyType: undefined,
             operator: undefined,
             threshold: undefined,
         };
 
-        newData.unshift(target);
-        this.setState({ currentRule: target });
-        this.props.changeParams({
-            rules: newData
-        });
-    }
-
-    addSQLRule = () => {
-        let newData = [...this.props.editParams.rules],
-            firstData = newData[0],
-            firstId = firstData ? firstData.id : undefined;
-
-        if (firstData && firstData.editable) {
-            newData.shift();
-            firstId = undefined;
+        switch (type) {
+            case 'column':
+                target.isCustomizeSql = false;
+                target.columnName = undefined;
+                target.functionId = undefined;
+                break;
+            case 'SQL':
+                target.isCustomizeSql = true;
+                target.customizeSql = undefined;
+                break;
+            case 'table':
+                target.isCustomizeSql = false;
+                target.columnName = editParams.tableName;
+                target.functionId = undefined;
+                break;
+            default:
+                break;
         }
 
-        let target = {
-            id: firstId ? firstId + 1 : 1,
-            editable: true,
-            isCustomizeSql: true,
-            customizeSql: undefined,
-            filter: '',
-            verifyType: undefined,
-            operator: undefined,
-            threshold: undefined,
-        };
         newData.unshift(target);
         this.setState({ currentRule: target });
         this.props.changeParams({
             rules: newData
         });
-    }
 
-    addTableRule = () => {
-        const { editParams } = this.props;
-        let newData = [...editParams.rules],
-            firstData = newData[0],
-            firstId = firstData ? firstData.id : undefined;
-
-        if (firstData && firstData.editable) {
-            newData.shift();
-            firstId = undefined;
-        }
-
-        let target = {
-            id: firstId ? firstId + 1 : 1,
-            editable: true,
-            isCustomizeSql: false,
-            isTable: true,
-            columnName: editParams.tableName,
-            functionId: undefined,
-            filter: '',
-            verifyType: undefined,
-            operator: undefined,
-            threshold: undefined,
-        };
-        newData.unshift(target);
-        this.setState({ currentRule: target });
-        this.props.changeParams({
-            rules: newData
-        });
     }
 
     render() {
@@ -528,9 +517,9 @@ export default class StepTwo extends Component {
             <div>
                 <div className="steps-content">
                     <div className="rule-action">
-                        <Button type="primary" onClick={this.addTableRule}>添加表级规则</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.addColumnRule}>添加字段级规则</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.addSQLRule}>添加自定义SQL</Button>
+                        <Button type="primary" onClick={this.addNewRule.bind(this, 'table')}>添加表级规则</Button>
+                        <Button className="m-l-8" type="primary" onClick={this.addNewRule.bind(this, 'column')}>添加字段级规则</Button>
+                        <Button className="m-l-8" type="primary" onClick={this.addNewRule.bind(this, 'SQL')}>添加自定义SQL</Button>
                     </div>
 
                     <Table 

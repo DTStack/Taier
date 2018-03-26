@@ -69,7 +69,7 @@ export default class TaskTablePane extends Component {
     initLineChart(chartData) {
         let myChart = echarts.init(document.getElementById('TableTrend'));
         const option = cloneDeep(lineAreaChartOptions);
-        let xData = chartData.map(item => moment(item.bizTime).format('YYYY-MM-DD HH:mm'));
+        let xData = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm'));
         let legends = [{ 
             key: 'dayCountRecord',
             name: '记录数'
@@ -146,7 +146,8 @@ export default class TaskTablePane extends Component {
         return [{
             title: '记录数平均波动率',
             dataIndex: 'standardDeviation',
-            key: 'standardDeviation'
+            key: 'standardDeviation',
+            render: (text => text > 0 ? text.toFixed(2) : text)
         }, {
             title: '平均记录数',
             dataIndex: 'avgRecord',
@@ -158,15 +159,16 @@ export default class TaskTablePane extends Component {
         }, {
             title: '平均告警率',
             dataIndex: 'alarmRate',
-            key: 'alarmRate'
+            key: 'alarmRate',
+            render: (text => text > 0 ? text.toFixed(2) : text)
         }]  
     }
 
     init30TimesTableReport = () => {
         return [{
-            title: '业务日期',
-            dataIndex: 'bizTime',
-            key: 'bizTime',
+            title: '执行时间',
+            dataIndex: 'executeTime',
+            key: 'executeTime',
             render: (value) => (moment(value).format("YYYY-MM-DD HH:mm:ss")),
             width: '40%'
         }, {
@@ -192,7 +194,7 @@ export default class TaskTablePane extends Component {
         const tableReportTitle = (
             <div>
                 表级报告
-                <span style={{ fontSize: 12, color: '#999' }}>（业务日期：{moment(tableReport.bizTime).format("YYYY-MM-DD")}）</span>
+                <span style={{ fontSize: 12, color: '#999' }}>（执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD")}）</span>
             </div>
         )
 
@@ -253,7 +255,7 @@ export default class TaskTablePane extends Component {
                             title="最近30次表级报告" 
                         >
                             <Table 
-                                rowKey="bizTime"
+                                rowKey="executeTime"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesTableReport()}
                                 pagination={false}

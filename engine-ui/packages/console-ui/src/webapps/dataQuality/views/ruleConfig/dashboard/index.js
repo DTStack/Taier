@@ -69,8 +69,8 @@ export default class RuleConfig extends Component {
     componentDidMount() {
         this.props.getAllDict();
         this.props.getUserList();
-        this.props.getDataSourcesList();
         this.props.getDataSourcesType();
+        this.props.getDataSourcesList();
         this.props.getMonitorLists(this.state.params);
         console.log(this)
     }
@@ -111,11 +111,7 @@ export default class RuleConfig extends Component {
             dataIndex: 'isRemoteTrigger',
             key: 'isRemoteTrigger',
             render: (text) => {
-                if (text === 0) {
-                    return <Icon type="close-circle status-error" />
-                } else {
-                    return <Icon type="check-circle status-success" />
-                }
+                return text ? '已开启' : ''
             }
         }, {
             title: '最近修改人',
@@ -194,8 +190,14 @@ export default class RuleConfig extends Component {
     // 数据源下拉框
     renderUserSource = (data) => {
         return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
             return (
-                <Option key={source.id} value={source.id.toString()}>{source.dataName}（{dataSourceTypes[source.type]}）</Option>
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
             )
         });
     }
