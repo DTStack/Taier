@@ -80,7 +80,6 @@ export default class StepOne extends Component {
                     <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
                 )
             }
-            
         });
     }
 

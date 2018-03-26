@@ -341,7 +341,7 @@ export default class StepTwo extends Component {
     // 固定的值
     renderTD = (text, record, type) => {
         const { monitorFunction } = this.props.ruleConfig;
-        const { allDict } = this.props.common;
+        const { verifyType } = this.props.common.allDict;
 
         switch (type) {
             case 'columnName': {
@@ -351,13 +351,13 @@ export default class StepTwo extends Component {
                     return text
                 }
             }
-
             case 'functionId': {
-                return  text ? monitorFunction[text-1].nameZc : undefined
+                console.log(monitorFunction.filter(item => text === item.id)[0],text,monitorFunction)
+                return  text ? monitorFunction.filter(item => parseInt(text) === item.id)[0].nameZc : undefined
             }
 
             case 'verifyType': {
-                return allDict.verifyType[text-1].name || undefined
+                return verifyType.filter(item => parseInt(text) === item.value)[0].name || undefined
             }
 
             case 'threshold': {
