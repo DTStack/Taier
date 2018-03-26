@@ -103,7 +103,7 @@ class CatalogueTree extends Component {
         const reg = /^([\w|\u4e00-\u9fa5]{1,20})$/ // [A-Za-z0-9]|汉字 长度1-20
         const isValid = reg.test(value)
         if (!isValid) {
-            message.error('类目名称只能不超过20位字母，下划线，汉字组成！')
+            message.error('类目名称只能不超过20位字母、数字、下划线和汉字组成！')
         }
         return isValid;
     }

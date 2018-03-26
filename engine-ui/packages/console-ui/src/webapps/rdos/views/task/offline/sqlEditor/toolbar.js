@@ -233,7 +233,7 @@ export default class Toolbar extends Component {
                     }
                 >
                     <div style={{height: '400px'}}>
-                        <CodeEditor value={confirmCode} />
+                        <CodeEditor value={confirmCode} sync={true} />
                     </div>
                 </Modal>
             </div>
