@@ -271,7 +271,6 @@ export default class StepFour extends Component {
                 <div className="steps-action">
                     <Button onClick={this.prev}>上一步</Button>
                     <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
-                    <Button className="m-l-8" type="primary"><Link to="/dq/dataCheck">校验列表</Link></Button>
                 </div>
             </div>
         )

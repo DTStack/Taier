@@ -46,8 +46,8 @@ export default class StepOne extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            havePart: false,
-            sourcePreview: {}
+            sourcePreview: {},
+            useInput: false
         }
     }
     
@@ -89,21 +89,23 @@ export default class StepOne extends Component {
 
     // 分区下拉框
     renderTreeSelect = (data) => {
-        return data.children.map((item) => {
-            let partTitle = this.getPartTitle(item.partName, item.partValue);
+        if (!isEmpty(data)) {
+            return data.children.map((item) => {
+                let partTitle = this.getPartTitle(item.partName, item.partValue);
 
-            if (item.children.length) {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
-                        {this.renderTreeSelect(item)}
-                    </TreeNode>
-                )
-            } else {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
-                )
-            }
-        });
+                if (item.children.length) {
+                    return (
+                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
+                            {this.renderTreeSelect(item)}
+                        </TreeNode>
+                    )
+                } else {
+                    return (
+                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
+                    )
+                }
+            });
+        }
     }
 
     /**
@@ -128,7 +130,8 @@ export default class StepOne extends Component {
         
         sourceList.forEach((item) => {
             if (item.id == id) {
-                this.setState({ havePart: item.type === 7 || item.type === 10 });
+                this.props.changeHavePart(item.type === 7 || item.type === 10);
+                // this.setState({ havePart: item.type === 7 || item.type === 10 });
             }
         });
     } 
@@ -196,7 +199,7 @@ export default class StepOne extends Component {
      * @param {String} name
      */
     getDataSourcesPart = (id, name) => {
-        const { havePart } = this.state;
+        const { havePart } = this.props;
 
         if (id && name && havePart) {
             this.props.getSourcePart({
@@ -260,7 +263,7 @@ export default class StepOne extends Component {
 
     renderPartText = () => {
         return (
-            <p className="font-14">如果分区还不存在，可以直接输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
+            <p className="font-14">如果分区还不存在，可以直接手动输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
         )
     }
 
@@ -288,11 +291,13 @@ export default class StepOne extends Component {
 
     renderColumnPart = () => {
         const { editStatus, editParams, form, dataCheck } = this.props;
+        const { useInput } = this.state;
         const { partition } = editParams.origin;
         const { originPart } = dataCheck;
         const { getFieldDecorator } = form;
         console.log(originPart,'renderColumnPart')
-        if (!isEmpty(originPart)) {
+
+        if (!useInput) {
             return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                 {
                     getFieldDecorator('originColumn', {
@@ -303,7 +308,7 @@ export default class StepOne extends Component {
                             allowClear
                             showSearch
                             placeholder="分区列表"
-                            style={{ width: '85%' }} 
+                            style={{ width: '85%', marginRight: 15 }} 
                             disabled={editStatus === 'edit'}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                             onChange={this.handlePartChange}>
@@ -313,31 +318,51 @@ export default class StepOne extends Component {
                         </TreeSelect>
                     )
                 }
-                
+                {
+                    editStatus !== 'edit'
+                    &&
+                    <a onClick={this.onPartitionTypeChange}>手动输入</a>
+                }
             </FormItem>
         } else {
             return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                 {
-                    getFieldDecorator('originColumn', {
+                    getFieldDecorator('originColumnInput', {
                         rules: [],
-                        initialValue: partition
+                        initialValue: ''
                     })(
                         <Input
-                            style={{ width: '85%' }} 
+                            style={{ width: '85%', marginRight: 15 }} 
                             placeholder="手动输入分区" 
                             onChange={this.handleInputPartChange}
                             disabled={editStatus === 'edit'} />
                     )
                 }
+                {
+                    editStatus !== 'edit'
+                    &&
+                    <a onClick={this.onPartitionTypeChange}>选择已有分区</a>
+                }
             </FormItem>
         }
     }
 
+    onPartitionTypeChange = () => {
+        const { origin } = this.props.editParams;
+        const { useInput } = this.state;
+        // form.setFieldsValue({ part: '' });
+        // params.partition = undefined;
+        this.props.changeParams({
+            origin: {...origin,  partition: undefined}
+        });
+        this.setState({ useInput: !useInput });
+    }
+
     render() {
-        const { editStatus, editParams, form, dataSource } = this.props;
+        const { editStatus, editParams, form, dataSource, havePart } = this.props;
         const { dataSourceId, table, partition } = editParams.origin;
         const { sourceList, sourceTable } = dataSource;
-        const { havePart, sourcePreview } = this.state;
+        const { sourcePreview } = this.state;
         const { getFieldDecorator } = form;
 
         return (

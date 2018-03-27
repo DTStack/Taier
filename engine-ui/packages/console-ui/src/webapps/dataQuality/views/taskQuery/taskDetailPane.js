@@ -7,11 +7,9 @@ import moment from 'moment';
 import Resize from 'widgets/resize';
 import { lineAreaChartOptions } from '../../consts';
 import TQApi from '../../api/taskQuery';
-// 引入 ECharts 主模块
+
 const echarts = require('echarts/lib/echarts');
-// 引入柱状图
 require('echarts/lib/chart/line');
-// 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
@@ -35,8 +33,14 @@ export default class TaskDetailPane extends Component {
         super(props);
         this.state = {
             lineChart: '',
-            visible: false
+            visible: false,
+            currentRecord: {}
         };
+    }
+
+    componentDidMount() {
+
+        console.log(this,'detail')
     }
 
     componentWillReceiveProps(nextProps) {
@@ -86,8 +90,7 @@ export default class TaskDetailPane extends Component {
 
                 return obj;
             },
-        }, 
-        {
+        }, {
             title: '过滤条件',
             dataIndex: 'filter',
             key: 'filter',
@@ -103,16 +106,13 @@ export default class TaskDetailPane extends Component {
             },
         }, {
             title: '校验方法',
-            dataIndex: 'verifyType',
-            key: 'verifyType',
-            render: (text, record) => {
-                const { verifyType } = this.props.common.allDict;
-                return verifyType[text - 1].name || undefined;
-            },
+            dataIndex: 'verifyTypeValue',
+            key: 'verifyTypeValue'
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            render: (text => text ? '通过' : '未通过')
         }, {
             title: '统计值',
             dataIndex: 'statistic',
@@ -147,8 +147,9 @@ export default class TaskDetailPane extends Component {
     }
 
     onCheckReport = (record) => {
+        this.setState({ currentRecord: record });
         TQApi.getTaskAlarmNum({
-            recordId: record.id,
+            ruleId: record.id,
             monitorId: record.monitorId
         }).then((res) => {
             if (res.code === 1) {
@@ -165,13 +166,13 @@ export default class TaskDetailPane extends Component {
     initLineChart(chartData) {
         let myChart = echarts.init(document.getElementById('TaskTrend')),
             option  = cloneDeep(lineAreaChartOptions),
-            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD')),
+            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
             yData   = Object.values(chartData);
 
-        option.title.text = ''
-        option.tooltip.axisPointer.label.formatter = '{value}'
-        option.legend.data = ['告警数']
-        option.xAxis[0].axisLabel.formatter = '{value}';
+        option.title.text = '';
+        option.tooltip.axisPointer.label.formatter = '{value}';
+        option.legend.data = ['告警数'];
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
 
         option.yAxis[0].axisLabel.formatter = '{value} 次';
@@ -184,13 +185,17 @@ export default class TaskDetailPane extends Component {
         }];
 
         myChart.setOption(option);
-        this.setState({ lineChart: myChart })
+        this.setState({ lineChart: myChart });
     }
 
 
     render() {
         const { taskDetail } = this.props.taskQuery;
-        const { visible } = this.state;
+        const { visible, currentRecord } = this.state;
+
+        let cardTitle = (
+            isEmpty(currentRecord) ? '' : `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）`
+        )
 
         return (
             <div style={{ margin: 20 }}>
@@ -210,7 +215,7 @@ export default class TaskDetailPane extends Component {
                         bordered={false}
                         loading={false} 
                         className="shadow"
-                        title="最近30天告警数" 
+                        title={cardTitle}
                     >
                         <Resize onResize={this.resize}>
                             <article id="TaskTrend" style={{ width: '100%', height: '300px' }}/>

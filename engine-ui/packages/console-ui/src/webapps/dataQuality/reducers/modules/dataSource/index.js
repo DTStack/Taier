@@ -61,7 +61,7 @@ export default function dataSource(state = initialState, action) {
         case ACTION_TYPE.GET_DATA_SOURCES_PART: {
             const clone = cloneDeep(state);
             const { sourcePart } = clone;
-            clone.sourcePart = payload.children;
+            clone.sourcePart = payload;
             return clone;
         }
 

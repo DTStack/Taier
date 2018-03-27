@@ -26,7 +26,8 @@ export default class DataCheckEdit extends Component {
                 scheduleConf: '',
                 notifyVO: null,
             },
-            editStatus: 'new'
+            editStatus: 'new',
+            havePart: false
         }
     }
 
@@ -39,6 +40,7 @@ export default class DataCheckEdit extends Component {
             DCApi.getCheckDetail({ verifyId: verifyId }).then((res) => {
                 if (res.code === 1) {
                     let data = res.data;
+                    
                     this.setState({ 
                         editParams: { ...editParams, 
                             id: data.id,
@@ -62,29 +64,38 @@ export default class DataCheckEdit extends Component {
         console.log(this,obj,'editParams')
     }
 
+    changeHavePart = (havePart) => {
+        this.setState({ havePart });
+        console.log(this,'havePart')
+    }
+
     navToStep = (value) => {
         this.setState({ current: value });
     }
  
     render() {
-        const { current, editParams, editStatus } = this.state;
+        const { current, editParams, editStatus, havePart } = this.state;
         const steps = [
             {
                 title: '选择左侧表', content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
+                    havePart={havePart}
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
+                    changeHavePart={this.changeHavePart}
                 />
             },
             {
                 title: '选择右侧表', content: <StepTwo
                     currentStep={current}
                     navToStep={this.navToStep}
+                    havePart={havePart}
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
+                    changeHavePart={this.changeHavePart}
                 />
             },
             {
