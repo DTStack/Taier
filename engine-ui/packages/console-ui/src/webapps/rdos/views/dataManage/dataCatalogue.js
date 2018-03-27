@@ -130,8 +130,13 @@ class DataCatalogue extends React.Component {
             case 'edit': {
                 API.updateDataCatalogue(node).then((res) => {
                     if (res.code === 1) {
+                        const source = { nodeId: node.id }
+                        replaceTreeNode(treeData, source, res.data)
                         message.success('数据类目更新成功！')
                     }
+                    self.setState({
+                        treeData,
+                    })
                     if (callback) callback(res)
                 })
                 break;

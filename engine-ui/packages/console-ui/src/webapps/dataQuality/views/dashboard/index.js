@@ -38,13 +38,15 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DashBoard extends Component {
 
-    state = {}
+    state = {
+        Alarmfilter: ['7']
+    }
 
     componentDidMount() {
         this.props.getUsage();
         // this.props.getAlarmTrend();
         this.props.getAlarmSum();
-        this.props.getTopRecord({ date: 1 });
+        this.props.getTopRecord({ date: 7 });
         DBApi.getAlarmTrend().then((res) => {
             if (res.code === 1) {
                 this.initLineChart(res.data);
@@ -67,6 +69,7 @@ export default class DashBoard extends Component {
 
     // table设置
     initColumns = () => {
+        const { Alarmfilter } = this.state;
         const { dataSourceType } = this.props.common.allDict;
         return [{
             title: '类型',
@@ -96,6 +99,7 @@ export default class DashBoard extends Component {
                 text: '最近30天告警数',
                 value: '30',
             }],
+            filteredValue: Alarmfilter,
             filterMultiple: false,
             width: '30%'
         }]
@@ -132,8 +136,11 @@ export default class DashBoard extends Component {
     }
 
     onTableChange = (page, filter, sorter) => {
-        let date = filter.countByDate[0] || 1;
-        this.props.getTopRecord({ date });
+        let date = filter.countByDate[0] || ['7'];
+        this.setState({
+            Alarmfilter: date,
+        })
+        this.props.getTopRecord({ date: date[0] });
     }
 
     render() {
@@ -144,12 +151,12 @@ export default class DashBoard extends Component {
                 查看更多
             </Link>
         )
-
+        const marginTop = { marginTop: '20px' }
         return (
             <div className="dashboard">
-                <Row>
-                    <Col span={12}>
-                        <Row className="box-1 m-card m-card-small">
+                <Row className="box-card" style={marginTop}>
+                    <Col span={12} style={{paddingRight: '10px'}}>
+                        <Row className="m-card shadow m-card-small">
                             <Card
                                 noHovering
                                 bordered={false}
@@ -180,7 +187,7 @@ export default class DashBoard extends Component {
                             </Card>
                         </Row>
 
-                        <Row className="box-1 m-card m-card-small">
+                        <Row style={marginTop} className="m-card shadow m-card-small">
                             <Card
                                 noHovering
                                 bordered={false}
@@ -193,7 +200,7 @@ export default class DashBoard extends Component {
                             </Card>
                         </Row>
 
-                        <Row className="box-1 m-card m-card-small">
+                        <Row style={marginTop} className="m-card shadow m-card-small">
                             <Card
                                 noHovering
                                 bordered={false}
@@ -228,11 +235,10 @@ export default class DashBoard extends Component {
                                 </Row>
                             </Card>
                         </Row>
-
                     </Col>
 
-                    <Col span={12}>
-                        <Row className="box-1 m-card m-card-small">
+                    <Col span={12} style={{paddingLeft: '10px'}}>
+                        <Row className="m-card shadow m-card-small">
                             <Card
                                 noHovering
                                 bordered={false}

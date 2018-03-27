@@ -17,6 +17,7 @@ import '../../styles/views/message.scss';
     return {
         user: state.user,
         apps: state.apps,
+        routing: state.routing
     }
 })
 class MessageCenter extends Component {
