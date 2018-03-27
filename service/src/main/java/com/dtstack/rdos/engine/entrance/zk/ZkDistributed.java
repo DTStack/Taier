@@ -263,7 +263,7 @@ public class ZkDistributed {
 	}
 
 
-	public void updateSynchronizedLocalBrokerDataAndCleanNoNeedTask(String taskId,Integer status){
+	public void updateSyncLocalBrokerDataAndCleanNoNeedTask(String taskId, Integer status){
 		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
 		try {
 			if(this.brokerDataLock.acquire(10, TimeUnit.SECONDS)){
@@ -280,7 +280,7 @@ public class ZkDistributed {
 				zkClient.setData().forPath(nodePath,objectMapper.writeValueAsBytes(target));
 			}
 		} catch (Exception e) {
-			logger.error("{}:updateSynchronizedLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
+			logger.error("{}:updateSyncLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
@@ -288,7 +288,7 @@ public class ZkDistributed {
 					this.brokerDataLock.release();
 				}
 			} catch (Exception e) {
-				logger.error("{}:updateSynchronizedLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
+				logger.error("{}:updateSyncLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,
 						ExceptionUtil.getErrorMessage(e));
 			}
 		}

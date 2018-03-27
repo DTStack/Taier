@@ -114,8 +114,7 @@ public class JobClient extends OrderObject{
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
-            int val = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
-            this.priorityLevel = val;
+            this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             //获取priority值
             this.priority =  priorityLevel * PRIORITY_LEVEL_WEIGHT;
         }

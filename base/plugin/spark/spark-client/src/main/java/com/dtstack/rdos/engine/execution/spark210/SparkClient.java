@@ -11,6 +11,7 @@ import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.spark210.enums.Status;
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.SparkConf;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -182,6 +184,7 @@ public class SparkClient extends AbsClient {
         String sqlExeJson = null;
         try{
             sqlExeJson = objMapper.writeValueAsString(paramsMap);
+            sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
         }catch (Exception e){
             logger.error("", e);
             throw new RdosException("get unexpected exception:" + e.getMessage());

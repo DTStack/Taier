@@ -16,9 +16,6 @@ import java.util.Properties;
 
 public interface IClient {
 
-    /**
-     * FIXME 根据zk做初始化的时候的操作
-     */
     void init(Properties prop) throws Exception;
 
     JobResult submitJob(JobClient jobClient);

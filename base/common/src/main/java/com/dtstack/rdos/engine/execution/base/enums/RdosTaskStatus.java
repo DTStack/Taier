@@ -75,11 +75,15 @@ public enum RdosTaskStatus {
     }
     
     public static boolean needClean(Byte status){
-		int sta = status.intValue();
+        return needClean(status.intValue());
+    }
 
-        if(sta==RdosTaskStatus.FINISHED.getStatus()||sta==RdosTaskStatus.FAILED.getStatus()||sta == RdosTaskStatus.SUBMITFAILD.getStatus()
-			   || sta == RdosTaskStatus.KILLED.getStatus() || sta == RdosTaskStatus.CANCELED.getStatus()){
-    	    return true;
+    public static boolean needClean(Integer status){
+
+        if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.FAILED.getStatus().equals(status)
+                || RdosTaskStatus.SUBMITFAILD.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
+                || RdosTaskStatus.KILLED.getStatus().equals(status)){
+            return true;
         }
         return false;
     }

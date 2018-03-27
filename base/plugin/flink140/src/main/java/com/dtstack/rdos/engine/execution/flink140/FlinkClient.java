@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink140;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
@@ -95,6 +96,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -144,9 +148,14 @@ public class FlinkClient extends AbsClient {
     //同步模块的monitorAddress, 用于获取错误记录数等信息
     private String monitorAddress;
 
-    private  FlinkConfig flinkConfig;
+    private FlinkConfig flinkConfig;
+
+    /**客户端是否处于可用状态*/
+    private boolean isClientOn = false;
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
+
+    private ExecutorService yarnMonitorES;
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -175,6 +184,10 @@ public class FlinkClient extends AbsClient {
         String remoteSyncPluginDir = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
         this.flinkRemoteSyncPluginRoot = remoteSyncPluginDir;
         this.monitorAddress = flinkConfig.getMonitorAddress();
+        this.yarnMonitorES = new ThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+
         initClient();
     }
 
@@ -186,12 +199,15 @@ public class FlinkClient extends AbsClient {
         if(clusterMode.equals( Deploy.standalone.name())) {
             if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
                 Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
-                initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),flinkConfig.getFlinkHighAvailabilityStorageDir());
+                initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),
+                        flinkConfig.getFlinkHighAvailabilityStorageDir());
             }else{
                 initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
             }
         } else if (clusterMode.equals(Deploy.yarn.name())) {
-                initYarnClusterClient(flinkConfig);
+            initYarnClusterClient();
+            //启动守护线程---用于获取当前application状态和更新flink对应的application
+            yarnMonitorES.submit(new YarnAppStatusMonitor(client, this));
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
@@ -228,7 +244,7 @@ public class FlinkClient extends AbsClient {
     /**
      * 根据yarn方式获取ClusterClient
      */
-    private void initYarnClusterClient(FlinkConfig flinkConfig){
+    public void initYarnClusterClient(){
 
         hadoopConf = HadoopConf.getYarnConfiguration();
 
@@ -312,8 +328,8 @@ public class FlinkClient extends AbsClient {
         clusterClient.setDetached(isDetact);
 
         client = clusterClient;
-
-
+        isClientOn = true;
+        logger.warn("---init flink client with yarn session success----");
     }
 
 
@@ -904,7 +920,7 @@ public class FlinkClient extends AbsClient {
         String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
         String jobInfo = getMessageByHttp(jobPath);
         String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-        System.out.println("accuPath=" + accuPath);
+//        System.out.println("accuPath=" + accuPath);
         String accuInfo = getMessageByHttp(accuPath);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
@@ -921,6 +937,11 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public EngineResourceInfo getAvailSlots() {
+
+        if(!isClientOn){
+            return null;
+        }
+
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
         FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
         if(resourceInfo == null){
@@ -943,5 +964,13 @@ public class FlinkClient extends AbsClient {
         }
 
         return false;
+    }
+
+    public void setClientOn(boolean isClientOn){
+        this.isClientOn = isClientOn;
+    }
+
+    public boolean isClientOn(){
+        return isClientOn;
     }
 }

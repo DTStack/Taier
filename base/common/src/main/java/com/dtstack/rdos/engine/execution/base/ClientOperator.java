@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.util.SlotJudge;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +42,7 @@ public class ClientOperator {
                 return null;
             }
 
-            RdosTaskStatus status = (RdosTaskStatus) result;
-
-            if(status == RdosTaskStatus.FAILED){
-                status = SlotJudge.judgeSlotsAndAgainExecute(engineType, jobId, pluginInfo) ? RdosTaskStatus.WAITCOMPUTE : status;
-            }
-
-            return status;
+            return  (RdosTaskStatus) result;
         }catch (Exception e){
             LOG.error("", e);
             throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());

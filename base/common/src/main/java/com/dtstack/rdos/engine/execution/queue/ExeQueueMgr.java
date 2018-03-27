@@ -7,7 +7,6 @@ import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.JobSubmitProcessor;
-import com.dtstack.rdos.engine.execution.base.components.SlotNoAvailableJobClient;
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -135,7 +134,7 @@ public class ExeQueueMgr {
         return engineTypeQueue.checkLocalPriorityIsMax(groupName, localAddress, zkInfo);
     }
 
-    public void checkQueueAndSubmit(SlotNoAvailableJobClient slotNoAvailableJobClients){
+    public void checkQueueAndSubmit(){
         for(EngineTypeQueue engineTypeQueue : engineTypeQueueMap.values()){
 
             String engineType = engineTypeQueue.getEngineType();
@@ -170,13 +169,13 @@ public class ExeQueueMgr {
                 }
 
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-                if(!resourceInfo.judgeSlots(jobClient)){
+                if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
                     return;
                 }
 
                 gq.remove(jobClient.getTaskId());
                 try {
-                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClient, slotNoAvailableJobClients));
+                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClient));
                 } catch (RejectedExecutionException e) {
                     //如果添加到执行线程池失败则添加回等待队列
                     try {
