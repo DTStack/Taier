@@ -121,7 +121,7 @@ export default class TableRelation extends React.Component {
             if (res.code === 1) {
                 const data = res.data
                 this.setState({ selectedData: getVertexNode(data), data })
-                this.loopTree(graph, data)
+                this.doInsertVertex(data)
             }
             this.hideLoading();
         })
@@ -134,7 +134,7 @@ export default class TableRelation extends React.Component {
             if (res.code === 1) {
                 const data = res.data
                 this.setState({ data, selectedData: getVertexNode(data) })
-                this.loopTree(graph, data)
+                this.doInsertVertex(data)
             }
             this.hideLoading();
         })
@@ -229,7 +229,7 @@ export default class TableRelation extends React.Component {
     doInsertVertex = (data) => {
         const graph = this.graph;
         let layout = this.layout;
-        const cx = 100
+        const cx = (graph.container.clientWidth - VertexSize.width) / 3
         const cy = 100
 
         const model = graph.getModel();

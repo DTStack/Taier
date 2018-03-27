@@ -24,6 +24,7 @@ class CatalogueTree extends Component {
     componentDidMount() {}
 
     componentDidUpdate() {
+        
         if (this._active) {
             this._inputEle = document.getElementById(`node_${this._active}`);
             if (this._inputEle) this.initEdit(this._inputEle)
@@ -52,23 +53,29 @@ class CatalogueTree extends Component {
     }
 
     initEdit = (inputEle) => {
+
         inputEle.className = 'edit-node';
         inputEle.setAttribute('contenteditable', 'plaintext-only')
         inputEle.focus();
+
         const textNode = inputEle.firstChild;
         const range = document.createRange();
         const sel = window.getSelection();
         const start = inputEle.innerHTML.length > textNode.length ? 
         textNode.length : inputEle.innerHTML.length
+
         range.setStart(textNode, start)
         range.collapse(true);
+
         sel.removeAllRanges();
         sel.addRange(range);
     }
 
     offEdit = (node) => {
+
         this._inputEle.className = 'normal-node';
         this._inputEle.setAttribute('contenteditable', false)
+
         const value = this._inputEle.innerHTML;
         const originVal = node.bindData.name;
         const callback = (res) => {
