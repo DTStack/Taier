@@ -63,11 +63,13 @@ export default class TaskTablePane extends Component {
     }
 
     resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
+        if (this.state.lineChart) {
+            this.state.lineChart.resize()
+        }
     }
 
     initLineChart(chartData) {
-        let myChart = echarts.init(document.getElementById('TableTrend')),
+        let myChart = echarts.init(document.getElementById('TableReportTrend')),
             option  = cloneDeep(lineAreaChartOptions),
             xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
             legends = [{ 
@@ -145,7 +147,7 @@ export default class TaskTablePane extends Component {
         return [{
             title: '记录数平均波动率',
             dataIndex: 'standardDeviation',
-            key: 'standardDeviation',
+            key: 'standardDeviation'
         }, {
             title: '平均记录数',
             dataIndex: 'avgRecord',
@@ -269,9 +271,10 @@ export default class TaskTablePane extends Component {
                             loading={false} 
                             className="shadow"
                             title="最近30次表数据波动图"
+                            style={{ width: '100%' }}
                         >
                             <Resize onResize={this.resize}>
-                                <article id="TableTrend" style={{ width: '100%', height: '250px' }}/>
+                                <article id="TableReportTrend" style={{ width: '100%', height: '250px' }}/>
                             </Resize>
                         </Card>
                     </Col>

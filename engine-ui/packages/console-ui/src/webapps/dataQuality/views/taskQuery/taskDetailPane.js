@@ -38,14 +38,6 @@ export default class TaskDetailPane extends Component {
         };
     }
 
-    componentDidMount() {
-        let data = this.props.data;
-        this.props.getTaskDetail({
-            recordId: data.id,
-            monitorId: data.monitorId
-        });
-    }
-
     componentWillReceiveProps(nextProps) {
         let oldData = this.props.data,
             newData = nextProps.data;
@@ -159,10 +151,6 @@ export default class TaskDetailPane extends Component {
                 this.initLineChart(res.data);
             }
         });
-        // this.props.getTaskAlarmNum({
-        //     recordId: record.id,
-        //     monitorId: record.monitorId
-        // });
     }
 
     initLineChart(chartData) {
@@ -189,7 +177,6 @@ export default class TaskDetailPane extends Component {
         myChart.setOption(option);
         this.setState({ lineChart: myChart });
     }
-
 
     render() {
         const { taskDetail } = this.props.taskQuery;
