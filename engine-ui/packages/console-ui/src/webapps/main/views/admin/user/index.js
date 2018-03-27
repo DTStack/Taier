@@ -157,12 +157,19 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active } = this.state
+        const { editTarget, active, selectedProject } = this.state
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
-        Api.updateUserRole(active, {
+        
+        const params = {
             targetUserId: editTarget.userId,
             roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
-        }).then((res) => {
+        }
+
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+
+        Api.updateUserRole(active, params).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')
                 ctx.setState({ visibleEditRole: false })
