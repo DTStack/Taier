@@ -9,7 +9,7 @@ git pull origin $dev
 echo "Git pull origin $dev."
 
 git add -A
-git commit -m "release_$currentTime"
+git commit -m "update_$currentTime"
 
 git checkout $master
 echo "Current branch is $master."
