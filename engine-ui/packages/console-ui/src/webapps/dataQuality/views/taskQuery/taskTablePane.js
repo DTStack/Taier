@@ -152,7 +152,7 @@ export default class TaskTablePane extends Component {
         return [{
             title: '记录数平均波动率',
             dataIndex: 'standardDeviation',
-            key: 'standardDeviation',
+            key: 'standardDeviation'
         }, {
             title: '平均记录数',
             dataIndex: 'avgRecord',
@@ -164,8 +164,7 @@ export default class TaskTablePane extends Component {
         }, {
             title: '平均告警率',
             dataIndex: 'alarmRate',
-            key: 'alarmRate',
-            render: (text => text > 0 ? text.toFixed(2) : text)
+            key: 'alarmRate'
         }]  
     }
 
