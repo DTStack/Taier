@@ -435,7 +435,7 @@ export default class StepThree extends Component {
                                 rules: [{ required: true, message: '不能为空' }],
                                 initialValue: setting.diverseNum
                             })(
-                                <InputNumber min={0} step={1} />
+                                <InputNumber min={1} step={1} />
                             )
                         }
                         %时候，计为成功匹配
@@ -450,7 +450,7 @@ export default class StepThree extends Component {
                                 rules: [{ required: true, message: '不能为空' }],
                                 initialValue: setting.diverseRatio
                             })(
-                                <InputNumber min={0} max={100} step={1} />
+                                <InputNumber min={1} max={100} step={1} />
                             )
                         }
                         %时候，计为成功匹配
@@ -465,7 +465,7 @@ export default class StepThree extends Component {
                                 rules: [{ required: true, message: '不能为空' }],
                                 initialValue: setting.diverseAbsolute
                             })(
-                                <InputNumber min={0} step={1} />
+                                <InputNumber min={1} step={1} />
                             )
                         }
                         时候，计为成功匹配
@@ -480,7 +480,7 @@ export default class StepThree extends Component {
                                 rules: [{ required: true, message: '不能为空' }],
                                 initialValue: setting.decimalRetain
                             })(
-                                <InputNumber min={0} step={1} />
+                                <InputNumber min={1} step={1} />
                             )
                         }
                         位
