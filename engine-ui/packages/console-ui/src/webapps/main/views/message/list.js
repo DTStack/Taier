@@ -19,6 +19,7 @@ class MessageList extends Component {
 
     state = {
         active: '1',
+        current: 1,
         selectedApp: '',
         table: {
             data: [],
@@ -40,10 +41,10 @@ class MessageList extends Component {
     }
 
     loadMsg = () => {
-        const { active, selectedApp } = this.state;
+        const { active, selectedApp, current } = this.state;
         Api.getMessage(selectedApp, {
-            currentPage: 1, 
-            pageSize: 20,
+            currentPage: current, 
+            pageSize: 10,
             mode: active,
         }).then(res => {
             this.setState({
@@ -117,6 +118,12 @@ class MessageList extends Component {
                 }
             })
         }
+    }
+
+    handleTableChange = (pagination, filters) => {
+        this.setState({ 
+            current: pagination.current, 
+        }, this.loadMsg)
     }
 
     selectedNotNull(selected) {
@@ -198,7 +205,7 @@ class MessageList extends Component {
     renderPane = () => {
 
         const { apps } = this.props;
-        const { table, selectedApp, selectedRowKeys } = this.state;
+        const { table, selectedApp, selectedRowKeys, current } = this.state;
         const menuItem = []
 
         if (apps && apps.length > 0) {
@@ -261,6 +268,12 @@ class MessageList extends Component {
             },
         };
 
+        const pagination = {
+            total: table.totalCount,
+            defaultPageSize: 10,
+            current,
+        };
+
         return (
             <div className="m-panel">
                 <Menu 
@@ -275,7 +288,9 @@ class MessageList extends Component {
                         className="m-table"
                         columns={colms} 
                         dataSource={ table.data || [] } 
-                        rowSelection={rowSelection} 
+                        rowSelection={rowSelection}
+                        onChange={this.handleTableChange}
+                        pagination={pagination}
                         footer={this.tableFooter}
                         scroll={{ y: 560 }}
                     />
