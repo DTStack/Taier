@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -532,39 +533,39 @@ public class ActionServiceImpl {
     }
 
     /**
-     * 根据jobid 和 计算类型，查询job
+     * 根据jobids 和 计算类型，查询job
      */
-    public Map<String, Map<String,Object>> entitys(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
+    public List<Map<String,Object>> entitys(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
 
         if (CollectionUtils.isEmpty(jobIds)||computeType==null){
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        Map<String,Map<String,Object>> result = null;
+        List<Map<String,Object>> result = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
             List<RdosEngineStreamJob> streamJobs = engineStreamTaskDAO.getRdosTaskByTaskIds(jobIds);
             if (CollectionUtils.isNotEmpty(streamJobs)) {
-                result = new HashMap<>(streamJobs.size());
+                result = new ArrayList<>(streamJobs.size());
                 for (RdosEngineStreamJob streamJob:streamJobs){
                     Map<String,Object> data = new HashMap<>(4);
                     data.put("jobId", streamJob.getTaskId());
                     data.put("status", streamJob.getStatus());
                     data.put("execStartTime", streamJob.getExecStartTime());
                     data.put("log", streamJob.getLogInfo()+"\n engineLog:"+streamJob.getEngineLog());
-                    result.put(streamJob.getTaskId(),data);
+                    result.add(data);
                 }
             }
         } else if (ComputeType.BATCH.getType().equals(computeType)) {
             List<RdosEngineBatchJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
             if (CollectionUtils.isNotEmpty(batchJobs)) {
-                result = new HashMap<>(batchJobs.size());
+                result = new ArrayList<>(batchJobs.size());
                 for (RdosEngineBatchJob batchJob:batchJobs){
                     Map<String,Object> data = new HashMap<>(4);
                     data.put("jobId", batchJob.getJobId());
                     data.put("status", batchJob.getStatus());
                     data.put("execStartTime", batchJob.getExecStartTime());
                     data.put("log", batchJob.getLogInfo()+"\n engineLog:"+batchJob.getEngineLog());
-                    result.put(batchJob.getJobId(),data);
+                    result.add(data);
                 }
             }
         }
