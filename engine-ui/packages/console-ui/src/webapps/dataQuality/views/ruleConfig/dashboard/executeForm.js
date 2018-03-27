@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
-import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { Button, Form, Select, DatePicker, Checkbox, Modal } from 'antd';
+import { Form, Select, DatePicker, Checkbox, Modal, message } from 'antd';
 
-import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
+import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -21,9 +19,9 @@ const mapDispatchToProps = dispatch => ({
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
     },
-    addMonitor(params) {
-        dispatch(ruleConfigActions.addMonitor(params));
-    }
+    getAllDict(params) {
+        dispatch(commonActions.getAllDict(params));
+    },
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -34,7 +32,7 @@ export default class ExecuteForm extends Component {
             scheduleConfObj: {
                 beginDate: moment().format('YYYY-MM-DD'),
                 endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
-                periodType: '1',
+                periodType: '2',
                 day: undefined,
                 weekDay: undefined,
                 hour: 0,
@@ -45,7 +43,9 @@ export default class ExecuteForm extends Component {
                 endHour: 0,
                 endMin: 0
             },
+            // params: {}
             params: {
+                monitorId: undefined,
                 scheduleConf: '',
                 notifyUser: [],
                 sendTypes: [],
@@ -56,33 +56,57 @@ export default class ExecuteForm extends Component {
 
     componentDidMount() {
         this.props.getUserList();
-        this.initState();
-        console.log(this)
+        this.props.getAllDict();
+        this.initState(this.props.data);
     }
 
-    initState = () => {
-        const { data } = this.props;
+    componentWillReceiveProps(nextProps) {
+        let oldData = this.props.data,
+            newData = nextProps.data;
 
-        if (data.scheduleConf) {
-            this.setState({ scheduleConfObj: JSON.parse(scheduleConf) });
+        if (oldData.monitorId != newData.monitorId) {
+            this.initState(newData);
         }
     }
 
-    resetScheduleConf = () => {
+    initState = (data) => {
+        if (data.scheduleConf) {
+            console.log(data)
+            this.setState({ 
+                scheduleConfObj: JSON.parse(data.scheduleConf),
+                params: {
+                    monitorId: data.monitorId,
+                    sendTypes: data.sendTypes,
+                    notifyUser: data.notifyUser.map(item => item.id),
+                    periodType: data.periodType,
+                    scheduleConf: data.scheduleConf
+                }
+            });
+        }
+    }
+
+    resetScheduleConf = (type) => {
+        const { params } = this.state;
+        let scheduleConfObj = {
+            beginDate: moment().format('YYYY-MM-DD'),
+            endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+            periodType: type,
+            day: undefined,
+            weekDay: undefined,
+            hour: 0,
+            min: 0,
+            beginHour: 0,
+            beginMin: 0,
+            gapHour: undefined,
+            endHour: 0,
+            endMin: 0
+        };
+
         this.setState({
-            scheduleConfObj: {
-                beginDate: moment().format('YYYY-MM-DD'),
-                endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
-                periodType: '1',
-                day: undefined,
-                weekDay: undefined,
-                hour: 0,
-                min: 0,
-                beginHour: 0,
-                beginMin: 0,
-                gapHour: undefined,
-                endHour: 0,
-                endMin: 0
+            scheduleConfObj,
+            params: {
+                ...params, 
+                scheduleConf: JSON.stringify(scheduleConfObj)
             }
         });
     }
@@ -98,45 +122,32 @@ export default class ExecuteForm extends Component {
 
     // 调度周期回调
     onPeriodTypeChange = (type) => {
-        const { scheduleConfObj } = this.state;
-        
+        const { scheduleConfObj, params } = this.state;
+        this.resetScheduleConf(type);
         this.setState({
-            scheduleConfObj: {...scheduleConfObj, periodType: type}
-        });
-        this.props.changeParams({
-            scheduleConf: JSON.stringify({...scheduleConfObj, periodType: type})
+            // scheduleConfObj: {...scheduleConfObj, periodType: type},
+            params: {
+                ...params, 
+                periodType: type,
+                // scheduleConf: JSON.stringify({...scheduleConfObj, periodType: type})
+            }
         });
     }
 
     onSendTypeChange = (value) => {
-        const { sendTypes } = this.props.editParams;
-        this.props.changeParams({
-            sendTypes: value
+        const { params } = this.state;
+        this.setState({
+            params: {...params, sendTypes: value}
         });
     }
 
     onBeginDateChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'beginDate');
+        this.changeScheduleConfTime('beginDate', dateString,);
     }
 
     onEndDateChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'endDate');
+        this.changeScheduleConfTime('endDate', dateString,);
     }
-
-    changeScheduleParams = (date, type) => {
-        const { scheduleConfObj } = this.state;
-
-        let newParams = {};
-        newParams[type] = date;
-
-        this.setState({
-            scheduleConfObj: {...scheduleConfObj, ...newParams}
-        });
-        this.props.changeParams({
-            scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
-        });
-    }
-
 
     renderUserList = (data) => {
         return data.map((item) => {
@@ -147,10 +158,10 @@ export default class ExecuteForm extends Component {
     }
 
     onNotifyUserChange = (value) => {
-        const { notifyUser } = this.props.editParams;
-        this.props.changeParams({
-            notifyUser: value
-        })
+        const { params } = this.state;
+        this.setState({
+            params: {...params, notifyUser: value}
+        });
     }
 
     prev = () => {
@@ -159,34 +170,30 @@ export default class ExecuteForm extends Component {
     }
 
     save = () => {
-        const { form, editParams } = this.props;
+        const { form } = this.props;
+        const { params } = this.state;
         form.validateFields({ force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-                // editParams.rules.forEach((rule) => {
-                //     delete rule.id
-                //     delete rule.isCustomizeSql
-                //     delete rule.isTable
-                //     delete rule.editStatus
-                // })
-                this.props.addMonitor({...editParams});
-                // location.href = "/dataQuality.html#/dq/rule";
+                RCApi.updateMonitor(params).then((res) => {
+                    if (res.code === 1) {
+                        message.success('更新成功！');
+                        this.props.closeModal(true);
+                    }
+                });
             }
-        })
+        });
 
     }
 
     changeScheduleConfTime = (type, value) => {
-        const { scheduleConfObj } = this.state;
-        console.log(type,value)
+        const { scheduleConfObj, params } = this.state;
         let newParams = {};
-        newParams[type] = value;
 
+        newParams[type] = value;
         this.setState({
-            scheduleConfObj: {...scheduleConfObj, ...newParams}
-        });
-        this.props.changeParams({
-            scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
+            scheduleConfObj: {...scheduleConfObj, ...newParams},
+            params: {...params, scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})}
         });
     }
 
@@ -198,6 +205,7 @@ export default class ExecuteForm extends Component {
         const { getFieldDecorator } = form;
 
         let periodType = allDict.periodType ? allDict.periodType : [];
+        let notifyType = allDict.notifyType ? allDict.notifyType : [];
 
         const generateHours = (type) => {
             let options = [];
@@ -451,14 +459,21 @@ export default class ExecuteForm extends Component {
         
     }
 
+    closeModal = () => {
+        this.initState(this.props.data);
+        this.props.form.resetFields();
+        this.props.closeModal(false);
+    }
+
     render() {
         const { form, common, data, visible, closeModal } = this.props;
-        const { scheduleConfObj } = this.state;
+        const { scheduleConfObj, params } = this.state;
         const { allDict, userList } = common;
         const { getFieldDecorator } = form;
-        const { notifyUser, sendTypes } = data;
+        const { notifyUser, sendTypes } = params;
 
         let periodType = allDict.periodType ? allDict.periodType : [];
+        let notifyType = allDict.notifyType ? allDict.notifyType : [];
 
         return (
             <Modal
@@ -469,8 +484,8 @@ export default class ExecuteForm extends Component {
                 width={'70%'}
                 okText="保存"
                 cancelText="取消"
-                onOk={closeModal}
-                onCancel={closeModal}>  
+                onOk={this.save}
+                onCancel={this.closeModal}>  
                 <Form>
                     <FormItem {...formItemLayout} label="调度周期" key="periodType">
                         {
@@ -529,13 +544,13 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('sendTypes', {
                                 rules: [{ required: true, message: '选择一种通知方式' }], 
-                                // initialValue: sendTypes.map(item => item.toString())
+                                initialValue: sendTypes.map(item => item.toString())
                             })(
                                 <Checkbox.Group onChange={this.onSendTypeChange}>
                                     {
-                                        // allDict.notifyType.map((item) => {
-                                        //     return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
-                                        // })
+                                        notifyType.map((item) => {
+                                            return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
+                                        })
                                     }
                                 </Checkbox.Group>
                             )
@@ -546,7 +561,7 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('notifyUser', {
                                 rules: [{ required: true, message: '接收人不能为空' }],
-                                // initialValue: notifyUser.map(item => item.toString())
+                                initialValue: notifyUser.map(item => item.toString())
                             })(
                                 <Select style={{ width: 325 }} mode="multiple" allowClear onChange={this.onNotifyUserChange}>
                                     {
