@@ -42,6 +42,15 @@ export const ruleConfigActions = {
 			});
 		}
 	},
+	updateMonitor(params) {
+		return dispatch => {
+			API.updateMonitor(params).then((res) => {
+				if (res.code === 1) {
+					message.success('更新成功！');
+				}
+			});
+		}
+	},
 	getMonitorRule(params) {
 		return dispatch => {
 			API.getMonitorRule(params).then((res) => {
