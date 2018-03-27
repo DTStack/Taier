@@ -31,7 +31,7 @@ class Header extends Component {
             link: '/dq/taskQuery',
             enable: true,
         }, {
-            id: 'dq/ruleConfig',
+            id: 'dq/rule',
             name: '规则配置',
             link: '/dq/rule',
             enable: true,
