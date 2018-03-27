@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Icon } from 'antd'
 
 import { Navigator, Logo }  from 'main/components/nav';
 
@@ -7,6 +8,7 @@ import { Navigator, Logo }  from 'main/components/nav';
     return {
         user: state.user,
         apps: state.apps,
+        routing: state.routing
     }
 })
 class Header extends Component {
@@ -19,33 +21,39 @@ class Header extends Component {
     render() {
         const { user, apps } = this.props;
         const menuItems = [{
-            id: 'overview',
+            id: 'dq/overview',
             name: '概览',
             link: '/dq/overview',
             enable: true,
         }, {
-            id: 'taskQuery',
+            id: 'dq/taskQuery',
             name: '任务查询',
             link: '/dq/taskQuery',
             enable: true,
         }, {
-            id: 'ruleConfig',
+            id: 'dq/ruleConfig',
             name: '规则配置',
             link: '/dq/rule',
             enable: true,
         }, {
-            id: 'dataCheck',
+            id: 'dq/dataCheck',
             name: '逐行校验',
             link: '/dq/dataCheck',
             enable: true,
         }, {
-            id: 'dataSource',
+            id: 'dq/dataSource',
             name: '数据源管理',
             link: '/dq/dataSource',
             enable: true,
         }];
 
-        const logo = <Logo linkTo="/" img={'public/main/img/logo.png'}/>
+        const logo = <span>
+            <Icon style={{fontSize: '18px', color: '#2491F7', marginRight: '10px'}} type="database"/>
+            <span style={{fontSize: '14px', color: '#ffffff'}}>
+                数据质量
+            </span>
+        </span>
+        // <Logo linkTo="/" img={'public/main/img/logo.png'}/>
         return <Navigator 
             logo={logo}
             menuItems={menuItems}

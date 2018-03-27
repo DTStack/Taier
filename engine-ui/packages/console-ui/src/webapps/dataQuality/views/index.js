@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import utils from 'utils'
 
 import Header from './layout/header'
+import Dashboard from '../views/dashboard'
 import * as UserAction from '../actions/user'
 
 const propType = {
@@ -28,7 +29,7 @@ class Main extends Component {
             <div className="main">
                 <Header />
                 <div className="container">
-                    { children || "i'm container." }
+                    { children || <Dashboard /> }
                 </div>
             </div>
         )

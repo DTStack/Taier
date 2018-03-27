@@ -39,15 +39,17 @@ export default class TaskDetailPane extends Component {
     }
 
     componentDidMount() {
-
-        console.log(this,'detail')
+        let data = this.props.data;
+        this.props.getTaskDetail({
+            recordId: data.id,
+            monitorId: data.monitorId
+        });
     }
 
     componentWillReceiveProps(nextProps) {
         let oldData = this.props.data,
             newData = nextProps.data;
-
-        if (isEmpty(oldData) && !isEmpty(newData)) {
+        if (!isEmpty(newData) && oldData !== newData) {
             this.props.getTaskDetail({
                 recordId: newData.id,
                 monitorId: newData.monitorId

@@ -136,6 +136,12 @@ export class Navigator extends Component {
         this.updateSelected()
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.routing !== nextProps.routing) {
+            this.updateSelected()
+        }
+    }
+
     handleClick = (e) => {
         const props = e.item.props
         const { onMenuClick } = this.props
@@ -151,7 +157,7 @@ export class Navigator extends Component {
 
     updateSelected = () => {
         const menuItems = this.props.menuItems
-        let pathname = window.location.pathname
+        let pathname = window.location.href
         if (menuItems && menuItems.length > 0) {
             const pathFund = menuItems.find(item => {
                 return pathname.indexOf(item.id) > -1

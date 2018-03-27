@@ -15,6 +15,7 @@ import { Navigator, Logo, Title, MyIcon }  from '../../components/nav'
     return {
         user: state.user,
         apps: state.apps,
+        routing: state.routing
     }
 })
 class SysAdmin extends Component {
