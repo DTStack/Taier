@@ -37,10 +37,7 @@ export default class TaskTablePane extends Component {
 
     componentDidMount() {
         const { data } = this.props;
-        // this.props.getTaskTableReport({
-        //     tableId: 87,
-        //     recordId: 21
-        // });
+
         TQApi.getTaskTableReport({
             recordId: data.id,
             tableId: data.tableId
@@ -50,48 +47,34 @@ export default class TaskTablePane extends Component {
                 this.initLineChart(res.data.usage);
             }
         });
-        // this.props.getTaskTableReport({
-        //     recordId: data.id,
-        //     tableId: data.tableId
-        // });
-        console.log(this,'table')
     }
 
     componentWillReceiveProps(nextProps) {
-        let oldData = this.props.taskQuery.tableReport,
-            newData = nextProps.taskQuery.tableReport;
-
-        if (isEmpty(oldData) && !isEmpty(newData)) {
-            
-        }
-
         if (isEmpty(this.props.data) && !isEmpty(nextProps.data)) {
-            console.log(nextProps.data)
-            // this.props.getTaskTableReport({
-            //     recordId: nextProps.data.id,
-            //     tableId: nextProps.data.tableId
-            // });
+            this.setState({ 
+                tableReport: {}
+             });
+
             TQApi.getTaskTableReport({
                 recordId: nextProps.data.id,
                 tableId: nextProps.data.tableId
             }).then((res) => {
                 if (res.code === 1) {
-                    this.setState({ tableReport: res.data });
-                    this.resize();
                     this.initLineChart(res.data.usage);
-                    this.resize();
+                    this.setState({ tableReport: res.data });
                 }
             });
         }
-        console.log(this.props,nextProps,'tablereceive')
     }
 
     resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
+        if (this.state.lineChart) {
+            this.state.lineChart.resize()
+        }
     }
 
     initLineChart(chartData) {
-        let myChart = echarts.init(document.getElementById('TableTrend')),
+        let myChart = echarts.init(document.getElementById('TableReportTrend')),
             option  = cloneDeep(lineAreaChartOptions),
             xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
             legends = [{ 
@@ -293,9 +276,10 @@ export default class TaskTablePane extends Component {
                             loading={false} 
                             className="shadow"
                             title="最近30次表数据波动图"
+                            style={{ width: '100%' }}
                         >
                             <Resize onResize={this.resize}>
-                                <article id="TableTrend" style={{ width: '100%', height: '250px' }}/>
+                                <article id="TableReportTrend" style={{ width: '100%', height: '250px' }}/>
                             </Resize>
                         </Card>
                     </Col>
