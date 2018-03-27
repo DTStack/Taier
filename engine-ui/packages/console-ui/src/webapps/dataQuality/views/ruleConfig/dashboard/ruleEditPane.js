@@ -588,12 +588,13 @@ export default class RuleEditPane extends Component {
     }
 
     closeExecuteModal = (updated) => {
+        console.log(updated)
         const { monitorId } = this.state;
 
         if (updated) {
             this.props.getMonitorDetail({ monitorId });
         }
-        
+
         this.setState({
             showExecuteModal: false
         });

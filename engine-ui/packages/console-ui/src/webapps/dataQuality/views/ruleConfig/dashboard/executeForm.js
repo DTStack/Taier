@@ -70,9 +70,8 @@ export default class ExecuteForm extends Component {
     }
 
     initState = (data) => {
-        const { params } = this.state;
-
         if (data.scheduleConf) {
+            console.log(data)
             this.setState({ 
                 scheduleConfObj: JSON.parse(data.scheduleConf),
                 params: {
@@ -84,6 +83,32 @@ export default class ExecuteForm extends Component {
                 }
             });
         }
+    }
+
+    resetScheduleConf = (type) => {
+        const { params } = this.state;
+        let scheduleConfObj = {
+            beginDate: moment().format('YYYY-MM-DD'),
+            endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+            periodType: type,
+            day: undefined,
+            weekDay: undefined,
+            hour: 0,
+            min: 0,
+            beginHour: 0,
+            beginMin: 0,
+            gapHour: undefined,
+            endHour: 0,
+            endMin: 0
+        };
+
+        this.setState({
+            scheduleConfObj,
+            params: {
+                ...params, 
+                scheduleConf: JSON.stringify(scheduleConfObj)
+            }
+        });
     }
 
     // 调度周期下拉框
@@ -98,13 +123,13 @@ export default class ExecuteForm extends Component {
     // 调度周期回调
     onPeriodTypeChange = (type) => {
         const { scheduleConfObj, params } = this.state;
-        
+        this.resetScheduleConf(type);
         this.setState({
-            scheduleConfObj: {...scheduleConfObj, periodType: type},
+            // scheduleConfObj: {...scheduleConfObj, periodType: type},
             params: {
                 ...params, 
                 periodType: type,
-                scheduleConf: JSON.stringify({...scheduleConfObj, periodType: type})
+                // scheduleConf: JSON.stringify({...scheduleConfObj, periodType: type})
             }
         });
     }
@@ -117,34 +142,11 @@ export default class ExecuteForm extends Component {
     }
 
     onBeginDateChange = (date, dateString) => {
-        // const { scheduleConfObj, params } = this.state;
-        // let newParams = {};
-        // newParams[type] = date;
-
-        // this.setState({
-        //     scheduleConfObj: {...scheduleConfObj, ...newParams},
-        //     params: {...params, scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})}
-        // });
-
         this.changeScheduleConfTime('beginDate', dateString,);
     }
 
     onEndDateChange = (date, dateString) => {
-        // const { scheduleConfObj, params } = this.state;
         this.changeScheduleConfTime('endDate', dateString,);
-        // this.changeScheduleParams(dateString, 'endDate');
-    }
-
-    changeScheduleParams = (date, type) => {
-        const { scheduleConfObj, params } = this.state;
-
-        let newParams = {};
-        newParams[type] = date;
-
-        this.setState({
-            scheduleConfObj: {...scheduleConfObj, ...newParams},
-            params: {...params, scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})}
-        });
     }
 
     renderUserList = (data) => {
@@ -180,16 +182,15 @@ export default class ExecuteForm extends Component {
                     }
                 });
             }
-        })
+        });
 
     }
 
     changeScheduleConfTime = (type, value) => {
         const { scheduleConfObj, params } = this.state;
-        console.log(type,value)
         let newParams = {};
-        newParams[type] = value;
 
+        newParams[type] = value;
         this.setState({
             scheduleConfObj: {...scheduleConfObj, ...newParams},
             params: {...params, scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})}
@@ -458,6 +459,12 @@ export default class ExecuteForm extends Component {
         
     }
 
+    closeModal = () => {
+        this.initState(this.props.data);
+        this.props.form.resetFields();
+        this.props.closeModal(false);
+    }
+
     render() {
         const { form, common, data, visible, closeModal } = this.props;
         const { scheduleConfObj, params } = this.state;
@@ -478,7 +485,7 @@ export default class ExecuteForm extends Component {
                 okText="保存"
                 cancelText="取消"
                 onOk={this.save}
-                onCancel={closeModal}>  
+                onCancel={this.closeModal}>  
                 <Form>
                     <FormItem {...formItemLayout} label="调度周期" key="periodType">
                         {
