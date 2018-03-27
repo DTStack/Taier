@@ -15,15 +15,14 @@ export default class RuleConfigEdit extends Component {
             editParams: {
                 dataSourceId: undefined,
                 tableName: undefined,
-                partitionColumn: undefined,
-                partitionValue: undefined,
+                partition: undefined,
                 isSubscribe: 0,
                 scheduleConf: '',
                 sendTypes: [],
                 notifyUser: [],
                 rules: []
             },
-            editStatus: 'new'
+            havePart: false
         }
     }
 
@@ -37,30 +36,35 @@ export default class RuleConfigEdit extends Component {
         console.log(this,obj,'editParams')
     }
 
+    changeHavePart = (havePart) => {
+        this.setState({ havePart });
+        console.log(this,'havePart')
+    }
+
     navToStep = (value) => {
         this.setState({ current: value });
     }
  
     render() {
-        const { current, editParams, editStatus } = this.state;
+        const { current, editParams, havePart } = this.state;
         const steps = [
             {
                 title: '监控对象', content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
+                    havePart={havePart}
                     editParams={editParams}
-                    editStatus={editStatus}
                     changeParams={this.changeParams}
+                    changeHavePart={this.changeHavePart}
                 />
             },
             {
                 title: '监控规则', content: <StepTwo
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
                     editParams={editParams}
-                    editStatus={editStatus}
                     changeParams={this.changeParams}
                 />
             },
@@ -68,9 +72,8 @@ export default class RuleConfigEdit extends Component {
                 title: '监控执行', content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    // {...this.props} 
                     editParams={editParams}
-                    editStatus={editStatus}
                     changeParams={this.changeParams}
                 />
             }

@@ -54,11 +54,11 @@ export default class DataCheck extends Component {
             width: '12%'
         }, {
             title: '分区',
-            dataIndex: 'originPartitionColumn',
-            key: 'originPartitionColumn',
+            dataIndex: 'originPartition',
+            key: 'originPartition',
             width: '10%',
             render: (text, record) => {
-                return text ? `${text} -- ${record.originPartitionValue}` : '--';
+                return text ? text : '--';
             }
         }, 
         {
@@ -68,11 +68,11 @@ export default class DataCheck extends Component {
             width: '12%'
         }, {
             title: '分区',
-            dataIndex: 'targetPartitionColumn',
-            key: 'targetPartitionColumn',
+            dataIndex: 'targetPartition',
+            key: 'targetPartition',
             width: '10%',
             render: (text, record) => {
-                return text ? `${text} -- ${record.targetPartitionValue}` : '--';
+                return text ? text : '--';
             }
         }, {
             title: '校验结果',
