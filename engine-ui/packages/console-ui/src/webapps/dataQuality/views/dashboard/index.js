@@ -20,6 +20,12 @@ const mapStateToProps = state => {
     return { dashBoard, common }
 };
 
+const alarmTitle = (type) => {
+    if (type === '1') return '今天'
+    else if (type === '30') return '最近30天'
+    else return '最近7天'
+}
+
 const mapDispatchToProps = dispatch => ({
     getTopRecord(params) {
         dispatch(dashBoardActions.getTopRecord(params));
@@ -39,7 +45,7 @@ const mapDispatchToProps = dispatch => ({
 export default class DashBoard extends Component {
 
     state = {
-        Alarmfilter: ['7']
+        Alarmfilter: '7'
     }
 
     componentDidMount() {
@@ -99,7 +105,7 @@ export default class DashBoard extends Component {
                 text: '最近30天告警数',
                 value: '30',
             }],
-            filteredValue: Alarmfilter,
+            filteredValue: [Alarmfilter],
             filterMultiple: false,
             width: '30%'
         }]
@@ -136,16 +142,16 @@ export default class DashBoard extends Component {
     }
 
     onTableChange = (page, filter, sorter) => {
-        let date = filter.countByDate[0] || ['7'];
+        let date = filter.countByDate[0] || '7' ;
         this.setState({
             Alarmfilter: date,
         })
-        this.props.getTopRecord({ date: date[0] });
+        this.props.getTopRecord({ date });
     }
 
     render() {
+        const { Alarmfilter } = this.state;
         const { topRecords, alarmTrend, alarmSum, usage, loading } = this.props.dashBoard;
-
         let extra = (
             <Link to="/dq/taskQuery">
                 查看更多
@@ -186,7 +192,6 @@ export default class DashBoard extends Component {
                                 </Row>
                             </Card>
                         </Row>
-
                         <Row style={marginTop} className="m-card shadow m-card-small">
                             <Card
                                 noHovering
@@ -199,7 +204,6 @@ export default class DashBoard extends Component {
                                 </Resize>
                             </Card>
                         </Row>
-
                         <Row style={marginTop} className="m-card shadow m-card-small">
                             <Card
                                 noHovering
@@ -243,7 +247,7 @@ export default class DashBoard extends Component {
                                 noHovering
                                 bordered={false}
                                 loading={false} 
-                                title="告警TOP20"
+                                title={`${alarmTitle(Alarmfilter)}告警TOP20`}
                             >
                                 <Table 
                                     rowKey="monitorId"
