@@ -144,7 +144,7 @@ export default class DataSource extends Component {
                 text: 'SQLServer',
                 value: 3
             }, {
-                text: 'Hive',
+                text: 'Spark',
                 value: 7
             }, {
                 text: 'MaxCompute',

@@ -18,7 +18,7 @@ export const dataSourceTypes = [ // 数据源类型
     'PostgreSQL', 
     'RDBMS', 
     'HDFS', 
-    'Hive',
+    'Spark',
     'HBase',
     'FTP',
     'MaxCompute'
