@@ -371,7 +371,8 @@ export default class StepTwo extends Component {
             }
 
             case 'threshold': {
-                return text ? `${record.operator}  ${text}` : 0
+                let value = `${record.operator}  ${text}`;
+                return record.verifyType == 1 ? `${value} %` : value
             }
 
             default:
@@ -517,9 +518,23 @@ export default class StepTwo extends Component {
             <div>
                 <div className="steps-content">
                     <div className="rule-action">
-                        <Button type="primary" onClick={this.addNewRule.bind(this, 'table')}>添加表级规则</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.addNewRule.bind(this, 'column')}>添加字段级规则</Button>
-                        <Button className="m-l-8" type="primary" onClick={this.addNewRule.bind(this, 'SQL')}>添加自定义SQL</Button>
+                        <Button 
+                            type="primary" 
+                            onClick={this.addNewRule.bind(this, 'table')}>
+                            添加表级规则
+                        </Button>
+                        <Button 
+                            type="primary" 
+                            className="m-l-8" 
+                            onClick={this.addNewRule.bind(this, 'column')}>
+                            添加字段级规则
+                        </Button>
+                        <Button 
+                            type="primary" 
+                            className="m-l-8" 
+                            onClick={this.addNewRule.bind(this, 'SQL')}>
+                            添加自定义SQL
+                        </Button>
                     </div>
 
                     <Table 

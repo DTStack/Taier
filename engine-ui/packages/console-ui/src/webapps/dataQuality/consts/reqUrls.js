@@ -59,7 +59,7 @@ export default {
     // ===== 规则配置 ===== //
     GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,             // 规则配置列表
     ADD_MONITOR: `${DQ_BASE_URL}/monitor/add`,                        // 新增规则配置
-    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,                     // 编辑规则配置
+    UPDATE_MONITOR: `${DQ_BASE_URL}/monitor/update`,                     // 编辑规则配置
     GET_RULE_PART: `${DQ_BASE_URL}/monitor/getPart`,                  // 获取规则分区
     CHANGE_MONITOR_STATUS: `${DQ_BASE_URL}/monitor/closeOrOpen`,      // 开启关闭监控
     GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,              // 告警信息详情

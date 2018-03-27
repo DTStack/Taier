@@ -22,6 +22,9 @@ export default {
     addMonitor(params) {
         return http.post(req.ADD_MONITOR, params);
     },
+    updateMonitor(params) {
+        return http.post(req.UPDATE_MONITOR, params);
+    },
     subscribeTable(params) {
         return http.post(req.SUBSCRIBE_TABLE, params);
     },
