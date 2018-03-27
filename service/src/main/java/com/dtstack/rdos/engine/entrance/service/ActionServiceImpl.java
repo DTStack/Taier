@@ -520,15 +520,55 @@ public class ActionServiceImpl {
         if (ComputeType.STREAM.getType().equals(computeType)) {
             RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
-                log = "logInfo:"+streamJob.getLogInfo()+"\nengineLog:"+streamJob.getEngineLog();
+                log = "logInfo:"+streamJob.getLogInfo()+"\n engineLog:"+streamJob.getEngineLog();
             }
         } else if (ComputeType.BATCH.getType().equals(computeType)) {
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
             if (batchJob != null) {
-                log = "logInfo:"+batchJob.getLogInfo()+"\nengineLog:"+batchJob.getEngineLog();
+                log = "logInfo:"+batchJob.getLogInfo()+"\n engineLog:"+batchJob.getEngineLog();
             }
         }
         return log;
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job
+     */
+    public Map<String, Map<String,Object>> entitys(@Param("jobIds") List<String> jobIds,@Param("computeType") Integer computeType) throws Exception {
+
+        if (CollectionUtils.isEmpty(jobIds)||computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        Map<String,Map<String,Object>> result = null;
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            List<RdosEngineStreamJob> streamJobs = engineStreamTaskDAO.getRdosTaskByTaskIds(jobIds);
+            if (CollectionUtils.isNotEmpty(streamJobs)) {
+                result = new HashMap<>(streamJobs.size());
+                for (RdosEngineStreamJob streamJob:streamJobs){
+                    Map<String,Object> data = new HashMap<>(4);
+                    data.put("jobId", streamJob.getTaskId());
+                    data.put("status", streamJob.getStatus());
+                    data.put("execStartTime", streamJob.getExecStartTime());
+                    data.put("log", streamJob.getLogInfo()+"\n engineLog:"+streamJob.getEngineLog());
+                    result.put(streamJob.getTaskId(),data);
+                }
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            List<RdosEngineBatchJob> batchJobs = batchJobDAO.getRdosTaskByTaskIds(jobIds);
+            if (CollectionUtils.isNotEmpty(batchJobs)) {
+                result = new HashMap<>(batchJobs.size());
+                for (RdosEngineBatchJob batchJob:batchJobs){
+                    Map<String,Object> data = new HashMap<>(4);
+                    data.put("jobId", batchJob.getJobId());
+                    data.put("status", batchJob.getStatus());
+                    data.put("execStartTime", batchJob.getExecStartTime());
+                    data.put("log", batchJob.getLogInfo()+"\n engineLog:"+batchJob.getEngineLog());
+                    result.put(batchJob.getJobId(),data);
+                }
+            }
+        }
+        return result;
     }
 
     public String generateUniqueSign(){
