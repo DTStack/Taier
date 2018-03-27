@@ -37,8 +37,8 @@ export default class StepOne extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            havePart: false,
-            sourcePreview: {}
+            sourcePreview: {},
+            useInput: false
         }
     }
     
@@ -66,21 +66,23 @@ export default class StepOne extends Component {
 
     // 分区下拉框
     renderTreeSelect = (data) => {
-        return data.map((item) => {
-            let partTitle = this.getPartTitle(item.partName, item.partValue);
+        if (!isEmpty(data)) {
+            return data.children.map((item) => {
+                let partTitle = this.getPartTitle(item.partName, item.partValue);
 
-            if (item.children.length) {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
-                        {this.renderTreeSelect(item.children)}
-                    </TreeNode>
-                )
-            } else {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
-                )
-            }
-        });
+                if (item.children.length) {
+                    return (
+                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
+                            {this.renderTreeSelect(item)}
+                        </TreeNode>
+                    )
+                } else {
+                    return (
+                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
+                    )
+                }
+            });
+        }
     }
 
     // 分区显示title
@@ -101,7 +103,7 @@ export default class StepOne extends Component {
         
         sourceList.forEach((item) => {
             if (item.id == id) {
-                this.setState({ havePart: item.type === 7 || item.type === 10 });
+                this.props.changeHavePart(item.type === 7 || item.type === 10);
             }
         });
     } 
@@ -115,16 +117,17 @@ export default class StepOne extends Component {
         this.props.getDataSourcesTable({ sourceId: id });
 
         // 重置分区表单和参数
-        if (editParams.partitionColumn) {
+        if (editParams.partition) {
             this.props.resetDataSourcesPart();
             form.setFieldsValue({ part: '' });
-
-            params.partitionColumn = undefined;
-            params.partitionValue  = undefined;
+            params.partition = undefined;
         }
 
         form.setFieldsValue({ sourceTable: '' });
         this.setState({ sourcePreview: {} });
+        if (editParams.rules.length) {
+            params.rules = [];
+        }
         changeParams(params);
 
         // 如果数据和表都有则请求分区数据
@@ -138,12 +141,10 @@ export default class StepOne extends Component {
         let params = { tableName: name };
 
         // 重置分区表单和参数
-        if (editParams.partitionColumn) {
+        if (editParams.partition) {
             this.props.resetDataSourcesPart();
             form.setFieldsValue({ part: '' });
-
-            params.partitionColumn = undefined;
-            params.partitionValue  = undefined;
+            params.partition = undefined;
         }
 
         this.setState({ sourcePreview: {} });
@@ -156,7 +157,7 @@ export default class StepOne extends Component {
 
     // 获取分区数据
     getSourcesPart = (id, name) => {
-        const { havePart } = this.state;
+        const { havePart } = this.props;
 
         if (id && name && havePart) {
             this.props.getDataSourcesPart({
@@ -198,17 +199,21 @@ export default class StepOne extends Component {
         });
     }
 
+    // 分区变化回调
     handlePartChange = (value, label, extra) => {
-        console.log(value,label,extra)
-        this.props.changeParams({
-            partitionColumn: value ? extra.triggerNode.props.dataRef.partName : undefined, 
-            partitionValue: value ? extra.triggerNode.props.dataRef.partValue : undefined
-        });
+        let partition = value ? extra.triggerNode.props.dataRef.partColumn : undefined;
+        this.props.changeParams({ partition });
+    }
+
+    // 分区变化回调
+    handleInputPartChange = (e) => {
+        let partition = e.target.value ? e.target.value : undefined;
+        this.props.changeParams({ partition });
     }
 
     renderPartText = () => {
         return (
-            <p className="font-14">如果分区还不存在，可以<a>直接输入</a>未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
+            <p className="font-14">如果分区还不存在，可以直接手动输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
         )
     }
 
@@ -239,10 +244,67 @@ export default class StepOne extends Component {
         this.props.changeParams({ isSubscribe });
     }
 
+    renderColumnPart = () => {
+        const { editParams, form, dataSource } = this.props;
+        const { useInput } = this.state;
+        const { partition } = editParams;
+        const { sourcePart } = dataSource;
+        const { getFieldDecorator } = form;
+
+        if (!useInput) {
+            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
+                {
+                    getFieldDecorator('originColumn', {
+                        rules: [],
+                        initialValue: partition
+                    })(
+                        <TreeSelect
+                            allowClear
+                            showSearch
+                            placeholder="分区列表"
+                            style={{ width: '85%', marginRight: 15 }} 
+                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                            onChange={this.handlePartChange}>
+                            {
+                                this.renderTreeSelect(sourcePart)
+                            }
+                        </TreeSelect>
+                    )
+                }
+                <a onClick={this.onPartitionTypeChange}>手动输入</a>
+            </FormItem>
+        } else {
+            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
+                {
+                    getFieldDecorator('originColumnInput', {
+                        rules: [],
+                        initialValue: ''
+                    })(
+                        <Input
+                            style={{ width: '85%', marginRight: 15 }} 
+                            placeholder="手动输入分区" 
+                            onChange={this.handleInputPartChange} />
+                    )
+                }
+                <a onClick={this.onPartitionTypeChange}>选择已有分区</a>
+            </FormItem>
+        }
+    }
+
+    onPartitionTypeChange = () => {
+        const { useInput } = this.state;
+        
+        // form.setFieldsValue({ part: '' });
+        // params.partition = undefined;
+
+        this.props.changeParams({ partition: undefined });
+        this.setState({ useInput: !useInput });
+    }
+
     render() {
-        const { editStatus, editParams, form, dataSource } = this.props;
-        const { havePart, sourcePreview } = this.state;
-        const { dataSourceId, tableName, partitionColumn, partitionValue } = editParams;
+        const { editParams, form, dataSource, havePart } = this.props;
+        const { sourcePreview, useInput } = this.state;
+        const { dataSourceId, tableName, partition } = editParams;
         const { sourceList, sourceTable, sourcePart } = dataSource;
         const { getFieldDecorator } = form;
 
@@ -259,8 +321,7 @@ export default class StepOne extends Component {
                                     <Select 
                                         showSearch
                                         style={{ width: '85%', marginRight: 15 }} 
-                                        onChange={this.onSourceTypeChange} 
-                                        disabled={editStatus === 'edit'}>
+                                        onChange={this.onSourceTypeChange}>
                                         {
                                             this.renderSourceType(sourceList)
                                         }
@@ -279,8 +340,7 @@ export default class StepOne extends Component {
                                     <Select 
                                         showSearch
                                         style={{ width: '85%', marginRight: 15 }} 
-                                        onChange={this.onTableChange} 
-                                        disabled={editStatus === 'edit'}>
+                                        onChange={this.onTableChange}>
                                         {
                                             this.renderSourceTable(sourceTable)
                                         }
@@ -294,29 +354,9 @@ export default class StepOne extends Component {
                         </FormItem>
 
                         {
-                            (havePart || partitionColumn)
+                            havePart
                             &&
-                            <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                                {
-                                    getFieldDecorator('part', {
-                                        rules: [],
-                                        initialValue: this.getPartTitle(partitionColumn, partitionValue) 
-                                    })(
-                                        <TreeSelect
-                                            disabled={editStatus === 'edit'}
-                                            allowClear
-                                            showSearch
-                                            placeholder="分区列表"
-                                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                                            onChange={this.handlePartChange}>
-                                            {
-                                                this.renderTreeSelect(sourcePart)
-                                            }
-                                        </TreeSelect>
-                                    )
-                                }
-                                
-                            </FormItem>
+                            this.renderColumnPart()
                         }
 
                         <Row type="flex" justify="center" className="font-14">

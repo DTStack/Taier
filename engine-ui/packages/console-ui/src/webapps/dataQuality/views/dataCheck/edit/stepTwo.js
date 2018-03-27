@@ -31,7 +31,8 @@ export default class StepTwo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sourcePreview: {}
+            sourcePreview: {},
+            useInput: false
         };
     }
 
@@ -101,21 +102,23 @@ export default class StepTwo extends Component {
 
     // 分区树形选择
     renderTreeSelect = (data) => {
-        return data.children.map((item) => {
-            let partTitle = this.getPartTitle(item.partName, item.partValue);
+        if (!isEmpty(data)) {
+            return data.children.map((item) => {
+                let partTitle = this.getPartTitle(item.partName, item.partValue);
 
-            if (item.children.length) {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
-                        {this.renderTreeSelect(item.children)}
-                    </TreeNode>
-                )
-            } else {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
-                )
-            }
-        });
+                if (item.children.length) {
+                    return (
+                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
+                            {this.renderTreeSelect(item.children)}
+                        </TreeNode>
+                    )
+                } else {
+                    return (
+                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
+                    )
+                }
+            });
+        }
     }
 
     // 分区title显示
@@ -181,11 +184,12 @@ export default class StepTwo extends Component {
 
     renderColumnPart = () => {
         const { editStatus, editParams, form, dataCheck } = this.props;
+        const { useInput } = this.state;
         const { partition } = editParams.target;
         const { targetPart } = dataCheck;
         const { getFieldDecorator } = form;
 
-        if (!isEmpty(targetPart)) {
+        if (!useInput) {
             return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                 {
                     getFieldDecorator('targetColumn', {
@@ -196,7 +200,7 @@ export default class StepTwo extends Component {
                             allowClear
                             showSearch
                             placeholder="分区列表"
-                            style={{ width: '85%' }} 
+                            style={{ width: '85%', marginRight: 15 }} 
                             disabled={editStatus === 'edit'}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                             onChange={this.handlePartChange}>
@@ -206,27 +210,48 @@ export default class StepTwo extends Component {
                         </TreeSelect>
                     )
                 }
+                {
+                    editStatus !== 'edit'
+                    &&
+                    <a onClick={this.onPartitionTypeChange}>手动输入</a>
+                }
             </FormItem>
         } else {
             return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
                 {
-                    getFieldDecorator('targetColumn', {
+                    getFieldDecorator('targetColumnInput', {
                         rules: [],
-                        initialValue: partition
+                        initialValue: ''
                     })(
                         <Input 
-                            style={{ width: '85%' }} 
+                            style={{ width: '85%', marginRight: 15 }} 
                             placeholder="手动输入分区" 
                             onChange={this.handleInputPartChange}
                             disabled={editStatus === 'edit'} />
                     )
                 }
+                {
+                    editStatus !== 'edit'
+                    &&
+                    <a onClick={this.onPartitionTypeChange}>选择已有分区</a>
+                }
             </FormItem>
         }
     }
 
+    onPartitionTypeChange = () => {
+        const { target } = this.props.editParams;
+        const { useInput } = this.state;
+        // form.setFieldsValue({ part: '' });
+        // params.partition = undefined;
+        this.props.changeParams({
+            target: {...target,  partition: undefined}
+        });
+        this.setState({ useInput: !useInput });
+    }
+
     render() {
-        const { editStatus, editParams, dataSource, form } = this.props;
+        const { editStatus, editParams, dataSource, form, havePart } = this.props;
         const { sourceTable } = dataSource;
         const { getFieldDecorator } = form;
         const { origin, target } = editParams;
@@ -256,7 +281,7 @@ export default class StepTwo extends Component {
                         </FormItem>
 
                         {
-                            origin.partition
+                            (havePart || target.partition)
                             &&
                             this.renderColumnPart()
                         }

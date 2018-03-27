@@ -184,7 +184,7 @@ export default class StepThree extends Component {
     }
 
     renderDynamic() {
-        const { form, common, editParams, editStatus } = this.props;
+        const { form, common, editParams } = this.props;
         const { scheduleConfObj } = this.state;
         const { allDict, userList } = common;
         const { notifyUser, sendTypes } = editParams;
@@ -445,7 +445,7 @@ export default class StepThree extends Component {
     }
 
     render() {
-        const { form, common, editParams, editStatus } = this.props;
+        const { form, common, editParams } = this.props;
         const { scheduleConfObj } = this.state;
         const { allDict, userList } = common;
         const { notifyUser, sendTypes } = editParams;
@@ -546,7 +546,7 @@ export default class StepThree extends Component {
 
                 <div className="steps-action">
                     <Button onClick={this.prev}>上一步</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
+                    <Button className="m-l-8" type="primary" onClick={this.save}>新建</Button>
                 </div>
             </div>
         )

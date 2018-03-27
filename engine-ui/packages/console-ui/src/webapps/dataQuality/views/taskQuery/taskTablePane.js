@@ -6,6 +6,7 @@ import { taskQueryActions } from '../../actions/taskQuery';
 import moment from 'moment';
 import Resize from 'widgets/resize';
 import { lineAreaChartOptions } from '../../consts';
+import TQApi from '../../api/taskQuery';
 
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
@@ -29,7 +30,8 @@ export default class TaskTablePane extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            lineChart: undefined
+            lineChart: '',
+            tableReport: {}
         };
     }
 
@@ -39,10 +41,20 @@ export default class TaskTablePane extends Component {
         //     tableId: 87,
         //     recordId: 21
         // });
-        this.props.getTaskTableReport({
+        TQApi.getTaskTableReport({
             recordId: data.id,
             tableId: data.tableId
+        }).then((res) => {
+            if (res.code === 1) {
+                this.setState({ tableReport: res.data });
+                this.initLineChart(res.data.usage);
+            }
         });
+        // this.props.getTaskTableReport({
+        //     recordId: data.id,
+        //     tableId: data.tableId
+        // });
+        console.log(this,'table')
     }
 
     componentWillReceiveProps(nextProps) {
@@ -50,16 +62,28 @@ export default class TaskTablePane extends Component {
             newData = nextProps.taskQuery.tableReport;
 
         if (isEmpty(oldData) && !isEmpty(newData)) {
-            this.initLineChart(newData.usage)
+            
         }
 
         if (isEmpty(this.props.data) && !isEmpty(nextProps.data)) {
             console.log(nextProps.data)
-            this.props.getTaskTableReport({
+            // this.props.getTaskTableReport({
+            //     recordId: nextProps.data.id,
+            //     tableId: nextProps.data.tableId
+            // });
+            TQApi.getTaskTableReport({
                 recordId: nextProps.data.id,
                 tableId: nextProps.data.tableId
+            }).then((res) => {
+                if (res.code === 1) {
+                    this.setState({ tableReport: res.data });
+                    this.resize();
+                    this.initLineChart(res.data.usage);
+                    this.resize();
+                }
             });
         }
+        console.log(this.props,nextProps,'tablereceive')
     }
 
     resize = () => {
@@ -67,25 +91,24 @@ export default class TaskTablePane extends Component {
     }
 
     initLineChart(chartData) {
-        let myChart = echarts.init(document.getElementById('TableTrend'));
-        const option = cloneDeep(lineAreaChartOptions);
-        let xData = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm'));
-        let legends = [{ 
-            key: 'dayCountRecord',
-            name: '记录数'
-        }, { 
-            key: 'dayCountTrigger',
-            name: '总告警数'
-        }];
+        let myChart = echarts.init(document.getElementById('TableTrend')),
+            option  = cloneDeep(lineAreaChartOptions),
+            xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
+            legends = [{ 
+                key: 'dayCountRecord',
+                name: '记录数'
+            }, { 
+                key: 'dayCountTrigger',
+                name: '总告警数'
+            }];
 
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
-        option.yAxis[0].minInterval = 1;
-        
         option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
-        option.yAxis[0].axisLabel.formatter = '{value} 次';
-        option.legend.data = legends.map(item => item.name);
         option.xAxis[0].data = chartData && xData ? xData : [];
+        option.yAxis[0].axisLabel.formatter = '{value} 次';
+        option.yAxis[0].minInterval = 1;
+        option.legend.data = legends.map(item => item.name);
         option.series = this.getSeries(chartData, legends);
         // 绘制图表
         myChart.setOption(option);
@@ -147,7 +170,6 @@ export default class TaskTablePane extends Component {
             title: '记录数平均波动率',
             dataIndex: 'standardDeviation',
             key: 'standardDeviation',
-            render: (text => text > 0 ? text.toFixed(2) : text)
         }, {
             title: '平均记录数',
             dataIndex: 'avgRecord',
@@ -186,8 +208,8 @@ export default class TaskTablePane extends Component {
 
     render() {
         const { data, taskQuery, common } = this.props;
-        const { monitorId, visible, selectedIds, remark } = this.state;
-        const { loading, tableReport } = taskQuery;
+        const { monitorId, visible, selectedIds, remark, tableReport } = this.state;
+        const { loading } = taskQuery;
 
         let reportData = !isEmpty(tableReport) ? [tableReport] : [];
 

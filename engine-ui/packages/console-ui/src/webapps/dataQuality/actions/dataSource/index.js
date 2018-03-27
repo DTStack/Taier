@@ -79,7 +79,7 @@ export const dataSourceActions = {
 				if (res.code === 1) {
 					dispatch({
 						type: ACTION_TYPE.GET_DATA_SOURCES_PART,
-						payload: res.data
+						payload: res.data ? res.data : {}
 					});
 				}
 			});

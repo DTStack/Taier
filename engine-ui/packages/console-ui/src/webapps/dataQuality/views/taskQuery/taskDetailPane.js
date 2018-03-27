@@ -38,6 +38,11 @@ export default class TaskDetailPane extends Component {
         };
     }
 
+    componentDidMount() {
+
+        console.log(this,'detail')
+    }
+
     componentWillReceiveProps(nextProps) {
         let oldData = this.props.data,
             newData = nextProps.data;
@@ -161,13 +166,13 @@ export default class TaskDetailPane extends Component {
     initLineChart(chartData) {
         let myChart = echarts.init(document.getElementById('TaskTrend')),
             option  = cloneDeep(lineAreaChartOptions),
-            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD')),
+            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
             yData   = Object.values(chartData);
 
-        option.title.text = ''
-        option.tooltip.axisPointer.label.formatter = '{value}'
-        option.legend.data = ['告警数']
-        option.xAxis[0].axisLabel.formatter = '{value}';
+        option.title.text = '';
+        option.tooltip.axisPointer.label.formatter = '{value}';
+        option.legend.data = ['告警数'];
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
 
         option.yAxis[0].axisLabel.formatter = '{value} 次';
@@ -180,7 +185,7 @@ export default class TaskDetailPane extends Component {
         }];
 
         myChart.setOption(option);
-        this.setState({ lineChart: myChart })
+        this.setState({ lineChart: myChart });
     }
 
 

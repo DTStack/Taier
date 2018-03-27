@@ -50,8 +50,9 @@ export default class TaskQuery extends Component {
             executeTime: 0,
             bizTime: 0
         },
-        visibleSlidePane: false,
-        currentTask: {}
+        tabKey: '1',
+        showSlidePane: false,
+        currentTask: {},
     }
 
     componentDidMount() {
@@ -68,7 +69,7 @@ export default class TaskQuery extends Component {
             dataIndex: 'tableName',
             key: 'tableName',
             render: (text, record) => (
-                <a onClick={this.showSlidePane.bind(this, record)}>{text}</a>
+                <a onClick={this.openSlidePane.bind(this, record)}>{text}</a>
             ),
             width: '15%'
         }, {
@@ -246,18 +247,23 @@ export default class TaskQuery extends Component {
         this.props.getTaskList(params);
     }
 
-    showSlidePane = (record) => {
+    openSlidePane = (record) => {
         this.setState({
-            visibleSlidePane: true,
+            showSlidePane: true,
             currentTask: record
         })
     }
 
     closeSlidePane = () => {
         this.setState({
-            visibleSlidePane: false,
-            currentTask: {}
+            showSlidePane: false,
+            currentTask: {},
+            tabKey: '1'
         })
+    }
+
+    onTabChange = (key) => {
+        this.setState({ tabKey: key });
     }
 
     render() {
@@ -265,7 +271,7 @@ export default class TaskQuery extends Component {
         const { sourceType, sourceList } = dataSource;
         const { userList } = common;
         const { loading, taskList } = taskQuery;
-        const { params, visibleSlidePane, currentTask } = this.state;
+        const { params, showSlidePane, tabKey, currentTask } = this.state;
 
         const pagination = {
             current: params.currentPage,
@@ -359,13 +365,14 @@ export default class TaskQuery extends Component {
 
                         <SlidePane 
                             onClose={this.closeSlidePane}
-                            visible={visibleSlidePane} 
+                            visible={showSlidePane} 
                             style={{ right: '-20px', width: '80%', minHeight: '600px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 
                                     animated={false}
-                                    // onChange={ this.getPreview.bind(this) }
+                                    activeKey={tabKey}
+                                    onChange={this.onTabChange}
                                 >
                                     
                                     <TabPane tab="详细报告" key="1">
