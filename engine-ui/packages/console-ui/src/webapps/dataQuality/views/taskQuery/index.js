@@ -101,7 +101,7 @@ export default class TaskQuery extends Component {
             dataIndex: 'alarmSum',
             key: 'alarmSum',
             width: '8%',
-            sorter: true
+            // sorter: true
         }, {
             title: '类型',
             dataIndex: 'sourceTypeValue',
@@ -133,7 +133,7 @@ export default class TaskQuery extends Component {
         let { field, order } = sorter;
         let params = {
             currentPage: page.current,
-            status: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
+            statusFilter: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
             alarmSumSort: undefined,
             executeTimeSort: undefined,
         }
