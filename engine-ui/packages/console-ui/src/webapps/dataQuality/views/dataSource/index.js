@@ -104,8 +104,6 @@ export default class DataSource extends Component {
         let active = filters.active,
             type   = filters.type;
 
-        console.log(filters)
-
         let params = {...this.state.params, 
             currentPage: page.current, 
             active: active ? active[0] : undefined,

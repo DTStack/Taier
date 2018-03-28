@@ -4,14 +4,23 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card } from 'antd';
 import moment from 'moment';
+
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { commonActions } from '../../../actions/common';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
+import { CHECK_STATUS } from '../../../consts';
 
 const Search = Input.Search;
 const InputGroup = Input.Group;
 const Option = Select.Option;
+
+const enableLookReport = (status) => {
+    return status === CHECK_STATUS.SUCCESS ||
+    status === CHECK_STATUS.PASS ||
+    status === CHECK_STATUS.UNPASS ||
+    status === CHECK_STATUS.EXPIRED;
+}
 
 const mapStateToProps = state => {
     const { dataCheck, common } = state;
@@ -78,19 +87,6 @@ export default class DataCheck extends Component {
             title: '校验结果',
             dataIndex: 'statusEN',
             key: 'statusEN',
-            // filters: [{
-            //     text: '无差异',
-            //     value: '0',
-            // }, {
-            //     text: '有差异',
-            //     value: '1',
-            // }, {
-            //     text: '进行中',
-            //     value: '2',
-            // }, {
-            //     text: '未开始',
-            //     value: '3',
-            // }],
             width: '8%',
             // filterMultiple: false,
         }, {
@@ -125,8 +121,7 @@ export default class DataCheck extends Component {
                 let menu = (
                     <Menu>
                         {
-                            record.status === 2
-                            &&
+                            enableLookReport(record.status) &&
                             <Menu.Item>
                                 <Link to={`dq/dataCheck/report/${record.id}`}>查看报告</Link>
                             </Menu.Item>

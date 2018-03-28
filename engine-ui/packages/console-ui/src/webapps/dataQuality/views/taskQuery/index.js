@@ -2,10 +2,16 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs } from 'antd';
 import moment from 'moment';
+import { isNull } from 'lodash';
 
 import SlidePane from 'widgets/slidePane';
+
+
 import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
+
+import { TaskStatus } from '../../components/display';
+import { taskStatusFilter } from '../../consts';
 import { commonActions } from '../../actions/common';
 import { taskQueryActions } from '../../actions/taskQuery';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -83,29 +89,19 @@ export default class TaskQuery extends Component {
         }, 
         {
             title: '状态',
+            width: '10%',
             dataIndex: 'status',
             key: 'status',
             render: (text) => {
-            	switch (text) {
-            		case 1:
-            			return '运行中';
-            		case 2:
-            			return '运行失败';
-            		case 3:
-            			return '校验通过';
-                    case 4:
-                        return '校验未通过';
-            		default:
-            			// statements_def
-            			break;
-            	}
+                return <TaskStatus value={text} />
             },
-            width: '10%'
+            filters: taskStatusFilter,
         }, {
             title: '告警总数',
             dataIndex: 'alarmSum',
             key: 'alarmSum',
-            width: '8%'
+            width: '8%',
+            sorter: true
         }, {
             title: '类型',
             dataIndex: 'sourceTypeValue',
@@ -120,15 +116,6 @@ export default class TaskQuery extends Component {
             key: 'configureUserName',
             width: '12%'
         }, 
-        // {
-        //     title: '业务日期',
-        //     dataIndex: 'bizTime',
-        //     key: 'bizTime',
-        //     render: (text) => {
-        //         return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
-        //     },
-        //     width: '12%'
-        // }, 
         {
             title: '执行时间',
             dataIndex: 'executeTime',
@@ -136,19 +123,28 @@ export default class TaskQuery extends Component {
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
             },
-            width: '12%'
+            width: '12%',
+            sorter: true
         }]
     }
 
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
-        let params = {...this.state.params, 
+        let { field, order } = sorter;
+        let params = {
             currentPage: page.current,
-            // sort: sorter.columnKey ? (sorter.order === 'descend' ? 'desc' : 'asc') : undefined
+            status: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
+            alarmSumSort: undefined,
+            executeTimeSort: undefined,
         }
-
-        this.setState({ params });
-        this.props.getTaskList(params);
+        if (field) {
+            params[
+                field === 'alarmSum' ? 'alarmSumSort' : 'executeTimeSort'
+            ] = order === 'descend' ? 'desc' : 'asc';
+        }
+        const reqParams = Object.assign(this.state.params, params)
+        this.setState({ params: reqParams });
+        this.props.getTaskList(reqParams);
     }
 
     // 数据源类型下拉框
@@ -366,7 +362,7 @@ export default class TaskQuery extends Component {
                         <SlidePane 
                             onClose={this.closeSlidePane}
                             visible={showSlidePane} 
-                            style={{ right: '0', width: '80%', minHeight: '500px', height: '100%' }}
+                            style={{ right: '0', width: '80%', minHeight: '500px', height: 'auto' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 

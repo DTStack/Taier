@@ -10,7 +10,7 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
 import Resize from 'widgets/resize';
-import { lineAreaChartOptions } from '../../consts';
+import { lineAreaChartOptions, alarmDateFilter } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
 // import '../../../styles/views/dashBoard.scss';
@@ -95,16 +95,7 @@ export default class DashBoard extends Component {
             title: '告警数',
             dataIndex: 'countByDate',
             key: 'countByDate',
-            filters: [{
-                text: '今日告警数',
-                value: '1',
-            }, {
-                text: '最近7天告警数',
-                value: '7',
-            }, {
-                text: '最近30天告警数',
-                value: '30',
-            }],
+            filters: alarmDateFilter,
             filteredValue: [Alarmfilter],
             filterMultiple: false,
             width: '30%'
