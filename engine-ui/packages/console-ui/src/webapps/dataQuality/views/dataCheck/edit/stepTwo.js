@@ -225,7 +225,7 @@ export default class StepTwo extends Component {
                     })(
                         <Input 
                             style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区" 
+                            placeholder="手动输入分区的格式为：分区字段=分区值，具体的参数配置在帮助文档里说明" 
                             onChange={this.handleInputPartChange}
                             disabled={editStatus === 'edit'} />
                     )

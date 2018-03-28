@@ -163,7 +163,7 @@ export default class StepThree extends Component {
                 //     delete rule.editStatus
                 // })
                 this.props.addMonitor({...editParams});
-                // location.href = "/dataQuality.html#/dq/rule";
+                window.location.href = "/dataQuality.html#/dq/rule";
             }
         })
 
