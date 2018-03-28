@@ -1,5 +1,6 @@
 // 任务类型
 export const TASK_STATUS = {
+    WAIT_RUN: 0,
     RUNNING: 1,
     FAIL: 2,
     PASS: 3,

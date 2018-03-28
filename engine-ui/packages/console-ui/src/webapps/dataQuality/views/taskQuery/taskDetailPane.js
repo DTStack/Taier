@@ -14,6 +14,7 @@ const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
+require('echarts/lib/component/markLine');
 
 const mapStateToProps = state => {
     const { taskQuery, common } = state;
@@ -156,6 +157,8 @@ export default class TaskDetailPane extends Component {
     }
 
     initLineChart(chartData) {
+        const { currentRecord } = this.state;
+
         let myChart = echarts.init(document.getElementById('TaskTrend')),
             option  = cloneDeep(lineAreaChartOptions),
             xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
@@ -163,17 +166,34 @@ export default class TaskDetailPane extends Component {
 
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
-        option.legend.data = ['告警数'];
+        option.legend.data = ['统计值'];
         option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
 
         option.yAxis[0].axisLabel.formatter = '{value} 次';
         option.yAxis[0].minInterval = 1;
         option.series = [{
-            name: '告警数',
+            name: '统计值',
             symbol: 'none',
             type:'line',
             data: yData,
+            markLine : {
+                silent: true,
+                itemStyle: {
+                    normal: {
+                        label: {
+                            formatter: function() {
+                                return '阈值'
+                            }
+                        }
+                    }
+                },
+                data : [
+                    {
+                        yAxis: +currentRecord.threshold,
+                    }
+                ]
+            }
         }];
 
         myChart.setOption(option);
