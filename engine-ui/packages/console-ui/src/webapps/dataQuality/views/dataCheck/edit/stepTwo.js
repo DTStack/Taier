@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message } from 'antd';
+import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { formItemLayout } from '../../../consts';
@@ -31,8 +31,9 @@ export default class StepTwo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sourcePreview: {},
-            useInput: false
+            useInput: false,
+            showPreview: false,
+            sourcePreview: {}
         };
     }
 
@@ -46,23 +47,37 @@ export default class StepTwo extends Component {
         })
     }
 
+    // 右侧表变化回调
     onTargetTableChange = (name) => {
-        const { editParams, form, changeParams } = this.props;
+        const { 
+            form, 
+            havePart,
+            editParams, 
+            changeParams,
+            getSourcePart,
+            resetSourcePart } = this.props;
         let target = { ...editParams.target, table: name };
 
-        this.setState({ sourcePreview: {} });
 
         // 重置分区表单和参数
-        if (editParams.origin.partition) {
-            this.props.resetSourcePart('target');
-            form.setFieldsValue({ targetColumn: '' });
+        if (havePart) {
+            resetSourcePart('target');
+            form.setFieldsValue({ 
+                targetColumn: '',
+                targetColumnInput: ''
+            });
             target.partition = undefined;
 
-            this.props.getSourcePart({
+            getSourcePart({
                 sourceId: target.dataSourceId,
                 table: name
             }, 'target');
         }
+
+        this.setState({ 
+            showPreview: false,
+            sourcePreview: {} 
+        });
 
         changeParams({
             target: { ...editParams.target, ...target }
@@ -71,6 +86,7 @@ export default class StepTwo extends Component {
 
     // 预览数据源的数据
     onSourcePreview = () => {
+        const { showPreview } = this.state;
         const { form, editParams } = this.props;
         let tableName = form.getFieldValue('table');
 
@@ -78,6 +94,10 @@ export default class StepTwo extends Component {
             message.error('未选择数据表');
             return;
         }
+
+        this.setState({ 
+            showPreview: !showPreview
+        });
 
         DSApi.getDataSourcesPreview({
             sourceId: editParams.target.dataSourceId,
@@ -225,7 +245,7 @@ export default class StepTwo extends Component {
                     })(
                         <Input 
                             style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区的格式为：分区字段=分区值，具体的参数配置在帮助文档里说明" 
+                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}，具体的参数配置在帮助文档里说明" 
                             onChange={this.handleInputPartChange}
                             disabled={editStatus === 'edit'} />
                     )
@@ -252,10 +272,10 @@ export default class StepTwo extends Component {
 
     render() {
         const { editStatus, editParams, dataSource, form, havePart } = this.props;
-        const { sourceTable } = dataSource;
+        const { sourcePreview, showPreview } = this.state;
         const { getFieldDecorator } = form;
         const { origin, target } = editParams;
-        const { sourcePreview } = this.state;
+        const { sourceTable } = dataSource;
 
         return (
             <div>
@@ -291,7 +311,7 @@ export default class StepTwo extends Component {
                         </Row>
                         
                         {
-                            !isEmpty(sourcePreview)
+                            showPreview
                             &&
                             <Table 
                                 rowKey="key"

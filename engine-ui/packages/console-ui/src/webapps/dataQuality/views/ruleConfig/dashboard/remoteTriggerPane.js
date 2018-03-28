@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm } from 'antd';
-import { ruleConfigActions } from '../../../actions/ruleConfig';
+import { Button, Table, message, Modal, Input, Select, Popconfirm, Form } from 'antd';
 import moment from 'moment';
 
+import { ruleConfigActions } from '../../../actions/ruleConfig';
+import { rowFormItemLayout } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const Option = Select.Option;
 const TextArea = Input.TextArea;
+const FormItem = Form.Item;
 
 const mapStateToProps = state => {
     const { ruleConfig, common } = state;
@@ -49,7 +51,7 @@ export default class RemoteTriggerPane extends Component {
         let oldData = this.props.data,
             newData = nextProps.data;
 
-        if (isEmpty(oldData) && !isEmpty(newData)) {
+        if (!isEmpty(newData) && oldData !== newData) {
             console.log(oldData,newData,'trigger')
             let monitorId = newData.monitorPartVOS[0].monitorId;
 
@@ -225,7 +227,11 @@ export default class RemoteTriggerPane extends Component {
         let monitorId = value;
 
         this.props.getMonitorRule({ monitorId });
-        this.setState({ monitorId });
+        this.setState({ 
+            monitorId,
+            selectedIds: [],
+            remark: undefined
+        });
     }
 
     onRemarkChange = (e) => {
@@ -243,22 +249,29 @@ export default class RemoteTriggerPane extends Component {
             visible: false,
             selectedIds: []
         });
+
+        this.props.form.resetFields();
     }
 
     onRemoteTrigger = () => {
         const { selectedIds, monitorId, remark } = this.state;
-        const { data } = this.props;
+        const { data, form, getRemoteTrigger } = this.props;
         
         if (selectedIds.length) {
-            RCApi.addRemoteTrigger({
-                monitorId: monitorId,
-                ruleIds: selectedIds,
-                remark: remark
-            }).then((res) => {
-                if (res.code === 1) {
-                    message.success('操作成功！');
-                    this.closeRemoteModal();
-                    this.props.getRemoteTrigger({ tableId: data.tableId });
+            form.validateFields({ force: true }, (err, values) => {
+                console.log(err,values)
+                if(!err) {
+                    RCApi.addRemoteTrigger({
+                        monitorId: monitorId,
+                        ruleIds: selectedIds,
+                        remark: remark
+                    }).then((res) => {
+                        if (res.code === 1) {
+                            message.success('操作成功！');
+                            this.closeRemoteModal();
+                            getRemoteTrigger({ tableId: data.tableId });
+                        }
+                    });
                 }
             });
         } else {
@@ -267,10 +280,12 @@ export default class RemoteTriggerPane extends Component {
     }
 
     render() {
-        const { data, ruleConfig, common } = this.props;
+        const { data, ruleConfig, common, form } = this.props;
         const { monitorId, visible, selectedIds, remark } = this.state;
         const { loading, triggerList, monitorRules } = ruleConfig;
+        const { getFieldDecorator } = form;
 
+        let monitorPartVOS = data.monitorPartVOS ? data.monitorPartVOS : [];
         let rowSelection = {
             selectedRowKeys: selectedIds,
             onChange: (selectedIds, selectedRows) => {
@@ -324,23 +339,20 @@ export default class RemoteTriggerPane extends Component {
                     cancelText="取消"
                     onOk={this.onRemoteTrigger}
                     onCancel={this.closeRemoteModal}>
-                    {
-                        data.monitorPartVOS && data.monitorPartVOS.length > 1
-                        &&
-                        <div>
-                            分区：
-                            <Select 
-                                value={monitorId ? monitorId.toString() : undefined}
-                                style={{ width: 150 }}
-                                onChange={this.onMonitorIdChange}>
-                                {
-                                    data.monitorPartVOS.map((item) => {
-                                        return <Option key={item.monitorId} value={item.monitorId.toString()}>{item.partValue}</Option>
-                                    })
-                                }
-                            </Select>
-                        </div>
-                    }
+                    
+                    <div>
+                        分区：
+                        <Select 
+                            value={monitorId ? monitorId.toString() : undefined}
+                            style={{ width: 150 }}
+                            onChange={this.onMonitorIdChange}>
+                            {
+                                monitorPartVOS.map((item) => {
+                                    return <Option key={item.monitorId} value={item.monitorId.toString()}>{item.partValue}</Option>
+                                })
+                            }
+                        </Select>
+                    </div>
 
                     <Table 
                         rowKey="id"
@@ -350,15 +362,27 @@ export default class RemoteTriggerPane extends Component {
                         pagination={false}
                         dataSource={monitorRules}
                     />
-                    
-                    <TextArea 
-                        className="trigger-remarks" 
-                        value={remark}
-                        autosize={{ minRows: 3, maxRows: 6 }} 
-                        placeholder="备注信息" 
-                        onChange={this.onRemarkChange} />
+
+                    <FormItem {...rowFormItemLayout}>
+                        {
+                            getFieldDecorator('remark', {
+                                rules: [
+                                    { max: 100, message: '备注不能超过100个字符'}
+                                ], 
+                                initialValue: remark
+                            })(
+                                <TextArea 
+                                    className="trigger-remarks" 
+                                    autosize={{ minRows: 3, maxRows: 6 }} 
+                                    placeholder="备注信息" 
+                                    onChange={this.onRemarkChange} />
+                            )
+                        }
+                    </FormItem>
                 </Modal>
             </div>
         );
     }
 }
+
+RemoteTriggerPane = Form.create()(RemoteTriggerPane);

@@ -218,6 +218,10 @@ export default class DataCheck extends Component {
         this.props.getLists(params);
     }
 
+    disabledDate = (current) => {
+        return current && current.valueOf() > Date.now();
+    }
+
     render() {
         const { lists, loading } = this.props.dataCheck;
         const { userList } = this.props.common;
@@ -253,6 +257,7 @@ export default class DataCheck extends Component {
                     执行时间：
                     <DatePicker
                         format="YYYY-MM-DD"
+                        disabledDate={this.disabledDate}
                         style={{ width: 150 }}
                         placeholder="选择日期"
                         onChange={this.onDateChange}
