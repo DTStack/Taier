@@ -104,6 +104,7 @@ export default class DataCheck extends Component {
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
             width: '8%',
+            render: (text => text ? `${text} %` : text)
             // sorter: true
         }, {
             title: '最近修改人',

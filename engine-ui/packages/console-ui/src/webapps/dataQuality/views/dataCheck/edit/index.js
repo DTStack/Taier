@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { Steps, Button, Icon } from 'antd';
 
 import StepOne from './stepOne';
@@ -13,22 +11,20 @@ import DCApi from '../../../api/dataCheck';
 const Step = Steps.Step;
 
 export default class DataCheckEdit extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            current: 0,
-            editParams: {
-                origin: {},
-                target: {},
-                setting: {},
-                mappedPK: null,
-                executeType: 0,
-                scheduleConf: '',
-                notifyVO: null,
-            },
-            editStatus: 'new',
-            havePart: false
-        }
+
+    state = {
+        current: 0,
+        editParams: {
+            origin: {},
+            target: {},
+            setting: {},
+            mappedPK: null,
+            executeType: 0,
+            scheduleConf: '',
+            notifyVO: null,
+        },
+        editStatus: 'new',
+        havePart: false
     }
 
     componentWillMount() {
@@ -61,12 +57,10 @@ export default class DataCheckEdit extends Component {
     changeParams = (obj) => {
         let editParams = { ...this.state.editParams, ...obj };
         this.setState({ editParams });
-        console.log(this,obj,'editParams')
     }
 
     changeHavePart = (havePart) => {
         this.setState({ havePart });
-        console.log(this,'havePart')
     }
 
     navToStep = (value) => {
@@ -117,6 +111,7 @@ export default class DataCheckEdit extends Component {
                 />
             }
         ];
+        
         return (
             <div className="box-1 check-setting">
                 <h1 className="box-title">
