@@ -50,8 +50,14 @@ export default class StepOne extends Component {
     // 数据源下拉框
     renderSourceType = (data) => {
         return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
             return (
-                <Option key={source.id} value={source.id.toString()}>{source.dataName}（{dataSourceTypes[source.type]}）</Option>
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
             )
         });
     }
@@ -111,8 +117,10 @@ export default class StepOne extends Component {
 
     // 数据源变化回调
     onSourceTypeChange = (id) => {
-        const { editParams, 
-            form, changeParams, 
+        const { 
+            form, 
+            editParams, 
+            changeParams, 
             getDataSourcesTable,
             resetDataSourcesPart 
         } = this.props;
