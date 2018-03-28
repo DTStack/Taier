@@ -70,7 +70,6 @@ export default class RuleConfig extends Component {
 
     // table设置
     initColumns = () => {
-        const { dataSourceType } = this.props.common.allDict;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -123,30 +122,23 @@ export default class RuleConfig extends Component {
 
     // 订阅操作
     onSubscribe = (record) => {
+        const { params } = this.state;
+
         if (record.isSubscribe) {
             RCApi.unSubscribeTable({ tableId: record.tableId }).then((res) => {
                 if (res.code === 1) {
                     message.success('取消订阅成功');
-                    this.props.getMonitorLists(this.state.params);
+                    this.props.getMonitorLists(params);
                 }
             });
         } else {
             RCApi.subscribeTable({ tableId: record.tableId }).then((res) => {
                 if (res.code === 1) {
                     message.success('订阅成功');
-                    this.props.getMonitorLists(this.state.params);
+                    this.props.getMonitorLists(params);
                 }
             })
         }
-    }
-
-    deleteRuleConfig = (record) => {
-        Api.deleteRule({ id: record.id }).then((res) => {
-            if (res.code === 1) {
-                message.success("删除成功！");
-                this.props.getMonitorLists(this.state.params);
-            }
-        })
     }
 
     // 表格换页/排序
@@ -169,9 +161,10 @@ export default class RuleConfig extends Component {
         });
     }
 
+    // 数据源类型筛选
     onSourceChange = (type) => {
-        let sourceType = type ? type : undefined;
-        let params = {
+        let sourceType = type ? type : undefined,
+            params = {
             ...this.state.params, 
             pageIndex: 1,
             sourceType
@@ -196,9 +189,10 @@ export default class RuleConfig extends Component {
         });
     }
 
+    // 数据源筛选
     onUserSourceChange = (id) => {
-        let dataSourceId = id ? id : undefined;
-        let params = {
+        let dataSourceId = id ? id : undefined,
+            params = {
             ...this.state.params, 
             pageIndex: 1,
             dataSourceId
@@ -217,10 +211,10 @@ export default class RuleConfig extends Component {
         })
     }
 
-    // 调度周期变化回调
+    // 调度周期筛选
     onPeriodTypeChange = (type) => {
-        let periodType = type ? type : undefined;
-        let params = {
+        let periodType = type ? type : undefined,
+            params = {
             ...this.state.params,
             pageIndex: 1,
             periodType
@@ -239,10 +233,10 @@ export default class RuleConfig extends Component {
         })
     }
 
-    // 监听userList的select
+    // user筛选
     onUserChange = (id) => {
-        let lastModifyUserId = id ? id : undefined;
-        let params = {
+        let lastModifyUserId = id ? id : undefined,
+            params = {
             ...this.state.params, 
             pageIndex: 1,
             lastModifyUserId
@@ -252,10 +246,10 @@ export default class RuleConfig extends Component {
         this.setState({ params });
     }
 
-    // 执行时间变化回调
+    // 执行时间筛选
     onDateChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined;
-        let params = {
+        let executeTime = date ? date.valueOf() : undefined,
+            params = {
             ...this.state.params, 
             pageIndex: 1,
             executeTime
@@ -265,10 +259,10 @@ export default class RuleConfig extends Component {
         this.setState({ params });
     }
 
-    // 是否订阅
+    // 是否订阅筛选
     onSubscribeChange = (e) => {
-        let isSubscribe = e.target.checked ? 1 : undefined;
-        let params = {
+        let isSubscribe = e.target.checked ? 1 : undefined,
+            params = {
             ...this.state.params, 
             pageIndex: 1,
             isSubscribe
@@ -280,8 +274,8 @@ export default class RuleConfig extends Component {
 
     // table搜索
     handleSearch = (name) => {
-        let tableName = name ? name : undefined;
-        let params = {
+        let tableName = name ? name : undefined,
+            params = {
             ...this.state.params, 
             pageIndex: 1,
             tableName
@@ -319,7 +313,7 @@ export default class RuleConfig extends Component {
         const pagination = {
             current: params.pageIndex,
             pageSize: params.pageSize,
-            total: monitorList.totalCount,
+            total: monitorList ? monitorList.totalCount : 0,
         };
 
         let periodType = allDict.periodType ? allDict.periodType : [];

@@ -7,15 +7,15 @@ import moment from 'moment';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { commonActions } from '../../../actions/common';
+import { CHECK_STATUS } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
-import { CHECK_STATUS } from '../../../consts';
 
 const Search = Input.Search;
 const InputGroup = Input.Group;
 const Option = Select.Option;
 
-const enableLookReport = (status) => {
+const enableCheckReport = (status) => {
     return status === CHECK_STATUS.SUCCESS ||
     status === CHECK_STATUS.PASS ||
     status === CHECK_STATUS.UNPASS ||
@@ -122,7 +122,7 @@ export default class DataCheck extends Component {
                 let menu = (
                     <Menu>
                         {
-                            enableLookReport(record.status) &&
+                            enableCheckReport(record.status) &&
                             <Menu.Item>
                                 <Link to={`dq/dataCheck/report/${record.id}`}>查看报告</Link>
                             </Menu.Item>
@@ -159,22 +159,13 @@ export default class DataCheck extends Component {
         })
     }
 
-    // 表名
-    onInputChange = (e) => {
-        let tableName = e.target.value ? e.target.value : undefined;
-        let params = {...this.state.params, tableName: tableName};
-        this.setState({ params });
-    }
-
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
-        console.log(page, filter, sorter)
         let params = {...this.state.params, 
             currentPage: page.current,
             // sortBy: sorter.columnKey ? sorter.columnKey : '',
             // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
         }
-        // this.props.getFileList(params);
         this.setState({ params });
         this.props.getLists(params);
     }
@@ -190,24 +181,38 @@ export default class DataCheck extends Component {
 
     // 监听userList的select
     onUserChange = (value) => {
-        let params = {...this.state.params, lastModifyUserId: value};
+        let lastModifyUserId = value ? value : undefined,
+            params = {
+            ...this.state.params, 
+            currentPage: 1,
+            lastModifyUserId
+        };
+
         this.setState({ params });
         this.props.getLists(params);
     }
 
     // 执行时间改变
     onDateChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined;
-        let params = {...this.state.params, executeTime: executeTime};
+        let executeTime = date ? date.valueOf() : undefined,
+            params = {
+                ...this.state.params, 
+                currentPage: 1,
+                executeTime
+            };
         
         this.setState({ params });
         this.props.getLists(params);
     }
 
     // table搜索
-    handleSearch = (name) => {
-        let tableName = name ? name : undefined;
-        let params = {...this.state.params, tableName: tableName};
+    onTableSearch = (name) => {
+        let tableName = name ? name : undefined,
+            params = {
+                ...this.state.params, 
+                currentPage: 1,
+                tableName
+            };
 
         this.setState({ params });
         this.props.getLists(params);
@@ -229,12 +234,15 @@ export default class DataCheck extends Component {
                 <Search
                     placeholder="输入表名搜索"
                     style={{ width: 200, margin: '10px 0' }}
-                    onSearch={this.handleSearch}
+                    onSearch={this.onTableSearch}
                 />
 
                 <div className="m-l-8">
                     最近修改人：
-                    <Select allowClear onChange={this.onUserChange} style={{ width: 200 }}>
+                    <Select 
+                        allowClear 
+                        style={{ width: 150 }}
+                        onChange={this.onUserChange}>
                         {
                             this.renderUserList(userList)
                         }
@@ -245,6 +253,7 @@ export default class DataCheck extends Component {
                     执行时间：
                     <DatePicker
                         format="YYYY-MM-DD"
+                        style={{ width: 150 }}
                         placeholder="选择日期"
                         onChange={this.onDateChange}
                     />
