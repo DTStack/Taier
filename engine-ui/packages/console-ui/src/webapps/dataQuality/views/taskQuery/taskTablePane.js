@@ -160,7 +160,7 @@ export default class TaskTablePane extends Component {
             title: '平均告警率',
             dataIndex: 'alarmRate',
             key: 'alarmRate',
-            render: (text => text && text > 0 ? text.toFixed(2) : text)
+            render: (text => text && text.toFixed ? text.toFixed(2) : text)
         }]  
     }
 

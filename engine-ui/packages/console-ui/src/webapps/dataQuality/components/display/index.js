@@ -9,11 +9,11 @@ import { TASK_STATUS } from '../../consts';
  */
 export function FildCheckStatus(props) {
     if (props.value) {
-        return '通过'
+        return <span>通过</span>
     } else if (status === null) {
-        return '未运行'
+        return <span>未运行</span>
     } else {
-        return '未通过'
+        return <span>未通过</span>
     }
 }
 
