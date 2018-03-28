@@ -103,7 +103,7 @@ export default class StepTwo extends Component {
             dataIndex: 'filter',
             key: 'filter',
             render: (text, record) => this.renderColumns(text, record, 'filter'),
-            width: '30%'
+            width: '25%'
         }, {
             title: '校验方法',
             dataIndex: 'verifyType',
@@ -111,11 +111,11 @@ export default class StepTwo extends Component {
             render: (text, record) => this.renderColumns(text, record, 'verifyType'),
             width: '15%',
         }, {
-            title: '阈值配置',
+            title: '阈值配置（不符合阈值条件时触发告警）',
             dataIndex: 'threshold',
             key: 'threshold',
             render: (text, record) => this.renderColumns(text, record, 'threshold'),
-            width: '15%'
+            width: '20%'
         }, {
             title: '操作',
             width: '10%',
@@ -333,7 +333,7 @@ export default class StepTwo extends Component {
                             <InputNumber
                               min={0}
                               max={100}
-                              style={{ marginRight: 10 }}
+                              style={{ width: 70, marginRight: 10 }} 
                               onChange={this.changeRuleParams.bind(this, 'threshold')}
                             /> 
                         )

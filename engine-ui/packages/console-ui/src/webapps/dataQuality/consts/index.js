@@ -1,4 +1,25 @@
-// 常量
+// 任务类型
+export const TASK_STATUS = {
+    RUNNING: 1,
+    FAIL: 2,
+    PASS: 3,
+    UNPASS: 4,
+}
+
+/**
+ * 校验状态
+ */
+export const CHECK_STATUS = { // 2，4, 5, 6 可查看报告
+    INITIAL: 0,
+    RUNNING: 1,
+    SUCCESS: 2,
+    FAIL: 3,
+    PASS: 4,
+    UNPASS: 5,
+    EXPIRED: 6,
+}
+
+// 数据源类型
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
@@ -32,6 +53,34 @@ export const periodType = [ // 调度类型
     '月', 
     '手动触发'
 ]
+
+/**
+ * 告警日期过滤
+ */
+export const alarmDateFilter = [{
+    text: '今日告警数',
+    value: '1',
+}, {
+    text: '最近7天告警数',
+    value: '7',
+}, {
+    text: '最近30天告警数',
+    value: '30',
+}]
+
+export const taskStatusFilter = [{
+    text: '运行中',
+    value: TASK_STATUS.RUNNING,
+}, {
+    text: '运行失败',
+    value: TASK_STATUS.FAIL,
+}, {
+    text: '校验通过',
+    value: TASK_STATUS.PASS,
+}, {
+    text: '校验未通过',
+    value: TASK_STATUS.UNPASS,
+}]
 
 export const formItemLayout = { // 表单常用布局
     labelCol: {

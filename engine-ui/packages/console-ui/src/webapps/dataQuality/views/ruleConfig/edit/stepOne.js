@@ -37,8 +37,9 @@ export default class StepOne extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            sourcePreview: {},
-            useInput: false
+            useInput: false,
+            showPreview: false,
+            sourcePreview: {}
         }
     }
     
@@ -95,10 +96,10 @@ export default class StepOne extends Component {
     }
 
     /**
-     * 是否是Hive或MaxCompute
+     * 是否有分区
      * @param {string} id 
      */
-    isHiveOrMaxCompute = (id) => {
+    havePartition = (id) => {
         const { sourceList } = this.props.dataSource;
         
         sourceList.forEach((item) => {
@@ -110,24 +111,37 @@ export default class StepOne extends Component {
 
     // 数据源变化回调
     onSourceTypeChange = (id) => {
-        const { editParams, form, changeParams, getDataSourcesPart } = this.props;
+        const { editParams, 
+            form, changeParams, 
+            getDataSourcesTable,
+            resetDataSourcesPart 
+        } = this.props;
         let params = { dataSourceId: id };
 
-        this.isHiveOrMaxCompute(id);
-        this.props.getDataSourcesTable({ sourceId: id });
+        this.havePartition(id);
+        form.setFieldsValue({ sourceTable: '' });
+        getDataSourcesTable({ sourceId: id });
 
         // 重置分区表单和参数
         if (editParams.partition) {
-            this.props.resetDataSourcesPart();
-            form.setFieldsValue({ part: '' });
+            resetDataSourcesPart();
+            form.setFieldsValue({ 
+                originColumn: '',
+                originColumnInput: ''
+            });
             params.partition = undefined;
         }
 
-        form.setFieldsValue({ sourceTable: '' });
-        this.setState({ sourcePreview: {} });
+        this.setState({ 
+            showPreview: false,
+            sourcePreview: {} 
+        });
+
+        // 重置规则
         if (editParams.rules.length) {
             params.rules = [];
         }
+
         changeParams(params);
 
         // 如果数据和表都有则请求分区数据
@@ -137,17 +151,29 @@ export default class StepOne extends Component {
 
     // 数据表变化回调
     onTableChange = (name) => {
-        const { editParams, form, changeParams, getDataSourcesPart } = this.props;
+        const { editParams, form, changeParams } = this.props;
         let params = { tableName: name };
 
         // 重置分区表单和参数
         if (editParams.partition) {
             this.props.resetDataSourcesPart();
-            form.setFieldsValue({ part: '' });
+            form.setFieldsValue({ 
+                originColumn: '',
+                originColumnInput: ''
+            });
             params.partition = undefined;
         }
 
-        this.setState({ sourcePreview: {} });
+        this.setState({
+            showPreview: false,
+            sourcePreview: {} 
+        });
+
+        // 重置规则
+        if (editParams.rules.length) {
+            params.rules = [];
+        }
+
         changeParams(params);
 
         // 如果数据和表都有则请求分区数据
@@ -170,6 +196,7 @@ export default class StepOne extends Component {
     // 获取预览数据
     onSourcePreview = () => {
         const { form } = this.props;
+        const { showPreview } = this.state;
         let sourceId = form.getFieldValue('sourceId');
         let tableName = form.getFieldValue('sourceTable');
 
@@ -194,7 +221,10 @@ export default class StepOne extends Component {
                     return o;
                 });
 
-                this.setState({ sourcePreview: res.data });
+                this.setState({ 
+                    showPreview: !showPreview,
+                    sourcePreview: res.data 
+                });
             }
         });
     }
@@ -229,14 +259,16 @@ export default class StepOne extends Component {
     }
 
     initColumns = (data) => {
-        return data.map((item) => {
-            return {
-                title: item,
-                key: item,
-                dataIndex: item,
-                width: 80,
-            }
-        });
+        if (data) {
+            return data.map((item) => {
+                return {
+                    title: item,
+                    key: item,
+                    dataIndex: item,
+                    width: 80,
+                }
+            });
+        }
     }
 
     onSubscribeChange = (e) => {
@@ -282,7 +314,7 @@ export default class StepOne extends Component {
                     })(
                         <Input
                             style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区" 
+                            placeholder="手动输入分区的格式为：分区字段=分区值，具体的参数配置在帮助文档里说明" 
                             onChange={this.handleInputPartChange} />
                     )
                 }
@@ -303,7 +335,7 @@ export default class StepOne extends Component {
 
     render() {
         const { editParams, form, dataSource, havePart } = this.props;
-        const { sourcePreview, useInput } = this.state;
+        const { useInput, showPreview, sourcePreview } = this.state;
         const { dataSourceId, tableName, partition } = editParams;
         const { sourceList, sourceTable, sourcePart } = dataSource;
         const { getFieldDecorator } = form;
@@ -364,7 +396,7 @@ export default class StepOne extends Component {
                         </Row>
                         
                         {
-                            !isEmpty(sourcePreview)
+                            showPreview
                             &&
                             <Table 
                                 rowKey="key"

@@ -199,7 +199,12 @@ export default class TaskTablePane extends Component {
         )
 
         return (
-            <div style={{ margin: 20 }}>
+            <div style={{ 
+                padding: 20, 
+                overflow: 'hidden', 
+                height: '100%', 
+                overflowY: 'auto' 
+            }}>
                 <Table 
                     rowKey="tableName"
                     className="m-table txt-center-table"

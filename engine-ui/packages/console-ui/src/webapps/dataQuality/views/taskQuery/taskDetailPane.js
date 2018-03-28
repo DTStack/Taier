@@ -5,8 +5,10 @@ import { Button, Table, message, Modal, Input, Select, Popconfirm, Card } from '
 import { taskQueryActions } from '../../actions/taskQuery';
 import moment from 'moment';
 import Resize from 'widgets/resize';
+
 import { lineAreaChartOptions } from '../../consts';
 import TQApi from '../../api/taskQuery';
+import { FildCheckStatus } from '../../components/display'
 
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
@@ -106,7 +108,7 @@ export default class TaskDetailPane extends Component {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            render: (text => text ? '通过' : '未通过')
+            render: (text => <FildCheckStatus value={text} />)
         }, {
             title: '统计值',
             dataIndex: 'statistic',

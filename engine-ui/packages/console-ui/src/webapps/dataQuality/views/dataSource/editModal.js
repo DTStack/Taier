@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Input, Button,  Select, Form, Checkbox, message } from 'antd';
 
+import utils from 'utils'
+
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -33,7 +35,7 @@ const mapDispatchToProps = dispatch => ({
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class DataSourceModal extends Component {
+class DataSourceModal extends Component {
 
     state = {
         sourceType: 1,
@@ -49,7 +51,7 @@ export default class DataSourceModal extends Component {
         const oldData = this.props.sourceData;
         const newData = nextProps.sourceData;
 
-        if (newData.id !== oldData.id) {
+        if (newData && newData.id !== oldData.id) {
             if (newData.type === 7) {
                 this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true });
             } else {
@@ -60,11 +62,23 @@ export default class DataSourceModal extends Component {
 
     onOk = (e) => {
         const { editDataSource, form } = this.props;
-        console.log(form.getFieldsValue());
+        const source = form.getFieldsValue()
+
+        if (source.dataJson.jdbcUrl) {
+            source.dataJson.jdbcUrl = utils.trim(source.dataJson.jdbcUrl)
+        }
+        if (source.dataJson.defaultFS) {
+            source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
+        }
 
         form.validateFields((err) => {
             if (!err) {
-                editDataSource(form.getFieldsValue(), form)
+                editDataSource(source, form)
+                setTimeout(() => {
+                    this.setState({
+                        sourceType: '',
+                    })
+                }, 200)
             }
         });
     }
@@ -72,16 +86,21 @@ export default class DataSourceModal extends Component {
     testConnection = (e) => {
         const { sourceType } = this.state;
         const { testConnection, form } = this.props;
-        let field = [
-            'type',
-            'dataJson.jdbcUrl',
-            'dataJson.username',
-            'dataJson.password',
-        ];
 
-        if (sourceType === 10) {
-            field = [...field, 'dataJson.project', 'dataJson.endPoint', 'dataJson.accessKey', 'dataJson.accessId'];
+        let field = undefined;
+
+        if (sourceType === DATA_SOURCE.MAXCOMPUTE) {
+            field = [
+                'type',
+                'dataName',
+                'dataJson.project', 
+                'dataJson.endPoint', 
+                'dataJson.accessKey', 
+                'dataJson.accessId'
+            ]
         }
+
+        console.log('values:', form.getFieldsValue())
 
         form.validateFields(field, (err, values) => {
             if (!err) {
@@ -94,12 +113,11 @@ export default class DataSourceModal extends Component {
                 })
             }
         });
-        
+
     }
 
     cancel = () => {
         const { form, handCancel } = this.props;
-        this.setState({ sourceType: 1 });
         form.resetFields()
         handCancel()
     }
@@ -245,7 +263,6 @@ export default class DataSourceModal extends Component {
                     </FormItem>
                 ]
             }
-
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
@@ -316,6 +333,24 @@ export default class DataSourceModal extends Component {
                 footer={false}
             >
                 <Form>
+                    <FormItem {...formItemLayout} label="数据源类型" hasFeedback>
+                        {
+                            getFieldDecorator('type', {
+                                rules: [{
+                                    required: true, message: '数据源类型不可为空！',
+                                }],
+                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType,
+                        })(
+                            <Select 
+                                onChange={this.sourceChange} 
+                                disabled={status === 'edit'}>
+                                {
+                                    this.renderSourceType(dataSource.sourceType)
+                                }
+                            </Select>,
+                        )}
+                    </FormItem>
+
                     <FormItem {...formItemLayout} label="数据源名称" hasFeedback>
                         {
                             getFieldDecorator('dataName', {
@@ -325,7 +360,7 @@ export default class DataSourceModal extends Component {
                                     max: 128,
                                     message: '数据源名称不得超过128个字符！',
                                 }, {
-                                    pattern: /^[A-Za-z0-9_-]+$/,
+                                    pattern: /^[A-Za-z0-9_]+$/,
                                     message: '名称只能由字母与数字、下划线组成',
                                 }],
                                 initialValue: sourceData.dataName || '',
@@ -344,24 +379,6 @@ export default class DataSourceModal extends Component {
                                 initialValue: sourceData.dataDesc || '',
                         })(
                             <Input type="textarea" rows={4} />,
-                        )}
-                    </FormItem>
-
-                    <FormItem {...formItemLayout} label="数据源类型" hasFeedback>
-                        {
-                            getFieldDecorator('type', {
-                                rules: [{
-                                    required: true, message: '数据源类型不可为空！',
-                                }],
-                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType,
-                        })(
-                            <Select 
-                                onChange={this.sourceChange} 
-                                disabled={status === 'edit'}>
-                                {
-                                    this.renderSourceType(dataSource.sourceType)
-                                }
-                            </Select>,
                         )}
                     </FormItem>
 
@@ -393,5 +410,7 @@ export default class DataSourceModal extends Component {
         )
     }
 }
-DataSourceModal = Form.create()(DataSourceModal)
 
+const DataSourceFormWrapper = Form.create()(DataSourceModal)
+
+export default DataSourceFormWrapper
