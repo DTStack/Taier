@@ -4,9 +4,9 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
-import { formItemLayout } from '../../../consts';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
+import { formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
@@ -183,12 +183,13 @@ export default class StepOne extends Component {
             havePart,
             editParams, 
             changeParams,
+            getSourcePart,
             resetSourcePart,
         } = this.props;
         let origin = { ...editParams.origin, table: name };
 
         // 重置分区表单和参数
-        if (origin.partition) {
+        if (havePart) {
             resetSourcePart('origin');
             form.setFieldsValue({ 
                 originColumn: '',
@@ -209,7 +210,7 @@ export default class StepOne extends Component {
         // 请求分区数据
         let sourceId = form.getFieldValue('sourceId');
         if (sourceId && name && havePart) {
-            this.props.getSourcePart({
+            getSourcePart({
                 sourceId,
                 table: name
             }, 'origin');
@@ -228,6 +229,10 @@ export default class StepOne extends Component {
             return;
         }
 
+        this.setState({ 
+            showPreview: !showPreview
+        });
+
         DSApi.getDataSourcesPreview({ sourceId, tableName }).then((res) => {
             if (res.code === 1) {
                 let { columnList, dataList } = res.data;
@@ -241,8 +246,7 @@ export default class StepOne extends Component {
                     return o;
                 });
 
-                this.setState({ 
-                    showPreview: !showPreview,
+                this.setState({
                     sourcePreview: res.data 
                 });
             }
@@ -341,7 +345,7 @@ export default class StepOne extends Component {
                     })(
                         <Input
                             style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区的格式为：分区字段=分区值，具体的参数配置在帮助文档里说明" 
+                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}，具体的参数配置在帮助文档里说明" 
                             onChange={this.handleInputPartChange}
                             disabled={editStatus === 'edit'} />
                     )

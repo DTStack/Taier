@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Input, DatePicker, Select, message, Card, Checkbox, Tabs } from 'antd';
+import { Table, Button, Input, Select, message, Card, Checkbox, Tabs } from 'antd';
 import moment from 'moment';
 
 import RuleEditPane from './ruleEditPane';

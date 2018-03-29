@@ -32,9 +32,11 @@ export default class DataCheckReport extends Component {
 
     componentDidMount() {
         const { verifyRecordId } = this.props.routeParams;
+        let params = {...this.state.params, verifyRecordId};
 
         this.props.getCheckReport({ verifyRecordId });
-        this.props.getCheckReportTable({ ...this.state.params, verifyRecordId });
+        this.props.getCheckReportTable(params);
+        this.setState({ params });
     }
 
     initColumns = (data) => {
@@ -46,6 +48,16 @@ export default class DataCheckReport extends Component {
                 width: 80,
             }
         });
+    }
+
+    // 表格换页
+    onTableChange = (page, filter, sorter) => {
+        let params = {
+            ...this.state.params,
+            currentPage: page.current,
+        }
+        this.setState({ params });
+        this.props.getCheckReportTable(params);
     }
 
     render() {
@@ -134,6 +146,7 @@ export default class DataCheckReport extends Component {
                         dataSource={reportTable.data ? reportTable.data : []}
                         pagination={pagination}
                         scroll={{ x: '120%' }}
+                        onChange={this.onTableChange}
                     />
                 </div>
             </div>
