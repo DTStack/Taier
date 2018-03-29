@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber, Modal } from 'antd';
-import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { dataSourceActions } from '../../../actions/dataSource';
 
 import ExecuteForm from './executeForm';
 import { formItemLayout, rowFormItemLayout } from '../../../consts';
+import { ruleConfigActions } from '../../../actions/ruleConfig';
+import { dataSourceActions } from '../../../actions/dataSource';
 import DSApi from '../../../api/dataSource';
 import RCApi from '../../../api/ruleConfig';
 
@@ -50,18 +50,21 @@ export default class RuleEditPane extends Component {
         };
     }
 
+    componentDidMount() {
+        this.props.getRuleFunction();
+    }
+
     componentWillReceiveProps(nextProps) {
         let oldData = this.props.data,
             newData = nextProps.data;
 
-        if (isEmpty(oldData) && !isEmpty(newData)) {
+        if (!isEmpty(newData) && oldData !== newData) {
             let monitorId = newData.monitorPartVOS[0].monitorId;
 
             if (monitorId) {
                 this.initData(monitorId, newData);
                 this.setState({ monitorId });
             }
-
         }
     }
 
@@ -74,7 +77,7 @@ export default class RuleEditPane extends Component {
                 });
             }
         });
-        this.props.getRuleFunction();
+        
         this.props.getDataSourcesColumn({
             sourceId: data.sourceId,
             tableName: data.tableName
@@ -614,23 +617,19 @@ export default class RuleEditPane extends Component {
             <div className="rule-manage">
                 <Row className="rule-action">
                     <Col span={12} className="txt-left">
-                        {
-                            monitorPartVOS.length > 1
-                            &&
-                            <div>
-                                分区：
-                                <Select 
-                                    value={monitorId ? monitorId.toString() : undefined}
-                                    style={{ width: 150 }}
-                                    onChange={this.onMonitorIdChange}>
-                                    {
-                                        monitorPartVOS.map((item) => {
-                                            return <Option key={item.monitorId} value={item.monitorId.toString()}>{item.partValue}</Option>
-                                        })
-                                    }
-                                </Select>
-                            </div>
-                        }
+                        <div>
+                            分区：
+                            <Select 
+                                value={monitorId ? monitorId.toString() : undefined}
+                                style={{ width: 150 }}
+                                onChange={this.onMonitorIdChange}>
+                                {
+                                    monitorPartVOS.map((item) => {
+                                        return <Option key={item.monitorId} value={item.monitorId.toString()}>{item.partValue}</Option>
+                                    })
+                                }
+                            </Select>
+                        </div>
                     </Col>
 
                     <Col span={12}>

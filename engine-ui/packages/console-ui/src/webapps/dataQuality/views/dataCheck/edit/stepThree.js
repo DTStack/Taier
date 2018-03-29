@@ -22,7 +22,7 @@ export default class StepThree extends Component {
             selectedSetting: [],
             selectedSource: [],
             selectedTarget: [],
-            diffRule: [],
+            diverseData: [],
             h: 40,
             w: 230,
             W: 450,
@@ -36,7 +36,7 @@ export default class StepThree extends Component {
     }
 
     componentDidMount() {
-        this.initTableData()
+        this.initDiverseData();
         this.$canvas = select(this.canvas);
         this.$activeLine = select('#activeLine');
         // this.setState({
@@ -75,6 +75,7 @@ export default class StepThree extends Component {
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.resize, false);
+        this.props.resetLinkedKeys();
     }
 
 	setEditKeymapData = () => {
@@ -302,7 +303,6 @@ export default class StepThree extends Component {
         let sourceKey_obj, targetKey_obj;
 
         $dagL.on('mousedown', (d, i, nodes) => {
-        	console.log(d,i,nodes)
             sourceKey_obj = d;
             isMouseDown = true;
 
@@ -378,7 +378,7 @@ export default class StepThree extends Component {
             .attr('y2', -10);
     }
 
-    initColumns = () => {
+    initDiverseSetting = () => {
         return [
             {
                 title: '差异特征',
@@ -392,8 +392,8 @@ export default class StepThree extends Component {
         ]
     }
 
-    initTableData = () => {
-        let diffRule = [
+    initDiverseData = () => {
+        let diverseData = [
             {
                 id: 1,
                 setting: 'diverseNum'
@@ -419,8 +419,10 @@ export default class StepThree extends Component {
                 setting: 'matchNull'
             }
         ];
-        this.setState({ diffRule });
+        this.setState({ diverseData });
     }
+
+
 
     getSettingItem = (key) => {
     	const { getFieldDecorator } = this.props.form;
@@ -450,7 +452,7 @@ export default class StepThree extends Component {
                                 rules: [{ required: true, message: '不能为空' }],
                                 initialValue: setting.diverseRatio
                             })(
-                                <InputNumber min={1} max={100} step={1} />
+                                <InputNumber min={1} step={1} />
                             )
                         }
                         %时候，计为成功匹配
@@ -566,25 +568,20 @@ export default class StepThree extends Component {
 	    		return
 	    	}
 
-    		if (selectedSetting.length) {
-		        form.validateFields(selectedSetting, (err, values) => {
-		            if (!err) {
-		            	Object.keys(values).forEach((item) => {
-		            		if (item === 'matchCase' || item === 'matchNull') {
-		            			values[item] = true;
-		            		}
-		            	});
-		                changeParams({ setting: values });
-		                navToStep(currentStep + 1);
-		            } else {
-		            	message.error('请填写已选中的差异设置');
-		            }
-		        });
-    		} else {
-    			message.error('请填写差异设置');
-    		}
+	        form.validateFields(selectedSetting, (err, values) => {
+	            if (!err) {
+	            	Object.keys(values).forEach((item) => {
+	            		if (item === 'matchCase' || item === 'matchNull') {
+	            			values[item] = true;
+	            		}
+	            	});
+	                changeParams({ setting: values });
+	                navToStep(currentStep + 1);
+	            } else {
+	            	message.error('请填写已选中的差异设置');
+	            }
+	        });
     	}
-
     }
 
     // 同行映射连接
@@ -633,7 +630,7 @@ export default class StepThree extends Component {
     }
 
     render() {
-        const { selectedSetting, selectedSource, selectedTarget, diffRule, w, h, W, H, padding, originColumn, targetColumn } = this.state;
+        const { selectedSetting, selectedSource, selectedTarget, diverseData, w, h, W, H, padding, originColumn, targetColumn } = this.state;
         const { source, target } = this.props.keymap;
         const { mappedPK } = this.props.editParams;
 
@@ -804,10 +801,10 @@ export default class StepThree extends Component {
 				            <Table
 				                className="m-table setting-table"
 				                showHeader={false}
-				                columns={this.initColumns()}
+				                columns={this.initDiverseSetting()}
 				                rowSelection={settingRowSelection}
 				                rowKey={record => record.setting}
-				                dataSource={diffRule}
+				                dataSource={diverseData}
 				                pagination={false}
 				            />
 		                </Col>

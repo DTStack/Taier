@@ -70,6 +70,9 @@ export const alarmDateFilter = [{
 }]
 
 export const taskStatusFilter = [{
+    text: '等待运行',
+    value: TASK_STATUS.WAIT_RUN,
+},{
     text: '运行中',
     value: TASK_STATUS.RUNNING,
 }, {
