@@ -4,8 +4,8 @@ import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs } from 'antd';
 import moment from 'moment';
 import { isNull } from 'lodash';
 
+import utils from 'utils';
 import SlidePane from 'widgets/slidePane';
-
 
 import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
@@ -48,7 +48,7 @@ export default class TaskQuery extends Component {
         params: {
             currentPage: 1,
             pageSize: 20,
-            fuzzyName: undefined,
+            fuzzyName: utils.getParameterByName('tb') || undefined,
             configureId: undefined,
             dataSourceId: undefined,
             dataSourceType: undefined,
@@ -279,13 +279,19 @@ export default class TaskQuery extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
+                    defaultValue={params.fuzzyName}
                     style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch}
                 />
 
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.onSourceChange} style={{ width: 150 }}>
+                    <Select 
+                        placeholder="选择数据源类型"
+                        allowClear
+                        onChange={this.onSourceChange} 
+                        style={{ width: 150 }
+                    }>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -294,7 +300,11 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8">
                     数据源：
-                    <Select allowClear onChange={this.onUserSourceChange} style={{ width: 150 }}>
+                    <Select
+                        placeholder="选择数据源"
+                        allowClear 
+                        onChange={this.onUserSourceChange} 
+                        style={{ width: 150 }}>
                         {
                             this.renderUserSource(sourceList)
                         }
@@ -323,7 +333,11 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8 m-r-8">
                     配置人：
-                    <Select allowClear onChange={this.onUserChange} style={{ width: 150 }}>
+                    <Select 
+                        placeholder="选择配置人"
+                        allowClear onChange={this.onUserChange} 
+                        style={{ width: 150 }}
+                    >
                         {
                             this.renderUserList(userList)
                         }
