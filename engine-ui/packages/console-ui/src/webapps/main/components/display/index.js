@@ -49,6 +49,8 @@ export function MsgTypeDesc(type) {
             return '逐行校验任务取消'
         case 4: 
             return '逐行校验任务失败'
+       case 5: 
+            return '逐行校验任务成功'
         default: return '-';
     }
 }

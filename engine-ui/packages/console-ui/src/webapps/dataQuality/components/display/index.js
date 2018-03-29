@@ -42,7 +42,7 @@ export function TaskStatus(props) {
             </span>;
         case TASK_STATUS.UNPASS:
             return <span>
-                <Circle title="校验未通过" style={{ background: '#EF5350' }} /> 校验未通过
+                <Circle title="校验未通过" style={{ background: '#F5A623' }} /> 校验未通过
             </span>;
         default:
             return <span>--</span>;

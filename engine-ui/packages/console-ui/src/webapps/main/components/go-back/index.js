@@ -5,9 +5,12 @@ import { browserHistory, hashHistory } from 'react-router'
 export default class GoBack extends Component {
 
     go = () => {
-        const url = this.props.url
+        const { url, history } = this.props
         if (url) {
-            hashHistory.push(url)
+            if (history) 
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
         } else {
             browserHistory.go(-1)
         }
