@@ -282,7 +282,7 @@ export default class RemoteTriggerPane extends Component {
     render() {
         const { data, ruleConfig, common, form } = this.props;
         const { monitorId, visible, selectedIds, remark } = this.state;
-        const { loading, triggerList, monitorRules } = ruleConfig;
+        const { triggerList, monitorRules } = ruleConfig;
         const { getFieldDecorator } = form;
 
         let monitorPartVOS = data.monitorPartVOS ? data.monitorPartVOS : [];
@@ -304,7 +304,6 @@ export default class RemoteTriggerPane extends Component {
                     <Table 
                         rowKey="id"
                         className="m-table common-table"
-                        loading={loading}
                         columns={this.initTriggerColumns()}
                         pagination={false}
                         dataSource={triggerList}

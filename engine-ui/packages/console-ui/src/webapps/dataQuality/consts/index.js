@@ -19,6 +19,32 @@ export const CHECK_STATUS = { // 2，4, 5, 6 可查看报告
     EXPIRED: 6,
 }
 
+/**
+ * 校验状态--中文
+ */
+export const CHECK_STATUS_CN = [{
+    text: '等待运行',
+    value: '0',
+}, {
+    text: '运行中',
+    value: '1',
+}, {
+    text: '运行成功',
+    value: '2',
+}, {
+    text: '运行失败',
+    value: '3',
+}, {
+    text: '校验通过',
+    value: '4',
+}, {
+    text: '校验不通过',
+    value: '5',
+}, {
+    text: '校验结果失效',
+    value: '6',
+}]
+
 // 数据源类型
 export const DATA_SOURCE = {
     MYSQL: 1,
@@ -55,6 +81,29 @@ export const periodType = [ // 调度类型
 ]
 
 /**
+ * operator--有!=
+ */
+export const operatorSelect = [{
+    text: '>',
+    value: '>',
+}, {
+    text: '>=',
+    value: '>=',
+}, {
+    text: '=',
+    value: '=',
+}, {
+    text: '<',
+    value: '<',
+}, {
+    text: '<=',
+    value: '<=',
+}, {
+    text: '!=',
+    value: '!=',
+}]
+
+/**
  * 告警日期过滤
  */
 export const alarmDateFilter = [{
@@ -68,6 +117,9 @@ export const alarmDateFilter = [{
     value: '30',
 }]
 
+/**
+ * 任务状态过滤
+ */
 export const taskStatusFilter = [{
     text: '运行中',
     value: TASK_STATUS.RUNNING,
