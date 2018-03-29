@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import { Button, Form, Select, DatePicker, Checkbox } from 'antd';
@@ -163,7 +163,7 @@ export default class StepThree extends Component {
                 //     delete rule.editStatus
                 // })
                 this.props.addMonitor({...editParams});
-                window.location.href = "/dataQuality.html#/dq/rule";
+                hashHistory.push('/dq/rule');
             }
         })
 
