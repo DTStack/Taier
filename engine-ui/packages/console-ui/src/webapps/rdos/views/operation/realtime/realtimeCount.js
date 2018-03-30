@@ -97,14 +97,14 @@ class RealtimeCount extends Component {
                             </Col>
                             <Col span={5}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">取消</span>
-                                    <span className="m-count-content font-darkgreen">{data.CANCELED || 0}</span>
+                                    <span className="m-count-title">未提交</span>
+                                    <span className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</span>
                                 </section>
                             </Col>
                             <Col span={4}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">未提交</span>
-                                    <span className="m-count-content font-green">{data.UNSUBMIT || 0}</span>
+                                    <span className="m-count-title">取消</span>
+                                    <span className="m-count-content font-green">{data.CANCELED || 0}</span>
                                 </section>
                             </Col>
                         </Row>

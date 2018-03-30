@@ -44,16 +44,11 @@ class AdminUser extends Component {
         const { apps } = this.props
         
         if (apps && apps.length > 0 ) {
-            const defaultApp = apps.find(app => app.default)
-            const appKey = defaultApp.id
-            this.setState({
-                active: appKey 
-            })
-            if (hasProject(appKey)) {
-                this.getProjects(appKey)
-            } else {
-                this.loadData();
-            }
+            const initialApp = utils.getParameterByName('app');
+            const defaultApp = apps.find(app => app.default);
+            const appKey = initialApp || defaultApp.id;
+    
+            this.setState({ active: appKey }, this.loadData)
         }
     }
 
@@ -63,11 +58,16 @@ class AdminUser extends Component {
             pageSize: 10,
             currentPage: 1,
         }
-        if (hasProject(active)) {
+        if (!selectedProject && hasProject(active)) {
+            this.getProjects(active)
+        } else if (!selectedProject && !hasProject(app)) {
+            this.loadUsers(active, params);
+            this.loadRoles(active, params);
+        } else {
             params.projectId = selectedProject
+            this.loadUsers(active, params);
+            this.loadRoles(active, params);
         }
-        this.loadUsers(active, params);
-        this.loadRoles(active, params);
     }
 
     loadUsers = (app, params) => {

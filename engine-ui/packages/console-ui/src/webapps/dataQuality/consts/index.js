@@ -34,7 +34,7 @@ export const DATA_SOURCE = {
 
 export const dataSourceTypes = [ // 数据源类型
     '未知类型', 
-    'MySql', 
+    'MySQL', 
     'Oracle', 
     'SQLServer', 
     'PostgreSQL', 
@@ -45,6 +45,23 @@ export const dataSourceTypes = [ // 数据源类型
     'FTP',
     'MaxCompute'
 ]
+
+export const dataSourceFilter = [{
+    text: 'MySQL',
+    value: 1
+}, {
+    text: 'Oracle',
+    value: 2
+}, {
+    text: 'SQLServer',
+    value: 3
+}, {
+    text: 'Spark',
+    value: 7
+}, {
+    text: 'MaxCompute',
+    value: 10
+}]
 
 export const periodType = [ // 调度类型
     '未知类型', 

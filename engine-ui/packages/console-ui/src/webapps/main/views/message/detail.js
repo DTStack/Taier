@@ -19,7 +19,6 @@ class MsgDetail extends Component {
     componentDidMount() {
         const { msgId } = this.props.router.params
         this.loadMsg(msgId);
-        this.markAsRead(msgId);
     }
 
     loadMsg = (msgId) => {
@@ -27,6 +26,9 @@ class MsgDetail extends Component {
             this.setState({
                 msgInfo: res.data,
             })
+            if (res.data.readStatus !== 1) { // 如果未读，则标记为已读
+                this.markAsRead(msgId);
+            }
         })
     }
 
@@ -38,12 +40,12 @@ class MsgDetail extends Component {
     }
 
     render() {
-        const { msgInfo } = this.state
+        const { msgInfo, app } = this.state
         return (
             <div className="box-1">
                 <div className="box-card msg-box">
                     <main>
-                        <h1 className="card-title"><GoBack /> 消息详情 </h1>
+                        <h1 className="card-title"><GoBack history url={`message?app=${app}`}/> 消息详情 </h1>
                         <p>
                             {msgInfo.content}
                         </p>
@@ -51,7 +53,7 @@ class MsgDetail extends Component {
                     <footer>
                         <span>
                             <Icon type="notification" />
-                            发送于 {`2017-10-10 18: 00`}
+                            发送于 {utils.formatDateTime(msgInfo.gmtCreate)}
                         </span>
                     </footer>
                 </div>

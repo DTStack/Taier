@@ -28,35 +28,41 @@ class AdminRole extends Component {
     componentDidMount() {
         const { apps } = this.props
         if (apps && apps.length > 0 ) {
-            const key = apps[1].id;
-            this.setState({
-                active: key
-            })
-            if (hasProject(key)) {
-                this.getProjects(key)
-            } else {
-                this.loadData(key);
-            }
+            const initialApp = utils.getParameterByName('app');
+
+            const key = initialApp || apps[1].id;
+
+            this.setState({ active: key }, this.loadData)
         }
     }
 
-    loadData = (key) => {
+    loadData = () => {
         this.setState({ loading: 'loading' })
+
         const { active, selectedProject } = this.state
+        const app = active;
+
         const params = {
             pageSize: 10,
             currentPage: 1,
         }
-        const app = key || active;
-        
-        if (hasProject(app)) {
+
+        if (!selectedProject && hasProject(app)) {
+            this.getProjects(app)
+        } else if (!selectedProject && !hasProject(app)) {
+            this.loadRoles(app, params)
+        } else {
             params.projectId = selectedProject
+            this.loadRoles(app, params)
         }
+    }
+    
+    loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
             this.setState({
                 data: res.data,
             })
-
+    
             this.setState({
                 loading: 'success'
             })
@@ -81,7 +87,7 @@ class AdminRole extends Component {
         Api.deleteRole(appKey, {roleId: role.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
-                this.loadData(appKey)
+                this.loadData()
             }
         })
     }
@@ -89,8 +95,7 @@ class AdminRole extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
-        })
-        this.loadData(key)
+        }, this.loadData)
     }
 
     onProjectSelect = (value) => {

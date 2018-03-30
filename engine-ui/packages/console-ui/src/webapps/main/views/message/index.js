@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 import { Link } from 'react-router'
 import { Icon } from 'antd'
 
@@ -8,7 +9,8 @@ import utils from 'utils'
 import NotFund from 'widgets/notFund'
 
 import Header from './../layout/header'
-import * as UserAction from '../../actions/user'
+import * as MsgActions from '../../actions/message'
+
 import { Navigator, Logo, Title, MyIcon }  from '../../components/nav'
 
 import '../../styles/views/message.scss';
@@ -17,15 +19,16 @@ import '../../styles/views/message.scss';
     return {
         user: state.user,
         apps: state.apps,
-        routing: state.routing
+        routing: state.routing,
+        msgList: state.msgList,
     }
-})
+}, dispatch => bindActionCreators(MsgActions, dispatch))
 class MessageCenter extends Component {
 
     componentDidMount() {}
 
     render() {
-        const { user, apps, children } = this.props;
+        const { user, apps, children, msgList, updateMsg } = this.props;
         const logo = (<Link to="/message">
             <MyIcon>
                 <Icon type="message" />
@@ -34,6 +37,8 @@ class MessageCenter extends Component {
         </Link>)
 
         const content = children ? React.cloneElement(children, {
+            msgList,
+            updateMsg,
             apps,
         }) : <NotFund /> 
 
@@ -44,7 +49,7 @@ class MessageCenter extends Component {
                     menuItems={[]}
                     {...this.props}
                 />
-                <div className="container">
+                <div className="container" style={{overflowY: 'hidden'}}>
                     { content }
                 </div>
             </div>

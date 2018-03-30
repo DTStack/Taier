@@ -71,7 +71,7 @@ export default class TaskTablePane extends Component {
     initLineChart(chartData) {
         let myChart = echarts.init(document.getElementById('TableReportTrend')),
             option  = cloneDeep(lineAreaChartOptions),
-            xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
+            xData = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
             legends = [{ 
                 key: 'dayCountRecord',
                 name: '记录数'
@@ -82,10 +82,17 @@ export default class TaskTablePane extends Component {
 
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
-        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
+
+        option.xAxis[0].axisTick = {
+            show: false,
+            alignWithLabel: true,
+        }
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
         option.yAxis[0].axisLabel.formatter = '{value} 次';
         option.yAxis[0].minInterval = 1;
+
         option.legend.data = legends.map(item => item.name);
         option.series = this.getSeries(chartData, legends);
         // 绘制图表
@@ -214,7 +221,7 @@ export default class TaskTablePane extends Component {
                 />
 
                 <Row style={{ margin: '20px 0' }} gutter={16}>
-                    <Col span={12}>
+                    <Col span={12} style={{paddingLeft: 0}}>
                         <Card   
                             noHovering
                             bordered={false}
@@ -231,7 +238,7 @@ export default class TaskTablePane extends Component {
                             />
                         </Card>
                     </Col>
-                    <Col span={12}>
+                    <Col span={12} style={{paddingRight: 0}}>
                         <Card   
                             noHovering
                             bordered={false}

@@ -2,7 +2,7 @@
 import { combineReducers } from 'redux';
 import { routerReducer as routing } from 'react-router-redux'
 
-import { apps } from 'main/reducers/modules/apps'
+import { apps, app } from 'main/reducers/modules/apps'
 
 // 全局State
 import { user, projectUsers, notProjectUsers } from './modules/user'
@@ -24,6 +24,7 @@ import { visibleSearchTask } from './modules/comm';
 const rootReducer = combineReducers({
     routing,
     user,
+    app,
     apps,
     projectUsers, // 项目用户列表
     notProjectUsers, // 非项目用户列表

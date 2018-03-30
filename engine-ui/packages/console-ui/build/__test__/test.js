@@ -1,5 +1,5 @@
 const path = require('path');
-const MY_PATH = require('./consts');
+const MY_PATH = require('../consts');
 
 const a = [{filename: 'abc'}]
 
