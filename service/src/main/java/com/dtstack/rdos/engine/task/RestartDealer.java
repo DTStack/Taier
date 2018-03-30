@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.task;
 
+import com.dtstack.rdos.common.annotation.Forbidden;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
@@ -10,6 +12,7 @@ import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
@@ -221,6 +224,25 @@ public class RestartDealer {
                         if(lastExeTime + SUBMIT_INTERVAL <= currentTime){
                             JobClient jobClient = queue.getJobClient();
                             if(jobClient != null){
+
+                                String finalJobId = jobClient.getTaskId();
+                                Integer finalComputeType = jobClient.getComputeType().getType();
+                                String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
+                                jobClient.setJobClientCallBack(new JobClientCallBack() {
+
+                                    @Override
+                                    public void execute(Map<String, ? extends Object> params) {
+
+                                        if(!params.containsKey(JOB_STATUS)){
+                                            return;
+                                        }
+
+                                        int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+                                        zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
+                                        updateJobStatus(finalJobId, finalComputeType, jobStatus);
+                                    }
+                                });
+
                                 ExeQueueMgr.getInstance().add(jobClient);
                             }
                         }
@@ -267,6 +289,15 @@ public class RestartDealer {
 
         public Long getLastSubmitTime(){
             return lastExeTime;
+        }
+    }
+
+    @Forbidden
+    public void updateJobStatus(String jobId, Integer computeType, Integer status) {
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            engineStreamJobDAO.updateTaskStatus(jobId, status);
+        } else {
+            engineBatchJobDAO.updateJobStatus(jobId, status);
         }
     }
 }
