@@ -5,6 +5,7 @@ const initialState = {
     loading: false,
     monitorList: [],
     monitorFunction: [],
+    tableColumn: [],
     monitorRules: [],
     monitorDetail: {},
     triggerList: []
@@ -25,6 +26,13 @@ export default function ruleConfig(state = initialState, action) {
             const clone = cloneDeep(state);
             const { monitorList } = clone;
             clone.monitorList = payload;
+            return clone;
+        }
+
+        case ruleConfigActionType.GET_MONITOR_TABLE_COLUMN: {
+            const clone = cloneDeep(state);
+            const { tableColumn } = clone;
+            clone.tableColumn = payload;
             return clone;
         }
 

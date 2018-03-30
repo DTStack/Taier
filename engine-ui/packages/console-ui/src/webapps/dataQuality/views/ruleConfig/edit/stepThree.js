@@ -61,22 +61,25 @@ export default class StepThree extends Component {
         }
     }
 
-    resetScheduleConf = () => {
-        this.setState({
-            scheduleConfObj: {
-                beginDate: moment().format('YYYY-MM-DD'),
-                endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
-                periodType: '2',
-                day: undefined,
-                weekDay: undefined,
-                hour: 0,
-                min: 0,
-                beginHour: 0,
-                beginMin: 0,
-                gapHour: undefined,
-                endHour: 0,
-                endMin: 0
-            }
+    resetScheduleConf = (type) => {
+        let scheduleConfObj = {
+            beginDate: moment().format('YYYY-MM-DD'),
+            endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+            periodType: type,
+            day: undefined,
+            weekDay: undefined,
+            hour: 0,
+            min: 0,
+            beginHour: 0,
+            beginMin: 0,
+            gapHour: undefined,
+            endHour: 0,
+            endMin: 0
+        };
+
+        this.setState({ scheduleConfObj });
+        this.props.changeParams({
+            scheduleConf: JSON.stringify({ scheduleConfObj })
         });
     }
 
@@ -91,14 +94,9 @@ export default class StepThree extends Component {
 
     // 调度周期回调
     onPeriodTypeChange = (type) => {
-        const { scheduleConfObj } = this.state;
         
-        this.setState({
-            scheduleConfObj: {...scheduleConfObj, periodType: type}
-        });
-        this.props.changeParams({
-            scheduleConf: JSON.stringify({...scheduleConfObj, periodType: type})
-        });
+        
+        this.resetScheduleConf(type);
     }
 
     onSendTypeChange = (value) => {
@@ -156,12 +154,16 @@ export default class StepThree extends Component {
         form.validateFields({ force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-                // editParams.rules.forEach((rule) => {
-                //     delete rule.id
-                //     delete rule.isCustomizeSql
-                //     delete rule.isTable
-                //     delete rule.editStatus
-                // })
+                editParams.rules.forEach((rule) => {
+                    delete rule.id;
+                    delete rule.isEnum;
+                    delete rule.isTable;
+                    delete rule.isPercent;
+                    delete rule.editStatus;
+                    delete rule.functionName;
+                    delete rule.verifyTypeValue;
+                });
+                console.log(editParams)
                 this.props.addMonitor({...editParams});
                 hashHistory.push('/dq/rule');
             }

@@ -6,8 +6,9 @@ import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconf
 import moment from 'moment';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
+import { dataSourceActions } from '../../../actions/dataSource';
 import { commonActions } from '../../../actions/common';
-import { CHECK_STATUS } from '../../../consts';
+import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
 
@@ -23,8 +24,8 @@ const enableCheckReport = (status) => {
 }
 
 const mapStateToProps = state => {
-    const { dataCheck, common } = state;
-    return { dataCheck, common }
+    const { dataCheck, dataSource, common } = state;
+    return { dataCheck, dataSource, common }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -33,6 +34,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
     },
 });
 
@@ -50,8 +54,9 @@ export default class DataCheck extends Component {
     }
 
     componentDidMount() {
-        this.props.getLists(this.state.params);
         this.props.getUserList();
+        this.props.getDataSourcesList();
+        this.props.getLists(this.state.params);
     }
 
     // table设置
@@ -166,8 +171,62 @@ export default class DataCheck extends Component {
             // sortBy: sorter.columnKey ? sorter.columnKey : '',
             // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
         }
-        this.setState({ params });
         this.props.getLists(params);
+        this.setState({ params });
+    }
+
+    // 数据源下拉框
+    renderUserSource = (data) => {
+        return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
+            return (
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
+            )
+        });
+    }
+
+    // 数据源筛选
+    onUserSourceChange = (id) => {
+        let dataSourceId = id ? id : undefined,
+            params = {
+            ...this.state.params, 
+            currentPage: 1,
+            dataSourceId
+        };
+        
+        this.props.getLists(params);
+        this.setState({ params });
+    }
+
+    // 校验状态下拉框
+    renderCheckStatus = (data) => {
+        return data.map((item) => {
+            return (
+                <Option 
+                    key={item.value} 
+                    value={item.value}
+                    title={item.text}>
+                    {item.text}
+                </Option>
+            )
+        });
+    }
+
+    // 校验状态筛选
+    onCheckStatusChange = (status) => {
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            status: status ? status : undefined
+        };
+        
+        this.props.getLists(params);
+        this.setState({ params });
     }
 
     // user的select选项
@@ -188,8 +247,8 @@ export default class DataCheck extends Component {
             lastModifyUserId
         };
 
-        this.setState({ params });
         this.props.getLists(params);
+        this.setState({ params });
     }
 
     // 执行时间改变
@@ -201,8 +260,8 @@ export default class DataCheck extends Component {
                 executeTime
             };
         
-        this.setState({ params });
         this.props.getLists(params);
+        this.setState({ params });
     }
 
     // table搜索
@@ -214,8 +273,8 @@ export default class DataCheck extends Component {
                 tableName
             };
 
-        this.setState({ params });
         this.props.getLists(params);
+        this.setState({ params });
     }
 
     disabledDate = (current) => {
@@ -223,8 +282,10 @@ export default class DataCheck extends Component {
     }
 
     render() {
-        const { lists, loading } = this.props.dataCheck;
-        const { userList } = this.props.common;
+        const { dataCheck, dataSource, common } = this.props;
+        const { userList } = common;
+        const { sourceList } = dataSource;
+        const { lists, loading } = dataCheck;
         const { params } = this.state;
 
         const pagination = {
@@ -240,6 +301,24 @@ export default class DataCheck extends Component {
                     style={{ width: 200, margin: '10px 0' }}
                     onSearch={this.onTableSearch}
                 />
+
+                <div className="m-l-8">
+                    数据源：
+                    <Select allowClear onChange={this.onUserSourceChange} style={{ width: 150 }}>
+                        {
+                            this.renderUserSource(sourceList)
+                        }
+                    </Select>
+                </div>
+
+                <div className="m-l-8">
+                    校验结果：
+                    <Select allowClear onChange={this.onCheckStatusChange} style={{ width: 150 }}>
+                        {
+                            this.renderCheckStatus(CHECK_STATUS_CN)
+                        }
+                    </Select>
+                </div>
 
                 <div className="m-l-8">
                     最近修改人：

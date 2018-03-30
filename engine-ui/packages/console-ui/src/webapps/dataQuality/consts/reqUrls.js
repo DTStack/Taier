@@ -59,7 +59,7 @@ export default {
     // ===== 规则配置 ===== //
     GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,             // 规则配置列表
     ADD_MONITOR: `${DQ_BASE_URL}/monitor/add`,                        // 新增规则配置
-    UPDATE_MONITOR: `${DQ_BASE_URL}/monitor/update`,                     // 编辑规则配置
+    UPDATE_MONITOR: `${DQ_BASE_URL}/monitor/update`,                  // 编辑规则配置
     GET_RULE_PART: `${DQ_BASE_URL}/monitor/getPart`,                  // 获取规则分区
     CHANGE_MONITOR_STATUS: `${DQ_BASE_URL}/monitor/closeOrOpen`,      // 开启关闭监控
     GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,              // 告警信息详情
@@ -74,6 +74,7 @@ export default {
     SAVE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/save`,             // 保存监控规则
     DELETE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/delete`,         // 删除监控规则
     GET_RULE_FUNCTION: `${DQ_BASE_URL}/function/getFunctions`,        // 统计函数
+    GET_MONITOR_TABLE_COLUMN: `${DQ_BASE_URL}/monitor/tablecolumn`,   // 表字段
 
     SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`,            // 订阅
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unSubscribe`,        // 取消订阅
