@@ -46,6 +46,11 @@ export default class DataSource extends Component {
         this.props.getDataSources(this.state.params);
     }
 
+    onSourceNameChange = (e) => {
+        let params = {...this.state.params, name};
+        this.setState({ params })
+    }
+
     searchDataSources = (name) => {
         let params = {...this.state.params, name};
        
@@ -125,6 +130,7 @@ export default class DataSource extends Component {
 
     initColumns = () => {
         return [{
+            width: 120,
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
@@ -202,6 +208,7 @@ export default class DataSource extends Component {
             <Search
                 placeholder="数据源名称"
                 style={{ width: 200, margin: '10px 0' }}
+                onChange={this.onSourceNameChange}
                 onSearch={this.searchDataSources}
             />
         )

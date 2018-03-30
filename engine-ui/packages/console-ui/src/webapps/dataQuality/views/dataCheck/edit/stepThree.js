@@ -501,10 +501,6 @@ export default class StepThree extends Component {
         }
     }
 
-	scrollText = (value) => {
-	    return <input className="cell-input" defaultValue={value} />
-	}
-
     getCanvasW() {
         return document.querySelector('.keymap-svg').getBoundingClientRect().width;
     }

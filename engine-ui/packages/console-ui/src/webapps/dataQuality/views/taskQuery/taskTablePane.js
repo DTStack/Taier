@@ -80,6 +80,10 @@ export default class TaskTablePane extends Component {
                 name: '总告警数'
             }];
 
+        option.grid = {
+            left: 60,
+            right: 20,
+        };
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
 

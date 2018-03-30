@@ -101,7 +101,9 @@ export default class TaskQuery extends Component {
             dataIndex: 'alarmSum',
             key: 'alarmSum',
             width: '8%',
-            // sorter: true
+            render: (sum, record) => {
+                return sum ? `${sum} / ${record.allAlarmSum}` : '--';
+            }
         }, {
             title: '类型',
             dataIndex: 'sourceTypeValue',
@@ -207,15 +209,6 @@ export default class TaskQuery extends Component {
         this.props.getTaskList(params);
     }
 
-    // 业务日期变化回调
-    // onBizTimeChange = (date, dateString) => {
-    //     let bizTime = date ? date.valueOf() : 0;
-    //     let params = {...this.state.params, bizTime};
-        
-    //     this.setState({ params });
-    //     this.props.getTaskList(params);
-    // }
-
     // 执行时间变化回调
     onExecuteTimeChange = (date, dateString) => {
         let executeTime = date ? date.valueOf() : 0;
@@ -310,16 +303,6 @@ export default class TaskQuery extends Component {
                         }
                     </Select>
                 </div>
-
-                {/*<div className="m-l-8">
-                    业务日期：
-                    <DatePicker
-                        format="YYYY-MM-DD"
-                        placeholder="选择日期"
-                        style={{ width: 120 }}
-                        onChange={this.onBizTimeChange}
-                    />
-                </div>*/}
 
                 <div className="m-l-8">
                     执行时间：
