@@ -216,7 +216,7 @@ export default class StepTwo extends Component {
 
         if (nameZc === '枚举值') {
             currentRule.isEnum = true;
-            currentRule.operator = ''
+            currentRule.operator = '';
         } else {
             delete currentRule.isEnum;
         }
