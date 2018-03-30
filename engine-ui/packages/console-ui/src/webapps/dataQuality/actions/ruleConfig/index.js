@@ -33,6 +33,18 @@ export const ruleConfigActions = {
 			});
 		}
 	},
+	getTableColumn(params) {
+		return dispatch => {
+			API.getTableColumn(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: ruleConfigActionType.GET_MONITOR_TABLE_COLUMN,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 	addMonitor(params) {
 		return dispatch => {
 			API.addMonitor(params).then((res) => {
@@ -85,7 +97,6 @@ export const ruleConfigActions = {
 		}
 	},
 	executeMonitor(params) {
-		console.log(111)
 		return dispatch => {
 			API.executeMonitor(params).then((res) => {
 				if (res.code === 1) {
@@ -96,19 +107,13 @@ export const ruleConfigActions = {
 	},
 	getRemoteTrigger(params) {
 		return dispatch => {
-			dispatch({
-				type: ruleConfigActionType.CHANGE_LOADING
-			});
 			API.getRemoteTrigger(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
 						type: ruleConfigActionType.GET_REMOTE_TRIGGER,
 						payload: res.data
 					});
-				} 
-				dispatch({
-					type: ruleConfigActionType.CHANGE_LOADING
-				});
+				}
 			});
 		}
 	},

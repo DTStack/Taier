@@ -61,7 +61,7 @@ export function MenuLeft(props) {
 
 export function MenuRight(props) {
     const { activeKey, onClick, settingMenus, user, apps, app } = props;
-    const extraParms = app ? `?app=${app && app.id}` : null;
+    const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
         <Menu onClick={onClick}>

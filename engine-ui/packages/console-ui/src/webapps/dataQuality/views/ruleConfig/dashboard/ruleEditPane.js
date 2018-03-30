@@ -4,26 +4,24 @@ import { isEmpty } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber, Modal } from 'antd';
 
 import ExecuteForm from './executeForm';
-import { formItemLayout, rowFormItemLayout } from '../../../consts';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { dataSourceActions } from '../../../actions/dataSource';
-import DSApi from '../../../api/dataSource';
+import { formItemLayout, rowFormItemLayout, operatorSelect } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
-    const { ruleConfig, dataSource, common } = state;
-    return { ruleConfig, dataSource, common }
+    const { ruleConfig, common } = state;
+    return { ruleConfig, common }
 }
 
 const mapDispatchToProps = dispatch => ({
     getRuleFunction(params) {
         dispatch(ruleConfigActions.getRuleFunction(params));
     },
-    getDataSourcesColumn(params) {
-        dispatch(dataSourceActions.getDataSourcesColumn(params));
+    getTableColumn(params) {
+        dispatch(ruleConfigActions.getTableColumn(params));
     },
     getMonitorDetail(params) {
         dispatch(ruleConfigActions.getMonitorDetail(params));
@@ -41,12 +39,14 @@ export default class RuleEditPane extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            enumFields: ['columnName', 'functionId', 'threshold'],
             SQLFields: ['customizeSql', 'verifyType', 'operator', 'threshold'],
             columnFields: ['columnName', 'functionId', 'verifyType', 'operator', 'threshold'],
             rules: [],
             currentRule: {},
             monitorId: undefined,
-            showExecuteModal: false
+            showExecuteModal: false,
+            functionList: []
         };
     }
 
@@ -63,7 +63,11 @@ export default class RuleEditPane extends Component {
 
             if (monitorId) {
                 this.initData(monitorId, newData);
-                this.setState({ monitorId });
+                this.setState({ 
+                    monitorId,
+                    currentRule: {},
+                    functionList: []
+                });
             }
         }
     }
@@ -77,8 +81,7 @@ export default class RuleEditPane extends Component {
                 });
             }
         });
-        
-        this.props.getDataSourcesColumn({
+        this.props.getTableColumn({
             sourceId: data.sourceId,
             tableName: data.tableName
         });
@@ -145,7 +148,6 @@ export default class RuleEditPane extends Component {
     }
 
     renderColumns(text, record, type) {
-        const { currentRule } = this.state;
         let obj = {
             children: <Form layout="inline">
             {
@@ -186,13 +188,60 @@ export default class RuleEditPane extends Component {
         // this.changeCurrentRule(obj);
     }
 
-    renderEditTD = (text, record, type) => {
-        const { form, dataSource, ruleConfig, common } = this.props;
-        const { getFieldDecorator } = form;
-        const { sourceColumn } = dataSource;
-        const { monitorFunction } = ruleConfig;
-        const { verifyType } = common.allDict;
+    onColumnNameChange = (type, name) => {
+        const { form, ruleConfig } = this.props;
+        const { tableColumn, monitorFunction } = ruleConfig;
         const { currentRule } = this.state;
+
+        let columnType = tableColumn.filter(item => item.key === name)[0].type;
+        let functionList = monitorFunction[columnType];
+        console.log(type,name,columnType,monitorFunction,functionList)
+
+        form.setFieldsValue({ functionId: undefined });
+        this.setState({ 
+            functionList,
+            currentRule: {
+                ...currentRule, 
+                functionId: undefined,
+                columnName: name
+            }
+        });
+        // this.changeRuleParams(type, value);
+
+    }
+
+    onFunctionChange = (type, id) => {
+        const { functionList } = this.state;
+
+        let isPercent   = functionList.filter(item => item.id == id)[0].isPercent,
+            nameZc      = functionList.filter(item => item.id == id)[0].nameZc,
+            currentRule = {...this.state.currentRule};
+
+        if (nameZc === '枚举值') {
+            currentRule.isEnum = true;
+            currentRule.operator = ''
+        } else {
+            delete currentRule.isEnum;
+        }
+
+        if (nameZc === '字符串最大长度' || nameZc === '字符串最小长度') {
+            currentRule.isStrLength = true;
+        } else {
+            delete currentRule.isStrLength;
+        }
+
+        currentRule.isPercent = isPercent;
+        currentRule.functionId = id;
+        console.log(type,id,isPercent,nameZc,currentRule)
+        this.setState({ currentRule });
+    }
+
+    renderEditTD = (text, record, type) => {
+        const { form, ruleConfig, common } = this.props;
+        const { getFieldDecorator } = form;
+        const { verifyType } = common.allDict;
+        const { monitorFunction, tableColumn } = ruleConfig;
+        const { currentRule, functionList } = this.state;
 
         switch(type) {
             case 'columnName': {
@@ -223,10 +272,10 @@ export default class RuleEditPane extends Component {
                             })(
                                 <Select 
                                     style={{ width: '100%' }} 
-                                    onChange={this.changeRuleParams.bind(this, 'columnName')} 
+                                    onChange={this.onColumnNameChange.bind(this, 'columnName')} 
                                     disabled={record.isTable || record.editStatus === 'edit'}>
                                     {
-                                        sourceColumn.map((item) => {
+                                        tableColumn.map((item) => {
                                             return <Option key={item.key} value={item.key}>
                                                 {item.key}
                                             </Option>
@@ -248,14 +297,14 @@ export default class RuleEditPane extends Component {
                             rules: [{
                                 required: true, message: '统计函数不可为空！',
                             }],
-                            initialValue: record.functionId ? record.functionId.toString() : undefined
+                            initialValue: record.editStatus === 'edit' ? record.functionName : record.functionId
                         })(
                             <Select 
                                 style={{ width: '100%' }} 
-                                onChange={this.changeRuleParams.bind(this, 'functionId')}
+                                onChange={this.onFunctionChange.bind(this, 'functionId')}
                                 disabled={record.editStatus === 'edit'}>
                                 {
-                                    monitorFunction.map((item) => {
+                                    functionList.map((item) => {
                                         return <Option key={item.id} value={item.id.toString()}>
                                             {item.nameZc}
                                         </Option>
@@ -295,7 +344,7 @@ export default class RuleEditPane extends Component {
                             <Select 
                                 style={{ width: '100%' }} 
                                 onChange={this.changeRuleParams.bind(this, 'verifyType')}
-                                disabled={record.editStatus === 'edit'}>
+                                disabled={record.editStatus === 'edit' || currentRule.isEnum}>
                                 {
                                     verifyType.map((item) => {
                                         return <Option key={item.value} value={item.value.toString()}>
@@ -310,51 +359,72 @@ export default class RuleEditPane extends Component {
             }
 
             case 'threshold': {
-                return <div>
-                    <FormItem>
-                    {
-                        getFieldDecorator('operator', {
-                            rules: [{
-                                required: true, message: '阈值配置不可为空！',
-                            }],
-                            initialValue: record.operator
-                        })(
-                            <Select 
-                                style={{ width: 50, marginRight: 5 }} 
-                                onChange={this.changeRuleParams.bind(this, 'operator')}>
-                                <Option value=">"> {`>`} </Option>
-                                <Option value=">="> {`>=`} </Option>
-                                <Option value="="> {`=`} </Option>
-                                <Option value="<"> {`<`} </Option>
-                                <Option value="<="> {`<=`} </Option>
-                                <Option value="!="> {`!=`} </Option>
-                            </Select>
-                        )
-                    }
+                if (currentRule.isEnum) {
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                        {
+                            getFieldDecorator('thresholdEnum', {
+                                rules: [{
+                                    required: true, message: '阈值不可为空！',
+                                }],
+                                initialValue: record.threshold
+                            })(
+                                <Input
+                                  placeholder="枚举格式为(value1,value2,.....)"
+                                  onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                /> 
+                            )
+                        }
                     </FormItem>
-                    <FormItem>
-                    {
-                        getFieldDecorator('threshold', {
-                            rules: [{
-                                required: true, message: '阈值不可为空！',
-                            }],
-                            initialValue: record.threshold
-                        })(
-                            <InputNumber
-                              min={0}
-                              max={100}
-                              style={{ width: 50, marginRight: 10 }}
-                              onChange={this.changeRuleParams.bind(this, 'threshold')}
-                            /> 
-                        )
-                    }
-                    </FormItem>
-                    {
-                        currentRule.verifyType != 1
-                        &&
-                        <span style={{ height: 32, lineHeight: '32px' }}>%</span>
-                    }
-                </div>
+                } else {
+                    return <div>
+                        <FormItem>
+                            {
+                                getFieldDecorator('operator', {
+                                    rules: [{
+                                        required: true, message: '阈值配置不可为空！',
+                                    }],
+                                    initialValue: record.operator
+                                })(
+                                    <Select 
+                                        style={{ width: 50, marginRight: 5 }} 
+                                        onChange={this.changeRuleParams.bind(this, 'operator')}>
+                                        {
+                                            operatorSelect.map((item) => {
+                                                return <Option 
+                                                    key={item.value} 
+                                                    value={item.value}
+                                                    disabled={currentRule.isStrLength && item.text === "!="}> 
+                                                    {item.text} 
+                                                </Option>
+                                            })
+                                        }
+                                    </Select>
+                                )
+                            }
+                        </FormItem>
+                        <FormItem>
+                            {
+                                getFieldDecorator('threshold', {
+                                    rules: [{
+                                        required: true, message: '阈值不可为空！',
+                                    }],
+                                    initialValue: record.threshold
+                                })(
+                                    <InputNumber
+                                      min={1}
+                                      style={{ width: 50, marginRight: 10 }}
+                                      onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                    /> 
+                                )
+                            }
+                        </FormItem>
+                        {
+                            (currentRule.isPercent === 1 || currentRule.verifyType != 1)
+                            &&
+                            <span style={{ height: 32, lineHeight: '32px' }}>%</span>
+                        }
+                    </div>
+                }
             }
         }
     }
@@ -379,12 +449,12 @@ export default class RuleEditPane extends Component {
             }
 
             case 'verifyType': {
-                return text ? verifyType.filter(item => parseInt(text) === item.value)[0].name : undefined;
+                return record.verifyTypeValue;
             }
 
             case 'threshold': {
                 let value = `${record.operator}  ${text}`;
-                return record.verifyType == 1 ? `${value} %` : value;
+                return record.isPercentage ? `${value} %` : value;
             }
 
             default:
@@ -466,8 +536,12 @@ export default class RuleEditPane extends Component {
 
     // 保存
     save(id) {
-        const { currentRule, SQLFields, columnFields, monitorId } = this.state;
-        let fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
+        const { currentRule, enumFields, SQLFields, columnFields, monitorId } = this.state;
+        let fields = currentRule.isCustomizeSql ? SQLFields : columnFields;
+
+        if (currentRule.isEnum) {
+            fields = enumFields;
+        }
 
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
             console.log(err,values)
@@ -477,6 +551,7 @@ export default class RuleEditPane extends Component {
                     delete currentRule.id;
                 }
 
+                delete currentRule.isTable;
                 delete currentRule.editable;
                 delete currentRule.editStatus;
 
@@ -501,8 +576,9 @@ export default class RuleEditPane extends Component {
 
     }
 
+    // 新增规则
     addNewRule = (type) => {
-        const { form, data } = this.props;
+        const { form, data, ruleConfig } = this.props;
         const { currentRule, rules } = this.state;
 
         let newData = [...rules];
@@ -539,9 +615,15 @@ export default class RuleEditPane extends Component {
                 target.customizeSql = undefined;
                 break;
             case 'table':
+                target.isTable = true;
                 target.isCustomizeSql = false;
                 target.columnName = data.tableName;
                 target.functionId = undefined;
+
+                // 表规则的统计函数
+                this.setState({ 
+                    functionList: ruleConfig.monitorFunction.all.filter(item => item.level === 1) 
+                });
                 break;
             default:
                 break;
@@ -566,7 +648,11 @@ export default class RuleEditPane extends Component {
                 });
             }
         });
-        this.setState({ monitorId });
+
+        this.setState({ 
+            monitorId,
+            currentRule: {}
+        });
     }
 
     executeMonitor = (monitorId) => {
@@ -611,7 +697,7 @@ export default class RuleEditPane extends Component {
         const { periodType, notifyType } = common.allDict;
         const { monitorDetail } = ruleConfig;
 
-        let monitorPartVOS = data.monitorPartVOS ? data.monitorPartVOS : [];
+        let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
 
         return (
             <div className="rule-manage">
@@ -624,8 +710,12 @@ export default class RuleEditPane extends Component {
                                 style={{ width: 150 }}
                                 onChange={this.onMonitorIdChange}>
                                 {
-                                    monitorPartVOS.map((item) => {
-                                        return <Option key={item.monitorId} value={item.monitorId.toString()}>{item.partValue}</Option>
+                                    monitorPart.map((item) => {
+                                        return <Option 
+                                            key={item.monitorId} 
+                                            value={item.monitorId.toString()}>
+                                            {item.partValue}
+                                        </Option>
                                     })
                                 }
                             </Select>
