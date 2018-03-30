@@ -32,6 +32,7 @@ const mapDispatchToProps = dispatch => ({
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class TaskDetailPane extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -183,24 +184,26 @@ export default class TaskDetailPane extends Component {
             symbol: 'none',
             type:'line',
             data: yData,
-            markLine : {
-                silent: true,
-                itemStyle: {
-                    normal: {
-                        label: {
-                            formatter: function() {
-                                return '阈值'
-                            }
+        }];
+
+        // 非百分比需要显示基线
+        option.series[0].markLine = currentRecord.isPercentage ? undefined : {
+            silent: true,
+            itemStyle: {
+                normal: {
+                    label: {
+                        formatter: function() {
+                            return '阈值'
                         }
                     }
-                },
-                data : [
-                    {
-                        yAxis: +currentRecord.threshold,
-                    }
-                ]
-            }
-        }];
+                }
+            },
+            data : [
+                {
+                    yAxis: +currentRecord.threshold,
+                }
+            ]
+        };
 
         myChart.setOption(option);
         this.setState({ lineChart: myChart });

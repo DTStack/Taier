@@ -1,13 +1,13 @@
 import utils from 'utils'
 import http from './http'
 import localDb from 'utils/localDb'
-import { MY_APPS } from 'consts'
 
 import RdosApi from 'rdos/api'
 import DqSysApi from 'dataQuality/api/sysAdmin'
 import DqApi from 'dataQuality/api'
 
-import req from '../consts/reqUrls'
+import { MY_APPS } from '../consts';
+import req from '../consts/reqUrls';
 import rdosUrls from '../consts/rdosUrls';
 
 export default {

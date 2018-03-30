@@ -101,9 +101,6 @@ export default class TaskQuery extends Component {
             dataIndex: 'alarmSum',
             key: 'alarmSum',
             width: '8%',
-            render: (sum, record) => {
-                return sum ? `${sum} / ${record.allAlarmSum}` : '--';
-            }
         }, {
             title: '类型',
             dataIndex: 'sourceTypeValue',
@@ -337,7 +334,12 @@ export default class TaskQuery extends Component {
         return (
             <div className="task-dashboard">
                 <h1 className="box-title">
-                    任务查询
+                    任务查询 <span style={{ fontSize: "12px", color: "rgb(153, 153, 153)" }}>
+                    告警总数: {
+                        taskList.data && taskList.data[0] ? 
+                        taskList.data[0].allAlarmSum : 0 
+                    }
+                    </span>
                 </h1>
 
                 <div className="box-2 m-card shadow">
