@@ -24,7 +24,8 @@ public class SparkRestartStrategy implements IRestartStrategy {
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
-    private final static int RETRY_LIMIT = 3;
+    /**FIXME 测试暂时改成一次*/
+    private final static int RETRY_LIMIT = 1;
 
     private final static String analysisException = "org.apache.spark.sql.AnalysisException";
 
@@ -55,6 +56,9 @@ public class SparkRestartStrategy implements IRestartStrategy {
             if(retryNum >= RETRY_LIMIT){
                 return false;
             }
+
+            retryNum++;
+            retryJobCache.put(engineJobId, retryNum);
         } catch (ExecutionException e) {
             LOG.error("", e);
             return false;
