@@ -167,7 +167,13 @@ export default class TaskDetailPane extends Component {
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
         option.legend.data = ['统计值'];
-        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
+
+        option.xAxis[0].axisTick = {
+            show: false,
+            alignWithLabel: true,
+        }
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
 
         option.yAxis[0].axisLabel.formatter = '{value} 次';

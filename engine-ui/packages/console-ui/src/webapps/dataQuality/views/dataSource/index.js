@@ -7,7 +7,7 @@ import {
 import moment from 'moment';
 
 import DataSourceForm from './editModal';
-import { formItemLayout, dataSourceTypes } from '../../consts';
+import { formItemLayout, dataSourceTypes, dataSourceFilter } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import Api from '../../api/dataSource';
 import '../../styles/views/dataSource.scss';
@@ -132,22 +132,7 @@ export default class DataSource extends Component {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
-            filters: [{
-                text: 'MySql',
-                value: 1
-            }, {
-                text: 'Oracle',
-                value: 2
-            }, {
-                text: 'SQLServer',
-                value: 3
-            }, {
-                text: 'Spark',
-                value: 7
-            }, {
-                text: 'MaxCompute',
-                value: 10
-            }],
+            filters: dataSourceFilter,
             filterMultiple: false,
             render: (text) => dataSourceTypes[text]
         }, 

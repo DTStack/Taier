@@ -1,4 +1,13 @@
 // 常量
+export const currentApp = {
+    id: 'main',
+    name: '首页',
+    link: 'index.html',
+    filename: 'index.html',
+    target: '_self',
+    enable: true,
+    apiBase: '/main',
+}
 
 /** 
  * 数据源类型
@@ -12,13 +21,3 @@ export const DATA_SOURCE = {
     HBASE: 8,
     FTP: 9,
 }
-
-export const currentApps = [{
-    id: 'dataQuality',
-    name: '数据质量',
-    link: 'dataQuality.html#/',
-    filename: 'dataQuality.html',
-    target: '_blank',
-    enable: true,
-    apiBase: '/dataQuality',
-}]

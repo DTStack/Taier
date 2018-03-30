@@ -108,7 +108,7 @@ class Header extends Component {
     }
 
     render() {
-        const { user, project, projects, settingMenus, apps } = this.props
+        const { user, project, projects, settingMenus, apps, app } = this.props
         const { current, devPath } = this.state
         const menuItems = this.getProjectItems()
         const userMenu = this.initUserDropMenu()
@@ -179,6 +179,7 @@ class Header extends Component {
                 
                 <MenuRight 
                     user={ user }
+                    app={ app }
                     apps={ apps }
                     onClick={ this.clickUserMenu }
                 /> 

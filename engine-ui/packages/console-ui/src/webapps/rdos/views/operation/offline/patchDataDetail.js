@@ -381,7 +381,7 @@ class PatchDataDetail extends Component {
                 </td>
                 <td>
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
-                    <Button type="primary" size="small" onClick={this.batchReloadJobs}>批量重跑</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
                 </td>
             </tr>
         )
