@@ -8,9 +8,9 @@ import {
 import { Link } from 'react-router'
 
 import utils from 'utils'
-import { MY_APPS } from 'consts'
 import { hasProject } from 'funcs'
 
+import { MY_APPS } from '../../../consts'
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
 
@@ -350,7 +350,7 @@ class AdminUser extends Component {
 
         const { 
             visible, roles, notProjectUsers,
-            visibleEditRole, editTarget
+            visibleEditRole, editTarget, active
         } = this.state
 
         const content = this.renderPane();
@@ -361,7 +361,7 @@ class AdminUser extends Component {
                 <div className="box-2 m-card" style={{height: '785px'}}>
                     <AppTabs 
                         apps={apps} 
-                        activeKey={this.state.active}
+                        activeKey={active}
                         content={content}
                         onPaneChange={this.onPaneChange} 
                     />
@@ -388,6 +388,7 @@ class AdminUser extends Component {
                 >
                     <EditMemberRoleForm
                       user={editTarget}
+                      app={active}
                       roles={roles}
                       wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
                     />
