@@ -193,8 +193,10 @@ public class RestartDealer {
         zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.WAITCOMPUTE.getStatus());
         if(ComputeType.STREAM.getType().equals(computeType)){
             engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITCOMPUTE.getStatus());
+            engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
             engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITCOMPUTE.getStatus());
+            engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{
             LOG.error("not support for computeType:{}", computeType);
         }

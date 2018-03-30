@@ -211,6 +211,8 @@ public class FlinkClient extends AbsClient {
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
+
+        isClientOn = true;
     }
 
 
@@ -229,7 +231,7 @@ public class FlinkClient extends AbsClient {
         }
 
         this.jobMgrHost = splitInfo[0].trim();
-        this.jobMgrPort = Integer.parseInt(splitInfo[1].trim())+1;
+        this.jobMgrPort = Integer.parseInt(splitInfo[1].trim());
 
         Configuration config = new Configuration();
         config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, jobMgrHost);
@@ -328,7 +330,6 @@ public class FlinkClient extends AbsClient {
         clusterClient.setDetached(isDetact);
 
         client = clusterClient;
-        isClientOn = true;
         logger.warn("---init flink client with yarn session success----");
     }
 
