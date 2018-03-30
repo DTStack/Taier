@@ -4,6 +4,8 @@ import org.apache.ibatis.annotations.Param;
 
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 
+import java.util.List;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -20,11 +22,13 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateTaskPluginId(@Param("taskId") String taskId, @Param("pluginId") long pluginId);
 
-	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("status") int stauts);
+	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("status") int status);
 
 	void updateTaskEngineId(@Param("taskId") String taskId,@Param("engineId") String engineId);
 
 	RdosEngineStreamJob getRdosTaskByTaskId(@Param("taskId")String taskId);
+
+	List<RdosEngineStreamJob> getRdosTaskByTaskIds(@Param("taskIds")List<String> taskIds);
 
 	void updateEngineLog(@Param("taskId")String taskId, @Param("engineLog")String engineLog);
 

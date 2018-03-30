@@ -65,9 +65,9 @@ public class TaskListener implements Runnable{
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
                         zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId,
                                 RdosTaskStatus.FAILED.getStatus());
+						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
 
-					rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					rdosStreamTaskDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 
 				}else if(ComputeType.BATCH.getType().equals(jobClient.getComputeType().getType())){
@@ -79,9 +79,8 @@ public class TaskListener implements Runnable{
 					    rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
                         zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId,
                                 RdosTaskStatus.FAILED.getStatus());
+                        rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
-
-                    rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 				}
 
 			} catch (Throwable e) {

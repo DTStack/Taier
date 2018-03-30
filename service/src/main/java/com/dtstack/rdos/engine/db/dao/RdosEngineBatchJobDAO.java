@@ -6,6 +6,8 @@ import com.dtstack.rdos.engine.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.mapper.RdosEngineBatchJobMapper;
 
+import java.util.List;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -25,6 +27,18 @@ public class RdosEngineBatchJobDAO {
 				return rdosTaskMapper.getRdosJobByJobId(jobId);
 			}
 			
+		});
+	}
+
+	public List<RdosEngineBatchJob> getRdosTaskByTaskIds(final List<String> jobIds){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineBatchJob>>(){
+
+			@Override
+			public List<RdosEngineBatchJob> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				return rdosTaskMapper.getRdosJobByJobIds(jobIds);
+			}
+
 		});
 	}
 	

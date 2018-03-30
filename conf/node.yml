@@ -49,6 +49,7 @@ engineTypes:
     #    monitorAddress: node02:8081,node03:8081
         #yarnConfPath: D:\yarn-site.xml
 
+
     #-
     #    typeName: flink140
     #    clusterMode: yarn
@@ -59,12 +60,21 @@ engineTypes:
     #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
     #    remotePluginRootDir: /opt/dtstack/flinkplugin
 
+
     -
-        typeName: spark_yarn
-        sparkYarnArchive: hdfs://ns1/sparkjars/jars
-        sparkSqlProxyPath: hdfs://ns1/user/spark/spark-0.0.1-SNAPSHOT.jar
-        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
-        sparkPythonExtLibPath: hdfs://ns1/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip
+        typeName: flink140
+        clusterMode: standalone
+        flinkJobMgrUrl: localhost:6123
+        jarTmpDir: ../tmp140
+        flinkPluginRoot: E:\flinkplugin
+        remotePluginRootDir: E:\flinkplugin
+
+    #-
+    #    typeName: spark_yarn
+    #    sparkYarnArchive: hdfs://ns1/sparkjars/jars
+    #    sparkSqlProxyPath: hdfs://ns1/user/spark/spark-0.0.1-SNAPSHOT.jar
+    #    sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+    #    sparkPythonExtLibPath: hdfs://ns1/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip
 
     #-
     #    typeName: datax

@@ -7,6 +7,8 @@ import com.dtstack.rdos.engine.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.db.mapper.RdosEngineStreamJobMapper;
 
+import java.util.List;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -25,7 +27,19 @@ public class RdosEngineStreamJobDAO {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
 				return rdosTaskMapper.getRdosTaskByTaskId(taskId);
 			}
-			
+
+		});
+	}
+
+	public List<RdosEngineStreamJob> getRdosTaskByTaskIds(final List<String> taskIds){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineStreamJob>>(){
+
+			@Override
+			public List<RdosEngineStreamJob> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				return rdosTaskMapper.getRdosTaskByTaskIds(taskIds);
+			}
+
 		});
 	}
 	

@@ -3,6 +3,8 @@ package com.dtstack.rdos.engine.db.mapper;
 import org.apache.ibatis.annotations.Param;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 
+import java.util.List;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -29,7 +31,9 @@ public interface RdosEngineBatchJobMapper {
 
 	RdosEngineBatchJob getRdosJobByJobId(@Param("jobId") String jobId);
 
-	void updateEngineLog(@Param("jobId") String jobId, @Param("engineLog") String engineLog);
+	List<RdosEngineBatchJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
+
+	void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
 
 	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
