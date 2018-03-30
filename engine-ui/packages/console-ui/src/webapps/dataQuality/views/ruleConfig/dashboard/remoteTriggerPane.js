@@ -12,6 +12,9 @@ const Option = Select.Option;
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
 
+// API服务器
+const API_SERVER = APP_CONF ? APP_CONF.API_SERVER : '';
+
 const mapStateToProps = state => {
     const { ruleConfig, common } = state;
     return { ruleConfig, common }
@@ -80,7 +83,8 @@ export default class RemoteTriggerPane extends Component {
             title: '访问接口',
             dataIndex: 'url',
             key: 'url',
-            width: '28%'
+            width: '28%',
+            render: (url) => `${API_SERVER}${url}`
         },  {
             title: '最近修改人',
             key: 'modifyUser',

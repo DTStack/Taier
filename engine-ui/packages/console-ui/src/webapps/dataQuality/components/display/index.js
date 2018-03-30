@@ -8,13 +8,17 @@ import { TASK_STATUS } from '../../consts';
  * @param {*} status 
  */
 export function FildCheckStatus(props) {
-    if (props.value) {
-        return <span>通过</span>
-    } else if (status === null) {
-        return <span>未运行</span>
-    } else {
-        return <span>未通过</span>
-    }
+    switch (props.value) {
+        case true: {
+            return <span>通过</span>
+        }
+        case false: {
+            return <span>未通过</span>
+        }
+        default: {
+            return <span>--</span>
+        }
+    } 
 }
 
 

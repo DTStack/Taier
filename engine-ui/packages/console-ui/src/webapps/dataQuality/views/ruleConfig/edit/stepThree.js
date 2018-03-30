@@ -79,7 +79,7 @@ export default class StepThree extends Component {
 
         this.setState({ scheduleConfObj });
         this.props.changeParams({
-            scheduleConf: JSON.stringify({ scheduleConfObj })
+            scheduleConf: JSON.stringify(scheduleConfObj)
         });
     }
 
@@ -94,8 +94,6 @@ export default class StepThree extends Component {
 
     // 调度周期回调
     onPeriodTypeChange = (type) => {
-        
-        
         this.resetScheduleConf(type);
     }
 

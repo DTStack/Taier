@@ -106,6 +106,7 @@ export default class ExecuteForm extends Component {
             scheduleConfObj,
             params: {
                 ...params, 
+                periodType: type,
                 scheduleConf: JSON.stringify(scheduleConfObj)
             }
         });
@@ -122,16 +123,7 @@ export default class ExecuteForm extends Component {
 
     // 调度周期回调
     onPeriodTypeChange = (type) => {
-        const { scheduleConfObj, params } = this.state;
         this.resetScheduleConf(type);
-        this.setState({
-            // scheduleConfObj: {...scheduleConfObj, periodType: type},
-            params: {
-                ...params, 
-                periodType: type,
-                // scheduleConf: JSON.stringify({...scheduleConfObj, periodType: type})
-            }
-        });
     }
 
     onSendTypeChange = (value) => {
@@ -213,7 +205,12 @@ export default class ExecuteForm extends Component {
             for (let i = 0; i <= 23; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
             }
-            return <Select style={{ width: 150, marginRight: 8 }} onChange={this.changeScheduleConfTime.bind(this, type)}>{ options }</Select>;
+
+            return <Select 
+                style={{ width: 150 }} 
+                onChange={this.changeScheduleConfTime.bind(this, type)}>
+                { options }
+            </Select>;
         };
 
         const generateMins = (type) => {
@@ -222,7 +219,26 @@ export default class ExecuteForm extends Component {
             for (let i = 0, l = 59; i <= l; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
             }
-            return <Select style={{ width: 150, margin: '0 8px' }} onChange={this.changeScheduleConfTime.bind(this, type)}>{ options }</Select>;
+
+            return <Select 
+                style={{ width: 150 }} 
+                onChange={this.changeScheduleConfTime.bind(this, type)}>
+                { options }
+            </Select>;
+        };
+
+        const generateGapHour = () => {
+            let options = [];
+
+            for(let i = 1, l = 23; i <= l; i++) {
+                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
+            }
+            
+            return <Select
+                style={{ width: 150 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
+                { options }
+            </Select>
         };
 
         const generateDate = () => {
@@ -231,11 +247,13 @@ export default class ExecuteForm extends Component {
             for (let i = 1; i <= 31; i++) {
                 options.push(<Option key={i} value={`${i}`}>{`每月${i}号`}</Option>);
             }
+
             return <Select
                 mode="multiple"
                 style={{ width: 325 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'day')}
-            >{ options }</Select>;
+                onChange={this.changeScheduleConfTime.bind(this, 'day')}>
+                { options }
+            </Select>;
         };
 
         const generateDays = () => {
@@ -271,7 +289,9 @@ export default class ExecuteForm extends Component {
                                 generateHours('beginHour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('beginMin', {
                                 rules: [{
@@ -282,7 +302,9 @@ export default class ExecuteForm extends Component {
                                 generateMins('beginMin')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                     <FormItem {...formItemLayout} label="间隔时间">
                         {
@@ -292,21 +314,7 @@ export default class ExecuteForm extends Component {
                                 }],
                                 initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
                             })(
-                                <Select
-                                    style={{ width: 150 }}
-                                    onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }
-                                >
-                                    {
-                                        (function() {
-                                            let options = [];
-
-                                            for(let i = 1, l = 23; i <= l; i++) {
-                                                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
-                                            }
-                                            return options;
-                                        })()
-                                    }
-                                </Select>
+                                generateGapHour()
                             )
                         }
                     </FormItem>
@@ -323,7 +331,9 @@ export default class ExecuteForm extends Component {
                                 generateHours('endHour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('endMin', {
                                 rules: [{
@@ -334,7 +344,9 @@ export default class ExecuteForm extends Component {
                                 generateMins('endMin')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                 </div>
             }
@@ -351,7 +363,9 @@ export default class ExecuteForm extends Component {
                             generateHours('hour')
                         )
                     }
-                    时
+                    <span className="m-8">
+                        时
+                    </span>
                     {
                         getFieldDecorator('min', {
                             rules: [{
@@ -363,7 +377,9 @@ export default class ExecuteForm extends Component {
                             generateMins('min')
                         )
                     }
-                    分
+                    <span className="m-8">
+                        分
+                    </span>
                 </FormItem>
             }
 
@@ -392,7 +408,9 @@ export default class ExecuteForm extends Component {
                                 generateHours('hour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('min', {
                                 rules: [{
@@ -404,7 +422,9 @@ export default class ExecuteForm extends Component {
                                 generateMins('min')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                 </div>
             }
@@ -434,7 +454,9 @@ export default class ExecuteForm extends Component {
                                 generateHours('hour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('min', {
                                 rules: [{
@@ -446,7 +468,9 @@ export default class ExecuteForm extends Component {
                                 generateMins('min')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                 </div>
             }
@@ -460,20 +484,22 @@ export default class ExecuteForm extends Component {
     }
 
     closeModal = () => {
-        this.initState(this.props.data);
-        this.props.form.resetFields();
-        this.props.closeModal(false);
+        const { form, data, closeModal } = this.props;
+
+        this.initState(data);
+        form.resetFields();
+        closeModal(false);
     }
 
     render() {
         const { form, common, data, visible, closeModal } = this.props;
         const { scheduleConfObj, params } = this.state;
-        const { allDict, userList } = common;
         const { getFieldDecorator } = form;
+        const { allDict, userList } = common;
         const { notifyUser, sendTypes } = params;
 
-        let periodType = allDict.periodType ? allDict.periodType : [];
-        let notifyType = allDict.notifyType ? allDict.notifyType : [];
+        let periodType = allDict.periodType ? allDict.periodType : [],
+            notifyType = allDict.notifyType ? allDict.notifyType : [];
 
         return (
             <Modal
@@ -481,19 +507,19 @@ export default class ExecuteForm extends Component {
                 wrapClassName="editExecuteModal"
                 maskClosable={false}
                 visible={visible}
-                width={'70%'}
+                width={'50%'}
                 okText="保存"
                 cancelText="取消"
                 onOk={this.save}
                 onCancel={this.closeModal}>  
                 <Form>
-                    <FormItem {...formItemLayout} label="调度周期" key="periodType">
+                    <FormItem {...formItemLayout} label="调度周期">
                         {
                             getFieldDecorator('periodType', {
                                 rules: [{ required: true, message: '执行周期不能为空' }], 
-                                initialValue: scheduleConfObj.periodType
+                                initialValue: scheduleConfObj.periodType.toString()
                             })(
-                                <Select style={{ width: 325 }} onChange={this.onPeriodTypeChange}>
+                                <Select onChange={this.onPeriodTypeChange}>
                                     {
                                         this.renderPeriodType(periodType)
                                     }
@@ -508,27 +534,29 @@ export default class ExecuteForm extends Component {
                         <FormItem {...formItemLayout} label="生效日期">
                             {
                                 getFieldDecorator('beginDate', {
-                                initialValue: moment(scheduleConfObj.beginDate)
+                                    initialValue: moment(scheduleConfObj.beginDate)
                                 })(
                                     <DatePicker
                                         size="large"
+                                        style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="开始日期"
-                                        style={{ width: 150, marginRight: 8 }}
                                         onChange={this.onBeginDateChange}
                                     />
                                 )
                             }
-                            到
+                            <span className="m-8">
+                                到
+                            </span>
                             {
                                 getFieldDecorator('endDate', {
                                     initialValue: moment(scheduleConfObj.endDate)
                                 })(
                                     <DatePicker
                                         size="large"
+                                        style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="结束日期"
-                                        style={{ width: 150, marginLeft: 8 }}
                                         onChange={this.onEndDateChange}
                                     />
                                 )
@@ -540,7 +568,7 @@ export default class ExecuteForm extends Component {
                         this.renderDynamic()
                     }
                     
-                    <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
+                    <FormItem {...formItemLayout} label="通知方式">
                         {
                             getFieldDecorator('sendTypes', {
                                 rules: [{ required: true, message: '选择一种通知方式' }], 
@@ -549,7 +577,11 @@ export default class ExecuteForm extends Component {
                                 <Checkbox.Group onChange={this.onSendTypeChange}>
                                     {
                                         notifyType.map((item) => {
-                                            return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
+                                            return <Checkbox 
+                                                key={item.value} 
+                                                value={item.value.toString()}>
+                                                {item.name}
+                                            </Checkbox>
                                         })
                                     }
                                 </Checkbox.Group>
@@ -557,13 +589,16 @@ export default class ExecuteForm extends Component {
                         }
                     </FormItem>
                     
-                    <FormItem {...formItemLayout} label="通知接收人" key='notifyUser'>
+                    <FormItem {...formItemLayout} label="通知接收人">
                         {
                             getFieldDecorator('notifyUser', {
                                 rules: [{ required: true, message: '接收人不能为空' }],
                                 initialValue: notifyUser.map(item => item.toString())
                             })(
-                                <Select style={{ width: 325 }} mode="multiple" allowClear onChange={this.onNotifyUserChange}>
+                                <Select 
+                                    allowClear 
+                                    mode="multiple" 
+                                    onChange={this.onNotifyUserChange}>
                                     {
                                         this.renderUserList(userList)
                                     }
