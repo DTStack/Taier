@@ -53,7 +53,7 @@ export function MenuLeft(props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderMenuItems(menuItems)}
+                {renderATagMenuItems(menuItems)}
             </Menu>
         </div>
     )
