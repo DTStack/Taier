@@ -36,6 +36,7 @@ public class ClientFactory {
         typeRefClassName.put("oracle", "com.dtstack.rdos.engine.execution.oracle.OracleClient");
         typeRefClassName.put("sqlserver", "com.dtstack.rdos.engine.execution.sqlserver.SqlserverClient");
         typeRefClassName.put("maxcompute", "com.dtstack.rdos.engine.execution.odps.OdpsClient");
+        typeRefClassName.put("hadoop", "com.dtstack.rdos.engine.execution.hadoop.HadoopClient");
     }
 
     public static ClassLoader getClassLoader(String pluginType){
