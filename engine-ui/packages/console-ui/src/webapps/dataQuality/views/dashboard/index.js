@@ -87,7 +87,7 @@ export default class DashBoard extends Component {
             dataIndex: 'tableName',
             key: 'tableName',
             render: (text, record) => (
-                <Link to={`/dq/taskQuery?tb=${text}`}>{text}</Link>
+                <Link to={`/dq/taskQuery?tb=${text}&source=${record.dataSourceType}`}>{text}</Link>
             ),
             width: '30%'
         },

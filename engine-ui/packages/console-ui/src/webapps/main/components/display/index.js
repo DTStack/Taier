@@ -1,4 +1,4 @@
-import { MY_APPS } from 'consts'
+import { MY_APPS } from '../../consts'
 export function DatabaseType(props) {
     const value = props.value
     switch (value) {

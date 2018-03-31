@@ -7,7 +7,7 @@ import {
  } from 'antd'
 
  import utils from 'utils'
- import { formItemLayout } from 'consts'
+ import { formItemLayout } from '../../../consts'
 
  import Api from '../../../api'
 

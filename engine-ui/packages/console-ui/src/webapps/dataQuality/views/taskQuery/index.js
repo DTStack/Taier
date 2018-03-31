@@ -51,7 +51,7 @@ export default class TaskQuery extends Component {
             fuzzyName: utils.getParameterByName('tb') || undefined,
             configureId: undefined,
             dataSourceId: undefined,
-            dataSourceType: undefined,
+            dataSourceType: utils.getParameterByName('source') || undefined,
             subscribe: undefined,
             executeTime: 0,
             bizTime: 0
@@ -277,6 +277,7 @@ export default class TaskQuery extends Component {
                 <div className="m-l-8">
                     类型：
                     <Select 
+                        defaultValue={params.dataSourceType}
                         placeholder="选择数据源类型"
                         allowClear
                         onChange={this.onSourceChange} 
