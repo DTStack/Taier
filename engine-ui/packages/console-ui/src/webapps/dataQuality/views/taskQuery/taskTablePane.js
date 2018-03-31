@@ -112,8 +112,9 @@ export default class TaskTablePane extends Component {
             legends.forEach((legend) => {
                 arr.push({
                     name: legend.name,
-                    symbol: 'none',
                     type:'line',
+                    smooth: true,
+                    symbolSize: 8,
                     data: data.map(item => item[legend.key]),
                 })
             })

@@ -181,7 +181,6 @@ export default class TaskDetailPane extends Component {
         option.yAxis[0].minInterval = 1;
         option.series = [{
             name: '统计值',
-            symbol: 'none',
             type:'line',
             smooth: true,
             symbolSize: 8,
