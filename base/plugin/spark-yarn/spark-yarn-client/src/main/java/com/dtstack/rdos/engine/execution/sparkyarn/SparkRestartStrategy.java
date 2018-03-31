@@ -37,7 +37,7 @@ public class SparkRestartStrategy implements IRestartStrategy {
 
     private final static String parseException = "org.apache.spark.sql.catalyst.parser.ParseException";
 
-    private final static String analysisSubException = ".*org\\\\.apache\\\\.spark\\\\.sql\\\\.catalyst\\\\.analysis\\\\.\\w+Exception";
+    private final static String analysisSubException = ".*org\\.apache\\.spark\\.sql\\.catalyst\\.analysis\\.\\w+Exception";
 
     private final static List<String> exceptionList = Lists.newArrayList();
 
