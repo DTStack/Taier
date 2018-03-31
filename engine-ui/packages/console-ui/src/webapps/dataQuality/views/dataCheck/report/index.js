@@ -52,7 +52,7 @@ export default class DataCheckReport extends Component {
                         className="no-scroll-bar"
                         value={txt} 
                         resize="none"
-                        style={{ width: '80px' }} 
+                        style={{ minWidth: '80px',width:'100%' }} 
                     />
                 }
             }

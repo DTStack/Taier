@@ -133,9 +133,9 @@ export default class DataCheck extends Component {
                             </Menu.Item>
                         }
                         <Menu.Item>
-                            <Link to={`dq/dataCheck/edit/${record.verifyId}`}>编辑</Link>
+                            <Link to={`dq/dataCheck/edit/${record.verifyId}`}>再次运行</Link>
                         </Menu.Item>
-                        <Menu.Item>
+                        {/* <Menu.Item>
                             <Popconfirm
                                 title="确定删除此校验？"
                                 okText="确定" cancelText="取消"
@@ -143,7 +143,7 @@ export default class DataCheck extends Component {
                             >
                                 <a type="danger">删除</a>
                             </Popconfirm>
-                        </Menu.Item>
+                        </Menu.Item> */}
                     </Menu>
                 );
                 return (
