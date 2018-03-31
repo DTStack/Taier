@@ -223,7 +223,7 @@ export default class RuleEditPane extends Component {
             currentRule.verifyType = '1';
             form.setFieldsValue({ verifyType: '1' });
         } else {
-            currentRule.operator = '';
+            currentRule.operator = undefined;
         }
 
         if (nameZc === '字符串最大长度' || nameZc === '字符串最小长度') {
@@ -359,7 +359,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'threshold': {
-                if (currentRule.operator.trim() === 'in') {
+                if (currentRule.operator === 'in') {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('thresholdEnum', {
@@ -591,7 +591,7 @@ export default class RuleEditPane extends Component {
             editable: true,
             filter: '',
             verifyType: undefined,
-            operator: '',
+            operator: undefined,
             threshold: undefined,
         };
 
