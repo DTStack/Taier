@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Table, Row, Col } from 'antd';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import GoBack from 'main/components/go-back';
+import TableCell from 'widgets/tableCell';
 
 const mapStateToProps = state => {
     const { dataCheck, common } = state;
@@ -46,6 +47,14 @@ export default class DataCheckReport extends Component {
                 key: item,
                 dataIndex: item,
                 width: 80,
+                render: function(txt) {
+                    return <TableCell 
+                        className="no-scroll-bar"
+                        value={txt} 
+                        resize="none"
+                        style={{ width: '80px' }} 
+                    />
+                }
             }
         });
     }
@@ -140,12 +149,12 @@ export default class DataCheckReport extends Component {
                     <Table 
                         // rowKey="key"
                         // bordered
-                        className="m-table"
+                        className="m-cells m-table"
                         style={{ margin: '0 20px' }}
                         columns={this.initColumns(reportTable.data ? reportTable.data[0]: {})} 
                         dataSource={reportTable.data ? reportTable.data : []}
                         pagination={pagination}
-                        scroll={{ x: '120%' }}
+                        scroll={{ x: 1000 }}
                         onChange={this.onTableChange}
                     />
                 </div>

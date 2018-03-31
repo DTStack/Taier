@@ -81,8 +81,9 @@ export default class TaskTablePane extends Component {
             }];
 
         option.grid = {
-            left: 60,
+            left: 20,
             right: 20,
+            containLabel: true
         };
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
