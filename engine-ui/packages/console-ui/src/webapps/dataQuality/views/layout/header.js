@@ -21,30 +21,31 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
+        const baseUrl = '/dataQuality.html#'
         const menuItems = [{
             id: 'dq/overview',
             name: '概览',
-            link: '/dq/overview',
+            link: `${baseUrl}/dq/overview`,
             enable: true,
         }, {
             id: 'dq/taskQuery',
             name: '任务查询',
-            link: '/dq/taskQuery',
+            link: `${baseUrl}/dq/taskQuery`,
             enable: true,
         }, {
             id: 'dq/rule',
             name: '规则配置',
-            link: '/dq/rule',
+            link: `${baseUrl}/dq/rule`,
             enable: true,
         }, {
             id: 'dq/dataCheck',
             name: '逐行校验',
-            link: '/dq/dataCheck',
+            link: `${baseUrl}/dq/dataCheck`,
             enable: true,
         }, {
             id: 'dq/dataSource',
             name: '数据源管理',
-            link: '/dq/dataSource',
+            link: `${baseUrl}/dq/dataSource`,
             enable: true,
         }];
 

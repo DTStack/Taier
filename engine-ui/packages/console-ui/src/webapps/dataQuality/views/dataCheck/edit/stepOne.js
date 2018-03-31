@@ -4,6 +4,8 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
+import TableCell from 'widgets/tableCell';
+
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { formItemLayout } from '../../../consts';
@@ -297,6 +299,14 @@ export default class StepOne extends Component {
                 key: item,
                 dataIndex: item,
                 width: 80,
+                render: function(txt) {
+                    return <TableCell 
+                        className="no-scroll-bar"
+                        value={txt} 
+                        resize="none"
+                        style={{ minWidth: '80px', width:'100%' }} 
+                    />
+                }
             }
         });
     }
@@ -436,11 +446,11 @@ export default class StepOne extends Component {
                             <Table 
                                 rowKey="key"
                                 // bordered
-                                className="m-table preview-table"
+                                className="m-table m-cells preview-table"
                                 columns={this.previewTableColumns(sourcePreview.columnList)} 
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
-                                scroll={{ x: '120%', y: 400 }}
+                                scroll={{ x: 1000 }}
                             />
                         }
                     </Form>
