@@ -521,12 +521,18 @@ public class ActionServiceImpl {
         if (ComputeType.STREAM.getType().equals(computeType)) {
             RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
-                log = "logInfo:"+streamJob.getLogInfo()+"\n engineLog:"+streamJob.getEngineLog();
+                log = streamJob.getLogInfo();
+                if (StringUtils.isNotBlank(streamJob.getEngineLog())){
+                    log+="\n engineLog:"+streamJob.getEngineLog();
+                }
             }
         } else if (ComputeType.BATCH.getType().equals(computeType)) {
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
             if (batchJob != null) {
-                log = "logInfo:"+batchJob.getLogInfo()+"\n engineLog:"+batchJob.getEngineLog();
+                log = batchJob.getLogInfo();
+                if (StringUtils.isNotBlank(batchJob.getEngineLog())){
+                    log+="\n engineLog:"+batchJob.getEngineLog();
+                }
             }
         }
         return log;
@@ -551,7 +557,11 @@ public class ActionServiceImpl {
                     data.put("jobId", streamJob.getTaskId());
                     data.put("status", streamJob.getStatus());
                     data.put("execStartTime", streamJob.getExecStartTime());
-                    data.put("log", streamJob.getLogInfo()+"\n engineLog:"+streamJob.getEngineLog());
+                    String log = streamJob.getLogInfo();
+                    if (StringUtils.isNotBlank(streamJob.getEngineLog())){
+                        log+="\n engineLog:"+streamJob.getEngineLog();
+                    }
+                    data.put("log", log);
                     result.add(data);
                 }
             }
@@ -564,7 +574,11 @@ public class ActionServiceImpl {
                     data.put("jobId", batchJob.getJobId());
                     data.put("status", batchJob.getStatus());
                     data.put("execStartTime", batchJob.getExecStartTime());
-                    data.put("log", batchJob.getLogInfo()+"\n engineLog:"+batchJob.getEngineLog());
+                    String log = batchJob.getLogInfo();
+                    if (StringUtils.isNotBlank(batchJob.getEngineLog())){
+                        log+="\n engineLog:"+batchJob.getEngineLog();
+                    }
+                    data.put("log", log);
                     result.add(data);
                 }
             }
