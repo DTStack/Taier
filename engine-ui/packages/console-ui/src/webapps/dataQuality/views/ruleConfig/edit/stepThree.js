@@ -33,7 +33,7 @@ export default class StepThree extends Component {
         this.state = {
             scheduleConfObj: {
                 beginDate: moment().format('YYYY-MM-DD'),
-                endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+                endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
                 periodType: '2',
                 day: undefined,
                 weekDay: undefined,
@@ -64,7 +64,7 @@ export default class StepThree extends Component {
     resetScheduleConf = (type) => {
         let scheduleConfObj = {
             beginDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+            endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
             periodType: type,
             day: undefined,
             weekDay: undefined,
@@ -150,7 +150,6 @@ export default class StepThree extends Component {
     save = () => {
         const { form, editParams } = this.props;
         form.validateFields({ force: true }, (err, values) => {
-            console.log(err,values)
             if(!err) {
                 editParams.rules.forEach((rule) => {
                     delete rule.id;
@@ -161,12 +160,11 @@ export default class StepThree extends Component {
                     delete rule.functionName;
                     delete rule.verifyTypeValue;
                 });
-                console.log(editParams)
+
                 this.props.addMonitor({...editParams});
                 hashHistory.push('/dq/rule');
             }
-        })
-
+        });
     }
 
     changeScheduleConfTime = (type, value) => {
@@ -198,7 +196,12 @@ export default class StepThree extends Component {
             for (let i = 0; i <= 23; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
             }
-            return <Select style={{ width: 150, marginRight: 8 }} onChange={this.changeScheduleConfTime.bind(this, type)}>{ options }</Select>;
+
+            return <Select 
+                style={{ width: 150 }} 
+                onChange={this.changeScheduleConfTime.bind(this, type)}>
+                { options }
+            </Select>;
         };
 
         const generateMins = (type) => {
@@ -207,7 +210,26 @@ export default class StepThree extends Component {
             for (let i = 0, l = 59; i <= l; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
             }
-            return <Select style={{ width: 150, margin: '0 8px' }} onChange={this.changeScheduleConfTime.bind(this, type)}>{ options }</Select>;
+
+            return <Select 
+                style={{ width: 150 }} 
+                onChange={this.changeScheduleConfTime.bind(this, type)}>
+                { options }
+            </Select>;
+        };
+
+        const generateGapHour = () => {
+            let options = [];
+
+            for(let i = 1, l = 23; i <= l; i++) {
+                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
+            }
+            
+            return <Select
+                style={{ width: 150 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
+                { options }
+            </Select>
         };
 
         const generateDate = () => {
@@ -216,11 +238,13 @@ export default class StepThree extends Component {
             for (let i = 1; i <= 31; i++) {
                 options.push(<Option key={i} value={`${i}`}>{`每月${i}号`}</Option>);
             }
+
             return <Select
                 mode="multiple"
                 style={{ width: 325 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'day')}
-            >{ options }</Select>;
+                onChange={this.changeScheduleConfTime.bind(this, 'day')}>
+                { options }
+            </Select>;
         };
 
         const generateDays = () => {
@@ -256,7 +280,9 @@ export default class StepThree extends Component {
                                 generateHours('beginHour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('beginMin', {
                                 rules: [{
@@ -267,7 +293,9 @@ export default class StepThree extends Component {
                                 generateMins('beginMin')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                     <FormItem {...formItemLayout} label="间隔时间">
                         {
@@ -277,21 +305,7 @@ export default class StepThree extends Component {
                                 }],
                                 initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
                             })(
-                                <Select
-                                    style={{ width: 150 }}
-                                    onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }
-                                >
-                                    {
-                                        (function() {
-                                            let options = [];
-
-                                            for(let i = 1, l = 23; i <= l; i++) {
-                                                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
-                                            }
-                                            return options;
-                                        })()
-                                    }
-                                </Select>
+                                generateGapHour()
                             )
                         }
                     </FormItem>
@@ -308,7 +322,9 @@ export default class StepThree extends Component {
                                 generateHours('endHour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('endMin', {
                                 rules: [{
@@ -319,7 +335,9 @@ export default class StepThree extends Component {
                                 generateMins('endMin')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                 </div>
             }
@@ -336,7 +354,9 @@ export default class StepThree extends Component {
                             generateHours('hour')
                         )
                     }
-                    时
+                    <span className="m-8">
+                        时
+                    </span>
                     {
                         getFieldDecorator('min', {
                             rules: [{
@@ -348,7 +368,9 @@ export default class StepThree extends Component {
                             generateMins('min')
                         )
                     }
-                    分
+                    <span className="m-8">
+                        分
+                    </span>
                 </FormItem>
             }
 
@@ -377,7 +399,9 @@ export default class StepThree extends Component {
                                 generateHours('hour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('min', {
                                 rules: [{
@@ -389,7 +413,9 @@ export default class StepThree extends Component {
                                 generateMins('min')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                 </div>
             }
@@ -419,7 +445,9 @@ export default class StepThree extends Component {
                                 generateHours('hour')
                             )
                         }
-                        时
+                        <span className="m-8">
+                            时
+                        </span>
                         {
                             getFieldDecorator('min', {
                                 rules: [{
@@ -431,7 +459,9 @@ export default class StepThree extends Component {
                                 generateMins('min')
                             )
                         }
-                        分
+                        <span className="m-8">
+                            分
+                        </span>
                     </FormItem>
                 </div>
             }
@@ -481,24 +511,26 @@ export default class StepThree extends Component {
                                     initialValue: moment(scheduleConfObj.beginDate)
                                     })(
                                         <DatePicker
-                                            size="large"
+                                            // size="large"
                                             format="YYYY-MM-DD"
                                             placeholder="开始日期"
-                                            style={{ width: 150, marginRight: 8 }}
+                                            style={{ width: 150 }}
                                             onChange={this.onBeginDateChange}
                                         />
                                     )
                                 }
-                                到
+                                <span className="m-8">
+                                    到
+                                </span>
                                 {
                                     getFieldDecorator('endDate', {
                                         initialValue: moment(scheduleConfObj.endDate)
                                     })(
                                         <DatePicker
-                                            size="large"
+                                            // size="large"
                                             format="YYYY-MM-DD"
                                             placeholder="结束日期"
-                                            style={{ width: 150, marginLeft: 8 }}
+                                            style={{ width: 150 }}
                                             onChange={this.onEndDateChange}
                                         />
                                     )
@@ -513,13 +545,17 @@ export default class StepThree extends Component {
                         <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
                             {
                                 getFieldDecorator('sendTypes', {
-                                    rules: [{ required: true, message: '选择一种通知方式' }], 
+                                    rules: [],
                                     initialValue: sendTypes.map(item => item.toString())
                                 })(
                                     <Checkbox.Group onChange={this.onSendTypeChange}>
                                         {
                                             allDict.notifyType.map((item) => {
-                                                return <Checkbox key={item.value} value={item.value.toString()}>{item.name}</Checkbox>
+                                                return <Checkbox 
+                                                    key={item.value} 
+                                                    value={item.value.toString()}>
+                                                    {item.name}
+                                                </Checkbox>
                                             })
                                         }
                                     </Checkbox.Group>
@@ -530,10 +566,14 @@ export default class StepThree extends Component {
                         <FormItem {...formItemLayout} label="通知接收人" key='notifyUser'>
                             {
                                 getFieldDecorator('notifyUser', {
-                                    rules: [{ required: true, message: '接收人不能为空' }],
+                                    rules: [],
                                     initialValue: notifyUser.map(item => item.toString())
                                 })(
-                                    <Select style={{ width: 325 }} mode="multiple" allowClear onChange={this.onNotifyUserChange}>
+                                    <Select 
+                                        allowClear 
+                                        mode="multiple" 
+                                        style={{ width: 325 }} 
+                                        onChange={this.onNotifyUserChange}>
                                         {
                                             this.renderUserList(userList)
                                         }
