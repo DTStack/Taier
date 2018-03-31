@@ -86,37 +86,39 @@ export default class StepTwo extends Component {
 
     // 预览数据源的数据
     onSourcePreview = () => {
+        const { dataSourceId, table, partition } = this.props.editParams.target;
         const { showPreview } = this.state;
-        const { form, editParams } = this.props;
-        let tableName = form.getFieldValue('table');
 
-        if(!tableName) {
+        if(!table) {
             message.error('未选择数据表');
             return;
         }
 
+        if (!showPreview) {
+            DSApi.getDataSourcesPreview({
+                sourceId: dataSourceId,
+                tableName: table,
+                partition: partition
+            }).then((res) => {
+                if (res.code === 1) {
+                    let { columnList, dataList } = res.data;
+                    
+                    res.data.dataList = dataList.map((arr, i) => {
+                        let o = {};
+                        arr.forEach((item, j) => {
+                            o.key = i;
+                            o[columnList[j]] = item;
+                        })
+                        return o;
+                    });
+
+                    this.setState({ sourcePreview: res.data });
+                }
+            });
+        }
+
         this.setState({ 
             showPreview: !showPreview
-        });
-
-        DSApi.getDataSourcesPreview({
-            sourceId: editParams.target.dataSourceId,
-            tableName: tableName
-        }).then((res) => {
-            if (res.code === 1) {
-                let { columnList, dataList } = res.data;
-                
-                res.data.dataList = dataList.map((arr, i) => {
-                    let o = {};
-                    arr.forEach((item, j) => {
-                        o.key = i;
-                        o[columnList[j]] = item;
-                    })
-                    return o;
-                });
-
-                this.setState({ sourcePreview: res.data });
-            }
         });
     }
 
@@ -128,13 +130,23 @@ export default class StepTwo extends Component {
 
                 if (item.children.length) {
                     return (
-                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
+                        <TreeNode 
+                            key={item.nodeId} 
+                            title={partTitle} 
+                            value={item.partColumn} 
+                            dataRef={item}>
                             {this.renderTreeSelect(item.children)}
                         </TreeNode>
                     )
                 } else {
                     return (
-                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
+                        <TreeNode 
+                            key={item.nodeId} 
+                            title={partTitle} 
+                            value={item.partColumn} 
+                            dataRef={item} 
+                            isLeaf={true} 
+                        />
                     )
                 }
             });
@@ -192,14 +204,16 @@ export default class StepTwo extends Component {
     }
 
     previewTableColumns = (data) => {
-        return data.map((item) => {
-            return {
-                title: item,
-                key: item,
-                dataIndex: item,
-                width: 80
-            }
-        });
+        if (data) {
+            return data.map((item) => {
+                return {
+                    title: item,
+                    key: item,
+                    dataIndex: item,
+                    width: 80,
+                }
+            });
+        }
     }
 
     renderColumnPart = () => {
@@ -220,8 +234,9 @@ export default class StepTwo extends Component {
                             allowClear
                             showSearch
                             placeholder="分区列表"
-                            style={{ width: '85%', marginRight: 15 }} 
+                            treeNodeLabelProp="value"
                             disabled={editStatus === 'edit'}
+                            style={{ width: '85%', marginRight: 15 }} 
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                             onChange={this.handlePartChange}>
                             {

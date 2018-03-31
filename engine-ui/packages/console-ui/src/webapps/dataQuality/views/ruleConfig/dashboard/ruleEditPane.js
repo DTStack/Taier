@@ -107,7 +107,7 @@ export default class RuleEditPane extends Component {
             dataIndex: 'filter',
             key: 'filter',
             render: (text, record) => this.renderColumns(text, record, 'filter'),
-            width: '30%'
+            width: '25%'
         }, {
             title: '校验方法',
             dataIndex: 'verifyType',
@@ -119,7 +119,7 @@ export default class RuleEditPane extends Component {
             dataIndex: 'threshold',
             key: 'threshold',
             render: (text, record) => this.renderColumns(text, record, 'threshold'),
-            width: '15%'
+            width: '20%'
         }, {
             title: '操作',
             width: '10%',
@@ -180,12 +180,11 @@ export default class RuleEditPane extends Component {
     }
 
     changeRuleParams = (type, value) => {
+        const { currentRule } = this.state;
         let obj = {};
-        obj[type] = value.target ? value.target.value : value;
 
-        this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
-        console.log(this.state,obj,'currentRule')
-        // this.changeCurrentRule(obj);
+        obj[type] = value.target ? value.target.value : value;
+        this.setState({ currentRule: {...currentRule, ...obj} });
     }
 
     onColumnNameChange = (name) => {
@@ -211,21 +210,20 @@ export default class RuleEditPane extends Component {
         const { form } = this.props;
         const { functionList } = this.state;
 
-        let isPercent   = functionList.filter(item => item.id == id)[0].isPercent,
-            nameZc      = functionList.filter(item => item.id == id)[0].nameZc,
-            currentRule = {
+        let isPercentage = functionList.filter(item => item.id == id)[0].isPercent,
+            nameZc       = functionList.filter(item => item.id == id)[0].nameZc,
+            currentRule  = {
                 ...this.state.currentRule, 
                 functionId: id,
-                isPercent: isPercent
+                isPercentage
             };
 
         if (nameZc === '枚举值') {
-            currentRule.isEnum = true;
-            currentRule.operator = undefined;
+            currentRule.operator = 'in';
             currentRule.verifyType = '1';
             form.setFieldsValue({ verifyType: '1' });
         } else {
-            delete currentRule.isEnum;
+            currentRule.operator = '';
         }
 
         if (nameZc === '字符串最大长度' || nameZc === '字符串最小长度') {
@@ -346,7 +344,7 @@ export default class RuleEditPane extends Component {
                             <Select 
                                 style={{ width: '100%' }} 
                                 onChange={this.changeRuleParams.bind(this, 'verifyType')}
-                                disabled={record.editStatus === 'edit' || currentRule.isEnum}>
+                                disabled={record.editStatus === 'edit' || currentRule.operator === 'in'}>
                                 {
                                     verifyType.map((item) => {
                                         return <Option key={item.value} value={item.value.toString()}>
@@ -361,7 +359,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'threshold': {
-                if (currentRule.isEnum) {
+                if (currentRule.operator.trim() === 'in') {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('thresholdEnum', {
@@ -421,7 +419,7 @@ export default class RuleEditPane extends Component {
                             }
                         </FormItem>
                         {
-                            (currentRule.isPercent === 1 || currentRule.verifyType != 1)
+                            (currentRule.isPercentage === 1 || currentRule.verifyType != 1)
                             &&
                             <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                         }
@@ -532,7 +530,7 @@ export default class RuleEditPane extends Component {
         const { currentRule, enumFields, SQLFields, columnFields, monitorId } = this.state;
         let fields = currentRule.isCustomizeSql ? SQLFields : columnFields;
 
-        if (currentRule.isEnum) {
+        if (currentRule.operator === 'in') {
             fields = enumFields;
         }
 
@@ -593,7 +591,7 @@ export default class RuleEditPane extends Component {
             editable: true,
             filter: '',
             verifyType: undefined,
-            operator: undefined,
+            operator: '',
             threshold: undefined,
         };
 
