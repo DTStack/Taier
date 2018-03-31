@@ -33,15 +33,15 @@ public class MapReduceTemplate {
         String jar = params.get(JAR);
         if(StringUtils.isNotBlank(jar)) {
             job.setJar(jar);
-            cl = new URLClassLoader(new URL[] {new URL("file://" + jar)});
+//            cl = new URLClassLoader(new URL[] {new URL("file://" + jar)});
         }
 
         String mapper = params.get(MAPPER);
-        cl.loadClass(mapper);
+//        cl.loadClass(mapper);
         job.getConfiguration().set(MRJobConfig.MAP_CLASS_ATTR, mapper);
 
         String reducer = params.get(REDUCER);
-        cl.loadClass(reducer);
+//        cl.loadClass(reducer);
         job.getConfiguration().set(MRJobConfig.REDUCE_CLASS_ATTR, reducer);
 
         job.setOutputKeyClass(Text.class);

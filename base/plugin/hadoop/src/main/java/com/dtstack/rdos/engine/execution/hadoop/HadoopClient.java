@@ -6,12 +6,10 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
+import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.google.common.io.Files;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -27,6 +25,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 public class HadoopClient extends AbsClient {
 
@@ -34,7 +33,7 @@ public class HadoopClient extends AbsClient {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String YARN_CONF_PATH = "yarnConfPath";
     private static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
-    private static final String TMP_PATH = "./tmp";
+    private static final String TMP_PATH = "/tmp";
     private static final String HDFS_PREFIX = "hdfs://";
     private EngineResourceInfo resourceInfo;
     private Configuration conf = new Configuration();
@@ -46,6 +45,7 @@ public class HadoopClient extends AbsClient {
         resourceInfo = new HadoopResourceInfo();
 
         conf.clear();
+        conf.set("mapreduce.framework.name", "yarn");
         conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
         conf.set("yarn.nodemanager.resource.memory-mb", "1024");
         conf.set("mapreduce.map.memory.mb","1024");
@@ -104,10 +104,10 @@ public class HadoopClient extends AbsClient {
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
         try {
-            AddJarOperator jarOperator = null;
+            BatchAddJarOperator jarOperator = null;
             for(Operator operator : jobClient.getOperators()){
-                if(operator instanceof AddJarOperator){
-                    jarOperator = (AddJarOperator) operator;
+                if(operator instanceof BatchAddJarOperator){
+                    jarOperator = (BatchAddJarOperator) operator;
                     break;
                 }
             }
@@ -125,11 +125,12 @@ public class HadoopClient extends AbsClient {
                 throw new RdosException("only support hdfs protocol for jar path");
             }
 
-            String localJarPath = TMP_PATH + File.separator + jarPath.substring(HDFS_PREFIX.length());
+            String localJarPath = TMP_PATH + File.separator + UUID.randomUUID().toString() + ".jar";
             downloadHdfsFile(jarPath, localJarPath);
 
+
             Map<String,String> params = new ObjectMapper().readValue(jobClient.getClassArgs(), Map.class);
-            params.put(MapReduceTemplate.JAR, jarOperator.getJarPath());
+            params.put(MapReduceTemplate.JAR, localJarPath);
             MapReduceTemplate mr = new MapReduceTemplate(jobClient.getJobName(), conf, params);
             mr.run();
             return JobResult.createSuccessResult(mr.getJobId());
