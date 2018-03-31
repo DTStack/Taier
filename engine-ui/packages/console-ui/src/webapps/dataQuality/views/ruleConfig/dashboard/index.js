@@ -404,7 +404,7 @@ export default class RuleConfig extends Component {
                             onClose={this.closeSlidePane}
                             visible={showSlidePane}
                             className="slide-pane-box"
-                            style={{ right: '-20px', width: '80%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '80%', minHeight: '600px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 

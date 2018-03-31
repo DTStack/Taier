@@ -514,16 +514,24 @@ export default class StepThree extends Component {
 	initLeftTable = () => {
 		return [
             {
+                className: 'td-2',
                 title: '左侧表字段',
                 dataIndex: 'key',
                 key: 'key',
-                width: '45%'
+                width: 120,
+                render: function(key) {
+                    return <span title={key}>{key}</span>
+                }
             }, 
             {
+                className: 'td-3',
             	title: '类型',
                 dataIndex: 'type',
                 key: 'type',
-                width: '40%'
+                width: 80,
+                render: function(type) {
+                    return <span title={type}>{type}</span>
+                }
             }
         ]
 	}
@@ -531,16 +539,24 @@ export default class StepThree extends Component {
     initRightTable = () => {
         return [
             {
+                className: 'td-2',
                 title: '右侧表字段',
                 dataIndex: 'key',
                 key: 'key',
-                width: '45%'
+                width: 120,
+                render: function(key) {
+                    return <span title={key}>{key}</span>
+                }
             }, 
             {
+                className: 'td-3',
                 title: '类型',
                 dataIndex: 'type',
                 key: 'type',
-                width: '40%'
+                width: 80,
+                render: function(type) {
+                    return <span title={type}>{type}</span>
+                }
             }
         ]
     }

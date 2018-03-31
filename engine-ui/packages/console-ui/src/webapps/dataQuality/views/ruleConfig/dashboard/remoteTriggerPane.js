@@ -85,6 +85,13 @@ export default class RemoteTriggerPane extends Component {
             key: 'url',
             width: '28%',
             render: (url) => `${API_SERVER}${url}`
+        }, 
+        {
+            title: '请求方式',
+            dataIndex: 'method',
+            key: 'method',
+            width: '10%',
+            render: (method) => `POST`
         },  {
             title: '最近修改人',
             key: 'modifyUser',

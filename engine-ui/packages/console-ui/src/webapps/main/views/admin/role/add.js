@@ -5,11 +5,11 @@ import {
 } from 'antd'
 
 import utils from 'utils'
-import { formItemLayout } from 'consts'
 
 import RoleForm from './form'
 import Api from '../../../api'
 import GoBack from '../../../components/go-back'
+import { formItemLayout } from '../../../consts'
 import { AppName } from '../../../components/display'
 
 export default class RoleAdd extends Component {

@@ -291,7 +291,7 @@ export default class StepOne extends Component {
     }
 
     previewTableColumns = (data) => {
-        return data.map((item) => {
+        return data && data.map((item) => {
             return {
                 title: item,
                 key: item,

@@ -177,7 +177,7 @@ export default class TaskDetailPane extends Component {
         option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
 
-        option.yAxis[0].axisLabel.formatter = '{value} 次';
+        option.yAxis[0].axisLabel.formatter = '{value}';
         option.yAxis[0].minInterval = 1;
         option.series = [{
             name: '统计值',
