@@ -183,6 +183,8 @@ export default class TaskDetailPane extends Component {
             name: '统计值',
             symbol: 'none',
             type:'line',
+            smooth: true,
+            symbolSize: 8,
             data: yData,
         }];
 
