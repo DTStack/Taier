@@ -35,7 +35,7 @@ export default class StepTwo extends Component {
         this.state = {
             currentRule: {},
             functionList: [],
-            enumFields: ['columnName', 'functionId', 'threshold'],
+            enumFields: ['columnName', 'functionId', 'thresholdEnum'],
             SQLFields: ['customizeSql', 'verifyType', 'operator', 'threshold'],
             columnFields: ['columnName', 'functionId', 'verifyType', 'operator', 'threshold']
         };
@@ -50,12 +50,6 @@ export default class StepTwo extends Component {
             sourceId: editParams.dataSourceId,
             tableName: editParams.tableName
         });
-    }
-
-    changeCurrentRule = (obj) => {
-        let currentRule = { ...this.state.currentRule, ...obj };
-        this.setState({ currentRule });
-        console.log(this,obj,'currentRule')
     }
 
     prev = () => {
@@ -141,8 +135,7 @@ export default class StepTwo extends Component {
                     </div>
                 );
             },
-        }]  
-
+        }];
     }
 
     renderColumns(text, record, type) {
@@ -180,8 +173,8 @@ export default class StepTwo extends Component {
     changeRuleParams = (type, value) => {
         let obj = {};
         obj[type] = value.target ? value.target.value : value;
-        let currentRule = { ...this.state.currentRule, ...obj };
-        this.setState({ currentRule });
+
+        this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
         console.log(this,obj,'currentRule')
     }
 
@@ -190,9 +183,8 @@ export default class StepTwo extends Component {
         const { tableColumn, monitorFunction } = ruleConfig;
         const { currentRule } = this.state;
 
-        let columnType = tableColumn.filter(item => item.key === name)[0].type;
-        let functionList = monitorFunction[columnType];
-        console.log(name,columnType,monitorFunction,functionList)
+        let columnType   = tableColumn.filter(item => item.key === name)[0].type,
+            functionList = monitorFunction[columnType];
 
         form.setFieldsValue({ functionId: undefined });
         this.setState({ 
@@ -203,20 +195,27 @@ export default class StepTwo extends Component {
                 columnName: name
             }
         });
-        // this.changeRuleParams(type, value);
-
     }
 
     onFunctionChange = (id) => {
+        const { form } = this.props;
         const { functionList } = this.state;
 
         let isPercent   = functionList.filter(item => item.id == id)[0].isPercent,
             nameZc      = functionList.filter(item => item.id == id)[0].nameZc,
-            currentRule = {...this.state.currentRule};
+            currentRule = {
+                ...this.state.currentRule, 
+                functionId: id,
+                isPercent: isPercent, 
+                functionName: nameZc, 
+            };
 
         if (nameZc === '枚举值') {
             currentRule.isEnum = true;
-            currentRule.operator = '';
+            currentRule.operator = undefined;
+            currentRule.verifyType = '1';
+            currentRule.verifyTypeValue = '固定值';
+            form.setFieldsValue({ verifyType: '1' });
         } else {
             delete currentRule.isEnum;
         }
@@ -227,27 +226,29 @@ export default class StepTwo extends Component {
             delete currentRule.isStrLength;
         }
 
-        currentRule.functionId = id;
-        currentRule.isPercent = isPercent;
-        currentRule.functionName = nameZc;
-        console.log(id,isPercent,nameZc,currentRule)
         this.setState({ currentRule });
     }
 
+    // 校验方法变化回调
     onVerifyTypeChange = (value) => {
         const { verifyType } = this.props.common.allDict;
-        let currentRule = {...this.state.currentRule};
+        let verifyTypeValue = verifyType.filter(item => item.value == value)[0].name;
 
-        currentRule.verifyTypeValue = verifyType.filter(item => item.value == value)[0].name;
-        currentRule.verifyType = value;
-        this.setState({ currentRule });
+        this.setState({
+            currentRule: {
+                ...this.state.currentRule,
+                verifyType: value,
+                verifyTypeValue
+            }
+        });
     }
 
+    // 编辑状态的TD
     renderEditTD = (text, record, type) => {
         const { form, common, ruleConfig } = this.props;
-        const { allDict } = common;
         const { getFieldDecorator } = form;
-        const { monitorFunction, tableColumn } = ruleConfig;
+        const { tableColumn } = ruleConfig;
+        const { verifyType } = common.allDict;
         const { currentRule, functionList } = this.state;
 
         switch(type) {
@@ -257,11 +258,13 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
-                                    required: true, message: '自定义SQL不可为空！',
+                                    required: true, message: '自定义SQL不可为空',
                                 }],
                                 initialValue: record.customizeSql
                             })(
-                                <Input onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
+                                <Input 
+                                    placeholder="查询结果为一个数值类型，并且以val为别名"
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
                             )
                         }
                     </FormItem>
@@ -271,7 +274,7 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
-                                    required: true, message: '字段不可为空！',
+                                    required: true, message: '字段不可为空',
                                 }],
                                 initialValue: record.columnName
                             })(
@@ -300,7 +303,7 @@ export default class StepTwo extends Component {
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
-                                required: true, message: '统计函数不可为空！',
+                                required: true, message: '统计函数不可为空',
                             }],
                             initialValue: record.functionId
                         })(
@@ -339,7 +342,7 @@ export default class StepTwo extends Component {
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
-                                required: true, message: '校验方法不可为空！',
+                                required: true, message: '校验方法不可为空',
                             }],
                             initialValue: record.verifyType
                         })(
@@ -348,7 +351,7 @@ export default class StepTwo extends Component {
                                 onChange={this.onVerifyTypeChange}
                                 disabled={currentRule.isEnum}>
                                 {
-                                    allDict.verifyType.map((item) => {
+                                    verifyType.map((item) => {
                                         return <Option key={item.value} value={item.value.toString()}>
                                             {item.name}
                                         </Option>
@@ -366,7 +369,7 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('thresholdEnum', {
                                 rules: [{
-                                    required: true, message: '阈值不可为空！',
+                                    required: true, message: '范围不可为空',
                                 }],
                                 initialValue: record.threshold
                             })(
@@ -383,7 +386,7 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('operator', {
                                 rules: [{
-                                    required: true, message: '阈值配置不可为空！',
+                                    required: true, message: '设置不可为空',
                                 }],
                                 initialValue: record.operator
                             })(
@@ -408,13 +411,12 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('threshold', {
                                 rules: [{
-                                    required: true, message: '阈值不可为空！',
+                                    required: true, message: '阈值不可为空',
                                 }],
                                 initialValue: record.threshold
                             })(
                                 <InputNumber
-                                  min={0}
-                                  max={100}
+                                  min={1}
                                   style={{ width: 70, marginRight: 10 }} 
                                   onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 
@@ -432,32 +434,22 @@ export default class StepTwo extends Component {
         }
     }
 
-    // 固定的值
+    // 已有数据的TD
     renderTD = (text, record, type) => {
-        const { monitorFunction } = this.props.ruleConfig;
-        const { verifyType } = this.props.common.allDict;
-
         switch (type) {
             case 'columnName': {
-                if (record.isCustomizeSql) {
-                    return record.customizeSql
-                } else {
-                    return text
-                }
+                return record.isCustomizeSql ? record.customizeSql : text;
             }
             case 'functionId': {
-                return record.functionName
+                return record.functionName;
             }
-
             case 'verifyType': {
-                return record.verifyTypeValue
+                return record.verifyTypeValue;
             }
-
             case 'threshold': {
-                let value = `${record.operator}  ${text}`;
+                let value = `${record.operator ? record.operator : ''}  ${text}`;
                 return record.isPercent ? `${value} %` : value
             }
-
             default:
                 return text
         }
@@ -465,10 +457,9 @@ export default class StepTwo extends Component {
 
     // 编辑
     edit(id) {
-        const { rules } = this.props.editParams;
         const { currentRule } = this.state;
 
-        let newData = [...rules],
+        let newData = [...this.props.editParams.rules],
             target  = newData.filter(item => id === item.id)[0];
 
         if (!isEmpty(currentRule)) {
@@ -546,6 +537,7 @@ export default class StepTwo extends Component {
 
     addNewRule = (type) => {
         const { form, editParams, ruleConfig } = this.props;
+        const { monitorFunction } = ruleConfig;
         const { currentRule } = this.state;
 
         let newData = [...editParams.rules];
@@ -589,7 +581,7 @@ export default class StepTwo extends Component {
 
                 // 表规则的统计函数
                 this.setState({ 
-                    functionList: ruleConfig.monitorFunction.all.filter(item => item.level === 1) 
+                    functionList: monitorFunction.all.filter(item => item.level === 1) 
                 });
                 break;
             default:
@@ -601,7 +593,6 @@ export default class StepTwo extends Component {
         this.props.changeParams({
             rules: newData
         });
-
     }
 
     render() {

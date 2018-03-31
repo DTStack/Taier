@@ -31,7 +31,7 @@ export default class ExecuteForm extends Component {
         this.state = {
             scheduleConfObj: {
                 beginDate: moment().format('YYYY-MM-DD'),
-                endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+                endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
                 periodType: '2',
                 day: undefined,
                 weekDay: undefined,
@@ -43,7 +43,6 @@ export default class ExecuteForm extends Component {
                 endHour: 0,
                 endMin: 0
             },
-            // params: {}
             params: {
                 monitorId: undefined,
                 scheduleConf: '',
@@ -71,7 +70,6 @@ export default class ExecuteForm extends Component {
 
     initState = (data) => {
         if (data.scheduleConf) {
-            console.log(data)
             this.setState({ 
                 scheduleConfObj: JSON.parse(data.scheduleConf),
                 params: {
@@ -89,7 +87,7 @@ export default class ExecuteForm extends Component {
         const { params } = this.state;
         let scheduleConfObj = {
             beginDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().add(3, 'months').format('YYYY-MM-DD'),
+            endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
             periodType: type,
             day: undefined,
             weekDay: undefined,
@@ -279,11 +277,10 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('beginHour', {
                                 rules: [{
-                                        required: true, message: '开始时间不能为空'
-                                    },{
-                                        // validator: ctx.checkTimeS.bind(ctx)
-                                    }
-                                ],
+                                    required: true, message: '开始时间不能为空'
+                                }, {
+                                    validator: this.checkTime.bind(this)
+                                }],
                                 initialValue: `${scheduleConfObj.beginHour}`
                             })(
                                 generateHours('beginHour')
@@ -296,6 +293,8 @@ export default class ExecuteForm extends Component {
                             getFieldDecorator('beginMin', {
                                 rules: [{
                                     required: true, message: '开始时间不能为空'
+                                }, {
+                                    validator: this.checkTime.bind(this)
                                 }],
                                 initialValue: `${scheduleConfObj.beginMin}`
                             })(
@@ -324,7 +323,7 @@ export default class ExecuteForm extends Component {
                                 rules: [{
                                     required: true, message: '结束时间不能为空'
                                 }, {
-                                    // validator: ctx.checkTimeE1.bind(ctx)
+                                    validator: this.checkTime.bind(this)
                                 }],
                                 initialValue: `${scheduleConfObj.endHour}`
                             })(
@@ -338,6 +337,8 @@ export default class ExecuteForm extends Component {
                             getFieldDecorator('endMin', {
                                 rules: [{
                                     required: true, message: '结束时间不能为空'
+                                }, {
+                                    validator: this.checkTime.bind(this)
                                 }],
                                 initialValue: `${scheduleConfObj.endMin}`
                             })(
@@ -491,6 +492,34 @@ export default class ExecuteForm extends Component {
         closeModal(false);
     }
 
+    checkTime = (rule, value, callback) => {
+        const { form } = this.props;
+        let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
+            endTime   = parseInt(form.getFieldValue('endHour')) * 60 + parseInt(form.getFieldValue('endMin'));
+
+        if (beginTime >= endTime) {
+            callback('开始时间不能晚于结束时间');
+        }
+
+        callback();
+    }
+
+    checkDate = (rule, value, callback) => {
+        const { form } = this.props;
+        let beginDate = form.getFieldValue('beginDate'),
+            endDate = form.getFieldValue('endDate');
+
+        if (!beginDate || !endDate) {
+            callback();
+        } else {
+            if (beginDate.valueOf() > endDate.valueOf()) {
+                callback('开始时间不能晚于结束时间');
+            }
+        }
+
+        callback();
+    }
+
     render() {
         const { form, common, data, visible, closeModal } = this.props;
         const { scheduleConfObj, params } = this.state;
@@ -534,6 +563,11 @@ export default class ExecuteForm extends Component {
                         <FormItem {...formItemLayout} label="生效日期">
                             {
                                 getFieldDecorator('beginDate', {
+                                    rules: [{
+                                        required: true, message: '生效日期不能为空'
+                                    }, {
+                                        validator: this.checkDate.bind(this)
+                                    }],
                                     initialValue: moment(scheduleConfObj.beginDate)
                                 })(
                                     <DatePicker
@@ -550,6 +584,11 @@ export default class ExecuteForm extends Component {
                             </span>
                             {
                                 getFieldDecorator('endDate', {
+                                    rules: [{
+                                            required: true, message: '生效日期不能为空'
+                                    }, {
+                                        validator: this.checkDate.bind(this)
+                                    }],
                                     initialValue: moment(scheduleConfObj.endDate)
                                 })(
                                     <DatePicker
@@ -571,7 +610,7 @@ export default class ExecuteForm extends Component {
                     <FormItem {...formItemLayout} label="通知方式">
                         {
                             getFieldDecorator('sendTypes', {
-                                rules: [{ required: true, message: '选择一种通知方式' }], 
+                                rules: [], 
                                 initialValue: sendTypes.map(item => item.toString())
                             })(
                                 <Checkbox.Group onChange={this.onSendTypeChange}>
@@ -592,7 +631,7 @@ export default class ExecuteForm extends Component {
                     <FormItem {...formItemLayout} label="通知接收人">
                         {
                             getFieldDecorator('notifyUser', {
-                                rules: [{ required: true, message: '接收人不能为空' }],
+                                rules: [],
                                 initialValue: notifyUser.map(item => item.toString())
                             })(
                                 <Select 
