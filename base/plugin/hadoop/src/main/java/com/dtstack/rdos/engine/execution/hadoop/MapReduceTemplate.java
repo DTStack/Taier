@@ -25,7 +25,7 @@ public class MapReduceTemplate {
     public static final String MAPPER = "mapper";
     public static final String REDUCER = "reducer";
     public static final String INPUT_PATH = "inputPath";
-    public  static final String OUTPUT_PATH = "outputPath";
+    public static final String OUTPUT_PATH = "outputPath";
 
     public MapReduceTemplate(String jobName, Configuration conf, Map<String,String> params) throws Exception {
         job = Job.getInstance(conf, jobName);
