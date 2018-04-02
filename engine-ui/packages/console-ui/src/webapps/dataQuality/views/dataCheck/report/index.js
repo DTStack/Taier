@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Table, Row, Col, Icon } from 'antd';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import GoBack from 'main/components/go-back';
-import DCApi from '../../../api/dataCheck';
 
 const mapStateToProps = state => {
     const { dataCheck, common } = state;
@@ -34,8 +33,9 @@ export default class DataCheckReport extends Component {
 
     componentDidMount() {
         const { params } = this.state;
+        let verifyRecordId = params.verifyRecordId;
 
-        this.props.getCheckReport({ verifyRecordId: params.verifyRecordId });
+        this.props.getCheckReport({ verifyRecordId });
         this.props.getCheckReportTable(params);
     }
 
@@ -62,12 +62,8 @@ export default class DataCheckReport extends Component {
 
     handleDownload = () => {
         const { params } = this.state;
-
-        DCApi.downloadReportTable(params).then((res) => {
-            if (res.code === 1) {
-
-            }
-        })
+        let getParams = `verifyRecordId=${params.verifyRecordId}&currentPage=${params.currentPage}&pageSize=${params.pageSize}`;
+        window.open(`/api/dq/export/verify/doExport?${getParams}`);
     }
 
     render() {

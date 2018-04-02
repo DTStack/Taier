@@ -25,8 +25,5 @@ export default {
     getCheckReportTable(params) {
         return http.post(req.GET_CHECK_REPORT_TABLE, params);
     },
-    downloadReportTable(params) {
-        return http.post(req.DOWNLOAD_REPORT_TABLE, params);
-    }
 
 }
