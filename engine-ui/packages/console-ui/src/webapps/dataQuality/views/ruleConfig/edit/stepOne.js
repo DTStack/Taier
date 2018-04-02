@@ -441,13 +441,8 @@ export default class StepOne extends Component {
                             &&
                             <Table 
                                 rowKey="key"
-<<<<<<< HEAD
                                 className="m-table m-cells preview-table"
                                 columns={this.initColumns(sourcePreview.columnList)} 
-=======
-                                className="m-table preview-table"
-                                columns={this.previewTableColumns(sourcePreview.columnList)} 
->>>>>>> 373223c3ee82415bf0b15f34732fdf6f8d28e588
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
                                 scroll={{ x: 1000 }}
