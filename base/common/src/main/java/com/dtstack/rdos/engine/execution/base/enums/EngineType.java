@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public enum EngineType {
 
-    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5);
+    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5), Hadoop(6);
 
     private int val;
 
@@ -39,6 +39,8 @@ public enum EngineType {
             case "spark_yarn": return EngineType.Sparkyarn;
 
             case "mysql": return EngineType.Mysql;
+
+            case "hadoop": return EngineType.Hadoop;
         }
          return null;
     }
@@ -65,6 +67,15 @@ public enum EngineType {
     public static boolean isSpark(String engineType){
         engineType = engineType.toLowerCase();
         if(engineType.startsWith("spark")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isHadoop(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("hadoop")){
             return true;
         }
 
