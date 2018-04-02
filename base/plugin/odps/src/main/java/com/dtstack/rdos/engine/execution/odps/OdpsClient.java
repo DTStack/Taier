@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.odps;
 
+import com.aliyun.odps.Job;
+import com.aliyun.odps.task.SQLTask;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -10,10 +12,13 @@ import com.dtstack.rdos.engine.execution.odps.util.OdpsUtil;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.aliyun.odps.task.SQLTask;
+
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
+
 import com.aliyun.odps.Instance;
 import com.aliyun.odps.OdpsException;
 import com.aliyun.odps.Odps;
@@ -23,6 +28,7 @@ import com.aliyun.odps.Odps;
  * Odps客户端
  * Date: 2018/2/12
  * Company: www.dtstack.com
+ *
  * @author jingzhen
  */
 public class OdpsClient extends AbsClient {
@@ -40,14 +46,25 @@ public class OdpsClient extends AbsClient {
     public void init(Properties prop) throws Exception {
         resourceInfo = new OdpsResourceInfo();
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String,String> configMap = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), Map.class);
+        Map<String, String> configMap = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), Map.class);
         odps = OdpsUtil.initOdps(configMap);
     }
 
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
         try {
-            Instance instance = SQLTask.run(odps, jobClient.getSql());
+            String[] sqls = jobClient.getSql().split(";");
+            Job job = new Job();
+            String guid = UUID.randomUUID().toString();
+            for (String sql : sqls) {
+                String taskName = "query_task_" + Calendar.getInstance().getTimeInMillis();
+                SQLTask task = new SQLTask();
+                task.setName(taskName);
+                task.setQuery(sql);
+                task.setProperty("guid", guid);
+                job.addTask(task);
+            }
+            Instance instance = odps.instances().create(job);
             return JobResult.createSuccessResult(instance.getId());
         } catch (OdpsException e) {
             return JobResult.createErrorResult(e);
@@ -84,15 +101,15 @@ public class OdpsClient extends AbsClient {
         Instance instance = odps.instances().get(jobId);
 
         if (instance == null) {
-           throw new RuntimeException("can't find odps task: " + jobId);
+            throw new RuntimeException("can't find odps task: " + jobId);
         }
 
-        Instance.TaskStatus.Status taskStatus  = null;
+        Instance.TaskStatus.Status taskStatus = null;
 
         try {
             Map<String, Instance.TaskStatus> statusMap = instance.getTaskStatus();
             if (statusMap == null || statusMap.size() == 0) {
-               throw new RuntimeException("statusMap empty: " + jobId);
+                throw new RuntimeException("statusMap empty: " + jobId);
             }
             taskStatus = statusMap.entrySet().iterator().next().getValue().getStatus();
 
@@ -104,7 +121,7 @@ public class OdpsClient extends AbsClient {
         }
 
         RdosTaskStatus rdosTaskStatus = null;
-        switch(taskStatus) {
+        switch (taskStatus) {
             case WAITING:
                 rdosTaskStatus = RdosTaskStatus.SUBMITTING;
                 break;
@@ -159,7 +176,7 @@ public class OdpsClient extends AbsClient {
         return resourceInfo;
     }
 
-    private boolean hasLog(String jobId)  {
+    private boolean hasLog(String jobId) {
         try {
             RdosTaskStatus taskStatus = getJobStatus(jobId);
             return taskStatus.equals(RdosTaskStatus.FAILED);

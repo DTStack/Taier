@@ -2,8 +2,14 @@ package com.dtstack.rdos.engine.execution.odps.test;
 
 
 import com.aliyun.odps.FileResource;
+import com.aliyun.odps.Instance;
+import com.aliyun.odps.Job;
 import com.aliyun.odps.Odps;
 import com.aliyun.odps.Resource;
+import com.aliyun.odps.account.Account;
+import com.aliyun.odps.account.AliyunAccount;
+import com.aliyun.odps.task.SQLTask;
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -17,19 +23,83 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 public class OdpsClientTest {
     private static final String ODPS_TEST_CONFIG_PATH = "ODPS_TEST_CONFIG_PATH";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static OdpsClient odpsClient;
 
+    public static void main(String[] args) throws Exception {
+        Account account = new AliyunAccount("LTAIljBeC8ei9Yy0", "gwTWasH7sEE0pSUEuiXnw7JecXyfGF");
+        Odps odps = new Odps(account);
+        odps.setEndpoint("http://service.odps.aliyun.com/api");
+        odps.setDefaultProject("dtstack_dev");
+        JobClient jobClient = new JobClient();
+        jobClient.setSql("select * from tb250; select 111 from tb250;");
+        String[] sqls = jobClient.getSql().split(";");
+        Job job = new Job();
+        String guid = UUID.randomUUID().toString();
+        for (String sql : sqls) {
+            String taskName = "query_task_" + Calendar.getInstance().getTimeInMillis();
+            SQLTask task = new SQLTask();
+            task.setName(taskName);
+            task.setQuery(sql+";");
+            task.setProperty("guid", guid);
+            job.addTask(task);
+        }
+        Instance instance = odps.instances().create(job);
+        System.out.println(instance.getId());
+
+        String jobId = instance.getId();
+        Instance.TaskStatus.Status taskStatus = null;
+
+        while (true) {
+            try {
+                Map<String, Instance.TaskStatus> statusMap = instance.getTaskStatus();
+                if (statusMap == null || statusMap.size() == 0) {
+                    throw new RuntimeException("statusMap empty: " + jobId);
+                }
+                taskStatus = statusMap.entrySet().iterator().next().getValue().getStatus();
+
+                if (taskStatus == null) {
+                    throw new RuntimeException("can't find task status for task: " + jobId);
+                }
+            } catch (Exception e) {
+                throw new RdosException(e.getMessage());
+            }
+
+            RdosTaskStatus rdosTaskStatus = null;
+            switch (taskStatus) {
+                case WAITING:
+                    rdosTaskStatus = RdosTaskStatus.SUBMITTING;
+                    break;
+                case SUCCESS:
+                    rdosTaskStatus = RdosTaskStatus.FINISHED;
+                    System.out.println(rdosTaskStatus);
+                    return;
+                case SUSPENDED:
+                    rdosTaskStatus = RdosTaskStatus.KILLED;
+                    break;
+                case CANCELLED:
+                    rdosTaskStatus = RdosTaskStatus.CANCELED;
+                    break;
+                default:
+                    rdosTaskStatus = RdosTaskStatus.valueOf(taskStatus.name().toUpperCase());
+            }
+            System.out.println(rdosTaskStatus);
+        }
+    }
+
     @BeforeClass
     public static void before() throws Exception {
         System.out.println("before");
         String configPath = System.getenv(ODPS_TEST_CONFIG_PATH);
         Properties prop = new Properties();
-        try(FileInputStream fis = new FileInputStream(configPath)) {
+        try (FileInputStream fis = new FileInputStream(configPath)) {
             prop.load(fis);
             odpsClient = new OdpsClient();
             odpsClient.init(prop);
@@ -43,7 +113,7 @@ public class OdpsClientTest {
         String query = "select * from tb250; select 111 from tb250;";
         JobClient jobClient = new JobClient();
         jobClient.setSql(query);
-        JobResult jobResult =  odpsClient.submitSqlJob(jobClient);
+        JobResult jobResult = odpsClient.submitSqlJob(jobClient);
         System.out.println(jobResult);
     }
 
@@ -53,7 +123,7 @@ public class OdpsClientTest {
         String query = "select * from tb250; select 111 from tb250;";
         JobClient jobClient = new JobClient();
         jobClient.setSql(query);
-        JobResult jobResult =  odpsClient.submitSqlJob(jobClient);
+        JobResult jobResult = odpsClient.submitSqlJob(jobClient);
         String jobId = jobResult.getData("jobid");
         System.out.println("my jobid: " + jobId);
         RdosTaskStatus status = odpsClient.getJobStatus(jobId);
@@ -66,7 +136,7 @@ public class OdpsClientTest {
         String query = "select * from tb250; select 111 from tb250;";
         JobClient jobClient = new JobClient();
         jobClient.setSql(query);
-        JobResult jobResult =  odpsClient.submitSqlJob(jobClient);
+        JobResult jobResult = odpsClient.submitSqlJob(jobClient);
         String jobId = jobResult.getData("jobid");
         System.out.println("my jobid: " + jobId);
         Thread.sleep(10000);
@@ -80,12 +150,12 @@ public class OdpsClientTest {
         String query = "select * from tb250; select 111 from tb250;";
         JobClient jobClient = new JobClient();
         jobClient.setSql(query);
-        JobResult jobResult =  odpsClient.submitSqlJob(jobClient);
+        JobResult jobResult = odpsClient.submitSqlJob(jobClient);
         String jobId = jobResult.getData("jobid");
         System.out.println("my jobid: " + jobId);
         RdosTaskStatus status = odpsClient.getJobStatus(jobId);
 
-        JobResult jobResult1 =  odpsClient.cancelJob(jobId);
+        JobResult jobResult1 = odpsClient.cancelJob(jobId);
         System.out.println("cancel result: " + jobResult1);
 
         Thread.sleep(3000);
@@ -100,7 +170,7 @@ public class OdpsClientTest {
         String query = "select * from tb250;";
         JobClient jobClient = new JobClient();
         jobClient.setSql(query);
-        JobResult jobResult =  odpsClient.submitSqlJob(jobClient);
+        JobResult jobResult = odpsClient.submitSqlJob(jobClient);
         String jobId = jobResult.getData("jobid");
         System.out.println("my jobid: " + jobId);
         RdosTaskStatus status = odpsClient.getJobStatus(jobId);
@@ -134,8 +204,8 @@ public class OdpsClientTest {
     @Test
     public void findResource() throws Exception {
         Odps odps = odpsClient.getOdps();
-        for(Resource resource : odps.resources()) {
-            if(resource.getName().equals("hyf_heheda")) {
+        for (Resource resource : odps.resources()) {
+            if (resource.getName().equals("hyf_heheda")) {
                 System.out.println("fuck you");
             }
         }
