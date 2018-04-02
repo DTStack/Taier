@@ -10,6 +10,7 @@ import Dashboard from '../views/dashboard'
 
 import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
+import { dataSourceActions } from '../actions/dataSource'
 import { updateApp } from 'main/actions/app'
 
 const propType = {
@@ -24,8 +25,9 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
-        dispatch(UserAction.getUser())
-        dispatch(updateApp(dqApp))
+        dispatch(UserAction.getUser());
+        dispatch(updateApp(dqApp));
+        dispatch(dataSourceActions.getDataSourcesType());
     }
 
     render() {

@@ -33,9 +33,6 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesList(params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
     },
-    getDataSourcesType(params) {
-        dispatch(dataSourceActions.getDataSourcesType(params));
-    },
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
     },
@@ -63,7 +60,6 @@ export default class TaskQuery extends Component {
 
     componentDidMount() {
         this.props.getUserList();
-        this.props.getDataSourcesType();
         this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
     }
