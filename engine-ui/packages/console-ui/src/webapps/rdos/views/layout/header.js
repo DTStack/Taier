@@ -169,6 +169,12 @@ class Header extends Component {
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
+                          key="data-model"
+                          style={{ display }}>
+                            <a href={`${basePath}/data-model/table`}>数据模型</a>
+                        </Menu.Item>
+                        <Menu.Item
+                          className="my-menu-item"
                           key="project"
                           style={{ display }}
                         >
