@@ -14,6 +14,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +29,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -30,13 +36,13 @@ import java.util.UUID;
 public class HadoopClient extends AbsClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(HadoopClient.class);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String YARN_CONF_PATH = "yarnConfPath";
     private static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
     private static final String TMP_PATH = "/tmp";
     private static final String HDFS_PREFIX = "hdfs://";
     private EngineResourceInfo resourceInfo;
     private Configuration conf = new Configuration();
+    private YarnClient yarnDelegate = YarnClient.createYarnClient();
 
 
     @Override
@@ -79,26 +85,77 @@ public class HadoopClient extends AbsClient {
             conf.set(key, value);
         }
 
+        yarnDelegate.init(conf);
     }
 
     @Override
     public JobResult cancelJob(String jobId) {
-        return null;
+        try {
+            yarnDelegate.killApplication(generateApplicationId(jobId));
+        } catch (YarnException | IOException e) {
+            return JobResult.createErrorResult(e);
+        }
+
+        JobResult jobResult = JobResult.newInstance(false);
+        jobResult.setData("jobid", jobId);
+        return jobResult;
+    }
+
+    private ApplicationId generateApplicationId(String jobId) {
+        String appId = jobId.replace("job_", "application_");
+        return ConverterUtils.toApplicationId(appId);
     }
 
     @Override
     public RdosTaskStatus getJobStatus(String jobId) throws IOException {
-        return null;
+        ApplicationId appId = generateApplicationId(jobId);
+        try {
+            ApplicationReport report = yarnDelegate.getApplicationReport(appId);
+            YarnApplicationState applicationState = report.getYarnApplicationState();
+            switch(applicationState) {
+                case KILLED:
+                    return RdosTaskStatus.KILLED;
+                case NEW:
+                case NEW_SAVING:
+                    return RdosTaskStatus.CREATED;
+                case SUBMITTED:
+                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                    return RdosTaskStatus.WAITCOMPUTE;
+                case ACCEPTED:
+                    return RdosTaskStatus.SCHEDULED;
+                case RUNNING:
+                    return RdosTaskStatus.RUNNING;
+                case FINISHED:
+                    //state 为finished状态下需要兼顾判断finalStatus.
+                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                        return RdosTaskStatus.FAILED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                        return RdosTaskStatus.FINISHED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                        return RdosTaskStatus.KILLED;
+                    }else{
+                        return RdosTaskStatus.RUNNING;
+                    }
+
+                case FAILED:
+                    return RdosTaskStatus.FAILED;
+                default:
+                    throw new RdosException("Unsupported application state");
+            }
+        } catch (YarnException e) {
+            return RdosTaskStatus.NOTFOUND;
+        }
     }
 
     @Override
     public String getJobMaster() {
-        return null;
+        throw new RdosException("hadoop client not support method 'getJobMaster'");
     }
 
     @Override
     public String getMessageByHttp(String path) {
-        return null;
+        throw new RdosException("hadoop client not support method 'getJobMaster'");
     }
 
     @Override
@@ -133,6 +190,7 @@ public class HadoopClient extends AbsClient {
             params.put(MapReduceTemplate.JAR, localJarPath);
             MapReduceTemplate mr = new MapReduceTemplate(jobClient.getJobName(), conf, params);
             mr.run();
+            System.out.println("mr.jobId=" + mr.getJobId());
             return JobResult.createSuccessResult(mr.getJobId());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -151,5 +209,18 @@ public class HadoopClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
         return new HadoopResourceInfo();
     }
+
+    @Override
+    public String getJobLog(String jobId) {
+        try {
+            ApplicationReport applicationReport = yarnDelegate.getApplicationReport(generateApplicationId(jobId));
+            return applicationReport.getDiagnostics();
+        } catch (Exception e) {
+            LOG.error("", e);
+        }
+
+        return null;
+    }
+
 
 }
