@@ -204,7 +204,6 @@ export default class StepTwo extends Component {
     }
 
     previewTableColumns = (data) => {
-<<<<<<< HEAD
         return data && data.map((item) => {
             return {
                 title: item,
@@ -213,18 +212,6 @@ export default class StepTwo extends Component {
                 width: 80
             }
         });
-=======
-        if (data) {
-            return data.map((item) => {
-                return {
-                    title: item,
-                    key: item,
-                    dataIndex: item,
-                    width: 80,
-                }
-            });
-        }
->>>>>>> 373223c3ee82415bf0b15f34732fdf6f8d28e588
     }
 
     renderColumnPart = () => {

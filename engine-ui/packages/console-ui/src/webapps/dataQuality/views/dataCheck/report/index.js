@@ -3,11 +3,8 @@ import { connect } from 'react-redux';
 import { Table, Row, Col, Icon } from 'antd';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import GoBack from 'main/components/go-back';
-<<<<<<< HEAD
 import TableCell from 'widgets/tableCell';
-=======
 import DCApi from '../../../api/dataCheck';
->>>>>>> 373223c3ee82415bf0b15f34732fdf6f8d28e588
 
 const mapStateToProps = state => {
     const { dataCheck, common } = state;
