@@ -49,7 +49,7 @@ import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
 // ======= 运维 =======
 import DataSourceIndex from './views/dataSource'
 
-// =========数据管理==========
+// ======= 数据管理 =======
 import TableManage from './views/dataManage/tableManage';
 import TableList from './views/dataManage/tableList';
 import TableCreator from './views/dataManage/tableCreator';
@@ -59,6 +59,12 @@ import Log from './views/dataManage/log';
 import DataCatalogue from './views/dataManage/dataCatalogue';
 import DirtyData from './views/dataManage/dirtyData/index';
 import DirtyDataTbOverview from './views/dataManage/dirtyData/table';
+
+// ======= 数据模型 =======
+import DataModelOverview from './views/dataModel/overview';
+import DataModelCheckCenter from './views/dataModel/dataCheck';
+import DataModelDesign from './views/dataModel/tableCreator';
+import DataModelConfig from './views/dataModel/configure';
 
 // The below is async load components
 // ======= 项目 =======
@@ -92,6 +98,10 @@ const DataManageContainer = asyncComponent(() => import('./views/dataManage/cont
 // ======= 数据源管理 =======
 const DataSourceContainer = asyncComponent(() => import('./views/dataSource/container')
 .then(module => module.default), { name: 'dataSourceContainer' })
+
+// ======= 数据源管理 =======
+const DataModelContainer = asyncComponent(() => import('./views/dataModel/index')
+.then(module => module.default), { name: 'dataModelContainer' })
 
 // ======= 测试 =======
 const Test = asyncComponent(() => import('./views/test')
@@ -158,6 +168,13 @@ export default (
                 <Route path="catalogue" component={DataCatalogue} />
                 <Route path="dirty-data" component={DirtyData} />
                 <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
+            </Route>
+            <Route path="/data-model" component={DataModelContainer}>
+                <IndexRoute component={DataModelOverview} />
+                <Route path="overview" component={DataModelOverview} />
+                <Route path="check" component={DataModelCheckCenter}></Route>
+                <Route path="design" component={DataModelDesign} />
+                <Route path="config" component={DataModelConfig} />
             </Route>
         </Route>
         <Route path="/test" component={Test} />

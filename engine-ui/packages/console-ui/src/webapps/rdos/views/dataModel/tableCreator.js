@@ -7,8 +7,7 @@ import { isEqual, throttle, range, isObject } from 'lodash';
 
 import ajax from '../../api';
 import { formItemLayout } from '../../comm/const';
-import CatalogueTree from './catalogTree';
-import LifeCycle from './lifeCycle';
+import LifeCycle from '../dataManage/lifeCycle';
 
 const Step = Steps.Step;
 const FormItem = Form.Item;
@@ -115,25 +114,6 @@ class BaseForm extends React.Component {
                     <Input placehoder="外部表地址"/>
                 )}
             </FormItem>}
-            <FormItem
-                {...formItemLayout}
-                label="所属类目"
-            >
-                {getFieldDecorator('catalogueId', {
-                    rules: [{
-                        required: true,
-                        message: '表所在类目不可为空！'
-                    }],
-                    initialValue: catalogueId || undefined,
-                })(
-                    <CatalogueTree
-                        isPicker
-                        isFolderPicker
-                        placeholder="请选择类目"
-                        treeData={dataCatalogue}
-                    />
-                )}
-            </FormItem>
             <FormItem
                 {...formItemLayout}
                 label="生命周期"

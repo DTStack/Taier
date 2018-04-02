@@ -51,22 +51,22 @@ export default class Sidebar extends Component {
                 >
                     <Menu.Item key="overview">
                         <Link to={`${base}/overview`}>
-                            <Icon type="database" />总览
+                            <Icon type="pie-chart" />总览
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="check">
                         <Link to={`${base}/check`}>
-                            <Icon type="solution" />检测中心
+                            <Icon type="filter" />检测中心
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="design">
                         <Link to={`${base}/design`}>
-                            <Icon type="book" />模型设计
+                            <Icon type="api" />模型设计
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="config">
                         <Link to={`${base}/config`}>
-                            <Icon type="book" />配置中心
+                            <Icon type="tool" />配置中心
                         </Link>
                     </Menu.Item>
                 </Menu>
