@@ -192,7 +192,12 @@ export default class TaskQuery extends Component {
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}
+                    name={item.userName}>
+                    {item.userName}
+                </Option>
             )
         })
     }
@@ -269,20 +274,23 @@ export default class TaskQuery extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
-                    defaultValue={params.fuzzyName}
-                    style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch}
+                    defaultValue={params.fuzzyName}
+                    style={{ width: 200, margin: '10px 0' }}
                 />
 
                 <div className="m-l-8">
                     类型：
                     <Select 
+<<<<<<< HEAD
                         defaultValue={params.dataSourceType}
                         placeholder="选择数据源类型"
+=======
+>>>>>>> 373223c3ee82415bf0b15f34732fdf6f8d28e588
                         allowClear
-                        onChange={this.onSourceChange} 
-                        style={{ width: 150 }
-                    }>
+                        style={{ width: 150 }}
+                        placeholder="选择数据源类型"
+                        onChange={this.onSourceChange}>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -292,10 +300,12 @@ export default class TaskQuery extends Component {
                 <div className="m-l-8">
                     数据源：
                     <Select
-                        placeholder="选择数据源"
                         allowClear 
-                        onChange={this.onUserSourceChange} 
-                        style={{ width: 150 }}>
+                        showSearch
+                        style={{ width: 150 }}
+                        optionFilterProp="title"
+                        placeholder="选择数据源"
+                        onChange={this.onUserSourceChange}>
                         {
                             this.renderUserSource(sourceList)
                         }
@@ -312,13 +322,15 @@ export default class TaskQuery extends Component {
                     />
                 </div>
 
-                <div className="m-l-8 m-r-8">
+                <div className="m-8">
                     配置人：
                     <Select 
-                        placeholder="选择配置人"
-                        allowClear onChange={this.onUserChange} 
+                        allowClear 
+                        showSearch
                         style={{ width: 150 }}
-                    >
+                        placeholder="选择配置人"
+                        optionFilterProp="name"
+                        onChange={this.onUserChange}>
                         {
                             this.renderUserList(userList)
                         }

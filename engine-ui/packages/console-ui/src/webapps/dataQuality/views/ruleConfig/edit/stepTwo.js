@@ -201,12 +201,12 @@ export default class StepTwo extends Component {
         const { form } = this.props;
         const { functionList } = this.state;
 
-        let isPercent   = functionList.filter(item => item.id == id)[0].isPercent,
-            nameZc      = functionList.filter(item => item.id == id)[0].nameZc,
-            currentRule = {
+        let isPercentage = functionList.filter(item => item.id == id)[0].isPercent,
+            nameZc       = functionList.filter(item => item.id == id)[0].nameZc,
+            currentRule  = {
                 ...this.state.currentRule, 
                 functionId: id,
-                isPercent: isPercent, 
+                isPercentage, 
                 functionName: nameZc, 
             };
 
@@ -424,7 +424,7 @@ export default class StepTwo extends Component {
                         }
                         </FormItem>
                         {
-                            (currentRule.isPercent === 1 || currentRule.verifyType != 1)
+                            (currentRule.isPercentage === 1 || currentRule.verifyType != 1)
                             &&
                             <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                         }
@@ -448,7 +448,7 @@ export default class StepTwo extends Component {
             }
             case 'threshold': {
                 let value = `${record.operator ? record.operator : ''}  ${text}`;
-                return record.isPercent ? `${value} %` : value
+                return record.isPercentage ? `${value} %` : value
             }
             default:
                 return text

@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Table, Row, Col } from 'antd';
+import { Table, Row, Col, Icon } from 'antd';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import GoBack from 'main/components/go-back';
+<<<<<<< HEAD
 import TableCell from 'widgets/tableCell';
+=======
+import DCApi from '../../../api/dataCheck';
+>>>>>>> 373223c3ee82415bf0b15f34732fdf6f8d28e588
 
 const mapStateToProps = state => {
     const { dataCheck, common } = state;
@@ -26,18 +30,17 @@ export default class DataCheckReport extends Component {
         this.state = {
             params: {
                 currentPage: 1,
-                pageSize: 20
+                pageSize: 20,
+                verifyRecordId: this.props.routeParams.verifyRecordId
             }
         };
     }
 
     componentDidMount() {
-        const { verifyRecordId } = this.props.routeParams;
-        let params = {...this.state.params, verifyRecordId};
+        const { params } = this.state;
 
-        this.props.getCheckReport({ verifyRecordId });
+        this.props.getCheckReport({ verifyRecordId: params.verifyRecordId });
         this.props.getCheckReportTable(params);
-        this.setState({ params });
     }
 
     initColumns = (data) => {
@@ -67,6 +70,16 @@ export default class DataCheckReport extends Component {
         }
         this.setState({ params });
         this.props.getCheckReportTable(params);
+    }
+
+    handleDownload = () => {
+        const { params } = this.state;
+
+        DCApi.downloadReportTable(params).then((res) => {
+            if (res.code === 1) {
+
+            }
+        })
     }
 
     render() {
@@ -143,8 +156,12 @@ export default class DataCheckReport extends Component {
                     </table>
                 </div>
                 <div>
-                    <h3 className="table-h3-title">
+                    <h3 className="table-h3-title flex" style={{ justifyContent: 'space-between' }}>
                         具体差异
+                        <Icon 
+                            type="download" 
+                            onClick={this.handleDownload}
+                            style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }} />
                     </h3>
                     <Table 
                         // rowKey="key"
