@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Row, Col, Table, Button, Form, Select, Input, TreeSelect, Icon, message, Checkbox } from 'antd';
+import { Row, Col, Table, 
+    Button, Form, Select, 
+    Input, TreeSelect, Icon, 
+    message, Checkbox } from 'antd';
 
 import TableCell from 'widgets/tableCell';
 
@@ -68,7 +71,11 @@ export default class StepOne extends Component {
     renderSourceTable = (data) => {
         return data.map((tableName) => {
             return (
-                <Option key={tableName} value={tableName}>{tableName}</Option>
+                <Option 
+                    key={tableName} 
+                    value={tableName}>
+                    {tableName}
+                </Option>
             )
         });
     }
@@ -81,13 +88,23 @@ export default class StepOne extends Component {
 
                 if (item.children.length) {
                     return (
-                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
+                        <TreeNode 
+                            key={item.nodeId} 
+                            title={partTitle} 
+                            value={item.partColumn} 
+                            dataRef={item}>
                             {this.renderTreeSelect(item)}
                         </TreeNode>
                     )
                 } else {
                     return (
-                        <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
+                        <TreeNode 
+                            key={item.nodeId} 
+                            title={partTitle} 
+                            value={item.partColumn} 
+                            dataRef={item} 
+                            isLeaf={true} 
+                        />
                     )
                 }
             });
@@ -161,7 +178,7 @@ export default class StepOne extends Component {
 
     // 数据表变化回调
     onTableChange = (name) => {
-        const { editParams, form, changeParams } = this.props;
+        const { form, editParams, changeParams } = this.props;
         let params = { tableName: name };
 
         // 重置分区表单和参数
@@ -205,40 +222,41 @@ export default class StepOne extends Component {
 
     // 获取预览数据
     onSourcePreview = () => {
-        const { form } = this.props;
+        const { dataSourceId, tableName, partition } = this.props.editParams;
         const { showPreview } = this.state;
-        let sourceId = form.getFieldValue('sourceId');
-        let tableName = form.getFieldValue('sourceTable');
 
-        if(!sourceId || !tableName) {
+        if(!dataSourceId || !tableName) {
             message.error('未选择数据源或表');
             return;
         }
 
+        if (!showPreview) {
+            DSApi.getDataSourcesPreview({
+                sourceId: dataSourceId,
+                tableName: tableName,
+                partition: partition
+            }).then((res) => {
+                if (res.code === 1) {
+                    let { columnList, dataList } = res.data;
+                    
+                    res.data.dataList = dataList.map((arr, i) => {
+                        let o = {};
+                        arr.forEach((item, j) => {
+                            o.key = i;
+                            o[columnList[j]] = item;
+                        })
+                        return o;
+                    });
+
+                    this.setState({ 
+                        sourcePreview: res.data 
+                    });
+                }
+            });
+        }
+
         this.setState({ 
             showPreview: !showPreview
-        });
-
-        DSApi.getDataSourcesPreview({
-            sourceId: sourceId,
-            tableName: tableName
-        }).then((res) => {
-            if (res.code === 1) {
-                let { columnList, dataList } = res.data;
-                
-                res.data.dataList = dataList.map((arr, i) => {
-                    let o = {};
-                    arr.forEach((item, j) => {
-                        o.key = i;
-                        o[columnList[j]] = item;
-                    })
-                    return o;
-                });
-
-                this.setState({ 
-                    sourcePreview: res.data 
-                });
-            }
         });
     }
 
@@ -271,7 +289,7 @@ export default class StepOne extends Component {
         })
     }
 
-    initColumns = (data) => {
+    previewTableColumns = (data) => {
         if (data) {
             return data.map((item) => {
                 return {
@@ -315,6 +333,7 @@ export default class StepOne extends Component {
                             allowClear
                             showSearch
                             placeholder="分区列表"
+                            treeNodeLabelProp="value"
                             style={{ width: '85%', marginRight: 15 }} 
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                             onChange={this.handlePartChange}>
@@ -373,6 +392,7 @@ export default class StepOne extends Component {
                                 })(
                                     <Select 
                                         showSearch
+                                        optionFilterProp="title"
                                         style={{ width: '85%', marginRight: 15 }} 
                                         onChange={this.onSourceTypeChange}>
                                         {
@@ -421,8 +441,13 @@ export default class StepOne extends Component {
                             &&
                             <Table 
                                 rowKey="key"
+<<<<<<< HEAD
                                 className="m-table m-cells preview-table"
                                 columns={this.initColumns(sourcePreview.columnList)} 
+=======
+                                className="m-table preview-table"
+                                columns={this.previewTableColumns(sourcePreview.columnList)} 
+>>>>>>> 373223c3ee82415bf0b15f34732fdf6f8d28e588
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
                                 scroll={{ x: 1000 }}

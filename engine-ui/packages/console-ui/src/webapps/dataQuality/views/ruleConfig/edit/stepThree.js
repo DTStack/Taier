@@ -87,7 +87,11 @@ export default class StepThree extends Component {
     renderPeriodType = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.value} value={item.value.toString()}>{item.name}</Option>
+                <Option 
+                    key={item.value} 
+                    value={item.value.toString()}>
+                    {item.name}
+                </Option>
             )
         })
     }
@@ -97,6 +101,7 @@ export default class StepThree extends Component {
         this.resetScheduleConf(type);
     }
 
+    // 联系人变化回调
     onSendTypeChange = (value) => {
         const { sendTypes } = this.props.editParams;
         this.props.changeParams({
@@ -126,11 +131,14 @@ export default class StepThree extends Component {
         });
     }
 
-
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}>
+                    {item.userName}
+                </Option>
             )
         })
     }
@@ -169,7 +177,6 @@ export default class StepThree extends Component {
 
     changeScheduleConfTime = (type, value) => {
         const { scheduleConfObj } = this.state;
-        console.log(type,value)
         let newParams = {};
         newParams[type] = value;
 
@@ -179,6 +186,34 @@ export default class StepThree extends Component {
         this.props.changeParams({
             scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
         });
+    }
+
+    checkTime = (rule, value, callback) => {
+        const { form } = this.props;
+        let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
+            endTime   = parseInt(form.getFieldValue('endHour')) * 60 + parseInt(form.getFieldValue('endMin'));
+
+        if (beginTime >= endTime) {
+            callback('开始时间不能晚于结束时间');
+        }
+
+        callback();
+    }
+
+    checkDate = (rule, value, callback) => {
+        const { form } = this.props;
+        let beginDate = form.getFieldValue('beginDate'),
+            endDate = form.getFieldValue('endDate');
+
+        if (!beginDate || !endDate) {
+            callback();
+        } else {
+            if (beginDate.valueOf() > endDate.valueOf()) {
+                callback('开始时间不能晚于结束时间');
+            }
+        }
+
+        callback();
     }
 
     renderDynamic() {
@@ -270,11 +305,10 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('beginHour', {
                                 rules: [{
-                                        required: true, message: '开始时间不能为空'
-                                    },{
-                                        // validator: ctx.checkTimeS.bind(ctx)
-                                    }
-                                ],
+                                    required: true, message: '开始时间不能为空'
+                                }, {
+                                    validator: this.checkTime.bind(this)
+                                }],
                                 initialValue: `${scheduleConfObj.beginHour}`
                             })(
                                 generateHours('beginHour')
@@ -287,6 +321,8 @@ export default class StepThree extends Component {
                             getFieldDecorator('beginMin', {
                                 rules: [{
                                     required: true, message: '开始时间不能为空'
+                                }, {
+                                    validator: this.checkTime.bind(this)
                                 }],
                                 initialValue: `${scheduleConfObj.beginMin}`
                             })(
@@ -315,7 +351,7 @@ export default class StepThree extends Component {
                                 rules: [{
                                     required: true, message: '结束时间不能为空'
                                 }, {
-                                    // validator: ctx.checkTimeE1.bind(ctx)
+                                    validator: this.checkTime.bind(this)
                                 }],
                                 initialValue: `${scheduleConfObj.endHour}`
                             })(
@@ -329,6 +365,8 @@ export default class StepThree extends Component {
                             getFieldDecorator('endMin', {
                                 rules: [{
                                     required: true, message: '结束时间不能为空'
+                                }, {
+                                    validator: this.checkTime.bind(this)
                                 }],
                                 initialValue: `${scheduleConfObj.endMin}`
                             })(
@@ -508,7 +546,12 @@ export default class StepThree extends Component {
                             <FormItem {...formItemLayout} label="生效日期">
                                 {
                                     getFieldDecorator('beginDate', {
-                                    initialValue: moment(scheduleConfObj.beginDate)
+                                        rules: [{
+                                            required: true, message: '生效日期不能为空'
+                                        }, {
+                                            validator: this.checkDate.bind(this)
+                                        }],
+                                        initialValue: moment(scheduleConfObj.beginDate)
                                     })(
                                         <DatePicker
                                             // size="large"
@@ -524,6 +567,11 @@ export default class StepThree extends Component {
                                 </span>
                                 {
                                     getFieldDecorator('endDate', {
+                                        rules: [{
+                                            required: true, message: '生效日期不能为空'
+                                        }, {
+                                            validator: this.checkDate.bind(this)
+                                        }],
                                         initialValue: moment(scheduleConfObj.endDate)
                                     })(
                                         <DatePicker

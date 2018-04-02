@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card } from 'antd';
+import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card, Tooltip } from 'antd';
 import moment from 'moment';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
@@ -93,7 +93,14 @@ export default class DataCheck extends Component {
             dataIndex: 'statusEN',
             key: 'statusEN',
             width: '8%',
-            // filterMultiple: false,
+            render: (text, record) => {
+                return <div>
+                    <span className="m-r-8">{text}</span>
+                    <Tooltip placement="right" title={record.report} arrowPointAtCenter>
+                        <Icon style={{ fontSize: 14 }} type="info-circle-o" />
+                    </Tooltip>
+                </div>
+            }
         }, {
             title: '差异总数',
             dataIndex: 'diverseNum',
@@ -233,7 +240,12 @@ export default class DataCheck extends Component {
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}
+                    name={item.userName}>
+                    {item.userName}
+                </Option>
             )
         })
     }
@@ -298,13 +310,19 @@ export default class DataCheck extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
-                    style={{ width: 200, margin: '10px 0' }}
                     onSearch={this.onTableSearch}
+                    style={{ width: 200, margin: '10px 0' }}
                 />
 
                 <div className="m-l-8">
                     数据源：
-                    <Select allowClear onChange={this.onUserSourceChange} style={{ width: 150 }}>
+                    <Select 
+                        allowClear 
+                        showSearch
+                        style={{ width: 150 }}
+                        optionFilterProp="title"
+                        placeholder="选择数据源类型"
+                        onChange={this.onUserSourceChange}>
                         {
                             this.renderUserSource(sourceList)
                         }
@@ -313,7 +331,11 @@ export default class DataCheck extends Component {
 
                 <div className="m-l-8">
                     校验结果：
-                    <Select allowClear onChange={this.onCheckStatusChange} style={{ width: 150 }}>
+                    <Select 
+                        allowClear 
+                        style={{ width: 150 }}
+                        placeholder="选择校验结果"
+                        onChange={this.onCheckStatusChange}>
                         {
                             this.renderCheckStatus(CHECK_STATUS_CN)
                         }
@@ -324,7 +346,10 @@ export default class DataCheck extends Component {
                     最近修改人：
                     <Select 
                         allowClear 
+                        showSearch
                         style={{ width: 150 }}
+                        optionFilterProp="name"
+                        placeholder="选择最近修改人"
                         onChange={this.onUserChange}>
                         {
                             this.renderUserList(userList)
@@ -336,10 +361,10 @@ export default class DataCheck extends Component {
                     执行时间：
                     <DatePicker
                         format="YYYY-MM-DD"
-                        disabledDate={this.disabledDate}
                         style={{ width: 150 }}
                         placeholder="选择日期"
                         onChange={this.onDateChange}
+                        disabledDate={this.disabledDate}
                     />
                 </div>
             </div>
