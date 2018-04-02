@@ -33,6 +33,10 @@ public class SqlParser {
 			Lists.newArrayList(BatchAddJarOperator.class,
 					BatchCreateSourceOperator.class, BatchCreateResultOperator.class, BatchExecutionOperator.class);
 
+	private static List<Class<? extends Operator>> hadoopBatchSqlClasses =
+			Lists.newArrayList(BatchAddJarOperator.class,
+					BatchCreateSourceOperator.class, BatchCreateResultOperator.class, BatchExecutionOperator.class);
+
 	@SuppressWarnings("unchecked")
 	private static List<Class<? extends Operator>> sparkOperatorClasses =
 			Lists.newArrayList(BatchAddJarOperator.class, BatchCanExecuteOperator.class);
@@ -42,12 +46,13 @@ public class SqlParser {
         if(EngineType.isSpark(engineType) &&  computeType ==ComputeType.BATCH.getType()){
 			operators = parserSql(sql,sparkOperatorClasses);
 		}else if(EngineType.isFlink(engineType)){
-
         	if(computeType == ComputeType.BATCH.getType()){
                 operators = parserSql(sql, flinkBatchSqlClasses);
 			}else{
 				operators = parserSql(sql, flinkOperatorClasses);
 			}
+		}else if(EngineType.isHadoop(engineType)) {
+			operators = parserSql(sql, hadoopBatchSqlClasses);
 		}
 		return operators;
 	}
