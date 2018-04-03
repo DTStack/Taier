@@ -274,7 +274,7 @@ export default class TaskTablePane extends Component {
                             title="最近30次表级报告" 
                         >
                             <Table 
-                                rowKey="executeTime"
+                                rowKey="id"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesTableReport()}
                                 pagination={false}
