@@ -3,85 +3,133 @@ import { connect } from 'react-redux';
 
 import {
     Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Input, Button, message, Icon,
 } from 'antd';
 
 import utils from 'utils';
+import { 
+    formItemLayout, 
+    tableModelRules, 
+    TABLE_MODEL_RULE 
+} from '../../../comm/const';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ModelCheck extends Component {
+class ModelDefineRule extends Component {
 
-    state ={
-        table: {data: []},
-        loading: false,
+    state = {
+        tbNameRules: []
     }
 
     componentDidMount() {
-
+        this.setState({
+            tbNameRules: [tableModelRules[0]]
+        })
     }
 
-    initColumns = () => {
-        return [{
-            title: '表名',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
-        }, {
-            width: 80,
-            title: '表描述',
-            dataIndex: 'taskName',
-            key: 'taskName',
-        }, {
-            width: 80,
-            title: '模型层级',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
-        }, {
-            width: 80,
-            title: '主题域',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
-        }, {
-            title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
-        }, {
-            title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
-        }, {
-            title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
-            render: text => utils.formatDateTime(text),
-        }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
-        }, {
-            title: '操作',
-            key: 'operation',
-            render: (record) => {
-                return (
-                    <div key={record.id}>
-                        <a onClick={() => { this.initEdit(record) }}>修改</a>
-                        <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
-                    </div>
-                )
-            },
-        }]
+    submit = () => {
+    }
+
+    changeTbNameRule = (valueOption, index) => {
+        const optionIndex = valueOption.props.index;
+        const newArrs = [...this.state.tbNameRules];
+        console.log('arguments:', optionIndex, index)
+        newArrs[index] = tableModelRules[optionIndex];
+        this.setState({
+            tbNameRules: newArrs
+        });
+    }
+
+    insertTbNameRule = (index) => {
+        const originArr = this.state.tbNameRules;
+        let arrOne = originArr.slice(0, index);
+        const arrTwo = originArr.slice(index, originArr.length);
+        
+        // Insert a default object to array.
+        arrOne.push(tableModelRules[0]);
+
+        arrOne = arrOne.concat(arrTwo);
+        console.log('after insert,', arrOne)
+
+        this.setState({
+            tbNameRules: arrOne
+        });
+    }
+
+    removeTbNameRule = (index) => {
+        const originArr = [...this.state.tbNameRules];
+        originArr.splice(index, 1)
+        this.setState({
+            tbNameRules: originArr
+        });
+    }
+
+    renderTableNames = () => {
+        const { tbNameRules } = this.state;
+
+        const options = tableModelRules.map((rule, index) => <Option 
+            key={rule.value}
+            index={index}
+            value={rule.value}
+        >
+            {rule.text}
+        </Option>);
+        
+        return tbNameRules && tbNameRules.map((rule, index) => <span
+            style={{display: 'inline-block', marginBottom: '5px'}} 
+            key={index}>
+                <Select
+                    placeholder="请选择"
+                    defaultValue={rule.value}
+                    style={{ width: 100, marginRight: '5px' }}
+                    onSelect={(value, option) => this.changeTbNameRule(option, index)}
+                >
+                    {options}
+                </Select>
+                {
+                    index === tbNameRules.length - 1 ? <Button 
+                        icon="minus" 
+                        style={{marginRight: '5px'}}
+                        onClick={this.removeTbNameRule.bind(index)}
+                    /> :
+                    <Button 
+                        icon="plus" 
+                        style={{marginRight: '5px'}}
+                        onClick={this.insertTbNameRule.bind(index)}
+                    />
+                }
+            </span>
+        );
+    }
+
+    renderExample = () => {
+        const { tbNameRules } = this.state;
+        const names = [];
+        for (let i = 0; i < tbNameRules.length; i++) {
+            const rule = tbNameRules[i];
+            switch(rule.value) {
+                case TABLE_MODEL_RULE.LEVEL: {
+                    names.push('ODS'); continue;
+                }
+                case TABLE_MODEL_RULE.THEME: {
+                    names.push('sales'); continue;
+                }
+                case TABLE_MODEL_RULE.INCREMENT: {
+                    names.push('i'); continue;
+                }
+                case TABLE_MODEL_RULE.FREQUENCY: {
+                    names.push('M'); continue;
+                }
+                case TABLE_MODEL_RULE.CUSTOM: {
+                    names.push('custom'); continue;
+                }
+            }
+        }
+        return names.join('_');
     }
 
     render() {
-
-        const { loading, table } = this.state
-
-        const pagination = {
-            total: table.totalCount,
-            defaultPageSize: 10,
-        };
 
         return (
             <div className="m-card">
@@ -89,52 +137,35 @@ export default class ModelCheck extends Component {
                     noHovering
                     bordered={false}
                     loading={false}
-                    title={
-                        <Form 
-                            className="m-form-inline" 
-                            layout="inline"
-                            style={{ marginTop: '10px' }}
-                        >
-                            <FormItem label="类型">
-                                <Select
-                                    allowClear
-                                    showSearch
-                                    style={{ width: 200 }}
-                                    placeholder="选择创建人"
-                                    optionFilterProp="name"
-                                    onChange={this.changeReceive}
-                                >
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
-                                </Select>
+                    title="表命名规则生成配置:"
+                >
+                    <div className="box-card">
+                        <Form style={{marginTop: '24px'}}>
+                            <FormItem
+                                {...formItemLayout}
+                                label="表名"
+                                hasFeedback
+                            >
+                                {this.renderTableNames()}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="生成示例"
+                            >
+                            <span>{this.renderExample()}</span>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                className="txt-center"
+                            >
+                                <Button type="primary" onClick={this.submit}>保存</Button>
                             </FormItem>
                         </Form>
-                    }
-
-                    extra={
-                        <Button
-                            style={{ marginTop: '10px' }}
-                            type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
-                        >
-                            添加告警
-                        </Button>
-                    }
-                >
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            pagination={pagination}
-                            loading={loading}
-                            columns={this.initColumns()}
-                            onChange={this.handleTableChange}
-                            dataSource={table.data || []}
-                        />
+                    </div>
                 </Card>
             </div>
         )
     }
-
 }
+
+export default ModelDefineRule;

@@ -11,7 +11,7 @@ import utils from 'utils';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ModelCheck extends Component {
+export default class AtomIndexDefine extends Component {
 
     state ={
         table: {data: []},
@@ -24,41 +24,29 @@ export default class ModelCheck extends Component {
 
     initColumns = () => {
         return [{
-            title: '表名',
+            title: '指标类型',
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
             width: 80,
-            title: '表描述',
+            title: '原子指标名称',
             dataIndex: 'taskName',
             key: 'taskName',
         }, {
             width: 80,
-            title: '模型层级',
+            title: '数据类型',
             dataIndex: 'myTrigger',
             key: 'myTrigger',
         }, {
             width: 80,
-            title: '主题域',
+            title: '最近修改人',
             dataIndex: 'senderTypes',
             key: 'senderTypes',
-        }, {
-            title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
-        }, {
-            title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
         }, {
             title: '最后修改时间',
             dataIndex: 'createTime',
             key: 'createTime',
             render: text => utils.formatDateTime(text),
-        }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
         }, {
             title: '操作',
             key: 'operation',

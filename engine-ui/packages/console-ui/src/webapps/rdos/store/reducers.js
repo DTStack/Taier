@@ -16,6 +16,8 @@ import { sqlEditor } from './modules/offlineTask/sqlEditor';
 import { dataSource } from './modules/dataSource';
 // 数据管理
 import { dataManageReducer } from './modules/dataManage';
+// 数据模型
+import { dataModel } from './modules/dataModel';
 // 运维中心
 import { operation } from './modules/operation';
 
@@ -37,6 +39,7 @@ const rootReducer = combineReducers({
     dataManage: dataManageReducer,
     dataSource,
     visibleSearchTask,
+    dataModel,
 })
 
 export default rootReducer

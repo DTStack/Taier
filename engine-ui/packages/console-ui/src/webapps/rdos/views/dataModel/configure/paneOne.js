@@ -11,7 +11,7 @@ import utils from 'utils';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ModelCheck extends Component {
+export default class ModelLevel extends Component {
 
     state ={
         table: {data: []},
@@ -19,55 +19,50 @@ export default class ModelCheck extends Component {
     }
 
     componentDidMount() {
-
     }
 
     initColumns = () => {
         return [{
-            title: '表名',
+            title: '层级编号',
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
             width: 80,
-            title: '表描述',
+            title: '层级名称',
             dataIndex: 'taskName',
             key: 'taskName',
         }, {
             width: 80,
-            title: '模型层级',
+            title: '层级说明',
             dataIndex: 'myTrigger',
             key: 'myTrigger',
         }, {
             width: 80,
-            title: '主题域',
+            title: '声明周期',
             dataIndex: 'senderTypes',
             key: 'senderTypes',
         }, {
-            title: '增量标识',
+            title: '是否记入层级依赖',
             dataIndex: 'receiveUsers',
             key: 'receiveUsers',
         }, {
-            title: '最后修改人',
+            title: '最近修改人',
             dataIndex: 'alarmStatus',
             key: 'alarmStatus',
         }, {
-            title: '最后修改时间',
+            title: '最近修改时间',
             dataIndex: 'createTime',
             key: 'createTime',
             render: text => utils.formatDateTime(text),
-        }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
         }, {
             title: '操作',
             key: 'operation',
             render: (record) => {
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.initEdit(record) }}>修改</a>
+                        <a onClick={() => { this.initEdit(record) }}>编辑</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
+                        <a onClick={() => { this.updateAlarmStatus(record) }}>删除</a>
                     </div>
                 )
             },

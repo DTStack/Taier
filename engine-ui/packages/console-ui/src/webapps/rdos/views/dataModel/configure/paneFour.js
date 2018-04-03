@@ -11,41 +11,25 @@ import utils from 'utils';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ModelCheck extends Component {
+export default class IncrementDefine  extends Component {
 
     state ={
         table: {data: []},
         loading: false,
     }
 
-    componentDidMount() {
-
-    }
+    componentDidMount() {}
 
     initColumns = () => {
         return [{
-            title: '表名',
+            title: '增量定义',
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
             width: 80,
-            title: '表描述',
+            title: '刷新标识符',
             dataIndex: 'taskName',
             key: 'taskName',
-        }, {
-            width: 80,
-            title: '模型层级',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
-        }, {
-            width: 80,
-            title: '主题域',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
-        }, {
-            title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
         }, {
             title: '最后修改人',
             dataIndex: 'alarmStatus',
@@ -56,18 +40,14 @@ export default class ModelCheck extends Component {
             key: 'createTime',
             render: text => utils.formatDateTime(text),
         }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
-        }, {
             title: '操作',
             key: 'operation',
             render: (record) => {
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.initEdit(record) }}>修改</a>
+                        <a onClick={() => { this.initEdit(record) }}>编辑</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
+                        <a onClick={() => { this.updateAlarmStatus(record) }}>删除</a>
                     </div>
                 )
             },

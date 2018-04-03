@@ -111,7 +111,7 @@ class BaseForm extends React.Component {
                     initialValue: location,
                     validateTrigger: 'onBlur'
                 })(
-                    <Input placehoder="外部表地址"/>
+                    <Input placeholder="外部表地址"/>
                 )}
             </FormItem>}
             <FormItem

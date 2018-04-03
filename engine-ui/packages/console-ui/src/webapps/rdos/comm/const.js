@@ -91,6 +91,15 @@ export const TASK_STATUS = { // 任务状态
     FROZEN: 18,
 }
 
+// 表模型规则
+export const TABLE_MODEL_RULE = {
+    LEVEL: '1',
+    THEME: '2',
+    INCREMENT: '3',
+    FREQUENCY: '4',
+    CUSTOM: '5',
+}
+
 export const hdfsFieldTypes = [ // hdfs 类型
     'STRING',
     'VARCHAR',
@@ -117,6 +126,24 @@ export const dataSourceTypes = [ // 数据源类型
     'HBase',
     'FTP',
 ]
+
+// 表模型规则列表
+export const tableModelRules = [{
+    text: '层级',
+    value: TABLE_MODEL_RULE.LEVEL,
+}, {
+    text: '主题域',
+    value: TABLE_MODEL_RULE.THEME,
+}, {
+    text: '增量',
+    value: TABLE_MODEL_RULE.INCREMENT,
+}, {
+    text: '刷新频率',
+    value: TABLE_MODEL_RULE.FREQUENCY,
+}, {
+    text: '自定义',
+    value: TABLE_MODEL_RULE.CUSTOM,
+}]
 
 // 实时任务状态过滤选项
 // 16,17 等待运行

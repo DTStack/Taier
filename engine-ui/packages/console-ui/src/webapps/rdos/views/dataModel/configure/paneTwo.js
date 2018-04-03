@@ -11,7 +11,7 @@ import utils from 'utils';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ModelCheck extends Component {
+export default class ThemeDomain extends Component {
 
     state ={
         table: {data: []},
@@ -24,17 +24,17 @@ export default class ModelCheck extends Component {
 
     initColumns = () => {
         return [{
-            title: '表名',
+            title: '主题域名称',
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
             width: 80,
-            title: '表描述',
+            title: '主题域说明',
             dataIndex: 'taskName',
             key: 'taskName',
         }, {
             width: 80,
-            title: '模型层级',
+            title: '主题域前缀',
             dataIndex: 'myTrigger',
             key: 'myTrigger',
         }, {
