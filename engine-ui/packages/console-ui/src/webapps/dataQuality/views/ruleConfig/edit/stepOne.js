@@ -297,12 +297,11 @@ export default class StepOne extends Component {
                     key: item,
                     dataIndex: item,
                     width: 80,
-                    render: function(txt) {
+                    render: (value) => {
                         return <TableCell 
                             className="no-scroll-bar"
-                            value={txt} 
-                            resize="none"
-                            style={{ minWidth: '80px', width:'100%' }} 
+                            defaultValue={value} 
+                            style={{ minWidth: 80, width: '100%', resize: 'none' }} 
                         />
                     }
                 }
@@ -442,7 +441,7 @@ export default class StepOne extends Component {
                             <Table 
                                 rowKey="key"
                                 className="m-table m-cells preview-table"
-                                columns={this.initColumns(sourcePreview.columnList)} 
+                                columns={this.previewTableColumns(sourcePreview.columnList)} 
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
                                 scroll={{ x: 1000 }}

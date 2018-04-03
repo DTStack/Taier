@@ -65,12 +65,12 @@ export default class DataCheck extends Component {
             title: '左侧表',
             dataIndex: 'originTableName',
             key: 'originTableName',
-            width: '12%'
+            width: '11%'
         }, {
             title: '分区',
             dataIndex: 'originPartition',
             key: 'originPartition',
-            width: '10%',
+            width: '11%',
             render: (text, record) => {
                 return text ? text : '--';
             }
@@ -79,12 +79,12 @@ export default class DataCheck extends Component {
             title: '右侧表',
             dataIndex: 'targetTableName',
             key: 'targetTableName',
-            width: '12%'
+            width: '11%'
         }, {
             title: '分区',
             dataIndex: 'targetPartition',
             key: 'targetPartition',
-            width: '10%',
+            width: '11%',
             render: (text, record) => {
                 return text ? text : '--';
             }
@@ -92,12 +92,16 @@ export default class DataCheck extends Component {
             title: '校验结果',
             dataIndex: 'statusEN',
             key: 'statusEN',
-            width: '8%',
+            width: '10%',
             render: (text, record) => {
-                return <div>
-                    <span className="m-r-8">{text}</span>
-                    <Tooltip placement="right" title={record.report} arrowPointAtCenter>
-                        <Icon style={{ fontSize: 14 }} type="info-circle-o" />
+                return <div className="flex">
+                    <div style={{ flexBasis: '60%' }}>{text}</div>
+                    <Tooltip 
+                        placement="right" 
+                        title={record.report}
+                        overlayStyle={{ wordBreak: 'break-word' }}
+                    >
+                        <Icon className="font-14" type="info-circle-o" />
                     </Tooltip>
                 </div>
             }
@@ -129,7 +133,7 @@ export default class DataCheck extends Component {
             width: '11%'
         }, {
             title: '操作',
-            width: '10%',
+            width: '8%',
             render: (text, record) => {
                 let menu = (
                     <Menu>
@@ -199,11 +203,10 @@ export default class DataCheck extends Component {
 
     // 数据源筛选
     onUserSourceChange = (id) => {
-        let dataSourceId = id ? id : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             currentPage: 1,
-            dataSourceId
+            dataSourceId: id ? id : undefined
         };
         
         this.props.getLists(params);
@@ -252,11 +255,10 @@ export default class DataCheck extends Component {
 
     // 监听userList的select
     onUserChange = (value) => {
-        let lastModifyUserId = value ? value : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             currentPage: 1,
-            lastModifyUserId
+            lastModifyUserId: value ? value : undefined
         };
 
         this.props.getLists(params);
@@ -265,11 +267,10 @@ export default class DataCheck extends Component {
 
     // 执行时间改变
     onDateChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined,
-            params = {
+        let params = {
                 ...this.state.params, 
                 currentPage: 1,
-                executeTime
+                executeTime: date ? date.valueOf() : undefined
             };
         
         this.props.getLists(params);
@@ -278,11 +279,10 @@ export default class DataCheck extends Component {
 
     // table搜索
     onTableSearch = (name) => {
-        let tableName = name ? name : undefined,
-            params = {
+        let params = {
                 ...this.state.params, 
                 currentPage: 1,
-                tableName
+                tableName: name ? name : undefined
             };
 
         this.props.getLists(params);

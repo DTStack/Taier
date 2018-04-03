@@ -5,7 +5,6 @@ import { isEmpty } from 'lodash';
 import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
 import TableCell from 'widgets/tableCell';
-
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { formItemLayout } from '../../../consts';
@@ -313,12 +312,11 @@ export default class StepOne extends Component {
                 key: item,
                 dataIndex: item,
                 width: 80,
-                render: function(txt) {
+                render: (value) => {
                     return <TableCell 
                         className="no-scroll-bar"
-                        value={txt} 
-                        resize="none"
-                        style={{ minWidth: '80px', width:'100%' }} 
+                        defaultValue={value}
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
                     />
                 }
             }
