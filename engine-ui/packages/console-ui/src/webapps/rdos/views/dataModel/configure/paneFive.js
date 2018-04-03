@@ -43,9 +43,11 @@ class ModelDefineRule extends Component {
 
     insertTbNameRule = (index) => {
         const originArr = this.state.tbNameRules;
-        let arrOne = originArr.slice(0, index);
-        const arrTwo = originArr.slice(index, originArr.length);
-        
+        console.log('index:', index); 
+        const start = index + 1;
+        let arrOne = originArr.slice(0, start);
+        const arrTwo = originArr.slice(start, originArr.length);
+
         // Insert a default object to array.
         arrOne.push(tableModelRules[0]);
 
@@ -53,7 +55,7 @@ class ModelDefineRule extends Component {
         console.log('after insert,', arrOne)
 
         this.setState({
-            tbNameRules: arrOne
+            tbNameRules: [...arrOne]
         });
     }
 
@@ -67,6 +69,7 @@ class ModelDefineRule extends Component {
 
     renderTableNames = () => {
         const { tbNameRules } = this.state;
+        const length = tbNameRules.length;
 
         const options = tableModelRules.map((rule, index) => <Option 
             key={rule.value}
@@ -76,27 +79,30 @@ class ModelDefineRule extends Component {
             {rule.text}
         </Option>);
         
+
         return tbNameRules && tbNameRules.map((rule, index) => <span
             style={{display: 'inline-block', marginBottom: '5px'}} 
             key={index}>
                 <Select
                     placeholder="请选择"
-                    defaultValue={rule.value}
+                    // defaultValue={rule.value}
                     style={{ width: 100, marginRight: '5px' }}
                     onSelect={(value, option) => this.changeTbNameRule(option, index)}
                 >
                     {options}
                 </Select>
                 {
-                    index === tbNameRules.length - 1 ? <Button 
+                    (index == length - 1) && length > 1 ? <Button 
                         icon="minus" 
+                        title="移除规则"
                         style={{marginRight: '5px'}}
-                        onClick={this.removeTbNameRule.bind(index)}
+                        onClick={() => this.removeTbNameRule(index)}
                     /> :
                     <Button 
                         icon="plus" 
+                        title="添加规则"
                         style={{marginRight: '5px'}}
-                        onClick={this.insertTbNameRule.bind(index)}
+                        onClick={() => this.insertTbNameRule(index)}
                     />
                 }
             </span>
@@ -139,7 +145,7 @@ class ModelDefineRule extends Component {
                     loading={false}
                     title="表命名规则生成配置:"
                 >
-                    <div className="box-card">
+                    <div>
                         <Form style={{marginTop: '24px'}}>
                             <FormItem
                                 {...formItemLayout}
