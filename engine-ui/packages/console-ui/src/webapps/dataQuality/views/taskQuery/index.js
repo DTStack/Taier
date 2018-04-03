@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs } from 'antd';
+import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon } from 'antd';
 import moment from 'moment';
 import { isNull } from 'lodash';
 
@@ -30,11 +30,11 @@ const mapDispatchToProps = dispatch => ({
 	getTaskList(params) {
 		dispatch(taskQueryActions.getTaskList(params));
 	},
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
     getUserList(params) {
         dispatch(commonActions.getUserList(params));
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
     },
 });
 
@@ -88,8 +88,21 @@ export default class TaskQuery extends Component {
             width: '10%',
             dataIndex: 'status',
             key: 'status',
-            render: (text) => {
-                return <TaskStatus value={text} />
+            render: (text, record) => {
+                return <div>
+                    <TaskStatus style={{ marginRight: 30 }} value={text} />
+                    {
+                        text === 2 
+                        &&
+                        <Tooltip 
+                            placement="right" 
+                            title={record.logInfo}
+                            overlayStyle={{ wordBreak: 'break-word' }}
+                        >
+                            <Icon className="font-14" type="info-circle-o" />
+                        </Tooltip>
+                    }
+                    </div>
             },
             filters: taskStatusFilter,
         }, {

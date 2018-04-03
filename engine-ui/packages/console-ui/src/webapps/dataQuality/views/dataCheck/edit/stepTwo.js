@@ -32,13 +32,10 @@ export default class StepTwo extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            useInput: false,
             showPreview: false,
             sourcePreview: {}
         };
     }
-
-    componentDidMount() {}
 
     renderTargetTable = (data) => {
         return data.map((tableName) => {
@@ -54,22 +51,15 @@ export default class StepTwo extends Component {
 
     // 右侧表变化回调
     onTargetTableChange = (name) => {
-        const { 
-            form, 
-            havePart,
-            editParams, 
-            changeParams,
-            getSourcePart,
-            resetSourcePart } = this.props;
+        const { form, havePart, editParams, changeParams, 
+            getSourcePart, resetSourcePart } = this.props;
         let target = { ...editParams.target, table: name };
-
 
         // 重置分区表单和参数
         if (havePart) {
             resetSourcePart('target');
             form.setFieldsValue({ 
-                targetColumn: '',
-                targetColumnInput: ''
+                targetColumn: ''
             });
             target.partition = undefined;
 
@@ -177,22 +167,6 @@ export default class StepTwo extends Component {
         });
     }
 
-    // 分区变化回调
-    handleInputPartChange = (e) => {
-        const { target } = this.props.editParams;
-        let partition = e.target.value ? e.target.value : undefined;
-
-        this.props.changeParams({
-            target: {...target,  partition}
-        });
-    }
-
-    renderPartText = () => {
-        return (
-            <p className="font-14">如果分区还不存在，可以直接输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
-        )
-    }
-
     prev = () => {
         const { currentStep, navToStep } = this.props;
         navToStep(currentStep - 1);
@@ -226,81 +200,13 @@ export default class StepTwo extends Component {
         });
     }
 
-    renderColumnPart = () => {
-        const { editStatus, editParams, form, dataCheck } = this.props;
-        const { useInput } = this.state;
-        const { partition } = editParams.target;
-        const { targetPart } = dataCheck;
-        const { getFieldDecorator } = form;
-
-        if (!useInput) {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                {
-                    getFieldDecorator('targetColumn', {
-                        rules: [],
-                        initialValue: partition
-                    })(
-                        <TreeSelect
-                            allowClear
-                            showSearch
-                            placeholder="分区列表"
-                            treeNodeLabelProp="value"
-                            disabled={editStatus === 'edit'}
-                            style={{ width: '85%', marginRight: 15 }} 
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                            onChange={this.handlePartChange}>
-                            {
-                                this.renderTreeSelect(targetPart)
-                            }
-                        </TreeSelect>
-                    )
-                }
-                {
-                    editStatus !== 'edit'
-                    &&
-                    <a onClick={this.onPartitionTypeChange}>手动输入</a>
-                }
-            </FormItem>
-        } else {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                {
-                    getFieldDecorator('targetColumnInput', {
-                        rules: [],
-                        initialValue: ''
-                    })(
-                        <Input 
-                            style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}，具体的参数配置在帮助文档里说明" 
-                            onChange={this.handleInputPartChange}
-                            disabled={editStatus === 'edit'} />
-                    )
-                }
-                {
-                    editStatus !== 'edit'
-                    &&
-                    <a onClick={this.onPartitionTypeChange}>选择已有分区</a>
-                }
-            </FormItem>
-        }
-    }
-
-    onPartitionTypeChange = () => {
-        const { target } = this.props.editParams;
-        const { useInput } = this.state;
-        // form.setFieldsValue({ part: '' });
-        // params.partition = undefined;
-        this.props.changeParams({
-            target: {...target,  partition: undefined}
-        });
-        this.setState({ useInput: !useInput });
-    }
-
     render() {
-        const { editStatus, editParams, dataSource, form, havePart } = this.props;
-        const { sourcePreview, showPreview } = this.state;
-        const { getFieldDecorator } = form;
-        const { origin, target } = editParams;
+        const { form, editStatus, editParams, dataSource, dataCheck, havePart } = this.props;
+        const { targetPart } = dataCheck;
         const { sourceTable } = dataSource;
+        const { getFieldDecorator } = form;
+        const { table, partition } = editParams.target;
+        const { sourcePreview, showPreview } = this.state;
 
         return (
             <div>
@@ -310,7 +216,7 @@ export default class StepTwo extends Component {
                             {
                                 getFieldDecorator('table', {
                                     rules: [{ required: true, message: '请选择右侧表' }],
-                                    initialValue: target.table
+                                    initialValue: table
                                 })(
                                     <Select 
                                         showSearch
@@ -326,9 +232,30 @@ export default class StepTwo extends Component {
                         </FormItem>
 
                         {
-                            (havePart || target.partition)
+                            (havePart || partition)
                             &&
-                            this.renderColumnPart()
+                            <FormItem {...formItemLayout} label="选择分区">
+                                {
+                                    getFieldDecorator('targetColumn', {
+                                        rules: [],
+                                        initialValue: partition
+                                    })(
+                                        <TreeSelect
+                                            allowClear
+                                            showSearch
+                                            placeholder="分区列表"
+                                            treeNodeLabelProp="value"
+                                            disabled={editStatus === 'edit'}
+                                            style={{ width: '85%', marginRight: 15 }} 
+                                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                                            onChange={this.handlePartChange}>
+                                            {
+                                                this.renderTreeSelect(targetPart)
+                                            }
+                                        </TreeSelect>
+                                    )
+                                }
+                            </FormItem>
                         }
                         
                         <Row type="flex" justify="center" className="font-14">

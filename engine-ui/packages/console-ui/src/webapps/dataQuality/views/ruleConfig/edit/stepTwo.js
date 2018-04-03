@@ -54,7 +54,13 @@ export default class StepTwo extends Component {
 
     prev = () => {
         const { currentStep, navToStep } = this.props;
-        navToStep(currentStep - 1);
+        const { currentRule } = this.state;
+        
+        if (!isEmpty(currentRule)) {
+            message.error('监控规则未保存');
+        } else {
+            navToStep(currentStep - 1);
+        }
     }
 
     next = () => {
@@ -271,29 +277,29 @@ export default class StepTwo extends Component {
                 } else {
                     return (
                         <FormItem {...rowFormItemLayout} className="rule-edit-td">
-                        {
-                            getFieldDecorator('columnName', {
-                                rules: [{
-                                    required: true, message: '字段不可为空',
-                                }],
-                                initialValue: record.columnName
-                            })(
-                                <Select 
-                                    style={{ width: '100%' }} 
-                                    onChange={this.onColumnNameChange} 
-                                    disabled={record.isTable}>
-                                    {
-                                        tableColumn.map((item) => {
-                                            return <Option 
-                                                key={item.key} 
-                                                value={item.key}>
-                                                {item.key}
-                                            </Option>
-                                        })
-                                    }
-                                </Select>
-                            )
-                        }
+                            {
+                                getFieldDecorator('columnName', {
+                                    rules: [{
+                                        required: true, message: '字段不可为空',
+                                    }],
+                                    initialValue: record.columnName
+                                })(
+                                    <Select 
+                                        style={{ width: '100%' }} 
+                                        onChange={this.onColumnNameChange} 
+                                        disabled={record.isTable}>
+                                        {
+                                            tableColumn.map((item) => {
+                                                return <Option 
+                                                    key={item.key} 
+                                                    value={item.key}>
+                                                    {item.key}
+                                                </Option>
+                                            })
+                                        }
+                                    </Select>
+                                )
+                            }
                         </FormItem>
                     )
                 }
@@ -333,7 +339,9 @@ export default class StepTwo extends Component {
                             rules: [],
                             initialValue: record.filter
                         })(
-                            <Input onChange={this.changeRuleParams.bind(this, 'filter')}/>
+                            <Input 
+                                placeholder={`以"and"开头的条件语句，例：and colA = "value"`}
+                                onChange={this.changeRuleParams.bind(this, 'filter')}/>
                         )
                     }
                 </FormItem>

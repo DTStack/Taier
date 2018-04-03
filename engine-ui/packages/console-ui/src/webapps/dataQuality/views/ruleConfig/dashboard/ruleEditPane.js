@@ -331,6 +331,7 @@ export default class RuleEditPane extends Component {
                             initialValue: record.filter
                         })(
                             <Input 
+                                placeholder={`"and"开头的条件语句，如and col = "val"`}
                                 onChange={this.changeRuleParams.bind(this, 'filter')} 
                                 disabled={record.editStatus === 'edit'} />
                         )
@@ -392,7 +393,7 @@ export default class RuleEditPane extends Component {
                                     initialValue: record.operator
                                 })(
                                     <Select 
-                                        style={{ width: 50, marginRight: 5 }} 
+                                        style={{ width: 65, marginRight: 5 }} 
                                         onChange={this.changeRuleParams.bind(this, 'operator')}>
                                         {
                                             operatorSelect.map((item) => {
@@ -417,8 +418,8 @@ export default class RuleEditPane extends Component {
                                     initialValue: record.threshold
                                 })(
                                     <InputNumber
-                                      min={1}
-                                      style={{ width: 50, marginRight: 10 }}
+                                      min={0}
+                                      style={{ width: 65, marginRight: 5 }}
                                       onChange={this.changeRuleParams.bind(this, 'threshold')}
                                     /> 
                                 )

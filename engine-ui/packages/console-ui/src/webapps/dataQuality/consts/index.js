@@ -39,7 +39,7 @@ export const CHECK_STATUS_CN = [{
     text: '校验通过',
     value: '4',
 }, {
-    text: '校验不通过',
+    text: '校验未通过',
     value: '5',
 }, {
     text: '校验结果失效',
