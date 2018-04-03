@@ -284,7 +284,9 @@ export default class StepTwo extends Component {
                                     disabled={record.isTable}>
                                     {
                                         tableColumn.map((item) => {
-                                            return <Option key={item.key} value={item.key}>
+                                            return <Option 
+                                                key={item.key} 
+                                                value={item.key}>
                                                 {item.key}
                                             </Option>
                                         })
@@ -352,7 +354,9 @@ export default class StepTwo extends Component {
                                 disabled={currentRule.isEnum}>
                                 {
                                     verifyType.map((item) => {
-                                        return <Option key={item.value} value={item.value.toString()}>
+                                        return <Option 
+                                            key={item.value} 
+                                            value={item.value.toString()}>
                                             {item.name}
                                         </Option>
                                     })
@@ -416,7 +420,7 @@ export default class StepTwo extends Component {
                                 initialValue: record.threshold
                             })(
                                 <InputNumber
-                                  min={1}
+                                  min={0}
                                   style={{ width: 70, marginRight: 10 }} 
                                   onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 

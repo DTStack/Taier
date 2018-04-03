@@ -146,7 +146,11 @@ export default class TaskQuery extends Component {
     renderSourceType = (data) => {
         return data.map((source) => {
             return (
-                <Option key={source.value} value={source.value.toString()}>{source.name}</Option>
+                <Option 
+                    key={source.value} 
+                    value={source.value.toString()}>
+                    {source.name}
+                </Option>
             )
         });
     }

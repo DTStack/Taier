@@ -1,6 +1,6 @@
 import mc from 'mirror-creator';
 
-export const dataSourceActions = mc([
+export const dataSourceActionType = mc([
 	'CHANGE_LOADING',
 	'GET_DATA_SOURCES',
     'GET_DATA_SOURCES_TYPE',

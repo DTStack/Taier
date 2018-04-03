@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
+import TableCell from 'widgets/tableCell';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
@@ -42,7 +43,11 @@ export default class StepTwo extends Component {
     renderTargetTable = (data) => {
         return data.map((tableName) => {
             return (
-                <Option key={tableName} value={tableName}>{tableName}</Option>
+                <Option 
+                    key={tableName} 
+                    value={tableName}>
+                    {tableName}
+                </Option>
             )
         })
     }
@@ -209,7 +214,14 @@ export default class StepTwo extends Component {
                 title: item,
                 key: item,
                 dataIndex: item,
-                width: 80
+                width: 80,
+                render: (value) => {
+                    return <TableCell 
+                        className="no-scroll-bar"
+                        defaultValue={value}
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
+                    />
+                }
             }
         });
     }

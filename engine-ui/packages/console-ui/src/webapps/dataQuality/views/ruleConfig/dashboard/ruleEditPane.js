@@ -47,6 +47,7 @@ export default class RuleEditPane extends Component {
             currentRule: {},
             functionList: [],
             monitorId: undefined,
+            havePart: false,
             showExecuteModal: false,
         };
     }
@@ -67,8 +68,13 @@ export default class RuleEditPane extends Component {
                 this.setState({ 
                     monitorId,
                     currentRule: {},
+                    havePart: false,
                     functionList: []
                 });
+            }
+
+            if (newData.dataSourceType === 7 || newData.dataSourceType === 10) {
+                this.setState({ havePart: true });
             }
         }
     }
@@ -685,10 +691,9 @@ export default class RuleEditPane extends Component {
     render() {
         const { data, ruleConfig, form, common } = this.props;
         const { getFieldDecorator } = form;
-        const { rules, monitorId, showExecuteModal } = this.state;
-        // const { executeTime, notifyUser, periodType, scheduleConf, sendTypes } = ruleConfig.monitorDetail;
-        const { periodType, notifyType } = common.allDict;
         const { monitorDetail } = ruleConfig;
+        const { periodType, notifyType } = common.allDict;
+        const { rules, monitorId, havePart, showExecuteModal } = this.state;
 
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
 
@@ -697,13 +702,13 @@ export default class RuleEditPane extends Component {
                 <Row className="rule-action">
                     <Col span={12} className="txt-left">
                         {
-                            (monitorPart.length && monitorPart[0].partValue)
+                            havePart
                             &&
                             <div>
                                 分区：
                                 <Select 
-                                    value={monitorId ? monitorId.toString() : undefined}
                                     style={{ width: 150 }}
+                                    value={monitorId ? monitorId.toString() : undefined}
                                     onChange={this.onMonitorIdChange}>
                                     {
                                         monitorPart.map((item) => {
@@ -782,15 +787,15 @@ export default class RuleEditPane extends Component {
                 <Table 
                     rowKey="id"
                     className="m-table rule-edit-table"
-                    columns={this.initColumns()}
                     pagination={false}
                     dataSource={rules}
+                    columns={this.initColumns()}
                 />
                 
                 <ExecuteForm 
+                    data={monitorDetail}
                     visible={showExecuteModal} 
-                    closeModal={this.closeExecuteModal}
-                    data={monitorDetail}>
+                    closeModal={this.closeExecuteModal}>
                 </ExecuteForm>
             </div>
         );

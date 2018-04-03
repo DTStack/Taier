@@ -1,26 +1,9 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Table, Row, Col, Icon } from 'antd';
-import { dataCheckActions } from '../../../actions/dataCheck';
 import GoBack from 'main/components/go-back';
 import TableCell from 'widgets/tableCell';
 import DCApi from '../../../api/dataCheck';
 
-const mapStateToProps = state => {
-    const { dataCheck, common } = state;
-    return { dataCheck, common }
-}
-
-const mapDispatchToProps = dispatch => ({
-    getCheckReport(params) {
-        dispatch(dataCheckActions.getCheckReport(params));
-    },
-    getCheckReportTable(params) {
-        dispatch(dataCheckActions.getCheckReportTable(params));
-    },
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class DataCheckReport extends Component {
     constructor(props) {
         super(props);
@@ -29,7 +12,9 @@ export default class DataCheckReport extends Component {
                 currentPage: 1,
                 pageSize: 20,
                 verifyRecordId: this.props.routeParams.verifyRecordId
-            }
+            },
+            tableData: {},
+            reportData: {}
         };
     }
 
@@ -37,23 +22,31 @@ export default class DataCheckReport extends Component {
         const { params } = this.state;
         let verifyRecordId = params.verifyRecordId;
 
-        this.props.getCheckReport({ verifyRecordId });
-        this.props.getCheckReportTable(params);
+        DCApi.getCheckReport({ verifyRecordId }).then((res) => {
+            if (res.code === 1) {
+                this.setState({ reportData: res.data });
+            }
+        });
+        DCApi.getCheckReportTable(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ tableData: res.data });
+            }
+        });
     }
 
     initColumns = (data) => {
-        return Object.keys(data).map((item) => {
+        return data.length && data.map((item) => {
             return {
                 title: item,
                 key: item,
                 dataIndex: item,
                 width: 80,
-                render: function(txt) {
+                render: (value) => {
                     return <TableCell 
                         className="no-scroll-bar"
-                        value={txt} 
-                        resize="none"
-                        style={{ minWidth: '80px',width:'100%' }} 
+                        value={value ? value : undefined}
+                        readOnly
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
                     />
                 }
             }
@@ -66,8 +59,15 @@ export default class DataCheckReport extends Component {
             ...this.state.params,
             currentPage: page.current,
         }
-        this.setState({ params });
-        this.props.getCheckReportTable(params);
+        // this.props.getCheckReportTable(params);
+        DCApi.getCheckReportTable(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ 
+                    params,
+                    tableData: res.data 
+                });
+            }
+        });
     }
 
     handleDownload = () => {
@@ -77,15 +77,13 @@ export default class DataCheckReport extends Component {
     }
 
     render() {
-        const { dataCheck, common } = this.props;
-        const { verifyVO, lAll, rAll, mapSuccess, mapFailure, rightUnfound, leftUnfound, dataSourceEN } = dataCheck.checkReport;
-        const { reportTable } = dataCheck;
-        const { params } = this.state;
+        const { params, tableData, reportData } = this.state;
+        const { verifyVO, lAll, rAll, mapSuccess, mapFailure, rightUnfound, leftUnfound, dataSourceEN } = reportData;
 
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
-            total: reportTable.totalCount
+            total: tableData.totalCount
         }
 
         return (
@@ -162,10 +160,10 @@ export default class DataCheckReport extends Component {
                         // bordered
                         className="m-cells m-table"
                         style={{ margin: '0 20px' }}
-                        columns={this.initColumns(reportTable.data ? reportTable.data[0]: {})} 
-                        dataSource={reportTable.data ? reportTable.data : []}
-                        pagination={pagination}
                         scroll={{ x: 1000 }}
+                        pagination={pagination}
+                        dataSource={tableData.data ? tableData.data : []}
+                        columns={this.initColumns(tableData.attachment ? tableData.attachment: [])} 
                         onChange={this.onTableChange}
                     />
                 </div>
