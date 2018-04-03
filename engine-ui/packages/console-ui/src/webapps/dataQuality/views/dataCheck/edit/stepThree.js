@@ -422,8 +422,6 @@ export default class StepThree extends Component {
         this.setState({ diverseData });
     }
 
-
-
     getSettingItem = (key) => {
     	const { getFieldDecorator } = this.props.form;
     	const { setting } = this.props.editParams;
@@ -563,7 +561,7 @@ export default class StepThree extends Component {
     		return
     	} else {
 
-    		if (!editParams.mappedPK) {
+    		if (isEmpty(editParams.mappedPK)) {
 	    		message.error('请选择逻辑主键');
 	    		return
 	    	}
