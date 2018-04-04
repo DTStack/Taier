@@ -2,24 +2,42 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Table, Row, Col, Select, Form, 
+    Card, Button, message, Checkbox,
+    DatePicker,
 } from 'antd';
 
 import utils from 'utils';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
+const RangePicker = DatePicker.RangePicker;
 
 export default class ModelCheck extends Component {
 
     state ={
         table: {data: []},
         loading: false,
+
+        params: {
+            currentPage: 1,
+            ignore: false,
+            type: '1',
+        },
     }
 
     componentDidMount() {
+    }
 
+    loadData = () => {
+        const { params } = this.state;
+
+    }
+
+    changeParams = (field, value) => {
+        this.setState({
+            params: Object.assign(this.state.params, { [field]: value })
+        })
     }
 
     initColumns = () => {
@@ -76,7 +94,7 @@ export default class ModelCheck extends Component {
 
     render() {
 
-        const { loading, table } = this.state
+        const { loading, table, params } = this.state
 
         const pagination = {
             total: table.totalCount,
@@ -100,9 +118,10 @@ export default class ModelCheck extends Component {
                                     allowClear
                                     showSearch
                                     style={{ width: 200 }}
-                                    placeholder="选择创建人"
+                                    placeholder="选择类型"
                                     optionFilterProp="name"
-                                    onChange={this.changeReceive}
+                                    defaultValue={params.type}
+                                    onSelect={(value) => this.changeParams.bind('type', value)}
                                 >
                                     <Option value="1">分层不合理</Option>
                                     <Option value="2">主题域不合理</Option>
@@ -110,17 +129,22 @@ export default class ModelCheck extends Component {
                                     <Option value="4">引用不合理</Option>
                                 </Select>
                             </FormItem>
+                            <FormItem label="时间">
+                                <RangePicker 
+                                    size="default" 
+                                    style={{width: 180}} 
+                                    format="YYYY-MM-DD" 
+                                    onChange={(value) => this.changeParams.bind('range', value)}
+                                />
+                            </FormItem>
+                            <FormItem>
+                                <Checkbox 
+                                    onChange={(value) => this.changeParams.bind('ignore', value)}
+                                >
+                                    已忽略
+                                </Checkbox>
+                            </FormItem>
                         </Form>
-                    }
-
-                    extra={
-                        <Button
-                            style={{ marginTop: '10px' }}
-                            type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
-                        >
-                            添加告警
-                        </Button>
                     }
                 >
                         <Table

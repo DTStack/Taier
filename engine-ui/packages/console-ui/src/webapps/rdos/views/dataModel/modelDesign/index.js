@@ -132,7 +132,7 @@ class TableList extends Component {
     }
 
     render() {
-        const ROUTER_BASE = '/data-model';
+        const ROUTER_BASE = '/data-model/table';
         const { themeFields, modelLevels } = this.state
         const tableList = this.state.table;
         const { project } = this.props;

@@ -1,12 +1,59 @@
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
 import { cloneDeep, isEqual } from 'lodash';
-import dataModelActions from './actionTypes';
+import { dataModelActions } from './actionTypes';
 
-const configures = function( state = {} , action) {
-    return state;
+const themeFields = function( state = [] , action) {
+    const { type, payload } = action;
+    switch (type) {
+        case dataModelActions.GET_THEME_FIELDS: {
+            return payload
+        }
+        default: {
+            return state;
+        }
+    }
+}
+
+const modelLevels = function( state = [] , action) {
+    const { type, payload } = action;
+    switch (type) {
+        case dataModelActions.GET_MODEL_LEVELS: {
+            return payload
+        }
+        default: {
+            return state;
+        }
+    }
+}
+
+const incrementCounts = function( state = [] , action) {
+    const { type, payload } = action;
+    switch (type) {
+        case dataModelActions.GET_INCREMENT_COUNTS: {
+            return payload
+        }
+        default: {
+            return state;
+        }
+    }
+}
+
+const freshFrequencies = function( state = [] , action) {
+    const { type, payload } = action;
+    switch (type) {
+        case dataModelActions.GET_FRESH_FREQUENCIES: {
+            return payload
+        }
+        default: {
+            return state;
+        }
+    }
 }
 
 export const dataModel = combineReducers({
-    configures
+    modelLevels,
+    themeFields,
+    incrementCounts,
+    freshFrequencies,
 });

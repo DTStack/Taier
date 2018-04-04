@@ -1,12 +1,15 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
 
 import ajax from '../../../api';
-import { formItemLayout } from '../../../comm/const';
+import { 
+    formItemLayout, 
+    tableModelRules,
+    TABLE_MODEL_RULE,
+} from '../../../comm/const';
 import LifeCycle from '../../dataManage/lifeCycle';
 
 const FormItem = Form.Item;
@@ -25,6 +28,7 @@ export default class BaseForm extends React.Component {
 
         this.state = {
             type: '1', // 1: 内部表 2:外部表
+            tableNameRules: tableModelRules // 测试数据
         };
     }
 
@@ -80,9 +84,99 @@ export default class BaseForm extends React.Component {
         type === '1' && this.props.resetLoc();
     }
 
+    changeRuleValue = (value, index) => {
+        const newArrs = [...this.state.tableNameRules];
+        newArrs[index].field = value;
+        console.log('arguments:', newArrs[index], value, index)
+        this.setState({
+            tableNameRules: newArrs
+        });
+    }
+
+    renderTableRules = () => {
+
+        const { tableNameRules } = this.state;
+        const { 
+            themeFields, modelLevels, 
+            incrementCounts, freshFrequencies 
+        } = this.props;
+
+        const inlineStyle = { width: 80, display: 'inline-block' }
+
+        const renderRules = (type, index) => {
+
+            let data = []
+            switch(type) {
+                case TABLE_MODEL_RULE.LEVEL: {
+                    data = modelLevels; break;
+                }
+                case TABLE_MODEL_RULE.THEME: {
+                    data = themeFields; break;
+                }
+                case TABLE_MODEL_RULE.INCREMENT: {
+                    data = incrementCounts; break;
+                }
+                case TABLE_MODEL_RULE.FREQUENCY: {
+                    data = freshFrequencies; break;
+                }
+                default:
+                case TABLE_MODEL_RULE.CUSTOM: {
+                    return (
+                        <Input 
+                            onChange={(e) => this.changeRuleValue(e.target.value, index)}
+                            style={inlineStyle} 
+                        />
+                    )
+                }
+            }
+
+            return (
+                <Select
+                    style={inlineStyle}
+                    onSelect={(value, option) => this.changeRuleValue(value, index)}
+                >
+                    {
+                        data && data.map(item => 
+                            <Option
+                                id={item.id}
+                                value={item.name}
+                            >
+                                {item.name}
+                            </Option>
+                        )
+                    }
+                </Select>
+            )
+        }
+
+        const rules = tableNameRules && tableNameRules.map((rule, index) => (
+            <span key={rule.value} style={{
+                height: '60px',
+                display: 'inline-block',
+                width: '80px',
+                marginRight: '5px'
+            }}>
+                <section style={inlineStyle}>{rule.text}:</section>
+                {renderRules(rule.value, index)}
+            </span>
+        ))
+
+        const tableName = tableNameRules.map(rule => rule.field)
+
+        return <div>
+            {rules}
+            <span> {tableName.join('_')} </span>
+        </div>
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { tableName, desc, delim, location, lifeDay, catalogueId } = this.props;
+        
+        const { 
+            tableName, desc, delim, 
+            location, lifeDay, catalogueId 
+        } = this.props;
+
         const { type } = this.state;
 
         return <Form>
@@ -91,20 +185,7 @@ export default class BaseForm extends React.Component {
                 label="表名"
                 hasFeedback
             >
-                {getFieldDecorator('tableName', {
-                    rules: [{
-                        required: true, message: '表名不可为空！',
-                    }, {
-                        pattern: /^([A-Za-z0-9_]{1,64})$/,
-                        message: '表名称只能的字母、数字、下划线组成，且长度不超过64个字符!',
-                    }, {
-                        validator: this.validateTableName.bind(this)
-                    }],
-                    validateTrigger: 'onBlur',
-                    initialValue: tableName
-                })(
-                    <Input placeholder="请输入表名" autoComplete="off" />,
-                )}
+                {this.renderTableRules()}
             </FormItem>
             <FormItem
                 {...formItemLayout}
@@ -197,5 +278,4 @@ export default class BaseForm extends React.Component {
             </FormItem>
         </Form>
     }
-
 }

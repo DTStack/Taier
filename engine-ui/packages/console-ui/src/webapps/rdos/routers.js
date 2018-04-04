@@ -65,6 +65,7 @@ import DataModelOverview from './views/dataModel/overview';
 import DataModelCheckCenter from './views/dataModel/dataCheck';
 import DataModelDesign from './views/dataModel/modelDesign';
 import DataModelCreate from './views/dataModel/modelDesign/tableCreator';
+import DataModelModify from './views/dataModel/modelDesign/tableEditor';
 import DataModelConfig from './views/dataModel/configure';
 
 // The below is async load components
@@ -174,8 +175,9 @@ export default (
                 <IndexRoute component={DataModelOverview} />
                 <Route path="overview" component={DataModelOverview} />
                 <Route path="check" component={DataModelCheckCenter}></Route>
-                <Route path="list" component={DataModelDesign} />
-                <Route path="design" component={DataModelCreate} />
+                <Route path="table" component={DataModelDesign} />
+                <Route path="table/design" component={DataModelCreate} />
+                <Route path="table/modify" component={DataModelModify} />
                 <Route path="config" component={DataModelConfig} />
             </Route>
         </Route>
