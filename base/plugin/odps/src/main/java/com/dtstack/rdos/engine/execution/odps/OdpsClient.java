@@ -38,6 +38,8 @@ public class OdpsClient extends AbsClient {
     private EngineResourceInfo resourceInfo;
     private Odps odps;
 
+    private static final String SPLIT = ";";
+
     public Odps getOdps() {
         return odps;
     }
@@ -53,10 +55,13 @@ public class OdpsClient extends AbsClient {
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
         try {
-            String[] sqls = jobClient.getSql().split(";");
+            String[] sqls = jobClient.getSql().split(SPLIT);
             Job job = new Job();
             String guid = UUID.randomUUID().toString();
             for (String sql : sqls) {
+                if (!sql.endsWith(SPLIT)) {
+                    sql = sql + SPLIT;
+                }
                 String taskName = "query_task_" + Calendar.getInstance().getTimeInMillis();
                 SQLTask task = new SQLTask();
                 task.setName(taskName);
