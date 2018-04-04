@@ -285,7 +285,7 @@ export default class StepTwo extends Component {
                                     initialValue: record.columnName
                                 })(
                                     <Select 
-                                        style={{ width: '100%' }} 
+                                        showSearch 
                                         onChange={this.onColumnNameChange} 
                                         disabled={record.isTable}>
                                         {
@@ -315,8 +315,7 @@ export default class StepTwo extends Component {
                             }],
                             initialValue: record.functionId
                         })(
-                            <Select 
-                                style={{ width: '100%' }} 
+                            <Select
                                 onChange={this.onFunctionChange}>
                                 {
                                     functionList.map((item) => {
@@ -357,7 +356,6 @@ export default class StepTwo extends Component {
                             initialValue: record.verifyType
                         })(
                             <Select 
-                                style={{ width: '100%' }} 
                                 onChange={this.onVerifyTypeChange}
                                 disabled={currentRule.isEnum}>
                                 {
@@ -386,8 +384,8 @@ export default class StepTwo extends Component {
                                 initialValue: record.threshold
                             })(
                                 <Input
-                                  placeholder="枚举格式为(value1,value2,.....)"
-                                  onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                    placeholder="枚举格式为(value1,value2,.....)"
+                                    onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 
                             )
                         }

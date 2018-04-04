@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNull } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber, Modal } from 'antd';
 
 import ExecuteForm from './executeForm';
@@ -277,12 +277,14 @@ export default class RuleEditPane extends Component {
                                 initialValue: record.columnName
                             })(
                                 <Select 
-                                    style={{ width: '100%' }} 
+                                    showSearch
                                     onChange={this.onColumnNameChange} 
                                     disabled={record.isTable || record.editStatus === 'edit'}>
                                     {
                                         tableColumn.map((item) => {
-                                            return <Option key={item.key} value={item.key}>
+                                            return <Option 
+                                                key={item.key} 
+                                                value={item.key}>
                                                 {item.key}
                                             </Option>
                                         })
@@ -305,8 +307,7 @@ export default class RuleEditPane extends Component {
                             }],
                             initialValue: record.editStatus === 'edit' ? record.functionName : record.functionId
                         })(
-                            <Select 
-                                style={{ width: '100%' }} 
+                            <Select
                                 onChange={this.onFunctionChange}
                                 disabled={record.editStatus === 'edit'}>
                                 {
@@ -349,7 +350,6 @@ export default class RuleEditPane extends Component {
                             initialValue: record.verifyType ? record.verifyType.toString() : undefined
                         })(
                             <Select 
-                                style={{ width: '100%' }} 
                                 onChange={this.changeRuleParams.bind(this, 'verifyType')}
                                 disabled={record.editStatus === 'edit' || currentRule.operator === 'in'}>
                                 {
@@ -525,6 +525,10 @@ export default class RuleEditPane extends Component {
                             this.setState({
                                 rules: res.data
                             });
+
+                            if (isNull(res.data)) {
+                                this.props.refresh();
+                            }
                         }
                     });
                 }
@@ -654,7 +658,7 @@ export default class RuleEditPane extends Component {
     }
 
     executeMonitor = (monitorId) => {
-        const { data, closeSlidePane, executeMonitor } = this.props;
+        const { data } = this.props;
 
         this.props.executeMonitor({ monitorId });
         this.props.closeSlidePane();
