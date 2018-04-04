@@ -85,7 +85,7 @@ class ModelDefineRule extends Component {
             key={index}>
                 <Select
                     placeholder="请选择"
-                    // defaultValue={rule.value}
+                    value={rule.value}
                     style={{ width: 100, marginRight: '5px' }}
                     onSelect={(value, option) => this.changeTbNameRule(option, index)}
                 >
