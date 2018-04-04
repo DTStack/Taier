@@ -29,7 +29,6 @@ export default class DataCheckReport extends Component {
         });
         DCApi.getCheckReportTable(params).then((res) => {
             if (res.code === 1) {
-                console.log(res.data)
                 this.setState({ tableData: res.data });
             }
         });
@@ -64,7 +63,7 @@ export default class DataCheckReport extends Component {
         DCApi.getCheckReportTable(params).then((res) => {
             if (res.code === 1) {
                 this.setState({ 
-                    params,
+                    params: params,
                     tableData: res.data 
                 });
             }
