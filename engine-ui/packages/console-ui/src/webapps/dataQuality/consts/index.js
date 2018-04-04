@@ -122,6 +122,26 @@ export const operatorSelect = [{
 }]
 
 /**
+ * operator1--无!=
+ */
+export const operatorSelect1 = [{
+    text: '>',
+    value: '>',
+}, {
+    text: '>=',
+    value: '>=',
+}, {
+    text: '=',
+    value: '=',
+}, {
+    text: '<',
+    value: '<',
+}, {
+    text: '<=',
+    value: '<=',
+}]
+
+/**
  * 告警日期过滤
  */
 export const alarmDateFilter = [{

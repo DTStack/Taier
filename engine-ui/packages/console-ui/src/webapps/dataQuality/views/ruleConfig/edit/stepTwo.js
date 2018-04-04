@@ -6,7 +6,7 @@ import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, Inpu
 
 import { commonActions } from '../../../actions/common';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { formItemLayout, rowFormItemLayout, operatorSelect } from '../../../consts';
+import { rowFormItemLayout, operatorSelect, operatorSelect1 } from '../../../consts';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -212,9 +212,11 @@ export default class StepTwo extends Component {
             currentRule  = {
                 ...this.state.currentRule, 
                 functionId: id,
-                isPercentage, 
                 functionName: nameZc, 
+                isPercentage, 
             };
+
+        form.setFieldsValue({ operator: undefined });
 
         if (nameZc === '枚举值') {
             currentRule.isEnum = true;
@@ -224,12 +226,6 @@ export default class StepTwo extends Component {
             form.setFieldsValue({ verifyType: '1' });
         } else {
             delete currentRule.isEnum;
-        }
-
-        if (nameZc === '字符串最大长度' || nameZc === '字符串最小长度') {
-            currentRule.isStrLength = true;
-        } else {
-            delete currentRule.isStrLength;
         }
 
         this.setState({ currentRule });
@@ -249,6 +245,10 @@ export default class StepTwo extends Component {
         });
     }
 
+    isStringLength = (name) => {
+        return name === '字符串最大长度' || name === '字符串最小长度';
+    }
+
     // 编辑状态的TD
     renderEditTD = (text, record, type) => {
         const { form, common, ruleConfig } = this.props;
@@ -256,6 +256,8 @@ export default class StepTwo extends Component {
         const { tableColumn } = ruleConfig;
         const { verifyType } = common.allDict;
         const { currentRule, functionList } = this.state;
+
+        let operatorMap = this.isStringLength(currentRule.functionName) ? operatorSelect1 : operatorSelect;
 
         switch(type) {
             case 'columnName': {
@@ -404,11 +406,10 @@ export default class StepTwo extends Component {
                                     style={{ width: 70, marginRight: 10 }} 
                                     onChange={this.changeRuleParams.bind(this, 'operator')}>
                                     {
-                                        operatorSelect.map((item) => {
+                                        operatorMap.map((item) => {
                                             return <Option 
                                                 key={item.value} 
-                                                value={item.value}
-                                                disabled={currentRule.isStrLength && item.text === "!="}> 
+                                                value={item.value}> 
                                                 {item.text} 
                                             </Option>
                                         })
@@ -426,7 +427,6 @@ export default class StepTwo extends Component {
                                 initialValue: record.threshold
                             })(
                                 <InputNumber
-                                  min={0}
                                   style={{ width: 70, marginRight: 10 }} 
                                   onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 

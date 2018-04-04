@@ -83,8 +83,7 @@ export default class RuleConfig extends Component {
             render: (text, record) => {
                 return text ? `${text} / ${record.dataName}` : '--';
             }
-        }, 
-        {
+        }, {
             title: '执行周期',
             dataIndex: 'periodTypeName',
             key: 'periodTypeName'
