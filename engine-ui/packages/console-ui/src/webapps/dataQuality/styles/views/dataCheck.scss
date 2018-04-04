@@ -6,6 +6,14 @@
 	margin-right: 8px;
 }
 
+.m-tooltip {
+	word-break: break-word;
+
+	.ant-tooltip-inner {
+		max-width: 400px;
+	}
+}
+
 .check-setting {
 	.preview-table {
 		margin-top: 10px;
