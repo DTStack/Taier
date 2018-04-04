@@ -59,8 +59,8 @@ export default class Sidebar extends Component {
                             <Icon type="filter" />检测中心
                         </Link>
                     </Menu.Item>
-                    <Menu.Item key="design">
-                        <Link to={`${base}/design`}>
+                    <Menu.Item key="list">
+                        <Link to={`${base}/list`}>
                             <Icon type="api" />模型设计
                         </Link>
                     </Menu.Item>

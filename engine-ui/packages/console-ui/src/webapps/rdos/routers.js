@@ -63,7 +63,8 @@ import DirtyDataTbOverview from './views/dataManage/dirtyData/table';
 // ======= 数据模型 =======
 import DataModelOverview from './views/dataModel/overview';
 import DataModelCheckCenter from './views/dataModel/dataCheck';
-import DataModelDesign from './views/dataModel/tableCreator';
+import DataModelDesign from './views/dataModel/modelDesign';
+import DataModelCreate from './views/dataModel/modelDesign/tableCreator';
 import DataModelConfig from './views/dataModel/configure';
 
 // The below is async load components
@@ -173,7 +174,8 @@ export default (
                 <IndexRoute component={DataModelOverview} />
                 <Route path="overview" component={DataModelOverview} />
                 <Route path="check" component={DataModelCheckCenter}></Route>
-                <Route path="design" component={DataModelDesign} />
+                <Route path="list" component={DataModelDesign} />
+                <Route path="design" component={DataModelCreate} />
                 <Route path="config" component={DataModelConfig} />
             </Route>
         </Route>
