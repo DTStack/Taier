@@ -8,6 +8,7 @@ import moment from 'moment';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { commonActions } from '../../../actions/common';
+import { DataCheckStatus } from '../../../components/display';
 import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
@@ -90,12 +91,12 @@ export default class DataCheck extends Component {
             }
         }, {
             title: '校验结果',
-            dataIndex: 'statusEN',
-            key: 'statusEN',
+            dataIndex: 'status',
+            key: 'status',
             width: '10%',
             render: (text, record) => {
                 return <div className="flex">
-                    <div style={{ flexBasis: '60%' }}>{text}</div>
+                    <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
                     <Tooltip 
                         placement="right" 
                         title={record.report}

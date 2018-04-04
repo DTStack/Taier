@@ -312,7 +312,11 @@ class DataSourceModal extends Component {
     renderSourceType = (data) => {
         return data.map(
             type => (
-                <Option key={type.value} value={type.value.toString()}>{type.name}</Option>
+                <Option 
+                    key={type.value} 
+                    value={type.value.toString()}>
+                    {type.name}
+                </Option>
             )
         );
     }
