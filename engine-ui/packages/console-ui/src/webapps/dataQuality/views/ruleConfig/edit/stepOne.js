@@ -300,7 +300,8 @@ export default class StepOne extends Component {
                     render: (value) => {
                         return <TableCell 
                             className="no-scroll-bar"
-                            defaultValue={value} 
+                            value={value ? value : undefined}
+                            readOnly
                             style={{ minWidth: 80, width: '100%', resize: 'none' }} 
                         />
                     }

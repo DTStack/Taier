@@ -65,7 +65,6 @@ export default class RuleConfig extends Component {
         this.props.getDataSourcesType();
         this.props.getDataSourcesList();
         this.props.getMonitorLists(this.state.params);
-        console.log(this)
     }
 
     // table设置
@@ -84,8 +83,7 @@ export default class RuleConfig extends Component {
             render: (text, record) => {
                 return text ? `${text} / ${record.dataName}` : '--';
             }
-        }, 
-        {
+        }, {
             title: '执行周期',
             dataIndex: 'periodTypeName',
             key: 'periodTypeName'
@@ -115,7 +113,9 @@ export default class RuleConfig extends Component {
         }, {
             title: '操作',
             render: (text, record) => {
-                return <a onClick={this.onSubscribe.bind(this, record)}>{record.isSubscribe ? '取消订阅' : '订阅'}</a>
+                return <a onClick={this.onSubscribe.bind(this, record)}>
+                    {record.isSubscribe ? '取消订阅' : '订阅'}
+                </a>
             }
         }]
     }
@@ -156,18 +156,21 @@ export default class RuleConfig extends Component {
     renderSourceType = (data) => {
         return data.map((source) => {
             return (
-                <Option key={source.value} value={source.value.toString()}>{source.name}</Option>
+                <Option 
+                    key={source.value} 
+                    value={source.value.toString()}>
+                    {source.name}
+                </Option>
             )
         });
     }
 
     // 数据源类型筛选
     onSourceChange = (type) => {
-        let sourceType = type ? type : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             pageIndex: 1,
-            sourceType
+            sourceType: type ? type : undefined
         };
         
         this.props.getMonitorLists(params);
@@ -191,11 +194,10 @@ export default class RuleConfig extends Component {
 
     // 数据源筛选
     onUserSourceChange = (id) => {
-        let dataSourceId = id ? id : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             pageIndex: 1,
-            dataSourceId
+            dataSourceId: id ? id : undefined
         };
         
         this.props.getMonitorLists(params);
@@ -206,18 +208,21 @@ export default class RuleConfig extends Component {
     renderPeriodType = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.value} value={item.value.toString()}>{item.name}</Option>
+                <Option 
+                    key={item.value} 
+                    value={item.value.toString()}>
+                    {item.name}
+                </Option>
             )
         })
     }
 
     // 调度周期筛选
     onPeriodTypeChange = (type) => {
-        let periodType = type ? type : undefined,
-            params = {
+        let params = {
             ...this.state.params,
             pageIndex: 1,
-            periodType
+            periodType: type ? type : undefined
         };
         
         this.props.getMonitorLists(params);
@@ -228,18 +233,22 @@ export default class RuleConfig extends Component {
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()} name={item.userName}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()} 
+                    name={item.userName}>
+                    {item.userName}
+                </Option>
             )
         })
     }
 
     // user筛选
     onUserChange = (id) => {
-        let lastModifyUserId = id ? id : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             pageIndex: 1,
-            lastModifyUserId
+            lastModifyUserId: id ? id : undefined
         };
         
         this.props.getMonitorLists(params);
@@ -248,11 +257,10 @@ export default class RuleConfig extends Component {
 
     // 执行时间筛选
     onDateChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             pageIndex: 1,
-            executeTime
+            executeTime: date ? date.valueOf() : undefined
         };
         
         this.props.getMonitorLists(params);
@@ -261,11 +269,10 @@ export default class RuleConfig extends Component {
 
     // 是否订阅筛选
     onSubscribeChange = (e) => {
-        let isSubscribe = e.target.checked ? 1 : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             pageIndex: 1,
-            isSubscribe
+            isSubscribe: e.target.checked ? 1 : undefined
         };
         
         this.props.getMonitorLists(params);
@@ -274,11 +281,10 @@ export default class RuleConfig extends Component {
 
     // table搜索
     handleSearch = (name) => {
-        let tableName = name ? name : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             pageIndex: 1,
-            tableName
+            tableName: name ? name : undefined
         };
 
         this.props.getMonitorLists(params);
@@ -298,6 +304,11 @@ export default class RuleConfig extends Component {
             currentMonitor: {},
             tabKey: '1'
         });
+    }
+
+    refresh = () => {
+        this.closeSlidePane();
+        this.props.getMonitorLists(this.state.params);
     }
 
     onTabChange = (key) => {
@@ -434,7 +445,7 @@ export default class RuleConfig extends Component {
                                 >
                                     
                                     <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane}>
+                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane} refresh={this.refresh}>
                                         </RuleEditPane>
                                     </TabPane>
                                     <TabPane tab="远程触发" key="2">

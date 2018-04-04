@@ -5,9 +5,9 @@ import { Link } from 'react-router';
 import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card, Tooltip } from 'antd';
 import moment from 'moment';
 
+import { commonActions } from '../../../actions/common';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
-import { commonActions } from '../../../actions/common';
 import { DataCheckStatus } from '../../../components/display';
 import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
@@ -90,7 +90,20 @@ export default class DataCheck extends Component {
                 return text ? text : '--';
             }
         }, {
-            title: '校验结果',
+            title: <Tooltip 
+                placement="bottom" 
+                overlayClassName="m-tooltip"
+                title={
+                    <div>
+                        <p>以下条件同时满足计为校验通过：</p>
+                        <p>1、逻辑主键匹配，但数据不匹配=0</p>
+                        <p>{`2、max（左表数据在右表未找到，右表数据在左表未找到）<（右表记录数*记录数差异比例配置）`}</p>
+                    </div>
+                }
+            >
+                校验结果
+                <Icon className="font-12 m-l-8" type="question-circle-o" />
+            </Tooltip>,
             dataIndex: 'status',
             key: 'status',
             width: '10%',
@@ -100,20 +113,33 @@ export default class DataCheck extends Component {
                     <Tooltip 
                         placement="right" 
                         title={record.report}
-                        overlayStyle={{ wordBreak: 'break-word' }}
-                    >
+                        overlayClassName="m-tooltip">
                         <Icon className="font-14" type="info-circle-o" />
                     </Tooltip>
                 </div>
             }
         }, {
-            title: '差异总数',
+            title: <Tooltip 
+                placement="bottom" 
+                overlayClassName="m-tooltip"
+                title={'差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'}
+            >
+                差异总数
+                <Icon className="font-12 m-l-8" type="question-circle-o" />
+            </Tooltip>,
             dataIndex: 'diverseNum',
             key: 'diverseNum',
             width: '8%',
             // sorter: true
         }, {
-            title: '差异比例',
+            title: <Tooltip 
+                placement="bottom" 
+                overlayClassName="m-tooltip"
+                title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
+            >
+                差异比例
+                <Icon className="font-12 m-l-8" type="question-circle-o" />
+            </Tooltip>,
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
             width: '8%',
@@ -269,10 +295,10 @@ export default class DataCheck extends Component {
     // 执行时间改变
     onDateChange = (date, dateString) => {
         let params = {
-                ...this.state.params, 
-                currentPage: 1,
-                executeTime: date ? date.valueOf() : undefined
-            };
+            ...this.state.params, 
+            currentPage: 1,
+            executeTime: date ? date.valueOf() : undefined
+        };
         
         this.props.getLists(params);
         this.setState({ params });
@@ -281,10 +307,10 @@ export default class DataCheck extends Component {
     // table搜索
     onTableSearch = (name) => {
         let params = {
-                ...this.state.params, 
-                currentPage: 1,
-                tableName: name ? name : undefined
-            };
+            ...this.state.params, 
+            currentPage: 1,
+            tableName: name ? name : undefined
+        };
 
         this.props.getLists(params);
         this.setState({ params });
