@@ -20,9 +20,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
@@ -45,7 +42,6 @@ export default class StepOne extends Component {
     }
     
     componentDidMount() {
-        this.props.getDataSourcesList();
     }
 
     componentWillReceiveProps(nextProps) {

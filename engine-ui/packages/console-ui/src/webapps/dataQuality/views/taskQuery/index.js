@@ -6,15 +6,12 @@ import { isNull } from 'lodash';
 
 import utils from 'utils';
 import SlidePane from 'widgets/slidePane';
-
 import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
 
 import { TaskStatus } from '../../components/display';
 import { taskStatusFilter } from '../../consts';
-import { commonActions } from '../../actions/common';
 import { taskQueryActions } from '../../actions/taskQuery';
-import { dataSourceActions } from '../../actions/dataSource';
 import '../../styles/views/taskQuery.scss';
 
 const Search = Input.Search;
@@ -29,13 +26,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
 	getTaskList(params) {
 		dispatch(taskQueryActions.getTaskList(params));
-	},
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
+	}
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -59,8 +50,6 @@ export default class TaskQuery extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
-        this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
     }
 
@@ -270,6 +259,10 @@ export default class TaskQuery extends Component {
         this.setState({ tabKey: key });
     }
 
+    disabledDate = (current) => {
+        return current && current.valueOf() > Date.now();
+    }
+    
     render() {
     	const { dataSource, taskQuery, common } = this.props;
         const { sourceType, sourceList } = dataSource;
@@ -328,6 +321,7 @@ export default class TaskQuery extends Component {
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
                         style={{ width: 150 }}
+                        disabledDate={this.disabledDate}
                         onChange={this.onExecuteTimeChange}
                     />
                 </div>

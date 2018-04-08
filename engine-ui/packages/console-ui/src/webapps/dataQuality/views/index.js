@@ -11,6 +11,7 @@ import Dashboard from '../views/dashboard'
 import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
 import { dataSourceActions } from '../actions/dataSource'
+import { commonActions } from '../actions/common'
 import { updateApp } from 'main/actions/app'
 
 const propType = {
@@ -27,7 +28,10 @@ class Main extends Component {
         const { dispatch } = this.props
         dispatch(UserAction.getUser());
         dispatch(updateApp(dqApp));
+        dispatch(commonActions.getUserList());
+        dispatch(commonActions.getAllDict());
         dispatch(dataSourceActions.getDataSourcesType());
+        dispatch(dataSourceActions.getDataSourcesList());
     }
 
     render() {

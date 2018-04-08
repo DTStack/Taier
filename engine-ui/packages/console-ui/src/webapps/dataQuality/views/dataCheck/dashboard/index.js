@@ -5,9 +5,7 @@ import { Link } from 'react-router';
 import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card, Tooltip } from 'antd';
 import moment from 'moment';
 
-import { commonActions } from '../../../actions/common';
 import { dataCheckActions } from '../../../actions/dataCheck';
-import { dataSourceActions } from '../../../actions/dataSource';
 import { DataCheckStatus } from '../../../components/display';
 import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
@@ -32,13 +30,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getLists(params) {
         dispatch(dataCheckActions.getLists(params));
-    },
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -55,8 +47,6 @@ export default class DataCheck extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
-        this.props.getDataSourcesList();
         this.props.getLists(this.state.params);
     }
 
@@ -90,56 +80,68 @@ export default class DataCheck extends Component {
                 return text ? text : '--';
             }
         }, {
-            title: <Tooltip 
-                placement="bottom" 
-                overlayClassName="m-tooltip"
-                title={
-                    <div>
-                        <p>以下条件同时满足计为校验通过：</p>
-                        <p>1、逻辑主键匹配，但数据不匹配=0</p>
-                        <p>{`2、max（左表数据在右表未找到，右表数据在左表未找到）<（右表记录数*记录数差异比例配置）`}</p>
-                    </div>
-                }
-            >
+            title: <div>
                 校验结果
-                <Icon className="font-12 m-l-8" type="question-circle-o" />
-            </Tooltip>,
+                <Tooltip 
+                    placement="bottom" 
+                    overlayClassName="m-tooltip"
+                    title={
+                        <div>
+                            <p>以下条件同时满足计为校验通过：</p>
+                            <p>1、逻辑主键匹配，但数据不匹配=0</p>
+                            <p>{`2、max（左表数据在右表未找到，右表数据在左表未找到）<（右表记录数*记录数差异比例配置）`}</p>
+                        </div>
+                    }
+                >
+                    <Icon className="font-12 m-l-8" type="question-circle-o" />
+                </Tooltip>
+            </div>,
             dataIndex: 'status',
             key: 'status',
             width: '10%',
             render: (text, record) => {
-                return <div className="flex">
-                    <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
-                    <Tooltip 
-                        placement="right" 
-                        title={record.report}
-                        overlayClassName="m-tooltip">
-                        <Icon className="font-14" type="info-circle-o" />
-                    </Tooltip>
-                </div>
+                return (
+                    text == 3 ?
+                    <div className="flex">
+                        <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
+                        <Tooltip 
+                            placement="right" 
+                            title={record.report}
+                            overlayClassName="m-tooltip">
+                            <Icon className="font-14" type="info-circle-o" />
+                        </Tooltip>
+                    </div>
+                    :
+                    <DataCheckStatus value={text} />
+                )   
             }
         }, {
-            title: <Tooltip 
-                placement="bottom" 
-                overlayClassName="m-tooltip"
-                title={'差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'}
-            >
+            title: <div>
                 差异总数
-                <Icon className="font-12 m-l-8" type="question-circle-o" />
-            </Tooltip>,
+                <Tooltip 
+                    placement="bottom" 
+                    overlayClassName="m-tooltip"
+                    title={'差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'}
+                >
+                    <Icon className="font-12 m-l-8" type="question-circle-o" />
+                </Tooltip>
+            </div>,
             dataIndex: 'diverseNum',
             key: 'diverseNum',
             width: '8%',
             // sorter: true
         }, {
-            title: <Tooltip 
-                placement="bottom" 
-                overlayClassName="m-tooltip"
-                title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
-            >
+            title: <div>
                 差异比例
-                <Icon className="font-12 m-l-8" type="question-circle-o" />
-            </Tooltip>,
+                    <Tooltip 
+                    placement="bottom" 
+                    overlayClassName="m-tooltip"
+                    title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
+                >
+                    
+                    <Icon className="font-12 m-l-8" type="question-circle-o" />
+                </Tooltip>
+            </div>,
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
             width: '8%',

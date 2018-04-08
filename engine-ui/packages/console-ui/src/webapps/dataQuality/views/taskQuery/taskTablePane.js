@@ -93,7 +93,7 @@ export default class TaskTablePane extends Component {
             alignWithLabel: true,
         }
         option.xAxis[0].boundaryGap = ['5%', '5%'];
-        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
         option.yAxis[0].axisLabel.formatter = '{value}';
         option.yAxis[0].minInterval = 1;

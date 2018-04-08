@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { Form, Select, DatePicker, Checkbox, Modal, message } from 'antd';
 
-import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
@@ -15,16 +14,7 @@ const mapStateToProps = state => {
     return { common }
 }
 
-const mapDispatchToProps = dispatch => ({
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
-    },
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(mapStateToProps)
 export default class ExecuteForm extends Component {
     constructor(props) {
         super(props);
@@ -54,8 +44,6 @@ export default class ExecuteForm extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
-        this.props.getAllDict();
         this.initState(this.props.data);
     }
 
@@ -114,7 +102,11 @@ export default class ExecuteForm extends Component {
     renderPeriodType = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.value} value={item.value.toString()}>{item.name}</Option>
+                <Option 
+                    key={item.value} 
+                    value={item.value.toString()}>
+                    {item.name}
+                </Option>
             )
         })
     }
@@ -125,32 +117,34 @@ export default class ExecuteForm extends Component {
     }
 
     onSendTypeChange = (value) => {
-        const { params } = this.state;
         this.setState({
-            params: {...params, sendTypes: value}
+            params: {...this.state.params, sendTypes: value}
         });
     }
 
     onBeginDateChange = (date, dateString) => {
-        this.changeScheduleConfTime('beginDate', dateString,);
+        this.changeScheduleConfTime('beginDate', dateString);
     }
 
     onEndDateChange = (date, dateString) => {
-        this.changeScheduleConfTime('endDate', dateString,);
+        this.changeScheduleConfTime('endDate', dateString);
     }
 
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}>
+                    {item.userName}
+                </Option>
             )
         })
     }
 
     onNotifyUserChange = (value) => {
-        const { params } = this.state;
         this.setState({
-            params: {...params, notifyUser: value}
+            params: {...this.state.params, notifyUser: value}
         });
     }
 
@@ -188,54 +182,72 @@ export default class ExecuteForm extends Component {
     }
 
     renderDynamic() {
-        const { form, common, data, editStatus } = this.props;
-        const { scheduleConfObj } = this.state;
-        const { allDict, userList } = common;
-        const { notifyUser, sendTypes } = data;
+        const { form, common, data } = this.props;
+        const { allDict } = common;
         const { getFieldDecorator } = form;
+        const { notifyUser, sendTypes } = data;
+        const { scheduleConfObj } = this.state;
 
-        let periodType = allDict.periodType ? allDict.periodType : [];
-        let notifyType = allDict.notifyType ? allDict.notifyType : [];
+        let periodType = allDict.periodType ? allDict.periodType : [],
+            notifyType = allDict.notifyType ? allDict.notifyType : [];
 
         const generateHours = (type) => {
             let options = [];
 
             for (let i = 0; i <= 23; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {i < 10 ? `0${i}`: i}
+                    </Option>
+                );
             }
 
             return <Select 
                 style={{ width: 150 }} 
                 onChange={this.changeScheduleConfTime.bind(this, type)}>
-                { options }
+                {options}
             </Select>;
         };
 
         const generateMins = (type) => {
             let options = [];
 
-            for (let i = 0, l = 59; i <= l; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
+            for (let i = 0; i <= 59; i++) {
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {i < 10 ? `0${i}`: i}
+                    </Option>
+                );
             }
 
             return <Select 
                 style={{ width: 150 }} 
                 onChange={this.changeScheduleConfTime.bind(this, type)}>
-                { options }
+                {options}
             </Select>;
         };
 
         const generateGapHour = () => {
             let options = [];
 
-            for(let i = 1, l = 23; i <= l; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
+            for (let i = 1; i <= 23; i++) {
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {i}小时
+                    </Option>
+                );
             }
             
             return <Select
                 style={{ width: 150 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
-                { options }
+                onChange={this.changeScheduleConfTime.bind(this, 'gapHour')}>
+                {options}
             </Select>
         };
 
@@ -243,14 +255,20 @@ export default class ExecuteForm extends Component {
             let options = [];
 
             for (let i = 1; i <= 31; i++) {
-                options.push(<Option key={i} value={`${i}`}>{`每月${i}号`}</Option>);
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {`每月${i}号`}
+                    </Option>
+                );
             }
 
             return <Select
                 mode="multiple"
                 style={{ width: 325 }}
                 onChange={this.changeScheduleConfTime.bind(this, 'day')}>
-                { options }
+                {options}
             </Select>;
         };
 
@@ -258,8 +276,7 @@ export default class ExecuteForm extends Component {
             return <Select
                 mode="multiple"
                 style={{ width: 325 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}
-            >
+                onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}>
                 <Option key={1} value="1">星期一</Option>
                 <Option key={2} value="2">星期二</Option>
                 <Option key={3} value="3">星期三</Option>
