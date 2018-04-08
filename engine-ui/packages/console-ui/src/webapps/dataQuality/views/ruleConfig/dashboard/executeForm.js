@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import moment from 'moment';
 import { Form, Select, DatePicker, Checkbox, Modal, message } from 'antd';
 
-import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
@@ -15,16 +14,7 @@ const mapStateToProps = state => {
     return { common }
 }
 
-const mapDispatchToProps = dispatch => ({
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
-    },
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(mapStateToProps)
 export default class ExecuteForm extends Component {
     constructor(props) {
         super(props);
@@ -54,8 +44,6 @@ export default class ExecuteForm extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
-        this.props.getAllDict();
         this.initState(this.props.data);
     }
 
@@ -129,9 +117,8 @@ export default class ExecuteForm extends Component {
     }
 
     onSendTypeChange = (value) => {
-        const { params } = this.state;
         this.setState({
-            params: {...params, sendTypes: value}
+            params: {...this.state.params, sendTypes: value}
         });
     }
 
@@ -146,15 +133,18 @@ export default class ExecuteForm extends Component {
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}>
+                    {item.userName}
+                </Option>
             )
         })
     }
 
     onNotifyUserChange = (value) => {
-        const { params } = this.state;
         this.setState({
-            params: {...params, notifyUser: value}
+            params: {...this.state.params, notifyUser: value}
         });
     }
 
@@ -192,11 +182,11 @@ export default class ExecuteForm extends Component {
     }
 
     renderDynamic() {
-        const { form, common, data, editStatus } = this.props;
-        const { scheduleConfObj } = this.state;
+        const { form, common, data } = this.props;
         const { allDict } = common;
-        const { notifyUser, sendTypes } = data;
         const { getFieldDecorator } = form;
+        const { notifyUser, sendTypes } = data;
+        const { scheduleConfObj } = this.state;
 
         let periodType = allDict.periodType ? allDict.periodType : [],
             notifyType = allDict.notifyType ? allDict.notifyType : [];

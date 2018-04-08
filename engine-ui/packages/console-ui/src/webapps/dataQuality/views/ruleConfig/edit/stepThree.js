@@ -6,7 +6,6 @@ import moment from 'moment';
 import { Button, Form, Select, DatePicker, Checkbox } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 
 const FormItem = Form.Item;
@@ -18,9 +17,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
     addMonitor(params) {
         dispatch(ruleConfigActions.addMonitor(params));
     }
@@ -49,7 +45,6 @@ export default class StepThree extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
         this.initState();
     }
 

@@ -8,8 +8,6 @@ import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
 import SlidePane from 'widgets/slidePane';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { dataSourceActions } from '../../../actions/dataSource';
-import { commonActions } from '../../../actions/common';
 import RCApi from '../../../api/ruleConfig';
 import '../../../styles/views/ruleConfig.scss';
 
@@ -25,19 +23,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getMonitorLists(params) {
         dispatch(ruleConfigActions.getMonitorLists(params));
-    },
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
-    getDataSourcesType(params) {
-        dispatch(dataSourceActions.getDataSourcesType(params));
-    },
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
-    },
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -60,10 +46,6 @@ export default class RuleConfig extends Component {
     }
 
     componentDidMount() {
-        // this.props.getAllDict();
-        // this.props.getUserList();
-        this.props.getDataSourcesType();
-        this.props.getDataSourcesList();
         this.props.getMonitorLists(this.state.params);
     }
 
