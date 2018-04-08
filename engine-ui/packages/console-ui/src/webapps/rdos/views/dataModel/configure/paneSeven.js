@@ -8,19 +8,26 @@ import {
 
 import utils from 'utils';
 
+import BasePane from './basePane';
+import DeriveIndexModal from './paneSevenModal';
+
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class DeriveIndexDefine extends Component {
+export default class DeriveIndexDefine extends BasePane {
 
-    state ={
-        table: {data: []},
-        loading: false,
-    }
 
     componentDidMount() {
-
+        this.setState({
+            params: Object.assign(this.state.params, { 
+                type: 2, // 原子指标
+            }),
+        }, this.loadData)
     }
+
+    update = (formData) => {}
+
+    delete = (data) => {}
 
     initColumns = () => {
         return [{
@@ -67,7 +74,7 @@ export default class DeriveIndexDefine extends Component {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
+                        <a onClick={() => { this.delete(record) }}>删除</a>
                     </div>
                 )
             },
@@ -76,7 +83,7 @@ export default class DeriveIndexDefine extends Component {
 
     render() {
 
-        const { loading, table } = this.state
+        const { loading, table, modalVisible, modalData } = this.state
 
         const pagination = {
             total: table.totalCount,
@@ -117,9 +124,9 @@ export default class DeriveIndexDefine extends Component {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
+                            onClick={() => { this.setState({ modalVisible: true }) }}
                         >
-                            添加告警
+                            新建
                         </Button>
                     }
                 >
@@ -133,6 +140,12 @@ export default class DeriveIndexDefine extends Component {
                             dataSource={table.data || []}
                         />
                 </Card>
+                <DeriveIndexModal 
+                    data={ modalData }
+                    handOk={ this.update }
+                    handCancel={ () => this.setState({ modalVisible: false })}
+                    visible={ modalVisible }
+                />
             </div>
         )
     }

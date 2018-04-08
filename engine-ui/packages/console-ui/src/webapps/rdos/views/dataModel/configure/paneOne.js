@@ -8,17 +8,25 @@ import {
 
 import utils from 'utils';
 
+import Api from '../../../api/dataModel';
+import ModelLevelModal from './paneOneModal';
+import BasePane from './basePane';
+
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ModelLevel extends Component {
+export default class ModelLevel extends BasePane {
 
-    state ={
-        table: {data: []},
-        loading: false,
+    constructor(props) {
+        super(props);
     }
 
     componentDidMount() {
+        this.setState({
+            params: Object.assign(this.state.params, { 
+                type: 1, // 模型层级
+            }),
+        }, this.loadData)
     }
 
     initColumns = () => {
@@ -62,7 +70,7 @@ export default class ModelLevel extends Component {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>编辑</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>删除</a>
+                        <a onClick={() => { this.delete(record) }}>删除</a>
                     </div>
                 )
             },
@@ -71,7 +79,9 @@ export default class ModelLevel extends Component {
 
     render() {
 
-        const { loading, table } = this.state
+        const { loading, table, modalVisible, modalData } = this.state
+
+        console.log('state:', this.state)
 
         const pagination = {
             total: table.totalCount,
@@ -84,37 +94,14 @@ export default class ModelLevel extends Component {
                     noHovering
                     bordered={false}
                     loading={false}
-                    title={
-                        <Form 
-                            className="m-form-inline" 
-                            layout="inline"
-                            style={{ marginTop: '10px' }}
-                        >
-                            <FormItem label="类型">
-                                <Select
-                                    allowClear
-                                    showSearch
-                                    style={{ width: 200 }}
-                                    placeholder="选择创建人"
-                                    optionFilterProp="name"
-                                    onChange={this.changeReceive}
-                                >
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
-                                </Select>
-                            </FormItem>
-                        </Form>
-                    }
-
+                    title=""
                     extra={
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
+                            onClick={() => { this.setState({ modalVisible: true }) }}
                         >
-                            添加告警
+                            新建
                         </Button>
                     }
                 >
@@ -128,6 +115,12 @@ export default class ModelLevel extends Component {
                             dataSource={table.data || []}
                         />
                 </Card>
+                <ModelLevelModal 
+                    data={ modalData }
+                    handOk={ this.update }
+                    handCancel={ () => this.setState({ modalVisible: false })}
+                    visible={ modalVisible }
+                />
             </div>
         )
     }

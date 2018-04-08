@@ -8,18 +8,24 @@ import {
 
 import utils from 'utils';
 
+import ThemeDomainModal from './paneTwoModal';
+import BasePane from './basePane';
+
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ThemeDomain extends Component {
+export default class ThemeDomain extends BasePane {
 
-    state ={
-        table: {data: []},
-        loading: false,
+    constructor(props) {
+        super(props);
     }
 
     componentDidMount() {
-
+        this.setState({
+            params: Object.assign(this.state.params, { 
+                type: 2, // 主题域	
+            }),
+        }, this.loadData)
     }
 
     initColumns = () => {
@@ -67,7 +73,7 @@ export default class ThemeDomain extends Component {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
+                        <a onClick={() => { this.delete(record) }}>忽略</a>
                     </div>
                 )
             },
@@ -76,7 +82,7 @@ export default class ThemeDomain extends Component {
 
     render() {
 
-        const { loading, table } = this.state
+        const { loading, table, modalVisible, modalData } = this.state
 
         const pagination = {
             total: table.totalCount,
@@ -89,37 +95,14 @@ export default class ThemeDomain extends Component {
                     noHovering
                     bordered={false}
                     loading={false}
-                    title={
-                        <Form 
-                            className="m-form-inline" 
-                            layout="inline"
-                            style={{ marginTop: '10px' }}
-                        >
-                            <FormItem label="类型">
-                                <Select
-                                    allowClear
-                                    showSearch
-                                    style={{ width: 200 }}
-                                    placeholder="选择创建人"
-                                    optionFilterProp="name"
-                                    onChange={this.changeReceive}
-                                >
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
-                                </Select>
-                            </FormItem>
-                        </Form>
-                    }
-
+                    title=""
                     extra={
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
+                            onClick={() => { this.setState({ modalVisible: true }) }}
                         >
-                            添加告警
+                            新建
                         </Button>
                     }
                 >
@@ -133,6 +116,12 @@ export default class ThemeDomain extends Component {
                             dataSource={table.data || []}
                         />
                 </Card>
+                <ThemeDomainModal 
+                    data={ modalData }
+                    handOk={ this.update }
+                    handCancel={ () => this.setState({ modalVisible: false })}
+                    visible={ modalVisible }
+                />
             </div>
         )
     }

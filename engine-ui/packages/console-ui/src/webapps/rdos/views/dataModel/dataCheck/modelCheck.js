@@ -26,12 +26,10 @@ export default class ModelCheck extends Component {
         },
     }
 
-    componentDidMount() {
-    }
+    componentDidMount() {}
 
     loadData = () => {
         const { params } = this.state;
-
     }
 
     changeParams = (field, value) => {

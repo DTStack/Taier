@@ -14,7 +14,7 @@ import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
 import ajax from '../../../api';
-import { ColumnsPartition } from './columnsPartition';
+import ColumnsPartition from './columnsPartition';
 import actions from '../../../store/modules/dataManage/actionCreator';
 import LifeCycle from '../../dataManage/lifeCycle';
 

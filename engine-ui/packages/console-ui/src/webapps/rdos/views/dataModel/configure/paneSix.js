@@ -8,18 +8,55 @@ import {
 
 import utils from 'utils';
 
+import BasePane from './basePane';
+import Api from '../../../api/dataModel';
+import AtomIndexDefineModal from './paneSixModal';
+
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class AtomIndexDefine extends Component {
-
-    state ={
-        table: {data: []},
-        loading: false,
-    }
+export default class AtomIndexDefine extends BasePane {
 
     componentDidMount() {
+        this.setState({
+            params: Object.assign(this.state.params, { 
+                type: 1, // 原子指标
+            }),
+        }, this.loadData)
+    }
 
+    loadData = () => {
+        const { params } = this.state;
+        this.setState({
+            loading: true,
+        })
+        Api.getModelIndexs(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    table: res.data
+                })
+            }
+            this.setState({
+                loading: false,
+            })
+        })
+    }
+
+    update = (formData) => {
+        Api.addModelIndex(formData).then(res => {
+            if (res.code === 1) {
+                this.loadData();
+            }
+        })
+    }
+
+    delete = (data) => {
+        const { params } = this.state;
+        Api.deleteModelIndex(params).then(res => {
+            if (res.code === 1) {
+                this.loadData();
+            }
+        })
     }
 
     initColumns = () => {
@@ -55,7 +92,7 @@ export default class AtomIndexDefine extends Component {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
+                        <a onClick={() => { this.delete(record) }}>删除</a>
                     </div>
                 )
             },
@@ -64,7 +101,7 @@ export default class AtomIndexDefine extends Component {
 
     render() {
 
-        const { loading, table } = this.state
+        const { loading, table, modalVisible, modalData } = this.state
 
         const pagination = {
             total: table.totalCount,
@@ -105,9 +142,9 @@ export default class AtomIndexDefine extends Component {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
+                            onClick={() => { this.setState({ modalVisible: true }) }}
                         >
-                            添加告警
+                            新建
                         </Button>
                     }
                 >
@@ -121,6 +158,12 @@ export default class AtomIndexDefine extends Component {
                             dataSource={table.data || []}
                         />
                 </Card>
+                <AtomIndexDefineModal 
+                    data={ modalData }
+                    handOk={ this.update }
+                    handCancel={ () => this.setState({ modalVisible: false })}
+                    visible={ modalVisible }
+                />
             </div>
         )
     }

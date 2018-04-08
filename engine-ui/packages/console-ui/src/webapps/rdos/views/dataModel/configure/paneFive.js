@@ -7,11 +7,14 @@ import {
 } from 'antd';
 
 import utils from 'utils';
+
 import { 
     formItemLayout, 
     tableModelRules, 
     TABLE_MODEL_RULE 
 } from '../../../comm/const';
+
+import Api from '../../../api/dataModel';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -28,7 +31,16 @@ class ModelDefineRule extends Component {
         })
     }
 
-    submit = () => {
+    submit = (e) => {
+        e.preventDefault()
+        const formData = {
+            rules: this.state.tbNameRules,
+        }
+        Api.createModelRule(formData).then(res => {
+            if (res.code === 1) {
+                message.success('创建规则成功！')
+            }
+        })
     }
 
     changeTbNameRule = (valueOption, index) => {

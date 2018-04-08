@@ -2,50 +2,63 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Table, Row, Col, Select, Form, 
+    Card, Button, message, Checkbox,
+    DatePicker,
 } from 'antd';
 
 import utils from 'utils';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
+const RangePicker = DatePicker.RangePicker;
 
 export default class FieldCheck extends Component {
 
     state ={
         table: {data: []},
         loading: false,
+
+        params: {
+            currentPage: 1,
+            ignore: false,
+            type: '1',
+        },
     }
 
     componentDidMount() {
+    }
 
+    loadData = () => {
+        const { params } = this.state;
+    }
+
+    changeParams = (field, value) => {
+        this.setState({
+            params: Object.assign(this.state.params, { [field]: value })
+        })
     }
 
     initColumns = () => {
         return [{
-            title: '表名',
+            title: '字段名称',
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
             width: 80,
-            title: '表描述',
+            title: '字段描述',
             dataIndex: 'taskName',
             key: 'taskName',
         }, {
             width: 80,
-            title: '模型层级',
+            title: '字段类型',
             dataIndex: 'myTrigger',
             key: 'myTrigger',
         }, {
             width: 80,
-            title: '主题域',
+            title: '所属表',
             dataIndex: 'senderTypes',
             key: 'senderTypes',
-        }, {
-            title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
         }, {
             title: '最后修改人',
             dataIndex: 'alarmStatus',
@@ -76,12 +89,13 @@ export default class FieldCheck extends Component {
 
     render() {
 
-        const { loading, table } = this.state
+        const { loading, table, params } = this.state
 
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
         };
+
         return (
             <div className="m-card">
                 <Card
@@ -99,27 +113,32 @@ export default class FieldCheck extends Component {
                                     allowClear
                                     showSearch
                                     style={{ width: 200 }}
-                                    placeholder="选择创建人"
+                                    placeholder="选择类型"
                                     optionFilterProp="name"
-                                    onChange={this.changeReceive}
+                                    defaultValue={params.type}
+                                    onSelect={(value) => this.changeParams.bind('type', value)}
                                 >
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
+                                    <Option value="1">字段名称不合理</Option>
+                                    <Option value="2">字段类型不合理</Option>
+                                    <Option value="3">字段描述不合理</Option>
                                 </Select>
                             </FormItem>
+                            <FormItem label="时间">
+                                <RangePicker 
+                                    size="default" 
+                                    style={{width: 180}} 
+                                    format="YYYY-MM-DD" 
+                                    onChange={(value) => this.changeParams.bind('range', value)}
+                                />
+                            </FormItem>
+                            <FormItem>
+                                <Checkbox 
+                                    onChange={(value) => this.changeParams.bind('ignore', value)}
+                                >
+                                    已忽略
+                                </Checkbox>
+                            </FormItem>
                         </Form>
-                    }
-
-                    extra={
-                        <Button
-                            style={{ marginTop: '10px' }}
-                            type="primary"
-                            onClick={() => { this.setState({ visible: true }) }}
-                        >
-                            添加告警
-                        </Button>
                     }
                 >
                         <Table
