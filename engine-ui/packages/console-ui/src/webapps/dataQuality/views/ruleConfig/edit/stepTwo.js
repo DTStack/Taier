@@ -6,7 +6,7 @@ import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, Inpu
 
 import { commonActions } from '../../../actions/common';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { formItemLayout, rowFormItemLayout, operatorSelect } from '../../../consts';
+import { rowFormItemLayout, operatorSelect, operatorSelect1 } from '../../../consts';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -54,7 +54,13 @@ export default class StepTwo extends Component {
 
     prev = () => {
         const { currentStep, navToStep } = this.props;
-        navToStep(currentStep - 1);
+        const { currentRule } = this.state;
+        
+        if (!isEmpty(currentRule)) {
+            message.error('监控规则未保存');
+        } else {
+            navToStep(currentStep - 1);
+        }
     }
 
     next = () => {
@@ -175,13 +181,11 @@ export default class StepTwo extends Component {
         obj[type] = value.target ? value.target.value : value;
 
         this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
-        console.log(this,obj,'currentRule')
     }
 
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
-        const { currentRule } = this.state;
 
         let columnType   = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
@@ -190,9 +194,9 @@ export default class StepTwo extends Component {
         this.setState({ 
             functionList,
             currentRule: {
-                ...currentRule, 
-                functionId: undefined,
-                columnName: name
+                ...this.state.currentRule, 
+                columnName: name,
+                functionId: undefined
             }
         });
     }
@@ -206,24 +210,23 @@ export default class StepTwo extends Component {
             currentRule  = {
                 ...this.state.currentRule, 
                 functionId: id,
-                isPercentage, 
                 functionName: nameZc, 
+                verifyType: undefined,
+                isPercentage, 
+                percentType: isPercentage === 1 ? 'limit' : 'free'
             };
 
+        form.setFieldsValue({ 
+            verifyType: undefined,
+            operator: undefined 
+        });
+
         if (nameZc === '枚举值') {
-            currentRule.isEnum = true;
-            currentRule.operator = undefined;
+            currentRule.operator = 'in';
             currentRule.verifyType = '1';
-            currentRule.verifyTypeValue = '固定值';
             form.setFieldsValue({ verifyType: '1' });
         } else {
-            delete currentRule.isEnum;
-        }
-
-        if (nameZc === '字符串最大长度' || nameZc === '字符串最小长度') {
-            currentRule.isStrLength = true;
-        } else {
-            delete currentRule.isStrLength;
+            currentRule.operator = undefined;
         }
 
         this.setState({ currentRule });
@@ -232,15 +235,25 @@ export default class StepTwo extends Component {
     // 校验方法变化回调
     onVerifyTypeChange = (value) => {
         const { verifyType } = this.props.common.allDict;
+        let { isPercentage, percentType } = this.state.currentRule;
         let verifyTypeValue = verifyType.filter(item => item.value == value)[0].name;
+
+        if (percentType === 'free' || !percentType) {
+            isPercentage = value == 1 ? 0 : 1;
+        } 
 
         this.setState({
             currentRule: {
                 ...this.state.currentRule,
                 verifyType: value,
-                verifyTypeValue
+                verifyTypeValue,
+                isPercentage
             }
         });
+    }
+
+    isStringLength = (name) => {
+        return name === '字符串最大长度' || name === '字符串最小长度';
     }
 
     // 编辑状态的TD
@@ -250,6 +263,8 @@ export default class StepTwo extends Component {
         const { tableColumn } = ruleConfig;
         const { verifyType } = common.allDict;
         const { currentRule, functionList } = this.state;
+
+        let operatorMap = this.isStringLength(currentRule.functionName) ? operatorSelect1 : operatorSelect;
 
         switch(type) {
             case 'columnName': {
@@ -271,27 +286,29 @@ export default class StepTwo extends Component {
                 } else {
                     return (
                         <FormItem {...rowFormItemLayout} className="rule-edit-td">
-                        {
-                            getFieldDecorator('columnName', {
-                                rules: [{
-                                    required: true, message: '字段不可为空',
-                                }],
-                                initialValue: record.columnName
-                            })(
-                                <Select 
-                                    style={{ width: '100%' }} 
-                                    onChange={this.onColumnNameChange} 
-                                    disabled={record.isTable}>
-                                    {
-                                        tableColumn.map((item) => {
-                                            return <Option key={item.key} value={item.key}>
-                                                {item.key}
-                                            </Option>
-                                        })
-                                    }
-                                </Select>
-                            )
-                        }
+                            {
+                                getFieldDecorator('columnName', {
+                                    rules: [{
+                                        required: true, message: '字段不可为空',
+                                    }],
+                                    initialValue: record.columnName
+                                })(
+                                    <Select 
+                                        showSearch 
+                                        onChange={this.onColumnNameChange} 
+                                        disabled={record.isTable}>
+                                        {
+                                            tableColumn.map((item) => {
+                                                return <Option 
+                                                    key={item.key} 
+                                                    value={item.key}>
+                                                    {item.key}
+                                                </Option>
+                                            })
+                                        }
+                                    </Select>
+                                )
+                            }
                         </FormItem>
                     )
                 }
@@ -307,12 +324,13 @@ export default class StepTwo extends Component {
                             }],
                             initialValue: record.functionId
                         })(
-                            <Select 
-                                style={{ width: '100%' }} 
+                            <Select
                                 onChange={this.onFunctionChange}>
                                 {
                                     functionList.map((item) => {
-                                        return <Option key={item.id} value={item.id.toString()}>
+                                        return <Option 
+                                            key={item.id} 
+                                            value={item.id.toString()}>
                                             {item.nameZc}
                                         </Option>
                                     })
@@ -331,7 +349,9 @@ export default class StepTwo extends Component {
                             rules: [],
                             initialValue: record.filter
                         })(
-                            <Input onChange={this.changeRuleParams.bind(this, 'filter')}/>
+                            <Input 
+                                placeholder={`以"and"开头的条件语句，例：and colA = "value"`}
+                                onChange={this.changeRuleParams.bind(this, 'filter')}/>
                         )
                     }
                 </FormItem>
@@ -347,12 +367,13 @@ export default class StepTwo extends Component {
                             initialValue: record.verifyType
                         })(
                             <Select 
-                                style={{ width: '100%' }} 
                                 onChange={this.onVerifyTypeChange}
                                 disabled={currentRule.isEnum}>
                                 {
                                     verifyType.map((item) => {
-                                        return <Option key={item.value} value={item.value.toString()}>
+                                        return <Option 
+                                            key={item.value} 
+                                            value={item.value.toString()}>
                                             {item.name}
                                         </Option>
                                     })
@@ -364,7 +385,7 @@ export default class StepTwo extends Component {
             }
 
             case 'threshold': {
-                if (currentRule.isEnum) {
+                if (currentRule.operator === 'in') {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('thresholdEnum', {
@@ -374,8 +395,8 @@ export default class StepTwo extends Component {
                                 initialValue: record.threshold
                             })(
                                 <Input
-                                  placeholder="枚举格式为(value1,value2,.....)"
-                                  onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                    placeholder="枚举格式为(value1,value2,.....)"
+                                    onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 
                             )
                         }
@@ -394,11 +415,10 @@ export default class StepTwo extends Component {
                                     style={{ width: 70, marginRight: 10 }} 
                                     onChange={this.changeRuleParams.bind(this, 'operator')}>
                                     {
-                                        operatorSelect.map((item) => {
+                                        operatorMap.map((item) => {
                                             return <Option 
                                                 key={item.value} 
-                                                value={item.value}
-                                                disabled={currentRule.isStrLength && item.text === "!="}> 
+                                                value={item.value}> 
                                                 {item.text} 
                                             </Option>
                                         })
@@ -416,7 +436,6 @@ export default class StepTwo extends Component {
                                 initialValue: record.threshold
                             })(
                                 <InputNumber
-                                  min={1}
                                   style={{ width: 70, marginRight: 10 }} 
                                   onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 
@@ -424,7 +443,7 @@ export default class StepTwo extends Component {
                         }
                         </FormItem>
                         {
-                            (currentRule.isPercentage === 1 || currentRule.verifyType != 1)
+                            currentRule.isPercentage === 1
                             &&
                             <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                         }

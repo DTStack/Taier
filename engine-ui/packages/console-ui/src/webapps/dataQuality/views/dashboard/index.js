@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import moment from 'moment';
 import { isEmpty, cloneDeep } from 'lodash';
 import { Table, Icon, Card, Row, Col } from 'antd';
+import moment from 'moment';
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
@@ -13,11 +13,10 @@ import Resize from 'widgets/resize';
 import { lineAreaChartOptions, alarmDateFilter } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
-// import '../../../styles/views/dashBoard.scss';
 
 const mapStateToProps = state => {
-    const { dashBoard, common } = state;
-    return { dashBoard, common }
+    const { dashBoard } = state;
+    return { dashBoard }
 };
 
 const alarmTitle = (type) => {
@@ -76,7 +75,7 @@ export default class DashBoard extends Component {
     // table设置
     initColumns = () => {
         const { Alarmfilter } = this.state;
-        const { dataSourceType } = this.props.common.allDict;
+
         return [{
             title: '类型',
             dataIndex: 'dataSourceName',
@@ -148,113 +147,113 @@ export default class DashBoard extends Component {
                 查看更多
             </Link>
         )
-        const marginTop = { marginTop: '20px' }
+        const marginTop = { marginTop: 20 }
         return (
-            <div className="dashboard">
-                <Row className="box-card" style={marginTop}>
-                    <Col span={12} style={{paddingRight: '10px'}}>
-                        <Row className="m-card shadow m-card-small">
-                            <Card
-                                noHovering
-                                bordered={false}
-                                loading={false} 
-                                title="告警汇总"
-                                extra={extra}
-                            >
-                                <Row className="m-count">
-                                    <Col span={8}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">今日告警数</span>
-                                            <span className="m-count-content font-red">{alarmSum.countToday}</span>
-                                        </section>
-                                    </Col>
-                                    <Col span={8}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">最近7天告警数</span>
-                                            <span className="m-count-content font-red">{alarmSum.countWeek}</span>
-                                        </section>
-                                    </Col>
-                                    <Col span={8}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">最近30天告警数</span>
-                                            <span className="m-count-content font-red">{alarmSum.countMonth}</span>
-                                        </section>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Row>
-                        <Row style={marginTop} className="m-card shadow m-card-small">
-                            <Card
-                                noHovering
-                                bordered={false}
-                                loading={false} 
-                                title="告警趋势(最近30天)"
-                            >
-                                <Resize onResize={this.resize}>
-                                    <article id="AlarmTrend" style={{ width: '100%', height: '300px' }}/>
-                                </Resize>
-                            </Card>
-                        </Row>
-                        <Row style={marginTop} className="m-card shadow m-card-small">
-                            <Card
-                                noHovering
-                                bordered={false}
-                                loading={false} 
-                                title="使用情况"
-                            >
-                                <Row className="m-count">
-                                    <Col span={6}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">已配置表数</span>
-                                            <span className="m-count-content font-black">{usage.tableCount}</span>
-                                        </section>
-                                    </Col>
-                                    <Col span={6}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">已配置规则数</span>
-                                            <span className="m-count-content font-black">{usage.ruleCount}</span>
-                                        </section>
-                                    </Col>
-                                    <Col span={6}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">昨日新增表数</span>
-                                            <span className="m-count-content font-black">{usage.lastTableCount}</span>
-                                        </section>
-                                    </Col>
-                                    <Col span={6}>
-                                        <section className="m-count-section" style={{ width: 100 }}>
-                                            <span className="m-count-title">昨日新增规则数</span>
-                                            <span className="m-count-content font-black">{usage.lastRuleCount}</span>
-                                        </section>
-                                    </Col>
-                                </Row>
-                            </Card>
-                        </Row>
-                    </Col>
+            <Row style={{ margin: 20 }}>
+                <Col span={12} style={{ paddingRight: 10 }}>
+                    <Row className="m-card shadow m-card-small">
+                        <Card
+                            noHovering
+                            bordered={false}
+                            loading={false} 
+                            title="告警汇总"
+                            extra={extra}
+                        >
+                            <Row className="m-count">
+                                <Col span={8}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">今日告警数</span>
+                                        <span className="m-count-content font-red">{alarmSum.countToday}</span>
+                                    </section>
+                                </Col>
+                                <Col span={8}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">最近7天告警数</span>
+                                        <span className="m-count-content font-red">{alarmSum.countWeek}</span>
+                                    </section>
+                                </Col>
+                                <Col span={8}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">最近30天告警数</span>
+                                        <span className="m-count-content font-red">{alarmSum.countMonth}</span>
+                                    </section>
+                                </Col>
+                            </Row>
+                        </Card>
+                    </Row>
 
-                    <Col span={12} style={{paddingLeft: '10px'}}>
-                        <Row className="m-card shadow m-card-small">
-                            <Card
-                                noHovering
-                                bordered={false}
-                                loading={false} 
-                                title={`${alarmTitle(Alarmfilter)}告警TOP20`}
-                            >
-                                <Table 
-                                    rowKey="monitorId"
-                                    className="m-table"
-                                    style={{ marginTop: 2 }}
-                                    columns={this.initColumns()} 
-                                    loading={loading}
-                                    pagination={false}
-                                    dataSource={topRecords}
-                                    onChange={this.onTableChange}
-                                />
-                            </Card>
-                        </Row>
-                    </Col>
-                </Row>
-            </div>
+                    <Row style={marginTop} className="m-card shadow m-card-small">
+                        <Card
+                            noHovering
+                            bordered={false}
+                            loading={false} 
+                            title="告警趋势(最近30天)"
+                        >
+                            <Resize onResize={this.resize}>
+                                <article id="AlarmTrend" style={{ width: '100%', height: '300px' }}/>
+                            </Resize>
+                        </Card>
+                    </Row>
+
+                    <Row style={marginTop} className="m-card shadow m-card-small">
+                        <Card
+                            noHovering
+                            bordered={false}
+                            loading={false} 
+                            title="使用情况"
+                        >
+                            <Row className="m-count">
+                                <Col span={6}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">已配置表数</span>
+                                        <span className="m-count-content font-black">{usage.tableCount}</span>
+                                    </section>
+                                </Col>
+                                <Col span={6}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">已配置规则数</span>
+                                        <span className="m-count-content font-black">{usage.ruleCount}</span>
+                                    </section>
+                                </Col>
+                                <Col span={6}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">昨日新增表数</span>
+                                        <span className="m-count-content font-black">{usage.lastTableCount}</span>
+                                    </section>
+                                </Col>
+                                <Col span={6}>
+                                    <section className="m-count-section" style={{ width: 100 }}>
+                                        <span className="m-count-title">昨日新增规则数</span>
+                                        <span className="m-count-content font-black">{usage.lastRuleCount}</span>
+                                    </section>
+                                </Col>
+                            </Row>
+                        </Card>
+                    </Row>
+                </Col>
+
+                <Col span={12} style={{ paddingLeft: 10 }}>
+                    <Row className="m-card shadow m-card-small">
+                        <Card
+                            noHovering
+                            bordered={false}
+                            loading={false} 
+                            title={`${alarmTitle(Alarmfilter)}告警TOP20`}
+                        >
+                            <Table 
+                                rowKey="monitorId"
+                                className="m-table"
+                                style={{ marginTop: 2 }}
+                                columns={this.initColumns()} 
+                                loading={loading}
+                                pagination={false}
+                                dataSource={topRecords}
+                                onChange={this.onTableChange}
+                            />
+                        </Card>
+                    </Row>
+                </Col>
+            </Row>
         )
     }
 }

@@ -6,8 +6,7 @@ import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconf
 import moment from 'moment';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
-import { dataSourceActions } from '../../../actions/dataSource';
-import { commonActions } from '../../../actions/common';
+import { DataCheckStatus } from '../../../components/display';
 import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
@@ -31,13 +30,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getLists(params) {
         dispatch(dataCheckActions.getLists(params));
-    },
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -54,8 +47,6 @@ export default class DataCheck extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
-        this.props.getDataSourcesList();
         this.props.getLists(this.state.params);
     }
 
@@ -65,12 +56,12 @@ export default class DataCheck extends Component {
             title: '左侧表',
             dataIndex: 'originTableName',
             key: 'originTableName',
-            width: '12%'
+            width: '11%'
         }, {
             title: '分区',
             dataIndex: 'originPartition',
             key: 'originPartition',
-            width: '10%',
+            width: '11%',
             render: (text, record) => {
                 return text ? text : '--';
             }
@@ -79,36 +70,78 @@ export default class DataCheck extends Component {
             title: '右侧表',
             dataIndex: 'targetTableName',
             key: 'targetTableName',
-            width: '12%'
+            width: '11%'
         }, {
             title: '分区',
             dataIndex: 'targetPartition',
             key: 'targetPartition',
-            width: '10%',
+            width: '11%',
             render: (text, record) => {
                 return text ? text : '--';
             }
         }, {
-            title: '校验结果',
-            dataIndex: 'statusEN',
-            key: 'statusEN',
-            width: '8%',
+            title: <div>
+                校验结果
+                <Tooltip 
+                    placement="bottom" 
+                    overlayClassName="m-tooltip"
+                    title={
+                        <div>
+                            <p>以下条件同时满足计为校验通过：</p>
+                            <p>1、逻辑主键匹配，但数据不匹配=0</p>
+                            <p>{`2、max（左表数据在右表未找到，右表数据在左表未找到）<（右表记录数*记录数差异比例配置）`}</p>
+                        </div>
+                    }
+                >
+                    <Icon className="font-12 m-l-8" type="question-circle-o" />
+                </Tooltip>
+            </div>,
+            dataIndex: 'status',
+            key: 'status',
+            width: '10%',
             render: (text, record) => {
-                return <div>
-                    <span className="m-r-8">{text}</span>
-                    <Tooltip placement="right" title={record.report} arrowPointAtCenter>
-                        <Icon style={{ fontSize: 14 }} type="info-circle-o" />
-                    </Tooltip>
-                </div>
+                return (
+                    text == 3 ?
+                    <div className="flex">
+                        <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
+                        <Tooltip 
+                            placement="right" 
+                            title={record.report}
+                            overlayClassName="m-tooltip">
+                            <Icon className="font-14" type="info-circle-o" />
+                        </Tooltip>
+                    </div>
+                    :
+                    <DataCheckStatus value={text} />
+                )   
             }
         }, {
-            title: '差异总数',
+            title: <div>
+                差异总数
+                <Tooltip 
+                    placement="bottom" 
+                    overlayClassName="m-tooltip"
+                    title={'差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'}
+                >
+                    <Icon className="font-12 m-l-8" type="question-circle-o" />
+                </Tooltip>
+            </div>,
             dataIndex: 'diverseNum',
             key: 'diverseNum',
             width: '8%',
             // sorter: true
         }, {
-            title: '差异比例',
+            title: <div>
+                差异比例
+                    <Tooltip 
+                    placement="bottom" 
+                    overlayClassName="m-tooltip"
+                    title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
+                >
+                    
+                    <Icon className="font-12 m-l-8" type="question-circle-o" />
+                </Tooltip>
+            </div>,
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
             width: '8%',
@@ -129,7 +162,7 @@ export default class DataCheck extends Component {
             width: '11%'
         }, {
             title: '操作',
-            width: '10%',
+            width: '8%',
             render: (text, record) => {
                 let menu = (
                     <Menu>
@@ -199,11 +232,10 @@ export default class DataCheck extends Component {
 
     // 数据源筛选
     onUserSourceChange = (id) => {
-        let dataSourceId = id ? id : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             currentPage: 1,
-            dataSourceId
+            dataSourceId: id ? id : undefined
         };
         
         this.props.getLists(params);
@@ -252,11 +284,10 @@ export default class DataCheck extends Component {
 
     // 监听userList的select
     onUserChange = (value) => {
-        let lastModifyUserId = value ? value : undefined,
-            params = {
+        let params = {
             ...this.state.params, 
             currentPage: 1,
-            lastModifyUserId
+            lastModifyUserId: value ? value : undefined
         };
 
         this.props.getLists(params);
@@ -265,12 +296,11 @@ export default class DataCheck extends Component {
 
     // 执行时间改变
     onDateChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined,
-            params = {
-                ...this.state.params, 
-                currentPage: 1,
-                executeTime
-            };
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            executeTime: date ? date.valueOf() : undefined
+        };
         
         this.props.getLists(params);
         this.setState({ params });
@@ -278,12 +308,11 @@ export default class DataCheck extends Component {
 
     // table搜索
     onTableSearch = (name) => {
-        let tableName = name ? name : undefined,
-            params = {
-                ...this.state.params, 
-                currentPage: 1,
-                tableName
-            };
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            tableName: name ? name : undefined
+        };
 
         this.props.getLists(params);
         this.setState({ params });

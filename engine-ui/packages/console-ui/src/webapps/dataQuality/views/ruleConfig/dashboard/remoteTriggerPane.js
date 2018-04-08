@@ -35,6 +35,7 @@ export default class RemoteTriggerPane extends Component {
         super(props);
         this.state = {
             visible: false,
+            havePart: false,
             selectedIds: [],
             remark: undefined,
             monitorId: undefined,
@@ -55,13 +56,19 @@ export default class RemoteTriggerPane extends Component {
             newData = nextProps.data;
 
         if (!isEmpty(newData) && oldData !== newData) {
-            console.log(oldData,newData,'trigger')
             let monitorId = newData.monitorPartVOS[0].monitorId;
 
             if (monitorId) {
                 this.props.getRemoteTrigger({ tableId: newData.tableId });
                 this.props.getMonitorRule({ monitorId });
-                this.setState({ monitorId });
+                this.setState({ 
+                    monitorId,
+                    havePart: false
+                });
+            }
+
+            if (newData.dataSourceType === 7 || newData.dataSourceType === 10) {
+                this.setState({ havePart: true });
             }
         }
     }
@@ -72,7 +79,7 @@ export default class RemoteTriggerPane extends Component {
             title: '分区',
             dataIndex: 'partitionValue',
             key: 'partitionValue',
-            width: '15%',
+            width: '12%',
         }, {
             title: '触发规则数',
             dataIndex: 'ruleNumber',
@@ -83,15 +90,15 @@ export default class RemoteTriggerPane extends Component {
             title: '访问接口',
             dataIndex: 'url',
             key: 'url',
-            width: '28%',
+            width: '23%',
             render: (url) => `${API_SERVER}${url}`
         }, 
         {
             title: '请求方式',
             dataIndex: 'method',
             key: 'method',
-            width: '10%',
-            render: (method) => `POST`
+            width: '8%',
+            render: (text) => `POST`
         },  {
             title: '最近修改人',
             key: 'modifyUser',
@@ -128,15 +135,17 @@ export default class RemoteTriggerPane extends Component {
     editTrigger = (record) => {
         const { data } = this.props;
         let monitorPart = data.monitorPartVOS.filter(item => record.id === item.monitorId)[0];
-        this.props.getMonitorRule({ monitorId: record.id });
+
         if (monitorPart) {
+            this.showRemoteModal();
+
             this.setState({ 
                 monitorId: record.id, 
                 selectedIds: record.ruleIds,
                 remark: record.remark
             });
-            this.showRemoteModal();
         }
+        this.props.getMonitorRule({ monitorId: record.id });
     }
 
     // 删除远程调用
@@ -166,7 +175,7 @@ export default class RemoteTriggerPane extends Component {
 
                 return obj;
             },
-            width: '17%',
+            width: '15%',
         }, {
             title: '统计函数',
             dataIndex: 'functionId',
@@ -181,7 +190,7 @@ export default class RemoteTriggerPane extends Component {
 
                 return obj;
             },
-            width: '17%',
+            width: '13%',
         }, 
         {
             title: '过滤条件',
@@ -197,16 +206,12 @@ export default class RemoteTriggerPane extends Component {
 
                 return obj;
             },
-            width: '16%'
+            width: '20%'
         }, {
             title: '校验方法',
-            dataIndex: 'verifyType',
-            key: 'verifyType',
-            render: (text, record) => {
-                const { verifyType } = this.props.common.allDict;
-                return verifyType[text - 1].name || undefined;
-            },
-            width: '14%',
+            dataIndex: 'verifyTypeValue',
+            key: 'verifyTypeValue',
+            width: '12%',
         }, {
             title: '阈值配置',
             dataIndex: 'threshold',
@@ -218,18 +223,18 @@ export default class RemoteTriggerPane extends Component {
                     return `${record.operator}  ${text}`;
                 }
             },
-            width: '10%'
+            width: '12%'
         }, {
             title: '最近修改人',
             key: 'modifyUser',
             dataIndex: 'modifyUser',
-            width: '13%',
+            width: '14%',
             
         }, {
             title: '最近修改时间',
             key: 'gmtModified',
             dataIndex: 'gmtModified',
-            width: '13%',
+            width: '14%',
             render: (text) => (moment(text).format("YYYY-MM-DD HH:mm"))
         }]  
     }
@@ -292,11 +297,11 @@ export default class RemoteTriggerPane extends Component {
 
     render() {
         const { data, ruleConfig, common, form } = this.props;
-        const { monitorId, visible, selectedIds, remark } = this.state;
+        const { monitorId, havePart, visible, selectedIds, remark } = this.state;
         const { triggerList, monitorRules } = ruleConfig;
         const { getFieldDecorator } = form;
 
-        let monitorPartVOS = data.monitorPartVOS ? data.monitorPartVOS : [];
+        let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
         let rowSelection = {
             selectedRowKeys: selectedIds,
             onChange: (selectedIds, selectedRows) => {
@@ -344,33 +349,41 @@ export default class RemoteTriggerPane extends Component {
                     wrapClassName="remoteTriggerModal"
                     maskClosable={false}
                     visible={visible}
-                    width={'70%'}
+                    width={'85%'}
                     okText="生成远程调用API"
                     cancelText="取消"
                     onOk={this.onRemoteTrigger}
                     onCancel={this.closeRemoteModal}>
-                    
-                    <div>
-                        分区：
-                        <Select 
-                            value={monitorId ? monitorId.toString() : undefined}
-                            style={{ width: 150 }}
-                            onChange={this.onMonitorIdChange}>
-                            {
-                                monitorPartVOS.map((item) => {
-                                    return <Option key={item.monitorId} value={item.monitorId.toString()}>{item.partValue}</Option>
-                                })
-                            }
-                        </Select>
-                    </div>
+
+                    {
+                        havePart
+                        &&
+                        <div>
+                            分区：
+                            <Select 
+                                style={{ width: 150 }}
+                                value={monitorId ? monitorId.toString() : undefined}
+                                onChange={this.onMonitorIdChange}>
+                                {
+                                    monitorPart.map((item) => {
+                                        return <Option 
+                                            key={item.monitorId} 
+                                            value={item.monitorId.toString()}>
+                                            {item.partValue ? item.partValue : '全表'}
+                                        </Option>
+                                    })
+                                }
+                            </Select>
+                        </div>
+                    }
 
                     <Table 
                         rowKey="id"
                         className="m-table common-table"
-                        rowSelection={rowSelection}
-                        columns={this.initRulesColumns()}
                         pagination={false}
+                        rowSelection={rowSelection}
                         dataSource={monitorRules}
+                        columns={this.initRulesColumns()}
                     />
 
                     <FormItem {...rowFormItemLayout}>
@@ -382,9 +395,9 @@ export default class RemoteTriggerPane extends Component {
                                 initialValue: remark
                             })(
                                 <TextArea 
+                                    placeholder="备注信息" 
                                     className="trigger-remarks" 
                                     autosize={{ minRows: 3, maxRows: 6 }} 
-                                    placeholder="备注信息" 
                                     onChange={this.onRemarkChange} />
                             )
                         }

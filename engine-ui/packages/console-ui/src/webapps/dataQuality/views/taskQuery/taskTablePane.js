@@ -93,9 +93,9 @@ export default class TaskTablePane extends Component {
             alignWithLabel: true,
         }
         option.xAxis[0].boundaryGap = ['5%', '5%'];
-        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
-        option.yAxis[0].axisLabel.formatter = '{value} 次';
+        option.yAxis[0].axisLabel.formatter = '{value}';
         option.yAxis[0].minInterval = 1;
 
         option.legend.data = legends.map(item => item.name);
@@ -274,7 +274,7 @@ export default class TaskTablePane extends Component {
                             title="最近30次表级报告" 
                         >
                             <Table 
-                                rowKey="executeTime"
+                                rowKey="id"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesTableReport()}
                                 pagination={false}

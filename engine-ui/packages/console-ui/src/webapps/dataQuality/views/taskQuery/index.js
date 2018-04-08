@@ -1,20 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs } from 'antd';
+import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon } from 'antd';
 import moment from 'moment';
 import { isNull } from 'lodash';
 
 import utils from 'utils';
 import SlidePane from 'widgets/slidePane';
-
 import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
 
 import { TaskStatus } from '../../components/display';
 import { taskStatusFilter } from '../../consts';
-import { commonActions } from '../../actions/common';
 import { taskQueryActions } from '../../actions/taskQuery';
-import { dataSourceActions } from '../../actions/dataSource';
 import '../../styles/views/taskQuery.scss';
 
 const Search = Input.Search;
@@ -29,13 +26,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
 	getTaskList(params) {
 		dispatch(taskQueryActions.getTaskList(params));
-	},
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
+	}
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -59,8 +50,6 @@ export default class TaskQuery extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
-        this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
     }
 
@@ -88,8 +77,21 @@ export default class TaskQuery extends Component {
             width: '10%',
             dataIndex: 'status',
             key: 'status',
-            render: (text) => {
-                return <TaskStatus value={text} />
+            render: (text, record) => {
+                return <div>
+                    <TaskStatus style={{ marginRight: 30 }} value={text} />
+                    {
+                        text === 2 
+                        &&
+                        <Tooltip 
+                            placement="right" 
+                            title={record.logInfo}
+                            overlayStyle={{ wordBreak: 'break-word' }}
+                        >
+                            <Icon className="font-14" type="info-circle-o" />
+                        </Tooltip>
+                    }
+                    </div>
             },
             filters: taskStatusFilter,
         }, {
@@ -146,7 +148,11 @@ export default class TaskQuery extends Component {
     renderSourceType = (data) => {
         return data.map((source) => {
             return (
-                <Option key={source.value} value={source.value.toString()}>{source.name}</Option>
+                <Option 
+                    key={source.value} 
+                    value={source.value.toString()}>
+                    {source.name}
+                </Option>
             )
         });
     }
@@ -253,6 +259,10 @@ export default class TaskQuery extends Component {
         this.setState({ tabKey: key });
     }
 
+    disabledDate = (current) => {
+        return current && current.valueOf() > Date.now();
+    }
+    
     render() {
     	const { dataSource, taskQuery, common } = this.props;
         const { sourceType, sourceList } = dataSource;
@@ -311,6 +321,7 @@ export default class TaskQuery extends Component {
                         format="YYYY-MM-DD"
                         placeholder="选择日期"
                         style={{ width: 150 }}
+                        disabledDate={this.disabledDate}
                         onChange={this.onExecuteTimeChange}
                     />
                 </div>

@@ -422,8 +422,6 @@ export default class StepThree extends Component {
         this.setState({ diverseData });
     }
 
-
-
     getSettingItem = (key) => {
     	const { getFieldDecorator } = this.props.form;
     	const { setting } = this.props.editParams;
@@ -501,6 +499,10 @@ export default class StepThree extends Component {
         }
     }
 
+	scrollText = (value) => {
+	    return <input className="cell-input" defaultValue={value} />
+	}
+
     getCanvasW() {
         return document.querySelector('.keymap-svg').getBoundingClientRect().width;
     }
@@ -514,24 +516,16 @@ export default class StepThree extends Component {
 	initLeftTable = () => {
 		return [
             {
-                className: 'td-2',
                 title: '左侧表字段',
                 dataIndex: 'key',
                 key: 'key',
-                width: 120,
-                render: function(key) {
-                    return <span title={key}>{key}</span>
-                }
+                width: '45%'
             }, 
             {
-                className: 'td-3',
             	title: '类型',
                 dataIndex: 'type',
                 key: 'type',
-                width: 80,
-                render: function(type) {
-                    return <span title={type}>{type}</span>
-                }
+                width: '40%'
             }
         ]
 	}
@@ -539,24 +533,16 @@ export default class StepThree extends Component {
     initRightTable = () => {
         return [
             {
-                className: 'td-2',
                 title: '右侧表字段',
                 dataIndex: 'key',
                 key: 'key',
-                width: 120,
-                render: function(key) {
-                    return <span title={key}>{key}</span>
-                }
+                width: '45%'
             }, 
             {
-                className: 'td-3',
                 title: '类型',
                 dataIndex: 'type',
                 key: 'type',
-                width: 80,
-                render: function(type) {
-                    return <span title={type}>{type}</span>
-                }
+                width: '40%'
             }
         ]
     }
@@ -575,7 +561,7 @@ export default class StepThree extends Component {
     		return
     	} else {
 
-    		if (!editParams.mappedPK) {
+    		if (isEmpty(editParams.mappedPK)) {
 	    		message.error('请选择逻辑主键');
 	    		return
 	    	}

@@ -1,4 +1,4 @@
-import { dataCheckActionType } from '../../consts/dataCheckActions';
+import { dataCheckActionType } from '../../consts/dataCheckActionType';
 import { message } from 'antd';
 import API from '../../api/dataCheck';
 import DSAPI from '../../api/dataSource';
@@ -88,30 +88,6 @@ export const dataCheckActions = {
 			API.deleteCheck(params).then((res) => {
 				if (res.code === 1) {
 					message.success("删除成功", 2);
-				}
-			});
-		}
-	},
-	getCheckReport(params) {
-		return dispatch => {
-			API.getCheckReport(params).then((res) => {
-				if (res.code === 1) {
-					dispatch({
-						type: dataCheckActionType.GET_CHECK_REPORT,
-						payload: res.data
-					});
-				}
-			});
-		}
-	},
-	getCheckReportTable(params) {
-		return dispatch => {
-			API.getCheckReportTable(params).then((res) => {
-				if (res.code === 1) {
-					dispatch({
-						type: dataCheckActionType.GET_CHECK_REPORT_TABLE,
-						payload: res.data ? res.data : {}
-					});
 				}
 			});
 		}

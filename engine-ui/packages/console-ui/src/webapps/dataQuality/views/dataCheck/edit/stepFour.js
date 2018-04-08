@@ -6,7 +6,6 @@ import moment from 'moment';
 import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox } from 'antd';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
-import { commonActions } from '../../../actions/common';
 import { formItemLayout } from '../../../consts';
 
 const FormItem = Form.Item;
@@ -19,9 +18,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
     addCheck(params) {
         dispatch(dataCheckActions.addCheck(params));
     },
@@ -48,7 +44,6 @@ export default class StepFour extends Component {
     }
 
     componentDidMount() {
-        this.props.getUserList();
         this.initState();
     }
 

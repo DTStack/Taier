@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNull } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber, Modal } from 'antd';
 
 import ExecuteForm from './executeForm';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { formItemLayout, rowFormItemLayout, operatorSelect } from '../../../consts';
+import { rowFormItemLayout, operatorSelect, operatorSelect1 } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
@@ -47,6 +47,7 @@ export default class RuleEditPane extends Component {
             currentRule: {},
             functionList: [],
             monitorId: undefined,
+            havePart: false,
             showExecuteModal: false,
         };
     }
@@ -67,8 +68,13 @@ export default class RuleEditPane extends Component {
                 this.setState({ 
                     monitorId,
                     currentRule: {},
+                    havePart: false,
                     functionList: []
                 });
+            }
+
+            if (newData.dataSourceType === 7 || newData.dataSourceType === 10) {
+                this.setState({ havePart: true });
             }
         }
     }
@@ -115,7 +121,7 @@ export default class RuleEditPane extends Component {
             render: (text, record) => this.renderColumns(text, record, 'verifyType'),
             width: '15%',
         }, {
-            title: '阈值配置',
+            title: '阈值配置（不符合阈值条件时触发告警）',
             dataIndex: 'threshold',
             key: 'threshold',
             render: (text, record) => this.renderColumns(text, record, 'threshold'),
@@ -180,17 +186,15 @@ export default class RuleEditPane extends Component {
     }
 
     changeRuleParams = (type, value) => {
-        const { currentRule } = this.state;
         let obj = {};
-
         obj[type] = value.target ? value.target.value : value;
-        this.setState({ currentRule: {...currentRule, ...obj} });
+
+        this.setState({ currentRule: {...this.state.currentRule, ...obj} });
     }
 
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
-        const { currentRule } = this.state;
 
         let columnType   = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
@@ -199,9 +203,9 @@ export default class RuleEditPane extends Component {
         this.setState({ 
             functionList,
             currentRule: {
-                ...currentRule, 
-                functionId: undefined,
-                columnName: name
+                ...this.state.currentRule, 
+                columnName: name,
+                functionId: undefined
             }
         });
     }
@@ -215,8 +219,16 @@ export default class RuleEditPane extends Component {
             currentRule  = {
                 ...this.state.currentRule, 
                 functionId: id,
-                isPercentage
+                functionName: nameZc,
+                verifyType: undefined,
+                isPercentage,
+                percentType: isPercentage === 1 ? 'limit' : 'free'
             };
+
+        form.setFieldsValue({ 
+            verifyType: undefined,
+            operator: undefined 
+        });
 
         if (nameZc === '枚举值') {
             currentRule.operator = 'in';
@@ -226,21 +238,38 @@ export default class RuleEditPane extends Component {
             currentRule.operator = undefined;
         }
 
-        if (nameZc === '字符串最大长度' || nameZc === '字符串最小长度') {
-            currentRule.isStrLength = true;
-        } else {
-            delete currentRule.isStrLength;
-        }
-
         this.setState({ currentRule });
     }
 
+    isStringLength = (name) => {
+        return name === '字符串最大长度' || name === '字符串最小长度';
+    }
+
+    // 校验方法变化回调
+    onVerifyTypeChange = (value) => {
+        let { isPercentage, percentType } = this.state.currentRule;
+
+        if (percentType === 'free' || !percentType) {
+            isPercentage = value == 1 ? 0 : 1;
+        } 
+
+        this.setState({
+            currentRule: {
+                ...this.state.currentRule,
+                verifyType: value,
+                isPercentage
+            }
+        });
+    }
+
     renderEditTD = (text, record, type) => {
-        const { form, ruleConfig, common } = this.props;
+        const { form, common, ruleConfig } = this.props;
         const { getFieldDecorator } = form;
         const { verifyType } = common.allDict;
         const { monitorFunction, tableColumn } = ruleConfig;
         const { currentRule, functionList } = this.state;
+
+        let operatorMap = this.isStringLength(currentRule.functionName) ? operatorSelect1 : operatorSelect;
 
         switch(type) {
             case 'columnName': {
@@ -271,12 +300,14 @@ export default class RuleEditPane extends Component {
                                 initialValue: record.columnName
                             })(
                                 <Select 
-                                    style={{ width: '100%' }} 
+                                    showSearch
                                     onChange={this.onColumnNameChange} 
                                     disabled={record.isTable || record.editStatus === 'edit'}>
                                     {
                                         tableColumn.map((item) => {
-                                            return <Option key={item.key} value={item.key}>
+                                            return <Option 
+                                                key={item.key} 
+                                                value={item.key}>
                                                 {item.key}
                                             </Option>
                                         })
@@ -299,13 +330,14 @@ export default class RuleEditPane extends Component {
                             }],
                             initialValue: record.editStatus === 'edit' ? record.functionName : record.functionId
                         })(
-                            <Select 
-                                style={{ width: '100%' }} 
+                            <Select
                                 onChange={this.onFunctionChange}
                                 disabled={record.editStatus === 'edit'}>
                                 {
                                     functionList.map((item) => {
-                                        return <Option key={item.id} value={item.id.toString()}>
+                                        return <Option 
+                                            key={item.id} 
+                                            value={item.id.toString()}>
                                             {item.nameZc}
                                         </Option>
                                     })
@@ -325,6 +357,7 @@ export default class RuleEditPane extends Component {
                             initialValue: record.filter
                         })(
                             <Input 
+                                placeholder={`"and"开头的条件语句，如and col = "val"`}
                                 onChange={this.changeRuleParams.bind(this, 'filter')} 
                                 disabled={record.editStatus === 'edit'} />
                         )
@@ -342,12 +375,13 @@ export default class RuleEditPane extends Component {
                             initialValue: record.verifyType ? record.verifyType.toString() : undefined
                         })(
                             <Select 
-                                style={{ width: '100%' }} 
-                                onChange={this.changeRuleParams.bind(this, 'verifyType')}
+                                onChange={this.onVerifyTypeChange}
                                 disabled={record.editStatus === 'edit' || currentRule.operator === 'in'}>
                                 {
                                     verifyType.map((item) => {
-                                        return <Option key={item.value} value={item.value.toString()}>
+                                        return <Option 
+                                            key={item.value} 
+                                            value={item.value.toString()}>
                                             {item.name}
                                         </Option>
                                     })
@@ -369,8 +403,8 @@ export default class RuleEditPane extends Component {
                                 initialValue: record.threshold
                             })(
                                 <Input
-                                  placeholder="枚举格式为(value1,value2,.....)"
-                                  onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                    placeholder="枚举格式为(value1,value2,.....)"
+                                    onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 
                             )
                         }
@@ -386,14 +420,13 @@ export default class RuleEditPane extends Component {
                                     initialValue: record.operator
                                 })(
                                     <Select 
-                                        style={{ width: 50, marginRight: 5 }} 
+                                        style={{ width: 65, marginRight: 5 }} 
                                         onChange={this.changeRuleParams.bind(this, 'operator')}>
                                         {
-                                            operatorSelect.map((item) => {
+                                            operatorMap.map((item) => {
                                                 return <Option 
                                                     key={item.value} 
-                                                    value={item.value}
-                                                    disabled={currentRule.isStrLength && item.text === "!="}> 
+                                                    value={item.value}> 
                                                     {item.text} 
                                                 </Option>
                                             })
@@ -411,15 +444,14 @@ export default class RuleEditPane extends Component {
                                     initialValue: record.threshold
                                 })(
                                     <InputNumber
-                                      min={1}
-                                      style={{ width: 50, marginRight: 10 }}
-                                      onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                        style={{ width: 65, marginRight: 5 }}
+                                        onChange={this.changeRuleParams.bind(this, 'threshold')}
                                     /> 
                                 )
                             }
                         </FormItem>
                         {
-                            (currentRule.isPercentage === 1 || currentRule.verifyType != 1)
+                            currentRule.isPercentage === 1
                             &&
                             <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                         }
@@ -518,6 +550,10 @@ export default class RuleEditPane extends Component {
                             this.setState({
                                 rules: res.data
                             });
+
+                            if (isNull(res.data)) {
+                                this.props.refresh();
+                            }
                         }
                     });
                 }
@@ -647,11 +683,11 @@ export default class RuleEditPane extends Component {
     }
 
     executeMonitor = (monitorId) => {
-        const { data, closeSlidePane, executeMonitor } = this.props;
+        const { data } = this.props;
 
         this.props.executeMonitor({ monitorId });
         this.props.closeSlidePane();
-        hashHistory.push(`/dq/taskQuery?tb=${data.tableName}`);
+        hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
     }
 
     changeMonitorStatus = (monitorId) => {
@@ -685,10 +721,9 @@ export default class RuleEditPane extends Component {
     render() {
         const { data, ruleConfig, form, common } = this.props;
         const { getFieldDecorator } = form;
-        const { rules, monitorId, showExecuteModal } = this.state;
-        // const { executeTime, notifyUser, periodType, scheduleConf, sendTypes } = ruleConfig.monitorDetail;
-        const { periodType, notifyType } = common.allDict;
         const { monitorDetail } = ruleConfig;
+        const { periodType, notifyType } = common.allDict;
+        const { rules, monitorId, havePart, showExecuteModal } = this.state;
 
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
 
@@ -697,13 +732,13 @@ export default class RuleEditPane extends Component {
                 <Row className="rule-action">
                     <Col span={12} className="txt-left">
                         {
-                            (monitorPart.length && monitorPart[0].partValue)
+                            havePart
                             &&
                             <div>
                                 分区：
                                 <Select 
-                                    value={monitorId ? monitorId.toString() : undefined}
                                     style={{ width: 150 }}
+                                    value={monitorId ? monitorId.toString() : undefined}
                                     onChange={this.onMonitorIdChange}>
                                     {
                                         monitorPart.map((item) => {
@@ -782,15 +817,15 @@ export default class RuleEditPane extends Component {
                 <Table 
                     rowKey="id"
                     className="m-table rule-edit-table"
-                    columns={this.initColumns()}
                     pagination={false}
                     dataSource={rules}
+                    columns={this.initColumns()}
                 />
                 
                 <ExecuteForm 
+                    data={monitorDetail}
                     visible={showExecuteModal} 
-                    closeModal={this.closeExecuteModal}
-                    data={monitorDetail}>
+                    closeModal={this.closeExecuteModal}>
                 </ExecuteForm>
             </div>
         );

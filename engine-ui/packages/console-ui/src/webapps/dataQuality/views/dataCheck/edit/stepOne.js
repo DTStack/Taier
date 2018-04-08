@@ -5,7 +5,6 @@ import { isEmpty } from 'lodash';
 import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
 import TableCell from 'widgets/tableCell';
-
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { formItemLayout } from '../../../consts';
@@ -21,9 +20,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
@@ -40,14 +36,12 @@ export default class StepOne extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            useInput: false,
             showPreview: false,
             sourcePreview: {},
         }
     }
     
     componentDidMount() {
-        this.props.getDataSourcesList();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -168,8 +162,7 @@ export default class StepOne extends Component {
         if (origin.partition) {
             resetSourcePart('origin');
             form.setFieldsValue({ 
-                originColumn: '',
-                originColumnInput: ''
+                originColumn: ''
             });
             origin.partition = undefined;
         }
@@ -190,22 +183,15 @@ export default class StepOne extends Component {
      * @param {String} name 
      */
     onOriginTableChange = (name) => {
-        const { 
-            form, 
-            havePart,
-            editParams, 
-            changeParams,
-            getSourcePart,
-            resetSourcePart,
-        } = this.props;
+        const { form, havePart, editParams, changeParams,
+            getSourcePart, resetSourcePart } = this.props;
         let origin = { ...editParams.origin, table: name };
 
         // 重置分区表单和参数
         if (havePart) {
             resetSourcePart('origin');
             form.setFieldsValue({ 
-                originColumn: '',
-                originColumnInput: ''
+                originColumn: ''
             });
             origin.partition = undefined;
         }
@@ -279,22 +265,6 @@ export default class StepOne extends Component {
         });
     }
 
-    // 分区变化回调
-    handleInputPartChange = (e) => {
-        const { origin } = this.props.editParams;
-        let partition = e.target.value ? e.target.value : undefined;
-
-        this.props.changeParams({
-            origin: {...origin,  partition}
-        });
-    }
-
-    renderPartText = () => {
-        return (
-            <p className="font-14">如果分区还不存在，可以直接手动输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
-        )
-    }
-
     next = () => {
         const { currentStep, navToStep, form } = this.props;
 
@@ -313,93 +283,25 @@ export default class StepOne extends Component {
                 key: item,
                 dataIndex: item,
                 width: 80,
-                render: function(txt) {
+                render: (value) => {
                     return <TableCell 
                         className="no-scroll-bar"
-                        value={txt} 
-                        resize="none"
-                        style={{ minWidth: '80px', width:'100%' }} 
+                        value={value ? value : undefined}
+                        readOnly
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
                     />
                 }
             }
         });
     }
 
-    renderColumnPart = () => {
-        const { editStatus, editParams, form, dataCheck } = this.props;
-        const { useInput } = this.state;
-        const { partition } = editParams.origin;
+    render() {
+        const { editStatus, editParams, form, dataSource, dataCheck, havePart } = this.props;
         const { originPart } = dataCheck;
         const { getFieldDecorator } = form;
-
-        if (!useInput) {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                {
-                    getFieldDecorator('originColumn', {
-                        rules: [],
-                        initialValue: partition
-                    })(
-                        <TreeSelect
-                            allowClear
-                            showSearch
-                            placeholder="分区列表"
-                            treeNodeLabelProp="value"
-                            disabled={editStatus === 'edit'}
-                            style={{ width: '85%', marginRight: 15 }} 
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                            onChange={this.handlePartChange}>
-                            {
-                                this.renderTreeSelect(originPart)
-                            }
-                        </TreeSelect>
-                    )
-                }
-                {
-                    editStatus !== 'edit'
-                    &&
-                    <a onClick={this.onPartitionTypeChange}>手动输入</a>
-                }
-            </FormItem>
-        } else {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                {
-                    getFieldDecorator('originColumnInput', {
-                        rules: [],
-                        initialValue: ''
-                    })(
-                        <Input
-                            style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}，具体的参数配置在帮助文档里说明" 
-                            onChange={this.handleInputPartChange}
-                            disabled={editStatus === 'edit'} />
-                    )
-                }
-                {
-                    editStatus !== 'edit'
-                    &&
-                    <a onClick={this.onPartitionTypeChange}>选择已有分区</a>
-                }
-            </FormItem>
-        }
-    }
-
-    onPartitionTypeChange = () => {
-        const { origin } = this.props.editParams;
-        const { useInput } = this.state;
-        // form.setFieldsValue({ part: '' });
-        // params.partition = undefined;
-        this.props.changeParams({
-            origin: {...origin,  partition: undefined}
-        });
-        this.setState({ useInput: !useInput });
-    }
-
-    render() {
-        const { editStatus, editParams, form, dataSource, havePart } = this.props;
-        const { dataSourceId, table, partition } = editParams.origin;
         const { sourceList, sourceTable } = dataSource;
+        const { dataSourceId, table, partition } = editParams.origin;
         const { sourcePreview, showPreview } = this.state;
-        const { getFieldDecorator } = form;
 
         return (
             <div>
@@ -448,7 +350,28 @@ export default class StepOne extends Component {
                         {
                             (havePart || partition)
                             &&
-                            this.renderColumnPart()
+                            <FormItem {...formItemLayout} label="选择分区">
+                                {
+                                    getFieldDecorator('originColumn', {
+                                        rules: [],
+                                        initialValue: partition
+                                    })(
+                                        <TreeSelect
+                                            allowClear
+                                            showSearch
+                                            placeholder="分区列表"
+                                            treeNodeLabelProp="value"
+                                            disabled={editStatus === 'edit'}
+                                            style={{ width: '85%' }} 
+                                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                                            onChange={this.handlePartChange}>
+                                            {
+                                                this.renderTreeSelect(originPart)
+                                            }
+                                        </TreeSelect>
+                                    )
+                                }
+                            </FormItem>
                         }
 
                         <Row type="flex" justify="center" className="font-14">

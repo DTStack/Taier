@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { 
     Input, Button, Popconfirm,
-    Table, message, Card,
+    Table, message, Card
  } from 'antd';
 import moment from 'moment';
 
 import DataSourceForm from './editModal';
-import { formItemLayout, dataSourceTypes, dataSourceFilter } from '../../consts';
+import { formItemLayout, dataSourceFilter } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
-import Api from '../../api/dataSource';
+import DSApi from '../../api/dataSource';
 import '../../styles/views/dataSource.scss';
 
 const Search = Input.Search
@@ -46,11 +46,6 @@ export default class DataSource extends Component {
         this.props.getDataSources(this.state.params);
     }
 
-    onSourceNameChange = (e) => {
-        let params = {...this.state.params, name, currentPage: 1};
-        this.setState({ params })
-    }
-
     searchDataSources = (name) => {
         let params = {...this.state.params, name, currentPage: 1};
        
@@ -62,7 +57,7 @@ export default class DataSource extends Component {
         const { title, status, source, params } = this.state;
         
         if (status === 'edit') {
-            Api.updateDataSource({
+            DSApi.updateDataSource({
                 ...source, ...sourceFormData
             }).then((res) => {
                 if (res.code === 1) {
@@ -71,7 +66,7 @@ export default class DataSource extends Component {
                 }
             });
         } else {
-            Api.addDataSource(sourceFormData).then((res) => {
+            DSApi.addDataSource(sourceFormData).then((res) => {
                 if (res.code === 1) {
                     message.success(`${title}成功！`);
                     this.props.getDataSources(params);
@@ -89,7 +84,7 @@ export default class DataSource extends Component {
             return;
         }
 
-        Api.deleteDataSource({ sourceId: record.id }).then((res) => {
+        DSApi.deleteDataSource({ sourceId: record.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除数据源成功！');
                 this.props.getDataSources(this.state.params);
@@ -98,7 +93,7 @@ export default class DataSource extends Component {
     }
 
     testConnection = (params) => { // 测试数据源连通性
-        Api.testDSConnection(params).then((res) => {
+        DSApi.testDSConnection(params).then((res) => {
             if (res.code === 1) {
                 message.success('数据源连接正常！')
             }
@@ -130,31 +125,33 @@ export default class DataSource extends Component {
 
     initColumns = () => {
         return [{
-            width: 150,
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
+            width: '15%'
         }, {
             title: '类型',
-            dataIndex: 'type',
-            key: 'type',
+            dataIndex: 'sourceTypeValue',
+            key: 'sourceTypeValue',
             filters: dataSourceFilter,
             filterMultiple: false,
-            render: (text) => dataSourceTypes[text]
-        }, 
-        {
+            width: '8%'
+        }, {
             title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
+            width: '25%'
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
             key: 'modifyUserName',
+            width: '14%'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => moment(text).format("YYYY-MM-DD HH:mm:ss"),
+            width: '14%'
         }, {
             title: '状态',
             dataIndex: 'active',
@@ -170,14 +167,14 @@ export default class DataSource extends Component {
             render: (text, record) => {
                 return record.active === 1 ? '使用中' : '未启用'
             },
+            width: '8%'
         }, {
             title: '操作',
             width: '10%',
-            key: 'operation',
             render: (text, record) => {
                  // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
-                    <span key={record.id}>
+                    <span>
                         <a onClick={() => {this.initEdit(record)}}>
                             编辑
                         </a>
@@ -191,7 +188,7 @@ export default class DataSource extends Component {
                         </Popconfirm>
                     </span>
                 )
-            },
+            }
         }]
     }
 
@@ -204,14 +201,15 @@ export default class DataSource extends Component {
             pageSize: params.pageSize,
             total: sourceQuery.totalCount,
         };
+
         const cardTitle = (
             <Search
                 placeholder="数据源名称"
                 style={{ width: 200, margin: '10px 0' }}
-                onChange={this.onSourceNameChange}
                 onSearch={this.searchDataSources}
             />
         )
+
         const cardExtra = (
             <Button
                 type="primary"
@@ -238,30 +236,30 @@ export default class DataSource extends Component {
 
                 <div className="box-2 m-card shadow">
                     <Card 
-                        title={cardTitle} 
-                        extra={cardExtra} 
                         noHovering 
                         bordered={false}
+                        title={cardTitle} 
+                        extra={cardExtra} 
                     >
                         <Table
-                            className="m-table"
                             rowKey="id"
-                            pagination={pagination}
-                            onChange={this.handleTableChange}
                             loading={loading}
+                            className="m-table"
+                            pagination={pagination}
                             columns={this.initColumns()}
                             dataSource={sourceQuery.data}
+                            onChange={this.handleTableChange}
                         />
                     </Card>
                 </div>
 
                 <DataSourceForm
                     title={title}
-                    visible={visible}
                     status={status}
+                    visible={visible}
+                    sourceData={source}
                     editDataSource={this.editDataSource}
                     testConnection={this.testConnection}
-                    sourceData={source}
                     handCancel={() => { this.setState({ visible: false }) }}
                 />
             </div>

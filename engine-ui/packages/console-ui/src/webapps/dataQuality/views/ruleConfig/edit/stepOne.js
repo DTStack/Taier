@@ -23,9 +23,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
@@ -49,7 +46,6 @@ export default class StepOne extends Component {
     }
     
     componentDidMount() {
-        this.props.getDataSourcesList();
     }
 
     // 数据源下拉框
@@ -297,12 +293,12 @@ export default class StepOne extends Component {
                     key: item,
                     dataIndex: item,
                     width: 80,
-                    render: function(txt) {
+                    render: (value) => {
                         return <TableCell 
                             className="no-scroll-bar"
-                            value={txt} 
-                            resize="none"
-                            style={{ minWidth: '80px', width:'100%' }} 
+                            value={value ? value : undefined}
+                            readOnly
+                            style={{ minWidth: 80, width: '100%', resize: 'none' }} 
                         />
                     }
                 }
@@ -442,7 +438,7 @@ export default class StepOne extends Component {
                             <Table 
                                 rowKey="key"
                                 className="m-table m-cells preview-table"
-                                columns={this.initColumns(sourcePreview.columnList)} 
+                                columns={this.previewTableColumns(sourcePreview.columnList)} 
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
                                 scroll={{ x: 1000 }}

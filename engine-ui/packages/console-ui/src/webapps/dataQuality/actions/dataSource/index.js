@@ -1,21 +1,21 @@
-import { dataSourceActions as ACTION_TYPE } from '../../consts/dataSourceActions';
+import { dataSourceActionType } from '../../consts/dataSourceActionType';
 import API from '../../api/dataSource';
 
 export const dataSourceActions = {
 	getDataSources(params) {
 		return dispatch => {
 			dispatch({
-				type: ACTION_TYPE.CHANGE_LOADING
+				type: dataSourceActionType.CHANGE_LOADING
 			});
 			API.getDataSources(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES,
+						type: dataSourceActionType.GET_DATA_SOURCES,
 						payload: res.data
 					});
 				}
 				dispatch({
-					type: ACTION_TYPE.CHANGE_LOADING
+					type: dataSourceActionType.CHANGE_LOADING
 				});
 			});
 		}
@@ -25,7 +25,7 @@ export const dataSourceActions = {
 			API.getDataSourcesType(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_TYPE,
+						type: dataSourceActionType.GET_DATA_SOURCES_TYPE,
 						payload: res.data
 					});
 				}
@@ -37,7 +37,7 @@ export const dataSourceActions = {
 			API.getDataSourcesList(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_LIST,
+						type: dataSourceActionType.GET_DATA_SOURCES_LIST,
 						payload: res.data
 					});
 				}
@@ -49,12 +49,12 @@ export const dataSourceActions = {
 			API.getDataSourcesTable(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_TABLE,
+						type: dataSourceActionType.GET_DATA_SOURCES_TABLE,
 						payload: res.data
 					});
 				} else {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_TABLE,
+						type: dataSourceActionType.GET_DATA_SOURCES_TABLE,
 						payload: []
 					});
 				}
@@ -66,7 +66,7 @@ export const dataSourceActions = {
 			API.getDataSourcesColumn(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_COLUMN,
+						type: dataSourceActionType.GET_DATA_SOURCES_COLUMN,
 						payload: res.data
 					});
 				}
@@ -78,7 +78,7 @@ export const dataSourceActions = {
 			API.getDataSourcesPart(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_PART,
+						type: dataSourceActionType.GET_DATA_SOURCES_PART,
 						payload: res.data ? res.data : {}
 					});
 				}
@@ -88,7 +88,7 @@ export const dataSourceActions = {
 	resetDataSourcesPart() {
 		return dispatch => {
 			dispatch({
-				type: ACTION_TYPE.RESET_DATA_SOURCES_PART
+				type: dataSourceActionType.RESET_DATA_SOURCES_PART
 			});
 		}
 	},
@@ -108,7 +108,7 @@ export const dataSourceActions = {
                     });
 
 					dispatch({
-						type: ACTION_TYPE.GET_DATA_SOURCES_PREVIEW,
+						type: dataSourceActionType.GET_DATA_SOURCES_PREVIEW,
 						payload: res.data
 					});
 				}
