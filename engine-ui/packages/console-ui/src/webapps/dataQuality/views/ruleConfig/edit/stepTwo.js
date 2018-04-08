@@ -181,13 +181,11 @@ export default class StepTwo extends Component {
         obj[type] = value.target ? value.target.value : value;
 
         this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
-        console.log(this,obj,'currentRule')
     }
 
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
-        const { currentRule } = this.state;
 
         let columnType   = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
@@ -196,9 +194,9 @@ export default class StepTwo extends Component {
         this.setState({ 
             functionList,
             currentRule: {
-                ...currentRule, 
-                functionId: undefined,
-                columnName: name
+                ...this.state.currentRule, 
+                columnName: name,
+                functionId: undefined
             }
         });
     }
@@ -213,19 +211,22 @@ export default class StepTwo extends Component {
                 ...this.state.currentRule, 
                 functionId: id,
                 functionName: nameZc, 
+                verifyType: undefined,
                 isPercentage, 
+                percentType: isPercentage === 1 ? 'limit' : 'free'
             };
 
-        form.setFieldsValue({ operator: undefined });
+        form.setFieldsValue({ 
+            verifyType: undefined,
+            operator: undefined 
+        });
 
         if (nameZc === '枚举值') {
-            currentRule.isEnum = true;
-            currentRule.operator = undefined;
+            currentRule.operator = 'in';
             currentRule.verifyType = '1';
-            currentRule.verifyTypeValue = '固定值';
             form.setFieldsValue({ verifyType: '1' });
         } else {
-            delete currentRule.isEnum;
+            currentRule.operator = undefined;
         }
 
         this.setState({ currentRule });
@@ -234,13 +235,19 @@ export default class StepTwo extends Component {
     // 校验方法变化回调
     onVerifyTypeChange = (value) => {
         const { verifyType } = this.props.common.allDict;
+        let { isPercentage, percentType } = this.state.currentRule;
         let verifyTypeValue = verifyType.filter(item => item.value == value)[0].name;
+
+        if (percentType === 'free' || !percentType) {
+            isPercentage = value == 1 ? 0 : 1;
+        } 
 
         this.setState({
             currentRule: {
                 ...this.state.currentRule,
                 verifyType: value,
-                verifyTypeValue
+                verifyTypeValue,
+                isPercentage
             }
         });
     }
@@ -321,7 +328,9 @@ export default class StepTwo extends Component {
                                 onChange={this.onFunctionChange}>
                                 {
                                     functionList.map((item) => {
-                                        return <Option key={item.id} value={item.id.toString()}>
+                                        return <Option 
+                                            key={item.id} 
+                                            value={item.id.toString()}>
                                             {item.nameZc}
                                         </Option>
                                     })
@@ -376,7 +385,7 @@ export default class StepTwo extends Component {
             }
 
             case 'threshold': {
-                if (currentRule.isEnum) {
+                if (currentRule.operator === 'in') {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('thresholdEnum', {
@@ -434,7 +443,7 @@ export default class StepTwo extends Component {
                         }
                         </FormItem>
                         {
-                            (currentRule.isPercentage === 1 || currentRule.verifyType != 1)
+                            currentRule.isPercentage === 1
                             &&
                             <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                         }

@@ -121,7 +121,7 @@ export default class RuleEditPane extends Component {
             render: (text, record) => this.renderColumns(text, record, 'verifyType'),
             width: '15%',
         }, {
-            title: '阈值配置',
+            title: '阈值配置（不符合阈值条件时触发告警）',
             dataIndex: 'threshold',
             key: 'threshold',
             render: (text, record) => this.renderColumns(text, record, 'threshold'),
@@ -186,17 +186,15 @@ export default class RuleEditPane extends Component {
     }
 
     changeRuleParams = (type, value) => {
-        const { currentRule } = this.state;
         let obj = {};
-
         obj[type] = value.target ? value.target.value : value;
-        this.setState({ currentRule: {...currentRule, ...obj} });
+
+        this.setState({ currentRule: {...this.state.currentRule, ...obj} });
     }
 
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
-        const { currentRule } = this.state;
 
         let columnType   = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
@@ -205,9 +203,9 @@ export default class RuleEditPane extends Component {
         this.setState({ 
             functionList,
             currentRule: {
-                ...currentRule, 
-                functionId: undefined,
-                columnName: name
+                ...this.state.currentRule, 
+                columnName: name,
+                functionId: undefined
             }
         });
     }
@@ -222,10 +220,15 @@ export default class RuleEditPane extends Component {
                 ...this.state.currentRule, 
                 functionId: id,
                 functionName: nameZc,
-                isPercentage
+                verifyType: undefined,
+                isPercentage,
+                percentType: isPercentage === 1 ? 'limit' : 'free'
             };
 
-        form.setFieldsValue({ operator: undefined });
+        form.setFieldsValue({ 
+            verifyType: undefined,
+            operator: undefined 
+        });
 
         if (nameZc === '枚举值') {
             currentRule.operator = 'in';
@@ -240,6 +243,23 @@ export default class RuleEditPane extends Component {
 
     isStringLength = (name) => {
         return name === '字符串最大长度' || name === '字符串最小长度';
+    }
+
+    // 校验方法变化回调
+    onVerifyTypeChange = (value) => {
+        let { isPercentage, percentType } = this.state.currentRule;
+
+        if (percentType === 'free' || !percentType) {
+            isPercentage = value == 1 ? 0 : 1;
+        } 
+
+        this.setState({
+            currentRule: {
+                ...this.state.currentRule,
+                verifyType: value,
+                isPercentage
+            }
+        });
     }
 
     renderEditTD = (text, record, type) => {
@@ -315,7 +335,9 @@ export default class RuleEditPane extends Component {
                                 disabled={record.editStatus === 'edit'}>
                                 {
                                     functionList.map((item) => {
-                                        return <Option key={item.id} value={item.id.toString()}>
+                                        return <Option 
+                                            key={item.id} 
+                                            value={item.id.toString()}>
                                             {item.nameZc}
                                         </Option>
                                     })
@@ -353,11 +375,13 @@ export default class RuleEditPane extends Component {
                             initialValue: record.verifyType ? record.verifyType.toString() : undefined
                         })(
                             <Select 
-                                onChange={this.changeRuleParams.bind(this, 'verifyType')}
+                                onChange={this.onVerifyTypeChange}
                                 disabled={record.editStatus === 'edit' || currentRule.operator === 'in'}>
                                 {
                                     verifyType.map((item) => {
-                                        return <Option key={item.value} value={item.value.toString()}>
+                                        return <Option 
+                                            key={item.value} 
+                                            value={item.value.toString()}>
                                             {item.name}
                                         </Option>
                                     })
@@ -379,8 +403,8 @@ export default class RuleEditPane extends Component {
                                 initialValue: record.threshold
                             })(
                                 <Input
-                                  placeholder="枚举格式为(value1,value2,.....)"
-                                  onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                    placeholder="枚举格式为(value1,value2,.....)"
+                                    onChange={this.changeRuleParams.bind(this, 'threshold')}
                                 /> 
                             )
                         }
@@ -420,14 +444,14 @@ export default class RuleEditPane extends Component {
                                     initialValue: record.threshold
                                 })(
                                     <InputNumber
-                                      style={{ width: 65, marginRight: 5 }}
-                                      onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                        style={{ width: 65, marginRight: 5 }}
+                                        onChange={this.changeRuleParams.bind(this, 'threshold')}
                                     /> 
                                 )
                             }
                         </FormItem>
                         {
-                            (currentRule.isPercentage === 1 || currentRule.verifyType != 1)
+                            currentRule.isPercentage === 1
                             &&
                             <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                         }
@@ -663,7 +687,7 @@ export default class RuleEditPane extends Component {
 
         this.props.executeMonitor({ monitorId });
         this.props.closeSlidePane();
-        hashHistory.push(`/dq/taskQuery?tb=${data.tableName}`);
+        hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
     }
 
     changeMonitorStatus = (monitorId) => {
