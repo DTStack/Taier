@@ -9,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.odps.util.OdpsUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ public class OdpsClient extends AbsClient {
                 if (!sql.endsWith(SPLIT)) {
                     sql = sql + SPLIT;
                 }
-                String taskName = "query_task_" + Calendar.getInstance().getTimeInMillis();
+                String taskName = StringUtils.isBlank(jobClient.getJobName())?"query_task_" + Calendar.getInstance().getTimeInMillis():jobClient.getJobName();
                 SQLTask task = new SQLTask();
                 task.setName(taskName);
                 task.setQuery(sql);
