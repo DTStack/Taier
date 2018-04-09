@@ -293,7 +293,7 @@ export default class StepThree extends Component {
     }
 
     bindEvents() {
-        const { w, h, W, padding } = this.state;
+        const { w, h, W, padding, selectedSource, selectedTarget } = this.state;
         const { addLinkedKeys, delLinkedKeys } = this.props;
 
         const $line = this.$activeLine;
@@ -368,6 +368,31 @@ export default class StepThree extends Component {
                     source: d.dl,
                     target: d.dr,
                 });
+
+                let sourceCheck = [...selectedSource],
+                    targetCheck = [...selectedTarget],
+                    mapPk = {};
+
+                if (selectedSource.includes(d.dl)) {
+                    sourceCheck = sourceCheck.filter(item => item !== d.dl);
+                }
+
+                if (selectedTarget.includes(d.dr)) {
+                    targetCheck = targetCheck.filter(item => item !== d.dr);
+                }
+
+                this.setState({
+                    selectedSource: sourceCheck,
+                    selectedTarget: targetCheck
+                });
+
+                // mapperPk
+                sourceCheck.forEach((s, index) => {
+                    mapPk[s] = targetCheck[index]
+                });
+                this.props.changeParams({
+                    mappedPK: mapPk
+                });
             });
     }
 
@@ -427,73 +452,61 @@ export default class StepThree extends Component {
     	const { setting } = this.props.editParams;
         switch (key) {
             case 'diverseNum':
-                return (
-                    <div>
-                        记录数差异，对比左右表的总记录数，差距小于
-                        {
-                            getFieldDecorator('diverseNum', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.diverseNum
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        %时候，计为成功匹配
-                    </div>
-                )
+                return <div>
+                    记录数差异，对比左右表的总记录数，差距小于
+                    {
+                        getFieldDecorator('diverseNum', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.diverseNum
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    %时候，计为成功匹配
+                </div>
             case 'diverseRatio':
-                return (
-                    <div>
-                        数值差异百分比，对比左右表的数值型数据时，差距百分比小于
-                        {
-                            getFieldDecorator('diverseRatio', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.diverseRatio
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        %时候，计为成功匹配
-                    </div>
-                )
+                return <div>
+                    数值差异百分比，对比左右表的数值型数据时，差距百分比小于
+                    {
+                        getFieldDecorator('diverseRatio', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.diverseRatio
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    %时候，计为成功匹配
+                </div>
             case 'diverseAbsolute':
-                return (
-                    <div>
-                        数值差异绝对值，对比左右表的数值型数据时，差距绝对值小于
-                        {
-                            getFieldDecorator('diverseAbsolute', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.diverseAbsolute
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        时候，计为成功匹配
-                    </div>
-                )
+                return <div>
+                    数值差异绝对值，对比左右表的数值型数据时，差距绝对值小于
+                    {
+                        getFieldDecorator('diverseAbsolute', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.diverseAbsolute
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    时候，计为成功匹配
+                </div>
             case 'decimalRetain':
-                return (
-                    <div>
-                        数值对比忽略小数点，忽略小数点后
-                        {
-                            getFieldDecorator('decimalRetain', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.decimalRetain
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        位
-                    </div>
-                )
+                return <div>
+                    数值对比忽略小数点，忽略小数点后
+                    {
+                        getFieldDecorator('decimalRetain', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.decimalRetain
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    位
+                </div>
             case 'matchCase':
-                return (
-                    <p>字符不区分大小写，对比左右表的字符串型数据时，不区分大小写</p>
-                )
+                return <p>字符不区分大小写，对比左右表的字符串型数据时，不区分大小写</p>
             case 'matchNull':
-                return (
-                    <p>空值与NULL等价，对比左右表的数据时，认为空值与NULL值是相等的</p>
-                )
+                return <p>空值与NULL等价，对比左右表的数据时，认为空值与NULL值是相等的</p>
             default:
                 break;
         }

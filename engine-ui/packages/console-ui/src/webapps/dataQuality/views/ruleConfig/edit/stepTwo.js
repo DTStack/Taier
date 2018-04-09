@@ -278,7 +278,7 @@ export default class StepTwo extends Component {
                                 initialValue: record.customizeSql
                             })(
                                 <Input 
-                                    placeholder="查询结果为一个数值类型，并且以val为别名"
+                                    placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
                             )
                         }

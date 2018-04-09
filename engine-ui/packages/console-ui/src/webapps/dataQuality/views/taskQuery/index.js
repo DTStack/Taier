@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon } from 'antd';
 import moment from 'moment';
-import { isNull } from 'lodash';
 
 import utils from 'utils';
 import SlidePane from 'widgets/slidePane';
@@ -12,7 +11,6 @@ import TaskTablePane from './taskTablePane';
 import { TaskStatus } from '../../components/display';
 import { taskStatusFilter } from '../../consts';
 import { taskQueryActions } from '../../actions/taskQuery';
-import '../../styles/views/taskQuery.scss';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -71,8 +69,7 @@ export default class TaskQuery extends Component {
                 return text ? text : '--';
             },
             width: '15%'
-        }, 
-        {
+        }, {
             title: '状态',
             width: '10%',
             dataIndex: 'status',
@@ -95,10 +92,11 @@ export default class TaskQuery extends Component {
             },
             filters: taskStatusFilter,
         }, {
-            title: '告警总数',
+            title: '规则异常数',
             dataIndex: 'alarmSum',
             key: 'alarmSum',
             width: '8%',
+            // sorter: true
         }, {
             title: '类型',
             dataIndex: 'sourceTypeValue',
@@ -129,19 +127,21 @@ export default class TaskQuery extends Component {
     onTableChange = (page, filter, sorter) => {
         let { field, order } = sorter;
         let params = {
+            ...this.state.params,
             currentPage: page.current,
             statusFilter: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
             alarmSumSort: undefined,
             executeTimeSort: undefined,
-        }
+        };
+
         if (field) {
             params[
                 field === 'alarmSum' ? 'alarmSumSort' : 'executeTimeSort'
             ] = order === 'descend' ? 'desc' : 'asc';
         }
-        const reqParams = Object.assign(this.state.params, params)
-        this.setState({ params: reqParams });
-        this.props.getTaskList(reqParams);
+
+        this.props.getTaskList(params);
+        this.setState({ params });
     }
 
     // 数据源类型下拉框
@@ -157,13 +157,16 @@ export default class TaskQuery extends Component {
         });
     }
 
-    // 数据源类型变化回调
+    // 数据源类型筛选
     onSourceChange = (type) => {
-        let dataSourceType = type ? type : undefined;
-        let params = {...this.state.params, dataSourceType};
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            dataSourceType: type ? type : undefined
+        };
         
-        this.setState({ params });
         this.props.getTaskList(params);
+        this.setState({ params });
     }
 
     // 数据源下拉框
@@ -181,16 +184,19 @@ export default class TaskQuery extends Component {
         });
     }
 
-    // 数据源变化回调
+    // 数据源筛选
     onUserSourceChange = (id) => {
-        let dataSourceId = id ? id : undefined;
-        let params = {...this.state.params, dataSourceId};
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            dataSourceId: id ? id : undefined
+        };
         
-        this.setState({ params });
         this.props.getTaskList(params);
+        this.setState({ params });
     }
 
-    // user下拉框
+    // 配置人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
             return (
@@ -204,40 +210,52 @@ export default class TaskQuery extends Component {
         })
     }
 
-    // 配置人变化回调
+    // 配置人筛选
     onUserChange = (id) => {
-        let configureId = id ? id : undefined;
-        let params = {...this.state.params, configureId};
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            configureId: id ? id : undefined
+        };
         
-        this.setState({ params });
         this.props.getTaskList(params);
+        this.setState({ params });
     }
 
-    // 执行时间变化回调
+    // 执行时间筛选
     onExecuteTimeChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : 0;
-        let params = {...this.state.params, executeTime};
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            executeTime: date ? date.valueOf() : 0
+        };
         
-        this.setState({ params });
         this.props.getTaskList(params);
+        this.setState({ params });
     }
 
-    // 是否订阅回调
+    // 是否订阅筛选
     onSubscribeChange = (e) => {
-        let subscribe = e.target.checked ? true : undefined;
-        let params = {...this.state.params, subscribe};
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            subscribe: e.target.checked ? true : undefined
+        };
         
-        this.setState({ params });
         this.props.getTaskList(params);
+        this.setState({ params });
     }
 
     // table搜索
-    handleSearch = (name) => {
-        let fuzzyName = name ? name : undefined;
-        let params = {...this.state.params, fuzzyName};
+    onTableSearch = (name) => {
+        let params = {
+            ...this.state.params, 
+            currentPage: 1,
+            fuzzyName: name ? name : undefined
+        };
 
-        this.setState({ params });
         this.props.getTaskList(params);
+        this.setState({ params });
     }
 
     openSlidePane = (record) => {
@@ -262,7 +280,7 @@ export default class TaskQuery extends Component {
     disabledDate = (current) => {
         return current && current.valueOf() > Date.now();
     }
-    
+
     render() {
     	const { dataSource, taskQuery, common } = this.props;
         const { sourceType, sourceList } = dataSource;
@@ -280,7 +298,7 @@ export default class TaskQuery extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
-                    onSearch={this.handleSearch}
+                    onSearch={this.onTableSearch}
                     defaultValue={params.fuzzyName}
                     style={{ width: 200, margin: '10px 0' }}
                 />
@@ -288,10 +306,9 @@ export default class TaskQuery extends Component {
                 <div className="m-l-8">
                     类型：
                     <Select 
-                        defaultValue={params.dataSourceType}
-                        placeholder="选择数据源类型"
                         allowClear
                         style={{ width: 150 }}
+                        value={params.dataSourceType}
                         placeholder="选择数据源类型"
                         onChange={this.onSourceChange}>
                         {
@@ -344,7 +361,6 @@ export default class TaskQuery extends Component {
                 <div className="m-l-8">
                     <Checkbox onChange={this.onSubscribeChange}>我订阅的表</Checkbox>
                 </div>
-
             </div>
         )
 
@@ -378,7 +394,7 @@ export default class TaskQuery extends Component {
                         <SlidePane 
                             onClose={this.closeSlidePane}
                             visible={showSlidePane} 
-                            style={{ right: '0', width: '80%', minHeight: '500px', height: 'auto' }}
+                            style={{ right: '0', width: '80%', minHeight: '450px', height: 'auto' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 
@@ -386,19 +402,17 @@ export default class TaskQuery extends Component {
                                     activeKey={tabKey}
                                     onChange={this.onTabChange}
                                 >
-                                    
                                     <TabPane tab="详细报告" key="1">
-                                        <TaskDetailPane data={currentTask}></TaskDetailPane>
+                                        <TaskDetailPane data={currentTask} />
                                     </TabPane>
                                     <TabPane tab="表级报告" key="2">
-                                        <TaskTablePane data={currentTask}></TaskTablePane>
+                                        <TaskTablePane data={currentTask} />
                                     </TabPane>
                                 </Tabs>
                             </div>
                         </SlidePane>
                     </Card>
                 </div>
-
             </div>
         )
     }
