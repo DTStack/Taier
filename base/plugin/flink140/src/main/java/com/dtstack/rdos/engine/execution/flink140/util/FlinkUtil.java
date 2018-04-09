@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -367,9 +368,21 @@ public class FlinkUtil {
 
             String readerClasspath = "file://" + flinkSyncPluginRoot + fileSP + readerName + fileSP + readerName + ".jar";
             String writerClasspath = "file://" + flinkSyncPluginRoot + fileSP + writerName + fileSP + writerName + ".jar";
-
             urlList.add(new URL(readerClasspath));
             urlList.add(new URL(writerClasspath));
+
+            File commonDir = new File(flinkSyncPluginRoot + fileSP + "common" + fileSP);
+            if(commonDir.exists() && commonDir.isDirectory()) {
+                File[] commonJarFiles = commonDir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.toLowerCase().endsWith(".jar");
+                    }
+                });
+                for(File commonJarFile : commonJarFiles) {
+                    urlList.add(commonJarFile.toURI().toURL());
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
