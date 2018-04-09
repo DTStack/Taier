@@ -86,6 +86,7 @@ public class HadoopClient extends AbsClient {
         }
 
         yarnDelegate.init(conf);
+        yarnDelegate.start();
     }
 
     @Override
