@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { isEmpty } from 'lodash';
 
 import {
     Table, Row, Col, Select, Form, Card,
@@ -42,12 +43,41 @@ export default class AtomIndexDefine extends BasePane {
         })
     }
 
+    changeParams = (field, value) => {
+        let params = Object.assign(this.state.params);
+        if (field) {
+            params[field] = value;
+        }
+        this.setState({
+            params,
+        }, this.loadData)
+    }
+
+    changeSearchName = (e) => {
+        this.setState({
+            params: Object.assign(this.state.params, {
+                name: e.target.value,
+                currentPage: 1,
+            }),
+        })
+    }
+
     update = (formData) => {
-        Api.addModelIndex(formData).then(res => {
+        const { modalData } = this.state;
+        const isEdit = modalData && !isEmpty(modalData);
+        const succCallback = (res) => {
             if (res.code === 1) {
                 this.loadData();
+                this.setState({
+                    modalData: null,
+                })
             }
-        })
+        }
+        if (isEdit) {
+            Api.updateModelIndex(formData).then(succCallback)
+        } else {
+            Api.addModelIndex(formData).then(succCallback)
+        }
     }
 
     delete = (data) => {
@@ -65,7 +95,7 @@ export default class AtomIndexDefine extends BasePane {
             dataIndex: 'alarmName',
             key: 'alarmName',
         }, {
-            width: 80,
+            width: 120,
             title: '原子指标名称',
             dataIndex: 'taskName',
             key: 'taskName',
@@ -120,19 +150,26 @@ export default class AtomIndexDefine extends BasePane {
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
-                            <FormItem label="类型">
+                            <FormItem label="">
+                                <Input.Search
+                                    placeholder="按指标名称搜索"
+                                    style={{ width: 200 }}
+                                    size="default"
+                                    onChange={ this.changeSearchName }
+                                    onSearch={ this.loadData }
+                                    ref={ el => this.searchInput = el }
+                                />
+                            </FormItem>
+                            <FormItem label="指标类型">
                                 <Select
                                     allowClear
-                                    showSearch
                                     style={{ width: 200 }}
-                                    placeholder="选择创建人"
-                                    optionFilterProp="name"
-                                    onChange={this.changeReceive}
+                                    placeholder="选择指标类型"
+                                    onChange={(value) => this.changeParams('columnType', value)}
                                 >
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
+                                    <Option value="1">原子指标</Option>
+                                    <Option value="2">修饰词</Option>
+                                    <Option value="3">衍生指标</Option>
                                 </Select>
                             </FormItem>
                         </Form>
@@ -154,7 +191,7 @@ export default class AtomIndexDefine extends BasePane {
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}
-                            onChange={this.handleTableChange}
+                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
                             dataSource={table.data || []}
                         />
                 </Card>

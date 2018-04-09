@@ -3,10 +3,10 @@ import assign from 'object-assign';
 import { cloneDeep, isEqual } from 'lodash';
 import { dataModelActions } from './actionTypes';
 
-const themeFields = function( state = [] , action) {
+const subjectFields = function( state = [] , action) {
     const { type, payload } = action;
     switch (type) {
-        case dataModelActions.GET_THEME_FIELDS: {
+        case dataModelActions.GET_SUBJECT_FIELDS: {
             return payload
         }
         default: {
@@ -53,7 +53,7 @@ const freshFrequencies = function( state = [] , action) {
 
 export const dataModel = combineReducers({
     modelLevels,
-    themeFields,
+    subjectFields,
     incrementCounts,
     freshFrequencies,
 });

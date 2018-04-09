@@ -8,13 +8,13 @@ import {
 
 import utils from 'utils';
 
-import ThemeDomainModal from './paneTwoModal';
+import SubjectDomainModal from './paneTwoModal';
 import BasePane from './basePane';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class ThemeDomain extends BasePane {
+export default class SubjectDomain extends BasePane {
 
     constructor(props) {
         super(props);
@@ -116,7 +116,7 @@ export default class ThemeDomain extends BasePane {
                             dataSource={table.data || []}
                         />
                 </Card>
-                <ThemeDomainModal 
+                <SubjectDomainModal 
                     data={ modalData }
                     handOk={ this.update }
                     handCancel={ () => this.setState({ modalVisible: false })}

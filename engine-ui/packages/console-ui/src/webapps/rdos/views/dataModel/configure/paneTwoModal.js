@@ -13,7 +13,7 @@ const FormItem = Form.Item
 const RadioGroup = Radio.Group
 const Option = Select.Option;
 
-class ThemeDomainModal extends Component {
+class SubjectDomainModal extends Component {
 
     state = { }
 
@@ -120,5 +120,5 @@ class ThemeDomainModal extends Component {
         )
     }
 }
-const wrappedForm = Form.create()(ThemeDomainModal);
+const wrappedForm = Form.create()(SubjectDomainModal);
 export default wrappedForm

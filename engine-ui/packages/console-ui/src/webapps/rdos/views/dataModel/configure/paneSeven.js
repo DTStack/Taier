@@ -10,6 +10,7 @@ import utils from 'utils';
 
 import BasePane from './basePane';
 import DeriveIndexModal from './paneSevenModal';
+import Api from '../../../api/dataModel';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -25,9 +26,68 @@ export default class DeriveIndexDefine extends BasePane {
         }, this.loadData)
     }
 
-    update = (formData) => {}
+    loadData = () => {
+        const { params } = this.state;
+        this.setState({
+            loading: true,
+        })
+        Api.getModelIndexs(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    table: res.data
+                })
+            }
+            this.setState({
+                loading: false,
+            })
+        })
+    }
 
-    delete = (data) => {}
+    update = (formData) => {
+        const { modalData } = this.state;
+        const isEdit = modalData && !isEmpty(modalData);
+        const succCallback = (res) => {
+            if (res.code === 1) {
+                this.loadData();
+                this.setState({
+                    modalData: null,
+                })
+            }
+        }
+        if (isEdit) {
+            Api.updateModelIndex(formData).then(succCallback)
+        } else {
+            Api.addModelIndex(formData).then(succCallback)
+        }
+    }
+
+    delete = (data) => {
+        const { params } = this.state;
+        Api.deleteModelIndex(params).then(res => {
+            if (res.code === 1) {
+                this.loadData();
+            }
+        })
+    }
+
+    changeParams = (field, value) => {
+        let params = Object.assign(this.state.params);
+        if (field) {
+            params[field] = value;
+        }
+        this.setState({
+            params,
+        }, this.loadData)
+    }
+
+    changeSearchName = (e) => {
+        this.setState({
+            params: Object.assign(this.state.params, {
+                name: e.target.value,
+                currentPage: 1,
+            }),
+        })
+    }
 
     initColumns = () => {
         return [{
@@ -102,20 +162,15 @@ export default class DeriveIndexDefine extends BasePane {
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
-                            <FormItem label="类型">
-                                <Select
-                                    allowClear
-                                    showSearch
+                            <FormItem label="">
+                                <Input.Search
+                                    placeholder="按指标名称搜索"
                                     style={{ width: 200 }}
-                                    placeholder="选择创建人"
-                                    optionFilterProp="name"
-                                    onChange={this.changeReceive}
-                                >
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
-                                </Select>
+                                    size="default"
+                                    onChange={ this.changeSearchName }
+                                    onSearch={ this.loadData }
+                                    ref={ el => this.searchInput = el }
+                                />
                             </FormItem>
                         </Form>
                     }
@@ -136,7 +191,7 @@ export default class DeriveIndexDefine extends BasePane {
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}
-                            onChange={this.handleTableChange}
+                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
                             dataSource={table.data || []}
                         />
                 </Card>

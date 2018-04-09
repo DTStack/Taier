@@ -7,7 +7,10 @@ import {
     Form, Row, Col, Icon
 } from 'antd';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataModel';
+import { 
+    tableModelRules,
+} from '../../../comm/const';
 
 import BaseForm from './baseForm';
 import ColumnsPartition from './columnsPartition';
@@ -20,7 +23,10 @@ class TableCreator extends React.Component {
         super(props);
 
         this.state = {
+
             current: 0,
+
+            tableNameRules: tableModelRules,
 
             table: {
                 tableName: '',
@@ -41,10 +47,14 @@ class TableCreator extends React.Component {
         };
     }
 
+    componentDidMount() {
+        this.loadTableNameRules();
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         let shouldUpdate = false;
 
-        if(this.state.current === 0) {
+        if (this.state.current === 0) {
             if(this.state.type !== nextState.type) shouldUpdate = true;
             else shouldUpdate = this.state.current !== nextState.current;
         }
@@ -52,7 +62,30 @@ class TableCreator extends React.Component {
             shouldUpdate = true;
         }
 
+        if (this.state.tableNameRules !== nextState.tableNameRules) {
+            return true;
+        }
+
         return shouldUpdate;
+    }
+
+    loadTableNameRules = () => {
+        ajax.getTableNameRules().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tableNameRules: res.data,
+                })
+            }
+        })
+    }
+
+    changeRuleValue = (value, index) => {
+        const newArrs = [...this.state.tableNameRules];
+        newArrs[index].field = value;
+        console.log('arguments:', newArrs[index], value, index)
+        this.setState({
+            tableNameRules: newArrs
+        });
     }
 
     next() {
@@ -83,7 +116,7 @@ class TableCreator extends React.Component {
     }
 
     doCreate() {
-        const { table, current } = this.state;
+        const { table, current, tableNameRules } = this.state;
         let { columns, partition_keys } = table;
 
         columns = this.reduceRowData(columns);
@@ -91,6 +124,10 @@ class TableCreator extends React.Component {
 
         if(partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
+        }
+        // 利用表名生成表名
+        if (tableNameRules.length > 0) {
+            table.tableName = tableNameRules.map(rule => rule.name).join('_');
         }
         else {
             ajax.createTable(table).then(res => {
@@ -116,10 +153,6 @@ class TableCreator extends React.Component {
         return arr.filter(data => {
             return data.name !== '';
         });
-    }
-
-    dosth() {
-        console.log(arguments);
     }
 
     /**
@@ -247,7 +280,7 @@ class TableCreator extends React.Component {
 
     render() {
         const the = this;
-        
+
         const BaseFormWrapper = Form.create({
             onValuesChange(props, values) {
                 the.setState(state => {
@@ -261,6 +294,8 @@ class TableCreator extends React.Component {
             title: '基本信息',
             content: <BaseFormWrapper
                 {...this.state.table}
+                tableNameRules={this.state.tableNameRules}
+                changeRuleValue={this.changeRuleValue}
                 ref={ el => this.baseForm = el }
                 resetLoc={ this.resetLoc.bind(this) }
             />

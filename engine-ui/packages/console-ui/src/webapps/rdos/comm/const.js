@@ -94,7 +94,7 @@ export const TASK_STATUS = { // 任务状态
 // 表模型规则
 export const TABLE_MODEL_RULE = {
     LEVEL: '1',
-    THEME: '2',
+    SUBJECT: '2',
     INCREMENT: '3',
     FREQUENCY: '4',
     CUSTOM: '5',

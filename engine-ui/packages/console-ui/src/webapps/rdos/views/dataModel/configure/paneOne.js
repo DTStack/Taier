@@ -81,8 +81,6 @@ export default class ModelLevel extends BasePane {
 
         const { loading, table, modalVisible, modalData } = this.state
 
-        console.log('state:', this.state)
-
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,

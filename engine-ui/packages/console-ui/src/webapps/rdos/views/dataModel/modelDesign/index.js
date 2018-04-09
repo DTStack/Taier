@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 
 import Editor from '../../../components/code-editor';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataModel';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -27,14 +27,14 @@ class TableList extends Component {
             filterDropdownVisible: false,
 
             params: {
-                pageIndex: 1,
-                tableName: '',
+                currentPage: 1,
+                fuzzyName: '',
                 isDeleted: 0, // 添加删除标记
                 isDirtyDataTable: 0, // 非脏数据标记
             },
 
             table: { data: [] },
-            themeFields: [], 
+            subjectFields: [], 
             modelLevels: []
         }
     }
@@ -55,7 +55,7 @@ class TableList extends Component {
 
     search = () => {
         const { params } = this.state;
-        ajax.searchTable(params).then(res => {
+        ajax.getTableList(params).then(res => {
             if(res.code === 1) {
                 this.setState({
                     table: res.data,
@@ -73,17 +73,22 @@ class TableList extends Component {
         this.search();
     }
 
-    handleTableChange(pagination, filters, sorter) {
-        const params = Object.assign(this.state.params, { 
-            pageIndex: pagination.current 
-        })
-        this.setState(params, this.search)
+    changeParams = (field, value) => {
+        let params = Object.assign(this.state.params);
+        if (field) {
+            params[field] = value;
+        }
+        this.setState({
+            params,
+        }, this.search)
     }
 
     onTableNameChange = (e) => {
         this.setState({
-            tableName: e.target.value,
-            current: 1,
+            params: Object.assign(this.state.params, {
+                currentPage: 1,
+                fuzzyName: e.target.value
+            })
         })
     }
 
@@ -95,7 +100,7 @@ class TableList extends Component {
 
     handleOk() {
         if(this._DDL) {
-            ajax.createDdlTable({
+            ajax.createTableByDDL({
                 sql: this._DDL
             }).then(res => {
                 if(res.code === 1) {
@@ -107,7 +112,7 @@ class TableList extends Component {
                             visible: false
                         });
                         message.info('建表成功');
-                        this.props.searchTable();
+                        this.search();
                     }
                     else {
                         message.error(res.data.message)
@@ -133,7 +138,7 @@ class TableList extends Component {
 
     render() {
         const ROUTER_BASE = '/data-model/table';
-        const { themeFields, modelLevels } = this.state
+        const { subjectFields, modelLevels } = this.state
         const tableList = this.state.table;
         const { project } = this.props;
         const { totalCount, currentPage, data } = tableList;
@@ -146,7 +151,7 @@ class TableList extends Component {
 
         const marginTop10 = { marginTop: '8px' };
 
-        const themeFieldsOptions = themeFields && themeFields.map(field =>
+        const subjectFieldsOptions = subjectFields && subjectFields.map(field =>
             <Option key={field.id} value={field.value}>{field.name}</Option>
         )
 
@@ -189,9 +194,9 @@ class TableList extends Component {
             },
             {
                 title: '主题域',
-                key: 'themeField',
+                key: 'subjectField',
                 width: 90,
-                dataIndex: 'themeField',
+                dataIndex: 'subjectField',
             },
             {
                 title: '创建者',
@@ -219,14 +224,18 @@ class TableList extends Component {
                 <FormItem label="主题域">
                     <Select 
                         placeholder="选择主题域"
-                        style={{ width: '120px'}}>
-                        { themeFieldsOptions }
+                        style={{ width: '120px'}}
+                        onChange={(value) => this.changeParams('subject', value)}
+                    >
+                        { subjectFieldsOptions }
                     </Select>
                 </FormItem>
                 <FormItem label="模型层级">
                     <Select 
                         placeholder="选择模型层级"
-                        style={{ width: '120px'}}>
+                        onChange={(value) => this.changeParams('grade', value)}
+                        style={{ width: '120px'}}
+                    >
                         {  modelLevelOptions }
                     </Select>
                 </FormItem>
@@ -265,7 +274,7 @@ class TableList extends Component {
                             columns={ columns }
                             dataSource={ data }
                             pagination={ pagination }
-                            onChange={ this.handleTableChange.bind(this) }
+                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
                         />
                         <Modal className="m-codemodal"
                             width={750}

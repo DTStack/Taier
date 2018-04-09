@@ -34,7 +34,7 @@ class ModelDefineRule extends Component {
     submit = (e) => {
         e.preventDefault()
         const formData = {
-            rules: this.state.tbNameRules,
+            rule: this.state.tbNameRules,
         }
         Api.createModelRule(formData).then(res => {
             if (res.code === 1) {
@@ -79,7 +79,7 @@ class ModelDefineRule extends Component {
         });
     }
 
-    renderTableNames = () => {
+    renderTableNameRules = () => {
         const { tbNameRules } = this.state;
         const length = tbNameRules.length;
 
@@ -121,7 +121,7 @@ class ModelDefineRule extends Component {
         );
     }
 
-    renderExample = () => {
+    renderTableName = () => {
         const { tbNameRules } = this.state;
         const names = [];
         for (let i = 0; i < tbNameRules.length; i++) {
@@ -130,7 +130,7 @@ class ModelDefineRule extends Component {
                 case TABLE_MODEL_RULE.LEVEL: {
                     names.push('ODS'); continue;
                 }
-                case TABLE_MODEL_RULE.THEME: {
+                case TABLE_MODEL_RULE.SUBJECT: {
                     names.push('sales'); continue;
                 }
                 case TABLE_MODEL_RULE.INCREMENT: {
@@ -164,13 +164,13 @@ class ModelDefineRule extends Component {
                                 label="表名"
                                 hasFeedback
                             >
-                                {this.renderTableNames()}
+                                {this.renderTableNameRules()}
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}
                                 label="生成示例"
                             >
-                            <span>{this.renderExample()}</span>
+                            <span>{this.renderTableName()}</span>
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}

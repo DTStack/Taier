@@ -5,11 +5,13 @@ import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
 
 import ajax from '../../../api';
+
 import { 
     formItemLayout, 
     tableModelRules,
     TABLE_MODEL_RULE,
 } from '../../../comm/const';
+
 import LifeCycle from '../../dataManage/lifeCycle';
 
 const FormItem = Form.Item;
@@ -28,7 +30,6 @@ export default class BaseForm extends React.Component {
 
         this.state = {
             type: '1', // 1: 内部表 2:外部表
-            tableNameRules: tableModelRules // 测试数据
         };
     }
 
@@ -84,34 +85,24 @@ export default class BaseForm extends React.Component {
         type === '1' && this.props.resetLoc();
     }
 
-    changeRuleValue = (value, index) => {
-        const newArrs = [...this.state.tableNameRules];
-        newArrs[index].field = value;
-        console.log('arguments:', newArrs[index], value, index)
-        this.setState({
-            tableNameRules: newArrs
-        });
-    }
-
     renderTableRules = () => {
 
-        const { tableNameRules } = this.state;
         const { 
-            themeFields, modelLevels, 
-            incrementCounts, freshFrequencies 
+            subjectFields, modelLevels, changeRuleValue,
+            incrementCounts, freshFrequencies, tableNameRules,
         } = this.props;
 
         const inlineStyle = { width: 80, display: 'inline-block' }
 
-        const renderRules = (type, index) => {
+        const renderRules = (rule, index) => {
 
             let data = []
-            switch(type) {
+            switch(rule.value) {
                 case TABLE_MODEL_RULE.LEVEL: {
                     data = modelLevels; break;
                 }
-                case TABLE_MODEL_RULE.THEME: {
-                    data = themeFields; break;
+                case TABLE_MODEL_RULE.SUBJECT: {
+                    data = subjectFields; break;
                 }
                 case TABLE_MODEL_RULE.INCREMENT: {
                     data = incrementCounts; break;
@@ -123,7 +114,8 @@ export default class BaseForm extends React.Component {
                 case TABLE_MODEL_RULE.CUSTOM: {
                     return (
                         <Input 
-                            onChange={(e) => this.changeRuleValue(e.target.value, index)}
+                            value={rule.field}
+                            onChange={(e) => changeRuleValue(e.target.value, index)}
                             style={inlineStyle} 
                         />
                     )
@@ -132,8 +124,9 @@ export default class BaseForm extends React.Component {
 
             return (
                 <Select
+                    value={rule.field}
                     style={inlineStyle}
-                    onSelect={(value, option) => this.changeRuleValue(value, index)}
+                    onSelect={(value, option) => changeRuleValue(value, index)}
                 >
                     {
                         data && data.map(item => 
@@ -157,7 +150,7 @@ export default class BaseForm extends React.Component {
                 marginRight: '5px'
             }}>
                 <section style={inlineStyle}>{rule.text}:</section>
-                {renderRules(rule.value, index)}
+                {renderRules(rule, index)}
             </span>
         ))
 

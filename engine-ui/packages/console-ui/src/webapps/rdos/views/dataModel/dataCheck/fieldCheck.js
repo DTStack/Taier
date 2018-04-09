@@ -9,6 +9,8 @@ import {
 
 import utils from 'utils';
 
+import Api from '../../../api/dataModel';
+
 const Option = Select.Option;
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
@@ -26,17 +28,50 @@ export default class FieldCheck extends Component {
         },
     }
 
+  
     componentDidMount() {
+        this.loadData();
     }
 
     loadData = () => {
         const { params } = this.state;
+        this.setState({
+            loading: true,
+        })
+        Api.getCheckPartitions(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    table: res.data
+                })
+            }
+            this.setState({
+                loading: false,
+            })
+        })
+    }
+
+    ignore = (record) => {
+        Api.ignoreCheck({
+            id: record.id
+        }).then(res => {
+            if (res.code === 1) {
+                this.loadData()
+                message.success('已经成功忽略该字段！')
+            }
+        })
     }
 
     changeParams = (field, value) => {
+        let params = Object.assign(this.state.params);
+        if (field === 'range' && value) {
+            params.startTime = value[0].valueOf();
+            params.endTime = value[1].valueOf();
+        } else {
+            params[field] = value;
+        }
         this.setState({
-            params: Object.assign(this.state.params, { [field]: value })
-        })
+            params,
+        }, this.loadData)
     }
 
     initColumns = () => {
@@ -80,7 +115,7 @@ export default class FieldCheck extends Component {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.updateAlarmStatus(record) }}>忽略</a>
+                        <a onClick={() => { this.ignore(record) }}>忽略</a>
                     </div>
                 )
             },
@@ -116,7 +151,7 @@ export default class FieldCheck extends Component {
                                     placeholder="选择类型"
                                     optionFilterProp="name"
                                     defaultValue={params.type}
-                                    onSelect={(value) => this.changeParams.bind('type', value)}
+                                    onChange={(value) => this.changeParams('type', value)}
                                 >
                                     <Option value="1">字段名称不合理</Option>
                                     <Option value="2">字段类型不合理</Option>
@@ -128,12 +163,12 @@ export default class FieldCheck extends Component {
                                     size="default" 
                                     style={{width: 180}} 
                                     format="YYYY-MM-DD" 
-                                    onChange={(value) => this.changeParams.bind('range', value)}
+                                    onChange={(value) => this.changeParams('range', value)}
                                 />
                             </FormItem>
                             <FormItem>
                                 <Checkbox 
-                                    onChange={(value) => this.changeParams.bind('ignore', value)}
+                                    onChange={(e) => this.changeParams('ignore', e.target.checked)}
                                 >
                                     已忽略
                                 </Checkbox>
@@ -147,7 +182,7 @@ export default class FieldCheck extends Component {
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}
-                            onChange={this.handleTableChange}
+                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
                             dataSource={table.data || []}
                         />
                 </Card>

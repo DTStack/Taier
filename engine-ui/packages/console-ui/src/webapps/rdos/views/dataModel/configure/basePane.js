@@ -65,7 +65,7 @@ export default class BasePane extends Component {
 
     handleTableChange(pagination, filters, sorter) {
         const params = Object.assign(this.state.params, { 
-            pageIndex: pagination.current 
+            currentPage: pagination.current 
         })
         this.setState(params, this.loadData)
     }
