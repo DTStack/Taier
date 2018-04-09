@@ -1,31 +1,17 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isEmpty, cloneDeep } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm, Row, Col, Card } from 'antd';
-import { taskQueryActions } from '../../actions/taskQuery';
+import { Table, Row, Col, Card } from 'antd';
 import moment from 'moment';
-import Resize from 'widgets/resize';
-import { lineAreaChartOptions } from '../../consts';
-import TQApi from '../../api/taskQuery';
 
+import Resize from 'widgets/resize';
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const mapStateToProps = state => {
-    const { taskQuery, common } = state;
-    return { taskQuery, common }
-}
+import { lineAreaChartOptions } from '../../consts';
+import TQApi from '../../api/taskQuery';
 
-const mapDispatchToProps = dispatch => ({
-    getTaskTableReport(params) {
-        dispatch(taskQueryActions.getTaskTableReport(params));
-    },
-   
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class TaskTablePane extends Component {
     constructor(props) {
         super(props);
@@ -37,6 +23,7 @@ export default class TaskTablePane extends Component {
 
     componentDidMount() {
         const { data } = this.props;
+
         this.loadReports({
             recordId: data.id,
             tableId: data.tableId
@@ -44,11 +31,13 @@ export default class TaskTablePane extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { data } = nextProps
-        if (!isEmpty(data) && this.props.data !== data) {
+        let oldData = this.props.data,
+            newData = nextProps.data;
+
+        if (!isEmpty(newData) && oldData !== newData) {
             this.loadReports({
-                recordId: data.id,
-                tableId: data.tableId
+                recordId: newData.id,
+                tableId: newData.tableId
             })
         }
     }
@@ -71,7 +60,7 @@ export default class TaskTablePane extends Component {
     initLineChart(chartData) {
         let myChart = echarts.init(document.getElementById('TableReportTrend')),
             option  = cloneDeep(lineAreaChartOptions),
-            xData = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
+            xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
             legends = [{ 
                 key: 'dayCountRecord',
                 name: '记录数'
@@ -91,7 +80,7 @@ export default class TaskTablePane extends Component {
         option.xAxis[0].axisTick = {
             show: false,
             alignWithLabel: true,
-        }
+        };
         option.xAxis[0].boundaryGap = ['5%', '5%'];
         option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
@@ -116,11 +105,11 @@ export default class TaskTablePane extends Component {
                     smooth: true,
                     symbolSize: 8,
                     data: data.map(item => item[legend.key]),
-                })
-            })
+                });
+            });
         }
 
-        return arr
+        return arr;
     }
 
     initTableInfoColumns = () => {
@@ -139,7 +128,7 @@ export default class TaskTablePane extends Component {
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             width: '40%'
-        }]  
+        }]
     }
 
     initTableReportColumns = () => {
@@ -153,7 +142,7 @@ export default class TaskTablePane extends Component {
             dataIndex: 'countTrigger',
             key: 'countTrigger',
             width: '50%'
-        }]  
+        }]
     }
 
     init30TimesInfo = () => {
@@ -174,7 +163,7 @@ export default class TaskTablePane extends Component {
             dataIndex: 'alarmRate',
             key: 'alarmRate',
             render: (text => text && text.toFixed ? text.toFixed(2) : text)
-        }]  
+        }]
     }
 
     init30TimesTableReport = () => {
@@ -194,13 +183,11 @@ export default class TaskTablePane extends Component {
             dataIndex: 'dayCountTrigger',
             key: 'dayCountTrigger',
             width: '30%'
-        }]  
+        }]
     }
 
     render() {
-        const { data, taskQuery, common } = this.props;
-        const { monitorId, visible, selectedIds, remark, tableReport } = this.state;
-        const { loading } = taskQuery;
+        const { tableReport } = this.state;
 
         let reportData = !isEmpty(tableReport) ? [tableReport] : [],
             usage = tableReport.usage ? [...tableReport.usage].reverse() : [];
@@ -208,17 +195,15 @@ export default class TaskTablePane extends Component {
         const tableReportTitle = (
             <div>
                 表级报告
-                <span style={{ fontSize: 12, color: '#999' }}>（执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD HH:mm:ss")}）</span>
+                <span 
+                    style={{ fontSize: 12, color: '#999' }}>
+                    （执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD HH:mm:ss")}）
+                </span>
             </div>
         )
 
         return (
-            <div style={{ 
-                padding: 20, 
-                overflow: 'hidden', 
-                height: '100%', 
-                overflowY: 'auto' 
-            }}>
+            <div style={{ padding: 20 }}>
                 <Table 
                     rowKey="tableName"
                     className="m-table txt-center-table"
@@ -227,8 +212,8 @@ export default class TaskTablePane extends Component {
                     dataSource={reportData}
                 />
 
-                <Row style={{ margin: '20px 0' }} gutter={16}>
-                    <Col span={12} style={{paddingLeft: 0}}>
+                <Row style={{ padding: '20px 0' }} gutter={16}>
+                    <Col span={12}>
                         <Card   
                             noHovering
                             bordered={false}
@@ -245,7 +230,8 @@ export default class TaskTablePane extends Component {
                             />
                         </Card>
                     </Col>
-                    <Col span={12} style={{paddingRight: 0}}>
+
+                    <Col span={12}>
                         <Card   
                             noHovering
                             bordered={false}
@@ -279,10 +265,11 @@ export default class TaskTablePane extends Component {
                                 columns={this.init30TimesTableReport()}
                                 pagination={false}
                                 dataSource={usage}
-                                scroll={{ y: 250 }}
+                                scroll={{ y: 245 }}
                             />
                         </Card>
                     </Col>
+
                     <Col span={12}>
                         <Card   
                             noHovering
@@ -293,7 +280,7 @@ export default class TaskTablePane extends Component {
                             style={{ width: '100%' }}
                         >
                             <Resize onResize={this.resize}>
-                                <article id="TableReportTrend" style={{ width: '100%', height: '250px' }}/>
+                                <article id="TableReportTrend" style={{ width: '100%', height: '280px' }}/>
                             </Resize>
                         </Card>
                     </Col>

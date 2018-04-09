@@ -7,7 +7,7 @@ import { TASK_STATUS, CHECK_STATUS } from '../../consts';
  * 字段状态校验
  * @param {*} status 
  */
-export function FildCheckStatus(props) {
+export function DetailCheckStatus(props) {
     switch (props.value) {
         case true: {
             return <span>通过</span>
