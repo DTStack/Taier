@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.Map;
 
-import com.dtstack.rdos.engine.entrance.CheckEngineAgumentsNotNull;
+import com.dtstack.rdos.commom.exception.EngineAgumentsException;
+import org.apache.commons.lang3.StringUtils;
 import org.yaml.snakeyaml.Yaml;
 
 
@@ -28,10 +30,24 @@ public class YamlConfig implements Config{
     @SuppressWarnings("unchecked")
     public Map<String,Object> loadConf() throws Exception{
         Map<String,Object> nodeConfig = new YamlConfig().parse(configFilePath,Map.class);
-        CheckEngineAgumentsNotNull.checkEngineAguments(nodeConfig);
+        checkEngineAguments(nodeConfig);
         return nodeConfig;
     }
 
+    public void checkEngineAguments(Map<String,Object> nodeConfig) throws EngineAgumentsException {
+        String localAddress = (String)nodeConfig.get("localAddress");
+        if(StringUtils.isBlank(localAddress)){
+            throw new EngineAgumentsException("localAddress");
+        }
+        String nodeZkAddress = (String)nodeConfig.get("nodeZkAddress");
+        if(StringUtils.isBlank(nodeZkAddress)){
+            throw new EngineAgumentsException("nodeZkAddress");
+        }
+        List clientType = (List) nodeConfig.get("engineTypes");
+        if(clientType.size() < 1){
+            throw new EngineAgumentsException("engineTypes size at least one");
+        }
+    }
 
     @Override
     public <T> T parse(String filename,Class<T> classType) throws Exception{
