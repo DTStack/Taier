@@ -27,6 +27,21 @@
     }
 }
 
+.fixed-table {
+	.ant-table-body {
+        table {
+			table-layout: fixed;
+        }
+    }
+
+    .ellipsis-td {
+	    overflow: hidden;
+	    white-space: nowrap;
+	    text-overflow: ellipsis;
+    }
+
+}
+
 .txt-center-table {
 	.ant-table-thead {
         & > tr > th {
