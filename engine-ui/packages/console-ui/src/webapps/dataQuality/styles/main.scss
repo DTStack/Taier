@@ -19,6 +19,14 @@
 	}
 }
 
+.select-all-table {
+	.ant-table-thead {
+        .ant-table-selection-column>span {
+            visibility: visible;
+        }
+    }
+}
+
 .txt-center-table {
 	.ant-table-thead {
         & > tr > th {

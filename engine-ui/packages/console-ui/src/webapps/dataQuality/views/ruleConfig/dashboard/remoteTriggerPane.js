@@ -378,7 +378,7 @@ export default class RemoteTriggerPane extends Component {
 
                     <Table 
                         rowKey="id"
-                        className="m-table common-table"
+                        className="m-table select-all-table"
                         pagination={false}
                         rowSelection={rowSelection}
                         dataSource={monitorRules}
@@ -386,7 +386,7 @@ export default class RemoteTriggerPane extends Component {
                     />
 
                     <Form>
-                        <FormItem {...rowFormItemLayout}>
+                        <FormItem {...rowFormItemLayout} style={{ marginTop: 16, marginBottom: 0 }}>
                             {
                                 getFieldDecorator('remark', {
                                     rules: [
