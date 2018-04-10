@@ -33,49 +33,22 @@
 		.keymap-table {
 			background: #fff;
 
-			.ant-table-thead, .ant-table-tbody {
-
-
-				.ant-table-selection-column {
-					width: 60px;
-				}
-
-				.ant-table-selection-column, .td-2, .td-3 {
-					height: 40px;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-					display: inline-block;
-				}
-
-				.td-2 {
-					width: 120px;
-				}
-
-				.td-3 {
-					width: 80px;
-				}
-			}
-
 			.ant-table-thead {
 		        .ant-table-selection-column > span {
 		            visibility: hidden;
 		        }
 
 		        & > tr > th {
-		            padding: 9px 8px;
-		            font-size: 14px;
-		            color: #333333;
-		            letter-spacing: 0;
+		            height: 40px;
 		        }
 		    }
 		    
 		    .ant-table-tbody {
-			
 		        & > tr > td {
-		            padding: 10px 8px;
-		            border-bottom: 1px solid #E8E8E8;
-		            font-size: 14px;
+		            height: 40px;
+		            overflow: hidden;
+		            white-space: nowrap;
+		            text-overflow: ellipsis;
 		        }
 		    }
 		}

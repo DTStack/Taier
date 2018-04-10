@@ -39,7 +39,7 @@ export default class StepOne extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            useInput: false,
+            useInput: true,
             showPreview: false,
             sourcePreview: {}
         }
@@ -270,7 +270,9 @@ export default class StepOne extends Component {
 
     renderPartText = () => {
         return (
-            <p className="font-14">如果分区还不存在，可以直接手动输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
+            <p className="font-14">
+                {"如果分区还不存在，可以直接手动输入未来会存在的分区名，格式为：分区字段=分区值，如column=${sys.recentPart}"}
+            </p>
         )
     }
 
@@ -319,7 +321,7 @@ export default class StepOne extends Component {
         const { getFieldDecorator } = form;
 
         if (!useInput) {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
+            return <FormItem {...formItemLayout} label="选择分区">
                 {
                     getFieldDecorator('originColumn', {
                         rules: [],
@@ -342,15 +344,16 @@ export default class StepOne extends Component {
                 <a onClick={this.onPartitionTypeChange}>手动输入</a>
             </FormItem>
         } else {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
+            return <FormItem {...formItemLayout} label="输入分区" extra={this.renderPartText()}>
                 {
                     getFieldDecorator('originColumnInput', {
                         rules: [],
-                        initialValue: ''
+                        initialValue: '分区字段名=${sys.recentPart}'
                     })(
                         <Input
+                            // defaultValue="分区字段名=${sys.recentPart}"
                             style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}，具体的参数配置在帮助文档里说明" 
+                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}" 
                             onChange={this.handleInputPartChange} />
                     )
                 }
@@ -371,7 +374,7 @@ export default class StepOne extends Component {
 
     render() {
         const { editParams, form, dataSource, havePart } = this.props;
-        const { useInput, showPreview, sourcePreview } = this.state;
+        const { showPreview, sourcePreview } = this.state;
         const { dataSourceId, tableName, partition } = editParams;
         const { sourceList, sourceTable, sourcePart } = dataSource;
         const { getFieldDecorator } = form;

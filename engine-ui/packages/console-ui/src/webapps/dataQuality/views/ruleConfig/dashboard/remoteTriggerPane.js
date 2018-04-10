@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm, Form } from 'antd';
+import { Button, Table, message, Modal, Input, Select, Popconfirm, Form, Tooltip } from 'antd';
 import moment from 'moment';
 
+import ClipBoard from '../../../components/copy';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { rowFormItemLayout } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
@@ -88,10 +89,13 @@ export default class RemoteTriggerPane extends Component {
         }, 
         {
             title: '访问接口',
+            // className: 'copy-area',
             dataIndex: 'url',
             key: 'url',
             width: '23%',
-            render: (url) => `${API_SERVER}${url}`
+            render: (url) => {
+                return <ClipBoard value={`${API_SERVER}${url}`} />
+            }
         }, 
         {
             title: '请求方式',
@@ -165,9 +169,8 @@ export default class RemoteTriggerPane extends Component {
             dataIndex: 'columnName',
             key: 'columnName',
             render: (text, record) => {
-                let value = record.isCustomizeSql ? record.customizeSql : text;
                 let obj = {
-                    children: value,
+                    children: record.isCustomizeSql ? record.customizeSql : text,
                     props: {
                         colSpan: record.isCustomizeSql ? 3 : 1
                     },
@@ -217,11 +220,8 @@ export default class RemoteTriggerPane extends Component {
             dataIndex: 'threshold',
             key: 'threshold',
             render: (text, record) => {
-                if (record.verifyType !== 1) {
-                    return `${record.operator}  ${text}  %`;
-                } else {
-                    return `${record.operator}  ${text}`;
-                }
+                let value = `${record.operator}  ${text}`;
+                return record.isPercentage ? `${value} %` : value;
             },
             width: '12%'
         }, {
@@ -229,7 +229,6 @@ export default class RemoteTriggerPane extends Component {
             key: 'modifyUser',
             dataIndex: 'modifyUser',
             width: '14%',
-            
         }, {
             title: '最近修改时间',
             key: 'gmtModified',
@@ -386,22 +385,24 @@ export default class RemoteTriggerPane extends Component {
                         columns={this.initRulesColumns()}
                     />
 
-                    <FormItem {...rowFormItemLayout}>
-                        {
-                            getFieldDecorator('remark', {
-                                rules: [
-                                    { max: 100, message: '备注不能超过100个字符'}
-                                ], 
-                                initialValue: remark
-                            })(
-                                <TextArea 
-                                    placeholder="备注信息" 
-                                    className="trigger-remarks" 
-                                    autosize={{ minRows: 3, maxRows: 6 }} 
-                                    onChange={this.onRemarkChange} />
-                            )
-                        }
-                    </FormItem>
+                    <Form>
+                        <FormItem {...rowFormItemLayout}>
+                            {
+                                getFieldDecorator('remark', {
+                                    rules: [
+                                        { max: 100, message: '备注不能超过100个字符'}
+                                    ], 
+                                    initialValue: remark
+                                })(
+                                    <TextArea 
+                                        placeholder="备注信息" 
+                                        className="trigger-remarks" 
+                                        autosize={{ minRows: 3, maxRows: 6 }} 
+                                        onChange={this.onRemarkChange} />
+                                )
+                            }
+                        </FormItem>
+                    </Form>
                 </Modal>
             </div>
         );

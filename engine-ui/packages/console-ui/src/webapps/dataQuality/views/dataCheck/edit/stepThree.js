@@ -24,8 +24,7 @@ export default class StepThree extends Component {
             selectedTarget: [],
             diverseData: [],
             h: 40,
-            w: 230,
-            W: 450,
+            W: 0,
             H: 0,
             padding: 10,
             originColumn: [],
@@ -44,19 +43,12 @@ export default class StepThree extends Component {
         //     H: this.getCanvasH()
         // })
         // this.loadColumnFamily();
-        this.drawSvg();
         this.listenResize();
-        this.getKeyMapColumnData();
+        this.getColumnData();
         this.setEditKeymapData();
         this.setKeymapCheck();
         this.setSettingTableFields();
-        console.log(this,'this')
-    }
-
-    componentDidUpdate() {
-        this.$canvas.selectAll('.dl, .dr, .lines').remove();
         this.drawSvg();
-        
     }
 
 	componentWillReceiveProps(nextProps) {
@@ -73,61 +65,14 @@ export default class StepThree extends Component {
 		}
 	}
 
+    componentDidUpdate() {
+        this.$canvas.selectAll('.dl, .dr, .lines').remove();
+        this.drawSvg();
+    }
+
     componentWillUnmount() {
         window.removeEventListener('resize', this.resize, false);
         this.props.resetLinkedKeys();
-    }
-
-	setEditKeymapData = () => {
-		const { origin, target } = this.props.editParams;
-		if (origin.column && target.column) {
-			this.props.setEditMap({
-                source: origin.column,
-                target: target.column
-            });
-		}
-	}
-
-	setSettingTableFields = () => {
-		const { setting } = this.props.editParams;
-		const { form } = this.props;
-
-		if (!isEmpty(setting)) {
-			let selectedSetting = [],
-				fieldsValue = {};
-
-			Object.keys(setting).forEach((item) => {
-				if (setting[item]) {
-					selectedSetting.push(item);
-					if (item != 'matchCase' && item != 'matchNull') {
-						fieldsValue[item] = setting[item];
-					}
-				}
-			});
-
-			form.setFieldsValue(fieldsValue);
-			this.setState({ selectedSetting });
-		}
-	}
-
-    setKeymapCheck = () => {
-    	const { mappedPK } = this.props.editParams;
-
-    	// 填充keymap的checkbox
-		if (mappedPK) {
-			let sourceCheck = [],
-				targetCheck = [];
-
-			for (let [key, value] of Object.entries(mappedPK)) {
-				sourceCheck.push(key);
-				targetCheck.push(value);
-			}
-
-			this.setState({
-  				selectedSource: sourceCheck,
-  				selectedTarget: targetCheck
-  			});
-		} 
     }
 
     listenResize() {
@@ -136,6 +81,9 @@ export default class StepThree extends Component {
         }
     }
 
+    /**
+     * 调整窗口
+     */
     resize = () => {
         this.setState({
             W: this.getCanvasW(),
@@ -143,7 +91,10 @@ export default class StepThree extends Component {
         });
     }
 
-	getKeyMapColumnData = () => {
+    /**
+     * 获取左右表字段
+     */
+	getColumnData = () => {
 		const { origin, target } = this.props.editParams;
 		const { setEditMap } = this.props;
 
@@ -172,6 +123,70 @@ export default class StepThree extends Component {
 		});
 	}
 
+    /**
+     * 已连接的字段数据
+     */
+    setEditKeymapData = () => {
+        const { origin, target } = this.props.editParams;
+        if (origin.column && target.column) {
+            this.props.setEditMap({
+                source: origin.column,
+                target: target.column
+            });
+        }
+    }
+
+    /**
+     * 已填写的差异设置
+     */
+    setSettingTableFields = () => {
+        const { setting } = this.props.editParams;
+        const { form } = this.props;
+
+        if (!isEmpty(setting)) {
+            let selectedSetting = [],
+                fieldsValue = {};
+
+            Object.keys(setting).forEach((item) => {
+                if (setting[item]) {
+                    selectedSetting.push(item);
+                    if (item != 'matchCase' && item != 'matchNull') {
+                        fieldsValue[item] = setting[item];
+                    }
+                }
+            });
+
+            form.setFieldsValue(fieldsValue);
+            this.setState({ selectedSetting });
+        }
+    }
+
+    /**
+     * 已勾选的逻辑主键
+     */
+    setKeymapCheck = () => {
+        const { mappedPK } = this.props.editParams;
+
+        // 填充keymap的checkbox
+        if (mappedPK) {
+            let sourceCheck = [],
+                targetCheck = [];
+
+            for (let [key, value] of Object.entries(mappedPK)) {
+                sourceCheck.push(key);
+                targetCheck.push(value);
+            }
+
+            this.setState({
+                selectedSource: sourceCheck,
+                selectedTarget: targetCheck
+            });
+        } 
+    }
+
+    /**
+     * 绘制
+     */
     drawSvg() {
         this.renderDags();
         this.renderLines();
@@ -179,7 +194,7 @@ export default class StepThree extends Component {
     }
 
     renderDags() {
-        const { w, h, W, padding, originColumn, targetColumn } = this.state;
+        const { h, W, padding, originColumn, targetColumn } = this.state;
 
         this.$canvas.append('g')
             .attr('class', 'dl')
@@ -215,7 +230,7 @@ export default class StepThree extends Component {
     }
 
     renderLines() {
-        const { w, h, W, padding } = this.state;
+        const { h, W, padding } = this.state;
         const { source, target } = this.props.keymap;
         const $dagL = selectAll('.col-dag-l');
         const $dagR = selectAll('.col-dag-r');
@@ -230,7 +245,6 @@ export default class StepThree extends Component {
         const matchKeymapToColumn_s = (columnItem, keymapItem) => {
             let isMatch = false;
             isMatch = columnItem.key === keymapItem;
-            
             return isMatch;
         };
 
@@ -293,7 +307,7 @@ export default class StepThree extends Component {
     }
 
     bindEvents() {
-        const { w, h, W, padding, selectedSource, selectedTarget } = this.state;
+        const { h, W, padding, selectedSource, selectedTarget } = this.state;
         const { addLinkedKeys, delLinkedKeys } = this.props;
 
         const $line = this.$activeLine;
@@ -322,7 +336,7 @@ export default class StepThree extends Component {
             if (isMouseDown) {
                 const xy = mouse(this.$canvas.node());
                 const [ex, ey] = xy;
-                const threholdX = W - 15;
+                const threholdX = W - 25;
 
                 if (ex < threholdX) {
                 	this.resetActiveLine();
@@ -595,7 +609,9 @@ export default class StepThree extends Component {
     	}
     }
 
-    // 同行映射连接
+    /**
+     * 同行映射连接
+     */
 	setRowMap = () => {
 		const { rowMap, nameMap, originColumn, targetColumn } = this.state;
 		const { origin, target } = this.props.editParams;
@@ -620,7 +636,9 @@ export default class StepThree extends Component {
         });
     }
 
-    // 同名映射连接
+    /**
+     * 同名映射连接
+     */
     setNameMap = () => {
         const { nameMap, rowMap, originColumn, targetColumn } = this.state;
         const { origin, target } = this.props.editParams;
@@ -641,7 +659,9 @@ export default class StepThree extends Component {
     }
 
     render() {
-        const { selectedSetting, selectedSource, selectedTarget, diverseData, w, h, W, H, padding, originColumn, targetColumn } = this.state;
+        const { selectedSetting, selectedSource, selectedTarget, 
+            diverseData, h, W, H, padding, 
+            originColumn, targetColumn } = this.state;
         const { source, target } = this.props.keymap;
         const { mappedPK } = this.props.editParams;
 
@@ -653,32 +673,28 @@ export default class StepThree extends Component {
 			    };
 		  	},
 		  	onSelect: (record, selected, selectedRow) => {
-		  		let sourceCheck = [...selectedSource];
-		  		let targetCheck = [...selectedTarget];
-	  			let mapPk = {};
+		  		let sourceCheck = [...selectedSource],
+		  		    targetCheck = [...selectedTarget],
+	  			    mapPk = {};
 
 		  		if (selected) {
 		  			sourceCheck.push(record.key);
 	  				targetCheck.push(target[source.indexOf(record.key)]);
-
-		  			this.setState({
-		  				selectedSource: sourceCheck,
-		  				selectedTarget: targetCheck
-		  			});
 		  		} else {
 		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
 		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
+                }
 
-		  			this.setState({
-		  				selectedTarget: targetCheck,
-		  				selectedSource: sourceCheck,
-		  			});
-		  		}
+	  			this.setState({
+	  				selectedTarget: targetCheck,
+	  				selectedSource: sourceCheck,
+	  			});
 
 		  		// mapperPk
 		  		sourceCheck.forEach((s, index) => {
 	  				mapPk[s] = targetCheck[index]
 	  			});
+
 	  			this.props.changeParams({
 	  				mappedPK: mapPk
 	  			});
@@ -693,27 +709,22 @@ export default class StepThree extends Component {
 			    };
 		  	},
 		  	onSelect: (record, selected,selectedRow) => {
-		  		let sourceCheck = [...selectedSource];
-		  		let targetCheck = [...selectedTarget];
-		  		let mapPk = {};
+		  		let sourceCheck = [...selectedSource],
+		  		    targetCheck = [...selectedTarget],
+		  		    mapPk = {};
 
 		  		if (selected) {
 		  			targetCheck.push(record.key);
 		  			sourceCheck.push(source[target.indexOf(record.key)]);
-
-		  			this.setState({
-		  				selectedSource: sourceCheck,
-		  				selectedTarget: targetCheck
-		  			});
 		  		} else {
 		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
 		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
+                }
 
-		  			this.setState({
-		  				selectedSource: sourceCheck,
-		  				selectedTarget: targetCheck
-		  			});
-		  		}
+	  			this.setState({
+	  				selectedSource: sourceCheck,
+	  				selectedTarget: targetCheck
+	  			});
 
 		  		// mapperPk
 		  		sourceCheck.forEach((s, index) => {
@@ -762,12 +773,21 @@ export default class StepThree extends Component {
 	                            className="keymap-svg"
 	                        >
 	                            <defs>
-	                                <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
+	                                <marker 
+                                        id="arrow" 
+                                        markerUnits="strokeWidth" 
+                                        markerWidth="12" 
+                                        markerHeight="12" 
+                                        viewBox="0 0 12 12" 
+                                        refX="6" 
+                                        refY="6" 
+                                        orient="auto">
 	                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
 	                                </marker>
 	                            </defs>
 	                            <g>
-	                                <line id="activeLine"
+	                                <line 
+                                        id="activeLine"
 	                                    x1="-10" y1="-10" x2="-10" y2="-10"
 	                                    stroke="#2491F7"
 	                                    strokeWidth="2"
