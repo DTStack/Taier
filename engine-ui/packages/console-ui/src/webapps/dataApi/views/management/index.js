@@ -42,9 +42,9 @@ class APIMana extends Component {
         type1: undefined,
         type2: undefined,
         total: 0,
-        dataSourceType: "",
-        dataSource: "",
-        searchName: "",
+        dataSourceType: null,
+        dataSource: null,
+        searchName: null,
         filter: {},
         sortedInfo: {},
         changeMan: null,
@@ -504,7 +504,7 @@ class APIMana extends Component {
         const { children } = this.props
         return (
             <div className="api-management">
-                <div style={{ marginTop: "20px" }} className="margin-0-20 m-card">
+                <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
                     <Card
 
                         noHovering

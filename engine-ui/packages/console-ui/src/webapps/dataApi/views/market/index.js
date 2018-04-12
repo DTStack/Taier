@@ -347,7 +347,7 @@ class APIMarket extends Component {
                     desc={this.state.apply.desc}
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
-                <div className="margin-0-20 m-card">
+                <div className="margin-0-20 m-card box-2">
                     <Card
 
                         noHovering
