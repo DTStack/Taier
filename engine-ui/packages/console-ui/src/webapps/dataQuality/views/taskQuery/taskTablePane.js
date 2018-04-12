@@ -1,91 +1,93 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isEmpty, cloneDeep } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm, Row, Col, Card } from 'antd';
-import { taskQueryActions } from '../../actions/taskQuery';
+import { Table, Row, Col, Card } from 'antd';
 import moment from 'moment';
-import Resize from 'widgets/resize';
-import { lineAreaChartOptions } from '../../consts';
 
+import Resize from 'widgets/resize';
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const mapStateToProps = state => {
-    const { taskQuery, common } = state;
-    return { taskQuery, common }
-}
+import { lineAreaChartOptions } from '../../consts';
+import TQApi from '../../api/taskQuery';
 
-const mapDispatchToProps = dispatch => ({
-    getTaskTableReport(params) {
-        dispatch(taskQueryActions.getTaskTableReport(params));
-    },
-   
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class TaskTablePane extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            lineChart: undefined
+            lineChart: '',
+            tableReport: {}
         };
     }
 
     componentDidMount() {
         const { data } = this.props;
-        // this.props.getTaskTableReport({
-        //     tableId: 87,
-        //     recordId: 21
-        // });
-        this.props.getTaskTableReport({
+
+        this.loadReports({
             recordId: data.id,
             tableId: data.tableId
-        });
+        })
     }
 
     componentWillReceiveProps(nextProps) {
-        let oldData = this.props.taskQuery.tableReport,
-            newData = nextProps.taskQuery.tableReport;
+        let oldData = this.props.data,
+            newData = nextProps.data;
 
-        if (isEmpty(oldData) && !isEmpty(newData)) {
-            this.initLineChart(newData.usage)
+        if (!isEmpty(newData) && oldData !== newData) {
+            this.loadReports({
+                recordId: newData.id,
+                tableId: newData.tableId
+            })
         }
+    }
 
-        if (isEmpty(this.props.data) && !isEmpty(nextProps.data)) {
-            console.log(nextProps.data)
-            this.props.getTaskTableReport({
-                recordId: nextProps.data.id,
-                tableId: nextProps.data.tableId
-            });
-        }
+    loadReports = (params) => {
+        TQApi.getTaskTableReport(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ tableReport: res.data });
+                this.initLineChart(res.data.usage);
+            }
+        });
     }
 
     resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
+        if (this.state.lineChart) {
+            this.state.lineChart.resize()
+        }
     }
 
     initLineChart(chartData) {
-        let myChart = echarts.init(document.getElementById('TableTrend'));
-        const option = cloneDeep(lineAreaChartOptions);
-        let xData = chartData.map(item => moment(item.bizTime).format('YYYY-MM-DD HH:mm'));
-        let legends = [{ 
-            key: 'dayCountRecord',
-            name: '记录数'
-        }, { 
-            key: 'dayCountTrigger',
-            name: '总告警数'
-        }];
+        let myChart = echarts.init(document.getElementById('TableReportTrend')),
+            option  = cloneDeep(lineAreaChartOptions),
+            xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
+            legends = [{ 
+                key: 'dayCountRecord',
+                name: '记录数'
+            }, { 
+                key: 'dayCountTrigger',
+                name: '总告警数'
+            }];
 
+        option.grid = {
+            left: 20,
+            right: 20,
+            containLabel: true
+        };
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
-        option.yAxis[0].minInterval = 1;
-        
-        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('HH:mm'));
-        option.yAxis[0].axisLabel.formatter = '{value} 次';
-        option.legend.data = legends.map(item => item.name);
+
+        option.xAxis[0].axisTick = {
+            show: false,
+            alignWithLabel: true,
+        };
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
+        option.yAxis[0].axisLabel.formatter = '{value}';
+        option.yAxis[0].minInterval = 1;
+
+        option.legend.data = legends.map(item => item.name);
         option.series = this.getSeries(chartData, legends);
         // 绘制图表
         myChart.setOption(option);
@@ -99,14 +101,15 @@ export default class TaskTablePane extends Component {
             legends.forEach((legend) => {
                 arr.push({
                     name: legend.name,
-                    symbol: 'none',
                     type:'line',
+                    smooth: true,
+                    symbolSize: 8,
                     data: data.map(item => item[legend.key]),
-                })
-            })
+                });
+            });
         }
 
-        return arr
+        return arr;
     }
 
     initTableInfoColumns = () => {
@@ -125,7 +128,7 @@ export default class TaskTablePane extends Component {
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             width: '40%'
-        }]  
+        }]
     }
 
     initTableReportColumns = () => {
@@ -139,7 +142,7 @@ export default class TaskTablePane extends Component {
             dataIndex: 'countTrigger',
             key: 'countTrigger',
             width: '50%'
-        }]  
+        }]
     }
 
     init30TimesInfo = () => {
@@ -158,15 +161,16 @@ export default class TaskTablePane extends Component {
         }, {
             title: '平均告警率',
             dataIndex: 'alarmRate',
-            key: 'alarmRate'
-        }]  
+            key: 'alarmRate',
+            render: (text => text && text.toFixed ? text.toFixed(2) : text)
+        }]
     }
 
     init30TimesTableReport = () => {
         return [{
-            title: '业务日期',
-            dataIndex: 'bizTime',
-            key: 'bizTime',
+            title: '执行时间',
+            dataIndex: 'executeTime',
+            key: 'executeTime',
             render: (value) => (moment(value).format("YYYY-MM-DD HH:mm:ss")),
             width: '40%'
         }, {
@@ -179,25 +183,27 @@ export default class TaskTablePane extends Component {
             dataIndex: 'dayCountTrigger',
             key: 'dayCountTrigger',
             width: '30%'
-        }]  
+        }]
     }
 
     render() {
-        const { data, taskQuery, common } = this.props;
-        const { monitorId, visible, selectedIds, remark } = this.state;
-        const { loading, tableReport } = taskQuery;
+        const { tableReport } = this.state;
 
-        let reportData = !isEmpty(tableReport) ? [tableReport] : [];
+        let reportData = !isEmpty(tableReport) ? [tableReport] : [],
+            usage = tableReport.usage ? [...tableReport.usage].reverse() : [];
 
         const tableReportTitle = (
             <div>
                 表级报告
-                <span style={{ fontSize: 12, color: '#999' }}>（业务日期：{moment(tableReport.bizTime).format("YYYY-MM-DD")}）</span>
+                <span 
+                    style={{ fontSize: 12, color: '#999' }}>
+                    （执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD HH:mm:ss")}）
+                </span>
             </div>
         )
 
         return (
-            <div style={{ margin: 20 }}>
+            <div style={{ padding: 20 }}>
                 <Table 
                     rowKey="tableName"
                     className="m-table txt-center-table"
@@ -206,7 +212,7 @@ export default class TaskTablePane extends Component {
                     dataSource={reportData}
                 />
 
-                <Row style={{ margin: '20px 0' }} gutter={16}>
+                <Row style={{ padding: '20px 0' }} gutter={16}>
                     <Col span={12}>
                         <Card   
                             noHovering
@@ -224,6 +230,7 @@ export default class TaskTablePane extends Component {
                             />
                         </Card>
                     </Col>
+
                     <Col span={12}>
                         <Card   
                             noHovering
@@ -253,15 +260,16 @@ export default class TaskTablePane extends Component {
                             title="最近30次表级报告" 
                         >
                             <Table 
-                                rowKey="bizTime"
+                                rowKey="id"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesTableReport()}
                                 pagination={false}
-                                dataSource={tableReport.usage ? tableReport.usage : []}
-                                scroll={{ y: 250 }}
+                                dataSource={usage}
+                                scroll={{ y: 245 }}
                             />
                         </Card>
                     </Col>
+
                     <Col span={12}>
                         <Card   
                             noHovering
@@ -269,9 +277,10 @@ export default class TaskTablePane extends Component {
                             loading={false} 
                             className="shadow"
                             title="最近30次表数据波动图"
+                            style={{ width: '100%' }}
                         >
                             <Resize onResize={this.resize}>
-                                <article id="TableTrend" style={{ width: '100%', height: '250px' }}/>
+                                <article id="TableReportTrend" style={{ width: '100%', height: '280px' }}/>
                             </Resize>
                         </Card>
                     </Col>

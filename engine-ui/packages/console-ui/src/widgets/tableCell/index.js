@@ -8,8 +8,10 @@ export default function TableCell(props) {
         width: '100%',
         border: 'none',
     }
-    const { style, value } = props
-    let newStyle = Object.assign(originStyle, style)
+
+    const { style } = props;
+    let newStyle = {...originStyle, ...style};
+
     return <textarea 
         {...props}
         style={newStyle}

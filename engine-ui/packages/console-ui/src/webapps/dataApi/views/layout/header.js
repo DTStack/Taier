@@ -19,7 +19,7 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
-        const baseUrl = '/api'
+        const baseUrl = '/dataApi.html#/api'
         const menuItems = [{
             id: 'overview',
             name: '概览',

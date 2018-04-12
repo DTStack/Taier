@@ -29,7 +29,6 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxUndoManager,
-    mxCircleLayout,
     mxCompactTreeLayout,
     mxMorphing,
     mxUtils,
@@ -64,6 +63,8 @@ export default class TableRelation extends React.Component {
     componentDidMount() {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
+        this.layout = "";
+        this.graph = "";
         const editor = this.Container
         const tableData = this.props.tableData
         this.initEditor()
@@ -120,7 +121,7 @@ export default class TableRelation extends React.Component {
             if (res.code === 1) {
                 const data = res.data
                 this.setState({ selectedData: getVertexNode(data), data })
-                this.loopTree(graph, data)
+                this.doInsertVertex(data)
             }
             this.hideLoading();
         })
@@ -133,7 +134,7 @@ export default class TableRelation extends React.Component {
             if (res.code === 1) {
                 const data = res.data
                 this.setState({ data, selectedData: getVertexNode(data) })
-                this.loopTree(graph, data)
+                this.doInsertVertex(data)
             }
             this.hideLoading();
         })
@@ -171,8 +172,8 @@ export default class TableRelation extends React.Component {
                 newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
                     VertexSize.width, VertexSize.height, style
                 )
-                graph.view.refresh(newVertex)
                 graph.insertEdge(parent, null, '', parent, newVertex)
+                graph.view.refresh(newVertex)
             }, () => {
                 graph.scrollCellToVisible(newVertex);
             })
@@ -187,7 +188,7 @@ export default class TableRelation extends React.Component {
 
         if (treeNodeData) {
 
-            const rootCell = graph.getDefaultParent()
+            const rootCell = graph.getDefaultParent();
 
             const parentNodes = treeNodeData.parentTables;
             const childNodes = treeNodeData.childTables;
@@ -229,14 +230,19 @@ export default class TableRelation extends React.Component {
         const graph = this.graph;
         let layout = this.layout;
         const cx = (graph.container.clientWidth - VertexSize.width) / 3
-        const cy = 10
+        const cy = 100
 
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
         if (!layout) {
-            layout = new mxCircleLayout(graph)
-            // layout = new mxCompactTreeLayout(graph)
+            layout = new mxCompactTreeLayout(graph)
+            layout.horizontal = true;
+            layout.useBoundingBox = false;
+            // layout.edgeRouting = false;
+            layout.levelDistance = 40;
+            layout.nodeDistance = 60;
+            
             this.layout = layout
             this.executeLayout = function(change, post) {
 

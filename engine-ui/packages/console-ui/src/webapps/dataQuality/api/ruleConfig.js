@@ -10,6 +10,9 @@ export default {
     getRuleFunction(params) {
         return http.post(req.GET_RULE_FUNCTION, params);
     },
+    getTableColumn(params) {
+        return http.post(req.GET_MONITOR_TABLE_COLUMN, params);
+    },
     getMonitorRule(params) {
         return http.post(req.GET_MONITOR_RULE, params);
     },
@@ -21,6 +24,9 @@ export default {
     },
     addMonitor(params) {
         return http.post(req.ADD_MONITOR, params);
+    },
+    updateMonitor(params) {
+        return http.post(req.UPDATE_MONITOR, params);
     },
     subscribeTable(params) {
         return http.post(req.SUBSCRIBE_TABLE, params);

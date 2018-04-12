@@ -199,10 +199,10 @@ class DirtyData extends Component {
         const option = cloneDeep(lineAreaChartOptions);
        
         option.grid = {
-            left: 40,
-            right: 20,
-            bottom: 20,
-            top: 30,
+            left: '2%',
+            right: '4%',
+            bottom: '2%',
+            containLabel: true
         }
         option.legend.show = false
         option.title.text = ''

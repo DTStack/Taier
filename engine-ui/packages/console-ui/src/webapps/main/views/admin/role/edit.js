@@ -6,9 +6,9 @@ import {
 } from 'antd'
 
 import utils from 'utils'
-import { formItemLayout } from 'consts'
 
 import Api from '../../../api'
+import { formItemLayout } from '../../../consts'
 import GoBack from '../../../components/go-back'
 import { AppName } from '../../../components/display'
 

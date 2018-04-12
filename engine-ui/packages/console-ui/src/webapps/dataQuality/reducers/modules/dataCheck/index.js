@@ -1,4 +1,4 @@
-import { dataCheckActionType } from '../../../consts/dataCheckActions';
+import { dataCheckActionType } from '../../../consts/dataCheckActionType';
 import { cloneDeep } from 'lodash';
 
 const initialState = {
@@ -50,22 +50,6 @@ export default function dataCheck(state = initialState, action) {
 
             return clone;
         }
-
-        case dataCheckActionType.GET_CHECK_REPORT: {
-            const clone = cloneDeep(state);
-            const { checkReport } = clone;
-            clone.checkReport = payload;
-            return clone;
-        }
-
-        case dataCheckActionType.GET_CHECK_REPORT_TABLE: {
-            const clone = cloneDeep(state);
-            const { reportTable } = clone;
-            clone.reportTable = payload;
-            return clone;
-        }
-
-        
 
         default:
             return state;

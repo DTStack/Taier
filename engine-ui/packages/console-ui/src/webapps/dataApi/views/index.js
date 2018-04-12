@@ -7,6 +7,9 @@ import utils from 'utils'
 import Header from './layout/header'
 import * as UserAction from '../actions/user'
 
+import { updateApp } from 'main/actions/app'
+import { daApp } from 'config/base'
+
 const propType = {
     children: PropTypes.node,
 }
@@ -18,8 +21,10 @@ const defaultPro = {
 class Main extends Component {
 
     componentDidMount() {
-        const { dispatch } = this.props
-        // dispatch(UserAction.getUser())
+        const { dispatch } = this.props;
+        dispatch(UserAction.getUser())
+        dispatch(updateApp(daApp));
+        
     }
 
     render() {

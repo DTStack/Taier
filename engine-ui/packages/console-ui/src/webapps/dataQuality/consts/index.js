@@ -1,4 +1,52 @@
-// 常量
+// 任务类型
+export const TASK_STATUS = {
+    WAIT_RUN: 0,
+    RUNNING: 1,
+    FAIL: 2,
+    PASS: 3,
+    UNPASS: 4,
+}
+
+/**
+ * 校验状态
+ */
+export const CHECK_STATUS = { // 2，4, 5, 6 可查看报告
+    INITIAL: 0,
+    RUNNING: 1,
+    SUCCESS: 2,
+    FAIL: 3,
+    PASS: 4,
+    UNPASS: 5,
+    EXPIRED: 6,
+}
+
+/**
+ * 校验状态--中文
+ */
+export const CHECK_STATUS_CN = [{
+    text: '等待运行',
+    value: '0',
+}, {
+    text: '运行中',
+    value: '1',
+}, {
+    text: '运行成功',
+    value: '2',
+}, {
+    text: '运行失败',
+    value: '3',
+}, {
+    text: '校验通过',
+    value: '4',
+}, {
+    text: '校验未通过',
+    value: '5',
+}, {
+    text: '校验结果失效',
+    value: '6',
+}]
+
+// 数据源类型
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
@@ -12,17 +60,34 @@ export const DATA_SOURCE = {
 
 export const dataSourceTypes = [ // 数据源类型
     '未知类型', 
-    'MySql', 
+    'MySQL', 
     'Oracle', 
     'SQLServer', 
     'PostgreSQL', 
     'RDBMS', 
     'HDFS', 
-    'Hive',
+    'Spark',
     'HBase',
     'FTP',
     'MaxCompute'
 ]
+
+export const dataSourceFilter = [{
+    text: 'MySQL',
+    value: 1
+}, {
+    text: 'Oracle',
+    value: 2
+}, {
+    text: 'SQLServer',
+    value: 3
+}, {
+    text: 'Spark',
+    value: 7
+}, {
+    text: 'MaxCompute',
+    value: 10
+}]
 
 export const periodType = [ // 调度类型
     '未知类型', 
@@ -32,6 +97,83 @@ export const periodType = [ // 调度类型
     '月', 
     '手动触发'
 ]
+
+/**
+ * operator--有!=
+ */
+export const operatorSelect = [{
+    text: '>',
+    value: '>',
+}, {
+    text: '>=',
+    value: '>=',
+}, {
+    text: '=',
+    value: '=',
+}, {
+    text: '<',
+    value: '<',
+}, {
+    text: '<=',
+    value: '<=',
+}, {
+    text: '!=',
+    value: '!=',
+}]
+
+/**
+ * operator1--无!=
+ */
+export const operatorSelect1 = [{
+    text: '>',
+    value: '>',
+}, {
+    text: '>=',
+    value: '>=',
+}, {
+    text: '=',
+    value: '=',
+}, {
+    text: '<',
+    value: '<',
+}, {
+    text: '<=',
+    value: '<=',
+}]
+
+/**
+ * 告警日期过滤
+ */
+export const alarmDateFilter = [{
+    text: '今日告警数',
+    value: '1',
+}, {
+    text: '最近7天告警数',
+    value: '7',
+}, {
+    text: '最近30天告警数',
+    value: '30',
+}]
+
+/**
+ * 任务状态过滤
+ */
+export const taskStatusFilter = [{
+    text: '等待运行',
+    value: TASK_STATUS.WAIT_RUN,
+},{
+    text: '运行中',
+    value: TASK_STATUS.RUNNING,
+}, {
+    text: '运行失败',
+    value: TASK_STATUS.FAIL,
+}, {
+    text: '校验通过',
+    value: TASK_STATUS.PASS,
+}, {
+    text: '校验未通过',
+    value: TASK_STATUS.UNPASS,
+}]
 
 export const formItemLayout = { // 表单常用布局
     labelCol: {

@@ -4,9 +4,13 @@ import {
     Input, Button, Card, Radio,
     Select, Form, Checkbox,
  } from 'antd'
-
-import { formItemLayout, PROJECT_ROLE } from 'consts'
  
+import { 
+    formItemLayout,
+    RDOS_PROJECT_ROLE,
+    DQ_PROJECT_ROLE,
+} from 'main/consts'
+
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
@@ -36,11 +40,11 @@ class MemberForm extends Component {
         if (roles) {
             roles.forEach(role => {
                 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-                if (role.roleValue !== PROJECT_ROLE.PROJECT_OWNER &&
-                    role.roleValue !== PROJECT_ROLE.TENANT_OWVER) {
+                if (role.roleValue !== RDOS_PROJECT_ROLE.PROJECT_OWNER &&
+                    role.roleValue !== RDOS_PROJECT_ROLE.TENANT_OWVER) {
                     const option = { label: role.roleName, value: role.id }
 
-                    if (role.roleValue === PROJECT_ROLE.VISITOR) {
+                    if (role.roleValue === RDOS_PROJECT_ROLE.VISITOR) {
                         defaultRoles.push(role.id)
                         option.disabled = true;
                     }

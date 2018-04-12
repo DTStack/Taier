@@ -1,41 +1,28 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { isEmpty, cloneDeep } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm, Card } from 'antd';
-import { taskQueryActions } from '../../actions/taskQuery';
+import { Table, Card } from 'antd';
 import moment from 'moment';
+
 import Resize from 'widgets/resize';
-import { lineAreaChartOptions } from '../../consts';
-import TQApi from '../../api/taskQuery';
-// 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
-// 引入柱状图
 require('echarts/lib/chart/line');
-// 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
+require('echarts/lib/component/markLine');
 
-const mapStateToProps = state => {
-    const { taskQuery, common } = state;
-    return { taskQuery, common }
-}
+import { lineAreaChartOptions } from '../../consts';
+import { DetailCheckStatus } from '../../components/display';
+import TQApi from '../../api/taskQuery';
 
-const mapDispatchToProps = dispatch => ({
-    getTaskDetail(params) {
-        dispatch(taskQueryActions.getTaskDetail(params));
-    },
-    getTaskAlarmNum(params) {
-        dispatch(taskQueryActions.getTaskAlarmNum(params));
-    },
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class TaskDetailPane extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
             lineChart: '',
-            visible: false
+            visible: false,
+            taskDetail: [],
+            currentRecord: {}
         };
     }
 
@@ -43,12 +30,18 @@ export default class TaskDetailPane extends Component {
         let oldData = this.props.data,
             newData = nextProps.data;
 
-        if (isEmpty(oldData) && !isEmpty(newData)) {
-            this.props.getTaskDetail({
+        if (!isEmpty(newData) && oldData !== newData) {
+            TQApi.getTaskDetail({
                 recordId: newData.id,
                 monitorId: newData.monitorId
+            }).then((res) => {
+                if (res.code === 1) {
+                    this.setState({ 
+                        taskDetail: res.data,
+                        visible: false
+                    });
+                }
             });
-            this.setState({ visible: false });
         }
     }
 
@@ -62,16 +55,15 @@ export default class TaskDetailPane extends Component {
             dataIndex: 'columnName',
             key: 'columnName',
             render: (text, record) => {
-                let value = record.isCustomizeSql ? record.customizeSql : text;
                 let obj = {
-                    children: value,
+                    children: record.isCustomizeSql ? record.customizeSql : text,
                     props: {
                         colSpan: record.isCustomizeSql ? 3 : 1
                     },
                 };
-
                 return obj;
             },
+            width: '12%'
         }, {
             title: '统计函数',
             dataIndex: 'functionId',
@@ -83,11 +75,10 @@ export default class TaskDetailPane extends Component {
                         colSpan: record.isCustomizeSql ? 0 : 1
                     },
                 };
-
                 return obj;
             },
-        }, 
-        {
+            width: '12%'
+        }, {
             title: '过滤条件',
             dataIndex: 'filter',
             key: 'filter',
@@ -98,25 +89,25 @@ export default class TaskDetailPane extends Component {
                         colSpan: record.isCustomizeSql ? 0 : 1
                     },
                 };
-
                 return obj;
             },
+            width: '10%'
         }, {
             title: '校验方法',
-            dataIndex: 'verifyType',
-            key: 'verifyType',
-            render: (text, record) => {
-                const { verifyType } = this.props.common.allDict;
-                return verifyType[text - 1].name || undefined;
-            },
+            dataIndex: 'verifyTypeValue',
+            key: 'verifyTypeValue',
+            width: '10%'
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            render: (text => <DetailCheckStatus value={text} />),
+            width: '8%'
         }, {
             title: '统计值',
             dataIndex: 'statistic',
             key: 'statistic',
+            width: '8%'
         }, {
             title: '阈值',
             dataIndex: 'threshold',
@@ -128,27 +119,31 @@ export default class TaskDetailPane extends Component {
                     return `${record.operator}  ${text}`;
                 }
             },
+            width: '8%'
         }, {
             title: '最近修改人',
             key: 'modifyUser',
             dataIndex: 'modifyUser',
-            width: '13%',
-            
+            width: '12%',
         }, {
             title: '最近修改时间',
             key: 'gmtModified',
             dataIndex: 'gmtModified',
-            width: '13%',
+            width: '12%',
             render: (text) => (moment(text).format("YYYY-MM-DD HH:mm"))
         }, {
             title: '操作',
-            render: (text, record) => (<a onClick={this.onCheckReport.bind(this, record)}>查看报告</a>)
+            width: '8%',
+            render: (text, record) => {
+                return <a onClick={this.onCheckReport.bind(this, record)}>查看报告</a>
+            }
         }]  
     }
 
     onCheckReport = (record) => {
+        this.setState({ currentRecord: record });
         TQApi.getTaskAlarmNum({
-            recordId: record.id,
+            ruleId: record.id,
             monitorId: record.monitorId
         }).then((res) => {
             if (res.code === 1) {
@@ -156,50 +151,77 @@ export default class TaskDetailPane extends Component {
                 this.initLineChart(res.data);
             }
         });
-        // this.props.getTaskAlarmNum({
-        //     recordId: record.id,
-        //     monitorId: record.monitorId
-        // });
     }
 
     initLineChart(chartData) {
+        const { currentRecord } = this.state;
+
         let myChart = echarts.init(document.getElementById('TaskTrend')),
             option  = cloneDeep(lineAreaChartOptions),
-            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD')),
+            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
             yData   = Object.values(chartData);
 
-        option.title.text = ''
-        option.tooltip.axisPointer.label.formatter = '{value}'
-        option.legend.data = ['告警数']
-        option.xAxis[0].axisLabel.formatter = '{value}';
+        option.title.text = '';
+        option.tooltip.axisPointer.label.formatter = '{value}';
+        option.legend.data = ['统计值'];
+
+        option.xAxis[0].axisTick = {
+            show: false,
+            alignWithLabel: true,
+        }
+        option.xAxis[0].boundaryGap = ['5%', '5%'];
+        option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
         option.xAxis[0].data = chartData && xData ? xData : [];
 
-        option.yAxis[0].axisLabel.formatter = '{value} 次';
+        option.yAxis[0].axisLabel.formatter = '{value}';
         option.yAxis[0].minInterval = 1;
         option.series = [{
-            name: '告警数',
-            symbol: 'none',
+            name: '统计值',
             type:'line',
+            smooth: true,
+            symbolSize: 8,
             data: yData,
         }];
 
+        // 非百分比需要显示基线
+        option.series[0].markLine = currentRecord.isPercentage ? undefined : {
+            silent: true,
+            itemStyle: {
+                normal: {
+                    label: {
+                        formatter: function() {
+                            return '阈值'
+                        }
+                    }
+                }
+            },
+            data : [
+                {
+                    yAxis: +currentRecord.threshold,
+                }
+            ]
+        };
+
         myChart.setOption(option);
-        this.setState({ lineChart: myChart })
+        this.setState({ lineChart: myChart });
     }
 
-
     render() {
-        const { taskDetail } = this.props.taskQuery;
-        const { visible } = this.state;
+        const { visible, currentRecord, taskDetail } = this.state;
+
+        let cardTitle = (
+            !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
+        )
 
         return (
-            <div style={{ margin: 20 }}>
+            <div style={{ padding: 20 }}>
                 <Table 
                     rowKey="id"
-                    className="m-table common-table"
+                    className="m-table"
                     columns={this.initRulesColumns()}
                     pagination={false}
                     dataSource={taskDetail}
+                    scroll={{ y: 300 }}
                 />
 
                 {
@@ -210,7 +232,7 @@ export default class TaskDetailPane extends Component {
                         bordered={false}
                         loading={false} 
                         className="shadow"
-                        title="最近30天告警数" 
+                        title={cardTitle}
                     >
                         <Resize onResize={this.resize}>
                             <article id="TaskTrend" style={{ width: '100%', height: '300px' }}/>

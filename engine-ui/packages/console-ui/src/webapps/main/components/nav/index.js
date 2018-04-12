@@ -53,14 +53,16 @@ export function MenuLeft(props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderMenuItems(menuItems)}
+                {renderATagMenuItems(menuItems)}
             </Menu>
         </div>
     )
 }
 
 export function MenuRight(props) {
-    const { activeKey, onClick, settingMenus, user, apps } = props;
+    const { activeKey, onClick, settingMenus, user, apps, app } = props;
+    const extraParms = app ? `?app=${app && app.id}` : '';
+
     const userMenu = (
         <Menu onClick={onClick}>
             <Menu.Item key="ucenter">
@@ -71,13 +73,14 @@ export function MenuRight(props) {
             </Menu.Item>
         </Menu>
     )
+
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">
-                <a href="/admin/user" target="blank">用户管理</a>
+                <a href={`/admin/user${extraParms}`} target="blank">用户管理</a>
             </Menu.Item>
             <Menu.Item key="setting:2">
-                <a href="/admin/role" target="blank">角色管理</a>
+                <a href={`/admin/role${extraParms}`} target="blank">角色管理</a>
             </Menu.Item>
             {renderMenuItems(settingMenus)}
         </Menu>
@@ -88,6 +91,7 @@ export function MenuRight(props) {
             {renderATagMenuItems(apps)}
         </Menu>
     )
+
 
     return (
         <div className="menu right">
@@ -100,7 +104,7 @@ export function MenuRight(props) {
                 </Dropdown>
                 <span className="divide"></span>
                 <span>
-                    <a href="/message" target="blank" style={{color: '#ffffff'}}>
+                    <a href={`/message${extraParms}`} target="blank" style={{color: '#ffffff'}}>
                         <Icon type="message" />
                         {/* <Badge dot>
                         </Badge> */}
@@ -144,6 +148,12 @@ export class Navigator extends Component {
         
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.routing !== nextProps.routing) {
+            this.updateSelected()
+        }
+    }
+
     handleClick = (e) => {
         const props = e.item.props
         const { onMenuClick } = this.props
@@ -160,11 +170,10 @@ export class Navigator extends Component {
     updateSelected = () => {
        
         const menuItems = this.props.menuItems
-        let pathname = window.location.pathname
-        let hash=window.location.hash
+        let pathname = window.location.href
         if (menuItems && menuItems.length > 0) {
             const pathFund = menuItems.find(item => {
-                return pathname.indexOf(item.id) > -1||hash.indexOf(item.id)>-1
+                return pathname.indexOf(item.id) > -1
             });
             
             if (pathFund) {
@@ -183,7 +192,7 @@ export class Navigator extends Component {
        
         const { 
             user, logo, menuItems, 
-            settingMenus, apps,
+            settingMenus, apps, app,
             menuLeft, menuRight 
         } = this.props;
         const { current } = this.state
@@ -203,6 +212,7 @@ export class Navigator extends Component {
                      menuRight ? menuRight : <MenuRight 
                         activeKey={ current } 
                         user={ user }
+                        app={ app }
                         apps={ apps }
                         onClick={ this.clickUserMenu }
                         settingMenus={ settingMenus }

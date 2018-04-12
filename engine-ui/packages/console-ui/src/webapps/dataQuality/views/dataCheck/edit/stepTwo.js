@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Button, Form, Select, Input, Row, Col, Table, TreeSelect, Icon, message } from 'antd';
+import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
 
+import TableCell from 'widgets/tableCell';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
@@ -31,37 +32,47 @@ export default class StepTwo extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            showPreview: false,
             sourcePreview: {}
         };
     }
 
-    componentDidMount() {}
-
     renderTargetTable = (data) => {
         return data.map((tableName) => {
             return (
-                <Option key={tableName} value={tableName}>{tableName}</Option>
+                <Option 
+                    key={tableName} 
+                    value={tableName}>
+                    {tableName}
+                </Option>
             )
         })
     }
 
+    // 右侧表变化回调
     onTargetTableChange = (name) => {
-        const { editParams, form, changeParams } = this.props;
+        const { form, havePart, editParams, changeParams, 
+            getSourcePart, resetSourcePart } = this.props;
         let target = { ...editParams.target, table: name };
 
-        this.setState({ sourcePreview: {} });
-
         // 重置分区表单和参数
-        if (editParams.origin.partition) {
-            this.props.resetSourcePart('target');
-            form.setFieldsValue({ targetColumn: '' });
+        if (havePart) {
+            resetSourcePart('target');
+            form.setFieldsValue({ 
+                targetColumn: ''
+            });
             target.partition = undefined;
 
-            this.props.getSourcePart({
+            getSourcePart({
                 sourceId: target.dataSourceId,
                 table: name
             }, 'target');
         }
+
+        this.setState({ 
+            showPreview: false,
+            sourcePreview: {} 
+        });
 
         changeParams({
             target: { ...editParams.target, ...target }
@@ -70,52 +81,71 @@ export default class StepTwo extends Component {
 
     // 预览数据源的数据
     onSourcePreview = () => {
-        const { form, editParams } = this.props;
-        let tableName = form.getFieldValue('table');
+        const { dataSourceId, table, partition } = this.props.editParams.target;
+        const { showPreview } = this.state;
 
-        if(!tableName) {
+        if(!table) {
             message.error('未选择数据表');
             return;
         }
 
-        DSApi.getDataSourcesPreview({
-            sourceId: editParams.target.dataSourceId,
-            tableName: tableName
-        }).then((res) => {
-            if (res.code === 1) {
-                let { columnList, dataList } = res.data;
-                
-                res.data.dataList = dataList.map((arr, i) => {
-                    let o = {};
-                    arr.forEach((item, j) => {
-                        o.key = i;
-                        o[columnList[j]] = item;
-                    })
-                    return o;
-                });
+        if (!showPreview) {
+            DSApi.getDataSourcesPreview({
+                sourceId: dataSourceId,
+                tableName: table,
+                partition: partition
+            }).then((res) => {
+                if (res.code === 1) {
+                    let { columnList, dataList } = res.data;
+                    
+                    res.data.dataList = dataList.map((arr, i) => {
+                        let o = {};
+                        arr.forEach((item, j) => {
+                            o.key = i;
+                            o[columnList[j]] = item;
+                        })
+                        return o;
+                    });
 
-                this.setState({ sourcePreview: res.data });
-            }
+                    this.setState({ sourcePreview: res.data });
+                }
+            });
+        }
+
+        this.setState({ 
+            showPreview: !showPreview
         });
     }
 
     // 分区树形选择
     renderTreeSelect = (data) => {
-        return data.children.map((item) => {
-            let partTitle = this.getPartTitle(item.partName, item.partValue);
+        if (!isEmpty(data)) {
+            return data.children.map((item) => {
+                let partTitle = this.getPartTitle(item.partName, item.partValue);
 
-            if (item.children.length) {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item}>
-                        {this.renderTreeSelect(item.children)}
-                    </TreeNode>
-                )
-            } else {
-                return (
-                    <TreeNode key={item.nodeId} title={partTitle} value={partTitle} dataRef={item} isLeaf={true} />
-                )
-            }
-        });
+                if (item.children.length) {
+                    return (
+                        <TreeNode 
+                            key={item.nodeId} 
+                            title={partTitle} 
+                            value={item.partColumn} 
+                            dataRef={item}>
+                            {this.renderTreeSelect(item.children)}
+                        </TreeNode>
+                    )
+                } else {
+                    return (
+                        <TreeNode 
+                            key={item.nodeId} 
+                            title={partTitle} 
+                            value={item.partColumn} 
+                            dataRef={item} 
+                            isLeaf={true} 
+                        />
+                    )
+                }
+            });
+        }
     }
 
     // 分区title显示
@@ -137,22 +167,6 @@ export default class StepTwo extends Component {
         });
     }
 
-    // 分区变化回调
-    handleInputPartChange = (e) => {
-        const { target } = this.props.editParams;
-        let partition = e.target.value ? e.target.value : undefined;
-
-        this.props.changeParams({
-            target: {...target,  partition}
-        });
-    }
-
-    renderPartText = () => {
-        return (
-            <p className="font-14">如果分区还不存在，可以直接输入未来会存在的分区名，详细的操作请参考<a>《帮助文档》</a></p>
-        )
-    }
-
     prev = () => {
         const { currentStep, navToStep } = this.props;
         navToStep(currentStep - 1);
@@ -169,68 +183,31 @@ export default class StepTwo extends Component {
     }
 
     previewTableColumns = (data) => {
-        return data.map((item) => {
+        return data && data.map((item) => {
             return {
                 title: item,
                 key: item,
                 dataIndex: item,
-                width: 80
+                width: 80,
+                render: (value) => {
+                    return <TableCell 
+                        className="no-scroll-bar"
+                        value={value ? value : undefined}
+                        readOnly
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
+                    />
+                }
             }
         });
     }
 
-    renderColumnPart = () => {
-        const { editStatus, editParams, form, dataCheck } = this.props;
-        const { partition } = editParams.target;
-        const { targetPart } = dataCheck;
-        const { getFieldDecorator } = form;
-
-        if (!isEmpty(targetPart)) {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                {
-                    getFieldDecorator('targetColumn', {
-                        rules: [],
-                        initialValue: partition
-                    })(
-                        <TreeSelect
-                            allowClear
-                            showSearch
-                            placeholder="分区列表"
-                            style={{ width: '85%' }} 
-                            disabled={editStatus === 'edit'}
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                            onChange={this.handlePartChange}>
-                            {
-                                this.renderTreeSelect(targetPart)
-                            }
-                        </TreeSelect>
-                    )
-                }
-            </FormItem>
-        } else {
-            return <FormItem {...formItemLayout} label="选择分区" extra={this.renderPartText()}>
-                {
-                    getFieldDecorator('targetColumn', {
-                        rules: [],
-                        initialValue: partition
-                    })(
-                        <Input 
-                            style={{ width: '85%' }} 
-                            placeholder="手动输入分区" 
-                            onChange={this.handleInputPartChange}
-                            disabled={editStatus === 'edit'} />
-                    )
-                }
-            </FormItem>
-        }
-    }
-
     render() {
-        const { editStatus, editParams, dataSource, form } = this.props;
+        const { form, editStatus, editParams, dataSource, dataCheck, havePart } = this.props;
+        const { targetPart } = dataCheck;
         const { sourceTable } = dataSource;
         const { getFieldDecorator } = form;
-        const { origin, target } = editParams;
-        const { sourcePreview } = this.state;
+        const { table, partition } = editParams.target;
+        const { sourcePreview, showPreview } = this.state;
 
         return (
             <div>
@@ -240,7 +217,7 @@ export default class StepTwo extends Component {
                             {
                                 getFieldDecorator('table', {
                                     rules: [{ required: true, message: '请选择右侧表' }],
-                                    initialValue: target.table
+                                    initialValue: table
                                 })(
                                     <Select 
                                         showSearch
@@ -256,9 +233,30 @@ export default class StepTwo extends Component {
                         </FormItem>
 
                         {
-                            origin.partition
+                            (havePart || partition)
                             &&
-                            this.renderColumnPart()
+                            <FormItem {...formItemLayout} label="选择分区">
+                                {
+                                    getFieldDecorator('targetColumn', {
+                                        rules: [],
+                                        initialValue: partition
+                                    })(
+                                        <TreeSelect
+                                            allowClear
+                                            showSearch
+                                            placeholder="分区列表"
+                                            treeNodeLabelProp="value"
+                                            disabled={editStatus === 'edit'}
+                                            style={{ width: '85%', marginRight: 15 }} 
+                                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                                            onChange={this.handlePartChange}>
+                                            {
+                                                this.renderTreeSelect(targetPart)
+                                            }
+                                        </TreeSelect>
+                                    )
+                                }
+                            </FormItem>
                         }
                         
                         <Row type="flex" justify="center" className="font-14">
@@ -266,7 +264,7 @@ export default class StepTwo extends Component {
                         </Row>
                         
                         {
-                            !isEmpty(sourcePreview)
+                            showPreview
                             &&
                             <Table 
                                 rowKey="key"

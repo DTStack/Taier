@@ -101,6 +101,8 @@ class Workbench extends React.Component {
 
         const isTask = currentTabData && utils.checkExist(currentTabData.taskType)
 
+        const disablePublish = !isTask || currentTabData.notSynced
+
         return <Row className="m-workbench task-editor">
             <header className="toolbar bd-bottom clear">
                 <Col className="left">
@@ -127,7 +129,7 @@ class Workbench extends React.Component {
                
                 <Col className="right">
                     <Button
-                        disabled={!isTask}
+                        disabled={disablePublish}
                         onClick={() => { this.setState({ showPublish: true }) } }
                         title="发布任务"
                     >

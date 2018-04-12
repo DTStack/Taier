@@ -11,7 +11,7 @@ const initialState = {
 
 export default function taskQuery(state = initialState, action) {
     const { type, payload } = action;
-    switch (type) {  
+    switch (type) {
         case taskQueryActionType.CHANGE_LOADING: {
             const clone = cloneDeep(state);
             const { loading } = clone;

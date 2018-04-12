@@ -8,9 +8,9 @@ import {
 import { Link } from 'react-router'
 
 import utils from 'utils'
-import { MY_APPS } from 'consts'
 import { hasProject } from 'funcs'
 
+import { MY_APPS } from '../../../consts'
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
 
@@ -44,16 +44,11 @@ class AdminUser extends Component {
         const { apps } = this.props
         
         if (apps && apps.length > 0 ) {
-            const defaultApp = apps.find(app => app.default)
-            const appKey = defaultApp.id
-            this.setState({
-                active: appKey 
-            })
-            if (hasProject(appKey)) {
-                this.getProjects(appKey)
-            } else {
-                this.loadData();
-            }
+            const initialApp = utils.getParameterByName('app');
+            const defaultApp = apps.find(app => app.default);
+            const appKey = initialApp || defaultApp.id;
+    
+            this.setState({ active: appKey }, this.loadData)
         }
     }
 
@@ -63,11 +58,16 @@ class AdminUser extends Component {
             pageSize: 10,
             currentPage: 1,
         }
-        if (hasProject(active)) {
+        if (!selectedProject && hasProject(active)) {
+            this.getProjects(active)
+        } else if (!selectedProject && !hasProject(app)) {
+            this.loadUsers(active, params);
+            this.loadRoles(active, params);
+        } else {
             params.projectId = selectedProject
+            this.loadUsers(active, params);
+            this.loadRoles(active, params);
         }
-        this.loadUsers(active, params);
-        this.loadRoles(active, params);
     }
 
     loadUsers = (app, params) => {
@@ -103,8 +103,12 @@ class AdminUser extends Component {
     }
 
     loadUsersNotInProject = () => {
-        const { active } = this.state;
-        Api.loadUsersNotInProject(active).then((res) => {
+        const { active, selectedProject } = this.state;
+        const params = {}
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+        Api.loadUsersNotInProject(active, params).then((res) => {
             if (res.code === 1) {
                 this.setState({ notProjectUsers: res.data })
             }
@@ -113,11 +117,14 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active } = this.state
+        const { active, selectedProject } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
         form.validateFields((err) => {
             if (!err) {
+                if (hasProject(active)) {
+                    projectRole.projectId = selectedProject
+                }
                 Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
@@ -133,10 +140,14 @@ class AdminUser extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
-        const { active } = this.state
-        Api.removeProjectUser(active, {
+        const { active, selectedProject } = this.state
+        const params = {
             targetUserId: member.userId,
-        }).then((res) => {
+        }
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+        Api.removeProjectUser(active, params).then((res) => {
             if (res.code === 1) {
                 ctx.loadData()
                 message.success('移出项目成员成功!')
@@ -146,12 +157,19 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active } = this.state
+        const { editTarget, active, selectedProject } = this.state
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
-        Api.updateUserRole(active, {
+        
+        const params = {
             targetUserId: editTarget.userId,
             roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
-        }).then((res) => {
+        }
+
+        if (hasProject(active)) {
+            params.projectId = selectedProject
+        }
+
+        Api.updateUserRole(active, params).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')
                 ctx.setState({ visibleEditRole: false })
@@ -299,7 +317,7 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = (active !== MY_APPS.DATA_QUALITY&&active !== MY_APPS.API) && (
+        const extra = active === MY_APPS.RDOS && (
             <Button 
                 style={{marginTop: '10px'}}
                 type="primary" 
@@ -332,7 +350,7 @@ class AdminUser extends Component {
 
         const { 
             visible, roles, notProjectUsers,
-            visibleEditRole, editTarget
+            visibleEditRole, editTarget, active
         } = this.state
 
         const content = this.renderPane();
@@ -343,7 +361,7 @@ class AdminUser extends Component {
                 <div className="box-2 m-card" style={{height: '785px'}}>
                     <AppTabs 
                         apps={apps} 
-                        activeKey={this.state.active}
+                        activeKey={active}
                         content={content}
                         onPaneChange={this.onPaneChange} 
                     />
@@ -370,6 +388,7 @@ class AdminUser extends Component {
                 >
                     <EditMemberRoleForm
                       user={editTarget}
+                      app={active}
                       roles={roles}
                       wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
                     />

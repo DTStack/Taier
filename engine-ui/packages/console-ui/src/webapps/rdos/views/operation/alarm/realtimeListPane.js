@@ -86,6 +86,7 @@ class RealTimePanel extends Component {
             'second': 59,
         }) : ''
         this.setState({
+            current: 1,
             startTime: start,
             endTime: end,
         })
@@ -98,11 +99,11 @@ class RealTimePanel extends Component {
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPe: target })
+        this.setState({ alarmPe: target, current: 1 })
     }
 
     changeTaskName = (evt) => {
-        this.setState({ taskName: evt.target.value })
+        this.setState({ taskName: evt.target.value, current: 1 })
     }
 
     disabledDate = (current) => {

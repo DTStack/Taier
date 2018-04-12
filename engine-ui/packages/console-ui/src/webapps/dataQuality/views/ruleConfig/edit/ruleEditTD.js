@@ -58,7 +58,9 @@ export default class RuleEditTD extends Component {
                                 }],
                                 initialValue: data.customizeSql
                             })(
-                                <Input onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
+                                <Input
+                                    placeholder="查询结果为一个数值类型，并且以val为别名" 
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
                             )
                         }
                     </div>

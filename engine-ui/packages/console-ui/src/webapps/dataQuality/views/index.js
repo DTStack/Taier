@@ -3,9 +3,16 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import utils from 'utils'
+import { dqApp } from 'config/base'
 
 import Header from './layout/header'
+import Dashboard from '../views/dashboard'
+
+import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
+import { dataSourceActions } from '../actions/dataSource'
+import { commonActions } from '../actions/common'
+import { updateApp } from 'main/actions/app'
 
 const propType = {
     children: PropTypes.node,
@@ -19,7 +26,12 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
-        dispatch(UserAction.getUser())
+        dispatch(UserAction.getUser());
+        dispatch(updateApp(dqApp));
+        dispatch(commonActions.getUserList());
+        dispatch(commonActions.getAllDict());
+        dispatch(dataSourceActions.getDataSourcesType());
+        dispatch(dataSourceActions.getDataSourcesList());
     }
 
     render() {
@@ -28,7 +40,7 @@ class Main extends Component {
             <div className="main">
                 <Header />
                 <div className="container">
-                    { children || "i'm container." }
+                    { children || <Dashboard /> }
                 </div>
             </div>
         )

@@ -59,7 +59,7 @@ export default {
     // ===== 规则配置 ===== //
     GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,             // 规则配置列表
     ADD_MONITOR: `${DQ_BASE_URL}/monitor/add`,                        // 新增规则配置
-    UPDATE_RULE: `${DQ_BASE_URL}/monitor/update`,                     // 编辑规则配置
+    UPDATE_MONITOR: `${DQ_BASE_URL}/monitor/update`,                  // 编辑规则配置
     GET_RULE_PART: `${DQ_BASE_URL}/monitor/getPart`,                  // 获取规则分区
     CHANGE_MONITOR_STATUS: `${DQ_BASE_URL}/monitor/closeOrOpen`,      // 开启关闭监控
     GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,              // 告警信息详情
@@ -74,15 +74,17 @@ export default {
     SAVE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/save`,             // 保存监控规则
     DELETE_MONITOR_RULE: `${DQ_BASE_URL}/monitorRule/delete`,         // 删除监控规则
     GET_RULE_FUNCTION: `${DQ_BASE_URL}/function/getFunctions`,        // 统计函数
+    GET_MONITOR_TABLE_COLUMN: `${DQ_BASE_URL}/monitor/tablecolumn`,   // 表字段
 
     SUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/subscribe`,            // 订阅
     UNSUBSCRIBE_TABLE: `${DQ_BASE_URL}/subscribe/unSubscribe`,        // 取消订阅
     CHECK_SUBSCRIBE: `${DQ_BASE_URL}/subscribe/isSubscribe`,          // 是否订阅
+
     // ===== 任务查询 ===== //
     GET_TASK_LIST: `${DQ_BASE_URL}/monitorRecord/pageQuery`,          // 查询任务列表
     GET_TASK_DETAIL: `${DQ_BASE_URL}/monitorRecord/detailReport`,     // 任务详细报告
     GET_TABLE_REPORT: `${DQ_BASE_URL}/monitorRecord/tableReport`,     // 任务表级报告
-    GET_TASK_ALARM_NUM: `${DQ_BASE_URL}/monitorRecord/ruleMonthAlarm`,// 任务报警统计值
+    GET_TASK_ALARM_NUM: `${DQ_BASE_URL}/monitorRecord/ruleMonth`,// 任务报警统计值
 
     // ===== common ===== //
     DQ_GET_ALL_DICT: `${DQ_BASE_URL}/dict/allDicts`,

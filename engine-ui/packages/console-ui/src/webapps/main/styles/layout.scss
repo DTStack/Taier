@@ -169,3 +169,17 @@
 .font-16 {
     font-size: 16px;
 }
+
+.m-cells {
+    table {
+        border-collapse: collapse;
+        .ant-table-tbody {
+            tr {
+                td {
+                    padding: 0 0;
+                    border: 1px solid #E8E8E8;
+                }
+            }
+        }
+    }
+}

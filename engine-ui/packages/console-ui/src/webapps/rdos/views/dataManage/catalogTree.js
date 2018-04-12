@@ -24,6 +24,7 @@ class CatalogueTree extends Component {
     componentDidMount() {}
 
     componentDidUpdate() {
+        
         if (this._active) {
             this._inputEle = document.getElementById(`node_${this._active}`);
             if (this._inputEle) this.initEdit(this._inputEle)
@@ -52,23 +53,29 @@ class CatalogueTree extends Component {
     }
 
     initEdit = (inputEle) => {
+
         inputEle.className = 'edit-node';
         inputEle.setAttribute('contenteditable', 'plaintext-only')
         inputEle.focus();
+
         const textNode = inputEle.firstChild;
         const range = document.createRange();
         const sel = window.getSelection();
         const start = inputEle.innerHTML.length > textNode.length ? 
         textNode.length : inputEle.innerHTML.length
+
         range.setStart(textNode, start)
         range.collapse(true);
+
         sel.removeAllRanges();
         sel.addRange(range);
     }
 
     offEdit = (node) => {
+
         this._inputEle.className = 'normal-node';
         this._inputEle.setAttribute('contenteditable', false)
+
         const value = this._inputEle.innerHTML;
         const originVal = node.bindData.name;
         const callback = (res) => {
@@ -103,7 +110,7 @@ class CatalogueTree extends Component {
         const reg = /^([\w|\u4e00-\u9fa5]{1,20})$/ // [A-Za-z0-9]|汉字 长度1-20
         const isValid = reg.test(value)
         if (!isValid) {
-            message.error('类目名称只能不超过20位字母，下划线，汉字组成！')
+            message.error('类目名称只能不超过20位字母、数字、下划线和汉字组成！')
         }
         return isValid;
     }

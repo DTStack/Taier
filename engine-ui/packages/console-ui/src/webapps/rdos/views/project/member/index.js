@@ -52,8 +52,10 @@ class ProjectMember extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
+        const { project } = this.props
         Api.removeProjectUser({
             targetUserId: member.userId,
+            projectId: project.id,
         }).then((res) => {
             if (res.code === 1) {
                 ctx.search()
@@ -96,8 +98,10 @@ class ProjectMember extends Component {
 
     addMember = () => {
         const ctx = this
+        const { project } = this.props
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+        projectRole.projectId = project.id
         form.validateFields((err) => {
             if (!err) {
                 Api.addRoleUser(projectRole).then((res) => {
@@ -116,8 +120,11 @@ class ProjectMember extends Component {
     updateMemberRole = (item) => {
         const ctx = this
         const { editTarget } = this.state
+        const { project } = this.props
+
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
         Api.updateUserRole({
+            projectId: project.id,
             targetUserId: editTarget.userId,
             roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
         }).then((res) => {

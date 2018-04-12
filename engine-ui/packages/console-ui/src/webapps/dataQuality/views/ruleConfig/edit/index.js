@@ -1,40 +1,37 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
 import { Steps, Button, Icon } from 'antd';
+
 import StepOne from './stepOne';
 import StepTwo from './stepTwo';
 import StepThree from './stepThree';
+import GoBack from 'main/components/go-back';
 
 const Step = Steps.Step;
 
 export default class RuleConfigEdit extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            current: 0,
-            editParams: {
-                dataSourceId: undefined,
-                tableName: undefined,
-                partitionColumn: undefined,
-                partitionValue: undefined,
-                isSubscribe: 0,
-                scheduleConf: '',
-                sendTypes: [],
-                notifyUser: [],
-                rules: []
-            },
-            editStatus: 'new'
-        }
+
+    state = {
+        current: 0,
+        editParams: {
+            dataSourceId: undefined,
+            tableName: undefined,
+            partition: undefined,
+            isSubscribe: 0,
+            scheduleConf: '',
+            sendTypes: [],
+            notifyUser: [],
+            rules: []
+        },
+        havePart: false
     }
-
-    componentWillMount() {}
-
-    componentDidMount() {}
 
     changeParams = (obj) => {
         let editParams = { ...this.state.editParams, ...obj };
         this.setState({ editParams });
-        console.log(this,obj,'editParams')
+    }
+
+    changeHavePart = (havePart) => {
+        this.setState({ havePart });
     }
 
     navToStep = (value) => {
@@ -42,25 +39,23 @@ export default class RuleConfigEdit extends Component {
     }
  
     render() {
-        const { current, editParams, editStatus } = this.state;
+        const { current, editParams, havePart } = this.state;
         const steps = [
             {
                 title: '监控对象', content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
+                    havePart={havePart}
                     editParams={editParams}
-                    editStatus={editStatus}
                     changeParams={this.changeParams}
+                    changeHavePart={this.changeHavePart}
                 />
             },
             {
                 title: '监控规则', content: <StepTwo
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
                     editParams={editParams}
-                    editStatus={editStatus}
                     changeParams={this.changeParams}
                 />
             },
@@ -68,20 +63,20 @@ export default class RuleConfigEdit extends Component {
                 title: '监控执行', content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
-                    {...this.props} 
                     editParams={editParams}
-                    editStatus={editStatus}
                     changeParams={this.changeParams}
                 />
             }
         ];
+        
         return (
-            <div className="inner-container rule-edit">
-                <h3>
-                    <Link to="/dq/rule">
-                        <Icon type="left-circle-o m-r-8" />新建质量监控
-                    </Link>
-                </h3>
+            <div className="box-1 rule-edit">
+                <h1 className="box-title">
+                    <GoBack /> 
+                    <span className="m-l-8">
+                        新建质量监控
+                    </span>
+                </h1>
                 
                 <div className="steps-container">
                     <Steps current={current}>

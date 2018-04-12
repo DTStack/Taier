@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { assign } from 'lodash'
 import { 
     Tabs, Menu, Table, 
     Checkbox, Button, message 
@@ -18,7 +19,7 @@ const MenuItem = Menu.Item;
 class MessageList extends Component {
 
     state = {
-        active: '1',
+
         selectedApp: '',
         table: {
             data: [],
@@ -31,21 +32,26 @@ class MessageList extends Component {
 
     componentDidMount() {
         const { apps } = this.props;
+        const initialApp = utils.getParameterByName('app');
         const defaultApp = apps.find(app => app.default)
         if (defaultApp) {
             this.setState({
-                selectedApp: defaultApp.id
+                selectedApp: initialApp || defaultApp.id
             }, this.loadMsg)
         }
     }
 
-    loadMsg = () => {
-        const { active, selectedApp } = this.state;
-        Api.getMessage(selectedApp, {
-            currentPage: 1, 
-            pageSize: 20,
-            mode: active,
-        }).then(res => {
+    loadMsg = (params) => {
+        const { msgList } = this.props;
+        const { selectedApp } = this.state;
+
+        const reqParams = assign({
+            currentPage: msgList.currentPage,
+            pageSize: 10,
+            mode: msgList.msgType,
+        }, params);
+
+        Api.getMessage(selectedApp, reqParams).then(res => {
             this.setState({
                 table: res.data,
             })
@@ -72,7 +78,7 @@ class MessageList extends Component {
     }
 
     markAsRead = () => {
-        const { active, selectedApp, selectedRowKeys } = this.state;
+        const { selectedApp, selectedRowKeys } = this.state;
 
         const unReadRows = this.getUnreadRows()
 
@@ -89,7 +95,7 @@ class MessageList extends Component {
     }
 
     markAsAllRead = () => {
-        const { active, selectedApp, selectedRowKeys } = this.state;
+        const { selectedApp, selectedRowKeys } = this.state;
         
         const unReadRows = this.getUnreadRows()
 
@@ -104,7 +110,7 @@ class MessageList extends Component {
     }
 
     deleteMsg = () => {
-        const { active, selectedApp, selectedRowKeys } = this.state;
+        const { selectedApp, selectedRowKeys } = this.state;
         if (this.selectedNotNull(selectedRowKeys)) {
             Api.deleteMsgs(selectedApp, {
                 notifyRecordIds: selectedRowKeys
@@ -112,11 +118,22 @@ class MessageList extends Component {
                 if (res.code === 1) {
                     this.loadMsg()
                     this.setState({
+                        selectedAll: false,
                         selectedRowKeys: [],
                     })
                 }
             })
         }
+    }
+
+    handleTableChange = (pagination, filters) => {
+        this.props.updateMsg({
+            currentPage: pagination.current,
+        })
+        this.setState({ 
+            selectedRowKeys: [],
+            selectedAll: false,
+        }, this.loadMsg)
     }
 
     selectedNotNull(selected) {
@@ -128,12 +145,19 @@ class MessageList extends Component {
     }
 
     onPaneChange = (key) => {
-        this.setState({
-            active: key,
-        }, this.loadMsg)
+        this.props.updateMsg({
+            currentPage: 1,
+            msgType: key,
+        });
+        this.loadMsg({
+            mode: key,
+        });
     }
 
     onAppSelect = ({ key }) => {
+        this.props.updateMsg({
+            currentPage: 1,
+        });
         this.setState({
             selectedApp: key,
             selectedRowKeys: [],
@@ -159,7 +183,8 @@ class MessageList extends Component {
     }
 
     tableFooter = (currentPageData) => {
-        const { active, selectedAll } = this.state
+        const { msgList } = this.props
+        const { selectedAll } = this.state
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '0 24px' }}>
@@ -175,7 +200,7 @@ class MessageList extends Component {
                         删除
                     </Button>
                     {
-                        active !== '3' && <span>
+                        msgList.msgType !== '3' && <span>
                             <Button 
                                 size="small"
                                 type="primary" 
@@ -197,7 +222,7 @@ class MessageList extends Component {
 
     renderPane = () => {
 
-        const { apps } = this.props;
+        const { apps, msgList } = this.props;
         const { table, selectedApp, selectedRowKeys } = this.state;
         const menuItem = []
 
@@ -261,6 +286,12 @@ class MessageList extends Component {
             },
         };
 
+        const pagination = {
+            total: table && table.totalCount,
+            defaultPageSize: 10,
+            current: msgList.currentPage,
+        };
+
         return (
             <div className="m-panel">
                 <Menu 
@@ -275,8 +306,11 @@ class MessageList extends Component {
                         className="m-table"
                         columns={colms} 
                         dataSource={ table.data || [] } 
-                        rowSelection={rowSelection} 
+                        rowSelection={rowSelection}
+                        onChange={this.handleTableChange}
+                        pagination={pagination}
                         footer={this.tableFooter}
+                        scroll={{ y: 400 }}
                     />
                 </main>
             </div>
@@ -284,14 +318,15 @@ class MessageList extends Component {
     }
 
     render() {
+        const { msgList } = this.props;
 
         const paneContent = this.renderPane();
 
         return (
-            <div className="box-1 m-tabs" style={{height: '785px'}}>
+            <div className="box-1 m-tabs" style={{height: '90%'}}>
                 <Tabs 
                     animated={false}
-                    activeKey={this.state.active} 
+                    activeKey={ msgList.msgType }
                     onChange={this.onPaneChange}
                 >
                     <TabPane tab="全部消息" key="1"> {paneContent} </TabPane>

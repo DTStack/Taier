@@ -1,26 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { 
-    Table, Button, Icon, Input, 
-    DatePicker, Select, Popconfirm, 
-    message, Card, Checkbox,
-    Tabs, Row, Col, Modal
-} from 'antd';
+import { Table, Button, Input, Select, message, Card, Checkbox, Tabs } from 'antd';
 import moment from 'moment';
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
 import SlidePane from 'widgets/slidePane';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { dataSourceActions } from '../../../actions/dataSource';
-import { commonActions } from '../../../actions/common';
-import { dataSourceTypes, periodType } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 import '../../../styles/views/ruleConfig.scss';
 
 const Search = Input.Search;
-const InputGroup = Input.Group;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
@@ -32,19 +23,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getMonitorLists(params) {
         dispatch(ruleConfigActions.getMonitorLists(params));
-    },
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
-    },
-    getDataSourcesType(params) {
-        dispatch(dataSourceActions.getDataSourcesType(params));
-    },
-    getUserList(params) {
-        dispatch(commonActions.getUserList(params));
-    },
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
-    },
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -67,17 +46,11 @@ export default class RuleConfig extends Component {
     }
 
     componentDidMount() {
-        this.props.getAllDict();
-        this.props.getUserList();
-        this.props.getDataSourcesList();
-        this.props.getDataSourcesType();
         this.props.getMonitorLists(this.state.params);
-        console.log(this)
     }
 
     // table设置
     initColumns = () => {
-        const { dataSourceType } = this.props.common.allDict;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -87,20 +60,15 @@ export default class RuleConfig extends Component {
             )
         }, {
             title: '类型',
-            dataIndex: 'dataSourceType',
-            key: 'dataSourceType',
+            dataIndex: 'sourceTypeName',
+            key: 'sourceTypeName',
             render: (text, record) => {
-                return text ? `${dataSourceType.filter(item => item.value === text)[0].name} / ${record.dataName}` : '--';
-                // return text ? `${dataSourceTypes[text]} / ${record.dataName}` : '--';
+                return text ? `${text} / ${record.dataName}` : '--';
             }
-        }, 
-        {
+        }, {
             title: '执行周期',
-            dataIndex: 'periodType',
-            key: 'periodType',
-            render: (text) => {
-                return periodType[text];
-            }
+            dataIndex: 'periodTypeName',
+            key: 'periodTypeName'
         }, {
             title: '最近30天告警数',
             dataIndex: 'recentNotifyNum',
@@ -111,11 +79,7 @@ export default class RuleConfig extends Component {
             dataIndex: 'isRemoteTrigger',
             key: 'isRemoteTrigger',
             render: (text) => {
-                if (text === 0) {
-                    return <Icon type="close-circle status-error" />
-                } else {
-                    return <Icon type="check-circle status-success" />
-                }
+                return text ? '已开启' : ''
             }
         }, {
             title: '最近修改人',
@@ -131,36 +95,32 @@ export default class RuleConfig extends Component {
         }, {
             title: '操作',
             render: (text, record) => {
-                return <a onClick={this.onSubscribe.bind(this, record)}>{record.isSubscribe ? '取消订阅' : '订阅'}</a>
+                return <a onClick={this.onSubscribe.bind(this, record)}>
+                    {record.isSubscribe ? '取消订阅' : '订阅'}
+                </a>
             }
         }]
     }
 
+    // 订阅操作
     onSubscribe = (record) => {
+        const { params } = this.state;
+
         if (record.isSubscribe) {
             RCApi.unSubscribeTable({ tableId: record.tableId }).then((res) => {
                 if (res.code === 1) {
                     message.success('取消订阅成功');
-                    this.props.getMonitorLists(this.state.params);
+                    this.props.getMonitorLists(params);
                 }
             });
         } else {
             RCApi.subscribeTable({ tableId: record.tableId }).then((res) => {
                 if (res.code === 1) {
                     message.success('订阅成功');
-                    this.props.getMonitorLists(this.state.params);
+                    this.props.getMonitorLists(params);
                 }
             })
         }
-    }
-
-    deleteRuleConfig = (record) => {
-        Api.deleteRule({ id: record.id }).then((res) => {
-            if (res.code === 1) {
-                message.success("删除成功！");
-                this.props.getMonitorLists(this.state.params);
-            }
-        })
     }
 
     // 表格换页/排序
@@ -178,97 +138,139 @@ export default class RuleConfig extends Component {
     renderSourceType = (data) => {
         return data.map((source) => {
             return (
-                <Option key={source.value} value={source.value.toString()}>{source.name}</Option>
+                <Option 
+                    key={source.value} 
+                    value={source.value.toString()}>
+                    {source.name}
+                </Option>
             )
         });
     }
 
+    // 数据源类型筛选
     onSourceChange = (type) => {
-        let sourceType = type ? type : undefined;
-        let params = {...this.state.params, sourceType};
+        let params = {
+            ...this.state.params, 
+            pageIndex: 1,
+            sourceType: type ? type : undefined
+        };
         
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
     // 数据源下拉框
     renderUserSource = (data) => {
         return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
             return (
-                <Option key={source.id} value={source.id.toString()}>{source.dataName}（{dataSourceTypes[source.type]}）</Option>
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
             )
         });
     }
 
+    // 数据源筛选
     onUserSourceChange = (id) => {
-        let dataSourceId = id ? id : undefined;
-        let params = {...this.state.params, dataSourceId};
+        let params = {
+            ...this.state.params, 
+            pageIndex: 1,
+            dataSourceId: id ? id : undefined
+        };
         
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
     // 调度周期下拉框
     renderPeriodType = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.value} value={item.value.toString()}>{item.name}</Option>
+                <Option 
+                    key={item.value} 
+                    value={item.value.toString()}>
+                    {item.name}
+                </Option>
             )
         })
     }
 
-    // 调度周期变化回调
+    // 调度周期筛选
     onPeriodTypeChange = (type) => {
-        let periodType = type ? type : undefined;
-        let params = {...this.state.params, periodType};
+        let params = {
+            ...this.state.params,
+            pageIndex: 1,
+            periodType: type ? type : undefined
+        };
         
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
     // user下拉框
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()} 
+                    name={item.userName}>
+                    {item.userName}
+                </Option>
             )
         })
     }
 
-    // 监听userList的select
+    // user筛选
     onUserChange = (id) => {
-        let lastModifyUserId = id ? id : undefined;
-        let params = {...this.state.params, lastModifyUserId};
+        let params = {
+            ...this.state.params, 
+            pageIndex: 1,
+            lastModifyUserId: id ? id : undefined
+        };
         
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
-    // 执行时间变化回调
+    // 执行时间筛选
     onDateChange = (date, dateString) => {
-        let executeTime = date ? date.valueOf() : undefined;
-        let params = {...this.state.params, executeTime};
+        let params = {
+            ...this.state.params, 
+            pageIndex: 1,
+            executeTime: date ? date.valueOf() : undefined
+        };
         
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
-    // 是否订阅
+    // 是否订阅筛选
     onSubscribeChange = (e) => {
-        let isSubscribe = e.target.checked ? 1 : undefined;
-        let params = {...this.state.params, isSubscribe};
+        let params = {
+            ...this.state.params, 
+            pageIndex: 1,
+            isSubscribe: e.target.checked ? 1 : undefined
+        };
         
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
     // table搜索
     handleSearch = (name) => {
-        let tableName = name ? name : undefined;
-        let params = {...this.state.params, tableName: tableName};
+        let params = {
+            ...this.state.params, 
+            pageIndex: 1,
+            tableName: name ? name : undefined
+        };
 
-        this.setState({ params });
         this.props.getMonitorLists(params);
+        this.setState({ params });
     }
 
     openSlidePane = (record) => {
@@ -286,6 +288,11 @@ export default class RuleConfig extends Component {
         });
     }
 
+    refresh = () => {
+        this.closeSlidePane();
+        this.props.getMonitorLists(this.state.params);
+    }
+
     onTabChange = (key) => {
         this.setState({ tabKey: key });
     }
@@ -299,7 +306,7 @@ export default class RuleConfig extends Component {
         const pagination = {
             current: params.pageIndex,
             pageSize: params.pageSize,
-            total: monitorList.totalCount,
+            total: monitorList ? monitorList.totalCount : 0,
         };
 
         let periodType = allDict.periodType ? allDict.periodType : [];
@@ -308,13 +315,17 @@ export default class RuleConfig extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入表名搜索"
-                    style={{ width: 200, margin: '10px 0' }}
                     onSearch={this.handleSearch}
+                    style={{ width: 200, margin: '10px 0' }}
                 />
 
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.onSourceChange} style={{ width: 150 }}>
+                    <Select 
+                        allowClear 
+                        style={{ width: 150 }}
+                        placeholder="选择数据源类型"
+                        onChange={this.onSourceChange}>
                         {
                             this.renderSourceType(sourceType)
                         }
@@ -323,7 +334,13 @@ export default class RuleConfig extends Component {
 
                 <div className="m-l-8">
                     数据源：
-                    <Select allowClear onChange={this.onUserSourceChange} style={{ width: 150 }}>
+                    <Select 
+                        allowClear 
+                        showSearch
+                        style={{ width: 150 }}
+                        optionFilterProp="title"
+                        placeholder="选择数据源"
+                        onChange={this.onUserSourceChange}>
                         {
                             this.renderUserSource(sourceList)
                         }
@@ -332,16 +349,26 @@ export default class RuleConfig extends Component {
 
                 <div className="m-l-8">
                     执行周期：
-                    <Select allowClear onChange={this.onPeriodTypeChange} style={{ width: 150 }}>
+                    <Select 
+                        allowClear 
+                        style={{ width: 150 }} 
+                        placeholder="选择执行周期"
+                        onChange={this.onPeriodTypeChange}>
                         {
                             this.renderPeriodType(periodType)
                         }
                     </Select>
                 </div>
 
-                <div className="m-l-8 m-r-8">
+                <div className="m-8">
                     最近修改人：
-                    <Select allowClear onChange={this.onUserChange} style={{ width: 150 }}>
+                    <Select 
+                        allowClear 
+                        showSearch
+                        style={{ width: 150 }} 
+                        optionFilterProp="name"
+                        placeholder="选择最近修改人"
+                        onChange={this.onUserChange}>
                         {
                             this.renderUserList(userList)
                         }
@@ -390,7 +417,7 @@ export default class RuleConfig extends Component {
                             onClose={this.closeSlidePane}
                             visible={showSlidePane}
                             className="slide-pane-box"
-                            style={{ right: '-20px', width: '80%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '80%', minHeight: '600px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 
@@ -400,7 +427,7 @@ export default class RuleConfig extends Component {
                                 >
                                     
                                     <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane}>
+                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane} refresh={this.refresh}>
                                         </RuleEditPane>
                                     </TabPane>
                                     <TabPane tab="远程触发" key="2">

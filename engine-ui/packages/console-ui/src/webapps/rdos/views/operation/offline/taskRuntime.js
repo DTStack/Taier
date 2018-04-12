@@ -177,7 +177,6 @@ export default class TaskLog extends Component {
         option.yAxis[1].axisLabel.formatter = '{value} 条'
 
         option.series = data.series;
-        console.log('option:', option)
         // 绘制图表
         myChart.setOption(option);
 

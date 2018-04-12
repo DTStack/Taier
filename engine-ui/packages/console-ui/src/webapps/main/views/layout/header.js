@@ -8,6 +8,7 @@ import { Navigator, Logo }  from '../../components/nav';
     return {
         user: state.user,
         apps: state.apps,
+        routing: state.routing
     }
 })
 class Header extends Component {

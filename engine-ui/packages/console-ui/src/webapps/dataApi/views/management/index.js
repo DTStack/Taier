@@ -54,6 +54,7 @@ class APIMana extends Component {
     componentDidMount() {
         this.props.getCatalogue(0);
         this.getAllApi();
+        this.getDataSource(null);
     }
     getAllApi() {
         const sortType = {
@@ -378,15 +379,6 @@ class APIMana extends Component {
         return type.map(function (item, index) {
             return <Option key={item.id}>{item.name}</Option>
         })
-    }
-    //数据源改变
-    dataSourceTypeChange(key) {
-        this.setState({
-            dataSource: key
-        },
-            () => {
-                this.getAllApi();
-            })
     }
     //获取数据源
     getDataSource() {

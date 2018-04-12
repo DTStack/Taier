@@ -65,43 +65,13 @@ class OfflineCount extends Component {
                             <Col style={flex}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">全部</span>
-                                    <span className="m-count-content font-blue">{data.ALL || 0}</span>
-                                </section>
-                            </Col>
-                            <Col  style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">取消</span>
-                                    <span className="m-count-content font-black">{data.CANCELED || 0}</span>
+                                    <span className="m-count-content font-black">{data.ALL || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">提交中</span>
-                                    <span className="m-count-content font-green">{data.SUBMITTING || 0}</span>
-                                </section>
-                            </Col>
-                            <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title" >待运行</span>
-                                    <span className="m-count-content font-gray">{data.WAITENGINE || 0}</span>
-                                </section>
-                            </Col>
-                            <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">成功</span>
-                                    <span className="m-count-content font-organge">{data.FINISHED || 0}</span>
-                                </section>
-                            </Col>
-                            <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">冻结</span>
-                                    <span className="m-count-content font-cold-blue">{data.FROZEN || 0}</span>
-                                </section>
-                            </Col>
-                            <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">未提交</span>
-                                    <span className="m-count-content font-gray">{data.UNSUBMIT || 0}</span>
+                                    <span className="m-count-title">失败</span>
+                                    <span className="m-count-content font-red">{data.FAILED || 0}</span>
                                 </section>
                             </Col>
                             <Col style={flex}>
@@ -112,8 +82,38 @@ class OfflineCount extends Component {
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">失败</span>
-                                    <span className="m-count-content font-red">{data.FAILED || 0}</span>
+                                    <span className="m-count-title">成功</span>
+                                    <span className="m-count-content font-green">{data.FINISHED || 0}</span>
+                                </section>
+                            </Col>
+                            <Col style={flex}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">未提交</span>
+                                    <span className="m-count-content font-gray">{data.UNSUBMIT || 0}</span>
+                                </section>
+                            </Col>
+                            <Col style={flex}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">提交中</span>
+                                    <span className="m-count-content font-organge">{data.SUBMITTING || 0}</span>
+                                </section>
+                            </Col>
+                            <Col style={flex}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title" >待运行</span>
+                                    <span className="m-count-content font-organge">{data.WAITENGINE || 0}</span>
+                                </section>
+                            </Col>
+                            <Col style={flex}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">冻结</span>
+                                    <span className="m-count-content font-blue">{data.FROZEN || 0}</span>
+                                </section>
+                            </Col>
+                            <Col style={flex}>
+                                <section className="m-count-section">
+                                    <span className="m-count-title">取消</span>
+                                    <span className="m-count-content font-gray">{data.CANCELED || 0}</span>
                                 </section>
                             </Col>
                         </Row>

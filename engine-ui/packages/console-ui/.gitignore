@@ -11,3 +11,4 @@ src/app/.idea/
 npm-error.log
 npm-debug.log
 yarn-error.log
+build/config

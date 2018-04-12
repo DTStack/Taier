@@ -1,63 +1,89 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Table, Row, Col } from 'antd';
-import { dataCheckActions } from '../../../actions/dataCheck';
+import { Table, Row, Col, Icon } from 'antd';
 import GoBack from 'main/components/go-back';
+import TableCell from 'widgets/tableCell';
+import DCApi from '../../../api/dataCheck';
 
-const mapStateToProps = state => {
-    const { dataCheck, common } = state;
-    return { dataCheck, common }
-}
-
-const mapDispatchToProps = dispatch => ({
-    getCheckReport(params) {
-        dispatch(dataCheckActions.getCheckReport(params));
-    },
-    getCheckReportTable(params) {
-        dispatch(dataCheckActions.getCheckReportTable(params));
-    },
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
 export default class DataCheckReport extends Component {
     constructor(props) {
         super(props);
         this.state = {
             params: {
                 currentPage: 1,
-                pageSize: 20
-            }
+                pageSize: 20,
+                verifyRecordId: this.props.routeParams.verifyRecordId
+            },
+            tableData: {},
+            reportData: {}
         };
     }
 
     componentDidMount() {
-        const { verifyRecordId } = this.props.routeParams;
+        const { params } = this.state;
+        let verifyRecordId = params.verifyRecordId;
 
-        this.props.getCheckReport({ verifyRecordId });
-        this.props.getCheckReportTable({ ...this.state.params, verifyRecordId });
+        DCApi.getCheckReport({ verifyRecordId }).then((res) => {
+            if (res.code === 1) {
+                this.setState({ reportData: res.data });
+            }
+        });
+        DCApi.getCheckReportTable(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ tableData: res.data });
+            }
+        });
     }
 
     initColumns = (data) => {
-        return Object.keys(data).map((item) => {
+        return data.length && data.map((item) => {
             return {
                 title: item,
                 key: item,
                 dataIndex: item,
                 width: 80,
+                render: (value) => {
+                    return <TableCell 
+                        className="no-scroll-bar"
+                        value={value ? value : undefined}
+                        readOnly
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
+                    />
+                }
             }
         });
     }
 
-    render() {
-        const { dataCheck, common } = this.props;
-        const { verifyVO, lAll, rAll, mapSuccess, mapFailure, rightUnfound, leftUnfound, dataSourceEN } = dataCheck.checkReport;
-        const { reportTable } = dataCheck;
+    // 表格换页
+    onTableChange = (page, filter, sorter) => {
+        let params = {
+            ...this.state.params,
+            currentPage: page.current,
+        }
+        // this.props.getCheckReportTable(params);
+        DCApi.getCheckReportTable(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ 
+                    params: params,
+                    tableData: res.data 
+                });
+            }
+        });
+    }
+
+    handleDownload = () => {
         const { params } = this.state;
+        let getParams = `verifyRecordId=${params.verifyRecordId}&currentPage=${params.currentPage}&pageSize=${params.pageSize}`;
+        window.open(`/api/dq/export/verify/doExport?${getParams}`);
+    }
+
+    render() {
+        const { params, tableData, reportData } = this.state;
+        const { verifyVO, lAll, rAll, mapSuccess, mapFailure, rightUnfound, leftUnfound, dataSourceEN } = reportData;
 
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
-            total: reportTable.totalCount
+            total: tableData.totalCount
         }
 
         return (
@@ -122,18 +148,23 @@ export default class DataCheckReport extends Component {
                     </table>
                 </div>
                 <div>
-                    <h3 className="table-h3-title">
+                    <h3 className="table-h3-title flex" style={{ justifyContent: 'space-between' }}>
                         具体差异
+                        <Icon 
+                            type="download" 
+                            onClick={this.handleDownload}
+                            style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }} />
                     </h3>
                     <Table 
                         // rowKey="key"
                         // bordered
-                        className="m-table"
+                        className="m-cells m-table"
                         style={{ margin: '0 20px' }}
-                        columns={this.initColumns(reportTable.data ? reportTable.data[0]: {})} 
-                        dataSource={reportTable.data ? reportTable.data : []}
+                        scroll={{ x: 1000 }}
                         pagination={pagination}
-                        scroll={{ x: '120%' }}
+                        dataSource={tableData.data ? tableData.data : []}
+                        columns={this.initColumns(tableData.attachment ? tableData.attachment: [])} 
+                        onChange={this.onTableChange}
                     />
                 </div>
             </div>

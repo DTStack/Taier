@@ -4,6 +4,9 @@ import { connect } from 'react-redux'
 
 import utils from 'utils'
 
+import { rdosApp } from 'config/base'
+import { updateApp } from 'main/actions/app'
+
 import Header from './layout/header'
 import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
@@ -22,6 +25,7 @@ class Container extends Component {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
+        dispatch(updateApp(rdosApp))
         this.initProject()
     }
 
@@ -64,6 +68,7 @@ function mapStateToProps(state) {
         projects: state.projects,
         project: state.project,
         apps: state.apps,
+        app: state.app,
     }
 }
 export default connect(mapStateToProps)(Container)

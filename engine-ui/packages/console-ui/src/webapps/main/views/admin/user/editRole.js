@@ -5,16 +5,40 @@ import {
     Select, Form, Checkbox,
  } from 'antd'
 
-import { formItemLayout, PROJECT_ROLE } from 'consts'
+import { 
+    formItemLayout, 
+    RDOS_PROJECT_ROLE, 
+    DQ_PROJECT_ROLE,
+    MY_APPS,
+} from 'main/consts'
  
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
+// 过滤项目所有者，租户所有者，访客三种无效的授权对象
+const isDisabled = (app, value) => {
+    switch(app) {
+        case MY_APPS.RDOS: {
+            return value === RDOS_PROJECT_ROLE.PROJECT_OWNER ||
+            value === RDOS_PROJECT_ROLE.TENANT_OWVER ||
+            value === RDOS_PROJECT_ROLE.VISITOR
+        }
+        case MY_APPS.DATA_QUALITY: {
+            return value === DQ_PROJECT_ROLE.ADMIN ||
+            value === DQ_PROJECT_ROLE.VISITOR
+        }
+        default: {
+            return false;
+        }
+    }
+
+}
+
 class EditRoleForm extends Component {
 
     render() {
-        const { roles, form, user } = this.props;
+        const { roles, form, user, app } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const selectedRoles = user && user.roles 
@@ -23,10 +47,7 @@ class EditRoleForm extends Component {
         let roleOptions = [];
         if (roles) {
             roles.forEach(role => {
-                // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-                const disabled = role.roleValue === PROJECT_ROLE.PROJECT_OWNER ||
-                    role.roleValue === PROJECT_ROLE.TENANT_OWVER ||
-                    role.roleValue === PROJECT_ROLE.VISITOR
+                const disabled = isDisabled(app, role.roleValue)
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
