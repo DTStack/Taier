@@ -177,30 +177,33 @@ export default class TaskDetailPane extends Component {
         option.yAxis[0].minInterval = 1;
         option.series = [{
             name: '统计值',
-            type:'line',
+            type: 'line',
             smooth: true,
             symbolSize: 8,
             data: yData,
         }];
 
-        // 非百分比需要显示基线
-        option.series[0].markLine = currentRecord.isPercentage ? undefined : {
-            silent: true,
-            itemStyle: {
-                normal: {
-                    label: {
-                        formatter: function() {
-                            return '阈值'
+        if (!isEmpty(chartData)) {
+
+            // 非枚举值需要显示基线
+            option.series[0].markLine = currentRecord.operator === 'in' ? undefined : {
+                silent: true,
+                itemStyle: {
+                    normal: {
+                        label: {
+                            formatter: function() {
+                                return '阈值'
+                            }
                         }
                     }
-                }
-            },
-            data : [
-                {
-                    yAxis: +currentRecord.threshold,
-                }
-            ]
-        };
+                },
+                data : [
+                    {
+                        yAxis: +currentRecord.threshold,
+                    }
+                ]
+            };
+        }
 
         myChart.setOption(option);
         this.setState({ lineChart: myChart });
@@ -221,6 +224,7 @@ export default class TaskDetailPane extends Component {
                     columns={this.initRulesColumns()}
                     pagination={false}
                     dataSource={taskDetail}
+                    style={{ marginBottom: 15 }}
                     scroll={{ y: 300 }}
                 />
 

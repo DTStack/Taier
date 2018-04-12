@@ -173,7 +173,6 @@ export default class DataSource extends Component {
             title: '操作',
             width: '10%',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span>
                         <a onClick={() => {this.initEdit(record)}}>

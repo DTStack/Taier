@@ -318,7 +318,7 @@ export default class RemoteTriggerPane extends Component {
                     &&
                     <Table 
                         rowKey="id"
-                        className="m-table common-table"
+                        className="m-table"
                         columns={this.initTriggerColumns()}
                         pagination={false}
                         dataSource={triggerList}

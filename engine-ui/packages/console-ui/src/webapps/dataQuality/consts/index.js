@@ -199,7 +199,8 @@ export const tailFormItemLayout = { // 表单末尾布局
     },
 }
 
-export const rowFormItemLayout = { // 单行末尾布局
+// 不显示label
+export const rowFormItemLayout = { 
     labelCol: { span: 0 },
     wrapperCol: { span: 24 },
 }

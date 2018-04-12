@@ -27,13 +27,13 @@ export default function keymap(state = initialState, action) {
                 return bl;
             }
 
-            if(checkExist(source, map.source)) {
+            if (checkExist(source, map.source)) {
                 return state;
             }
-            else if(checkExist(target, map.target)) {
+            else if (checkExist(target, map.target)) {
                 return state;
             }
-            else{
+            else {
                 clone.source = [...clone.source, map.source];
                 clone.target = [...clone.target, map.target];
             }
