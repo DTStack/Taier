@@ -43,18 +43,28 @@ class APIMarket extends Component {
         type2: undefined,
         apiName: "",
         pageSize: 20,
-        total: 0
+        total: 0,
+        sorter:{}
     }
     getMarketApi() {
         this.setState({
             loading: true
         })
+        const dic={
+            updateTime:"gmt_modified"
+        }
+        const orderType = {
+            "ascend": 'asc',
+            "descend": 'desc'
+        }
         this.props.getApiMarketList({
             apiName: this.state.searchValue,
             pid: this.state.type1 || 0,
             cid: this.state.type2 || 0,
             currentPage: this.state.pageIndex,
-            pageSize: this.state.pageSize
+            pageSize: this.state.pageSize,
+            orderBy:dic[this.state.sorter.columnKey],
+            sort:orderType[this.state.sorter.order]
         }).then((res) => {
             console.log("apigetOver");
 
@@ -193,7 +203,8 @@ class APIMarket extends Component {
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         this.setState({
-            pageIndex: page.current
+            pageIndex: page.current,
+            sorter:sorter
 
         }, () => {
             this.getMarketApi();
@@ -229,7 +240,8 @@ class APIMarket extends Component {
             key: 'updateTime',
             render(time){
                 return utils.formatDateTime(time);
-            }
+            },
+            sorter:true
         }, {
             title: '操作',
             dataIndex: 'deal',

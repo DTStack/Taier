@@ -6,7 +6,12 @@ class TopFail extends Component {
        return this.props.data||[];
     }
     openNewDetail(text){
-        window.open(`${location.origin+location.pathname}#/api/market/detail/${text}`)
+        this.props.router.push({
+            pathname:'/api/mine/approved',
+            query:{
+                apiId:text
+            }
+        })
     }
 
     render() {

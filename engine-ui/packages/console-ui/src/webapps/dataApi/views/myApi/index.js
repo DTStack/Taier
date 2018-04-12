@@ -75,6 +75,7 @@ class MyAPI extends Component {
     }
     componentWillMount() {
         const view=this.props.router.params.view;
+        
         if(view){
             this.setState({
                 nowView:view
@@ -88,7 +89,7 @@ class MyAPI extends Component {
         return <ApprovedCard {...this.props}></ApprovedCard>
     }
     render() {
-        const { children } = this.props
+        const { children } = this.props;
         return (
             <div className=" api-mine nobackground m-card m-tabs">
                 <h1 className="box-title">我的API</h1>
@@ -105,7 +106,7 @@ class MyAPI extends Component {
                             <NoApprovedCard {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="已审批" key="approved">
-                            <ApprovedCard {...this.props}></ApprovedCard>
+                            <ApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>
                 </Card>

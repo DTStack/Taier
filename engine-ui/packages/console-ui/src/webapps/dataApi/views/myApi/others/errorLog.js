@@ -18,7 +18,8 @@ class errorLog extends Component {
         data: [],
         loading: false,
         pageIndex: 1,
-        total: 0
+        total: 0,
+        filter:{}
     }
     componentDidMount() {
 
@@ -51,7 +52,7 @@ class errorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(this.props.showRecord.apiId,this.state.pageIndex,this.state.filter&&this.state.filter.bizType)
+        this.props.queryApiCallLog(this.props.showRecord.apiId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -97,7 +98,8 @@ class errorLog extends Component {
                 { text: '超时', value: '4' },
                 { text: '超过限制', value: '5' },
                 { text: '未识别', value: '10' }
-            ]
+            ],
+            filterMultiple:false
         }, {
             title: '错误日志',
             dataIndex: 'content',

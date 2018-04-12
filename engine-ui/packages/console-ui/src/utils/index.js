@@ -92,6 +92,14 @@ const utils = {
         moment.locale('zh-cn');
         return moment(timestap).format('YYYY-MM-DD')
     },
+    formatDateHours: function(timestap) {
+        moment.locale('zh-cn');
+        return moment(timestap).format('YYYY-MM-DD HH:mm')
+    },
+    formatHours: function(timestap) {
+        moment.locale('zh-cn');
+        return moment(timestap).format('HH:mm')
+    },
 
     /**
      * 去除空串

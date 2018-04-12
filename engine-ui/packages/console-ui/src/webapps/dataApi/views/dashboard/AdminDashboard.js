@@ -55,7 +55,7 @@ class AdminDashboard extends Component {
                 <div className="box-card m-card">
                     <Row gutter={20}>
                         <Col span={24}>
-                            <OverView chartData={marketOverview.callInfo.infoList} callCount={marketOverview.callInfo.callCount} topCallFunc={marketOverview.callInfo.callTopAPI} failPercent={marketOverview.callInfo.failPercent} ></OverView>
+                            <OverView date={this.props.dashBoard.adminDate} chartData={marketOverview.callInfo.infoList} callCount={marketOverview.callInfo.callCount} topCallFunc={marketOverview.callInfo.callTopAPI} failPercent={marketOverview.callInfo.failPercent} ></OverView>
                         </Col>
                     </Row>
                     <Row className="m-card-small margin-t20" gutter={20}>

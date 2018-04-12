@@ -43,7 +43,19 @@ class ApprovedCard extends Component {
         )
 
             .then(
-                () => {
+                (res) => {
+     
+                    if(this.props.apiId){
+                        if(res){
+                            for(let i in res.data.data){
+                                let item=res.data.data[i];
+                                if(this.props.apiId==item.apiId){
+                                    this.apiClick(item);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     this.setState({
                         loading: false
                     })
@@ -52,6 +64,23 @@ class ApprovedCard extends Component {
     }
     componentDidMount() {
         this.getAppliedList();
+        
+    }
+    componentWillReceiveProps(nextProps){
+        if(this.props.apiId!=nextProps.apiId&&nextProps.apiId){
+            debugger;
+                const res=this.getSource();
+                if(res){
+                    for(let i in res.data){
+                        let item=res.data[i];
+                        if(nextProps.apiId==item.apiId){
+                            this.dealClick(item);
+                            break;
+                        }
+                    }
+                }
+            
+        }
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {

@@ -34,6 +34,7 @@ export const mineActions = {
                         type: ACTION_TYPE.GET_APPLYED_LIST,
                         payload: res.data
                     });
+                    return res;
                 }
                 
             });

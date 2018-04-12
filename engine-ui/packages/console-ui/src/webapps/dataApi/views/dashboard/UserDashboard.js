@@ -65,7 +65,7 @@ class UserDashboard extends Component {
                 <div className="box-card m-card">
                     <Row gutter={20}>
                         <Col span={16}>
-                            <OverView chartData={userOverview.callInfo.infoList} callCount={userOverview.callInfo.callCount} topCallFunc={userOverview.callInfo.callTopAPI} failPercent={userOverview.callInfo.failPercent} ></OverView>
+                            <OverView date={this.props.dashBoard.userDate} chartData={userOverview.callInfo.infoList} callCount={userOverview.callInfo.callCount} topCallFunc={userOverview.callInfo.callTopAPI} failPercent={userOverview.callInfo.failPercent} ></OverView>
                         </Col>
                         <Col span={8} className="m-card-small  m-tabs noheight">
                             <Tabs
@@ -75,10 +75,10 @@ class UserDashboard extends Component {
                                 
                             >
                                 <Tabs.TabPane tab="调用量Top10" key="callTop">
-                                    <TopCallFunc data={userOverview.callCountTop}></TopCallFunc>
+                                    <TopCallFunc router={this.props.router} data={userOverview.callCountTop}></TopCallFunc>
                                 </Tabs.TabPane>
                                 <Tabs.TabPane tab="错误率Top10" key="failTop">
-                                    <TopFail cardHeight="363" noTitle data={userOverview.callFailTop}></TopFail>
+                                    <TopFail router={this.props.router} cardHeight="363" noTitle data={userOverview.callFailTop}></TopFail>
                                 </Tabs.TabPane>
                             </Tabs>
                             
