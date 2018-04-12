@@ -135,6 +135,14 @@ export class Navigator extends Component {
     componentDidMount() {
         this.updateSelected()
     }
+    componentWillReceiveProps(nextProps){
+        if(this.props.routing){
+            if(this.props.routing.locationBeforeTransitions.pathname!=nextProps.routing.locationBeforeTransitions.pathname){
+                this.updateSelected();
+            }
+        }
+        
+    }
 
     handleClick = (e) => {
         const props = e.item.props
@@ -150,12 +158,15 @@ export class Navigator extends Component {
     }
 
     updateSelected = () => {
+       
         const menuItems = this.props.menuItems
         let pathname = window.location.pathname
+        let hash=window.location.hash
         if (menuItems && menuItems.length > 0) {
             const pathFund = menuItems.find(item => {
-                return pathname.indexOf(item.id) > -1
+                return pathname.indexOf(item.id) > -1||hash.indexOf(item.id)>-1
             });
+            
             if (pathFund) {
                 this.setState({
                     current: pathFund.id
@@ -169,6 +180,7 @@ export class Navigator extends Component {
     }
 
     render() {
+       
         const { 
             user, logo, menuItems, 
             settingMenus, apps,

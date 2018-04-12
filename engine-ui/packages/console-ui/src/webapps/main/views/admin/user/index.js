@@ -299,7 +299,7 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = active !== MY_APPS.DATA_QUALITY && (
+        const extra = (active !== MY_APPS.DATA_QUALITY&&active !== MY_APPS.API) && (
             <Button 
                 style={{marginTop: '10px'}}
                 type="primary" 

@@ -23,6 +23,12 @@ module.exports = {
                 changeOrigin: true,
                 secure: false,
             },
+            "/api/da": { // UIC地址
+                target: "http://172.16.8.106",
+                pathRewrite:{"^/api/da":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
+                changeOrigin: true,
+                secure: false,
+            },
         }
     },
 };

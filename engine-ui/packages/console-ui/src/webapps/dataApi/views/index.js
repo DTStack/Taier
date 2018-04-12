@@ -19,7 +19,7 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
-        dispatch(UserAction.getUser())
+        // dispatch(UserAction.getUser())
     }
 
     render() {
