@@ -10,14 +10,42 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+export const API_STATUS = {
+    "-1":'NO_APPLY',
+    "0":'IN_HAND',
+    "1":'PASS',
+    "2":'REJECT',
+    "3":'STOPPED',
+    "4":'DISABLE'
+}
+export const EXCHANGE_API_STATUS= {
+    '-1':"nothing",
+    0: 'inhand',
+    1: 'success',
+    2: 'notPass',
+    3: 'stop',
+    4: 'disabled'
+}
+export const EXCHANGE_APPLY_STATUS= {
+    0: 'notApproved',
+    1: 'pass',
+    2: 'rejected',
+
+}
+export const EXCHANGE_ADMIN_API_STATUS= {
+    0: 'success',
+    1: 'stop',
+
+}
+
 export const dataSourceTypes = [ // 数据源类型
-    '未知类型', 
-    'MySql', 
-    'Oracle', 
-    'SQLServer', 
-    'PostgreSQL', 
-    'RDBMS', 
-    'HDFS', 
+    '未知类型',
+    'MySql',
+    'Oracle',
+    'SQLServer',
+    'PostgreSQL',
+    'RDBMS',
+    'HDFS',
     'Hive',
     'HBase',
     'FTP',
@@ -61,7 +89,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         },
         textAlign: 'left',
     },
-    tooltip : {
+    tooltip: {
         trigger: 'axis',
         axisPointer: {
             label: {
@@ -71,7 +99,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     },
     color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
     legend: {
-        data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
     },
     toolbox: {
         feature: {
@@ -86,11 +114,11 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         bottom: '3%',
         containLabel: true
     },
-    xAxis : [
+    xAxis: [
         {
-            type : 'category',
-            boundaryGap : false,
-            data : [],
+            type: 'category',
+            boundaryGap: false,
+            data: [],
             axisTick: {
                 show: true,
             },
@@ -112,9 +140,9 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     ],
-    yAxis : [
+    yAxis: [
         {
-            type : 'value',
+            type: 'value',
             axisLabel: {
                 formatter: '{value} 个',
                 textStyle: {
@@ -141,5 +169,198 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     ],
-    series : []
+    series: []
 };
+export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
+
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            label: {
+                backgroundColor: '#6a7985'
+            }
+        }
+    },
+    color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
+    legend: {
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {
+                show: false,
+            }
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '30',
+        top: 40,
+        containLabel: true
+    },
+    xAxis: [
+        {
+
+            type: 'category',
+            boundaryGap: false,
+            data: [],
+            axisTick: {
+                show: true,
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#DDDDDD'
+                }
+            },
+            axisLabel: {
+                textStyle: {
+                    color: '#666666',
+                },
+            },
+            nameTextStyle: {
+                color: '#666666',
+            },
+            splitLine: {
+                color: '#666666',
+            }
+        }
+    ],
+    yAxis: [
+        {
+            nameGap: 25,
+            type: 'value',
+            name: "调用次数",
+            axisLabel: {
+                textStyle: {
+                    color: '#666666',
+                    baseline: 'bottom',
+                },
+            },
+            nameTextStyle: {
+                color: '#666666'
+            },
+            nameLocation: 'end',
+            axisLine: {
+                show: false
+            },
+            axisTick: {
+                show: false,
+            },
+            splitLine: false
+        },
+        {
+            nameGap: 25,
+            type: 'value',
+            name: "失败率 (%)",
+            axisLabel: {
+                textStyle: {
+                    color: '#666666',
+                    baseline: 'bottom',
+                },
+            },
+            nameTextStyle: {
+                color: '#666666',
+            },
+            nameLocation: 'end',
+            axisLine: {
+                show: false
+            },
+            axisTick: {
+                show: false,
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#DDDDDD',
+                    type: 'dashed'
+                }
+            }
+        }
+    ],
+    series: []
+};
+
+export const pieOption = {
+    tooltip: {
+        trigger: 'item',
+        formatter: "{a} <br/>{b}: {c} ({d}%)"
+    },
+    legend: {
+        orient: 'horizontal',
+        x: 'center',
+        y: 'bottom',
+        data: ['参数错误','调用超时', '异常访问', '超出限额', '禁用', '其他'],
+        itemWidth: 5,
+        itemHeight: 5,
+        textStyle: {
+            color: "#666"
+        }
+    },
+    series: [
+        {
+            name: '错误类型',
+            type: 'pie',
+            radius: ['35%', '55%'],
+            avoidLabelOverlap: false,
+            label: {
+                normal: {
+                    show: false,
+                    position: 'center'
+                }
+            },
+            labelLine: {
+                normal: {
+                    show: false
+                }
+            },
+            data: [
+                {
+                    value: 335,
+                    name: '参数错误',
+                    itemStyle: {
+                        normal: {
+                            color: "#1C86EE"
+                        }
+                    }
+                },
+                { 
+                    value: 310, 
+                    name: '调用超时',
+                    itemStyle: {
+                        normal: {
+
+                            color: "#EE9A00"
+                        }
+                    } },
+                { value: 234, name: '异常访问',
+                itemStyle: {
+                    normal: {
+
+                        color: "#EE4000"
+                    }
+                } },
+                { value: 535, name: '超出限额',
+                itemStyle: {
+                    normal: {
+
+                        color: "#40E0D0"
+                    }
+                } },
+                { value: 1158, name: '禁用',
+                itemStyle: {
+                    normal: {
+
+                        color: "#71C671"
+                    }
+                } },
+                { value: 548, name: '其他' ,
+                itemStyle: {
+                    normal: {
+
+                        color: "#A2B5CD"
+                    }
+                }}
+            ]
+        }
+    ]
+}

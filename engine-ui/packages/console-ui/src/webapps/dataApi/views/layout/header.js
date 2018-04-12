@@ -7,6 +7,7 @@ import { Navigator, Logo }  from 'main/components/nav';
     return {
         user: state.user,
         apps: state.apps,
+        routing:state.routing
     }
 })
 class Header extends Component {
@@ -18,7 +19,7 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
-        const baseUrl = '/api'
+        const baseUrl = '/dataApi.html#/api'
         const menuItems = [{
             id: 'overview',
             name: '概览',

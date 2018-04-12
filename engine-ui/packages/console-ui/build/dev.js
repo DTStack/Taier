@@ -7,7 +7,13 @@ const MY_PATH = require('./consts');
 
 const baseConf = require('./base.js')();
 var config = require('./config');
-
+baseConf.output={
+    path: MY_PATH.BUILD_PATH,
+            chunkFilename: '[name].js',
+            filename: '[name].js',
+            sourceMapFilename: '[name].map',
+            publicPath: '/'
+}
 baseConf.plugins.push(
     new webpack.DefinePlugin({
         'process.env': {
@@ -63,7 +69,8 @@ const merged = function(env) {
     return webpackMerge(baseConf, {
         devtool: 'cheap-module-eval-source-map', //
         devServer: devServer,
-        plugins: htmlPlugs,
+        plugins: htmlPlugs
+        
     })
 }
 

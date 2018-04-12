@@ -32,7 +32,7 @@ export default {
     },
 
     getLoginedUser() {
-        return http.post(req.DATA_API_GET_USER_BY_ID)
+        return http.post(req.DA_GET_USER_BY_ID)
     },
     
     getUserList() {
