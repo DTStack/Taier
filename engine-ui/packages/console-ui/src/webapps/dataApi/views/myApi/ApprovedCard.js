@@ -154,7 +154,7 @@ class ApprovedCard extends Component {
             title: '确认停止',
             content: '确认停止接口？',
             onOk: () => {
-                this.props.updateApplyStatus(record.apiId, 3).
+                this.props.updateApplyStatus(record.id, 3).
                     then(
                         () => {
                             this.getAppliedList();
@@ -173,7 +173,7 @@ class ApprovedCard extends Component {
             title: '确认开启',
             content: '确认开启接口？',
             onOk: () => {
-                this.props.updateApplyStatus(record.apiId, 1).
+                this.props.updateApplyStatus(record.id, 1).
                     then(
                         () => {
                             this.getAppliedList();
