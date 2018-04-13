@@ -11,6 +11,7 @@ import TaskTablePane from './taskTablePane';
 import { TaskStatus } from '../../components/display';
 import { taskStatusFilter } from '../../consts';
 import { taskQueryActions } from '../../actions/taskQuery';
+import { dataSourceActions } from '../../actions/dataSource';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -24,7 +25,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
 	getTaskList(params) {
 		dispatch(taskQueryActions.getTaskList(params));
-	}
+	},
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -48,6 +52,7 @@ export default class TaskQuery extends Component {
     }
 
     componentDidMount() {
+        this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
     }
 
@@ -365,7 +370,7 @@ export default class TaskQuery extends Component {
         )
 
         return (
-            <div className="task-dashboard">
+            <div className="task-dashboard" style={{ overflowX: 'hidden' }}>
                 <h1 className="box-title">
                     任务查询 <span style={{ fontSize: "12px", color: "rgb(153, 153, 153)" }}>
                     告警总数: {

@@ -49,7 +49,7 @@ class MessageCenter extends Component {
                     menuItems={[]}
                     {...this.props}
                 />
-                <div className="container" style={{overflowY: 'hidden'}}>
+                <div className="container">
                     { content }
                 </div>
             </div>

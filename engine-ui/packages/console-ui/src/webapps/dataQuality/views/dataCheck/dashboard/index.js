@@ -6,6 +6,7 @@ import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconf
 import moment from 'moment';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
+import { dataSourceActions } from '../../../actions/dataSource';
 import { DataCheckStatus } from '../../../components/display';
 import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
@@ -30,7 +31,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getLists(params) {
         dispatch(dataCheckActions.getLists(params));
-    }
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -47,6 +51,7 @@ export default class DataCheck extends Component {
     }
 
     componentDidMount() {
+        this.props.getDataSourcesList();
         this.props.getLists(this.state.params);
     }
 

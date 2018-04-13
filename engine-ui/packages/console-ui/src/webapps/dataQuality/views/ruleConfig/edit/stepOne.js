@@ -23,6 +23,9 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
@@ -31,7 +34,7 @@ const mapDispatchToProps = dispatch => ({
     },
     resetDataSourcesPart() {
         dispatch(dataSourceActions.resetDataSourcesPart());
-    }
+    },
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -46,6 +49,7 @@ export default class StepOne extends Component {
     }
     
     componentDidMount() {
+        this.props.getDataSourcesList();
     }
 
     // 数据源下拉框

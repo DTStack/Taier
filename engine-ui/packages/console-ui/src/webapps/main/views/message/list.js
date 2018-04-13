@@ -293,14 +293,14 @@ class MessageList extends Component {
         };
 
         return (
-            <div className="m-panel">
+            <div className="m-panel" style={{ overflowY: 'auto', height: 'calc(100% - 80px)' }}>
                 <Menu 
                     selectedKeys={[ selectedApp ]}
                     onSelect={this.onAppSelect}
                     className="left">
                     {menuItem}
                 </Menu>
-                <main className="right panel-content">
+                <div className="right panel-content">
                     <Table 
                         rowKey="id"
                         className="m-table"
@@ -310,9 +310,9 @@ class MessageList extends Component {
                         onChange={this.handleTableChange}
                         pagination={pagination}
                         footer={this.tableFooter}
-                        scroll={{ y: 400 }}
+                        // scroll={{ y: 400 }}
                     />
-                </main>
+                </div>
             </div>
         )
     }
@@ -323,9 +323,10 @@ class MessageList extends Component {
         const paneContent = this.renderPane();
 
         return (
-            <div className="box-1 m-tabs" style={{height: '90%'}}>
+            <div className="box-1 m-tabs" style={{ height: 'calc(100% - 40px)' }}>
                 <Tabs 
                     animated={false}
+                    // style={{ overflowY: 'auto' }}
                     activeKey={ msgList.msgType }
                     onChange={this.onPaneChange}
                 >

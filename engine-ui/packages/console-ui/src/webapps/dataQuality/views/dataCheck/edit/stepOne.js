@@ -20,6 +20,9 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
@@ -42,6 +45,9 @@ export default class StepOne extends Component {
     }
     
     componentDidMount() {
+        if (this.props.editStatus === 'new') {
+            this.props.getDataSourcesList();
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -384,7 +390,7 @@ export default class StepOne extends Component {
                             <Table 
                                 rowKey="key"
                                 // bordered
-                                className="m-table m-cells preview-table"
+                                className="m-table m-cells"
                                 columns={this.previewTableColumns(sourcePreview.columnList)} 
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}

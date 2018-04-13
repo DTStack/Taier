@@ -31,7 +31,6 @@ class Main extends Component {
         dispatch(commonActions.getUserList());
         dispatch(commonActions.getAllDict());
         dispatch(dataSourceActions.getDataSourcesType());
-        dispatch(dataSourceActions.getDataSourcesList());
     }
 
     render() {
