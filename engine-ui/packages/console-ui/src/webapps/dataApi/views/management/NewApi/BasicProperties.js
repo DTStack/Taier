@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, message } from "antd";
+import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, message,InputNumber  } from "antd";
 import { Link } from 'react-router';
 
 import DataSourceTable from "./DataSourceTable"
@@ -141,8 +141,15 @@ class ManageBasicProperties extends Component {
             if (!data||data.length<1) {
                 return null;
             }
+            
+            
             for (let i = 0; i < data.length; i++) {
+            
                 let item = data[i];
+                console.log(item)
+                if(item.api){
+                    return null;
+                }
                 arr.push({
                     value: item.id,
                     label: item.catalogueName,
@@ -209,7 +216,7 @@ class ManageBasicProperties extends Component {
                                 rules: [{ required: true, message: '请输入调用次数限制' }],
                                 initialValue: this.props.callLimit
                             })(
-                                <Input placeholder="单用户每秒最高调用次数" />
+                                <Input type="number"   placeholder="单用户每秒最高调用次数" />
                             )}
                         </FormItem>
                         <FormItem
@@ -220,7 +227,7 @@ class ManageBasicProperties extends Component {
                                 rules: [{ required: true, message: '请输入最大返回条数' }],
                                 initialValue: this.props.backLimit
                             })(
-                                <Input placeholder="单次最大返回数据条数 (最高支持2000条)" />
+                                <Input type="number"  placeholder="单次最大返回数据条数 (最高支持2000条)" />
                             )}
                         </FormItem>
 
@@ -243,7 +250,7 @@ class ManageBasicProperties extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="请选择表"
+                            label="请选择表" 
                         >
                             {getFieldDecorator('table', {
                                 rules: [{ required: true, message: '请选择表' }],

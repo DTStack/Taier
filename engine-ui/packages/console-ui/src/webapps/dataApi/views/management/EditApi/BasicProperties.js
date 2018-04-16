@@ -33,6 +33,7 @@ class ManageBasicProperties extends Component {
             }
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
+                
                 if(item.id==value){
                     arr.push(item.id);
                     return item.id;
@@ -198,6 +199,10 @@ class ManageBasicProperties extends Component {
             }
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
+                
+                if(item.api){
+                    return null;
+                }
                 arr.push({
                     value: item.id,
                     label: item.catalogueName,

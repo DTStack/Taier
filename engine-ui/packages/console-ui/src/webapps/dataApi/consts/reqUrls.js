@@ -4,6 +4,7 @@ import { DATA_API_BASE_URL } from 'config/base';
 export default {
 
     // ===== common ===== //
+    GET_ALL_MENU_LIST:`${DATA_API_BASE_URL}/user/showMenuList`,//获取所有功能菜单
     // ===== api授权审批 ====//
     HANDLE_APPLY:`${DATA_API_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST:`${DATA_API_BASE_URL}/apply/allApplyList`,//获取审批列表

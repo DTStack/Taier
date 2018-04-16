@@ -10,7 +10,7 @@ const errorType = {
     3: "paramerror",
     4: "timeout",
     5: "outlimit",
-    10: "other"
+    6: "other"
 }
 const errorExchange = {
     disable: "禁用",
@@ -18,7 +18,7 @@ const errorExchange = {
     paramerror: "参数错误",
     timeout: "超时",
     outlimit: "超过限制",
-    other: "未识别",
+    other: "其他",
 
 }
 const mapStateToProps = state => {
@@ -138,7 +138,7 @@ class ManageErrorLog extends Component {
                 { text: '参数错误', value: '3' },
                 { text: '超时', value: '4' },
                 { text: '超过限制', value: '5' },
-                { text: '未识别', value: '10' }
+                { text: '其他', value: '6' }
             ]
         }, {
             title: '错误日志',
@@ -160,7 +160,7 @@ class ManageErrorLog extends Component {
     getPagination() {
         return {
             current: this.state.pageIndex,
-            pageSize: 5,
+            pageSize: 10,
             total: this.state.total,
         }
     }
@@ -207,7 +207,7 @@ class ManageErrorLog extends Component {
                     <span>未识别: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
                 </p>
                 <Table
-                    rowKey="content"
+                    rowKey="id"
                     className="m-table monitor-table table-p-l20"
                     columns={this.initColumns()}
                     loading={this.state.loading}

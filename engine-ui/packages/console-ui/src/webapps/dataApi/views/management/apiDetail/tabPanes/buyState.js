@@ -61,7 +61,7 @@ class BuyManageState extends Component {
         const { filter, sortedInfo, page } = params;
         let requestParams = {};
         requestParams.apiId = apiId || this.props.apiId;
-        requestParams.pageSize = 20;
+        requestParams.pageSize = 10;
         requestParams.currentPage = page
         requestParams.status = filter.status;
         this.getData(requestParams);

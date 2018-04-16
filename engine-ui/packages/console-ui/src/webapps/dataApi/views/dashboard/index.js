@@ -27,8 +27,8 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
 const mapStateToProps = state => {
-    const { dashBoard, user } = state;
-    return { dashBoard, user }
+    const { dashBoard, user,common } = state;
+    return { dashBoard, user,common }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -76,7 +76,13 @@ class Dashboard extends Component {
         }
     }
     isAdmin(){
-        return this.props.user.isAdmin || true;
+        const menuList=this.props.common.menuList||[];
+        if(menuList.indexOf("overview_market_menu")>-1){
+            return true
+        }else{
+            return false
+        }
+        
     }
     getNowView() {
         const isAdmin = this.isAdmin();

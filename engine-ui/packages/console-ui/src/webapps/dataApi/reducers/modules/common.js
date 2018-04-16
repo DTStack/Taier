@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash';
 const initialState = {
     userList: [],
     allDict: {},
+    menuList:null
 }
 
 export default function dataCheck(state = initialState, action) {
@@ -21,6 +22,11 @@ export default function dataCheck(state = initialState, action) {
             const clone = cloneDeep(state);
             const { allDict } = clone;
             clone.allDict = payload;
+            return clone;
+        }
+        case commonActionType.GET_ALL_MENU_LIST: {
+            const clone = cloneDeep(state);
+            clone.menuList = payload;
             return clone;
         }
 
