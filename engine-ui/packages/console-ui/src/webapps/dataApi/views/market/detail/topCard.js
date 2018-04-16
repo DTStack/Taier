@@ -68,15 +68,15 @@ class TopCard extends Component {
     }
 
     jumpToMine() {
-        if(modal){
+        if (modal) {
             modal.destroy();
         }
-        
+
         this.props.router.push("/api/mine");
 
-    
+
     }
-    jumpToMineApproved(){
+    jumpToMineApproved() {
         this.props.router.push("/api/mine/approved");
     }
     handleOk() {
@@ -92,6 +92,9 @@ class TopCard extends Component {
         })
     }
     render() {
+        const back = !(this.props.router.location.query && this.props.router.location.query.isHideBack) ? (
+            <Col span={1} ><Icon type="left-circle-o" onClick={this.back.bind(this)} style={{ fontSize: 18, cursor: "pointer" }} /></Col>
+        ) : null;
         return (
             <Card className="box-1" noHovering>
                 <ApplyBox show={this.state.applyBox}
@@ -102,8 +105,8 @@ class TopCard extends Component {
                     desc={this.state.apply.desc}
                 ></ApplyBox>
                 <Row className="m-count" style={{ height: "auto" }}>
-                    
-                    <Col span={13}>
+                    {back}
+                    <Col span={12}>
                         <Row className="header-title">
                             {this.getApiValue('apiName')}
                         </Row>

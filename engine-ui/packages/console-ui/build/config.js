@@ -2,7 +2,7 @@
 module.exports = {
     server: {
         port: 8080,
-        host: 'rdos.yarn.dtstack.net',
+        host: '0.0.0.0',
         proxy: {
             "/api/dq": {
                 target: "http://172.16.8.104:8089",

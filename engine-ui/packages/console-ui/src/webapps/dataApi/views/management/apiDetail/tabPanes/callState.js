@@ -192,14 +192,14 @@ class ApiManageCallState extends Component {
             <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
                 <Row>
                     <Col span={16}>
-                        <Row gutter={130} className="m-count padding-l20 height-101">
-                            <Col span={7}>
+                        <Row gutter={100} className="m-count padding-l20 height-101">
+                            <Col span={6}>
                                 <section className="m-count-section margin-t20" style={{ width: 150 }}>
                                     <span className="m-count-title text-left">{this.getDateText()}累计调用</span>
                                     <span className="m-count-content font-black text-left">{this.state.callCount || 0}<span style={{ fontSize: 12 }}>次</span></span>
                                 </section>
                             </Col>
-                            <Col span={5}>
+                            <Col span={4}>
                                 <section className="m-count-section margin-t20" style={{ width: 100 }}>
                                     <span className="m-count-title text-left">{this.getDateText()}失败率</span>
                                     <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>

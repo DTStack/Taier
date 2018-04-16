@@ -34,7 +34,7 @@ class detailSlidePane extends Component {
             errorLogDate: e.target.value
         });
     }
-
+    
     getDateTypeView() {
         switch (this.state.nowView) {
             case "callState":
@@ -98,7 +98,7 @@ class detailSlidePane extends Component {
                 style={{ right: '-20px', width: '80%', minHeight: '350px' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
-                    defaultActiveKey={this.state.nowView}
+                    activeKey={this.state.nowView}
                     onChange={this.callback.bind(this)}
                     tabBarExtraContent={this.getDateTypeView()}
                 >

@@ -212,7 +212,7 @@ class APIMarket extends Component {
     }
     openDetail(text) {
         return function () {
-            window.open(`${location.origin + location.pathname}#/api/market/detail/${text}`)
+            window.open(`${location.origin + location.pathname}#/api/market/detail/${text}?isHideBack=true`)
         }
 
     }
