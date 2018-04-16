@@ -16,7 +16,11 @@ class TopCard extends Component {
     getTopRightButton() {
         const status = this.getValue('applyStatus');
         if (status == 2) {
-            return <Button onClick={this.jumpToMine.bind(this)} size="large" type="primary">查看使用情况</Button>
+            return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
+
+        }
+        if (status == 1) {
+            return <Button onClick={this.jumpToMine.bind(this)} size="large" type="primary">查看审批情况</Button>
 
         }
         return <Button onClick={this.doApply.bind(this)} size="large" type="primary">立即订购</Button>
@@ -64,9 +68,16 @@ class TopCard extends Component {
     }
 
     jumpToMine() {
-        modal.destroy();
+        if(modal){
+            modal.destroy();
+        }
+        
         this.props.router.push("/api/mine");
 
+    
+    }
+    jumpToMineApproved(){
+        this.props.router.push("/api/mine/approved");
     }
     handleOk() {
 
@@ -91,8 +102,8 @@ class TopCard extends Component {
                     desc={this.state.apply.desc}
                 ></ApplyBox>
                 <Row className="m-count" style={{ height: "auto" }}>
-                    <Col span={1} ><Icon type="left-circle-o" onClick={this.back.bind(this)} style={{ fontSize: 18, cursor: "pointer" }} /></Col>
-                    <Col span={12}>
+                    
+                    <Col span={13}>
                         <Row className="header-title">
                             {this.getApiValue('apiName')}
                         </Row>
