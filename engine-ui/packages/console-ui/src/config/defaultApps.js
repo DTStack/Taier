@@ -42,7 +42,7 @@ module.exports = [
         link: 'label.html#/',
         filename: 'label.html',
         target: '_blank',
-        enable: false,
+        enable: true,
         apiBase: '/label',
     }, {
         id: 'map',
