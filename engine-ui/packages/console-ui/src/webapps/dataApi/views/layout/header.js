@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Icon } from 'antd'
 
 import { Navigator, Logo }  from 'main/components/nav';
 
@@ -81,8 +82,13 @@ class Header extends Component {
             link: `${baseUrl}/dataSource`,
             enable: showList.dataSource,
         }];
-        
-        const logo = <Logo linkTo="/" img={'public/main/img/logo.png'}/>
+
+        const logo = <span>
+            <Icon style={{fontSize: '18px', color: '#2491F7', marginRight: '10px'}} type="api"/>
+            <span style={{fontSize: '14px', color: '#ffffff'}}>
+                DTinsight.API
+            </span>
+        </span>;
         return <Navigator 
             logo={logo}
             menuItems={menuItems}
