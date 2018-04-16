@@ -14,7 +14,7 @@ class detailSlidePane extends Component {
         applyText: "申请调用此接口，请批准",
         nowView: "callState",
         callStateDate: '1',
-        errorLogDate: '7',
+        errorLogDate: '7'
 
     }
 
@@ -42,7 +42,7 @@ class detailSlidePane extends Component {
                     <div
                         className="m-radio-group"
                         key="callStateDate"
-                        style={{ marginTop: 4,marginRight:28 }}
+                        style={{ marginTop: 4, marginRight: 28 }}
                     >
                         <RadioGroup
 
@@ -62,7 +62,7 @@ class detailSlidePane extends Component {
                     <div
                         className="m-radio-group"
                         key="errorLogDate"
-                        style={{ marginTop: 4,marginRight:28 }}
+                        style={{ marginTop: 4, marginRight: 28 }}
                     >
                         <RadioGroup
 
@@ -84,6 +84,11 @@ class detailSlidePane extends Component {
 
 
     render() {
+        const callMethodView = this.props.showRecord.status == 3 ? null : (
+            <Tabs.TabPane tab="调用方式" key="callMethod">
+                <ApiCallMethod {...this.props} ></ApiCallMethod>
+            </Tabs.TabPane>
+        )
         return (
 
 
@@ -103,9 +108,7 @@ class detailSlidePane extends Component {
                     <Tabs.TabPane tab="错误日志" key="errorLog">
                         <ErrorLog {...this.props} dateType={this.state.errorLogDate}></ErrorLog>
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="调用方式" key="callMethod">
-                        <ApiCallMethod {...this.props} ></ApiCallMethod>
-                    </Tabs.TabPane>
+                    {callMethodView}
                 </Tabs>
 
 

@@ -50,8 +50,9 @@ export default {
     GET_USER_API_SUB_INFO:`${DATA_API_BASE_URL}/apply/getApiSubscribe`,//获取用户个人API订购与审核情况
 
     GET_MARKET_API_CALL_RANK:`${DATA_API_BASE_URL}/apis/listUserCallTopN`,//获取市场API调用次数用户排行
-    GET_MARKET_API_ERROR_INFO:`${DATA_API_BASE_URL}/log/getApiCallErrorInfoForManager`,//获取市场API错误分布
+    GET_API_CALL_ERROR_INFO_ADMIN:`${DATA_API_BASE_URL}/log/getApiCallErrorInfoForManager`,//获取市场API错误分布
     GET_MARKET_API_APPLY_INFO:`${DATA_API_BASE_URL}/apply/getApplyCount`,//获取API申请记录信息
+    
 
 
     // ===== 用户相关 ===== //
