@@ -39,19 +39,34 @@ export function AppName(app) {
     }
 }
 
-export function MsgTypeDesc(type) {
-    switch(type) {
-        case 1: 
-            return '监控任务运行失败'
-        case 2: 
-            return '监控任务不通过'
-        case 3: 
-            return '逐行校验任务取消'
-        case 4: 
-            return '逐行校验任务失败'
-       case 5: 
-            return '逐行校验任务成功'
-        default: return '-';
+export function MsgTypeDesc(app, type) {
+    switch(app) {
+        case MY_APPS.RDOS: {
+            switch(type) {
+                default: return '-';
+            }
+        }
+        case MY_APPS.DATA_QUALITY: {
+            switch(type) {
+                case 1: 
+                    return '监控任务运行失败'
+                case 2: 
+                    return '监控任务不通过'
+                case 3: 
+                    return '逐行校验任务取消'
+                case 4: 
+                    return '逐行校验任务失败'
+               case 5: 
+                    return '逐行校验任务成功'
+                default: return '-';
+            }
+        }
+        case MY_APPS.API: {
+            switch(type) {
+                default: return '-';
+            }
+        }
+        default: return '';
     }
 }
 
