@@ -59,8 +59,8 @@ class APIMarket extends Component {
         }
         this.props.getApiMarketList({
             apiName: this.state.searchValue,
-            pid: this.state.type1 || 0,
-            cid: this.state.type2 || 0,
+            pid: this.state.type1 || -1,
+            cid: this.state.type2 || -1,
             currentPage: this.state.pageIndex,
             pageSize: this.state.pageSize,
             orderBy:dic[this.state.sorter.columnKey],
@@ -212,7 +212,7 @@ class APIMarket extends Component {
     }
     openDetail(text) {
         return function () {
-            window.open(`${location.origin + location.pathname}#/api/market/detail/${text}`)
+            window.open(`${location.origin + location.pathname}#/api/market/detail/${text}?isHideBack=true`)
         }
 
     }
@@ -267,7 +267,7 @@ class APIMarket extends Component {
                 description: apiList[i].apiDesc,
                 callCount: apiList[i].invokeTotal,
                 updateTime: apiList[i].gmtModified,
-                deal: errorDic[apiList[i].ApplyStatus]
+                deal: errorDic[apiList[i].applyStatus]
             })
         }
         return arr;

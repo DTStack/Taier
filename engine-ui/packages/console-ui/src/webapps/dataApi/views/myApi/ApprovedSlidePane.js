@@ -11,6 +11,11 @@ class ApprovedSlidePane extends Component {
 
     
     render() {
+        const replyTime=this.props.showRecord&&this.props.showRecord.replyTime;
+        let format_replyTime=null;
+        if(replyTime){
+            format_replyTime=utils.formatDateTime(format_replyTime);
+        }
         return (
 
            
@@ -25,12 +30,7 @@ class ApprovedSlidePane extends Component {
                         <p style={{paddingLeft:70}}>
                         {utils.formatDateTime(this.props.showRecord&&this.props.showRecord.applyTime)}
                         </p>
-                        <p className="before-title-pane textarea-p" data-title="审批说明：">
-                            <TextArea disabled value={this.props.showRecord&&this.props.showRecord.applyContent} style={{ width: 200,color:"#999",fontSize:14 }} rows={4} />
-                        </p>
-                        <p style={{paddingLeft:70,marginBottom:10}}>
-                        {utils.formatDateTime(this.props.showRecord&&this.props.showRecord.replyTime)}
-                        </p>
+                        
                     </div>
 
                 </SlidePane>

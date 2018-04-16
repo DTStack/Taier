@@ -30,7 +30,8 @@ const mapDispatchToProps = dispatch => ({
     getApiExtInfo(apiId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
-                apiId: apiId
+                apiId: apiId,
+                useAdmin:true
             })
         )
     },

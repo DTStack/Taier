@@ -25,6 +25,7 @@ class ApiTypeTree extends Component {
                 maxDeepLength: nextProps.maxDeepLength
             })
         }
+        
     }
     getTreeView() {
         //树遍历渲染
@@ -35,7 +36,7 @@ class ApiTypeTree extends Component {
                 let item = data[i];
                 let isLeaf = item.childCatalogue.length > 0 ? false : true
 
-                if (item.isAPi) {//该节点为api
+                if (item.api) {//该节点为api
                     arr.push(
                         (
                             <TreeNode title={item.catalogueName} key={item.id}>
@@ -63,7 +64,8 @@ class ApiTypeTree extends Component {
             return null;
         }
         const view = renderTree.call(this, data, 1)
-        return { view, expandedKeys }
+        
+        return { view,expandedKeys }
 
 
     }
@@ -219,8 +221,12 @@ class ApiTypeTree extends Component {
 
         
     }
+    onExpands = (onExpands, info) => {
+        this.setState({ expandedKeys: onExpands });
+      }
     render() {
-        const { view, expandedKeys } = this.getTreeView();
+        const { view,expandedKeys:TreeExpandedKeys } = this.getTreeView();
+        const expandedKeys=this.state.expandedKeys.length>0?this.state.expandedKeys:TreeExpandedKeys;
 
         return (
 
@@ -230,6 +236,7 @@ class ApiTypeTree extends Component {
                 expandedKeys={expandedKeys}
                 onSelect={this.onSelect}
                 onCheck={this.onCheck}
+                onExpand={this.onExpands}
             >
                 <TreeNode title={this.getTreeNodeTitle.call(this, 0, "API管理", true, false, 0)} key={0}>
                     {view}

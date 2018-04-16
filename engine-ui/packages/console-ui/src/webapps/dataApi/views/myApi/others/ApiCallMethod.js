@@ -26,10 +26,11 @@ class ApiCallMethod extends Component{
         }
     }
     render(){
+        const url="/api/market/detail/"+this.props.showRecord.apiId;
         return (
             <div style={{paddingLeft:30}}>
                 <p style={{lineHeight:"30px"}}>调用URL：{this.state.callUrl}</p>
-                <Link to="/api/market">在Api市场中查看</Link>
+                <Link to={url}>在Api市场中查看</Link>
             </div>
         )
     }

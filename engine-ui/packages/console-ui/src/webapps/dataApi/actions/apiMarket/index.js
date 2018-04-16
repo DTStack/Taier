@@ -7,7 +7,7 @@ export const apiMarketActions = {
     //获取市场分离信息
     getCatalogue(pid) {
         return (dispatch) => {
-            API.getCatalogue({pid:pid}).then((res) => {
+            API.getCatalogue({pid:pid,lvNum:10}).then((res) => {
                 if (res.code === 1) {
                     dispatch({
                         type: ACTION_TYPE.GET_CATALOGUE,
