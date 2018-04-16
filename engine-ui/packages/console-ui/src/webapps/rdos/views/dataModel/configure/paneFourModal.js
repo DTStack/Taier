@@ -18,10 +18,12 @@ class IncrementDefineModal extends Component {
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk, form, data } = this.props
 
         const formData = this.props.form.getFieldsValue()
-  
+        formData.type = 4;  // 增量定义
+        formData.isEdit = data && !isEmpty(data) ? true : undefined;
+
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
@@ -64,11 +66,11 @@ class IncrementDefineModal extends Component {
                         label="增量名称"
                         hasFeedback
                     >
-                        {getFieldDecorator('incrementName', {
+                        {getFieldDecorator('name', {
                             rules: [{
                                 required: true, message: '刷新频率不可为空！',
                             }],
-                            initialValue: data ? data.incrementName : '',
+                            initialValue: data ? data.name : '',
                         })(
                             <Input />,
                         )}
@@ -78,14 +80,14 @@ class IncrementDefineModal extends Component {
                         label="增量方式标识"
                         hasFeedback
                     >
-                        {getFieldDecorator('sign', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 required: true, message: '增量方式标识不可为空！',
                             }, {
                                 pattern: /^[A-Za-z0-9]+$/,
                                 message: '增量方式标识只能由字母、数字组成!',
                             }],
-                            initialValue: data ? data.sign : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input />,
                         )}

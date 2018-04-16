@@ -431,7 +431,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
 export const pieChartOptions ={
     title : {
         text: '某站点用户访问来源',
-        subtext: '纯属虚构',
+        subtext: '',
         textAlign: 'left',
         textBaseline: 'top',
         textStyle: {
@@ -450,33 +450,13 @@ export const pieChartOptions ={
         top: 'middle',
         data: []
     },
-    color: ['#f25d5d', '#9a64fb', '#5d99f2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
+    color: ['#5d99f2', '#F5A623', '#9EABB2', '#8bc34a'],
     series : [
        {
             name:'访问来源',
             type:'pie',
-            radius: ['50%', '70%'],
-            center: ['40%', '50%'],
-            avoidLabelOverlap: false,
-            cursor: 'initial',
-            label: {
-                normal: {
-                    show: false,
-                    position: 'center'
-                },
-                emphasis: {
-                    show: true,
-                    textStyle: {
-                        fontSize: '30',
-                        fontWeight: 'bold'
-                    }
-                }
-            },
-            labelLine: {
-                normal: {
-                    show: false
-                }
-            },
+            radius: '50%',
+            center: ['50%', '45%'],
             data:[]
         }
     ]

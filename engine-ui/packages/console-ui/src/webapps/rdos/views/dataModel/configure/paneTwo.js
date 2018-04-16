@@ -31,40 +31,28 @@ export default class SubjectDomain extends BasePane {
     initColumns = () => {
         return [{
             title: '主题域名称',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'name',
+            key: 'name',
         }, {
             width: 80,
             title: '主题域说明',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            dataIndex: 'modelDesc',
+            key: 'modelDesc',
         }, {
             width: 80,
             title: '主题域前缀',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
+            dataIndex: 'prefix',
+            key: 'prefix',
         }, {
             width: 80,
-            title: '主题域',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
-        }, {
-            title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
-        }, {
-            title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            title: '最近修改人',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
-        }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
         }, {
             title: '操作',
             key: 'operation',
@@ -73,7 +61,7 @@ export default class SubjectDomain extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.delete(record) }}>忽略</a>
+                        <a onClick={() => { this.delete(record) }}>删除</a>
                     </div>
                 )
             },
@@ -100,7 +88,7 @@ export default class SubjectDomain extends BasePane {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ modalVisible: true }) }}
+                            onClick={this.initAdd}
                         >
                             新建
                         </Button>
@@ -109,6 +97,7 @@ export default class SubjectDomain extends BasePane {
                         <Table
                             rowKey="id"
                             className="m-table"
+                            style={{marginTop: '1px'}}
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}

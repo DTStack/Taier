@@ -30,3 +30,13 @@ export function TaskScheduleStatus(props) {
             return <Circle title="正常" style={{ background: '#2491F7' }} />;
     }
 }
+
+export function IndexType(props) {
+    switch (props.value) {
+        case 1:
+        return <span>原子指标</span>;
+        case 2:
+        default:
+            return <span>修饰词</span>;
+    }
+}

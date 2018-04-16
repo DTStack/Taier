@@ -27,21 +27,21 @@ export default class IncrementDefine extends BasePane {
     initColumns = () => {
         return [{
             title: '增量定义',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'name',
+            key: 'name',
         }, {
             width: 80,
-            title: '刷新标识符',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            title: '刷新方式标识',
+            dataIndex: 'modelDesc',
+            key: 'modelDesc',
         }, {
             title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
@@ -87,6 +87,7 @@ export default class IncrementDefine extends BasePane {
                         <Table
                             rowKey="id"
                             className="m-table"
+                            style={{marginTop: '1px'}}
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}

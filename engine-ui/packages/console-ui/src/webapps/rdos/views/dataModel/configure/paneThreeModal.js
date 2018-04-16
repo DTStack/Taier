@@ -19,10 +19,12 @@ class FreshFrequencyModal extends Component {
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk, form, data } = this.props
 
         const formData = this.props.form.getFieldsValue()
-  
+        formData.type = 3;  // 刷新频率
+        formData.isEdit = data && !isEmpty(data) ? true : undefined;
+
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
@@ -65,11 +67,11 @@ class FreshFrequencyModal extends Component {
                         label="刷新频率"
                         hasFeedback
                     >
-                        {getFieldDecorator('frequency', {
+                        {getFieldDecorator('name', {
                             rules: [{
                                 required: true, message: '刷新频率不可为空！',
                             }],
-                            initialValue: data ? data.frequency : '',
+                            initialValue: data ? data.name : '',
                         })(
                             <Input />,
                         )}
@@ -79,14 +81,14 @@ class FreshFrequencyModal extends Component {
                         label="刷新方式标识"
                         hasFeedback
                     >
-                        {getFieldDecorator('sign', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 required: true, message: '刷新方式标识不可为空！',
                             }, {
                                 pattern: /^[A-Za-z0-9]+$/,
                                 message: '刷新方式标识只能由字母、数字组成!',
                             }],
-                            initialValue: data ? data.sign : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input />,
                         )}

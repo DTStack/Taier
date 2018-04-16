@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { isArray, isNumber, isEmpty } from 'lodash';
 import {
     Form, Input, Icon, Select,
-    Radio, Modal,
+    Radio, Modal, Checkbox,
 } from 'antd'
 
 import Api from '../../../api'
@@ -20,10 +20,12 @@ class ModelLevelModal extends Component {
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk, form, data } = this.props
 
         const formData = this.props.form.getFieldsValue()
-  
+        formData.type = 1; // 模型层级
+        formData.isEdit = data && !isEmpty(data) ? true : undefined;
+        formData.depend = !formData.depend ? 0 : 1;
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
@@ -69,7 +71,7 @@ class ModelLevelModal extends Component {
                         label="层级名称"
                         hasFeedback
                     >
-                        {getFieldDecorator('levelName', {
+                        {getFieldDecorator('name', {
                             rules: [{
                                 required: true, message: '层级名称不可为空！',
                             }, {
@@ -79,7 +81,7 @@ class ModelLevelModal extends Component {
                                 max: 64,
                                 message: '层级名称不得超过64个字符！',
                             }],
-                            initialValue: data ? data.levelName : '',
+                            initialValue: data ? data.name : '',
                         })(
                             <Input />,
                         )}
@@ -89,7 +91,7 @@ class ModelLevelModal extends Component {
                         label="层级前缀"
                         hasFeedback
                     >
-                        {getFieldDecorator('levelPrefix', {
+                        {getFieldDecorator('prefix', {
                             rules: [{
                                 required: true, message: '层级前缀不可为空！',
                             }, {
@@ -99,11 +101,12 @@ class ModelLevelModal extends Component {
                                 max: 64,
                                 message: '层级前缀不得超过64个字符！',
                             }],
-                            initialValue: data ? data.levelPrefix : '',
+                            initialValue: data ? data.prefix : '',
                         })(
                             <Input />,
                         )}
                     </FormItem>
+                    
                     <FormItem
                         {...formItemLayout}
                         label="生命周期"
@@ -116,9 +119,20 @@ class ModelLevelModal extends Component {
                             initialValue: data ? data.lifeDay : 90
                         })(
                             <LifeCycle
-                                width={140}
+                                width={120}
                                 onChange={this.lifeCycleChange} 
                             />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="是否记入层级依赖"
+                    >
+                        {getFieldDecorator('depend', {
+                            rules: [],
+                            initialValue: data && data.depend === 1 ? true : false,
+                        })(
+                            <Checkbox defaultChecked> </Checkbox>,
                         )}
                     </FormItem>
                     <FormItem
@@ -126,12 +140,12 @@ class ModelLevelModal extends Component {
                         label="层级说明"
                         hasFeedback
                     >
-                        {getFieldDecorator('levelDesc', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
                                 message: '层级说明请控制在200个字符以内！',
                             }],
-                            initialValue: data ? data.levelDesc : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input type="textarea" rows={4} />,
                         )}

@@ -12,6 +12,7 @@ import utils from 'utils';
 import BasePane from './basePane';
 import Api from '../../../api/dataModel';
 import AtomIndexDefineModal from './paneSixModal';
+import { IndexType } from '../../../components/display';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -92,27 +93,33 @@ export default class AtomIndexDefine extends BasePane {
     initColumns = () => {
         return [{
             title: '指标类型',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'columnType',
+            key: 'columnType',
+            render: type => <IndexType value={type} />,
         }, {
             width: 120,
             title: '原子指标名称',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            dataIndex: 'columnNameZh',
+            key: 'columnNameZh',
+        }, {
+            width: 120,
+            title: '原子指标命名',
+            dataIndex: 'columnName',
+            key: 'columnName',
         }, {
             width: 80,
             title: '数据类型',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
+            dataIndex: 'dataType',
+            key: 'dataType',
         }, {
             width: 80,
             title: '最近修改人',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
@@ -169,7 +176,6 @@ export default class AtomIndexDefine extends BasePane {
                                 >
                                     <Option value="1">原子指标</Option>
                                     <Option value="2">修饰词</Option>
-                                    <Option value="3">衍生指标</Option>
                                 </Select>
                             </FormItem>
                         </Form>

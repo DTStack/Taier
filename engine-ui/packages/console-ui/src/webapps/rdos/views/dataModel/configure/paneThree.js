@@ -31,26 +31,22 @@ export default class FreshFrequency extends BasePane {
     initColumns = () => {
         return [{
             title: '刷新频率',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'name',
+            key: 'name',
         }, {
             width: 80,
             title: '刷新方式标识',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            dataIndex: 'modelDesc',
+            key: 'modelDesc',
         }, {
             title: '最近修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最近修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
-        }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
         }, {
             title: '操作',
             key: 'operation',
@@ -86,7 +82,7 @@ export default class FreshFrequency extends BasePane {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ modalVisible: true }) }}
+                            onClick={this.initAdd}
                         >
                             新建
                         </Button>
@@ -95,6 +91,7 @@ export default class FreshFrequency extends BasePane {
                         <Table
                             rowKey="id"
                             className="m-table"
+                            style={{marginTop: '1px'}}
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}

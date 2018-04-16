@@ -24,7 +24,7 @@ export default class FieldCheck extends Component {
         params: {
             currentPage: 1,
             ignore: false,
-            type: '1',
+            type: '2',
         },
     }
 
@@ -38,7 +38,7 @@ export default class FieldCheck extends Component {
         this.setState({
             loading: true,
         })
-        Api.getCheckPartitions(params).then(res => {
+        Api.getCheckList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data

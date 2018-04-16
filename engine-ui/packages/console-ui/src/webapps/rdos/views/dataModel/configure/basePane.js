@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import { message } from 'antd';
 import Api from '../../../api/dataModel';
 
 export default class BasePane extends Component {
@@ -26,7 +26,7 @@ export default class BasePane extends Component {
         const { params } = this.state;
         this.setState({
             loading: true,
-        })
+        });
         Api.getModels(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -36,24 +36,32 @@ export default class BasePane extends Component {
             this.setState({
                 loading: false,
             })
-        })
+        });
     }
 
     update = (formData) => {
-        Api.updateModel(formData).then(res => {
+        const succCall = (res) => {
             if (res.code === 1) {
-                this.loadData();
+                this.setState({
+                    modalVisible: false,
+                }, this.loadData)
             }
-        })
+        }
+        if (formData.isEdit) 
+            Api.updateModel(formData).then(succCall);
+        else 
+            Api.addModel(formData).then(succCall);
     }
 
     delete = (data) => {
-        const { params } = this.state;
-        Api.deleteModel(params).then(res => {
+        Api.deleteModel({
+            ids: [data.id]
+        }).then(res => {
             if (res.code === 1) {
+                message.success('删除成功！')
                 this.loadData();
             }
-        })
+        });
     }
 
     initEdit = (data) => {
@@ -61,6 +69,10 @@ export default class BasePane extends Component {
             modalData: data,
             modalVisible: true,
         })
+    }
+
+    initAdd = () => {
+        this.setState({ modalVisible: true, modalData: '' });
     }
 
     handleTableChange(pagination, filters, sorter) {

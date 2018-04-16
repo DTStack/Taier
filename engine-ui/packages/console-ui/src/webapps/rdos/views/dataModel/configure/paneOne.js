@@ -32,35 +32,41 @@ export default class ModelLevel extends BasePane {
     initColumns = () => {
         return [{
             title: '层级编号',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'id',
+            key: 'id',
         }, {
-            width: 80,
+            width: 100,
             title: '层级名称',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            dataIndex: 'name',
+            key: 'name',
         }, {
             width: 80,
             title: '层级说明',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
+            dataIndex: 'modelDesc',
+            key: 'modelDesc',
+        }, {
+            width: 100,
+            title: '层级前缀',
+            dataIndex: 'prefix',
+            key: 'prefix',
         }, {
             width: 80,
-            title: '声明周期',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
+            title: '生命周期',
+            dataIndex: 'lifeDay',
+            key: 'lifeDay',
         }, {
             title: '是否记入层级依赖',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
+            dataIndex: 'depend',
+            key: 'depend',
+            render: depend => depend === 1 ? '是' : '否',
         }, {
             title: '最近修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最近修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
@@ -97,7 +103,7 @@ export default class ModelLevel extends BasePane {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ modalVisible: true }) }}
+                            onClick={this.initAdd}
                         >
                             新建
                         </Button>
@@ -106,6 +112,7 @@ export default class ModelLevel extends BasePane {
                         <Table
                             rowKey="id"
                             className="m-table"
+                            style={{marginTop: '1px'}}
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}

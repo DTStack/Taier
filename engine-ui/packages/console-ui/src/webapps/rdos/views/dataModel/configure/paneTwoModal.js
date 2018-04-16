@@ -19,10 +19,12 @@ class SubjectDomainModal extends Component {
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk, form, data } = this.props
 
         const formData = this.props.form.getFieldsValue()
-  
+        formData.type = 2;  // 主题域
+        formData.isEdit = data && !isEmpty(data) ? true : undefined;
+
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
@@ -65,7 +67,7 @@ class SubjectDomainModal extends Component {
                         label="主题域名称"
                         hasFeedback
                     >
-                        {getFieldDecorator('domainName', {
+                        {getFieldDecorator('name', {
                             rules: [{
                                 required: true, message: '主题域名称不可为空！',
                             }, {
@@ -75,7 +77,7 @@ class SubjectDomainModal extends Component {
                                 max: 64,
                                 message: '主题域名称不得超过64个字符！',
                             }],
-                            initialValue: data ? data.domainName : '',
+                            initialValue: data ? data.name : '',
                         })(
                             <Input />,
                         )}
@@ -85,7 +87,7 @@ class SubjectDomainModal extends Component {
                         label="主题域前缀"
                         hasFeedback
                     >
-                        {getFieldDecorator('domainPrefix', {
+                        {getFieldDecorator('prefix', {
                             rules: [{
                                 required: true, message: '主题域前缀不可为空！',
                             }, {
@@ -95,7 +97,7 @@ class SubjectDomainModal extends Component {
                                 max: 64,
                                 message: '主题域前缀不得超过64个字符！',
                             }],
-                            initialValue: data ? data.domainPrefix : '',
+                            initialValue: data ? data.prefix : '',
                         })(
                             <Input />,
                         )}
@@ -105,12 +107,12 @@ class SubjectDomainModal extends Component {
                         label="主题域说明"
                         hasFeedback
                     >
-                        {getFieldDecorator('domainDesc', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
                                 message: '主题域说明请控制在200个字符以内！',
                             }],
-                            initialValue: data ? data.levelDesc : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input type="textarea" rows={4} />,
                         )}

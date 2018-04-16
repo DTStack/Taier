@@ -91,41 +91,33 @@ export default class DeriveIndexDefine extends BasePane {
 
     initColumns = () => {
         return [{
-            title: '表名',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            title: '衍生指标名称',
+            dataIndex: 'columnNameZh',
+            key: 'columnNameZh',
         }, {
             width: 80,
-            title: '表描述',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            title: '指标命名',
+            dataIndex: 'columnName',
+            key: 'columnName',
         }, {
             width: 80,
-            title: '模型层级',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
+            title: '数据类型',
+            dataIndex: 'dataType',
+            key: 'dataType',
         }, {
             width: 80,
-            title: '主题域',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
-        }, {
-            title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
+            title: '指标口径',
+            dataIndex: 'modelDesc',
+            key: 'modelDesc',
         }, {
             title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
-        }, {
-            title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
         }, {
             title: '操作',
             key: 'operation',
