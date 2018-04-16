@@ -269,10 +269,10 @@ class MessageList extends Component {
         }, {
             width: 120,
             title: '类型描述',
-            dataIndex: 'triggerType',
-            key: 'triggerType',
+            dataIndex: 'status',
+            key: 'status',
             render(type) {
-                return MsgTypeDesc(type)
+                return MsgTypeDesc(selectedApp, type)
             }
         }]
 
