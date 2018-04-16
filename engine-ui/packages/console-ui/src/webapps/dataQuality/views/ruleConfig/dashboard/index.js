@@ -410,7 +410,7 @@ export default class RuleConfig extends Component {
                     >
                         <Table 
                             rowKey="tableId"
-                            className="m-table monitor-table"
+                            className="m-table"
                             columns={this.initColumns()} 
                             loading={loading}
                             pagination={pagination}
@@ -430,21 +430,23 @@ export default class RuleConfig extends Component {
                                     activeKey={tabKey}
                                     onChange={this.onTabChange}
                                 >
-                                    
                                     <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane} refresh={this.refresh}>
-                                        </RuleEditPane>
+                                        <RuleEditPane 
+                                            data={currentMonitor} 
+                                            closeSlidePane={this.closeSlidePane} 
+                                            refresh={this.refresh} />
                                     </TabPane>
+
                                     <TabPane tab="远程触发" key="2">
-                                        <RemoteTriggerPane data={currentMonitor} closeSlidePane={this.closeSlidePane}>
-                                        </RemoteTriggerPane>
+                                        <RemoteTriggerPane 
+                                            data={currentMonitor} 
+                                            closeSlidePane={this.closeSlidePane} />
                                     </TabPane>
                                 </Tabs>
                             </div>
                         </SlidePane>
                     </Card>
                 </div>
-
             </div>
         )
     }

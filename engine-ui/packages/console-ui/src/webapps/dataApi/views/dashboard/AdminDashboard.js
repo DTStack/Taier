@@ -29,7 +29,7 @@ class AdminDashboard extends Component {
     render() {
         const approval_alert=this.props.dashBoard.approvedMsgCount>0?(
             <Alert
-                        message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval" >立即审批</Link> </span>}
+                        message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
                         type="warning"
                     />
         ):null
@@ -66,7 +66,7 @@ class AdminDashboard extends Component {
                             <ErrorDistributed chartData={marketOverview.failInfoList}></ErrorDistributed>
                         </Col>
                         <Col span={8}>
-                            <TopFail data={marketOverview.callFailTop}></TopFail>
+                            <TopFail router={this.props.router} data={marketOverview.callFailTop}></TopFail>
                         </Col>
 
 

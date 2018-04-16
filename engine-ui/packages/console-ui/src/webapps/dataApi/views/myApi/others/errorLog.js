@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import { Table,Modal } from "antd"
 import utils from "utils"
 const errorType = {
-    1: "disable",
-    2: "unauthorize",
-    3: "paramerror",
-    4: "timeout",
-    5: "outlimit",
-    10: "other"
+    1: "禁用",
+    2: "未认证",
+    3: "参数错误",
+    4: "超时",
+    5: "超出限制",
+    6: "其他"
 }
 class errorLog extends Component {
     state = {
@@ -97,7 +97,7 @@ class errorLog extends Component {
                 { text: '参数错误', value: '3' },
                 { text: '超时', value: '4' },
                 { text: '超过限制', value: '5' },
-                { text: '未识别', value: '10' }
+                { text: '其他', value: '6' }
             ],
             filterMultiple:false
         }, {
@@ -167,7 +167,7 @@ class errorLog extends Component {
                     <span>未识别: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
                 </p>
                 <Table
-                    rowKey="content "
+                    rowKey="id"
                     className="m-table monitor-table"
                     columns={this.initColumns()}
                     loading={this.state.loading}
