@@ -35,15 +35,27 @@ class APIApproval extends Component {
         msgVisible: false,
         data: [],
         sorter: {},
-        filter: {},
+        filter: {
+            status:['0']
+        },
         userName: "",
         applyContent: "",
         replyContent: "",
         spApplyMsg:{},
-        total: 0
+        total: 0,
+        
     }
-
+    componentWillMount(){
+        
+    }
     componentDidMount() {
+        const status=this.props.router.location.query&&this.props.router.location.query.status
+        const arr=[status&&status.toString()]
+        this.setState({
+            filter:{
+                status:arr
+            }
+        })
         this.getApprovalList();
     }
     getApprovalList() {
@@ -106,7 +118,10 @@ class APIApproval extends Component {
         const dic = {
             "notApproved": "立即审批",
             "pass": "查看详情",
-            "rejected": "查看详情"
+            "rejected": "查看详情",
+            "stop": "查看详情",
+            "disabled": "查看详情",
+
         }
         return dic[type || 'nothing']
     }
@@ -118,6 +133,12 @@ class APIApproval extends Component {
 
     }
     dealrejected(record) {
+        this.lookDetail(record);
+    }
+    dealstop(record) {
+        this.lookDetail(record);
+    }
+    dealdisabled(record) {
         this.lookDetail(record);
     }
     dealpass(record) {
@@ -144,7 +165,9 @@ class APIApproval extends Component {
                 const dic = {
                     "notApproved": "未审批",
                     "pass": "已通过",
-                    "rejected": "已拒绝"
+                    "rejected": "已拒绝",
+                    "stop": "停用",
+                    "disabled": "禁用"
                 }
                 return <span className={`state-${EXCHANGE_APPLY_STATUS[text]}`}>{dic[EXCHANGE_APPLY_STATUS[text]]}</span>
             },
@@ -161,8 +184,16 @@ class APIApproval extends Component {
                 {
                     text: '已拒绝',
                     value: '2'
+                },
+                {
+                    text: '停用',
+                    value: '3'
+                },{
+                    text: '禁用',
+                    value: '4'
                 }
-            ]
+            ],
+            filteredValue:this.state.filter.status||null
         }, {
             title: '申请API',
             dataIndex: 'apiName',
@@ -264,6 +295,7 @@ class APIApproval extends Component {
                             pagination={this.getPagination()}
                             dataSource={this.getSource()}
                             onChange={this.onTableChange}
+                            
                         />
                     </Card>
                 </div>
