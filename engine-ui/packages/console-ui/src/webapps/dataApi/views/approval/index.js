@@ -36,7 +36,7 @@ class APIApproval extends Component {
         data: [],
         sorter: {},
         filter: {
-            status:['0']
+            status:[]
         },
         userName: "",
         applyContent: "",
