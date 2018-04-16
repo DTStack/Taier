@@ -36,7 +36,7 @@ class APIApproval extends Component {
         data: [],
         sorter: {},
         filter: {
-            status:[]
+            status:null
         },
         userName: "",
         applyContent: "",
@@ -50,10 +50,15 @@ class APIApproval extends Component {
     }
     componentDidMount() {
         const status=this.props.router.location.query&&this.props.router.location.query.status
-        const arr=[status&&status.toString()]
+        let arr=[];
+        if(status){
+            arr.push(status.toString())
+        }
+        
+        
         this.setState({
             filter:{
-                status:arr
+                status:(arr&&arr.length>0)?arr:null
             }
         })
         this.getApprovalList();
