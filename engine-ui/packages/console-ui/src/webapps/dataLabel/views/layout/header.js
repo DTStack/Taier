@@ -21,33 +21,17 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
-        const baseUrl = '/label.html#'
+        const baseUrl = '/dataLabel.html#'
         const menuItems = [{
-            id: 'label/overview',
+            id: 'dl/overview',
             name: '概览',
-            link: `${baseUrl}/label/overview`,
+            link: `${baseUrl}/dl/overview`,
             enable: true,
         }, 
-        // {
-        //     id: 'label/taskQuery',
-        //     name: '任务查询',
-        //     link: `${baseUrl}/label/taskQuery`,
-        //     enable: true,
-        // }, {
-        //     id: 'label/rule',
-        //     name: '规则配置',
-        //     link: `${baseUrl}/label/rule`,
-        //     enable: true,
-        // }, {
-        //     id: 'label/dataCheck',
-        //     name: '逐行校验',
-        //     link: `${baseUrl}/label/dataCheck`,
-        //     enable: true,
-        // }, 
         {
-            id: 'label/dataSource',
+            id: 'dl/dataSource',
             name: '数据源管理',
-            link: `${baseUrl}/label/dataSource`,
+            link: `${baseUrl}/dl/dataSource`,
             enable: true,
         }];
 

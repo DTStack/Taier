@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import utils from 'utils'
-import { labelApp } from 'config/base'
+import { dlApp } from 'config/base'
 
 import Header from './layout/header'
 import Dashboard from '../views/dashboard'
@@ -26,8 +26,8 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
-        dispatch(UserAction.getUser());
-        dispatch(updateApp(labelApp));
+        // dispatch(UserAction.getUser());
+        dispatch(updateApp(dlApp));
         // dispatch(commonActions.getUserList());
         // dispatch(dataSourceActions.getDataSourcesType());
     }

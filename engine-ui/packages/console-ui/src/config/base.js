@@ -5,7 +5,7 @@ export const UIC_BASE_URL = '/uic/api';
 export const RDOS_BASE_URL = '/api/rdos';
 export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da';
-export const LABEL_BASE_URL = '/api/label';
+export const DL_BASE_URL = '/api/dl';
 
 export const rdosApp = {
     id: 'rdos',
@@ -39,12 +39,12 @@ export const daApp = {
     apiBase: '/dataApi',
 }
 
-export const labelApp = {
-    id: 'label',
+export const dlApp = {
+    id: 'dataLabel',
     name: '标签工厂',
-    link: 'label.html#/',
-    filename: 'label.html',
+    link: 'dataLabel.html#/',
+    filename: 'dataLabel.html',
     target: '_blank',
     enable: true,
-    apiBase: '/label',
+    apiBase: '/dataLabel',
 }

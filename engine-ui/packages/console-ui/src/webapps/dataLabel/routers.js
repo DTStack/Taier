@@ -42,7 +42,7 @@ export default (
             <Route path="role/add" component={ RoleAdd } />
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
-        <Route path="/label" component={ Container }>
+        <Route path="/dl" component={ Container }>
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>

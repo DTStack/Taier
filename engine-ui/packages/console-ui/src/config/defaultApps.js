@@ -37,13 +37,13 @@ module.exports = [
         enable: true,
         apiBase: '/dataApi',
     }, {
-        id: 'label',
+        id: 'dataLabel',
         name: '标签管理',
-        link: 'label.html#/',
-        filename: 'label.html',
+        link: 'dataLabel.html#/',
+        filename: 'dataLabel.html',
         target: '_blank',
         enable: true,
-        apiBase: '/label',
+        apiBase: '/dataLabel',
     }, {
         id: 'map',
         name: '数据地图',

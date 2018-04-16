@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin'); //css单独打包
+const ExtractTextPlugin = require('extract-text-webpack-plugin');   // css单独打包
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const MY_PATH = require('./consts');
@@ -14,7 +14,7 @@ module.exports = function() {
             rdos: MY_PATH.RDOS_APP_FILE,
             dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
             dataApi: MY_PATH.DATA_API_APP_FILE,
-            label: MY_PATH.LABEL_APP_FILE,
+            dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
             vendor: [
                 'react', 'react-dom',
                 'react-router', 'prop-types',
@@ -74,7 +74,7 @@ module.exports = function() {
         },
         resolve: {
             modules: ['node_modules'],
-            extensions: ['.js', '.jsx', '.scss', '.css'], //后缀名自动补全
+            extensions: ['.js', '.jsx', '.scss', '.css'],    //后缀名自动补全
             alias: {
                 // 全局公共模块目录
                 utils: path.resolve(MY_PATH.APP_PATH, 'utils'),     // 工具文件夹
@@ -90,7 +90,7 @@ module.exports = function() {
                 rdos: MY_PATH.RDOS_PATH,                // RDOS
                 dataQuality: MY_PATH.DATA_QUALITY_PATH, // 数据质量
                 dataApi: MY_PATH.DATA_API_PATH,         // 数据API
-                label: MY_PATH.LABEL_PATH,              // 标签工厂
+                dataLabel: MY_PATH.DATA_LABEL_PATH,     // 标签工厂
                 dataMap: MY_PATH.DATA_MAP_PATH,         // 数据地图
                 metaData: MY_PATH.META_DATA_PATH,       // 元数据
                 coreData: MY_PATH.CORE_DATA_PATH,       // 主数据
@@ -107,7 +107,7 @@ module.exports = function() {
                 'VERSION': VERSION,
             }),
             new webpack.optimize.CommonsChunkPlugin({
-                names: ['vendor', 'manifest'],  // 指定公共 bundle 的名字。
+                names: ['vendor', 'manifest'],    // 指定公共 bundle 的名字。
                 minChunks: Infinity
             }),
         ]
