@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { Button, Form, Select, DatePicker, Checkbox } from 'antd';
+import { Button, Form, Select, DatePicker, Checkbox, message } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { formItemLayout } from '../../../consts';
@@ -96,9 +96,27 @@ export default class StepThree extends Component {
         this.resetScheduleConf(type);
     }
 
+    renderSendTypeList = (data) => {
+        return data && data.map((item) => {
+            return <Checkbox 
+                key={item.value} 
+                value={item.value.toString()}>
+                {item.name}
+            </Checkbox>
+        })
+    }
+
     // 联系人变化回调
     onSendTypeChange = (value) => {
-        const { sendTypes } = this.props.editParams;
+        const { form } = this.props;
+        let notifyUser = form.getFieldValue('notifyUser');
+
+        if (value.length === 0 && notifyUser.length === 0) {
+            form.setFieldsValue({
+                notifyUser: []
+            });
+        }
+
         this.props.changeParams({
             sendTypes: value
         });
@@ -139,34 +157,17 @@ export default class StepThree extends Component {
     }
 
     onNotifyUserChange = (value) => {
-        const { notifyUser } = this.props.editParams;
+        const { form } = this.props;
+        let sendTypes = form.getFieldValue('sendTypes');
+        
+        if (value.length === 0 && sendTypes.length === 0) {
+            form.setFieldsValue({
+                sendTypes: []
+            });
+        }
+
         this.props.changeParams({
             notifyUser: value
-        })
-    }
-
-    prev = () => {
-        const { currentStep, navToStep } = this.props;
-        navToStep(currentStep - 1);
-    }
-
-    save = () => {
-        const { form, editParams } = this.props;
-        form.validateFields({ force: true }, (err, values) => {
-            if(!err) {
-                editParams.rules.forEach((rule) => {
-                    delete rule.id;
-                    delete rule.isEnum;
-                    delete rule.isTable;
-                    delete rule.isPercent;
-                    delete rule.editStatus;
-                    delete rule.functionName;
-                    delete rule.verifyTypeValue;
-                });
-
-                this.props.addMonitor({...editParams});
-                hashHistory.push('/dq/rule');
-            }
         });
     }
 
@@ -183,34 +184,6 @@ export default class StepThree extends Component {
         });
     }
 
-    checkTime = (rule, value, callback) => {
-        const { form } = this.props;
-        let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
-            endTime   = parseInt(form.getFieldValue('endHour')) * 60 + parseInt(form.getFieldValue('endMin'));
-
-        if (beginTime >= endTime) {
-            callback('开始时间不能晚于结束时间');
-        }
-
-        callback();
-    }
-
-    checkDate = (rule, value, callback) => {
-        const { form } = this.props;
-        let beginDate = form.getFieldValue('beginDate'),
-            endDate = form.getFieldValue('endDate');
-
-        if (!beginDate || !endDate) {
-            callback();
-        } else {
-            if (beginDate.valueOf() > endDate.valueOf()) {
-                callback('开始时间不能晚于结束时间');
-            }
-        }
-
-        callback();
-    }
-
     renderDynamic() {
         const { form, common, editParams } = this.props;
         const { scheduleConfObj } = this.state;
@@ -224,73 +197,108 @@ export default class StepThree extends Component {
             let options = [];
 
             for (let i = 0; i <= 23; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {i < 10 ? `0${i}`: i}
+                    </Option>
+                );
             }
 
-            return <Select 
-                style={{ width: 150 }} 
-                onChange={this.changeScheduleConfTime.bind(this, type)}>
-                { options }
-            </Select>;
+            return (
+                <Select 
+                    style={{ width: 150 }} 
+                    onChange={this.changeScheduleConfTime.bind(this, type)}>
+                    { options }
+                </Select>
+            )
         };
 
         const generateMins = (type) => {
             let options = [];
 
             for (let i = 0, l = 59; i <= l; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>);
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {i < 10 ? `0${i}`: i}
+                    </Option>
+                );
             }
 
-            return <Select 
-                style={{ width: 150 }} 
-                onChange={this.changeScheduleConfTime.bind(this, type)}>
-                { options }
-            </Select>;
+            return (
+                <Select 
+                    style={{ width: 150 }} 
+                    onChange={this.changeScheduleConfTime.bind(this, type)}>
+                    { options }
+                </Select>
+            )
         };
 
         const generateGapHour = () => {
             let options = [];
 
             for(let i = 1, l = 23; i <= l; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {i}小时
+                    </Option>
+                );
             }
             
-            return <Select
-                style={{ width: 150 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
-                { options }
-            </Select>
+            return (
+                <Select
+                    style={{ width: 150 }}
+                    onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
+                    { options }
+                </Select>
+            )
         };
 
         const generateDate = () => {
             let options = [];
 
             for (let i = 1; i <= 31; i++) {
-                options.push(<Option key={i} value={`${i}`}>{`每月${i}号`}</Option>);
+                options.push(
+                    <Option 
+                        key={i} 
+                        value={`${i}`}>
+                        {`每月${i}号`}
+                    </Option>
+                );
             }
 
-            return <Select
-                mode="multiple"
-                style={{ width: 325 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'day')}>
-                { options }
-            </Select>;
+            return (
+                <Select
+                    mode="multiple"
+                    style={{ width: 325 }}
+                    onChange={this.changeScheduleConfTime.bind(this, 'day')}>
+                    { options }
+                </Select>
+            )
+            
         };
 
         const generateDays = () => {
-            return <Select
-                mode="multiple"
-                style={{ width: 325 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}
-            >
-                <Option key={1} value="1">星期一</Option>
-                <Option key={2} value="2">星期二</Option>
-                <Option key={3} value="3">星期三</Option>
-                <Option key={4} value="4">星期四</Option>
-                <Option key={5} value="5">星期五</Option>
-                <Option key={6} value="6">星期六</Option>
-                <Option key={7} value="7">星期天</Option>
-            </Select>
+            return (
+                <Select
+                    mode="multiple"
+                    style={{ width: 325 }}
+                    onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}
+                >
+                    <Option key={1} value="1">星期一</Option>
+                    <Option key={2} value="2">星期二</Option>
+                    <Option key={3} value="3">星期三</Option>
+                    <Option key={4} value="4">星期四</Option>
+                    <Option key={5} value="5">星期五</Option>
+                    <Option key={6} value="6">星期六</Option>
+                    <Option key={7} value="7">星期天</Option>
+                </Select>
+            )
         }
 
         switch (scheduleConfObj.periodType) {
@@ -504,7 +512,73 @@ export default class StepThree extends Component {
                 break;
             }
         }
-        
+    }
+
+    checkTime = (rule, value, callback) => {
+        const { form } = this.props;
+        let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
+            endTime   = parseInt(form.getFieldValue('endHour')) * 60 + parseInt(form.getFieldValue('endMin'));
+
+        if (beginTime >= endTime) {
+            callback('开始时间不能晚于结束时间');
+        } else {
+            form.setFieldsValue({
+                beginHour: form.getFieldValue('beginHour'),
+                beginMin: form.getFieldValue('beginMin'),
+                endHour: form.getFieldValue('endHour'),
+                endMin: form.getFieldValue('endMin')
+            });
+        }
+
+        callback();
+    }
+
+    checkDate = (rule, value, callback) => {
+        const { form } = this.props;
+        let beginDate = form.getFieldValue('beginDate'),
+            endDate = form.getFieldValue('endDate');
+
+        if (!beginDate || !endDate) {
+            callback();
+        } else {
+            if (beginDate.valueOf() > endDate.valueOf()) {
+                callback('生效日期的开始时间不能晚于结束时间');
+            } else {
+                form.setFieldsValue({
+                    beginDate: form.getFieldValue('beginDate'),
+                    endDate: form.getFieldValue('endDate')
+                });
+            }
+        }
+
+        callback();
+    }
+
+    prev = () => {
+        const { currentStep, navToStep } = this.props;
+        navToStep(currentStep - 1);
+    }
+
+    save = () => {
+        const { form, editParams } = this.props;
+        form.validateFields({ force: true }, (err, values) => {
+            console.log(err,values)
+            if (err && err.endDate) {
+                message.error(err.endDate.errors[0].message)
+            }
+            if(!err) {
+                editParams.rules.forEach((rule) => {
+                    delete rule.id;
+                    delete rule.isTable;
+                    delete rule.editStatus;
+                    delete rule.functionName;
+                    delete rule.verifyTypeValue;
+                });
+
+                this.props.addMonitor({...editParams});
+                hashHistory.push('/dq/rule');
+            }
+        });
     }
 
     render() {
@@ -514,7 +588,8 @@ export default class StepThree extends Component {
         const { notifyUser, sendTypes } = editParams;
         const { getFieldDecorator } = form;
 
-        let periodType = allDict.periodType ? allDict.periodType : [];
+        let periodType = allDict.periodType ? allDict.periodType : [],
+            notifyType = allDict.notifyType ? allDict.notifyType : [];
 
         return (
             <div>
@@ -542,7 +617,7 @@ export default class StepThree extends Component {
                                 {
                                     getFieldDecorator('beginDate', {
                                         rules: [{
-                                            required: true, message: '生效日期不能为空'
+                                            required: true, message: '生效日期开始时间不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
                                         }],
@@ -563,7 +638,7 @@ export default class StepThree extends Component {
                                 {
                                     getFieldDecorator('endDate', {
                                         rules: [{
-                                            required: true, message: '生效日期不能为空'
+                                            required: true, message: '生效日期结束时间不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
                                         }],
@@ -585,31 +660,31 @@ export default class StepThree extends Component {
                             this.renderDynamic()
                         }
                         
-                        <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
+                        <FormItem {...formItemLayout} label="通知方式">
                             {
                                 getFieldDecorator('sendTypes', {
-                                    rules: [],
+                                    rules: [{
+                                        required: notifyUser.length,
+                                        message: '选择通知方式',
+                                    }],
                                     initialValue: sendTypes.map(item => item.toString())
                                 })(
                                     <Checkbox.Group onChange={this.onSendTypeChange}>
                                         {
-                                            allDict.notifyType.map((item) => {
-                                                return <Checkbox 
-                                                    key={item.value} 
-                                                    value={item.value.toString()}>
-                                                    {item.name}
-                                                </Checkbox>
-                                            })
+                                            this.renderSendTypeList(notifyType)
                                         }
                                     </Checkbox.Group>
                                 )
                             }
                         </FormItem>
                         
-                        <FormItem {...formItemLayout} label="通知接收人" key='notifyUser'>
+                        <FormItem {...formItemLayout} label="通知接收人">
                             {
                                 getFieldDecorator('notifyUser', {
-                                    rules: [],
+                                    rules: [{
+                                        required: sendTypes.length,
+                                        message: '选择通知接收人',
+                                    }],
                                     initialValue: notifyUser.map(item => item.toString())
                                 })(
                                     <Select 

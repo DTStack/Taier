@@ -4,7 +4,8 @@
 export const UIC_BASE_URL = '/uic/api';
 export const RDOS_BASE_URL = '/api/rdos';
 export const DQ_BASE_URL = '/api/dq/service';
-export const DATA_API_BASE_URL = '/api/dataApi/service';
+export const DATA_API_BASE_URL = '/api/da';
+
 
 export const rdosApp = {
     id: 'rdos',
@@ -26,4 +27,15 @@ export const dqApp = {
     target: '_blank',
     enable: true,
     apiBase: '/dq',
+}
+export const daApp = {
+
+
+    id: 'dataApi',
+    name: 'API管理',
+    link: 'dataApi.html#/',
+    filename: 'dataApi.html',
+    target: '_blank',
+    enable: true,
+    apiBase: '/dataApi',
 }

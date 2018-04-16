@@ -24,8 +24,7 @@ export default class StepThree extends Component {
             selectedTarget: [],
             diverseData: [],
             h: 40,
-            w: 230,
-            W: 450,
+            W: 0,
             H: 0,
             padding: 10,
             originColumn: [],
@@ -44,19 +43,12 @@ export default class StepThree extends Component {
         //     H: this.getCanvasH()
         // })
         // this.loadColumnFamily();
-        this.drawSvg();
         this.listenResize();
-        this.getKeyMapColumnData();
+        this.getColumnData();
         this.setEditKeymapData();
         this.setKeymapCheck();
         this.setSettingTableFields();
-        console.log(this,'this')
-    }
-
-    componentDidUpdate() {
-        this.$canvas.selectAll('.dl, .dr, .lines').remove();
         this.drawSvg();
-        
     }
 
 	componentWillReceiveProps(nextProps) {
@@ -73,61 +65,14 @@ export default class StepThree extends Component {
 		}
 	}
 
+    componentDidUpdate() {
+        this.$canvas.selectAll('.dl, .dr, .lines').remove();
+        this.drawSvg();
+    }
+
     componentWillUnmount() {
         window.removeEventListener('resize', this.resize, false);
         this.props.resetLinkedKeys();
-    }
-
-	setEditKeymapData = () => {
-		const { origin, target } = this.props.editParams;
-		if (origin.column && target.column) {
-			this.props.setEditMap({
-                source: origin.column,
-                target: target.column
-            });
-		}
-	}
-
-	setSettingTableFields = () => {
-		const { setting } = this.props.editParams;
-		const { form } = this.props;
-
-		if (!isEmpty(setting)) {
-			let selectedSetting = [],
-				fieldsValue = {};
-
-			Object.keys(setting).forEach((item) => {
-				if (setting[item]) {
-					selectedSetting.push(item);
-					if (item != 'matchCase' && item != 'matchNull') {
-						fieldsValue[item] = setting[item];
-					}
-				}
-			});
-
-			form.setFieldsValue(fieldsValue);
-			this.setState({ selectedSetting });
-		}
-	}
-
-    setKeymapCheck = () => {
-    	const { mappedPK } = this.props.editParams;
-
-    	// 填充keymap的checkbox
-		if (mappedPK) {
-			let sourceCheck = [],
-				targetCheck = [];
-
-			for (let [key, value] of Object.entries(mappedPK)) {
-				sourceCheck.push(key);
-				targetCheck.push(value);
-			}
-
-			this.setState({
-  				selectedSource: sourceCheck,
-  				selectedTarget: targetCheck
-  			});
-		} 
     }
 
     listenResize() {
@@ -136,6 +81,9 @@ export default class StepThree extends Component {
         }
     }
 
+    /**
+     * 调整窗口
+     */
     resize = () => {
         this.setState({
             W: this.getCanvasW(),
@@ -143,7 +91,10 @@ export default class StepThree extends Component {
         });
     }
 
-	getKeyMapColumnData = () => {
+    /**
+     * 获取左右表字段
+     */
+	getColumnData = () => {
 		const { origin, target } = this.props.editParams;
 		const { setEditMap } = this.props;
 
@@ -172,6 +123,70 @@ export default class StepThree extends Component {
 		});
 	}
 
+    /**
+     * 已连接的字段数据
+     */
+    setEditKeymapData = () => {
+        const { origin, target } = this.props.editParams;
+        if (origin.column && target.column) {
+            this.props.setEditMap({
+                source: origin.column,
+                target: target.column
+            });
+        }
+    }
+
+    /**
+     * 已填写的差异设置
+     */
+    setSettingTableFields = () => {
+        const { setting } = this.props.editParams;
+        const { form } = this.props;
+
+        if (!isEmpty(setting)) {
+            let selectedSetting = [],
+                fieldsValue = {};
+
+            Object.keys(setting).forEach((item) => {
+                if (setting[item]) {
+                    selectedSetting.push(item);
+                    if (item != 'matchCase' && item != 'matchNull') {
+                        fieldsValue[item] = setting[item];
+                    }
+                }
+            });
+
+            form.setFieldsValue(fieldsValue);
+            this.setState({ selectedSetting });
+        }
+    }
+
+    /**
+     * 已勾选的逻辑主键
+     */
+    setKeymapCheck = () => {
+        const { mappedPK } = this.props.editParams;
+
+        // 填充keymap的checkbox
+        if (mappedPK) {
+            let sourceCheck = [],
+                targetCheck = [];
+
+            for (let [key, value] of Object.entries(mappedPK)) {
+                sourceCheck.push(key);
+                targetCheck.push(value);
+            }
+
+            this.setState({
+                selectedSource: sourceCheck,
+                selectedTarget: targetCheck
+            });
+        } 
+    }
+
+    /**
+     * 绘制
+     */
     drawSvg() {
         this.renderDags();
         this.renderLines();
@@ -179,7 +194,7 @@ export default class StepThree extends Component {
     }
 
     renderDags() {
-        const { w, h, W, padding, originColumn, targetColumn } = this.state;
+        const { h, W, padding, originColumn, targetColumn } = this.state;
 
         this.$canvas.append('g')
             .attr('class', 'dl')
@@ -215,7 +230,7 @@ export default class StepThree extends Component {
     }
 
     renderLines() {
-        const { w, h, W, padding } = this.state;
+        const { h, W, padding } = this.state;
         const { source, target } = this.props.keymap;
         const $dagL = selectAll('.col-dag-l');
         const $dagR = selectAll('.col-dag-r');
@@ -230,7 +245,6 @@ export default class StepThree extends Component {
         const matchKeymapToColumn_s = (columnItem, keymapItem) => {
             let isMatch = false;
             isMatch = columnItem.key === keymapItem;
-            
             return isMatch;
         };
 
@@ -293,7 +307,7 @@ export default class StepThree extends Component {
     }
 
     bindEvents() {
-        const { w, h, W, padding } = this.state;
+        const { h, W, padding, selectedSource, selectedTarget } = this.state;
         const { addLinkedKeys, delLinkedKeys } = this.props;
 
         const $line = this.$activeLine;
@@ -322,7 +336,7 @@ export default class StepThree extends Component {
             if (isMouseDown) {
                 const xy = mouse(this.$canvas.node());
                 const [ex, ey] = xy;
-                const threholdX = W - 15;
+                const threholdX = W - 25;
 
                 if (ex < threholdX) {
                 	this.resetActiveLine();
@@ -367,6 +381,31 @@ export default class StepThree extends Component {
                 delLinkedKeys({
                     source: d.dl,
                     target: d.dr,
+                });
+
+                let sourceCheck = [...selectedSource],
+                    targetCheck = [...selectedTarget],
+                    mapPk = {};
+
+                if (selectedSource.includes(d.dl)) {
+                    sourceCheck = sourceCheck.filter(item => item !== d.dl);
+                }
+
+                if (selectedTarget.includes(d.dr)) {
+                    targetCheck = targetCheck.filter(item => item !== d.dr);
+                }
+
+                this.setState({
+                    selectedSource: sourceCheck,
+                    selectedTarget: targetCheck
+                });
+
+                // mapperPk
+                sourceCheck.forEach((s, index) => {
+                    mapPk[s] = targetCheck[index]
+                });
+                this.props.changeParams({
+                    mappedPK: mapPk
                 });
             });
     }
@@ -427,73 +466,61 @@ export default class StepThree extends Component {
     	const { setting } = this.props.editParams;
         switch (key) {
             case 'diverseNum':
-                return (
-                    <div>
-                        记录数差异，对比左右表的总记录数，差距小于
-                        {
-                            getFieldDecorator('diverseNum', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.diverseNum
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        %时候，计为成功匹配
-                    </div>
-                )
+                return <div>
+                    记录数差异，对比左右表的总记录数，差距小于
+                    {
+                        getFieldDecorator('diverseNum', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.diverseNum
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    %时候，计为成功匹配
+                </div>
             case 'diverseRatio':
-                return (
-                    <div>
-                        数值差异百分比，对比左右表的数值型数据时，差距百分比小于
-                        {
-                            getFieldDecorator('diverseRatio', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.diverseRatio
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        %时候，计为成功匹配
-                    </div>
-                )
+                return <div>
+                    数值差异百分比，对比左右表的数值型数据时，差距百分比小于
+                    {
+                        getFieldDecorator('diverseRatio', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.diverseRatio
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    %时候，计为成功匹配
+                </div>
             case 'diverseAbsolute':
-                return (
-                    <div>
-                        数值差异绝对值，对比左右表的数值型数据时，差距绝对值小于
-                        {
-                            getFieldDecorator('diverseAbsolute', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.diverseAbsolute
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        时候，计为成功匹配
-                    </div>
-                )
+                return <div>
+                    数值差异绝对值，对比左右表的数值型数据时，差距绝对值小于
+                    {
+                        getFieldDecorator('diverseAbsolute', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.diverseAbsolute
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    时候，计为成功匹配
+                </div>
             case 'decimalRetain':
-                return (
-                    <div>
-                        数值对比忽略小数点，忽略小数点后
-                        {
-                            getFieldDecorator('decimalRetain', {
-                                rules: [{ required: true, message: '不能为空' }],
-                                initialValue: setting.decimalRetain
-                            })(
-                                <InputNumber min={1} step={1} />
-                            )
-                        }
-                        位
-                    </div>
-                )
+                return <div>
+                    数值对比忽略小数点，忽略小数点后
+                    {
+                        getFieldDecorator('decimalRetain', {
+                            rules: [{ required: true, message: '不能为空' }],
+                            initialValue: setting.decimalRetain
+                        })(
+                            <InputNumber min={1} step={1} />
+                        )
+                    }
+                    位
+                </div>
             case 'matchCase':
-                return (
-                    <p>字符不区分大小写，对比左右表的字符串型数据时，不区分大小写</p>
-                )
+                return <p>字符不区分大小写，对比左右表的字符串型数据时，不区分大小写</p>
             case 'matchNull':
-                return (
-                    <p>空值与NULL等价，对比左右表的数据时，认为空值与NULL值是相等的</p>
-                )
+                return <p>空值与NULL等价，对比左右表的数据时，认为空值与NULL值是相等的</p>
             default:
                 break;
         }
@@ -582,7 +609,9 @@ export default class StepThree extends Component {
     	}
     }
 
-    // 同行映射连接
+    /**
+     * 同行映射连接
+     */
 	setRowMap = () => {
 		const { rowMap, nameMap, originColumn, targetColumn } = this.state;
 		const { origin, target } = this.props.editParams;
@@ -607,7 +636,9 @@ export default class StepThree extends Component {
         });
     }
 
-    // 同名映射连接
+    /**
+     * 同名映射连接
+     */
     setNameMap = () => {
         const { nameMap, rowMap, originColumn, targetColumn } = this.state;
         const { origin, target } = this.props.editParams;
@@ -628,7 +659,9 @@ export default class StepThree extends Component {
     }
 
     render() {
-        const { selectedSetting, selectedSource, selectedTarget, diverseData, w, h, W, H, padding, originColumn, targetColumn } = this.state;
+        const { selectedSetting, selectedSource, selectedTarget, 
+            diverseData, h, W, H, padding, 
+            originColumn, targetColumn } = this.state;
         const { source, target } = this.props.keymap;
         const { mappedPK } = this.props.editParams;
 
@@ -640,32 +673,28 @@ export default class StepThree extends Component {
 			    };
 		  	},
 		  	onSelect: (record, selected, selectedRow) => {
-		  		let sourceCheck = [...selectedSource];
-		  		let targetCheck = [...selectedTarget];
-	  			let mapPk = {};
+		  		let sourceCheck = [...selectedSource],
+		  		    targetCheck = [...selectedTarget],
+	  			    mapPk = {};
 
 		  		if (selected) {
 		  			sourceCheck.push(record.key);
 	  				targetCheck.push(target[source.indexOf(record.key)]);
-
-		  			this.setState({
-		  				selectedSource: sourceCheck,
-		  				selectedTarget: targetCheck
-		  			});
 		  		} else {
 		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
 		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
+                }
 
-		  			this.setState({
-		  				selectedTarget: targetCheck,
-		  				selectedSource: sourceCheck,
-		  			});
-		  		}
+	  			this.setState({
+	  				selectedTarget: targetCheck,
+	  				selectedSource: sourceCheck,
+	  			});
 
 		  		// mapperPk
 		  		sourceCheck.forEach((s, index) => {
 	  				mapPk[s] = targetCheck[index]
 	  			});
+
 	  			this.props.changeParams({
 	  				mappedPK: mapPk
 	  			});
@@ -680,27 +709,22 @@ export default class StepThree extends Component {
 			    };
 		  	},
 		  	onSelect: (record, selected,selectedRow) => {
-		  		let sourceCheck = [...selectedSource];
-		  		let targetCheck = [...selectedTarget];
-		  		let mapPk = {};
+		  		let sourceCheck = [...selectedSource],
+		  		    targetCheck = [...selectedTarget],
+		  		    mapPk = {};
 
 		  		if (selected) {
 		  			targetCheck.push(record.key);
 		  			sourceCheck.push(source[target.indexOf(record.key)]);
-
-		  			this.setState({
-		  				selectedSource: sourceCheck,
-		  				selectedTarget: targetCheck
-		  			});
 		  		} else {
 		  			targetCheck.splice(targetCheck.indexOf(record.key), 1);
 		  			sourceCheck.splice(sourceCheck.indexOf(record.key), 1);
+                }
 
-		  			this.setState({
-		  				selectedSource: sourceCheck,
-		  				selectedTarget: targetCheck
-		  			});
-		  		}
+	  			this.setState({
+	  				selectedSource: sourceCheck,
+	  				selectedTarget: targetCheck
+	  			});
 
 		  		// mapperPk
 		  		sourceCheck.forEach((s, index) => {
@@ -749,12 +773,21 @@ export default class StepThree extends Component {
 	                            className="keymap-svg"
 	                        >
 	                            <defs>
-	                                <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
+	                                <marker 
+                                        id="arrow" 
+                                        markerUnits="strokeWidth" 
+                                        markerWidth="12" 
+                                        markerHeight="12" 
+                                        viewBox="0 0 12 12" 
+                                        refX="6" 
+                                        refY="6" 
+                                        orient="auto">
 	                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
 	                                </marker>
 	                            </defs>
 	                            <g>
-	                                <line id="activeLine"
+	                                <line 
+                                        id="activeLine"
 	                                    x1="-10" y1="-10" x2="-10" y2="-10"
 	                                    stroke="#2491F7"
 	                                    strokeWidth="2"

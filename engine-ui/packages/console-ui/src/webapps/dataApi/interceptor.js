@@ -13,6 +13,8 @@ export function authBeforeFormate(response) {
         return response;
     case 302:
         message.info('登录超时, 请重新登录！')
+    case 500:
+        message.error('网络异常')
     default:
         if (process.env.NODE_ENV !== 'production') {
             console.error('Request error: ', response.code, response.message)
@@ -26,6 +28,7 @@ export function authAfterFormated(response) {
     case 1:
         return response;
     case 0: // 无权限，需要登录
+ 
         UserApi.openLogin()
         return Promise.reject(response);
     case 3: // 功能无权限

@@ -7,6 +7,7 @@ import moment from 'moment';
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
 import SlidePane from 'widgets/slidePane';
+import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import RCApi from '../../../api/ruleConfig';
 import '../../../styles/views/ruleConfig.scss';
@@ -23,7 +24,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getMonitorLists(params) {
         dispatch(ruleConfigActions.getMonitorLists(params));
-    }
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -46,6 +50,7 @@ export default class RuleConfig extends Component {
     }
 
     componentDidMount() {
+        this.props.getDataSourcesList();
         this.props.getMonitorLists(this.state.params);
     }
 

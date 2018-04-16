@@ -45,6 +45,7 @@ class Http {
         .catch( err => { 
             ProgressBar.hide() 
             console.error(url + ":" + err)
+            return new Promise.reject(err);
         })
     }
 
