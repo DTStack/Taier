@@ -60,8 +60,10 @@ class APIApproval extends Component {
             filter:{
                 status:(arr&&arr.length>0)?arr:null
             }
+        },()=>{
+            this.getApprovalList();
         })
-        this.getApprovalList();
+        
     }
     getApprovalList() {
 
