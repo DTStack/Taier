@@ -30,6 +30,8 @@ export const EXCHANGE_APPLY_STATUS= {
     0: 'notApproved',
     1: 'pass',
     2: 'rejected',
+    3: 'stop',
+    4: 'disabled',
 
 }
 export const EXCHANGE_ADMIN_API_STATUS= {

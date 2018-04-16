@@ -3,6 +3,7 @@ import { Col, Row, Table } from 'antd';
 import Resize from 'widgets/resize';
 import {cloneDeep} from "lodash"
 import { doubleLineAreaChartOptions } from '../../../consts';
+import utils from "utils"
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -73,7 +74,20 @@ class ApiCallState extends Component {
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate)
-            times.push(chartData[i].time)
+            if (this.props.dateType) {
+                switch (this.props.dateType) {
+                    case "1":
+                        times.push(utils.formatHours(chartData[i].time));
+                        break;
+                    case "7":
+                        times.push(utils.formatDateHours(chartData[i].time));
+                        break;
+                    case "30":
+                        times.push(utils.formatDate(chartData[i].time));
+                        break;
+                }
+            }
+            
         }
         let myChart = echarts.init(document.getElementById('MyApiDetailState'));
         const option = cloneDeep(doubleLineAreaChartOptions);

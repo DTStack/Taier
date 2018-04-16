@@ -70,8 +70,7 @@ export default class DataCheck extends Component {
             render: (text, record) => {
                 return text ? text : '--';
             }
-        }, 
-        {
+        }, {
             title: '右侧表',
             dataIndex: 'targetTableName',
             key: 'targetTableName',

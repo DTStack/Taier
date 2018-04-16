@@ -388,7 +388,7 @@ export default class TaskQuery extends Component {
                     >
                         <Table 
                             rowKey="id"
-                            className="m-table monitor-table"
+                            className="m-table"
                             columns={this.initColumns()} 
                             loading={loading}
                             pagination={pagination}
