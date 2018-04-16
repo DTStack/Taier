@@ -66,7 +66,7 @@ class AdminDashboard extends Component {
                             <ErrorDistributed chartData={marketOverview.failInfoList}></ErrorDistributed>
                         </Col>
                         <Col span={8}>
-                            <TopFail data={marketOverview.callFailTop}></TopFail>
+                            <TopFail router={this.props.router} data={marketOverview.callFailTop}></TopFail>
                         </Col>
 
 

@@ -7,10 +7,7 @@ class TopFail extends Component {
     }
     openNewDetail(text){
         this.props.router.push({
-            pathname:'/api/mine/approved',
-            query:{
-                apiId:text
-            }
+            pathname:'/api/manage/detail/'+text
         })
     }
 
