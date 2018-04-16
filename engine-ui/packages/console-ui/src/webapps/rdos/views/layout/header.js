@@ -118,8 +118,11 @@ class Header extends Component {
         const basePath = '/rdos.html#'
         return (
             <div className="header">
-                <div className="logo left txt-left">
-                    <a onClick={this.goIndex}><img alt="logo" src="/public/rdos/img/logo.svg" /></a>
+                <div onClick={this.goIndex} className="logo left txt-left">
+                    <img style={{height: '20px', marginTop: '10px'}} alt="logo" src="/public/rdos/img/logo.svg" />
+                    <span style={{fontSize: '14px', color: '#ffffff', position: 'absolute', left: '70px', top: 0}}>
+                        DTinsight.IDE
+                    </span>
                 </div>
                 <div className="menu left">
                     <Menu

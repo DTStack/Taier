@@ -30,7 +30,7 @@ module.exports = [
         apiBase: '/dq',
     },{
         id: 'dataApi',
-        name: 'API管理',
+        name: '数据API',
         link: 'dataApi.html#/',
         filename: 'dataApi.html',
         target: '_blank',
@@ -38,7 +38,7 @@ module.exports = [
         apiBase: '/dataApi',
     }, {
         id: 'label',
-        name: '标签管理',
+        name: '标签工厂',
         link: 'label.html#/',
         filename: 'label.html',
         target: '_blank',
