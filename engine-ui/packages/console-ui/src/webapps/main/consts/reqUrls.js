@@ -10,11 +10,11 @@ export default {
 
     //=====数据api====//
     //**消息**//
-    DATAAPI_MASSAGE_QUERY: `${DATA_API_BASE_URL}/common/notifyRecord/pageQuery`,
-    DATAAPI_GET_MASSAGE_BY_ID: `${DATA_API_BASE_URL}/common/notifyRecord/getOne`,
-    DATAAPI_MASSAGE_MARK_AS_READ: `${DATA_API_BASE_URL}/common/notifyRecord/tabRead`,
-    DATAAPI_MASSAGE_MARK_AS_ALL_READ: `${DATA_API_BASE_URL}/common/notifyRecord/allRead`,
-    DATAAPI_MASSAGE_DELETE: `${DATA_API_BASE_URL}/common/notifyRecord/delete`,
+    DATAAPI_MASSAGE_QUERY: `${DATA_API_BASE_URL}/notify/pageQuery`,
+    DATAAPI_GET_MASSAGE_BY_ID: `${DATA_API_BASE_URL}/notify/getOne`,
+    DATAAPI_MASSAGE_MARK_AS_READ: `${DATA_API_BASE_URL}/notify/tabRead`,
+    DATAAPI_MASSAGE_MARK_AS_ALL_READ: `${DATA_API_BASE_URL}/notify/allRead`,
+    DATAAPI_MASSAGE_DELETE: `${DATA_API_BASE_URL}/notify/delete`,
 
     //** 用户角色 *//
     DATAAPI_QUERY_USER:`${DATA_API_BASE_URL}/user/pageQuery`,//查询系统用户信息
