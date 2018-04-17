@@ -40,7 +40,6 @@ public class EngineMain {
 			addShutDownHook();
 		} catch (Exception e) {
 			logger.error("node start error:{}", e);
-			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
@@ -64,6 +63,4 @@ public class EngineMain {
 	private static void addShutDownHook(){
 		new ShutDownHook(vertxHttpServer,zkDistributed,JobSubmitExecutor.getInstance()).addShutDownHook();
 	}
-	
-	
 }
