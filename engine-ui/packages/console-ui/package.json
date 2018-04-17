@@ -66,6 +66,7 @@
     "style-loader": "0.13.1",
     "utils-merge": "1.0.1",
     "webpack": "2.4.1",
+    "webpack-bundle-analyzer": "^2.11.1",
     "webpack-dev-server": "2.4.2",
     "webpack-merge": "4.1.0"
   },

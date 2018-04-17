@@ -32,7 +32,7 @@ class ManageTopCard extends Component {
     }
     openApiDetail() {
 
-        window.open(`${location.origin + location.pathname}#/api/market/detail/${this.props.apiId}`)
+        window.open(`${location.origin + location.pathname}#/api/market/detail/${this.props.apiId}?isHideBack=true`)
 
     }
     getValue(key) {
