@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.queue;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 
 /**
  * 包含组信息的任务执行队列

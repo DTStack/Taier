@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.components;
+package com.dtstack.rdos.engine.execution.base.queue;
 
 import java.io.Serializable;
 import java.util.UUID;

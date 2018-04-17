@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.entrance.node;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.components.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import com.google.common.collect.Maps;
 
 import java.util.Collection;

@@ -12,7 +12,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.entrance.zk.task.*;
-import com.dtstack.rdos.engine.execution.base.components.EngineDeployInfo;
+import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;

@@ -1,11 +1,10 @@
-package com.dtstack.rdos.engine.execution.base.components;
+package com.dtstack.rdos.engine.execution.base.queue;
 
 import java.util.AbstractQueue;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
@@ -101,8 +100,9 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     @Override
     public E poll() {
         final AtomicInteger count = this.count;
-        if (count.get() == 0)
+        if (count.get() == 0){
             return null;
+        }
         E x = null;
         int c = -1;
         final ReentrantLock takeLock = this.allLock;
@@ -111,14 +111,16 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
             if (count.get() > 0) {
                 x = dequeue();
                 c = count.getAndDecrement();
-                if (c > 1)
+                if (c > 1){
                     notEmpty.signal();
+                }
             }
         } finally {
             takeLock.unlock();
         }
-        if (c == capacity)
+        if (c == capacity){
             signalNotFull();
+        }
         return x;
     }
 
@@ -241,13 +243,15 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
             allLock.lock();
             try {
                 current = head.next;
-                if (current != null)
+                if (current != null){
                     currentElement = current.item;
+                }
             } finally {
                 allLock.unlock();
             }
         }
 
+        @Override
         public boolean hasNext() {
             return current != null;
         }
@@ -262,19 +266,23 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         private Node<E> nextNode(Node<E> p) {
             for (;;) {
                 Node<E> s = p.next;
-                if (s == p)
+                if (s == p){
                     return head.next;
-                if (s == null || s.item != null)
+                }
+                if (s == null || s.item != null){
                     return s;
+                }
                 p = s;
             }
         }
 
+        @Override
         public E next() {
             allLock.lock();
             try {
-                if (current == null)
+                if (current == null){
                     throw new NoSuchElementException();
+                }
                 E x = currentElement;
                 lastRet = current;
                 current = nextNode(current);
@@ -285,9 +293,11 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
             }
         }
 
+        @Override
         public void remove() {
-            if (lastRet == null)
+            if (lastRet == null){
                 throw new IllegalStateException();
+            }
             allLock.lock();
             try {
                 Node<E> node = lastRet;
@@ -404,13 +414,16 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
+    @Override
     public boolean contains(Object o) {
-        if (o == null) return false;
+        if (o == null){ return false;}
         allLock.lock();
         try {
-            for (Node<E> p = head.next; p != null; p = p.next)
-                if (o.equals(p.item))
+            for (Node<E> p = head.next; p != null; p = p.next){
+                if (o.equals(p.item)){
                     return true;
+                }
+            }
             return false;
         } finally {
             allLock.unlock();
@@ -456,8 +469,9 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
      */
     public E getTop(){
         final AtomicInteger count = this.count;
-        if (count.get() == 0)
+        if (count.get() == 0){
             return null;
+        }
         E x = null;
         final ReentrantLock takeLock = this.allLock;
         takeLock.lock();

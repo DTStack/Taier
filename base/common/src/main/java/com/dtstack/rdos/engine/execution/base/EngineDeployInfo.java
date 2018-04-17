@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.components;
+package com.dtstack.rdos.engine.execution.base;
 
 import com.dtstack.rdos.engine.execution.base.enums.EDeployType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
