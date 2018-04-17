@@ -1,28 +1,15 @@
-.m-8 {
-	margin: 0 8px;
-}
-
 .rule-dashboard {
 	height: 100%;
 	overflow-x: hidden;
 
 	.rule-manage {
-		.rule-manage-action {
-			text-align: right;
-			margin: 20px 20px 0;
-		}
-		
-		.rule-action {
-			margin: 20px;
-			text-align: right;
-		}
+		padding: 20px;
 
 		.monitor-info-table {
-		    margin: 20px;
+		    padding: 20px 0;
 
 		    table {
 		        border-collapse: collapse;
-		        border-radius: 3px;
 		        border: 1px solid #E6E6E6;
 		        td,
 		        th {
@@ -55,80 +42,27 @@
 			font-size: 12px;
 			color: #2A2A2A;
 		}
-
 	}
-
 }
 
 
 .rule-edit {
- 	h3 {
-	    font-size: 16px;
-	    padding-bottom: 10px;
-
-	    a {
-	    	color: #9fa9ba
-	    }
- 	}
-	
 	.rule-action {
 		padding: 16px 20px;
 		text-align: right;
 	}
-
- 	.rule-table {
- 		margin: 0 20px;
- 		background: #fff;
-
-		.ant-table-tbody {
-	        &>tr>td {
-	            padding: 10px 8px;
-	            font-size: 12px;
-	        }
-	    }
-
-		.rule-edit-td {
-			width: 100%;
-		}
-
-		.ant-form-inline {
-		 	.ant-form-item {
-		 		margin-right: 0;
-		 	}
-		}
-
-		.editable-row-operations {
-			a {
-				padding: 0 5px;
-			}
-		}
- 	}
 }
 
 .rule-edit-table {
-	margin: 0 20px;
 	background: #fff;
 
 	.ant-table-tbody {
         &>tr>td {
             padding: 10px 8px;
-            font-size: 12px;
         }
     }
 
 	.rule-edit-td {
 		width: 100%;
-	}
-
-	.ant-form-inline {
-	 	.ant-form-item {
-	 		margin-right: 0;
-	 	}
-	}
-
-	.editable-row-operations {
-		a {
-			padding: 0 5px;
-		}
 	}
 }

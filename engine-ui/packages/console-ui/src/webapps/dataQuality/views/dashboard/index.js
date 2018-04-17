@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { isEmpty, cloneDeep } from 'lodash';
 import { Table, Icon, Card, Row, Col } from 'antd';
 import moment from 'moment';
+
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
-
 import Resize from 'widgets/resize';
+
 import { lineAreaChartOptions, alarmDateFilter } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
@@ -19,21 +19,12 @@ const mapStateToProps = state => {
     return { dashBoard }
 };
 
-const alarmTitle = (type) => {
-    if (type === '1') return '今天'
-    else if (type === '30') return '最近30天'
-    else return '最近7天'
-}
-
 const mapDispatchToProps = dispatch => ({
     getTopRecord(params) {
         dispatch(dashBoardActions.getTopRecord(params));
     },
     getAlarmSum(params) {
         dispatch(dashBoardActions.getAlarmSum(params));
-    },
-    getAlarmTrend(params) {
-        dispatch(dashBoardActions.getAlarmTrend(params));
     },
     getUsage(params) {
         dispatch(dashBoardActions.getUsage(params));
@@ -44,12 +35,11 @@ const mapDispatchToProps = dispatch => ({
 export default class DashBoard extends Component {
 
     state = {
-        Alarmfilter: '7'
+        currentDate: '7'
     }
 
     componentDidMount() {
         this.props.getUsage();
-        // this.props.getAlarmTrend();
         this.props.getAlarmSum();
         this.props.getTopRecord({ date: 7 });
         DBApi.getAlarmTrend().then((res) => {
@@ -59,24 +49,36 @@ export default class DashBoard extends Component {
         });
     }
 
-    componentWillReceiveProps(nextProps) {
-        let oldData = this.props.dashBoard.alarmTrend,
-            newData = nextProps.dashBoard.alarmTrend;
-
-        if (isEmpty(oldData) && !isEmpty(newData)) {
-            this.initLineChart(newData)
+    resize = () => {
+        if (this.state.lineChart) {
+            this.state.lineChart.resize();
         }
     }
 
-    resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
+    alarmTitle = (type) => {
+        switch (type) {
+            case '1':
+                return '今天';
+            case '30':
+                return '最近30天';
+            default:
+                return '最近7天';
+        }
     }
 
     // table设置
     initColumns = () => {
-        const { Alarmfilter } = this.state;
+        const { currentDate } = this.state;
 
         return [{
+            title: '排名',
+            dataIndex: 'rank',
+            key: 'rank',
+            render(text, record, index) {
+                return <div className="rank-number">{index+1}</div>
+            },
+            width: '10%'
+        }, {
             title: '类型',
             dataIndex: 'dataSourceName',
             key: 'dataSourceName',
@@ -88,22 +90,22 @@ export default class DashBoard extends Component {
             render: (text, record) => (
                 <Link to={`/dq/taskQuery?tb=${text}&source=${record.dataSourceType}`}>{text}</Link>
             ),
-            width: '30%'
-        },
-        {
+            width: '35%'
+        }, {
             title: '告警数',
             dataIndex: 'countByDate',
             key: 'countByDate',
             filters: alarmDateFilter,
-            filteredValue: [Alarmfilter],
+            filteredValue: [currentDate],
             filterMultiple: false,
-            width: '30%'
+            render: (text => <span style={{ color: '#EF5350' }}>{text}</span>),
+            width: '15%'
         }]
     }
 
     initLineChart(chartData) {
-        let myChart = echarts.init(document.getElementById('AlarmTrend')),
-            option  = cloneDeep(lineAreaChartOptions),
+        let myChart = echarts.init(document.getElementById('alarm-trend')),
+            option  = {...lineAreaChartOptions},
             xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD')),
             yData   = Object.values(chartData);
 
@@ -133,21 +135,21 @@ export default class DashBoard extends Component {
 
     onTableChange = (page, filter, sorter) => {
         let date = filter.countByDate[0] || '7' ;
-        this.setState({
-            Alarmfilter: date,
-        })
         this.props.getTopRecord({ date });
+        this.setState({ currentDate: date });
     }
 
     render() {
-        const { Alarmfilter } = this.state;
         const { topRecords, alarmTrend, alarmSum, usage, loading } = this.props.dashBoard;
+        const { currentDate } = this.state;
+
         let extra = (
             <Link to="/dq/taskQuery">
                 查看更多
             </Link>
         )
-        const marginTop = { marginTop: 20 }
+        let marginTop = { marginTop: 20 };
+
         return (
             <Row style={{ margin: 20 }}>
                 <Col span={12} style={{ paddingRight: 10 }}>
@@ -166,12 +168,14 @@ export default class DashBoard extends Component {
                                         <span className="m-count-content font-red">{alarmSum.countToday}</span>
                                     </section>
                                 </Col>
+
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">最近7天告警数</span>
                                         <span className="m-count-content font-red">{alarmSum.countWeek}</span>
                                     </section>
                                 </Col>
+
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">最近30天告警数</span>
@@ -190,7 +194,7 @@ export default class DashBoard extends Component {
                             title="告警趋势(最近30天)"
                         >
                             <Resize onResize={this.resize}>
-                                <article id="AlarmTrend" style={{ width: '100%', height: '300px' }}/>
+                                <article id="alarm-trend" style={{ width: '100%', height: '317px' }}/>
                             </Resize>
                         </Card>
                     </Row>
@@ -209,18 +213,21 @@ export default class DashBoard extends Component {
                                         <span className="m-count-content font-black">{usage.tableCount}</span>
                                     </section>
                                 </Col>
+
                                 <Col span={6}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">已配置规则数</span>
                                         <span className="m-count-content font-black">{usage.ruleCount}</span>
                                     </section>
                                 </Col>
+
                                 <Col span={6}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">昨日新增表数</span>
                                         <span className="m-count-content font-black">{usage.lastTableCount}</span>
                                     </section>
                                 </Col>
+
                                 <Col span={6}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">昨日新增规则数</span>
@@ -238,12 +245,12 @@ export default class DashBoard extends Component {
                             noHovering
                             bordered={false}
                             loading={false} 
-                            title={`${alarmTitle(Alarmfilter)}告警TOP20`}
+                            title={`${this.alarmTitle(currentDate)}告警TOP20`}
                         >
                             <Table 
                                 rowKey="monitorId"
-                                className="m-table"
-                                style={{ marginTop: 2 }}
+                                className="m-table trend-table"
+                                // style={{ marginTop: 2 }}
                                 columns={this.initColumns()} 
                                 loading={loading}
                                 pagination={false}
