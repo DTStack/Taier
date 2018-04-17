@@ -51,11 +51,11 @@ public class JobSubmitExecutor implements Closeable{
 
     private static JobSubmitExecutor singleton = null;
 
-    private JobSubmitExecutor() throws Exception {
+    private JobSubmitExecutor(){
         init();
     }
 
-    public static JobSubmitExecutor getInstance() throws Exception {
+    public static JobSubmitExecutor getInstance(){
         if(singleton == null){
             synchronized (JobSubmitExecutor.class){
                 if(singleton == null){
@@ -66,22 +66,26 @@ public class JobSubmitExecutor implements Closeable{
         return singleton;
     }
 
-    public void init() throws Exception{
-        if(!hasInit){
-            this.maxPoolSize = ConfigParse.getSlots();
-            this.jobExecutor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
-                    0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<>(1), new CustomThreadFactory("jobExecutor"));
+    public void init(){
+        try{
+            if(!hasInit){
+                this.maxPoolSize = ConfigParse.getSlots();
+                this.jobExecutor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
+                        0L, TimeUnit.MILLISECONDS,
+                        new ArrayBlockingQueue<>(1), new CustomThreadFactory("jobExecutor"));
 
-            this.queExecutor = new ThreadPoolExecutor(3, 3,
-                    0L, TimeUnit.MILLISECONDS,
-                    new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
+                this.queExecutor = new ThreadPoolExecutor(3, 3,
+                        0L, TimeUnit.MILLISECONDS,
+                        new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
 
-            clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
-            RestartStrategyUtil.getInstance();
-            executionJob();
-            hasInit = true;
-            logger.warn("init JobSubmitExecutor success...");
+                clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
+                RestartStrategyUtil.getInstance();
+                executionJob();
+                hasInit = true;
+                logger.warn("init JobSubmitExecutor success...");
+            }
+        }catch(Exception e){
+            throw new RuntimeException(e);
         }
     }
 
