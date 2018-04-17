@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.base.pluginlog;
+package com.dtstack.rdos.engine.execution.base.plugin.log.mysql;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
@@ -17,9 +17,9 @@ import java.sql.SQLException;
  * @author xuchao
  */
 
-public class PluginDataConnPool {
+public class MysqlDataConnPool {
     
-    private static final Logger LOG = LoggerFactory.getLogger(PluginDataConnPool.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MysqlDataConnPool.class);
 
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
@@ -65,10 +65,10 @@ public class PluginDataConnPool {
     private DruidDataSource dataSource = new DruidDataSource();
 
     private static class SingletonHolder{
-        private static PluginDataConnPool instance = new PluginDataConnPool();
+        private static MysqlDataConnPool instance = new MysqlDataConnPool();
     }
 
-    private PluginDataConnPool(){
+    private MysqlDataConnPool(){
         init();
     }
 
@@ -122,7 +122,7 @@ public class PluginDataConnPool {
     }
 
 
-    public static PluginDataConnPool getInstance(){
+    public static MysqlDataConnPool getInstance(){
         return SingletonHolder.instance;
     }
 

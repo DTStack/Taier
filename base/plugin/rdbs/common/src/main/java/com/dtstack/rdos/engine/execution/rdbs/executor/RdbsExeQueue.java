@@ -3,20 +3,25 @@ package com.dtstack.rdos.engine.execution.rdbs.executor;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pluginlog.PluginJobInfoComponent;
+import com.dtstack.rdos.engine.execution.base.plugin.log.LogStoreFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.dtstack.rdos.engine.execution.base.plugin.log.LogStore;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * mysql 执行队列
@@ -52,7 +57,7 @@ public class RdbsExeQueue {
     /**缓存所有进入执行引擎的任务---在执行完成删除*/
     private Map<String, JobClient> jobCache = Maps.newConcurrentMap();
 
-    private PluginJobInfoComponent jobInfoComponent = PluginJobInfoComponent.getPluginJobInfoComponent();
+    private LogStore logStore = LogStoreFactory.getLogStore(null);
 
     private ConnFactory connFactory;
 
@@ -80,7 +85,7 @@ public class RdbsExeQueue {
         try {
             waitQueue.put(jobClient);
             jobCache.put(jobClient.getTaskId(), jobClient);
-            jobInfoComponent.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
+            logStore.insert(jobClient.getTaskId(), jobClient.getParamAction().toString(), RdosTaskStatus.SCHEDULED.getStatus());
         } catch (InterruptedException e) {
             LOG.error("", e);
             return null;
@@ -111,7 +116,7 @@ public class RdbsExeQueue {
 
 
     public RdosTaskStatus getJobStatus(String jobId){
-        Integer status = jobInfoComponent.getStatusByJobId(jobId);
+        Integer status = logStore.getStatusByJobId(jobId);
         if(status == null){
             return null;
         }
@@ -120,7 +125,7 @@ public class RdbsExeQueue {
     }
 
     public String getJobLog(String jobId){
-        String logInfo = jobInfoComponent.getLogByJobId(jobId);
+        String logInfo = logStore.getLogByJobId(jobId);
         return logInfo == null ? "" : logInfo;
     }
 
@@ -178,7 +183,7 @@ public class RdbsExeQueue {
                     LOG.error("", e);
                 }finally {
                     //更新任务状态
-                    jobInfoComponent.updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
+                    logStore.updateStatus(engineJobId, RdosTaskStatus.CANCELED.getStatus());
                     jobCache.remove(engineJobId);
                 }
             }
@@ -217,7 +222,7 @@ public class RdbsExeQueue {
             }catch (Exception e){
                 LOG.error("", e);
                 //错误信息更新到日志里面
-                jobInfoComponent.updateErrorLog(engineJobId, e.toString());
+                logStore.updateErrorLog(engineJobId, e.toString());
             }finally {
 
                 try {
@@ -242,7 +247,7 @@ public class RdbsExeQueue {
                 LOG.info("job:{} exe end...", jobName, exeResult);
                 //修改指定任务的状态--成功或者失败
                 //TODO 处理cancel job 情况
-                jobInfoComponent.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 jobCache.remove(engineJobId);
             }
         }

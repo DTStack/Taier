@@ -1,10 +1,10 @@
 package com.dtstack.rdos.engine.execution.rdbs.executor;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.pluginlog.PluginJobInfoComponent;
+import com.dtstack.rdos.engine.execution.base.plugin.log.LogStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.dtstack.rdos.engine.execution.base.plugin.log.LogStore;
 import java.util.Map;
 
 /**
@@ -21,7 +21,7 @@ public class StatusUpdateDealer implements Runnable {
 
     private final int interval = 2 * 1000;
 
-    private PluginJobInfoComponent jobInfoComponent = PluginJobInfoComponent.getPluginJobInfoComponent();
+    private LogStore logstore = LogStoreFactory.getLogStore(null);
 
     private boolean isRun = true;
 
@@ -42,9 +42,9 @@ public class StatusUpdateDealer implements Runnable {
 
                 i++;
                 //更新时间
-                jobInfoComponent.updateModifyTime(jobCache.keySet());
+                logstore.updateModifyTime(jobCache.keySet());
                 //更新很久未有操作的任务---防止某台机器挂了,任务状态未被更新
-                jobInfoComponent.timeOutDeal();
+                logstore.timeOutDeal();
                 Thread.sleep(interval);
             }catch (Throwable e){
                 LOG.error("", e);

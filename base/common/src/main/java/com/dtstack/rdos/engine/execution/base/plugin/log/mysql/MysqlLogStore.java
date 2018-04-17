@@ -1,6 +1,7 @@
-package com.dtstack.rdos.engine.execution.base.pluginlog;
+package com.dtstack.rdos.engine.execution.base.plugin.log.mysql;
 
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.plugin.log.LogStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +19,9 @@ import java.util.Collection;
  * @author xuchao
  */
 
-public class PluginJobInfoComponent {
+public class MysqlLogStore extends LogStore{
     
-    private static final Logger LOG = LoggerFactory.getLogger(PluginJobInfoComponent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MysqlLogStore.class);
 
     private static final String REPLACE_INTO_SQL = "replace into rdos_plugin_job_info(job_id, job_info, status, log_info, gmt_create, gmt_modified) values(?, ?, ?, ?, NOW(), NOW())";
 
@@ -45,27 +46,28 @@ public class PluginJobInfoComponent {
 
     private static final String RETAIN_CLEAR_SQL = "delete from rdos_plugin_job_info where status in (5,7,8,9,13,14,15) and (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(gmt_modified)) > " + retain_time;
 
-    private PluginDataConnPool dataConnPool = PluginDataConnPool.getInstance();
+    private MysqlDataConnPool dataConnPool = MysqlDataConnPool.getInstance();
 
-    private static volatile PluginJobInfoComponent pluginJobInfoComponent = null;
+    private static volatile MysqlLogStore mysqlLogStore = null;
 
-    private PluginJobInfoComponent(){
+    private MysqlLogStore(){
 
     }
 
-    public static PluginJobInfoComponent getPluginJobInfoComponent(){
-        if(pluginJobInfoComponent==null){
-            synchronized (PluginJobInfoComponent.class){
-                if(pluginJobInfoComponent==null){
-                    pluginJobInfoComponent = new PluginJobInfoComponent();
+    public static MysqlLogStore getInstance(){
+        if(mysqlLogStore==null){
+            synchronized (MysqlLogStore.class){
+                if(mysqlLogStore==null){
+                    mysqlLogStore = new MysqlLogStore();
                 }
             }
         }
-        return pluginJobInfoComponent;
+        return mysqlLogStore;
     }
 
+    @Override
     public int insert(String jobId, String jobInfo, int status){
-        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
+        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
@@ -98,6 +100,7 @@ public class PluginJobInfoComponent {
         }
     }
 
+    @Override
     public int updateStatus(String jobId, int status){
         Connection connection = null;
         PreparedStatement pstmt = null;
@@ -129,6 +132,7 @@ public class PluginJobInfoComponent {
         }
     }
 
+    @Override
     public void updateModifyTime(Collection<String> jobIds){
         Connection connection = null;
         PreparedStatement pstmt = null;
@@ -160,6 +164,7 @@ public class PluginJobInfoComponent {
         }
     }
 
+    @Override
     public void updateErrorLog(String jobId, String errorLog){
         Connection connection = null;
         PreparedStatement pstmt = null;
@@ -189,7 +194,7 @@ public class PluginJobInfoComponent {
         }
     }
 
-
+    @Override
     public Integer getStatusByJobId(String jobId){
         Connection connection = null;
         PreparedStatement pstmt = null;
@@ -225,9 +230,9 @@ public class PluginJobInfoComponent {
         }
     }
 
-
+    @Override
     public String getLogByJobId(String jobId){
-        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
+        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         PreparedStatement pstmt = null;
 
@@ -262,8 +267,9 @@ public class PluginJobInfoComponent {
         }
     }
 
+    @Override
     public void timeOutDeal(){
-        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
+        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 
@@ -289,8 +295,9 @@ public class PluginJobInfoComponent {
         }
     }
 
+    @Override
     public void clearJob(){
-        PluginDataConnPool metaDataConnPool = PluginDataConnPool.getInstance();
+        MysqlDataConnPool metaDataConnPool = MysqlDataConnPool.getInstance();
         Connection connection = null;
         Statement stmt = null;
 

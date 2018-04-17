@@ -148,7 +148,7 @@ public class ZkDistributed {
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
 		if(ConfigParse.getPluginStoreInfo()!=null){
-			executors.execute(new PluginStoreInfoListener(masterListener));
+			executors.execute(new LogStoreListener(masterListener));
 		}
 	}
 
