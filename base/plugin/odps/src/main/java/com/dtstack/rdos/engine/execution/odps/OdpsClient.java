@@ -13,13 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-
 import com.aliyun.odps.Instance;
 import com.aliyun.odps.OdpsException;
 import com.aliyun.odps.Odps;
@@ -37,9 +35,12 @@ public class OdpsClient extends AbsClient {
     private static final Logger LOG = LoggerFactory.getLogger(OdpsClient.class);
 
     private EngineResourceInfo resourceInfo;
+
     private Odps odps;
 
     private static final String SPLIT = ";";
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public Odps getOdps() {
         return odps;
@@ -48,7 +49,6 @@ public class OdpsClient extends AbsClient {
     @Override
     public void init(Properties prop) throws Exception {
         resourceInfo = new OdpsResourceInfo();
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> configMap = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), Map.class);
         odps = OdpsUtil.initOdps(configMap);
     }
