@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink140.source.batch;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
 import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
-import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sources.BatchTableSource;
 
 import java.io.File;

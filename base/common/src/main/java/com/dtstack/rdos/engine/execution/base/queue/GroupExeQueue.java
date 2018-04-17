@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.queue;
+package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;

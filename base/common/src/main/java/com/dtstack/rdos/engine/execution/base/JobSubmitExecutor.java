@@ -4,7 +4,7 @@ import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
-import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
+import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

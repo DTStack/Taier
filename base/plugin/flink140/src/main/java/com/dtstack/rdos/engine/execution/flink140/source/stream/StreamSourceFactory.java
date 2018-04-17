@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
-import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;

@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink130.source.stream;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
 import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
-import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sources.StreamTableSource;
 
 import java.io.File;

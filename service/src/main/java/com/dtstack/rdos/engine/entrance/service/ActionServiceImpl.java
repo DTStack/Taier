@@ -22,7 +22,7 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
+import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import com.google.common.base.Strings;

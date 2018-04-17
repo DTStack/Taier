@@ -16,7 +16,7 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
+import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;

@@ -17,7 +17,7 @@ import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.queue.ExeQueueMgr;
+import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;

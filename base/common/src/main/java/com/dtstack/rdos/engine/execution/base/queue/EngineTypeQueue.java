@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.queue;
+package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.MathUtil;

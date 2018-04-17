@@ -5,7 +5,7 @@ import com.dtstack.rdos.common.util.MD5Util;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
-import com.dtstack.rdos.engine.execution.loader.DtClassLoader;
+import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
