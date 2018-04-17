@@ -72,6 +72,7 @@ public class JobSubmitExecutor{
             RestartStrategyUtil.getInstance();
             executionJob();
             hasInit = true;
+            logger.warn("init JobSubmitExecutor success...");
         }
     }
 

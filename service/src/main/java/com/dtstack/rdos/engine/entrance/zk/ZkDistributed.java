@@ -135,6 +135,7 @@ public class ZkDistributed {
 		initMemTaskStatus();
 		registrationDB();
 		initScheduledExecutorService();
+		logger.warn("init zk server success...");
 		return this;
 	}
 

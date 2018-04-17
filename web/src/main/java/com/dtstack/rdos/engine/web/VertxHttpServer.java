@@ -30,7 +30,6 @@ public class VertxHttpServer {
 	
 	
 	private void init(){
-		logger.info("VertxHttpServer start...");
 		VertxOptions vo = new VertxOptions();
 		vo.setEventLoopPoolSize(ConfigParse.getEventLoopPoolSize());
         DeploymentOptions deploymentOptions = new DeploymentOptions();
@@ -40,6 +39,7 @@ public class VertxHttpServer {
 		vertx = Vertx.vertx(vo);
 		ServerVerticle.setHostPort(this.nodeConfig);
 		vertx.deployVerticle(ServerVerticle.class.getName(), deploymentOptions);
+		logger.warn("init http server success...");
 	}
 
 
