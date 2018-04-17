@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
 import com.dtstack.rdos.engine.web.VertxHttpServer;
 
+import java.io.Closeable;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -17,18 +19,12 @@ import com.dtstack.rdos.engine.web.VertxHttpServer;
 public class ShutDownHook {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ShutDownHook.class);
-	
-	private VertxHttpServer vertxHttpServer;
-	
-	private  ZkDistributed zkDistributed;
 
-	private JobSubmitExecutor jobSubmitExecutor;
+	private Closeable[] closeables = null;
 
-	public ShutDownHook(VertxHttpServer eHttpServer, ZkDistributed zkDistributed,JobSubmitExecutor jobSubmitExecutor) {
+	public ShutDownHook(Closeable ... closeables) {
 		// TODO Auto-generated constructor stub
-		this.vertxHttpServer = eHttpServer;
-		this.zkDistributed = zkDistributed;
-		this.jobSubmitExecutor = jobSubmitExecutor;
+		this.closeables = closeables;
 
 	}
 
@@ -43,14 +39,14 @@ public class ShutDownHook {
 
 		@Override
 		public void run() {
-			if(vertxHttpServer!=null){
-				vertxHttpServer.release();
-			}
-			if(zkDistributed!=null){
-				zkDistributed.release();
-			}
-			if(jobSubmitExecutor != null){
-				jobSubmitExecutor.shutdown();
+			if(closeables != null){
+				for(Closeable closeable:closeables){
+					try{
+						closeable.close();
+					}catch (Exception e){
+						logger.error("",e);
+					}
+				}
 			}
 		}
 	}

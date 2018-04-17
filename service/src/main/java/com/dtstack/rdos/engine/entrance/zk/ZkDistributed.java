@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.entrance.zk;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  * @author sishu.yss
  *
  */
-public class ZkDistributed {
+public class ZkDistributed implements Closeable{
 
 	private static final Logger logger = LoggerFactory.getLogger(ZkDistributed.class);
 
@@ -551,21 +552,6 @@ public class ZkDistributed {
         return null;
     }
 
-	public void release(){
-		try{
-			disableBrokerHeartNode(this.localAddress);
-			lockRelease();
-			List<String> nodes = getAliveBrokersChildren();
-			if(nodes.size() > 0){
-				HttpSendClient.migration(this.localAddress,nodes.get(0));
-			}
-			executors.shutdown();
-		}catch (Throwable e){
-			logger.error("",e);
-		}
-	}
-
-
 	private void lockRelease(){
 		interProcessMutexs.forEach(lock->{
 			try{
@@ -692,4 +678,18 @@ public class ZkDistributed {
 
 	}
 
+	@Override
+	public void close() throws IOException {
+		try{
+			disableBrokerHeartNode(this.localAddress);
+			lockRelease();
+			List<String> nodes = getAliveBrokersChildren();
+			if(nodes.size() > 0){
+				HttpSendClient.migration(this.localAddress,nodes.get(0));
+			}
+			executors.shutdown();
+		}catch (Throwable e){
+			logger.error("",e);
+		}
+	}
 }

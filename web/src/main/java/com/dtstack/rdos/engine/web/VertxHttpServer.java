@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.web;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Map;
 import com.dtstack.rdos.common.config.ConfigParse;
 import io.vertx.core.DeploymentOptions;
@@ -15,7 +17,7 @@ import io.vertx.core.Vertx;
  * @author sishu.yss
  *
  */
-public class VertxHttpServer {
+public class VertxHttpServer implements Closeable{
 	
 	private static final Logger logger = LoggerFactory.getLogger(VertxHttpServer.class);
 
@@ -42,9 +44,8 @@ public class VertxHttpServer {
 		logger.warn("init http server success...");
 	}
 
-
-	public void release() {
+	@Override
+	public void close() throws IOException {
 		this.vertx.close();
 	}
-
 }

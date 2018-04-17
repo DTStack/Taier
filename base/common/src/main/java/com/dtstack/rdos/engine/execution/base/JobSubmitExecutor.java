@@ -8,7 +8,8 @@ import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author xuchao
  */
-public class JobSubmitExecutor{
+public class JobSubmitExecutor implements Closeable{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
@@ -48,12 +49,20 @@ public class JobSubmitExecutor{
 
     private ClientCache clientCache = ClientCache.getInstance();
 
-    private static JobSubmitExecutor singleton = new JobSubmitExecutor();
+    private static JobSubmitExecutor singleton = null;
 
-    private JobSubmitExecutor(){
+    private JobSubmitExecutor() throws Exception {
+        init();
     }
 
-    public static JobSubmitExecutor getInstance(){
+    public static JobSubmitExecutor getInstance() throws Exception {
+        if(singleton == null){
+            synchronized (JobSubmitExecutor.class){
+                if(singleton == null){
+                    singleton = new JobSubmitExecutor();
+                }
+            }
+        }
         return singleton;
     }
 
@@ -126,16 +135,6 @@ public class JobSubmitExecutor{
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.cancelJob(jobClient.getEngineTaskId());
     }
-    
-    public void shutdown(){
-        if(jobExecutor != null){
-            jobExecutor.shutdown();
-        }
-
-        if(queExecutor != null){
-        	queExecutor.shutdown();
-        }
-    }
 
     public LinkedBlockingQueue<JobClient> getQueueForTaskListener(){
         return queueForTaskListener;
@@ -143,6 +142,17 @@ public class JobSubmitExecutor{
 
     public void addJobIntoTaskListenerQueue(JobClient jobClient){
         queueForTaskListener.offer(jobClient);
+    }
+
+    @Override
+    public void close() throws IOException {
+        if(jobExecutor != null){
+            jobExecutor.shutdown();
+        }
+
+        if(queExecutor != null){
+            queExecutor.shutdown();
+        }
     }
 }
 

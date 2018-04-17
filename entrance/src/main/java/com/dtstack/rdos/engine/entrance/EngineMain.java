@@ -24,8 +24,10 @@ public class EngineMain {
 	private static final Logger logger = LoggerFactory.getLogger(EngineMain.class);
 
 	private static VertxHttpServer vertxHttpServer;
-	
+
 	private static ZkDistributed zkDistributed;
+
+	private static JobSubmitExecutor jobSubmitExecutor;
 
 	public static void main(String[] args) {
 		try {
@@ -46,18 +48,20 @@ public class EngineMain {
 
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
-		
-		JobSubmitExecutor.getInstance().init();
 
-		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
+		jobSubmitExecutor = JobSubmitExecutor.getInstance();
+
+		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
 
 		vertxHttpServer = new VertxHttpServer(nodeConfig);
+
+		zkDistributed.zkRegistration();
 
 		logger.warn("start engine success...");
 
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed,JobSubmitExecutor.getInstance()).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor).addShutDownHook();
 	}
 }
