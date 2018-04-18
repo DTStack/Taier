@@ -26,12 +26,16 @@ export default class IncrementDefine extends BasePane {
 
     initColumns = () => {
         return [{
+            width: 120,
             title: '增量定义',
             dataIndex: 'name',
             key: 'name',
         }, {
-            width: 80,
             title: '刷新方式标识',
+            dataIndex: 'prefix',
+            key: 'prefix',
+        }, {
+            title: '增量描述',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {

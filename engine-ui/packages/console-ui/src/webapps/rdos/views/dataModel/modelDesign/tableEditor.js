@@ -14,9 +14,11 @@ import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
 import ajax from '../../../api';
+import dateModelAPI from '../../../api/dataModel';
 import ColumnsPartition from './columnsPartition';
 import actions from '../../../store/modules/dataManage/actionCreator';
 import LifeCycle from '../../dataManage/lifeCycle';
+import CatalogueTree from '../../dataManage/catalogTree';
 
 const FormItem = Form.Item
 const confirm = Modal.confirm;
@@ -24,7 +26,8 @@ const confirm = Modal.confirm;
 class TableEditor extends Component {
 
     state = {
-        // dataCatalogue: [],
+        dataCatalogue: [],
+        columnFileds: [], // 指标字段
     }
 
     constructor(props) {
@@ -36,15 +39,24 @@ class TableEditor extends Component {
         this.props.getTableDetail({
             tableId: this.tableId
         });
-        // this.loadTableInfo();
+        this.loadTableInfo();
     }
 
     loadTableInfo = () => {
-        // ajax.getDataCatalogues().then(res => {
-        //     this.setState({
-        //         dataCatalogue: res.data && [res.data],
-        //     })
-        // })
+        ajax.getDataCatalogues().then(res => {
+            this.setState({
+                dataCatalogue: res.data && [res.data],
+            })
+        })
+
+        // 获取指标字段
+        dateModelAPI.getTablePartitions().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    columnFileds: res.data || [],
+                })
+            }
+        });
     }
 
     render() {
@@ -90,6 +102,21 @@ class TableEditor extends Component {
                         <Form>
                             <FormItem
                                 {...formItemLayout}
+                                label="所属类目"
+                            >
+                                <CatalogueTree
+                                    id="catalogue"
+                                    value={catalogueId}
+                                    isPicker
+                                    isFolderPicker
+                                    treeData={this.state.dataCatalogue}
+                                    onChange={(val) => {
+                                        modifyDesc({name: 'catalogueId', value: val})
+                                    }}
+                                />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
                                 label="生命周期"
                             >
                                 <LifeCycle
@@ -104,10 +131,6 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="描述"
                             >
-                                {/* <Input type="textarea"
-                                    name="desc"
-                                    value={desc}
-                                ></Input> */}
                                 {getFieldDecorator('desc', {
                                     rules: [{
                                         max: 200,
@@ -128,6 +151,7 @@ class TableEditor extends Component {
                             {...tableData }
                             addRow={ this.addRow.bind(this) }
                             delRow={ this.delRow.bind(this) }
+                            columnFileds={ this.state.columnFileds }
                             replaceRow={ this.replaceRow.bind(this) }
                             moveRow={ this.moveRow.bind(this) }
                             isEdit
@@ -212,13 +236,13 @@ class TableEditor extends Component {
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',
             onOk() {
-                ajax.dropTable({
+                dateModelAPI.deleteTable({
                     tableId: the.tableId
                 }).then(res => {
                     if(res.code === 1) {
                         message.info('删除成功, 即将返回列表页');
                         setTimeout(() => {
-                            the.props.router.replace('/data-manage/table');
+                            the.props.router.replace('/data-model/table');
                         }, 1000);
                     }
                 })
@@ -235,7 +259,12 @@ class TableEditor extends Component {
         } else {
             form.validateFields((err) => {
                 if (!err) {
-                    ctx.props.saveTable(tableData);
+                    // ctx.props.saveTable(tableData);
+                    dateModelAPI.alterTable(tableData).then(res => {
+                        if (res.code === 1) {
+                            message.success('修改成功！');
+                        }
+                    })
                 }
             });
         }

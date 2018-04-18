@@ -30,12 +30,16 @@ export default class FreshFrequency extends BasePane {
 
     initColumns = () => {
         return [{
+            width: 120,
             title: '刷新频率',
             dataIndex: 'name',
             key: 'name',
         }, {
-            width: 80,
             title: '刷新方式标识',
+            dataIndex: 'prefix',
+            key: 'prefix',
+        }, {
+            title: '刷新方式描述',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {

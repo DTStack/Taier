@@ -48,6 +48,12 @@ export default {
     createTable(params) {
         return http.post(dataModelReq.TABLE_CREATE, params)
     },
+    alterTable(params) {
+        return http.post(dataModelReq.TABLE_ALTER, params)
+    },
+    deleteTable(params) {
+        return http.post(dataModelReq.TABLE_DELETE, params)
+    },
     getTableNameRules(params) {
         return http.post(dataModelReq.TABLE_NAME_RULE, params)
     },

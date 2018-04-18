@@ -7,8 +7,8 @@ import {
     Form, Row, Col, Icon
 } from 'antd';
 
-import ajax from '../../../api/dataModel';
 import api from '../../../api';
+import ajax from '../../../api/dataModel';
 
 import { 
     tableModelRules,
@@ -38,6 +38,8 @@ class TableCreator extends React.Component {
                 location: undefined, // 存在则为外部表
                 columns: [],
                 storedType: 'textfile',
+                subject: '', // 主题域
+                grade: '', // 模型层级
                 partition_keys: []
             },
 

@@ -77,8 +77,8 @@ class ModelLevelModal extends Component {
                             rules: [{
                                 required: true, message: '层级名称不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9_]+$/,
-                                message: '层级名称只能由字母、数字、下划线组成!',
+                                pattern: /^[A-Za-z0-9]+$/,
+                                message: '层级名称只能由字母、数字组成!',
                             }, {
                                 max: 64,
                                 message: '层级名称不得超过64个字符！',
@@ -97,8 +97,8 @@ class ModelLevelModal extends Component {
                             rules: [{
                                 required: true, message: '层级前缀不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9_]+$/,
-                                message: '层级前缀只能由字母、数字、下划线组成!',
+                                pattern: /^[A-Za-z0-9]+$/,
+                                message: '层级前缀只能由字母、数字组成!',
                             }, {
                                 max: 64,
                                 message: '层级前缀不得超过64个字符！',

@@ -39,13 +39,17 @@ export default class BaseForm extends React.Component {
         this.props.form.setFieldsValue({'lifeDay': value})
     }
 
-    changeTableName = (value, index) => {
+    changeTableName = (value, index, modelType) => {
         const newArrs = [...this.state.tableNameArr];
         newArrs[index] = value;
-        this.setState({
-            tableNameArr: newArrs
-        });
-        this.props.form.setFieldsValue({'tableName': newArrs.join('_')})
+        this.setState({ tableNameArr: newArrs });
+        const fields = { tableName: newArrs.join('_') };
+        if (modelType && modelType === TABLE_MODEL_RULE.LEVEL) {
+            fields.subject = value;
+        } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
+            fields.grade = value;
+        }
+        this.props.form.setFieldsValue(fields)
     }
 
     validateDelim(rule, value, callback) {
@@ -66,16 +70,23 @@ export default class BaseForm extends React.Component {
 
     validateTableName(rule, value, callback) {
         const ctx = this;
-        value ? ajax.checkTableExist({
-            tableName: value
-        }).then(res => {
-            if(res.code === 1) {
-                // 转换为小写
-                ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
-                if(res.data) callback('该表已经存在！');
-            }
-        })
-        .then(callback) : callback();
+
+        const valArr = value.split('_');
+        if (valArr.length !== this.props.tableNameRules.length) {
+            callback('请按要求设置表名！');
+        } else {
+            value ? ajax.checkTableExist({
+                tableName: value
+            }).then(res => {
+                if(res.code === 1) {
+                    // 转换为小写
+                    ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
+                    if(res.data) callback('该表已经存在！');
+                }
+            })
+            .then(callback) : callback();
+        }
+        callback();
     }
 
     validateLoc(rule, value, callback) {
@@ -108,7 +119,7 @@ export default class BaseForm extends React.Component {
         const inlineStyle = { width: 80, display: 'inline-block' }
 
         const renderRules = (rule, index) => {
-            
+
             let data = [];
             const defaultVal = tableNameArr[index];
 
@@ -141,15 +152,15 @@ export default class BaseForm extends React.Component {
                 <Select
                     placeholder="请选择"
                     style={inlineStyle}
-                    onSelect={(value, option) => this.changeTableName(value, index)}
+                    onSelect={(value, option) => this.changeTableName(value, index, rule.value)}
                 >
                     {
-                        data && data.map(item => 
+                        data && data.map(item =>
                             <Option
                                 id={item.id}
-                                value={item.name}
+                                value={item.prefix}
                             >
-                                {item.name}
+                                {item.prefix}
                             </Option>
                         )
                     }
@@ -177,10 +188,11 @@ export default class BaseForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        
+
         const { 
             tableName, desc, delim, dataCatalogue,
-            location, lifeDay, catalogueId 
+            location, lifeDay, catalogueId, grade,
+            subject,
         } = this.props;
 
         const { type } = this.state;
@@ -194,7 +206,10 @@ export default class BaseForm extends React.Component {
                     rules: [{
                         required: true,
                         message: '表名不可为空！'
+                    }, {
+                        validator: this.validateTableName.bind(this)
                     }],
+                    validateTrigger: 'onBlur',
                 })(
                     <Input type="hidden" />,
                 )}
@@ -237,9 +252,9 @@ export default class BaseForm extends React.Component {
                         validator: this.validateLoc.bind(this)
                     }],
                     initialValue: location,
-                    validateTrigger: 'onBlur'
+                    validateTrigger: 'onBlur',
                 })(
-                    <Input placeholder="外部表地址"/>
+                    <Input placeholder="外部表地址"/>,
                 )}
             </FormItem>}
             <FormItem
@@ -306,6 +321,32 @@ export default class BaseForm extends React.Component {
                     initialValue: desc
                 })(
                     <Input type="textarea" placeholder="描述信息" />
+                )}
+            </FormItem>
+            <FormItem
+                {...formItemLayout}
+                label="主题域"
+                style={{display: 'none'}}
+                hasFeedback
+            >
+                {getFieldDecorator('subject', {
+                    rules: [],
+                    initialValue: subject,
+                })(
+                    <Input />
+                )}
+            </FormItem>
+            <FormItem
+                {...formItemLayout}
+                label="模型层级"
+                style={{display: 'none'}}
+                hasFeedback
+            >
+                {getFieldDecorator('grade', {
+                    rules: [],
+                    initialValue: grade,
+                })(
+                    <Input />
                 )}
             </FormItem>
         </Form>
