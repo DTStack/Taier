@@ -25,7 +25,7 @@ export default class ModelCheck extends Component {
 
         params: {
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 10,
             ignore: 0, // 1 忽略，0 不忽略
             type: '1',
         },
@@ -139,6 +139,7 @@ export default class ModelCheck extends Component {
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
+            current: table.currentPage,
         };
 
         return (

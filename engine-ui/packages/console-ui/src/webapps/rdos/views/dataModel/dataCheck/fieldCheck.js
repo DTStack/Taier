@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 
 import {
     Table, Row, Col, Select, Form, 
@@ -23,7 +24,7 @@ export default class FieldCheck extends Component {
 
         params: {
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 10,
             ignore: 0, // 1 忽略，0 不忽略
             type: '2',
         },
@@ -116,7 +117,7 @@ export default class FieldCheck extends Component {
             render: (record) => {
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.initEdit(record) }}>修改</a>
+                        <Link to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
                         <span className="ant-divider" />
                         <a onClick={() => { this.ignore(record) }}>忽略</a>
                     </div>
@@ -132,6 +133,7 @@ export default class FieldCheck extends Component {
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
+            current: table.currentPage,
         };
 
         return (
