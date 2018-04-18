@@ -7,7 +7,7 @@ export const MY_APPS = {
     MAIN: 'main',
     RDOS: 'rdos',
     DATA_QUALITY: 'dataQuality',
-    API: 'api',
+    API: 'dataApi',
     LABEL: 'label',
     DATA_MAP: 'map',
     META_DATA: 'metaData',

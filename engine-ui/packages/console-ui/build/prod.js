@@ -2,12 +2,14 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const MY_PATH = require('./consts');
 
 const baseConf = require('./base.js')();
 
 baseConf.plugins.push(
+    // new BundleAnalyzerPlugin(),
     new webpack.DefinePlugin({
         'process.env': {
             'NODE_ENV': JSON.stringify('production')

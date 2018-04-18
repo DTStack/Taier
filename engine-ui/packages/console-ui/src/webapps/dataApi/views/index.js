@@ -5,9 +5,12 @@ import { connect } from 'react-redux'
 import utils from 'utils'
 
 import Header from './layout/header'
+import GlobalLoading from "./layout/loading"
 import * as UserAction from '../actions/user'
+import {commonActions} from '../actions/common'
 
 import { updateApp } from 'main/actions/app'
+
 import { daApp } from 'config/base'
 
 const propType = {
@@ -16,24 +19,39 @@ const propType = {
 const defaultPro = {
     children: [],
 }
-
-@connect()
+const mapStateToProps = state => {
+    const { common } = state;
+    return { common }
+};
+@connect(
+    mapStateToProps
+)
 class Main extends Component {
-
+    componentWillMount(){
+        const { dispatch } = this.props;
+        dispatch(commonActions.getMenuList())
+    }
     componentDidMount() {
         const { dispatch } = this.props;
         dispatch(UserAction.getUser())
         dispatch(updateApp(daApp));
         
+        
     }
 
     render() {
-        const { children } = this.props
+        let { children } = this.props
+        let header=<Header />
+        if(!this.props.common.menuList){
+            children=<GlobalLoading />;
+            header=null;
+        }
         return (
             <div className="main">
-                <Header />
+            
+                {header}
                 <div className="container">
-                    { children || "i'm container." }
+                    { children || "加载中...." }
                 </div>
             </div>
         )

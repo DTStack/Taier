@@ -17,8 +17,8 @@ const FormItem = Form.Item;
 const API_SERVER = APP_CONF ? APP_CONF.API_SERVER : '';
 
 const mapStateToProps = state => {
-    const { ruleConfig, common } = state;
-    return { ruleConfig, common }
+    const { ruleConfig } = state;
+    return { ruleConfig }
 }
 
 const mapDispatchToProps = dispatch => ({
@@ -124,7 +124,7 @@ export default class RemoteTriggerPane extends Component {
             width: '10%',
             render: (text, record) => {
                 return (
-                    <div className="editable-row-operations">
+                    <div>
                         <a className="m-r-8" onClick={() => this.editTrigger(record)}>编辑</a>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteTrigger(record.id)}>
                             <a>删除</a>
@@ -295,7 +295,7 @@ export default class RemoteTriggerPane extends Component {
     }
 
     render() {
-        const { data, ruleConfig, common, form } = this.props;
+        const { data, ruleConfig, form } = this.props;
         const { monitorId, havePart, visible, selectedIds, remark } = this.state;
         const { triggerList, monitorRules } = ruleConfig;
         const { getFieldDecorator } = form;
@@ -379,6 +379,7 @@ export default class RemoteTriggerPane extends Component {
                     <Table 
                         rowKey="id"
                         className="m-table select-all-table"
+                        style={{ padding: '16px 0' }}
                         pagination={false}
                         rowSelection={rowSelection}
                         dataSource={monitorRules}
@@ -386,11 +387,11 @@ export default class RemoteTriggerPane extends Component {
                     />
 
                     <Form>
-                        <FormItem {...rowFormItemLayout} style={{ marginTop: 16, marginBottom: 0 }}>
+                        <FormItem {...rowFormItemLayout} style={{ marginBottom: 0 }}>
                             {
                                 getFieldDecorator('remark', {
                                     rules: [
-                                        { max: 100, message: '备注不能超过100个字符'}
+                                        { max: 100, message: '备注不能超过100个字符' }
                                     ], 
                                     initialValue: remark
                                 })(

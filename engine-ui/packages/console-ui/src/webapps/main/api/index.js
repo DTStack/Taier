@@ -52,7 +52,7 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.deleteRole(params);
             case MY_APPS.API:
-                return http.post(req.DATAAPI_REMOVE_ROLE,params);
+                return http.post(req.DATAAPI_REMOVE_ROLE, params);
             default: return;
         }
     },
@@ -84,6 +84,7 @@ export default {
 
     // ================== 消息相关 ================== //
     getMessage(app, params) {
+    
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.MASSAGE_QUERY, params)
@@ -101,6 +102,8 @@ export default {
                 return http.post(rdosUrls.GET_MASSAGE_BY_ID, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.getMsgById(params);
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_GET_MASSAGE_BY_ID, params)
             default: return null;
         }
     },
@@ -111,6 +114,8 @@ export default {
                 return http.post(rdosUrls.MASSAGE_MARK_AS_READ, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsRead(params);
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_MASSAGE_MARK_AS_READ, params)
             default: return null;
         }
     },
@@ -121,6 +126,8 @@ export default {
                 return http.post(rdosUrls.MASSAGE_MARK_AS_ALL_READ, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsAllRead(params);
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_MASSAGE_MARK_AS_ALL_READ, params)
             default: return null;
         }
     },
@@ -131,6 +138,8 @@ export default {
                 return http.post(rdosUrls.MASSAGE_DELETE, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.deleteMsgs(params);
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_MASSAGE_DELETE, params)
             default: return null;
         }
     },
@@ -187,7 +196,7 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.updateUser(params);
             case MY_APPS.API:
-                return http.post(req.DATAAPI_UPDATE_USER_ROLE,params);
+                return http.post(req.DATAAPI_UPDATE_USER_ROLE, params);
             default: return;
         }
     },

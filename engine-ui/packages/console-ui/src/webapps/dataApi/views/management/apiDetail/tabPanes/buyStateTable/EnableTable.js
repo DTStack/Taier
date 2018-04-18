@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "antd"
 import utils from "utils";
-import { EXCHANGE_ADMIN_API_STATUS } from '../../../../../consts';
+import { EXCHANGE_API_STATUS } from '../../../../../consts';
 class EnableTable extends Component {
     state = {
         pageIndex: 1,
@@ -19,16 +19,19 @@ class EnableTable extends Component {
             dataIndex: 'status',
             key: 'status',
             filters: [
-                { text: '正常', value: '0' },
-                { text: '禁用', value: '1' }
+                { text: '正常', value: '1' },
+                { text: '停用', value: '3' },
+                { text: '禁用', value: '4' }
 
             ],
             render: (text, record) => {
                 const dic = {
                     success: "正常",
-                    stop: "禁用",
+                    stop: "停用",
+                    disabled:"禁用"
                 }
-                return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
+             
+                return <span className={`state-${EXCHANGE_API_STATUS[text]}`}>{dic[EXCHANGE_API_STATUS[text]]}</span>
             }
         }, {
             title: '最近24小时调用',
@@ -86,7 +89,7 @@ class EnableTable extends Component {
     getPagination() {
         return {
             current: this.state.pageIndex,
-            pageSize: 5,
+            pageSize: 10,
             total: this.props.total,
         }
     }
@@ -110,7 +113,7 @@ class EnableTable extends Component {
     render() {
         return (
             <Table
-                rowKey="userId"
+                rowKey="applyId"
                 className="m-table monitor-table table-p-l20"
                 columns={this.initColumns()}
                 loading={this.props.loading}

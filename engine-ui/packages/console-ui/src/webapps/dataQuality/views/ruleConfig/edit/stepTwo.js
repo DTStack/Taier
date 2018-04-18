@@ -4,7 +4,6 @@ import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber } from 'antd';
 
-import { commonActions } from '../../../actions/common';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { rowFormItemLayout, operatorSelect, operatorSelect1 } from '../../../consts';
 
@@ -17,9 +16,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getAllDict(params) {
-        dispatch(commonActions.getAllDict(params));
-    },
     getRuleFunction(params) {
         dispatch(ruleConfigActions.getRuleFunction(params));
     },
@@ -44,7 +40,6 @@ export default class StepTwo extends Component {
     componentDidMount() {
         const { editParams } = this.props;
 
-        this.props.getAllDict();
         this.props.getRuleFunction();
         this.props.getTableColumn({
             sourceId: editParams.dataSourceId,
@@ -123,16 +118,16 @@ export default class StepTwo extends Component {
             render: (text, record) => {
                 const { editable } = record;
                 return (
-                    <div className="editable-row-operations">
+                    <div>
                     {
                         editable ?
                         <span>
-                            <a onClick={() => this.save(record.id)}>保存</a>
+                            <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
                             <a onClick={() => this.cancel(record.id)}>取消</a>
                         </span>
                         : 
                         <span>
-                            <a onClick={() => this.edit(record.id)}>编辑</a>
+                            <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
                             <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
                                 <a>删除</a>
                             </Popconfirm>
@@ -176,6 +171,7 @@ export default class StepTwo extends Component {
         return obj;
     }
 
+    // 参数改变回调
     changeRuleParams = (type, value) => {
         let obj = {};
         obj[type] = value.target ? value.target.value : value;
@@ -183,6 +179,7 @@ export default class StepTwo extends Component {
         this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
     }
 
+    // 校验字段回调
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
@@ -201,6 +198,7 @@ export default class StepTwo extends Component {
         });
     }
 
+    // 统计函数变化回调
     onFunctionChange = (id) => {
         const { form } = this.props;
         const { functionList } = this.state;
@@ -273,54 +271,54 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
-                                    required: true, message: '自定义SQL不可为空',
+                                    required: true, 
+                                    message: '自定义SQL不可为空'
                                 }],
                                 initialValue: record.customizeSql
                             })(
                                 <Input 
                                     placeholder="查询结果为一个数值类型"
-                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')}/>
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')} />
                             )
                         }
                     </FormItem>
                 } else {
-                    return (
-                        <FormItem {...rowFormItemLayout} className="rule-edit-td">
-                            {
-                                getFieldDecorator('columnName', {
-                                    rules: [{
-                                        required: true, message: '字段不可为空',
-                                    }],
-                                    initialValue: record.columnName
-                                })(
-                                    <Select 
-                                        showSearch 
-                                        onChange={this.onColumnNameChange} 
-                                        disabled={record.isTable}>
-                                        {
-                                            tableColumn.map((item) => {
-                                                return <Option 
-                                                    key={item.key} 
-                                                    value={item.key}>
-                                                    {item.key}
-                                                </Option>
-                                            })
-                                        }
-                                    </Select>
-                                )
-                            }
-                        </FormItem>
-                    )
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                        {
+                            getFieldDecorator('columnName', {
+                                rules: [{
+                                    required: true, 
+                                    message: '字段不可为空'
+                                }],
+                                initialValue: record.columnName
+                            })(
+                                <Select 
+                                    showSearch 
+                                    onChange={this.onColumnNameChange} 
+                                    disabled={record.isTable}>
+                                    {
+                                        tableColumn.map((item) => {
+                                            return <Option 
+                                                key={item.key} 
+                                                value={item.key}>
+                                                {item.key}
+                                            </Option>
+                                        })
+                                    }
+                                </Select>
+                            )
+                        }
+                    </FormItem>
                 }
             }
 
             case 'functionId': {
-                return (
-                    <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
-                                required: true, message: '统计函数不可为空',
+                                required: true, 
+                                message: '统计函数不可为空'
                             }],
                             initialValue: record.functionId
                         })(
@@ -338,8 +336,7 @@ export default class StepTwo extends Component {
                             </Select>
                         )
                     }
-                    </FormItem>
-                )
+                </FormItem>
             }
 
             case 'filter': {
@@ -362,7 +359,8 @@ export default class StepTwo extends Component {
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
-                                required: true, message: '校验方法不可为空',
+                                required: true, 
+                                message: '校验方法不可为空'
                             }],
                             initialValue: record.verifyType
                         })(
@@ -390,7 +388,8 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('thresholdEnum', {
                                 rules: [{
-                                    required: true, message: '范围不可为空',
+                                    required: true, 
+                                    message: '范围不可为空'
                                 }],
                                 initialValue: record.threshold
                             })(
@@ -402,58 +401,62 @@ export default class StepTwo extends Component {
                         }
                     </FormItem>
                 } else {
-                    return <div>
-                        <FormItem>
-                        {
-                            getFieldDecorator('operator', {
-                                rules: [{
-                                    required: true, message: '设置不可为空',
-                                }],
-                                initialValue: record.operator
-                            })(
-                                <Select 
-                                    style={{ width: 70, marginRight: 10 }} 
-                                    onChange={this.changeRuleParams.bind(this, 'operator')}>
-                                    {
-                                        operatorMap.map((item) => {
-                                            return <Option 
-                                                key={item.value} 
-                                                value={item.value}> 
-                                                {item.text} 
-                                            </Option>
-                                        })
-                                    }
-                                </Select>
-                            )
-                        }
-                        </FormItem>
-                        <FormItem>
-                        {
-                            getFieldDecorator('threshold', {
-                                rules: [{
-                                    required: true, message: '阈值不可为空',
-                                }],
-                                initialValue: record.threshold
-                            })(
-                                <InputNumber
-                                  style={{ width: 70, marginRight: 10 }} 
-                                  onChange={this.changeRuleParams.bind(this, 'threshold')}
-                                /> 
-                            )
-                        }
-                        </FormItem>
-                        {
-                            currentRule.isPercentage === 1
-                            &&
-                            <span style={{ height: 32, lineHeight: '32px' }}>%</span>
-                        }
-                    </div>
+                    return (
+                        <div>
+                            <FormItem>
+                                {
+                                    getFieldDecorator('operator', {
+                                        rules: [{
+                                            required: true, 
+                                            message: '设置不可为空'
+                                        }],
+                                        initialValue: record.operator
+                                    })(
+                                        <Select 
+                                            style={{ width: 70 }} 
+                                            onChange={this.changeRuleParams.bind(this, 'operator')}>
+                                            {
+                                                operatorMap.map((item) => {
+                                                    return <Option 
+                                                        key={item.value} 
+                                                        value={item.value}> 
+                                                        {item.text} 
+                                                    </Option>
+                                                })
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </FormItem>
+                            <FormItem>
+                                {
+                                    getFieldDecorator('threshold', {
+                                        rules: [{
+                                            required: true, 
+                                            message: '阈值不可为空'
+                                        }],
+                                        initialValue: record.threshold
+                                    })(
+                                        <InputNumber
+                                          style={{ width: 70, marginRight: 10 }} 
+                                          onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                        /> 
+                                    )
+                                }
+                            </FormItem>
+                            {
+                                currentRule.isPercentage === 1
+                                &&
+                                <span style={{ height: 32, lineHeight: '32px' }}>%</span>
+                            }
+                        </div>
+                    )
                 }
             }
         }
     }
 
-    // 已有数据的TD
+    // 已有数据
     renderTD = (text, record, type) => {
         switch (type) {
             case 'columnName': {
@@ -467,14 +470,14 @@ export default class StepTwo extends Component {
             }
             case 'threshold': {
                 let value = `${record.operator ? record.operator : ''}  ${text}`;
-                return record.isPercentage ? `${value} %` : value
+                return record.isPercentage ? `${value} %` : value;
             }
             default:
-                return text
+                return text;
         }
     }
 
-    // 编辑
+    // 编辑规则
     edit(id) {
         const { currentRule } = this.state;
 
@@ -516,7 +519,7 @@ export default class StepTwo extends Component {
         this.props.changeParams({ rules: newData });
     }
 
-    // 删除
+    // 删除规则
     delete(id) {
         let newData = [...this.props.editParams.rules],
             target  = newData.filter(item => id === item.id)[0],
@@ -528,7 +531,7 @@ export default class StepTwo extends Component {
         }
     }
 
-    // 保存
+    // 保存规则
     save(id) {
         const { currentRule, enumFields, SQLFields, columnFields } = this.state;
         let newData = [...this.props.editParams.rules],
@@ -554,6 +557,7 @@ export default class StepTwo extends Component {
         });
     }
 
+    // 新增规则
     addNewRule = (type) => {
         const { form, editParams, ruleConfig } = this.props;
         const { monitorFunction } = ruleConfig;
@@ -643,6 +647,7 @@ export default class StepTwo extends Component {
                     <Table 
                         rowKey="id"
                         className="m-table rule-edit-table"
+                        style={{ margin: '0 20px' }}
                         columns={this.initColumns()}
                         pagination={false}
                         dataSource={rules}
@@ -658,4 +663,5 @@ export default class StepTwo extends Component {
         );
     }
 }
+
 StepTwo = Form.create()(StepTwo);

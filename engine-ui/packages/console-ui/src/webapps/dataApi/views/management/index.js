@@ -4,13 +4,14 @@ import { connect } from "react-redux";
 import utils from "utils"
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
+import { dataSourceActions } from '../../actions/dataSource';
 import { dataSourceTypes, EXCHANGE_API_STATUS,EXCHANGE_ADMIN_API_STATUS } from "../../consts"
 const Search = Input.Search;
 const Option = Select.Option;
 const confirm=Modal.confirm;
 const mapStateToProps = state => {
-    const { user, apiMarket, apiManage } = state;
-    return { apiMarket, apiManage, user }
+    const { user, apiMarket, apiManage,dataSource } = state;
+    return { apiMarket, apiManage, user,dataSource }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -31,6 +32,9 @@ const mapDispatchToProps = dispatch => ({
     },
     closeApi(apiId){
         return dispatch(apiManageActions.closeApi(apiId));
+    },
+    getDataSourcesType(){
+        return dispatch(dataSourceActions.getDataSourcesType());
     }
 });
 
@@ -55,6 +59,24 @@ class APIMana extends Component {
         this.props.getCatalogue(0);
         this.getAllApi();
         this.getDataSource(null);
+        this.props.getDataSourcesType();
+    }
+    exchangeSourceType(){
+        let arr=[];
+        let dic={};
+
+        const items=this.props.dataSource.sourceType;
+        for(let i in items){
+            let item=items[i];
+            dic[item.value]=item.name;
+            arr.push({
+                text:item.name,
+                value:item.value
+            })
+        }
+
+        return {typeList:arr,typeDic:dic};
+        
     }
     getAllApi() {
         const sortType = {
@@ -201,7 +223,7 @@ class APIMana extends Component {
         this.props.router.push("/api/manage/detail/" + text)
     }
     initColumns() {
-
+        
         return [{
             title: 'API名称',
             dataIndex: 'name',
@@ -396,15 +418,15 @@ class APIMana extends Component {
     }
     //获取类型视图
     getDataSourceTypeView() {
-        const type = dataSourceTypes;
-        if (!type) {
+        const {typeList,typeDic}=this.exchangeSourceType();
+        
+        
+        if (!typeList||typeList.length<1) {
             return null;
         }
-        return type.map(function (value, index) {
-            if (index == 0) {
-                return;
-            }
-            return <Option key={index}>{value}</Option>
+        return typeList.map(function (item) {
+        
+            return <Option key={item.value}>{item.text}</Option>
         })
     }
     //数据源类型改变

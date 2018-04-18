@@ -50,7 +50,7 @@ class DisableTable extends Component {
     getPagination() {
         return {
             current: this.state.pageIndex,
-            pageSize: 5,
+            pageSize: 10,
             total: this.props.total,
         }
     }
@@ -73,7 +73,7 @@ class DisableTable extends Component {
     render() {
         return (
             <Table
-            rowKey="userId"
+            rowKey="applyId"
                 className="m-table monitor-table table-p-l20"
                 columns={this.initColumns()}
                 loading={this.props.loading}
