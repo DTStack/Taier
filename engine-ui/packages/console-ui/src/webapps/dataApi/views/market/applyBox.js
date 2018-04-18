@@ -9,6 +9,13 @@ const TextArea = Input.TextArea
 const mapDispatchToProps = dispatch => ({
     apiApply(apiId, applyContent) {
         return dispatch(apiMarketActions.apiApply({ apiId: apiId, applyContent: applyContent }));
+    },
+    getApiExtInfo(apiId) {
+        dispatch(
+            apiMarketActions.getApiExtInfo({
+                apiId: apiId
+            })
+        )
     }
 });
 
@@ -32,6 +39,7 @@ class ApplyBox extends Component {
                             this.setState({
                                 loading: false
                             })
+                            this.props.getApiExtInfo(this.props.apiId);
                             if (res) {
                                 message.success('操作成功')
                                 this.props.successCallBack();
