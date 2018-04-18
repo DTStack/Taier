@@ -86,7 +86,7 @@ class AtomIndexDefineModal extends Component {
                             rules: [{
                                 required: true, message: '原子指标命名不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9_]+$/,
+                                pattern: /^[A-Za-z0-9]+$/,
                                 message: '原子指标命名只能由字母、数字组成!',
                             }],
                             initialValue: data ? data.columnName : '',

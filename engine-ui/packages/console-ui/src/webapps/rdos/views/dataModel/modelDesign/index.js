@@ -214,15 +214,15 @@ class TableList extends Component {
             },
             {
                 title: '模型层级',
-                key: 'modelLevel',
+                key: 'grade',
                 width: 90,
-                dataIndex: 'modelLevel',
+                dataIndex: 'grade',
             },
             {
                 title: '主题域',
-                key: 'subjectField',
+                key: 'subject',
                 width: 90,
-                dataIndex: 'subjectField',
+                dataIndex: 'subject',
             },
             {
                 title: '创建者',
@@ -239,7 +239,7 @@ class TableList extends Component {
                     return <span>
                         <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>编辑</Link>
                         <span className="ant-divider"></span>
-                        <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>删除</Link>
+                        <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
                     </span>
                 }
             }

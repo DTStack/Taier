@@ -82,16 +82,31 @@ class FreshFrequencyModal extends Component {
                         label="刷新方式标识"
                         hasFeedback
                     >
-                        {getFieldDecorator('modelDesc', {
+                        {getFieldDecorator('prefix', {
                             rules: [{
                                 required: true, message: '刷新方式标识不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9_]+$/,
+                                pattern: /^[A-Za-z0-9]+$/,
                                 message: '刷新方式标识只能由字母、数字组成!',
+                            }],
+                            initialValue: data ? data.prefix : '',
+                        })(
+                            <Input />,
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="增量说明"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('modelDesc', {
+                            rules: [{
+                                max: 200,
+                                message: '增量说明请控制在200个字符以内！',
                             }],
                             initialValue: data ? data.modelDesc : '',
                         })(
-                            <Input />,
+                            <Input type="textarea" rows={4} />,
                         )}
                     </FormItem>
                 </Form>

@@ -100,8 +100,8 @@ export const TASK_STATUS = { // 任务状态
 export const TABLE_MODEL_RULE = {
     LEVEL: 1,
     SUBJECT: 2,
-    INCREMENT: 3,
-    FREQUENCY: 4,
+    FREQUENCY: 3,
+    INCREMENT: 4,
     CUSTOM: 5,
 }
 

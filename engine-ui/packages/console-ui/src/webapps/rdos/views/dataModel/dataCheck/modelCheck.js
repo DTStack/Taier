@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 
 import {
     Table, Row, Col, Select, Form, 
@@ -120,7 +121,7 @@ export default class ModelCheck extends Component {
             render: (record) => {
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.initEdit(record) }}>修改</a>
+                        <Link to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
                         <span className="ant-divider" />
                         <a onClick={() => { this.ignore(record) }}>忽略</a>
                     </div>
