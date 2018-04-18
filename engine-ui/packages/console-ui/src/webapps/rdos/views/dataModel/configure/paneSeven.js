@@ -9,14 +9,14 @@ import {
 import utils from 'utils';
 
 import BasePane from './basePane';
+import PaneSix from './paneSix';
 import DeriveIndexModal from './paneSevenModal';
 import Api from '../../../api/dataModel';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class DeriveIndexDefine extends BasePane {
-
+export default class DeriveIndexDefine extends PaneSix {
 
     componentDidMount() {
         this.setState({
@@ -24,69 +24,6 @@ export default class DeriveIndexDefine extends BasePane {
                 type: 2, // 原子指标
             }),
         }, this.loadData)
-    }
-
-    loadData = () => {
-        const { params } = this.state;
-        this.setState({
-            loading: true,
-        })
-        Api.getModelIndexs(params).then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    table: res.data
-                })
-            }
-            this.setState({
-                loading: false,
-            })
-        })
-    }
-
-    update = (formData) => {
-        const { modalData } = this.state;
-        const isEdit = modalData && !isEmpty(modalData);
-        const succCallback = (res) => {
-            if (res.code === 1) {
-                this.loadData();
-                this.setState({
-                    modalData: null,
-                })
-            }
-        }
-        if (isEdit) {
-            Api.updateModelIndex(formData).then(succCallback)
-        } else {
-            Api.addModelIndex(formData).then(succCallback)
-        }
-    }
-
-    delete = (data) => {
-        const { params } = this.state;
-        Api.deleteModelIndex(params).then(res => {
-            if (res.code === 1) {
-                this.loadData();
-            }
-        })
-    }
-
-    changeParams = (field, value) => {
-        let params = Object.assign(this.state.params);
-        if (field) {
-            params[field] = value;
-        }
-        this.setState({
-            params,
-        }, this.loadData)
-    }
-
-    changeSearchName = (e) => {
-        this.setState({
-            params: Object.assign(this.state.params, {
-                name: e.target.value,
-                currentPage: 1,
-            }),
-        })
     }
 
     initColumns = () => {
@@ -135,7 +72,7 @@ export default class DeriveIndexDefine extends BasePane {
 
     render() {
 
-        const { loading, table, modalVisible, modalData } = this.state
+        const { loading, table, modalVisible, modalData } = this.state;
 
         const pagination = {
             total: table.totalCount,
@@ -171,7 +108,7 @@ export default class DeriveIndexDefine extends BasePane {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ modalVisible: true }) }}
+                            onClick={this.initAdd}
                         >
                             新建
                         </Button>

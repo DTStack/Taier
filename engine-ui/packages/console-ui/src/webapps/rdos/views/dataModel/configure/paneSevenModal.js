@@ -5,10 +5,9 @@ import {
     Radio, Modal, Button,
 } from 'antd'
 
-import Api from '../../../api';
+import Api from '../../../api/dataModel';
 import { 
     formItemLayout,
-    tableModelRules,
     TABLE_MODEL_RULE,
 } from '../../../comm/const';
 import LifeCycle from '../../dataManage/lifeCycle';
@@ -20,15 +19,53 @@ const Option = Select.Option;
 class DeriveIndexModal extends Component {
 
     state = { 
-        tbNameRules: [tableModelRules[0]]
+        indexNames: [],
+        automIndexs: [],
+    }
+
+    componentDidMount() {
+        // 加载原子指标
+        this.loadAtomIndex();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.visible) {
+            console.log('DeriveIndexModal componentWillReceiveProps',  )
+        }
+    }
+
+    loadAtomIndex = () => {
+        Api.getModelIndexs({
+            type: 1,
+            pageSize: 1000,
+            currentPage: 1,
+        }).then(res => {
+            if (res.code === 1) {
+                const automIndexs = res.data ? res.data.data : []
+                this.setState({
+                    automIndexs,
+                    indexNames: automIndexs.length > 0 ? [automIndexs[0].columnName] : [],
+                })
+            }
+        });
     }
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk, form, data } = this.props;
+        const { indexNames } = this.state;
+
+        if (indexNames.length === 0) {
+            return false;
+            message.error('请配置您的指标名称！')
+        }
 
         const formData = this.props.form.getFieldsValue()
-  
+        formData.type = 2; // 1 - 原子指标, 2 - 衍生指标,
+        formData.columnName = indexNames.length > 0 ? indexNames.join('_') : '';
+        formData.isEdit = data && !isEmpty(data) ? true : undefined;
+        formData.id = formData.isEdit ? data.id : undefined;
+
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
@@ -39,39 +76,38 @@ class DeriveIndexModal extends Component {
         });
     }
 
-    changeTbNameRule = (valueOption, index) => {
-        const optionIndex = valueOption.props.index;
-        const newArrs = [...this.state.tbNameRules];
-        console.log('arguments:', optionIndex, index)
-        newArrs[index] = tableModelRules[optionIndex];
+    changeIndexName = (value, index) => {
+        const newArrs = [...this.state.indexNames];
+        newArrs[index] = value;
         this.setState({
-            tbNameRules: newArrs
+            indexNames: newArrs
         });
     }
 
-    insertTbNameRule = (index) => {
-        const originArr = this.state.tbNameRules;
-        console.log('index:', index); 
+    insertIndexName = (index) => {
+
+        const { automIndexs } = this.state;
+        const originArr = this.state.indexNames;
+
         const start = index + 1;
         let arrOne = originArr.slice(0, start);
         const arrTwo = originArr.slice(start, originArr.length);
 
         // Insert a default object to array.
-        arrOne.push(tableModelRules[0]);
+        arrOne.push(automIndexs[0].columnName);
 
         arrOne = arrOne.concat(arrTwo);
-        console.log('after insert,', arrOne)
 
         this.setState({
-            tbNameRules: [...arrOne]
+            indexNames: [...arrOne]
         });
     }
 
-    removeTbNameRule = (index) => {
-        const originArr = [...this.state.tbNameRules];
+    removeIndexName = (index) => {
+        const originArr = [...this.state.indexNames];
         originArr.splice(index, 1)
         this.setState({
-            tbNameRules: originArr
+            indexNames: originArr
         });
     }
 
@@ -86,26 +122,26 @@ class DeriveIndexModal extends Component {
 
     renderIndexNames = () => {
 
-        const { tbNameRules } = this.state;
-        const length = tbNameRules.length;
+        const { indexNames, automIndexs } = this.state;
+        const length = indexNames.length;
 
-        const options = tableModelRules.map((rule, index) => <Option 
-            key={rule.value}
+        const options = automIndexs && automIndexs.map((atomIndex, index) => <Option 
+            key={atomIndex.id}
             index={index}
-            value={rule.value}
+            value={atomIndex.columnName}
         >
-            {rule.text}
+            {atomIndex.columnName}
         </Option>);
-        
 
-        return tbNameRules && tbNameRules.map((rule, index) => <span
+        return indexNames && indexNames.map((indexName, index) => <span
             style={{display: 'inline-block', marginBottom: '5px'}} 
             key={index}>
                 <Select
+                    showSearch
                     placeholder="请选择"
-                    value={rule.value}
+                    value={indexName}
                     style={{ width: 100, marginRight: '5px' }}
-                    onSelect={(value, option) => this.changeTbNameRule(option, index)}
+                    onSelect={(value, option) => this.changeIndexName(value, index)}
                 >
                     {options}
                 </Select>
@@ -114,13 +150,13 @@ class DeriveIndexModal extends Component {
                         icon="minus" 
                         title="移除规则"
                         style={{marginRight: '5px'}}
-                        onClick={() => this.removeTbNameRule(index)}
+                        onClick={() => this.removeIndexName(index)}
                     /> :
                     <Button 
                         icon="plus" 
                         title="添加规则"
                         style={{marginRight: '5px'}}
-                        onClick={() => this.insertTbNameRule(index)}
+                        onClick={() => this.insertIndexName(index)}
                     />
                 }
             </span>
@@ -131,7 +167,9 @@ class DeriveIndexModal extends Component {
 
         const {
             form, visible, data
-        } = this.props
+        } = this.props;
+
+        const { indexNames } = this.state;
 
         const { getFieldDecorator } = form
 
@@ -151,11 +189,11 @@ class DeriveIndexModal extends Component {
                         label="衍生指标名称"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexAlias', {
+                        {getFieldDecorator('columnNameZh', {
                             rules: [{
                                 required: true, message: '衍生指标名称不可为空！',
                             }],
-                            initialValue: data ? data.indexAlias : '',
+                            initialValue: data ? data.columnNameZh : '',
                         })(
                             <Input />,
                         )}
@@ -165,12 +203,12 @@ class DeriveIndexModal extends Component {
                         label="指标口径"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexDesc', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
                                 message: '指标口径请控制在200个字符以内！',
                             }],
-                            initialValue: data ? data.indexDesc : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input type="textarea" rows={4} />,
                         )}
@@ -180,21 +218,32 @@ class DeriveIndexModal extends Component {
                         label="指标命名"
                         hasFeedback
                     >
-                        {this.renderIndexNames()}
+                        {
+                            this.renderIndexNames()
+                        }
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="当前命名"
+                    >
+                        {
+                            indexNames && indexNames.length > 0 && indexNames.join('_')
+                        }
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
                         label="指标类型"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexType', {
+                        {getFieldDecorator('dataType', {
                             rules: [],
-                            initialValue: data ? data.indexType : '1',
+                            initialValue: data ? data.dataType : 'string',
                         })(
                             <Select>
-                                <Option value="1">原子指标</Option>
-                                <Option value="2">修饰词</Option>
-                                <Option value="3">衍生指标</Option>
+                                <Option value="string">string</Option>
+                                <Option value="bigint">bigint</Option>
+                                <Option value="double">double</Option>
+                                <Option value="date">date</Option>
                             </Select>,
                         )}
                     </FormItem>

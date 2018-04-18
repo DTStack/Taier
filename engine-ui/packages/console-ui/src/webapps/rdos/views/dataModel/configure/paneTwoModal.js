@@ -24,6 +24,7 @@ class SubjectDomainModal extends Component {
         const formData = this.props.form.getFieldsValue()
         formData.type = 2;  // 主题域
         formData.isEdit = data && !isEmpty(data) ? true : undefined;
+        formData.id = formData.isEdit ? data.id : undefined;
 
         this.props.form.validateFields((err) => {
             if (!err) {

@@ -14,6 +14,7 @@ export default class BasePane extends Component {
 
         params: {
             currentPage: 1,
+            pageSize: 20,
             type: 1, // 模型层级
         }
     }

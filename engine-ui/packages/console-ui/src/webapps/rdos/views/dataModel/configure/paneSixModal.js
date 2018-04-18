@@ -19,10 +19,13 @@ class AtomIndexDefineModal extends Component {
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk, form, data } = this.props
 
         const formData = this.props.form.getFieldsValue()
-  
+        formData.type = 1; // 1 - 原子指标, 2 - 衍生指标,
+        formData.isEdit = data && !isEmpty(data) ? true : undefined;
+        formData.id = formData.isEdit ? data.id : undefined;
+
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
@@ -65,11 +68,11 @@ class AtomIndexDefineModal extends Component {
                         label="原子指标名称"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexAlias', {
+                        {getFieldDecorator('columnNameZh', {
                             rules: [{
                                 required: true, message: '原子指标名称不可为空！',
                             }],
-                            initialValue: data ? data.indexAlias : '',
+                            initialValue: data ? data.columnNameZh : '',
                         })(
                             <Input />,
                         )}
@@ -79,14 +82,14 @@ class AtomIndexDefineModal extends Component {
                         label="原子指标命名"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexName', {
+                        {getFieldDecorator('columnName', {
                             rules: [{
                                 required: true, message: '原子指标命名不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9]+$/,
+                                pattern: /^[A-Za-z0-9_]+$/,
                                 message: '原子指标命名只能由字母、数字组成!',
                             }],
-                            initialValue: data ? data.indexName : '',
+                            initialValue: data ? data.columnName : '',
                         })(
                             <Input />,
                         )}
@@ -111,14 +114,13 @@ class AtomIndexDefineModal extends Component {
                         label="指标类型"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexType', {
+                        {getFieldDecorator('columnType', {
                             rules: [],
-                            initialValue: data ? data.indexType : '1',
+                            initialValue: data ? data.columnType : '1',
                         })(
                             <Select>
                                 <Option value="1">原子指标</Option>
                                 <Option value="2">修饰词</Option>
-                                <Option value="3">衍生指标</Option>
                             </Select>,
                         )}
                     </FormItem>

@@ -12,6 +12,7 @@ import {
     TABLE_MODEL_RULE,
 } from '../../../comm/const';
 
+import CatalogueTree from '../../dataManage/catalogTree';
 import LifeCycle from '../../dataManage/lifeCycle';
 
 const FormItem = Form.Item;
@@ -30,11 +31,21 @@ export default class BaseForm extends React.Component {
 
         this.state = {
             type: '1', // 1: 内部表 2:外部表
+            tableNameArr: [],
         };
     }
 
     lifeCycleChange = (value) => {
         this.props.form.setFieldsValue({'lifeDay': value})
+    }
+
+    changeTableName = (value, index) => {
+        const newArrs = [...this.state.tableNameArr];
+        newArrs[index] = value;
+        this.setState({
+            tableNameArr: newArrs
+        });
+        this.props.form.setFieldsValue({'tableName': newArrs.join('_')})
     }
 
     validateDelim(rule, value, callback) {
@@ -92,11 +103,15 @@ export default class BaseForm extends React.Component {
             incrementCounts, freshFrequencies, tableNameRules,
         } = this.props;
 
+        const { tableNameArr } = this.state;
+
         const inlineStyle = { width: 80, display: 'inline-block' }
 
         const renderRules = (rule, index) => {
+            
+            let data = [];
+            const defaultVal = tableNameArr[index];
 
-            let data = []
             switch(rule.value) {
                 case TABLE_MODEL_RULE.LEVEL: {
                     data = modelLevels; break;
@@ -114,8 +129,8 @@ export default class BaseForm extends React.Component {
                 case TABLE_MODEL_RULE.CUSTOM: {
                     return (
                         <Input 
-                            value={rule.field}
-                            onChange={(e) => changeRuleValue(e.target.value, index)}
+                            placeholder="自定义"
+                            onChange={(e) => this.changeTableName(e.target.value, index)}
                             style={inlineStyle} 
                         />
                     )
@@ -124,9 +139,9 @@ export default class BaseForm extends React.Component {
 
             return (
                 <Select
-                    value={rule.field}
+                    placeholder="请选择"
                     style={inlineStyle}
-                    onSelect={(value, option) => changeRuleValue(value, index)}
+                    onSelect={(value, option) => this.changeTableName(value, index)}
                 >
                     {
                         data && data.map(item => 
@@ -149,16 +164,14 @@ export default class BaseForm extends React.Component {
                 width: '80px',
                 marginRight: '5px'
             }}>
-                <section style={inlineStyle}>{rule.text}:</section>
+                <section style={inlineStyle}>{rule.name}:</section>
                 {renderRules(rule, index)}
             </span>
         ))
 
-        const tableName = tableNameRules.map(rule => rule.field)
-
         return <div>
             {rules}
-            <span> {tableName.join('_')} </span>
+            <span> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
         </div>
     }
 
@@ -166,7 +179,7 @@ export default class BaseForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         
         const { 
-            tableName, desc, delim, 
+            tableName, desc, delim, dataCatalogue,
             location, lifeDay, catalogueId 
         } = this.props;
 
@@ -176,8 +189,15 @@ export default class BaseForm extends React.Component {
             <FormItem
                 {...formItemLayout}
                 label="表名"
-                hasFeedback
             >
+                 {getFieldDecorator('tableName', {
+                    rules: [{
+                        required: true,
+                        message: '表名不可为空！'
+                    }],
+                })(
+                    <Input type="hidden" />,
+                )}
                 {this.renderTableRules()}
             </FormItem>
             <FormItem
@@ -222,6 +242,25 @@ export default class BaseForm extends React.Component {
                     <Input placeholder="外部表地址"/>
                 )}
             </FormItem>}
+            <FormItem
+                {...formItemLayout}
+                label="所属类目"
+            >
+                {getFieldDecorator('catalogueId', {
+                    rules: [{
+                        required: true,
+                        message: '表所在类目不可为空！'
+                    }],
+                    initialValue: catalogueId || undefined,
+                })(
+                    <CatalogueTree
+                        isPicker
+                        isFolderPicker
+                        placeholder="请选择类目"
+                        treeData={dataCatalogue}
+                    />
+                )}
+            </FormItem>
             <FormItem
                 {...formItemLayout}
                 label="生命周期"

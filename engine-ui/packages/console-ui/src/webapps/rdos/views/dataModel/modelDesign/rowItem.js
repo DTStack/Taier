@@ -87,8 +87,9 @@ export default class RowItem extends React.Component {
     }
 
     render() {
-        const { data } = this.props;
+        const { data, columnFileds } = this.props;
         const { editMode } = this.state;
+        const options = columnFileds && columnFileds.map(field => <Option value={field.columnName} key={field.columnName}>{field.columnName}</Option>)
         const { isSaved, isPartition, precision, scale } = data;
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(data.type.toUpperCase()) !== -1;
         const TYPES = isPartition ?
@@ -100,11 +101,26 @@ export default class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                <Input name="name" value={ data.name }
+                {/* <Input name="name" value={ data.name }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
                     disabled={ isSaved }
-                />
+                /> */}
+                <Select
+                    mode="combobox"
+                    value={data.name}
+                    placeholder={this.props.placeholder}
+                    notFoundContent=""
+                    name="name"
+                    showArrow={true}
+                    style={{width: '100%'}}
+                    defaultActiveFirstOption={false}
+                    disabled={ isSaved }
+                    filterOption={false}
+                    onChange={ this.handleChange.bind(this, 'name') }
+                >
+                    {options}
+                </Select>
             </Col>
             <Col span={8} className="cell">
                 <Select name="type" defaultValue={ data.type }

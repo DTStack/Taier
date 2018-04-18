@@ -26,8 +26,16 @@ class ModelDefineRule extends Component {
     }
 
     componentDidMount() {
-        this.setState({
-            tbNameRules: [tableModelRules[0]]
+        this.loadTbNameRules();
+    }
+
+    loadTbNameRules = () => {
+        Api.getTableNameRules().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tbNameRules: res.data.length > 0 ? res.data : [tableModelRules[0]],
+                })
+            }
         })
     }
 
@@ -38,7 +46,7 @@ class ModelDefineRule extends Component {
         }
         Api.createModelRule(formData).then(res => {
             if (res.code === 1) {
-                message.success('创建规则成功！')
+                message.success('保存规则成功！')
             }
         })
     }
@@ -46,7 +54,9 @@ class ModelDefineRule extends Component {
     changeTbNameRule = (valueOption, index) => {
         const optionIndex = valueOption.props.index;
         const newArrs = [...this.state.tbNameRules];
-        console.log('arguments:', optionIndex, index)
+
+        console.log('arguments:', optionIndex, index);
+
         newArrs[index] = tableModelRules[optionIndex];
         this.setState({
             tbNameRules: newArrs
@@ -55,6 +65,7 @@ class ModelDefineRule extends Component {
 
     insertTbNameRule = (index) => {
         const originArr = this.state.tbNameRules;
+
         console.log('index:', index); 
         const start = index + 1;
         let arrOne = originArr.slice(0, start);
@@ -80,6 +91,7 @@ class ModelDefineRule extends Component {
     }
 
     renderTableNameRules = () => {
+
         const { tbNameRules } = this.state;
         const length = tbNameRules.length;
 
@@ -88,9 +100,8 @@ class ModelDefineRule extends Component {
             index={index}
             value={rule.value}
         >
-            {rule.text}
+            {rule.name}
         </Option>);
-        
 
         return tbNameRules && tbNameRules.map((rule, index) => <span
             style={{display: 'inline-block', marginBottom: '5px'}} 
@@ -170,7 +181,7 @@ class ModelDefineRule extends Component {
                                 {...formItemLayout}
                                 label="生成示例"
                             >
-                            <span>{this.renderTableName()}</span>
+                                <span>{this.renderTableName()}</span>
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}

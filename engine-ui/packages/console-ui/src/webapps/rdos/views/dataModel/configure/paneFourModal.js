@@ -23,6 +23,7 @@ class IncrementDefineModal extends Component {
         const formData = this.props.form.getFieldsValue()
         formData.type = 4;  // 增量定义
         formData.isEdit = data && !isEmpty(data) ? true : undefined;
+        formData.id = formData.isEdit ? data.id : undefined;
 
         this.props.form.validateFields((err) => {
             if (!err) {
@@ -84,7 +85,7 @@ class IncrementDefineModal extends Component {
                             rules: [{
                                 required: true, message: '增量方式标识不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9]+$/,
+                                pattern: /^[A-Za-z0-9_]+$/,
                                 message: '增量方式标识只能由字母、数字组成!',
                             }],
                             initialValue: data ? data.modelDesc : '',

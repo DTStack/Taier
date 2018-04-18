@@ -177,7 +177,7 @@ export default (
                 <Route path="check" component={DataModelCheckCenter}></Route>
                 <Route path="table" component={DataModelDesign} />
                 <Route path="table/design" component={DataModelCreate} />
-                <Route path="table/modify" component={DataModelModify} />
+                <Route path="table/modify/:tableId" component={DataModelModify} />
                 <Route path="config" component={DataModelConfig} />
             </Route>
         </Route>

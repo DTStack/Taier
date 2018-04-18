@@ -40,3 +40,31 @@ export function IndexType(props) {
             return <span>修饰词</span>;
     }
 }
+
+export function TableNameCheck(props) {
+    switch (props.value) {
+        case 1:
+        return <span>分层不合理</span>;
+        case 2:
+            return <span>分层不合理</span>;
+        case 3:
+        return <span>引用标识不合理</span>;
+        case 4:
+            return <span>引用不合理</span>;
+        default:
+            return <span></span>;
+    }
+}
+
+export function FieldNameCheck(props) {
+    switch (props.value) {
+        case 1:
+        return <span>字段名称不合理</span>;
+        case 2:
+            return <span>字段类型不合理</span>;
+        case 3:
+        return <span>字段描述不合理</span>;
+        default:
+            return <span></span>;
+    }
+}

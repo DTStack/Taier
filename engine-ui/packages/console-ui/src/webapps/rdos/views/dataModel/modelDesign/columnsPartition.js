@@ -37,7 +37,7 @@ export default class ColumnsPartition extends React.Component {
     }
 
     render() {
-        const { columns, partition_keys, isEdit } = this.props;
+        const { columns, partition_keys, isEdit, columnFileds } = this.props;
 
         return <div className="m-columnspartition">
             <div className="columns box">
@@ -52,6 +52,7 @@ export default class ColumnsPartition extends React.Component {
                     { columns.map((col, i) => <RowItem
                         data={ col }
                         key={ col.uuid || i }
+                        columnFileds={columnFileds}
                         delRow={ this.delRow.bind(this, 1) }
                         replaceRow={ this.replaceRow.bind(this, 1) }
                         moveRow={ this.moveRow.bind(this, 1) }
@@ -73,6 +74,7 @@ export default class ColumnsPartition extends React.Component {
                         <Col span={5} className="cell">操作</Col>
                     </Row>
                     { partition_keys.map((partition, i) => <RowItem
+                        columnFileds={columnFileds}
                         data={{...partition, isPartition: true}}
                         key={ partition.uuid || i }
                         delRow={ this.delRow.bind(this, 2) }

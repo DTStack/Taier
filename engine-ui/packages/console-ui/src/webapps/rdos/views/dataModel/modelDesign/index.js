@@ -41,6 +41,7 @@ class TableList extends Component {
 
     componentDidMount() {
         this.search();
+        this.loadOptionData();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -62,6 +63,31 @@ class TableList extends Component {
                 })
             }
         })
+    }
+
+    loadOptionData = () => {
+        ajax.getModels({
+            currentPage: 1,
+            pageSize: 1000,
+            type: 1, // 模型层级
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    modelLevels: res.data ? res.data.data : [],
+                })
+            }
+        });
+        ajax.getModels({
+            currentPage: 1,
+            pageSize: 1000,
+            type: 2, // 主题域
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    subjectFields: res.data ? res.data.data : [],
+                })
+            }
+        });
     }
 
     cleanSearch() {
@@ -152,11 +178,11 @@ class TableList extends Component {
         const marginTop10 = { marginTop: '8px' };
 
         const subjectFieldsOptions = subjectFields && subjectFields.map(field =>
-            <Option key={field.id} value={field.value}>{field.name}</Option>
+            <Option key={field.id} value={field.name}>{field.name}</Option>
         )
 
         const modelLevelOptions = modelLevels && modelLevels.map(level =>
-            <Option key={level.id} value={level.value}>{level.name}</Option>
+            <Option key={level.id} value={level.name}>{level.name}</Option>
         )
 
         const columns = [
@@ -166,7 +192,7 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{ text }</Link>
+                    return <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>{ text }</Link>
                 }
             },
             {
@@ -211,7 +237,7 @@ class TableList extends Component {
                 key: 'action',
                 render(text, record) {
                     return <span>
-                        <Link to={`${ROUTER_BASE}/edit/${record.tableId}`}>编辑</Link>
+                        <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>编辑</Link>
                         <span className="ant-divider"></span>
                         <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>删除</Link>
                     </span>
@@ -222,7 +248,8 @@ class TableList extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem label="主题域">
-                    <Select 
+                    <Select
+                        allowClear
                         placeholder="选择主题域"
                         style={{ width: '120px'}}
                         onChange={(value) => this.changeParams('subject', value)}
@@ -231,7 +258,8 @@ class TableList extends Component {
                     </Select>
                 </FormItem>
                 <FormItem label="模型层级">
-                    <Select 
+                    <Select
+                        allowClear
                         placeholder="选择模型层级"
                         onChange={(value) => this.changeParams('grade', value)}
                         style={{ width: '120px'}}
@@ -256,6 +284,9 @@ class TableList extends Component {
             <div style={marginTop10}>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
                     <Link to={`${ROUTER_BASE}/design`}>新建表</Link>
+                </Button>
+                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
+                    <Link to={`/data-manage/table/create`}>普通建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right' }}
                     onClick={ this.showModal.bind(this) }

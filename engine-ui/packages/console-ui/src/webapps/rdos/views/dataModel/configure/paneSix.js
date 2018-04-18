@@ -31,7 +31,7 @@ export default class AtomIndexDefine extends BasePane {
         const { params } = this.state;
         this.setState({
             loading: true,
-        })
+        });
         Api.getModelIndexs(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -41,7 +41,7 @@ export default class AtomIndexDefine extends BasePane {
             this.setState({
                 loading: false,
             })
-        })
+        });
     }
 
     changeParams = (field, value) => {
@@ -71,7 +71,8 @@ export default class AtomIndexDefine extends BasePane {
                 this.loadData();
                 this.setState({
                     modalData: null,
-                })
+                    modalVisible: false,
+                });
             }
         }
         if (isEdit) {
@@ -82,8 +83,9 @@ export default class AtomIndexDefine extends BasePane {
     }
 
     delete = (data) => {
-        const { params } = this.state;
-        Api.deleteModelIndex(params).then(res => {
+        Api.deleteModelIndex({
+            ids: [data.id]
+        }).then(res => {
             if (res.code === 1) {
                 this.loadData();
             }
@@ -185,7 +187,7 @@ export default class AtomIndexDefine extends BasePane {
                         <Button
                             style={{ marginTop: '10px' }}
                             type="primary"
-                            onClick={() => { this.setState({ modalVisible: true }) }}
+                            onClick={this.initAdd}
                         >
                             新建
                         </Button>

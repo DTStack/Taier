@@ -44,6 +44,14 @@ export default class Overview extends Component {
         this.statisticColumnTrend();
     }
 
+    componentWillReceiveProps(nextProps) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+           this.componentDidMount();
+        }
+    }
+
     statisticTotal = () => {
         Api.statisticTotal().then(res => {
             if (res.code === 1) {

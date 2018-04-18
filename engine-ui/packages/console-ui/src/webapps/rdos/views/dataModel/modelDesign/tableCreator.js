@@ -8,6 +8,8 @@ import {
 } from 'antd';
 
 import ajax from '../../../api/dataModel';
+import api from '../../../api';
+
 import { 
     tableModelRules,
 } from '../../../comm/const';
@@ -26,7 +28,7 @@ class TableCreator extends React.Component {
 
             current: 0,
 
-            tableNameRules: tableModelRules,
+            tableNameRules: [],
 
             table: {
                 tableName: '',
@@ -37,7 +39,14 @@ class TableCreator extends React.Component {
                 columns: [],
                 storedType: 'textfile',
                 partition_keys: []
-            }
+            },
+
+            modelLevels: [],
+            subjectFields: [],
+            incrementCounts: [],
+            freshFrequencies: [],
+            dataCatalogue: [], // 数据类目
+            columnFileds: [], // 指标字段
         };
 
         // move up/down
@@ -49,6 +58,8 @@ class TableCreator extends React.Component {
 
     componentDidMount() {
         this.loadTableNameRules();
+        this.loadOptionsData();
+        this.loadCatalogue();
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -62,11 +73,22 @@ class TableCreator extends React.Component {
             shouldUpdate = true;
         }
 
-        if (this.state.tableNameRules !== nextState.tableNameRules) {
+        if (this.state.tableNameRules !== nextState.tableNameRules || 
+            this.state.modelLevels !== nextState.modelLevels ||
+            this.state.dataCatalogue !== nextState.dataCatalogue
+        ) {
             return true;
         }
 
         return shouldUpdate;
+    }
+
+    loadCatalogue = () => {
+        api.getDataCatalogues().then(res => {
+            this.setState({
+                dataCatalogue: res.data && [res.data],
+            })
+        })
     }
 
     loadTableNameRules = () => {
@@ -79,12 +101,45 @@ class TableCreator extends React.Component {
         })
     }
 
-    changeRuleValue = (value, index) => {
-        const newArrs = [...this.state.tableNameRules];
-        newArrs[index].field = value;
-        console.log('arguments:', newArrs[index], value, index)
-        this.setState({
-            tableNameRules: newArrs
+    loadOptionsData = () => {
+        const defaultParams = {
+            currentPage: 1,
+            pageSize: 1000,
+        }
+        const ctx = this;
+        // 加载主题选项
+        const callSucc = (field) => {
+            return function(res) {
+                if (res.code === 1) {
+                    ctx.setState({
+                        [field]: res.data ? res.data.data : [],
+                    })
+                }
+            }
+        }
+        ajax.getModels(assign({
+            type: 1, // 模型层级
+        }, defaultParams)).then(callSucc('modelLevels'));
+
+        ajax.getModels(assign({
+            type: 2, // 模型层级
+        }, defaultParams)).then(callSucc('subjectFields'));
+
+        ajax.getModels(assign({
+            type: 3, // 模型层级
+        }, defaultParams)).then(callSucc('freshFrequencies'));
+
+        ajax.getModels(assign({
+            type: 4, // 模型层级
+        }, defaultParams)).then(callSucc('incrementCounts'));
+
+        // 获取指标字段
+        ajax.getTablePartitions().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    columnFileds: res.data || [],
+                })
+            }
         });
     }
 
@@ -118,30 +173,24 @@ class TableCreator extends React.Component {
     doCreate() {
         const { table, current, tableNameRules } = this.state;
         let { columns, partition_keys } = table;
-
         columns = this.reduceRowData(columns);
         partition_keys = this.reduceRowData(partition_keys);
-
+        
         if(partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
         }
-        // 利用表名生成表名
-        if (tableNameRules.length > 0) {
-            table.tableName = tableNameRules.map(rule => rule.name).join('_');
-        }
-        else {
-            ajax.createTable(table).then(res => {
-                if(res.code === 1) {
-                    const next = current + 1;
-                    this.setState({ current: next,
-                        result: 'success'
-                    });
-                    setTimeout(() => {
-                        this.props.router.push('/data-manage/table');
-                    }, 3000);
-                }
-            })
-        }
+
+        ajax.createTable(table).then(res => {
+            if(res.code === 1) {
+                const next = current + 1;
+                this.setState({ current: next,
+                    result: 'success'
+                });
+                setTimeout(() => {
+                    this.props.router.push('/data-model/table');
+                }, 3000);
+            }
+        })
     }
 
     /**
@@ -281,6 +330,15 @@ class TableCreator extends React.Component {
     render() {
         const the = this;
 
+        const {
+            modelLevels,
+            subjectFields,
+            incrementCounts,
+            freshFrequencies,
+            columnFileds,// 指标字段
+            dataCatalogue,
+        } = this.state;
+
         const BaseFormWrapper = Form.create({
             onValuesChange(props, values) {
                 the.setState(state => {
@@ -295,15 +353,21 @@ class TableCreator extends React.Component {
             content: <BaseFormWrapper
                 {...this.state.table}
                 tableNameRules={this.state.tableNameRules}
-                changeRuleValue={this.changeRuleValue}
+                modelLevels={modelLevels}
+                subjectFields={subjectFields}
+                incrementCounts={incrementCounts}
+                freshFrequencies={freshFrequencies}
+                dataCatalogue={dataCatalogue}
                 ref={ el => this.baseForm = el }
                 resetLoc={ this.resetLoc.bind(this) }
             />
         }, {
             title: '字段与分区',
-            content: <ColumnsPartition {...this.state.table}
+            content: <ColumnsPartition
+                {...this.state.table}
                 addRow={ this.addRow.bind(this) }
                 delRow={ this.delRow.bind(this) }
+                columnFileds={columnFileds}
                 replaceRow={ this.replaceRow.bind(this) }
                 moveRow={ this.moveRow.bind(this) }
             />
@@ -336,7 +400,7 @@ class TableCreator extends React.Component {
             </div>
             <div className="steps-action">
                 <Button style={{ marginRight: 8 }}
-                    onClick={ () => this.props.router.push('/data-manage/table') }
+                    onClick={ () => this.props.router.push('/data-model/table') }
                 >取消</Button>
                 { this.state.current > 0 && this.state.current !== 2 &&
                     <Button style={{ marginRight: 8 }}
@@ -348,7 +412,7 @@ class TableCreator extends React.Component {
                     >{ this.state.current === 1 ? '提交' : '下一步' }</Button>
                 }
                 { this.state.current === steps.length - 1 && <Button type="primary"
-                        onClick={() => this.props.router.push('/data-manage/table')}
+                        onClick={() => this.props.router.push('/data-model/table')}
                     >返回</Button>
                 }
             </div>

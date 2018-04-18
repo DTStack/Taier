@@ -8,8 +8,8 @@ import {
 } from 'antd';
 
 import utils from 'utils';
-
 import Api from '../../../api/dataModel';
+import { FieldNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -23,7 +23,8 @@ export default class FieldCheck extends Component {
 
         params: {
             currentPage: 1,
-            ignore: false,
+            pageSize: 20,
+            ignore: 0, // 1 忽略，0 不忽略
             type: '2',
         },
     }
@@ -52,7 +53,8 @@ export default class FieldCheck extends Component {
 
     ignore = (record) => {
         Api.ignoreCheck({
-            id: record.id
+            monitorId: record.id,
+            type: '2',
         }).then(res => {
             if (res.code === 1) {
                 this.loadData()
@@ -63,7 +65,7 @@ export default class FieldCheck extends Component {
 
     changeParams = (field, value) => {
         let params = Object.assign(this.state.params);
-        if (field === 'range' && value) {
+        if (field === 'range' && value && value.length > 0) {
             params.startTime = value[0].valueOf();
             params.endTime = value[1].valueOf();
         } else {
@@ -77,36 +79,37 @@ export default class FieldCheck extends Component {
     initColumns = () => {
         return [{
             title: '字段名称',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'columnName',
+            key: 'columnName',
         }, {
             width: 80,
             title: '字段描述',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            dataIndex: 'description',
+            key: 'description',
         }, {
             width: 80,
             title: '字段类型',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
+            dataIndex: 'dataType',
+            key: 'dataType',
         }, {
             width: 80,
             title: '所属表',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
+            dataIndex: 'tableName',
+            key: 'tableName',
         }, {
             title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            dataIndex: 'modifyUserName',
+            key: 'modifyUserName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'lastModify',
+            key: 'lastModify',
             render: text => utils.formatDateTime(text),
         }, {
             title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
+            dataIndex: 'triggerType',
+            key: 'triggerType',
+            render: value => <FieldNameCheck value={value} />,
         }, {
             title: '操作',
             key: 'operation',
@@ -150,8 +153,7 @@ export default class FieldCheck extends Component {
                                     style={{ width: 200 }}
                                     placeholder="选择类型"
                                     optionFilterProp="name"
-                                    defaultValue={params.type}
-                                    onChange={(value) => this.changeParams('type', value)}
+                                    onChange={(value) => this.changeParams('triggerType', value)}
                                 >
                                     <Option value="1">字段名称不合理</Option>
                                     <Option value="2">字段类型不合理</Option>
@@ -168,7 +170,7 @@ export default class FieldCheck extends Component {
                             </FormItem>
                             <FormItem>
                                 <Checkbox 
-                                    onChange={(e) => this.changeParams('ignore', e.target.checked)}
+                                    onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0 )}
                                 >
                                     已忽略
                                 </Checkbox>

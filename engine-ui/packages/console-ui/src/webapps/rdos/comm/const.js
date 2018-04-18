@@ -92,12 +92,17 @@ export const TASK_STATUS = { // 任务状态
 }
 
 // 表模型规则
+// "1":"层级",
+// "2":"主题域",
+// "3":"刷新频率",
+// "4":"增量",
+// "5":"自定义"
 export const TABLE_MODEL_RULE = {
-    LEVEL: '1',
-    SUBJECT: '2',
-    INCREMENT: '3',
-    FREQUENCY: '4',
-    CUSTOM: '5',
+    LEVEL: 1,
+    SUBJECT: 2,
+    INCREMENT: 3,
+    FREQUENCY: 4,
+    CUSTOM: 5,
 }
 
 export const hdfsFieldTypes = [ // hdfs 类型
@@ -129,19 +134,19 @@ export const dataSourceTypes = [ // 数据源类型
 
 // 表模型规则列表
 export const tableModelRules = [{
-    text: '层级',
+    name: '层级',
     value: TABLE_MODEL_RULE.LEVEL,
 }, {
-    text: '主题域',
-    value: TABLE_MODEL_RULE.THEME,
+    name: '主题域',
+    value: TABLE_MODEL_RULE.SUBJECT,
 }, {
-    text: '增量',
+    name: '增量',
     value: TABLE_MODEL_RULE.INCREMENT,
 }, {
-    text: '刷新频率',
+    name: '刷新频率',
     value: TABLE_MODEL_RULE.FREQUENCY,
 }, {
-    text: '自定义',
+    name: '自定义',
     value: TABLE_MODEL_RULE.CUSTOM,
 }]
 

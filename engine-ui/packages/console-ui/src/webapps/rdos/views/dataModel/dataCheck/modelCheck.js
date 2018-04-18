@@ -10,6 +10,7 @@ import {
 import utils from 'utils';
 
 import Api from '../../../api/dataModel';
+import { TableNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -23,7 +24,8 @@ export default class ModelCheck extends Component {
 
         params: {
             currentPage: 1,
-            ignore: false,
+            pageSize: 20,
+            ignore: 0, // 1 忽略，0 不忽略
             type: '1',
         },
     }
@@ -52,7 +54,7 @@ export default class ModelCheck extends Component {
     ignore = (record) => {
         Api.ignoreCheck({
             monitorId: record.id,
-            type: record.type,
+            type: '1',
         }).then(res => {
             if (res.code === 1) {
                 this.loadData()
@@ -63,7 +65,7 @@ export default class ModelCheck extends Component {
 
     changeParams = (field, value) => {
         let params = Object.assign(this.state.params);
-        if (field === 'range' && value) {
+        if (field === 'range' && value && value.length > 0) {
             params.startTime = value[0].valueOf();
             params.endTime = value[1].valueOf();
         } else {
@@ -77,40 +79,41 @@ export default class ModelCheck extends Component {
     initColumns = () => {
         return [{
             title: '表名',
-            dataIndex: 'alarmName',
-            key: 'alarmName',
+            dataIndex: 'tableName',
+            key: 'tableName',
         }, {
             width: 80,
             title: '表描述',
-            dataIndex: 'taskName',
-            key: 'taskName',
+            dataIndex: 'desc',
+            key: 'desc',
         }, {
             width: 80,
             title: '模型层级',
-            dataIndex: 'myTrigger',
-            key: 'myTrigger',
+            dataIndex: 'grade',
+            key: 'grade',
         }, {
             width: 80,
             title: '主题域',
-            dataIndex: 'senderTypes',
-            key: 'senderTypes',
+            dataIndex: 'subject',
+            key: 'subject',
         }, {
             title: '增量标识',
-            dataIndex: 'receiveUsers',
-            key: 'receiveUsers',
+            dataIndex: 'increType',
+            key: 'increType',
         }, {
             title: '最后修改人',
-            dataIndex: 'alarmStatus',
-            key: 'alarmStatus',
+            dataIndex: 'modifyUserName',
+            key: 'modifyUserName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'createTime',
-            key: 'createTime',
+            dataIndex: 'lastModify',
+            key: 'lastModify',
             render: text => utils.formatDateTime(text),
         }, {
             title: '检测结果',
-            dataIndex: 'createUser',
-            key: 'createUser',
+            dataIndex: 'triggerType',
+            key: 'triggerType',
+            render: value => <TableNameCheck value={value} />,
         }, {
             title: '操作',
             key: 'operation',
@@ -154,8 +157,7 @@ export default class ModelCheck extends Component {
                                     style={{ width: 200 }}
                                     placeholder="选择类型"
                                     optionFilterProp="name"
-                                    defaultValue={params.type}
-                                    onChange={(value) => this.changeParams('type', value)}
+                                    onChange={(value) => this.changeParams('triggerType', value)}
                                 >
                                     <Option value="1">分层不合理</Option>
                                     <Option value="2">主题域不合理</Option>
@@ -173,7 +175,7 @@ export default class ModelCheck extends Component {
                             </FormItem>
                             <FormItem>
                                 <Checkbox 
-                                    onChange={(e) => this.changeParams('ignore', e.target.checked)}
+                                    onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0 )}
                                 >
                                     已忽略
                                 </Checkbox>

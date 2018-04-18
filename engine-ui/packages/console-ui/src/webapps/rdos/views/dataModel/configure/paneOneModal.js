@@ -26,6 +26,8 @@ class ModelLevelModal extends Component {
         formData.type = 1; // 模型层级
         formData.isEdit = data && !isEmpty(data) ? true : undefined;
         formData.depend = !formData.depend ? 0 : 1;
+        formData.id = formData.isEdit ? data.id : undefined;
+        
         this.props.form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => {
