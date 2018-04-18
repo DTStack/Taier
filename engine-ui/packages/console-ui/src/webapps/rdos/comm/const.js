@@ -91,6 +91,20 @@ export const TASK_STATUS = { // 任务状态
     FROZEN: 18,
 }
 
+// 表模型规则
+// "1":"层级",
+// "2":"主题域",
+// "3":"刷新频率",
+// "4":"增量",
+// "5":"自定义"
+export const TABLE_MODEL_RULE = {
+    LEVEL: 1,
+    SUBJECT: 2,
+    INCREMENT: 3,
+    FREQUENCY: 4,
+    CUSTOM: 5,
+}
+
 export const hdfsFieldTypes = [ // hdfs 类型
     'STRING',
     'VARCHAR',
@@ -117,6 +131,24 @@ export const dataSourceTypes = [ // 数据源类型
     'HBase',
     'FTP',
 ]
+
+// 表模型规则列表
+export const tableModelRules = [{
+    name: '层级',
+    value: TABLE_MODEL_RULE.LEVEL,
+}, {
+    name: '主题域',
+    value: TABLE_MODEL_RULE.SUBJECT,
+}, {
+    name: '增量',
+    value: TABLE_MODEL_RULE.INCREMENT,
+}, {
+    name: '刷新频率',
+    value: TABLE_MODEL_RULE.FREQUENCY,
+}, {
+    name: '自定义',
+    value: TABLE_MODEL_RULE.CUSTOM,
+}]
 
 // 实时任务状态过滤选项
 // 16,17 等待运行
@@ -404,7 +436,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
 export const pieChartOptions ={
     title : {
         text: '某站点用户访问来源',
-        subtext: '纯属虚构',
+        subtext: '',
         textAlign: 'left',
         textBaseline: 'top',
         textStyle: {
@@ -423,33 +455,13 @@ export const pieChartOptions ={
         top: 'middle',
         data: []
     },
-    color: ['#f25d5d', '#9a64fb', '#5d99f2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
+    color: ['#5d99f2', '#F5A623', '#9EABB2', '#8bc34a'],
     series : [
        {
             name:'访问来源',
             type:'pie',
-            radius: ['50%', '70%'],
-            center: ['40%', '50%'],
-            avoidLabelOverlap: false,
-            cursor: 'initial',
-            label: {
-                normal: {
-                    show: false,
-                    position: 'center'
-                },
-                emphasis: {
-                    show: true,
-                    textStyle: {
-                        fontSize: '30',
-                        fontWeight: 'bold'
-                    }
-                }
-            },
-            labelLine: {
-                normal: {
-                    show: false
-                }
-            },
+            radius: '50%',
+            center: ['50%', '45%'],
             data:[]
         }
     ]

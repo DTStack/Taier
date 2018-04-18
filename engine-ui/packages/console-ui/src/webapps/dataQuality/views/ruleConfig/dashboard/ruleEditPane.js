@@ -79,6 +79,7 @@ export default class RuleEditPane extends Component {
         }
     }
 
+    // ajax获取数据
     initData = (monitorId, data) => {
         this.props.getMonitorDetail({ monitorId });
         RCApi.getMonitorRule({ monitorId }).then((res) => {
@@ -132,16 +133,16 @@ export default class RuleEditPane extends Component {
             render: (text, record) => {
                 const { editable } = record;
                 return (
-                    <div className="editable-row-operations">
+                    <div>
                     {
                         editable ?
                         <span>
-                            <a onClick={() => this.save(record.id)}>保存</a>
+                            <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
                             <a onClick={() => this.cancel(record.id)}>取消</a>
                         </span>
                         : 
                         <span>
-                            <a onClick={() => this.edit(record.id)}>编辑</a>
+                            <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
                             <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
                                 <a>删除</a>
                             </Popconfirm>
@@ -185,6 +186,7 @@ export default class RuleEditPane extends Component {
         return obj;
     }
 
+    // 参数改变回调
     changeRuleParams = (type, value) => {
         let obj = {};
         obj[type] = value.target ? value.target.value : value;
@@ -192,6 +194,7 @@ export default class RuleEditPane extends Component {
         this.setState({ currentRule: {...this.state.currentRule, ...obj} });
     }
 
+    // 校验字段回调
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
@@ -210,6 +213,7 @@ export default class RuleEditPane extends Component {
         });
     }
 
+    // 统计函数变化回调
     onFunctionChange = (id) => {
         const { form } = this.props;
         const { functionList } = this.state;
@@ -241,10 +245,6 @@ export default class RuleEditPane extends Component {
         this.setState({ currentRule });
     }
 
-    isStringLength = (name) => {
-        return name === '字符串最大长度' || name === '字符串最小长度';
-    }
-
     // 校验方法变化回调
     onVerifyTypeChange = (value) => {
         let { isPercentage, percentType } = this.state.currentRule;
@@ -262,6 +262,11 @@ export default class RuleEditPane extends Component {
         });
     }
 
+    isStringLength = (name) => {
+        return name === '字符串最大长度' || name === '字符串最小长度';
+    }
+
+    // 编辑状态的TD
     renderEditTD = (text, record, type) => {
         const { form, common, ruleConfig } = this.props;
         const { getFieldDecorator } = form;
@@ -278,24 +283,26 @@ export default class RuleEditPane extends Component {
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
-                                    required: true, message: '自定义SQL不可为空！',
+                                    required: true, 
+                                    message: '自定义SQL不可为空'
                                 }],
                                 initialValue: record.customizeSql
                             })(
                                 <Input 
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
-                                    disabled={record.editStatus === 'edit'} />
+                                    disabled={record.editStatus === 'edit'} 
+                                />
                             )
                         }
                     </FormItem>
                 } else {
-                    return (
-                        <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
-                                    required: true, message: '字段不可为空！',
+                                    required: true, 
+                                    message: '字段不可为空'
                                 }],
                                 initialValue: record.columnName
                             })(
@@ -315,18 +322,17 @@ export default class RuleEditPane extends Component {
                                 </Select>
                             )
                         }
-                        </FormItem>
-                    )
+                    </FormItem>
                 }
             }
 
             case 'functionId': {
-                return (
-                    <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
-                                required: true, message: '统计函数不可为空！',
+                                required: true, 
+                                message: '统计函数不可为空'
                             }],
                             initialValue: record.editStatus === 'edit' ? record.functionName : record.functionId
                         })(
@@ -345,8 +351,7 @@ export default class RuleEditPane extends Component {
                             </Select>
                         )
                     }
-                    </FormItem>
-                )
+                </FormItem>
             }
 
             case 'filter': {
@@ -359,7 +364,8 @@ export default class RuleEditPane extends Component {
                             <Input 
                                 placeholder={`"and"开头的条件语句，如and col = "val"`}
                                 onChange={this.changeRuleParams.bind(this, 'filter')} 
-                                disabled={record.editStatus === 'edit'} />
+                                disabled={record.editStatus === 'edit'} 
+                            />
                         )
                     }
                 </FormItem>
@@ -370,7 +376,8 @@ export default class RuleEditPane extends Component {
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
-                                required: true, message: '校验方法不可为空！',
+                                required: true, 
+                                message: '校验方法不可为空'
                             }],
                             initialValue: record.verifyType ? record.verifyType.toString() : undefined
                         })(
@@ -398,7 +405,8 @@ export default class RuleEditPane extends Component {
                         {
                             getFieldDecorator('thresholdEnum', {
                                 rules: [{
-                                    required: true, message: '不可为空！',
+                                    required: true, 
+                                    message: '不可为空'
                                 }],
                                 initialValue: record.threshold
                             })(
@@ -410,83 +418,83 @@ export default class RuleEditPane extends Component {
                         }
                     </FormItem>
                 } else {
-                    return <div>
-                        <FormItem>
+                    return (
+                        <div>
+                            <FormItem>
+                                {
+                                    getFieldDecorator('operator', {
+                                        rules: [{
+                                            required: true, 
+                                            message: '不可为空',
+                                        }],
+                                        initialValue: record.operator
+                                    })(
+                                        <Select 
+                                            style={{ width: 65 }} 
+                                            onChange={this.changeRuleParams.bind(this, 'operator')}>
+                                            {
+                                                operatorMap.map((item) => {
+                                                    return <Option 
+                                                        key={item.value} 
+                                                        value={item.value}> 
+                                                        {item.text} 
+                                                    </Option>
+                                                })
+                                            }
+                                        </Select>
+                                    )
+                                }
+                            </FormItem>
+                            <FormItem>
+                                {
+                                    getFieldDecorator('threshold', {
+                                        rules: [{
+                                            required: true, 
+                                            message: '不可为空',
+                                        }],
+                                        initialValue: record.threshold
+                                    })(
+                                        <InputNumber
+                                            style={{ width: 65 }}
+                                            onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                        /> 
+                                    )
+                                }
+                            </FormItem>
                             {
-                                getFieldDecorator('operator', {
-                                    rules: [{
-                                        required: true, message: '不可为空',
-                                    }],
-                                    initialValue: record.operator
-                                })(
-                                    <Select 
-                                        style={{ width: 65, marginRight: 5 }} 
-                                        onChange={this.changeRuleParams.bind(this, 'operator')}>
-                                        {
-                                            operatorMap.map((item) => {
-                                                return <Option 
-                                                    key={item.value} 
-                                                    value={item.value}> 
-                                                    {item.text} 
-                                                </Option>
-                                            })
-                                        }
-                                    </Select>
-                                )
+                                currentRule.isPercentage === 1
+                                &&
+                                <span style={{ height: 32, lineHeight: '32px' }}>%</span>
                             }
-                        </FormItem>
-                        <FormItem>
-                            {
-                                getFieldDecorator('threshold', {
-                                    rules: [{
-                                        required: true, message: '不可为空',
-                                    }],
-                                    initialValue: record.threshold
-                                })(
-                                    <InputNumber
-                                        style={{ width: 65, marginRight: 5 }}
-                                        onChange={this.changeRuleParams.bind(this, 'threshold')}
-                                    /> 
-                                )
-                            }
-                        </FormItem>
-                        {
-                            currentRule.isPercentage === 1
-                            &&
-                            <span style={{ height: 32, lineHeight: '32px' }}>%</span>
-                        }
-                    </div>
+                        </div>
+                    )
                 }
             }
         }
     }
 
-    // 固定的值
+    // 已有数据
     renderTD = (text, record, type) => {
         switch (type) {
             case 'columnName': {
                 return record.isCustomizeSql ? record.customizeSql : text;
             }
-
             case 'functionId': {
                 return  record.functionName;
             }
-
             case 'verifyType': {
                 return record.verifyTypeValue;
             }
-
             case 'threshold': {
                 let value = `${record.operator}  ${text}`;
                 return record.isPercentage ? `${value} %` : value;
             }
-
             default:
                 return text;
         }
     }
 
-    // 编辑
+    // 编辑规则
     edit(id) {
         const { currentRule, rules } = this.state;
 
@@ -532,7 +540,7 @@ export default class RuleEditPane extends Component {
         });
     }
 
-    // 删除
+    // 删除规则
     delete(id) {
         const { monitorId } = this.state;
         let newData = [...this.state.rules],
@@ -561,7 +569,7 @@ export default class RuleEditPane extends Component {
         }
     }
 
-    // 保存
+    // 保存规则
     save(id) {
         const { currentRule, enumFields, SQLFields, columnFields, monitorId } = this.state;
         let fields = currentRule.isCustomizeSql ? SQLFields : columnFields;
@@ -663,8 +671,8 @@ export default class RuleEditPane extends Component {
         });
     }
 
+    // 切换分区
     onMonitorIdChange = (value) => {
-        const { data } = this.props;
         let monitorId = value;
 
         this.props.getMonitorDetail({ monitorId });
@@ -682,6 +690,7 @@ export default class RuleEditPane extends Component {
         });
     }
 
+    // 立即执行监控
     executeMonitor = (monitorId) => {
         const { data } = this.props;
 
@@ -690,6 +699,7 @@ export default class RuleEditPane extends Component {
         hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
     }
 
+    // 开启或关闭监控
     changeMonitorStatus = (monitorId) => {
         RCApi.changeMonitorStatus({ monitorId }).then((res) => {
             if (res.code === 1) {
@@ -699,14 +709,18 @@ export default class RuleEditPane extends Component {
         });
     }
 
+    // 打开编辑弹窗
     openExecuteModal = () => {
         this.setState({
             showExecuteModal: true
         });
     }
 
+    /**
+     * 关闭编辑弹窗（是否更新数据）
+     * @param {boolean} updated
+     */
     closeExecuteModal = (updated) => {
-        console.log(updated)
         const { monitorId } = this.state;
 
         if (updated) {
@@ -729,7 +743,7 @@ export default class RuleEditPane extends Component {
 
         return (
             <div className="rule-manage">
-                <Row className="rule-action">
+                <Row>
                     <Col span={12} className="txt-left">
                         {
                             havePart
@@ -754,7 +768,7 @@ export default class RuleEditPane extends Component {
                         }
                     </Col>
 
-                    <Col span={12}>
+                    <Col span={12} className="txt-right">
                         <Button 
                             type="primary" 
                             onClick={this.executeMonitor.bind(this, monitorId)}>
@@ -775,7 +789,7 @@ export default class RuleEditPane extends Component {
                     </Col>
                 </Row>
 
-                <Row className="monitor-info-table">
+                <div className="monitor-info-table">
                     <table width="100%" cellPadding="0" cellSpacing="0">
                         <tbody>
                             <tr>
@@ -792,9 +806,9 @@ export default class RuleEditPane extends Component {
                             </tr>
                         </tbody>
                     </table>
-                </Row>
+                </div>
 
-                <div className="rule-action">
+                <div className="txt-right">
                     <Button 
                         type="primary" 
                         onClick={this.addNewRule.bind(this, 'table')}>
@@ -817,6 +831,7 @@ export default class RuleEditPane extends Component {
                 <Table 
                     rowKey="id"
                     className="m-table rule-edit-table"
+                    style={{ padding: '20px 0' }}
                     pagination={false}
                     dataSource={rules}
                     columns={this.initColumns()}

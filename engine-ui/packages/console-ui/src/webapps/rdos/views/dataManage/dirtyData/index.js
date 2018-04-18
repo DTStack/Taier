@@ -367,7 +367,7 @@ class DirtyData extends Component {
             </Form>
         );
 
-        const pagination = {
+        const pagination = { 
             total: produceList.totalCount,
             defaultPageSize: 10,
         };

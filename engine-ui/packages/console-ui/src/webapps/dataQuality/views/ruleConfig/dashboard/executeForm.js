@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import { Form, Select, DatePicker, Checkbox, Modal, message } from 'antd';
+import moment from 'moment';
 
 import { formItemLayout } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
@@ -71,8 +71,10 @@ export default class ExecuteForm extends Component {
         }
     }
 
+    // 重置执行信息
     resetScheduleConf = (type) => {
         const { params } = this.state;
+
         let scheduleConfObj = {
             beginDate: moment().format('YYYY-MM-DD'),
             endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
@@ -116,6 +118,7 @@ export default class ExecuteForm extends Component {
         this.resetScheduleConf(type);
     }
 
+    // 通知方式列表
     renderSendTypeList = (data) => {
         return data && data.map((item) => {
             return <Checkbox 
@@ -126,7 +129,7 @@ export default class ExecuteForm extends Component {
         })
     }
 
-    // 告警方式回调
+    // 通知方式回调
     onSendTypeChange = (value) => {
         const { form } = this.props;
         let notifyUser = form.getFieldValue('notifyUser');
@@ -150,6 +153,7 @@ export default class ExecuteForm extends Component {
         this.changeScheduleConfTime('endDate', dateString);
     }
 
+    // 通知人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
             return (
@@ -178,6 +182,7 @@ export default class ExecuteForm extends Component {
         });
     }
 
+    // 调度日期回调
     changeScheduleConfTime = (type, value) => {
         const { scheduleConfObj, params } = this.state;
         let newParams = {};
@@ -189,6 +194,7 @@ export default class ExecuteForm extends Component {
         });
     }
 
+    // 根据调度类型的不同返回不同的调度配置
     renderDynamic() {
         const { form, common } = this.props;
         const { allDict } = common;
@@ -506,7 +512,8 @@ export default class ExecuteForm extends Component {
         }
     }
 
-    closeModal = () => {
+    // 取消编辑，关闭弹窗
+    cancel = () => {
         const { form, data, closeModal } = this.props;
 
         this.initState(data);
@@ -514,6 +521,7 @@ export default class ExecuteForm extends Component {
         closeModal(false);
     }
 
+    // 检查调度开始时间
     checkTime = (rule, value, callback) => {
         const { form } = this.props;
         let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
@@ -533,6 +541,7 @@ export default class ExecuteForm extends Component {
         callback();
     }
 
+    // 检查生效日期
     checkDate = (rule, value, callback) => {
         const { form } = this.props;
         let beginDate = form.getFieldValue('beginDate'),
@@ -560,7 +569,7 @@ export default class ExecuteForm extends Component {
     }
 
     save = () => {
-        const { form } = this.props;
+        const { form, closeModal } = this.props;
         const { params } = this.state;
 
         form.validateFields((err, values) => {
@@ -572,7 +581,7 @@ export default class ExecuteForm extends Component {
                 RCApi.updateMonitor(params).then((res) => {
                     if (res.code === 1) {
                         message.success('更新成功！');
-                        this.props.closeModal(true);
+                        closeModal(true);
                     }
                 });
             }
@@ -581,10 +590,10 @@ export default class ExecuteForm extends Component {
     }
 
     render() {
-        const { form, common, visible, closeModal } = this.props;
-        const { scheduleConfObj, params } = this.state;
+        const { form, common, visible } = this.props;
         const { getFieldDecorator } = form;
         const { allDict, userList } = common;
+        const { scheduleConfObj, params } = this.state;
         const { notifyUser, sendTypes } = params;
 
         let periodType = allDict.periodType ? allDict.periodType : [],
@@ -600,12 +609,15 @@ export default class ExecuteForm extends Component {
                 okText="保存"
                 cancelText="取消"
                 onOk={this.save}
-                onCancel={this.closeModal}>  
+                onCancel={this.cancel}>  
                 <Form>
                     <FormItem {...formItemLayout} label="调度周期">
                         {
                             getFieldDecorator('periodType', {
-                                rules: [{ required: true, message: '执行周期不能为空' }], 
+                                rules: [{ 
+                                    required: true, 
+                                    message: '执行周期不能为空' 
+                                }], 
                                 initialValue: scheduleConfObj.periodType.toString()
                             })(
                                 <Select onChange={this.onPeriodTypeChange}>
@@ -624,14 +636,14 @@ export default class ExecuteForm extends Component {
                             {
                                 getFieldDecorator('beginDate', {
                                     rules: [{
-                                        required: true, message: '生效日期开始时间不能为空'
+                                        required: true, 
+                                        message: '生效日期开始时间不能为空'
                                     }, {
                                         validator: this.checkDate.bind(this)
                                     }],
                                     initialValue: moment(scheduleConfObj.beginDate)
                                 })(
                                     <DatePicker
-                                        // size="large"
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="开始日期"
@@ -645,14 +657,14 @@ export default class ExecuteForm extends Component {
                             {
                                 getFieldDecorator('endDate', {
                                     rules: [{
-                                        required: true, message: '生效日期结束时间不能为空'
+                                        required: true, 
+                                        message: '生效日期结束时间不能为空'
                                     }, {
                                         validator: this.checkDate.bind(this)
                                     }],
                                     initialValue: moment(scheduleConfObj.endDate)
                                 })(
                                     <DatePicker
-                                        // size="large"
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="结束日期"
@@ -710,4 +722,5 @@ export default class ExecuteForm extends Component {
         )
     }
 }
+
 ExecuteForm = Form.create()(ExecuteForm);

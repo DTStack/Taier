@@ -10,7 +10,6 @@ import DataSourceForm from './editModal';
 import { formItemLayout, dataSourceFilter } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import DSApi from '../../api/dataSource';
-import '../../styles/views/dataSource.scss';
 
 const Search = Input.Search
 
