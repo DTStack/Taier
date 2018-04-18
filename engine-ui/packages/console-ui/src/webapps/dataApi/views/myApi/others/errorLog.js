@@ -168,7 +168,8 @@ class errorLog extends Component {
                 </p>
                 <Table
                     rowKey="id"
-                    className="m-table monitor-table"
+                    className="m-table monitor-table mini-filter"
+                    
                     columns={this.initColumns()}
                     loading={this.state.loading}
                     pagination={this.getPagination()}

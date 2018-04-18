@@ -102,6 +102,7 @@ class EditAPI extends Component {
         params.tableName=this.state.basicProperties.table;
         params.reqLimit=this.state.basicProperties.callLimit;
         params.respLimit=this.state.basicProperties.backLimit;
+        params.id=this.props.router.params.apiId;
         params.inputParam=[];
         params.outputParam=[];
         for(let i in data.inputData){

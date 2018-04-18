@@ -38,7 +38,7 @@ class TopCall extends Component {
         let times = [];
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
-            failCountDate.push(chartData[i].failRate)
+            failCountDate.push(chartData[i].failRate*100)
             if (this.props.date) {
                 switch (this.props.date) {
                     case "1":
