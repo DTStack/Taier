@@ -65,9 +65,9 @@ export default class FieldCheck extends Component {
 
     changeParams = (field, value) => {
         let params = Object.assign(this.state.params);
-        if (field === 'range' && value && value.length > 0) {
-            params.startTime = value[0].valueOf();
-            params.endTime = value[1].valueOf();
+        if (field === 'range' && value) {
+            params.startTime = value.length > 0 ? value[0].valueOf() : undefined;
+            params.endTime = value.length > 1 ? value[1].valueOf() : undefined;
         } else {
             params[field] = value;
         }
