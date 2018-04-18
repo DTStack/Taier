@@ -122,8 +122,8 @@ class ManageErrorLog extends Component {
 
         }, {
             title: '调用用户',
-            dataIndex: 'callMan',
-            key: 'callMan'
+            dataIndex: 'userName',
+            key: 'userName'
 
         }, {
             title: '错误类型',

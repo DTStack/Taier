@@ -20,7 +20,7 @@ const steps = [
         title: '参数配置',
         content: ParamsConfig,
     },
-    {
+    { 
         key: "complete",
         title: '完成',
         content: Complete,

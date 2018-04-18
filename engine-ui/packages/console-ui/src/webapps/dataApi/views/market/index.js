@@ -182,7 +182,7 @@ class APIMarket extends Component {
 
     }
     dealcomplete(record) {
-        this.props.router.push("/api/mine/approved");    
+        this.props.router.push("/api/mine/approved?apiId="+record.key);    
         console.log("dealcomplete", record);
     }
     dealnothing(record) {
@@ -289,7 +289,7 @@ class APIMarket extends Component {
                     onSearch={this.handleSearch.bind(this)}
                 />
                 <div className="m-l-8">
-                    API分类:
+                    API分类：
                     <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
                         {
                             this.renderSourceType(0, true)
@@ -297,7 +297,7 @@ class APIMarket extends Component {
                     </Select>
                 </div>
                 <div className="m-l-8">
-                    二级分类:
+                    二级分类：
                     <Select value={this.state.type2} allowClear onChange={this.onUserSourceChange.bind(this)} style={{ width: 150 }}>
                         {
                             this.renderSourceType(this.state.type1, false)

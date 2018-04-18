@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import  { Card, Input, Table, Select, Modal, Form, Button,message } from "antd";
 import { connect } from "react-redux";
+import utils from "utils";
 import { formItemLayout, EXCHANGE_APPLY_STATUS } from "../../consts"
 import { approvalActions } from '../../actions/approval';
 const TextArea = Input.TextArea;
@@ -214,7 +215,10 @@ class APIApproval extends Component {
             title: '申请时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            sorter: true
+            sorter: true,
+            render(text){
+                return utils.formatDateTime(text);
+            }
         }, {
             title: '操作',
             dataIndex: 'deal',

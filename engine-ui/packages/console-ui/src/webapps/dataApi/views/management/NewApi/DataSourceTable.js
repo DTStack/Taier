@@ -33,7 +33,7 @@ class NewApiDataSourceTable extends Component {
                 key:i,
                 dataIndex:i,
                 title:columns[i],
-                width:"100px"
+                width:(columns[i].length*12+28)+"px"
             })
         }
         console.log(arr);
@@ -60,8 +60,8 @@ class NewApiDataSourceTable extends Component {
         }
         console.log(arr);
         return arr;
-    }
-    getPagination() {
+    } 
+    getPagination() { 
         return {
             current: this.state.pageIndex,
             pageSize: 20,
@@ -69,17 +69,13 @@ class NewApiDataSourceTable extends Component {
         }
     }
     getScroll(){
-        const max=120;
-        const init=100;
-        if(this.props.data.columnList){
-            let x=this.props.data.columnList.length;
-            if(x<5){
-                return init+"%";
-            }
-            x=init+x*2;
-            return (x>max?max:x)+"%";
-        }
-        return init+"%";
+       let i=100;
+       const columnList=this.props.data.columnList;
+       for(let j in columnList){
+           let item=columnList[j];
+           i=i+item.length*12+28
+       }
+       return i+"px";
     }
 
     render() {

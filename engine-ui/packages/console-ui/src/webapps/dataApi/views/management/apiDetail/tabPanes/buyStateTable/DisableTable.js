@@ -17,7 +17,7 @@ class DisableTable extends Component {
             title: '最近24小时调用',
             dataIndex: 'recent24HCallNum',
             key: 'recent24HCallNum'
-
+ 
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',

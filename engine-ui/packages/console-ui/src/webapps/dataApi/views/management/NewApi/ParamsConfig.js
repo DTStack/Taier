@@ -28,9 +28,10 @@ class ManageParamsConfig extends Component {
     }
     //input子组件数据更改
     inputParamsChange(data,newItem){
-        if(newItem){
-            this.addOutput(newItem);
-        }
+        //发送output添加新字段信号 
+        // if(newItem){
+        //     this.addOutput(newItem);
+        // }
         this.setState({
             inputData:data
         })
@@ -59,7 +60,19 @@ class ManageParamsConfig extends Component {
     }
  
     pass() {
+
         if(this.state.inputData&&this.state.outputData&&this.state.inputData.length>0&&this.state.outputData.length>0){
+            let haveRequired=false;
+            for(let i in this.state.inputData){
+                if(this.state.inputData[i].isRequired){
+                    haveRequired=true;
+                    break;
+                }
+            }
+            if(!haveRequired){
+                message.error("输入参数必须有一个必填项")
+                return;
+            }
             this.props.dataChange({
                 inputData:this.state.inputData,
                 outputData:this.state.outputData

@@ -70,7 +70,7 @@ class InputParams extends Component {
         const data = cloneDeep(this.state.tableColumns);
         return data.map(
             (item) => {
-                return (<Option key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
+                return (<Option title={item.key} key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
             }
         )
     }
@@ -140,6 +140,9 @@ class InputParams extends Component {
             message.error("请选择操作符");
             return false;
         }
+        if(!this.checkVal(checkItem)){
+            return false;
+        }
         for (let i in table) {
             if (i == index) {
                 continue;
@@ -157,6 +160,18 @@ class InputParams extends Component {
         }
         return true;
     }
+    checkVal(item){
+        if(item.instructions&&item.instructions.length>200){
+            message.error("说明不得大于200字符")
+            return false;
+        }
+        if(item.paramName&&item.paramName.length>16){
+            message.error("参数名不得大于16字符")
+            return false;
+        }
+
+        return true;
+    }
     //保存信息
     saveInfo(index) {
 
@@ -164,6 +179,7 @@ class InputParams extends Component {
         if (!this.checkInfo(index)) {
             return;
         }
+        
         table[index].isEdit = false;
         const isNew=table[index].tmp?false:true;//是否新增
         if (table[index].tmp) {
@@ -173,7 +189,7 @@ class InputParams extends Component {
             this.backMsg(table,table[index]);
         }else{
             this.backMsg(table);
-        }
+        } 
         
         this.setState({
             dataSource: table
@@ -224,7 +240,7 @@ class InputParams extends Component {
             title: '字段',
             dataIndex: 'param',
             key: 'param',
-            width: "100px",
+            width: "200px",
             render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
@@ -268,7 +284,7 @@ class InputParams extends Component {
             render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
-                        <Select onChange={this.operatorsChange.bind(this, index)} defaultValue={record.operators} style={{ width: "100%" }} >
+                        <Select  onChange={this.operatorsChange.bind(this, index)} defaultValue={record.operators} style={{ width: "100%" }} >
                             <Option value="=">=</Option>
                             <Option value=">">&gt;</Option>
                             <Option value=">=">&gt;=</Option>
