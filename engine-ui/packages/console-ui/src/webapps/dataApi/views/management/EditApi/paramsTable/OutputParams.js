@@ -114,10 +114,10 @@ class OutputParams extends Component {
         const data = cloneDeep(this.state.tableColumns);
         return data.map(
             (item) => {
-                return (<Option key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
+                return (<Option title={item.key} key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
             }
         )
-    }
+    } 
     //字段改变
     changeTableParam(index, key) {
         key = key.split("@@");
@@ -259,7 +259,7 @@ class OutputParams extends Component {
             title: '字段',
             dataIndex: 'param',
             key: 'param',
-            width: "100px",
+            width: "200px",
             render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
