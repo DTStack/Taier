@@ -194,6 +194,14 @@ class ApiTypeTree extends Component {
         const tree=cloneDeep(this.props.tree);
         const tmpId=Math.random();
         function addTreeNode(data,id){
+            if(id==0){
+                data.push({
+                    id:tmpId,
+                    catalogueName:"新建分类名",
+                    childCatalogue:[]
+                });
+                return;
+            }
             for(let i=0;i<data.length;i++){
                 let item=data[i];
                 

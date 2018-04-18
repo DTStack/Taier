@@ -17,7 +17,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(apiMarketActions.getCatalogue(pid));
     },
     deleteCatalogue(pid) {
-        return dispatch(apiManageActions.deleteCatalogue({ pid }));
+        return dispatch(apiManageActions.deleteCatalogue({ id:pid }));
     },
     updateCatalogue(pid, nodeName) {
         return dispatch(apiManageActions.updateCatalogue({ pid, nodeName }));
