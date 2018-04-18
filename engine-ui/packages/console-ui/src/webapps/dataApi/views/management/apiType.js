@@ -49,9 +49,10 @@ class ApiType extends Component {
             .then(
                 (res) => {
                     if (res) {
-                        this.props.getCatalogue(0);
+                        
                         message.success("删除成功")
                     }
+                    this.props.getCatalogue(0);
                 }
             )
 
@@ -61,9 +62,10 @@ class ApiType extends Component {
             .then(
                 (res) => {
                     if (res) {
-                        this.props.getCatalogue(0);
+                        
                         message.success("新增成功")
                     }
+                    this.props.getCatalogue(0);
                 }
             )
     }
@@ -72,9 +74,10 @@ class ApiType extends Component {
             .then(
                 (res) => {
                     if (res) {
-                        this.props.getCatalogue(0);
+                        
                         message.success("更改成功")
                     }
+                    this.props.getCatalogue(0);
                 }
             )
     }

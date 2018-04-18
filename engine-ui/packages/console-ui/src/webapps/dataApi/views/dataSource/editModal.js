@@ -39,6 +39,7 @@ export default class DataSourceModal extends Component {
         sourceType: 1,
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
+        
     }
 
     componentDidMount() {

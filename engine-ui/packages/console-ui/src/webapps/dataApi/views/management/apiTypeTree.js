@@ -209,7 +209,7 @@ class ApiTypeTree extends Component {
                     
                     item.childCatalogue.push({
                         id:tmpId,
-                        catalogueName:"新建分类名",
+                        catalogueName:"新建分类名"+item.childCatalogue.length,
                         childCatalogue:[]
                     })
                     return;

@@ -91,7 +91,7 @@ class APIMana extends Component {
         params.pid = this.state.type1;//一级目录
         params.cid = this.state.type2;//二级目录
         params.dataSourceType = this.state.dataSourceType&&parseInt(this.state.dataSourceType);//数据源类型
-        params.dataSourceId = this.state.dataSource;//数据源
+        params.dataSourceId = this.state.dataSource&&parseInt(this.state.dataSource);//数据源
         params.modifyUserId = this.state.changeMan;//修改人id
         params.orderBy = sortType[this.state.sortedInfo.columnKey];
         params.sort = orderType[this.state.sortedInfo.order];
