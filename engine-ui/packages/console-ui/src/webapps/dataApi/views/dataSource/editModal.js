@@ -108,10 +108,14 @@ export default class DataSourceModal extends Component {
     sourceChange = (value) => {
         const group=[DATA_SOURCE.MYSQL,DATA_SOURCE.SQLSERVER,DATA_SOURCE.ORACLE];
         const prevValue=this.state.sourceType;
-        
+
         this.setState({ sourceType: parseInt(value) })
+        if(group.indexOf(prevValue)==-1||group.indexOf(parseInt(value))==-1){
+            this.props.form.resetFields();
+        }
+        
        
-        this.props.form.resetFields();
+        
     }
 
     enableHdfsConfig = (e) => {
