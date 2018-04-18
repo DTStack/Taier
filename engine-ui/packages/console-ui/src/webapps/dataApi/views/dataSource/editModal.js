@@ -106,7 +106,11 @@ export default class DataSourceModal extends Component {
     }
 
     sourceChange = (value) => {
+        const group=[DATA_SOURCE.MYSQL,DATA_SOURCE.SQLSERVER,DATA_SOURCE.ORACLE];
+        const prevValue=this.state.sourceType;
+        
         this.setState({ sourceType: parseInt(value) })
+       
         this.props.form.resetFields();
     }
 

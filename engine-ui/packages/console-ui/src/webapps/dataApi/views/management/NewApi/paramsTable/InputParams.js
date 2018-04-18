@@ -140,6 +140,9 @@ class InputParams extends Component {
             message.error("请选择操作符");
             return false;
         }
+        if(!this.checkVal(checkItem)){
+            return false;
+        }
         for (let i in table) {
             if (i == index) {
                 continue;
@@ -157,6 +160,18 @@ class InputParams extends Component {
         }
         return true;
     }
+    checkVal(item){
+        if(item.instructions&&item.instructions.length>200){
+            message.error("说明不得大于200字符")
+            return false;
+        }
+        if(item.paramName&&item.paramName.length>16){
+            message.error("参数名不得大于16字符")
+            return false;
+        }
+
+        return true;
+    }
     //保存信息
     saveInfo(index) {
 
@@ -164,6 +179,7 @@ class InputParams extends Component {
         if (!this.checkInfo(index)) {
             return;
         }
+        
         table[index].isEdit = false;
         const isNew=table[index].tmp?false:true;//是否新增
         if (table[index].tmp) {
@@ -173,7 +189,7 @@ class InputParams extends Component {
             this.backMsg(table,table[index]);
         }else{
             this.backMsg(table);
-        }
+        } 
         
         this.setState({
             dataSource: table

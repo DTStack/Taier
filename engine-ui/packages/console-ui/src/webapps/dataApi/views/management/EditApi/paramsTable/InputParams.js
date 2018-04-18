@@ -170,6 +170,9 @@ class InputParams extends Component {
             message.error("请选择操作符");
             return false;
         }
+        if(!this.checkVal(checkItem)){
+            return false;
+        }
         for (let i in table) {
             if (i == index) {
                 continue;
@@ -185,6 +188,18 @@ class InputParams extends Component {
                 return false;
             }
         }
+        return true;
+    }
+    checkVal(item){
+        if(item.instructions&&item.instructions.length>200){
+            message.error("说明不得大于200字符")
+            return false;
+        }
+        if(item.paramName&&item.paramName.length>16){
+            message.error("参数名不得大于16字符")
+            return false;
+        }
+
         return true;
     }
     //保存信息

@@ -22,9 +22,9 @@ class ManageBasicProperties extends Component {
             if (!err) {
                 console.log('Received values of form: ', values);
                 this.props.dataChange({
-                    ...values
+                    ...values 
                 })
-            }
+            } 
 
         });
 
@@ -34,7 +34,7 @@ class ManageBasicProperties extends Component {
         this.setState({
             showTable: false
         })
-        console.log(key)
+        
         this.props.tablelist(key)
             .then(
                 (res) => {
@@ -146,7 +146,7 @@ class ManageBasicProperties extends Component {
             for (let i = 0; i < data.length; i++) {
             
                 let item = data[i];
-                console.log(item)
+                
                 if(item.api){
                     return null;
                 }
@@ -165,7 +165,7 @@ class ManageBasicProperties extends Component {
     render() {
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
-        console.log(options)
+       
         return (
             <div>
                 <div className="steps-content">

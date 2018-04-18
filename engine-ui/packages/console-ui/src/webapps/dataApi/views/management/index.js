@@ -260,7 +260,7 @@ class APIMana extends Component {
             dataIndex: 'total1d',
             key: "total1d"
 
-        },
+        }, 
         {
             title: '累计调用',
             dataIndex: 'invokeTotal',

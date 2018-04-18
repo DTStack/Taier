@@ -80,7 +80,7 @@ class ApiType extends Component {
                     this.props.getCatalogue(0);
                 }
             )
-    }
+    } 
     render() {
         return (
             <div className="m-card">
@@ -89,7 +89,7 @@ class ApiType extends Component {
                     className="box-2 g-datamanage"
                     noHovering
                 >
-                    <ApiTypeTree addCatalogue={this.addCatalogue.bind(this)} addCatalogueEdit={this.props.addCatalogueEdit} updateCatalogue={this.updateCatalogue.bind(this)} deleteCatalogue={this.deleteCatalogue.bind(this)} tree={this.props.apiMarket.apiCatalogue}></ApiTypeTree>
+                    <ApiTypeTree getCatalogue={this.props.getCatalogue} addCatalogue={this.addCatalogue.bind(this)} addCatalogueEdit={this.props.addCatalogueEdit} updateCatalogue={this.updateCatalogue.bind(this)} deleteCatalogue={this.deleteCatalogue.bind(this)} tree={this.props.apiMarket.apiCatalogue}></ApiTypeTree>
 
                 </Card>
 

@@ -10,6 +10,7 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+
 export const API_STATUS = {
     "-1":'NO_APPLY',
     "0":'IN_HAND',
