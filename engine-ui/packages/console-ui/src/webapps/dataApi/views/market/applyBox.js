@@ -40,6 +40,10 @@ class ApplyBox extends Component {
                                 loading: false
                             })
                             this.props.getApiExtInfo(this.props.apiId);
+                            if(this.props.getMarketApi){
+                                this.props.getMarketApi();
+                            }
+                            
                             if (res) {
                                 message.success('操作成功')
                                 this.props.successCallBack();

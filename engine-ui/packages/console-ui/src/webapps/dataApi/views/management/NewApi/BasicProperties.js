@@ -33,6 +33,9 @@ class ManageBasicProperties extends Component {
     dataSourceChange(key) {
         this.setState({
             showTable: false
+        },)
+        this.props.form.setFieldsValue({
+            table:""
         })
         
         this.props.tablelist(key)
@@ -181,7 +184,7 @@ class ManageBasicProperties extends Component {
                                 ],
                                 initialValue:this.props.APIGroup
                             })(
-                                <Cascader options={options} placeholder="请选择分组" />
+                                <Cascader className="noheight" options={options} placeholder="请选择分组" />
                             )
                             }
                         </FormItem>
