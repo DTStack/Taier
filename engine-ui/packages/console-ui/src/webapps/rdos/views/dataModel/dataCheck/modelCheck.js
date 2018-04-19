@@ -25,7 +25,7 @@ export default class ModelCheck extends Component {
 
         params: {
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 10,
             ignore: 0, // 1 忽略，0 不忽略
             type: '1',
         },
@@ -54,8 +54,9 @@ export default class ModelCheck extends Component {
 
     ignore = (record) => {
         Api.ignoreCheck({
-            monitorId: record.id,
+            monitorId: record.monitorId,
             type: '1',
+            ignore: record.isIgnore ? false : true,
         }).then(res => {
             if (res.code === 1) {
                 this.loadData()
@@ -66,9 +67,9 @@ export default class ModelCheck extends Component {
 
     changeParams = (field, value) => {
         let params = Object.assign(this.state.params);
-        if (field === 'range' && value && value.length > 0) {
-            params.startTime = value[0].valueOf();
-            params.endTime = value[1].valueOf();
+        if (field === 'range' && value) {
+            params.startTime = value.length > 0 ? value[0].valueOf() : undefined;
+            params.endTime = value.length > 1 ? value[1].valueOf() : undefined;
         } else {
             params[field] = value;
         }
@@ -119,11 +120,12 @@ export default class ModelCheck extends Component {
             title: '操作',
             key: 'operation',
             render: (record) => {
+                const showText = record.isIgnore ? '恢复' : '忽略';
                 return (
                     <div key={record.id}>
                         <Link to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.ignore(record) }}>忽略</a>
+                        <a onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
             },
@@ -137,6 +139,7 @@ export default class ModelCheck extends Component {
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
+            current: table.currentPage,
         };
 
         return (
