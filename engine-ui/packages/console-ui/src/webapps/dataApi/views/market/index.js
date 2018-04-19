@@ -120,6 +120,7 @@ class APIMarket extends Component {
             let item_child;//二级目录
             //查找二级目录
             for (let i = 0; i < items.length; i++) {
+                
                 if (items[i].id == id) {
                     item_child = items[i].childCatalogue;
                     break;
@@ -132,6 +133,9 @@ class APIMarket extends Component {
 
 
             for (let i = 0; i < item_child.length; i++) {
+                if(item_child[i].api){
+                    continue;
+                }
                 arr.push({
                     id: item_child[i].id,
                     name: item_child[i].catalogueName

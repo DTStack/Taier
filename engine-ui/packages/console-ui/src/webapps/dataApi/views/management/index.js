@@ -46,8 +46,8 @@ class APIMana extends Component {
         type1: undefined,
         type2: undefined,
         total: 0,
-        dataSourceType: null,
-        dataSource: null,
+        dataSourceType: undefined,
+        dataSource: undefined,
         searchName: null,
         filter: {},
         sortedInfo: {},
@@ -167,6 +167,9 @@ class APIMana extends Component {
 
 
             for (let i = 0; i < item_child.length; i++) {
+                if(item_child[i].api){
+                    continue;
+                }
                 arr.push({
                     id: item_child[i].id,
                     name: item_child[i].catalogueName
@@ -432,7 +435,8 @@ class APIMana extends Component {
     //数据源类型改变
     dataSourceTypeChange(key) {
         this.setState({
-            dataSourceType: key
+            dataSourceType: key,
+            dataSource:undefined
         },
             () => {
                 this.getDataSource();
@@ -471,7 +475,7 @@ class APIMana extends Component {
                 />
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.dataSourceTypeChange.bind(this)} style={{ width: 100 }}>
+                    <Select value={this.state.dataSourceType} allowClear onChange={this.dataSourceTypeChange.bind(this)} style={{ width: 100 }}>
                         {
                             this.getDataSourceTypeView()
                         }
@@ -479,7 +483,7 @@ class APIMana extends Component {
                 </div>
                 <div className="m-l-8">
                     数据源：
-                    <Select allowClear onChange={this.dataSourceChange.bind(this)} style={{ width: 100 }}>
+                    <Select value={this.state.dataSource} allowClear onChange={this.dataSourceChange.bind(this)} style={{ width: 100 }}>
                         {
                             this.gerDataSourceView()
                         }

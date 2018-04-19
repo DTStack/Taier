@@ -278,7 +278,7 @@ class OutputParams extends Component {
             render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
-                        <Select defaultValue={record.param.type?(record.param.type+"@@"+record.param.key):null} onChange={this.changeTableParam.bind(this, index)} style={{ width: "100%" }} >
+                        <Select showSearch defaultValue={record.param.type?(record.param.type+"@@"+record.param.key):null} onChange={this.changeTableParam.bind(this, index)} style={{ width: "100%" }} >
                             {this.getColumnsView()}
 
                         </Select>

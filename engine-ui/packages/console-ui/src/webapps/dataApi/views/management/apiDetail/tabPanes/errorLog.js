@@ -27,9 +27,10 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiCallErrorInfo(id) {
-        return dispatch(mineActions.getApiCallErrorInfo({
-            apiId: id
+    getApiCallErrorInfo(id,date) {
+        return dispatch(apiManageActions.getApiCallErrorInfo({
+            apiId: id,
+            time:date
         }));
     },
     queryApiCallLog(id, currentPage, bizType) {
@@ -66,7 +67,7 @@ class ManageErrorLog extends Component {
 
         }
 
-        this.props.getApiCallErrorInfo(apiId)
+        this.props.getApiCallErrorInfo(apiId,this.props.dateType)
             .then(
                 (res) => {
                     if (res) {

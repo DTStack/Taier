@@ -250,7 +250,8 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
             axisTick: {
                 show: false,
             },
-            splitLine: false
+            splitLine: false,
+            minInterval:1
         },
         {
             nameGap: 25,

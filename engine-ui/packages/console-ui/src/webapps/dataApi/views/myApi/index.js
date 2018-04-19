@@ -55,7 +55,8 @@ const mapDispatchToProps = dispatch => ({
         return dispatch(mineActions.queryApiCallLog({
             apiId:id,
             currentPage:currentPage,
-            bizType:bizType
+            bizType:bizType,
+            pageSize:5
         }));
     }
 });

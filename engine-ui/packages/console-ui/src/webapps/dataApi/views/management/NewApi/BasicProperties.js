@@ -213,7 +213,11 @@ class ManageBasicProperties extends Component {
                             label="调用限制"
                             hasFeedback >
                             {getFieldDecorator('callLimit', {
-                                rules: [{ required: true, message: '请输入调用次数限制' }],
+                                rules: [
+                                    { required: true, message: '请输入调用次数限制' }
+                                    
+                                ]
+                                ,
                                 initialValue: this.props.callLimit
                             })(
                                 <Input type="number"   placeholder="单用户每秒最高调用次数" />
@@ -224,7 +228,10 @@ class ManageBasicProperties extends Component {
                             label="返回条数限制"
                             hasFeedback >
                             {getFieldDecorator('backLimit', {
-                                rules: [{ required: true, message: '请输入最大返回条数' }],
+                                rules: [
+                                    { required: true, message: '请输入最大返回条数' },
+                                    { pattern: new RegExp(/^1[0-9]{0,3}$|^2000$|^[0-9]$|^[1-9][0-9]{1,2}$/), message: '请输入不大于2000的正整数' },
+                            ],
                                 initialValue: this.props.backLimit
                             })(
                                 <Input type="number"  placeholder="单次最大返回数据条数 (最高支持2000条)" />
@@ -250,13 +257,14 @@ class ManageBasicProperties extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="请选择表" 
+                            label="请选择表"  
                         >
                             {getFieldDecorator('table', {
                                 rules: [{ required: true, message: '请选择表' }],
                                 initialValue: this.props.table
                             })(
                                 <Select placeholder="请选择表"
+                                    showSearch
                                     onChange={this.tableChange.bind(this)}
                                 >
                                     {this.getTableListView()}

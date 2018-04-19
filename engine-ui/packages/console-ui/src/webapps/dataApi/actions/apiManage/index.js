@@ -185,4 +185,15 @@ export const apiManageActions = {
             });
         }
     },
+    //查看api错误信息
+    getApiCallErrorInfo(params){
+        return (dispatch) => {
+            return API.getApiCallErrorInfoForManager(params).then((res) => {
+                if (res.code === 1) {
+                    return res;
+                }
+                
+            });
+        }
+    },
 }

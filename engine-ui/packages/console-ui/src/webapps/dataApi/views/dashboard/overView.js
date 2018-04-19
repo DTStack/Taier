@@ -54,6 +54,11 @@ class TopCall extends Component {
             }
             
         }
+        if(callCountDate.length==1){
+            callCountDate.push(callCountDate[0])
+            failCountDate.push(failCountDate[0])
+            times.push(times[0])
+        }
         let myChart = echarts.init(document.getElementById('CallGraph'));
         const option = cloneDeep(doubleLineAreaChartOptions);
         option.series = [{
