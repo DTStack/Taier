@@ -54,7 +54,7 @@ export default class FieldCheck extends Component {
 
     ignore = (record) => {
         Api.ignoreCheck({
-            monitorId: record.id,
+            monitorId: record.monitorId,
             type: '2',
         }).then(res => {
             if (res.code === 1) {

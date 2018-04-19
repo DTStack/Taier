@@ -54,7 +54,7 @@ export default class ModelCheck extends Component {
 
     ignore = (record) => {
         Api.ignoreCheck({
-            monitorId: record.id,
+            monitorId: record.monitorId,
             type: '1',
             ignore: record.isIgnore ? false : true,
         }).then(res => {

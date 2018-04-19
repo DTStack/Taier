@@ -10,31 +10,33 @@ import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../../api'
 
+const defaultState = {
+    file: '',
+    startLine: 1,
+    asTitle: true,
+    visible: false,
+    sourceFile: '',
+    data: [],
+    splitSymbol: ',',
+    charset: 'UTF-8',
+    step: 'source',
+    tableData: {}, // 表数据
+    targetTable: '', // 目标表
+    tableList: [], // table列表
+    partitions: [], // 分区
+    hasPartition: false,
+    originPartitions: [],
+    columnMap: [], // 映射
+    matchType: 1, // 匹配方法
+    sqlText: '', // SQL text
+    queryTable: '', // 查询表
+    overwriteFlag: 0, // 导入模式
+    originLineCount: 0, // 原数据总条数
+}
+
 export default class ImportLocalData extends Component {
 
-    state = {
-        file: '',
-        startLine: 1,
-        asTitle: true,
-        visible: false,
-        sourceFile: '',
-        data: [],
-        splitSymbol: ',',
-        charset: 'UTF-8',
-        step: 'source',
-        tableData: {}, // 表数据
-        targetTable: '', // 目标表
-        tableList: [], // table列表
-        partitions: [], // 分区
-        hasPartition: false,
-        originPartitions: [],
-        columnMap: [], // 映射
-        matchType: 1, // 匹配方法
-        sqlText: '', // SQL text
-        queryTable: '', // 查询表
-        overwriteFlag: 0, // 导入模式
-        originLineCount: 0, // 原数据总条数
-    }
+    state = Object.assign({}, defaultState)
 
     importData = () => {
         const params = this.getParams()
@@ -113,26 +115,7 @@ export default class ImportLocalData extends Component {
 
     fileClick = (e) => {
         e.target.value = null;
-        this.setState({
-            file: '',
-            startLine: 1,
-            asTitle: true,
-            visible: false,
-            data: [],
-            splitSymbol: ',',
-            charset: 'UTF-8',
-            step: 'source',
-            targetTable: '', // 目标表
-            partitions: [], // 分区
-            hasPartition: false,
-            originPartitions: [],
-            columnMap: [], // 映射
-            matchType: 1, // 匹配方法
-            sqlText: '',
-            queryTable: '',
-            tableData: {},
-            tableList: [],
-        })
+        this.setState(Object.assign({}, defaultState));
     }
     
     readFile = (file) => {
@@ -236,7 +219,7 @@ export default class ImportLocalData extends Component {
                 <input
                     name="file"
                     type="file"
-                    accept=".txt,.log,.svg"
+                    accept=".txt, .log, .csv"
                     id="importFile"
                     onClick={this.fileClick}
                     onChange={this.fileChange}
