@@ -28,8 +28,6 @@ export default class Overview extends Component {
 
     state = {
         data: '',
-
-        total: '',
         tableRate: '',
         columnRate: '',
         tableTrend: '',
@@ -56,7 +54,7 @@ export default class Overview extends Component {
         Api.statisticTotal().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    total: res.data
+                    data: res.data
                 })
             }
         })
@@ -294,25 +292,25 @@ export default class Overview extends Component {
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日新增模型</span>
-                                                <span className="m-count-content font-black">{data.newTable || 0}</span>
+                                                <span className="m-count-content font-black">{data.todayNewTable || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日新增指标</span>
-                                                <span className="m-count-content font-red">{data.newColumn || 0}</span>
+                                                <span className="m-count-content font-red">{data.todayNewColumn || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日不规范模型</span>
-                                                <span className="m-count-content font-organge">{data.badTable || 0}</span>
+                                                <span className="m-count-content font-organge">{data.todayBadTable || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日不规范指标</span>
-                                                <span className="m-count-content font-green">{data.badColumn || 0}</span>
+                                                <span className="m-count-content font-green">{data.todayBadColumn || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>

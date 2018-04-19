@@ -41,6 +41,7 @@ export default class ModelLevel extends BasePane {
             key: 'name',
         }, {
             title: '层级说明',
+            width: 200,
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {

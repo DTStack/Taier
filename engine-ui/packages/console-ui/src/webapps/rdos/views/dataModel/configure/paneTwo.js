@@ -30,16 +30,16 @@ export default class SubjectDomain extends BasePane {
 
     initColumns = () => {
         return [{
+            width: 10,
             title: '主题域名称',
             dataIndex: 'name',
             key: 'name',
         }, {
-            width: 80,
+            width: 200,
             title: '主题域说明',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
-            width: 80,
             title: '主题域前缀',
             dataIndex: 'prefix',
             key: 'prefix',

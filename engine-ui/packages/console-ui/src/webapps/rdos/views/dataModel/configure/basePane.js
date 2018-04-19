@@ -14,7 +14,7 @@ export default class BasePane extends Component {
 
         params: {
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 10,
             type: 1, // 模型层级
         }
     }
@@ -76,7 +76,7 @@ export default class BasePane extends Component {
         this.setState({ modalVisible: true, modalData: '' });
     }
 
-    handleTableChange(pagination, filters, sorter) {
+    handleTableChange = (pagination, filters, sorter) => {
         const params = Object.assign(this.state.params, { 
             currentPage: pagination.current 
         })
