@@ -147,7 +147,7 @@ class BuyManageState extends Component {
         console.log("lookAllErrorText")
     }
     getTable() {
-        if (!this.props.statusDisAble) {
+        if (this.props.statusDisAble) {
             return <DisableTable loading={this.state.loading} key={this.state.disAbleKey} total={this.state.total} data={this.state.data} tableChange={this.tableChange.bind(this)}></DisableTable>
         }
         return <EnableTable

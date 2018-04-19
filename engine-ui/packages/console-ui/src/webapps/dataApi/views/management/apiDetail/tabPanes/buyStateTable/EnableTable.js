@@ -70,7 +70,7 @@ class EnableTable extends Component {
             dataIndex: '',
             key: 'deal',
             render: (text, record) => {
-                if (record.status == "success") {
+                if (EXCHANGE_API_STATUS[record.status] != "disabled") {
                     return <a onClick={
                         () => {
                             this.props.cancelApi(record.applyId)
