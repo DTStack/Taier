@@ -116,7 +116,27 @@ export default class ExecuteForm extends Component {
         this.resetScheduleConf(type);
     }
 
+    renderSendTypeList = (data) => {
+        return data && data.map((item) => {
+            return <Checkbox 
+                key={item.value} 
+                value={item.value.toString()}>
+                {item.name}
+            </Checkbox>
+        })
+    }
+
+    // 告警方式回调
     onSendTypeChange = (value) => {
+        const { form } = this.props;
+        let notifyUser = form.getFieldValue('notifyUser');
+
+        if (value.length === 0 && notifyUser.length === 0) {
+            form.setFieldsValue({
+                notifyUser: []
+            });
+        }
+
         this.setState({
             params: {...this.state.params, sendTypes: value}
         });
@@ -142,32 +162,20 @@ export default class ExecuteForm extends Component {
         })
     }
 
+    // 通知人回调
     onNotifyUserChange = (value) => {
+        const { form } = this.props;
+        let sendTypes = form.getFieldValue('sendTypes');
+        
+        if (value.length === 0 && sendTypes.length === 0) {
+            form.setFieldsValue({
+                sendTypes: []
+            });
+        }
+
         this.setState({
             params: {...this.state.params, notifyUser: value}
         });
-    }
-
-    prev = () => {
-        const { currentStep, navToStep } = this.props;
-        navToStep(currentStep - 1);
-    }
-
-    save = () => {
-        const { form } = this.props;
-        const { params } = this.state;
-        form.validateFields({ force: true }, (err, values) => {
-            console.log(err,values)
-            if(!err) {
-                RCApi.updateMonitor(params).then((res) => {
-                    if (res.code === 1) {
-                        message.success('更新成功！');
-                        this.props.closeModal(true);
-                    }
-                });
-            }
-        });
-
     }
 
     changeScheduleConfTime = (type, value) => {
@@ -182,14 +190,12 @@ export default class ExecuteForm extends Component {
     }
 
     renderDynamic() {
-        const { form, common, data } = this.props;
+        const { form, common } = this.props;
         const { allDict } = common;
         const { getFieldDecorator } = form;
-        const { notifyUser, sendTypes } = data;
         const { scheduleConfObj } = this.state;
 
-        let periodType = allDict.periodType ? allDict.periodType : [],
-            notifyType = allDict.notifyType ? allDict.notifyType : [];
+        let periodType = allDict.periodType ? allDict.periodType : [];
 
         const generateHours = (type) => {
             let options = [];
@@ -498,7 +504,6 @@ export default class ExecuteForm extends Component {
                 break;
             }
         }
-        
     }
 
     closeModal = () => {
@@ -516,6 +521,13 @@ export default class ExecuteForm extends Component {
 
         if (beginTime >= endTime) {
             callback('开始时间不能晚于结束时间');
+        } else {
+            form.setFieldsValue({
+                beginHour: form.getFieldValue('beginHour'),
+                beginMin: form.getFieldValue('beginMin'),
+                endHour: form.getFieldValue('endHour'),
+                endMin: form.getFieldValue('endMin')
+            });
         }
 
         callback();
@@ -530,15 +542,46 @@ export default class ExecuteForm extends Component {
             callback();
         } else {
             if (beginDate.valueOf() > endDate.valueOf()) {
-                callback('开始时间不能晚于结束时间');
+                callback('生效日期的开始时间不能晚于结束时间');
+            } else {
+                form.setFieldsValue({
+                    beginDate: form.getFieldValue('beginDate'),
+                    endDate: form.getFieldValue('endDate')
+                });
             }
         }
 
         callback();
     }
 
+    prev = () => {
+        const { currentStep, navToStep } = this.props;
+        navToStep(currentStep - 1);
+    }
+
+    save = () => {
+        const { form } = this.props;
+        const { params } = this.state;
+
+        form.validateFields((err, values) => {
+            console.log(err,values)
+            if (err && err.endDate) {
+                message.error(err.endDate.errors[0].message)
+            }
+            if(!err) {
+                RCApi.updateMonitor(params).then((res) => {
+                    if (res.code === 1) {
+                        message.success('更新成功！');
+                        this.props.closeModal(true);
+                    }
+                });
+            }
+        });
+
+    }
+
     render() {
-        const { form, common, data, visible, closeModal } = this.props;
+        const { form, common, visible, closeModal } = this.props;
         const { scheduleConfObj, params } = this.state;
         const { getFieldDecorator } = form;
         const { allDict, userList } = common;
@@ -581,14 +624,14 @@ export default class ExecuteForm extends Component {
                             {
                                 getFieldDecorator('beginDate', {
                                     rules: [{
-                                        required: true, message: '生效日期不能为空'
+                                        required: true, message: '生效日期开始时间不能为空'
                                     }, {
                                         validator: this.checkDate.bind(this)
                                     }],
                                     initialValue: moment(scheduleConfObj.beginDate)
                                 })(
                                     <DatePicker
-                                        size="large"
+                                        // size="large"
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="开始日期"
@@ -602,14 +645,14 @@ export default class ExecuteForm extends Component {
                             {
                                 getFieldDecorator('endDate', {
                                     rules: [{
-                                            required: true, message: '生效日期不能为空'
+                                        required: true, message: '生效日期结束时间不能为空'
                                     }, {
                                         validator: this.checkDate.bind(this)
                                     }],
                                     initialValue: moment(scheduleConfObj.endDate)
                                 })(
                                     <DatePicker
-                                        size="large"
+                                        // size="large"
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="结束日期"
@@ -627,18 +670,15 @@ export default class ExecuteForm extends Component {
                     <FormItem {...formItemLayout} label="通知方式">
                         {
                             getFieldDecorator('sendTypes', {
-                                rules: [], 
+                                rules: [{
+                                    required: notifyUser.length,
+                                    message: '选择通知方式',
+                                }], 
                                 initialValue: sendTypes.map(item => item.toString())
                             })(
                                 <Checkbox.Group onChange={this.onSendTypeChange}>
                                     {
-                                        notifyType.map((item) => {
-                                            return <Checkbox 
-                                                key={item.value} 
-                                                value={item.value.toString()}>
-                                                {item.name}
-                                            </Checkbox>
-                                        })
+                                        this.renderSendTypeList(notifyType)
                                     }
                                 </Checkbox.Group>
                             )
@@ -648,7 +688,10 @@ export default class ExecuteForm extends Component {
                     <FormItem {...formItemLayout} label="通知接收人">
                         {
                             getFieldDecorator('notifyUser', {
-                                rules: [],
+                                rules: [{
+                                    required: sendTypes.length,
+                                    message: '选择通知接收人',
+                                }],
                                 initialValue: notifyUser.map(item => item.toString())
                             })(
                                 <Select 

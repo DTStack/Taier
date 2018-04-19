@@ -368,7 +368,7 @@ export default class StepTwo extends Component {
                         })(
                             <Select 
                                 onChange={this.onVerifyTypeChange}
-                                disabled={currentRule.isEnum}>
+                                disabled={currentRule.operator === 'in'}>
                                 {
                                     verifyType.map((item) => {
                                         return <Option 
@@ -536,7 +536,7 @@ export default class StepTwo extends Component {
             index   = newData.indexOf(target),
             fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
 
-        if (currentRule.isEnum) {
+        if (currentRule.operator === 'in') {
             fields = enumFields;
         }
 

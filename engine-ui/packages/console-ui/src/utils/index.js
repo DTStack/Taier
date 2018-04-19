@@ -83,6 +83,7 @@ const utils = {
     },
 
     formatDateTime: function(timestap) {
+        
         moment.locale('zh-cn');
         return moment(timestap).format('YYYY-MM-DD HH:mm:ss')
     },
@@ -91,7 +92,15 @@ const utils = {
         moment.locale('zh-cn');
         return moment(timestap).format('YYYY-MM-DD')
     },
-
+    formatDateHours: function(timestap) {
+        moment.locale('zh-cn');
+        return moment(timestap).format('YYYY-MM-DD HH:mm')
+    },
+    formatHours: function(timestap) {
+        moment.locale('zh-cn');
+        return moment(timestap).format('HH:mm')
+    },
+    
     /**
      * 去除空串
      */
@@ -164,6 +173,16 @@ const utils = {
             return `${value} B`
         }
     },
+    //千位分割
+    toQfw:function(str){
+        if(!str){
+            return 0
+        }
+        str=str.toString?str.toString():str;
+        let re=/(?=(?!(\b))(\d{3})+$)/g;
+        str=str.replace(re,",");
+        return str;
+    }
 }
 
 export default utils

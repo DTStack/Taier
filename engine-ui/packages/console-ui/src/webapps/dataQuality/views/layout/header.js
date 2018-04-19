@@ -52,7 +52,7 @@ class Header extends Component {
         const logo = <span>
             <Icon style={{fontSize: '18px', color: '#2491F7', marginRight: '10px'}} type="database"/>
             <span style={{fontSize: '14px', color: '#ffffff'}}>
-                数据质量
+                DTinsight.Valid
             </span>
         </span>
         // <Logo linkTo="/" img={'public/main/img/logo.png'}/>

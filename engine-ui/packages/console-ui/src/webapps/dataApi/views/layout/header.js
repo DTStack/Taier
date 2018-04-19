@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Icon } from 'antd'
 
 import { Navigator, Logo }  from 'main/components/nav';
 
@@ -7,6 +8,7 @@ import { Navigator, Logo }  from 'main/components/nav';
     return {
         user: state.user,
         apps: state.apps,
+        routing:state.routing
     }
 })
 class Header extends Component {
@@ -18,7 +20,7 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
-        const baseUrl = '/api'
+        const baseUrl = '/dataApi.html#/api'
         const menuItems = [{
             id: 'overview',
             name: '概览',
@@ -51,7 +53,12 @@ class Header extends Component {
             enable: true,
         }];
 
-        const logo = <Logo linkTo="/" img={'public/main/img/logo.png'}/>
+        const logo = <span>
+            <Icon style={{fontSize: '18px', color: '#2491F7', marginRight: '10px'}} type="api"/>
+            <span style={{fontSize: '14px', color: '#ffffff'}}>
+                DTinsight.API
+            </span>
+        </span>;
         return <Navigator 
             logo={logo}
             menuItems={menuItems}

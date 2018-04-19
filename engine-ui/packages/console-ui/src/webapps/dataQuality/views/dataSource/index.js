@@ -128,30 +128,31 @@ export default class DataSource extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: '15%'
+            width: '18%',
+            render: (text => <div className="ellipsis-td" title={text}>{text}</div>)
         }, {
             title: '类型',
             dataIndex: 'sourceTypeValue',
             key: 'sourceTypeValue',
             filters: dataSourceFilter,
             filterMultiple: false,
-            width: '8%'
+            width: '10%'
         }, {
             title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: '25%'
+            width: '22%'
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
             key: 'modifyUserName',
-            width: '14%'
+            width: '15%'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => moment(text).format("YYYY-MM-DD HH:mm:ss"),
-            width: '14%'
+            width: '15%'
         }, {
             title: '状态',
             dataIndex: 'active',
@@ -167,12 +168,11 @@ export default class DataSource extends Component {
             render: (text, record) => {
                 return record.active === 1 ? '使用中' : '未启用'
             },
-            width: '8%'
+            width: '10%'
         }, {
             title: '操作',
             width: '10%',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span>
                         <a onClick={() => {this.initEdit(record)}}>
@@ -244,7 +244,7 @@ export default class DataSource extends Component {
                         <Table
                             rowKey="id"
                             loading={loading}
-                            className="m-table"
+                            className="m-table fixed-table"
                             pagination={pagination}
                             columns={this.initColumns()}
                             dataSource={sourceQuery.data}

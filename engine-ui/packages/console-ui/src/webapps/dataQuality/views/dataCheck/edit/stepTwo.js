@@ -268,11 +268,11 @@ export default class StepTwo extends Component {
                             &&
                             <Table 
                                 rowKey="key"
-                                className="m-table preview-table"
+                                className="m-table m-cells"
                                 columns={this.previewTableColumns(sourcePreview.columnList)} 
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
-                                scroll={{ x: '120%', y: 400 }}
+                                scroll={{ x: 1000 }}
                             />
                         }
                     </Form>

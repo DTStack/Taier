@@ -7,6 +7,7 @@ import moment from 'moment';
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
 import SlidePane from 'widgets/slidePane';
+import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import RCApi from '../../../api/ruleConfig';
 import '../../../styles/views/ruleConfig.scss';
@@ -23,7 +24,10 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getMonitorLists(params) {
         dispatch(ruleConfigActions.getMonitorLists(params));
-    }
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -46,6 +50,7 @@ export default class RuleConfig extends Component {
     }
 
     componentDidMount() {
+        this.props.getDataSourcesList();
         this.props.getMonitorLists(this.state.params);
     }
 
@@ -405,7 +410,7 @@ export default class RuleConfig extends Component {
                     >
                         <Table 
                             rowKey="tableId"
-                            className="m-table monitor-table"
+                            className="m-table"
                             columns={this.initColumns()} 
                             loading={loading}
                             pagination={pagination}
@@ -425,21 +430,23 @@ export default class RuleConfig extends Component {
                                     activeKey={tabKey}
                                     onChange={this.onTabChange}
                                 >
-                                    
                                     <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane data={currentMonitor} closeSlidePane={this.closeSlidePane} refresh={this.refresh}>
-                                        </RuleEditPane>
+                                        <RuleEditPane 
+                                            data={currentMonitor} 
+                                            closeSlidePane={this.closeSlidePane} 
+                                            refresh={this.refresh} />
                                     </TabPane>
+
                                     <TabPane tab="远程触发" key="2">
-                                        <RemoteTriggerPane data={currentMonitor} closeSlidePane={this.closeSlidePane}>
-                                        </RemoteTriggerPane>
+                                        <RemoteTriggerPane 
+                                            data={currentMonitor} 
+                                            closeSlidePane={this.closeSlidePane} />
                                     </TabPane>
                                 </Tabs>
                             </div>
                         </SlidePane>
                     </Card>
                 </div>
-
             </div>
         )
     }

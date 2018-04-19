@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect } from 'react-router'
+import { Route, IndexRoute, Redirect,IndexRedirect } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
 import { openNewWindow } from 'funcs'
@@ -28,13 +28,21 @@ import APIManage from './views/management'
 import APIMarket from './views/market'
 import MyAPI from './views/myApi'
 
+import APIDetail from './views/market/detail'
+import APIManageDetail from './views/management/apiDetail'
+import ApiType from './views/management/apiType'
+import NewApi from "./views/management/NewApi"
+import EditAPI from './views/management/EditApi';
+
+
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then(module => module.default), { name: 'testPage' })
 
 export default (
     <Route path="/" component={ Main }>
-        <IndexRoute component={ Container } />
+        <IndexRedirect to="/api" />
+        {/* <IndexRoute component={ Container } /> */}
         <Route path="/message" component={ MsgCenter }>
             <IndexRoute component={ MsgList } />
             <Route path="list" component={ MsgList } />
@@ -48,12 +56,19 @@ export default (
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/api" component={ Container }>
+            
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="approval" component={ APIApproval }></Route>
             <Route path="manage" component={ APIManage }></Route>
+            <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
+            <Route path="manage/apiType" component={ ApiType }></Route>
+            <Route path="manage/newApi" component={ NewApi }></Route>
+            <Route path="manage/editApi/:apiId" component={ EditAPI }></Route>
             <Route path="market" component={ APIMarket }></Route>
+            <Route path="market/detail/:api" component={ APIDetail }></Route>
             <Route path="mine" component={ MyAPI }></Route>
+            <Route path="mine/:view" component={ MyAPI }></Route>
             <Route path="dataSource" component={ DataSource }></Route>
         </Route>
     </Route>
