@@ -201,7 +201,7 @@ class APIMarket extends Component {
         console.log("dealnothing", record);
     }
     dealapplying(record) {
-        this.props.router.push("/api/mine");
+        this.props.router.push("/api/mine?apiId="+record.key);
         console.log("dealapplying", record);
     }
     // 表格换页/排序
@@ -349,6 +349,7 @@ class APIMarket extends Component {
                     apiId={this.state.apply.apiId}
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
+                    getMarketApi={this.getMarketApi.bind(this)}
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">

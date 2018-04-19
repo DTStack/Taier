@@ -101,18 +101,29 @@ class ApiTypeTree extends Component {
                 </span>
             );
         }
-        //非叶子节点（必然不处于deepLength的限制）
+        //非叶子节点
         else if (!isLeaf) {
-            item = (
-                <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
-                    <Tooltip title="添加新分类" >
-                        <Icon type="plus-square-o" onClick={this.addNode.bind(this,id)} />
-                    </Tooltip>
-                    <Tooltip title="编辑">
-                        <Icon type="edit" onClick={this.editNode.bind(this, id)} />
-                    </Tooltip>
-                </span>
-            )
+            if(deepLength<maxDeepLength){
+                item = (
+                    <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
+                        <Tooltip title="添加新分类" >
+                            <Icon type="plus-square-o" onClick={this.addNode.bind(this,id)} />
+                        </Tooltip>
+                        <Tooltip title="编辑">
+                            <Icon type="edit" onClick={this.editNode.bind(this, id)} />
+                        </Tooltip>
+                    </span>
+                )
+            }else{
+                item = (
+                    <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
+                        <Tooltip title="编辑">
+                            <Icon type="edit" onClick={this.editNode.bind(this, id)} />
+                        </Tooltip>
+                    </span>
+                )
+            }
+           
         }
         //叶子节点，且达到deepLength
         else if (deepLength >= maxDeepLength) {

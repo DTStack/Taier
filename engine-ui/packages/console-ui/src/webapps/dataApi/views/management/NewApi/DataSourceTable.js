@@ -83,7 +83,7 @@ class NewApiDataSourceTable extends Component {
 
 
                 <Table
-                rowKey="0"
+                rowKey={(record,index) => index}
                 loading={this.props.loading}
                     className="m-table monitor-table"
                     columns={this.initColumns()}

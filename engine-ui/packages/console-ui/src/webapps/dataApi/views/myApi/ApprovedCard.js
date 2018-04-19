@@ -68,7 +68,7 @@ class ApprovedCard extends Component {
     }
     componentWillReceiveProps(nextProps){
         if(this.props.apiId!=nextProps.apiId&&nextProps.apiId){
-            debugger;
+                
                 const res=this.getSource();
                 if(res){
                     for(let i in res.data){

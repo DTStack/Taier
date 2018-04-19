@@ -34,12 +34,13 @@ class TopCall extends Component {
     }
     initLineChart(chartData) {
         const date = this.props.date;
+        const mini=this.props.mini;
         let callCountDate = [];
         let failCountDate = [];
         let times = [];
         const dateDic={
             "1":{
-                interval:3600  * 1000,
+                interval:mini?3600*1000*2:3600  * 1000,
                 times:[new Date().getTime() - 3600 * 24 * 1000, new Date().getTime()]
 
             },
