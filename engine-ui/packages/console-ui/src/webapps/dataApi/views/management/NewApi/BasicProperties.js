@@ -184,7 +184,7 @@ class ManageBasicProperties extends Component {
                                 ],
                                 initialValue:this.props.APIGroup
                             })(
-                                <Cascader className="noheight" options={options} placeholder="请选择分组" />
+                                <Cascader popupClassName="noheight" options={options} placeholder="请选择分组" />
                             )
                             }
                         </FormItem>
