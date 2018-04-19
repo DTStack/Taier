@@ -158,7 +158,7 @@ export const dashBoardActions = {
     getApiCallErrorInfo(date){
         return (dispatch) => {
             
-            API.getApiCallErrorInfoForManager().then((res) => {
+            API.getApiCallErrorInfoForManager({time:date}).then((res) => {
                 if (res.code === 1) {
                     const data=(res.data&&res.data.recordInfoList)||[];
                     dispatch({
