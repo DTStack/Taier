@@ -36,6 +36,7 @@ class TopCall extends Component {
         let callCountDate = [];
         let failCountDate = [];
         let times = [];
+        
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate*100)
@@ -85,6 +86,7 @@ class TopCall extends Component {
                 }
             },
         }];
+    
         option.xAxis[0].data = times;
         console.log(option)
         // 绘制图表
