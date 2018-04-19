@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import {
     Table, Row, Col, Select, Form, 
     Card, Button, message, Checkbox,
-    DatePicker,
+    DatePicker, Input,
 } from 'antd';
 
 import utils from 'utils';
@@ -25,6 +25,7 @@ export default class FieldCheck extends Component {
         params: {
             currentPage: 1,
             pageSize: 10,
+            tableName: '',
             ignore: 0, // 1 忽略，0 不忽略
             type: '2',
         },
@@ -65,16 +66,17 @@ export default class FieldCheck extends Component {
     }
 
     changeParams = (field, value) => {
-        let params = Object.assign(this.state.params);
-        if (field === 'range' && value) {
-            params.startTime = value.length > 0 ? value[0].valueOf() : undefined;
-            params.endTime = value.length > 1 ? value[1].valueOf() : undefined;
-        } else {
-            params[field] = value;
-        }
+        this.setState(Object.assign(this.state.params, {
+            [field]: value,
+        }), this.loadData)
+    }
+
+    onTableNameChange = (e) => {
         this.setState({
-            params,
-        }, this.loadData)
+            params: Object.assign(this.state.params, {
+                tableName: e.target.value
+            })
+        })
     }
 
     initColumns = () => {
@@ -148,6 +150,15 @@ export default class FieldCheck extends Component {
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
+                            <FormItem>
+                                <Input.Search
+                                    placeholder="按表名搜索"
+                                    style={{ width: 200 }}
+                                    size="default"
+                                    onChange={ this.onTableNameChange }
+                                    onSearch={ this.loadData }
+                                />
+                            </FormItem>
                             <FormItem label="类型">
                                 <Select
                                     allowClear
@@ -161,14 +172,6 @@ export default class FieldCheck extends Component {
                                     <Option value="2">字段类型不合理</Option>
                                     <Option value="3">字段描述不合理</Option>
                                 </Select>
-                            </FormItem>
-                            <FormItem label="时间">
-                                <RangePicker 
-                                    size="default" 
-                                    style={{width: 180}} 
-                                    format="YYYY-MM-DD" 
-                                    onChange={(value) => this.changeParams('range', value)}
-                                />
                             </FormItem>
                             <FormItem>
                                 <Checkbox 
