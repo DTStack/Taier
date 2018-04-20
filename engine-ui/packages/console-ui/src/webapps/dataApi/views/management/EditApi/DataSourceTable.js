@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Input } from "antd"
-
+import utils from "utils"
 class NewApiDataSourceTable extends Component {
     state = {
         pageIndex: 1,
@@ -33,7 +33,12 @@ class NewApiDataSourceTable extends Component {
                 key:i,
                 dataIndex:i,
                 title:columns[i],
-                width:(columns[i].length*12+28)+"px"
+                width:(columns[i].length*12+28)+"px",
+                render:function(text){
+                    return (
+                        <span title={text}>{utils.textOverflowExchange(text,30)}</span>
+                    );
+                }
             })
         }
         console.log(arr);

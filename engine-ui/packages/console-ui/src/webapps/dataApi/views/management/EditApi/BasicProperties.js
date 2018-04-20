@@ -235,7 +235,7 @@ class ManageBasicProperties extends Component {
                                 ],
                                 initialValue: this.props.APIGroup
                             })(
-                                <Cascader options={options} placeholder="请选择分组" />
+                                <Cascader showSearch options={options} placeholder="请选择分组" />
                             )
                             }
                         </FormItem>

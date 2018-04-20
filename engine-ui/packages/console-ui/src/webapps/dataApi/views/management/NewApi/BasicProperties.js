@@ -58,7 +58,7 @@ class ManageBasicProperties extends Component {
     getTableListView() {
         const data = this.state.tableList;
         return data.map(
-            (item) => {
+            (item,index) => {
                 return <Option key={item}>{item}</Option>
             }
         )
@@ -184,7 +184,7 @@ class ManageBasicProperties extends Component {
                                 ],
                                 initialValue:this.props.APIGroup
                             })(
-                                <Cascader popupClassName="noheight" options={options} placeholder="请选择分组" />
+                                <Cascader showSearch popupClassName="noheight" options={options} placeholder="请选择分组" />
                             )
                             }
                         </FormItem>
@@ -250,6 +250,7 @@ class ManageBasicProperties extends Component {
                                 initialValue: this.props.dataSource
                             })(
                                 <Select placeholder="请选择数据源"
+                                    showSearch
                                     style={{ width: '85%', marginRight: 15 }}
                                     onChange={this.dataSourceChange.bind(this)} >
                                     {this.getDataSourceOptionView()}

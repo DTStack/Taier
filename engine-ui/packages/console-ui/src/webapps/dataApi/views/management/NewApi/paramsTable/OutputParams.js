@@ -150,6 +150,10 @@ class OutputParams extends Component {
             message.error("请选择字段");
             return false;
         }
+        if (!checkItem.paramName) {
+            message.error("请填写参数名");
+            return false;
+        }
         if(!this.checkVal(checkItem)){
             return false;
         }

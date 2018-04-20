@@ -20,7 +20,7 @@ const errorDic = [
     },
     {
         code: "unauthorize",
-        name: "异常访问",
+        name: "未认证",
         color: "#EE4000"
     },
     {
@@ -30,12 +30,12 @@ const errorDic = [
     },
     {
         code: "timeout",
-        name: "调用超时",
+        name: "超时",
         color: "#EE9A00"
     },
     {
         code: "outlimit",
-        name: "超出限额",
+        name: "超出限制",
         color: "#40E0D0"
     },
     {
