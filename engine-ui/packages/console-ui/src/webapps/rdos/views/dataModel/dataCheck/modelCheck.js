@@ -24,7 +24,7 @@ export default class ModelCheck extends Component {
         loading: false,
 
         params: {
-            currentPage: 1,
+            pageIndex: 1,
             pageSize: 10,
             tableName: '',
             ignore: 0, // 1 忽略，0 不忽略
@@ -88,8 +88,8 @@ export default class ModelCheck extends Component {
         }, {
             width: 80,
             title: '表描述',
-            dataIndex: 'desc',
-            key: 'desc',
+            dataIndex: 'tableDesc',
+            key: 'tableDesc',
         }, {
             width: 80,
             title: '模型层级',
@@ -106,8 +106,8 @@ export default class ModelCheck extends Component {
             key: 'increType',
         }, {
             title: '最后修改人',
-            dataIndex: 'modifyUserName',
-            key: 'modifyUserName',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最后修改时间',
             dataIndex: 'lastModify',
@@ -196,7 +196,7 @@ export default class ModelCheck extends Component {
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}
-                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
+                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
                             dataSource={table.data || []}
                         />
                 </Card>
