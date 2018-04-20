@@ -116,7 +116,7 @@ export default class BaseForm extends React.Component {
 
         const { tableNameArr } = this.state;
 
-        const inlineStyle = { width: 80, display: 'inline-block' }
+        const inlineStyle = { width: 100, display: 'inline-block' }
 
         const renderRules = (rule, index) => {
 
@@ -158,6 +158,7 @@ export default class BaseForm extends React.Component {
                         data && data.map(item =>
                             <Option
                                 id={item.id}
+                                title={item.prefix}
                                 value={item.prefix}
                             >
                                 {item.prefix}
@@ -172,7 +173,7 @@ export default class BaseForm extends React.Component {
             <span key={rule.value} style={{
                 height: '60px',
                 display: 'inline-block',
-                width: '80px',
+                width: '100px',
                 marginRight: '5px'
             }}>
                 <section style={inlineStyle}>{rule.name}:</section>

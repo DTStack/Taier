@@ -39,6 +39,7 @@ export default class FreshFrequency extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
+            width: 200,
             title: '刷新方式描述',
             dataIndex: 'modelDesc',
             key: 'modelDesc',

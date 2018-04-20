@@ -35,6 +35,7 @@ export default class IncrementDefine extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
+            width: 200,
             title: '增量描述',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
