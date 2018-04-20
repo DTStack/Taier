@@ -291,6 +291,7 @@ class ApprovedCard extends Component {
                 >
                     <SlidePane
                         {...this.props}
+                        isApproved={true}
                         showRecord={this.state.showRecord}
                         slidePaneShow={this.state.slidePaneShowNoApproved}
                         closeSlidePane={this.closeSlidePane.bind(this)}

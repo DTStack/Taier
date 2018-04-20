@@ -134,9 +134,9 @@ class ManageErrorLog extends Component {
                 return errorExchange[errorType[text]]
             },
             filters: [
+                { text: '参数错误', value: '3' },
                 { text: '禁用', value: '1' },
                 { text: '未认证', value: '2' },
-                { text: '参数错误', value: '3' },
                 { text: '超时', value: '4' },
                 { text: '超过限制', value: '5' },
                 { text: '其他', value: '6' }
@@ -205,7 +205,7 @@ class ManageErrorLog extends Component {
                     <span>未认证: {this.getErrorPercent('unauthorize')}% ({this.getErrorCount('unauthorize')}次)</span>
                     <span>超时: {this.getErrorPercent('timeout')} ({this.getErrorCount('timeout')}次)</span>
                     <span>超过限制: {this.getErrorPercent('outlimit')} ({this.getErrorCount('outlimit')}次)</span>
-                    <span>未识别: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
+                    <span>其他: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
                 </p>
                 <Table
                     rowKey="id"
