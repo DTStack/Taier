@@ -9,7 +9,8 @@ import { Navigator, Logo }  from 'main/components/nav';
         user: state.user,
         apps: state.apps,
         routing:state.routing,
-        common:state.common
+        common:state.common,
+        app: state.app
     }
 })
 class Header extends Component {
