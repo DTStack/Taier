@@ -89,7 +89,7 @@ class ManageErrorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter && this.state.filter.bizType)
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter && this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -140,7 +140,8 @@ class ManageErrorLog extends Component {
                 { text: '超时', value: '4' },
                 { text: '超过限制', value: '5' },
                 { text: '其他', value: '6' }
-            ]
+            ],
+            filterMultiple:false
         }, {
             title: '错误日志',
             dataIndex: 'content',
@@ -209,7 +210,7 @@ class ManageErrorLog extends Component {
                 </p>
                 <Table
                     rowKey="id"
-                    className="m-table monitor-table table-p-l20"
+                    className="m-table monitor-table table-p-l20 mini-filter"
                     columns={this.initColumns()}
                     loading={this.state.loading}
                     pagination={this.getPagination()}
