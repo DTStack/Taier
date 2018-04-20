@@ -67,7 +67,7 @@ class ErrorDistributed extends Component {
         for (let i = 0; i < chartData.length; i++) {
             let d = chartData[i];
             let errorItem = errorDic[d.type-1]
-            if (item.indexOf(errorItem.name) < 0) {
+            if (errorItem&&item.indexOf(errorItem.name) < 0) {
                 item.push(errorItem.name)
                 data.push({
                     value: d.callNum,
