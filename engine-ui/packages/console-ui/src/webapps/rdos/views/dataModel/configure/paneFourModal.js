@@ -69,7 +69,10 @@ class IncrementDefineModal extends Component {
                     >
                         {getFieldDecorator('name', {
                             rules: [{
-                                required: true, message: '刷新频率不可为空！',
+                                required: true, message: '增量名称不可为空！',
+                            }, {
+                                max: 64,
+                                message: '增量名称不得超过64个字符！',
                             }],
                             initialValue: data ? data.name : '',
                         })(
@@ -87,6 +90,9 @@ class IncrementDefineModal extends Component {
                             }, {
                                 pattern: /^[A-Za-z0-9]+$/,
                                 message: '增量方式标识只能由字母、数字组成!',
+                            }, {
+                                max: 64,
+                                message: '增量方式标识不得超过64个字符！',
                             }],
                             initialValue: data ? data.prefix : '',
                         })(

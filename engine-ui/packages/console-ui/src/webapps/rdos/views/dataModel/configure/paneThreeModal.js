@@ -71,6 +71,9 @@ class FreshFrequencyModal extends Component {
                         {getFieldDecorator('name', {
                             rules: [{
                                 required: true, message: '刷新频率不可为空！',
+                            }, {
+                                max: 64,
+                                message: '刷新频率不得超过64个字符！',
                             }],
                             initialValue: data ? data.name : '',
                         })(
@@ -96,7 +99,7 @@ class FreshFrequencyModal extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="增量说明"
+                        label="刷新频率说明"
                         hasFeedback
                     >
                         {getFieldDecorator('modelDesc', {

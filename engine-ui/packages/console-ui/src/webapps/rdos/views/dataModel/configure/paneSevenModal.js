@@ -192,6 +192,9 @@ class DeriveIndexModal extends Component {
                         {getFieldDecorator('columnNameZh', {
                             rules: [{
                                 required: true, message: '衍生指标名称不可为空！',
+                            }, {
+                                max: 64,
+                                message: '衍生指标名称不得超过64个字符！',
                             }],
                             initialValue: data ? data.columnNameZh : '',
                         })(

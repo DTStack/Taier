@@ -144,7 +144,7 @@ export default class Overview extends Component {
         }
 
         option.tooltip.formatter = function (params) {
-            return `${utils.formatDate(params[0] && +params[0].axisValue)}: ${params[0] && params[0].value}
+            return `${utils.formatDateTime(params[0] && +params[0].axisValue)} <br> 数量：${params[0] && params[0].value}
                 `
         }
 
@@ -154,7 +154,8 @@ export default class Overview extends Component {
             color: '#666666',
             margin: 12,
             formatter: function(value) {
-                return value ? utils.formatDate(+value) : null;
+                console.log('value:', value)
+                return value ? utils.formatDateTime(+value) : null;
             }
         }
         // option.legend.data = ['模型不规范趋势']
@@ -221,7 +222,7 @@ export default class Overview extends Component {
         }
 
         option.tooltip.formatter = function (params) {
-            return `${utils.formatDate(params[0] && +params[0].axisValue )}: ${params[0] && params[0].value}
+            return `${utils.formatDateTime(params[0] && +params[0].axisValue )} <br> 数量：${params[0] && params[0].value}
                 `
         }
 
@@ -231,10 +232,11 @@ export default class Overview extends Component {
             color: '#666666',
             margin: 12,
             formatter: function(value) {
-                return value ? utils.formatDate(+value) : null;
+                return value ? utils.formatDateTime(+value) : null;
             }
         }
         option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [];
+        option.yAxis[0].minInterval = 1;
         option.series = [{
             name: '字段不规范趋势',
             type: 'line',
