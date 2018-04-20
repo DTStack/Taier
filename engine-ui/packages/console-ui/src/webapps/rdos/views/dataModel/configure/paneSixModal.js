@@ -71,6 +71,9 @@ class AtomIndexDefineModal extends Component {
                         {getFieldDecorator('columnNameZh', {
                             rules: [{
                                 required: true, message: '原子指标名称不可为空！',
+                            }, {
+                                max: 64,
+                                message: '原子指标名称不得超过64个字符！',
                             }],
                             initialValue: data ? data.columnNameZh : '',
                         })(
@@ -88,6 +91,9 @@ class AtomIndexDefineModal extends Component {
                             }, {
                                 pattern: /^[A-Za-z0-9]+$/,
                                 message: '原子指标命名只能由字母、数字组成!',
+                            }, {
+                                max: 64,
+                                message: '原子指标命名不得超过64个字符！',
                             }],
                             initialValue: data ? data.columnName : '',
                         })(
