@@ -182,10 +182,12 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
             label: {
                 backgroundColor: '#6a7985'
             }
-        },
-       
+        }
     },
     color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
+    legend: {
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+    },
     toolbox: {
         feature: {
             saveAsImage: {
@@ -200,10 +202,10 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
         top: 40,
         containLabel: true
     },
-    xAxis: 
+    xAxis: [
         {
 
-            type: 'value',
+            type: 'category',
             boundaryGap: false,
             data: [],
             axisTick: {
@@ -226,7 +228,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
                 color: '#666666',
             }
         }
-    ,
+    ],
     yAxis: [
         {
             nameGap: 25,
