@@ -237,6 +237,9 @@ class ApprovedCard extends Component {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
             key: 'recentFailRate',
+            render(text){
+                return text+"%"
+            }
 
         },
         {

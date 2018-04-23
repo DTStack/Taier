@@ -278,7 +278,8 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
                     color: '#DDDDDD',
                     type: 'dashed'
                 }
-            }
+            },
+            max:100
         }
     ],
     series: []

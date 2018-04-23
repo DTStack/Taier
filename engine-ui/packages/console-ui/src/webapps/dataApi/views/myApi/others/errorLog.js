@@ -96,7 +96,7 @@ class errorLog extends Component {
                 { text: '未认证', value: '2' },
                 { text: '参数错误', value: '3' },
                 { text: '超时', value: '4' },
-                { text: '超过限制', value: '5' },
+                { text: '超出限制', value: '5' },
                 { text: '其他', value: '6' }
             ],
             filterMultiple:false
@@ -156,19 +156,21 @@ class errorLog extends Component {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
     render() {
+      
+        
         return (
             <div style={{ paddingLeft: 20 }}>
                 <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
-                    <span>参数错误: {this.getErrorPercent('paramerror')}% ({this.getErrorCount('paramerror')}次)</span>
-                    <span>禁用: {this.getErrorPercent('disable')}% ({this.getErrorCount('disable')}次)</span>
-                    <span>未认证: {this.getErrorPercent('unauthorize')}% ({this.getErrorCount('unauthorize')}次)</span>
-                    <span>超时: {this.getErrorPercent('timeout')} ({this.getErrorCount('timeout')}次)</span>
-                    <span>超过限制: {this.getErrorPercent('outlimit')} ({this.getErrorCount('outlimit')}次)</span>
-                    <span>未识别: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
+                    <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
+                    <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
+                    <span>未认证: {this.getErrorPercent('未认证')}% ({this.getErrorCount('未认证')}次)</span>
+                    <span>超时: {this.getErrorPercent('超时')}% ({this.getErrorCount('超时')}次)</span>
+                    <span>超出限制: {this.getErrorPercent('超出限制')}% ({this.getErrorCount('超出限制')}次)</span>
+                    <span>其他: {this.getErrorPercent('其他')}% ({this.getErrorCount('其他')}次)</span>
                 </p>
                 <Table
                     rowKey="id"
-                    className="m-table monitor-table mini-filter"
+                    className="m-table monitor-table "
                     
                     columns={this.initColumns()}
                     loading={this.state.loading}

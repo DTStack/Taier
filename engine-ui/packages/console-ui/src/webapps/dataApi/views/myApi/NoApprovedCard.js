@@ -102,7 +102,8 @@ class NoApprovedCard extends Component {
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
-            key: 'applyContent'
+            key: 'applyContent',
+            width:"250px"
 
         }, {
             title: '申请时间',

@@ -142,6 +142,17 @@ class ApiManageCallState extends Component {
         }
         let myChart = echarts.init(document.getElementById('manageApiDetail'));
         const option = cloneDeep(doubleLineAreaChartOptions);
+        option.tooltip.formatter = function (params) {
+            var relVal = params[0].name;
+            for (var i = 0, l = params.length; i < l; i++) {
+                let unit="次"
+                if(params[i].seriesName=="失败率"){
+                    unit="%"
+                }
+                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' +params[i].seriesName + ' : ' + params[i].value + unit;
+            }
+            return relVal;
+        }
         option.series = [{
             symbol: "none",
             name: "调用次数",
@@ -167,6 +178,7 @@ class ApiManageCallState extends Component {
             },
         }];
         option.xAxis[0].data = times;
+    
         console.log(option)
         // 绘制图表
         myChart.setOption(option);

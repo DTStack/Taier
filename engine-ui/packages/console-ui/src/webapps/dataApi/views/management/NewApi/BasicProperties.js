@@ -195,7 +195,8 @@ class ManageBasicProperties extends Component {
                             hasFeedback >
                             {getFieldDecorator('APIName', {
                                 rules: [{ required: true, message: '请输入API名称' },
-                                {max:16,message:"最大字数不能超过16"}],
+                                {max:16,message:"最大字数不能超过16"},
+                                { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
                             })(
                                 <Input />

@@ -77,7 +77,7 @@ class TopCard extends Component {
 
     }
     jumpToMineApproved() {
-        this.props.router.push("/api/mine/approved");
+        this.props.router.push("/api/mine/approved?apiId="+this.props.apiId);
     }
     handleOk() {
 

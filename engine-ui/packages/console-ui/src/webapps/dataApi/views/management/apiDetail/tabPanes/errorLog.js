@@ -209,9 +209,9 @@ class ManageErrorLog extends Component {
                     <span>参数错误: {this.getErrorPercent('paramerror')}% ({this.getErrorCount('paramerror')}次)</span>
                     <span>禁用: {this.getErrorPercent('disable')}% ({this.getErrorCount('disable')}次)</span>
                     <span>未认证: {this.getErrorPercent('unauthorize')}% ({this.getErrorCount('unauthorize')}次)</span>
-                    <span>超时: {this.getErrorPercent('timeout')} ({this.getErrorCount('timeout')}次)</span>
-                    <span>超过限制: {this.getErrorPercent('outlimit')} ({this.getErrorCount('outlimit')}次)</span>
-                    <span>其他: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
+                    <span>超时: {this.getErrorPercent('timeout')}% ({this.getErrorCount('timeout')}次)</span>
+                    <span>超过限制: {this.getErrorPercent('outlimit')}% ({this.getErrorCount('outlimit')}次)</span>
+                    <span>其他: {this.getErrorPercent('other')}% ({this.getErrorCount('other')}次)</span>
                 </p>
                 <Table
                     rowKey="id"
