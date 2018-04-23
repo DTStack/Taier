@@ -107,6 +107,17 @@ export const mineActions = {
             });
         }
     },
+    //获取api联系人
+    getApiCreatorInfo(params){
+        return (dispatch) => {
+            return API.getApiCreatorInfo(params).then((res) => {
+                if (res.code === 1) {
+                    return res;
+                }
+                
+            });
+        }
+    },
 
 
 

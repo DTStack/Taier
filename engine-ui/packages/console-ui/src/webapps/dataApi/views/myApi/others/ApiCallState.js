@@ -51,11 +51,15 @@ class ApiCallState extends Component {
             ||
             (this.props.dateType !== nextProps.dateType)
         ) {
+            
             this.setState({
                 apiId: nextProps.showRecord.apiId
             },
                 () => {
-                    this.getInfo();
+                    if(nextProps.slidePaneShow){
+                        this.getInfo();
+                    }
+                    
 
                 })
         }

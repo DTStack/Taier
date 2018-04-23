@@ -26,11 +26,13 @@ class errorLog extends Component {
         this.getErrorInfo();
 
     }
-    getErrorInfo() {
-        if (!this.props.showRecord.apiId) {
+    getErrorInfo(apiId) {
+        apiId=apiId||this.props.showRecord.apiId;
+        if (!apiId) {
             return;
         }
-        this.props.getApiCallErrorInfo(this.props.showRecord.apiId)
+        
+        this.props.getApiCallErrorInfo(apiId)
             .then(
                 (res) => {
                     if (res) {
@@ -52,7 +54,7 @@ class errorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(this.props.showRecord.apiId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
+        this.props.queryApiCallLog(apiId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -70,8 +72,10 @@ class errorLog extends Component {
         if (
             (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
         ) {
-
-            this.getErrorInfo();
+            if(nextProps.slidePaneShow){
+                this.getErrorInfo(nextProps.showRecord.apiId);
+            }
+            
 
         }
     }
@@ -170,7 +174,7 @@ class errorLog extends Component {
                 </p>
                 <Table
                     rowKey="id"
-                    className="m-table monitor-table "
+                    className="m-table monitor-table"
                     
                     columns={this.initColumns()}
                     loading={this.state.loading}

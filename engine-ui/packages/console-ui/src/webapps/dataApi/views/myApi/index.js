@@ -58,7 +58,12 @@ const mapDispatchToProps = dispatch => ({
             bizType:bizType,
             pageSize:5
         }));
-    }
+    },
+    getApiCreatorInfo(apiId){
+        return dispatch(mineActions.getApiCreatorInfo({
+            apiId:apiId
+        }));
+    }   
 });
 
 @connect(mapStateToProps, mapDispatchToProps)

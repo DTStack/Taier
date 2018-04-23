@@ -241,7 +241,7 @@ class APIMana extends Component {
             render: (text, record) => {
                 const dic = {
                     success: "正常",
-                    stop: "已停用",
+                    stop: "已禁用",
                 }
                 return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
             }

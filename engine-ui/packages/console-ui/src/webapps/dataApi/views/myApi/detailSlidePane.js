@@ -84,6 +84,7 @@ class detailSlidePane extends Component {
 
 
     render() {
+        
         const callMethodView = this.props.showRecord.status == 3 ? null : (
             <Tabs.TabPane tab="调用方式" key="callMethod">
                 <ApiCallMethod {...this.props} ></ApiCallMethod>
@@ -93,7 +94,7 @@ class detailSlidePane extends Component {
 
 
             <SlidePane
-                className="m-tabs tabs-no-overflow"
+                className="m-tabs tabs-filter-show"
                 visible={this.props.slidePaneShow}
                 style={{ right: '-20px', width: '80%', minHeight: '350px' }}
                 onClose={this.props.closeSlidePane}>
