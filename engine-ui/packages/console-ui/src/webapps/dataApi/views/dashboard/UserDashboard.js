@@ -90,23 +90,23 @@ class UserDashboard extends Component {
                                 noHovering
                                 title="订购情况"
                             >
-                                <Row gutter={130} className="m-count padding-l20 height-101" justify="space-around" type="flex">
-                                    <Col span={6} >
+                                <Row  className="m-count height-101" justify="space-around" type="flex">
+                                    <Col span={8} >
                                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                                            <span className="m-count-title text-left">审批中</span>
-                                            <span className="m-count-content font-organge text-left">{userOverview.approvalInfo.approvingNum}</span>
+                                            <span className="m-count-title ">审批中</span>
+                                            <span className="m-count-content font-organge ">{userOverview.approvalInfo.approvingNum}</span>
                                         </section>
                                     </Col>
-                                    <Col span={6}>
+                                    <Col span={8}>
                                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                                            <span className="m-count-title text-left">审批通过</span>
-                                            <span className="m-count-content font-green text-left">{userOverview.approvalInfo.approvedNum}</span>
+                                            <span className="m-count-title ">审批通过</span>
+                                            <span className="m-count-content font-green ">{userOverview.approvalInfo.approvedNum}</span>
                                         </section>
                                     </Col>
-                                    <Col span={6}>
-                                        <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                                            <span className="m-count-title text-left">已停用接口</span>
-                                            <span className="m-count-content font-gray text-left">{userOverview.approvalInfo.stoppedNum}</span>
+                                    <Col span={8}>
+                                        <section className="m-count-section margin-t20" style={{ width: 150 }}>
+                                            <span className="m-count-title ">已禁用和已停用接口</span>
+                                            <span className="m-count-content font-gray ">{userOverview.approvalInfo.stoppedNum}</span>
                                         </section>
                                     </Col>
                                 </Row>
