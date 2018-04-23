@@ -198,7 +198,12 @@ class ManageErrorLog extends Component {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
     render() {
-        return (
+        const data=this.getSource();
+        let className="m-table monitor-table table-p-l20"
+        if(data.length<3){
+            className+=" mini-filter"
+        }
+        return ( 
             <div>
                 <p style={{ lineHeight: "1", padding: "14px 0px 14px 20px" }} className="child-span-padding-r20">
                     <span>参数错误: {this.getErrorPercent('paramerror')}% ({this.getErrorCount('paramerror')}次)</span>
@@ -210,11 +215,11 @@ class ManageErrorLog extends Component {
                 </p>
                 <Table
                     rowKey="id"
-                    className="m-table monitor-table table-p-l20 mini-filter"
+                    className={className}
                     columns={this.initColumns()}
                     loading={this.state.loading}
                     pagination={this.getPagination()}
-                    dataSource={this.getSource()}
+                    dataSource={data}
                     onChange={this.onTableChange}
                 />
             </div>

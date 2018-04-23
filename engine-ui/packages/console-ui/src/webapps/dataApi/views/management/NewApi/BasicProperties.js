@@ -191,9 +191,11 @@ class ManageBasicProperties extends Component {
                         <FormItem
                             {...formItemLayout}
                             label="API名称"
+                            
                             hasFeedback >
                             {getFieldDecorator('APIName', {
-                                rules: [{ required: true, message: '请输入API名称' }],
+                                rules: [{ required: true, message: '请输入API名称' },
+                                {max:16,message:"最大字数不能超过16"}],
                                 initialValue: this.props.APIName
                             })(
                                 <Input />
@@ -203,9 +205,11 @@ class ManageBasicProperties extends Component {
                             {...formItemLayout}
                             label="API描述"
                             hasFeedback
+                            
                         >
                             {getFieldDecorator('APIdescription', {
-                                rules: [{ required: false, message: '请输入API描述' }],
+                                rules: [{ required: false, message: '请输入API描述' },
+                            {max:200,message:"最大字数不能超过200"}],
                                 initialValue: this.props.APIdescription
                             })(
                                 <TextArea />

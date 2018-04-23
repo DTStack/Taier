@@ -69,10 +69,16 @@ class MyAPI extends Component {
         pageIndex: 1
     }
     handleClick(e) {
-
+        
         this.setState({
-            nowView: e.key
+            nowView: e
         })
+      
+        if(e=="approved"){
+            this.props.router.replace("/api/mine/approved")
+        }else{
+            this.props.router.replace("/api/mine")
+        }
     }
     componentWillMount() {
         const view=this.props.router.params.view;
