@@ -23,7 +23,7 @@ export default class FieldCheck extends Component {
         loading: false,
 
         params: {
-            currentPage: 1,
+            pageIndex: 1,
             pageSize: 10,
             tableName: '',
             ignore: 0, // 1 忽略，0 不忽略
@@ -87,13 +87,13 @@ export default class FieldCheck extends Component {
         }, {
             width: 80,
             title: '字段描述',
-            dataIndex: 'description',
-            key: 'description',
+            dataIndex: 'columnDesc',
+            key: 'columnDesc',
         }, {
             width: 80,
             title: '字段类型',
-            dataIndex: 'dataType',
-            key: 'dataType',
+            dataIndex: 'columnType',
+            key: 'columnType',
         }, {
             width: 80,
             title: '所属表',
@@ -101,8 +101,8 @@ export default class FieldCheck extends Component {
             key: 'tableName',
         }, {
             title: '最后修改人',
-            dataIndex: 'modifyUserName',
-            key: 'modifyUserName',
+            dataIndex: 'userName',
+            key: 'userName',
         }, {
             title: '最后修改时间',
             dataIndex: 'lastModify',
@@ -189,7 +189,7 @@ export default class FieldCheck extends Component {
                             pagination={pagination}
                             loading={loading}
                             columns={this.initColumns()}
-                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
+                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
                             dataSource={table.data || []}
                         />
                 </Card>

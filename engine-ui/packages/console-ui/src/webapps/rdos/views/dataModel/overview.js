@@ -154,7 +154,6 @@ export default class Overview extends Component {
             color: '#666666',
             margin: 12,
             formatter: function(value) {
-                console.log('value:', value)
                 return value ? utils.formatDateTime(+value) : null;
             }
         }

@@ -6,5 +6,5 @@ window.APP_CONF = {
     API_SERVER: 'http://172.16.8.104:8089',
     UIC_URL: 'http://dtuic.dtstack.net',  // UIC中心地址
     UIC_DOMAIN: '.dtstack.net', // UIC域名
-    VERSION: 'dataQuality 0.0.9', // 版本
+    VERSION: 'v1.0.0', // 版本
 }
