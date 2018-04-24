@@ -250,6 +250,7 @@ class APIMana extends Component {
             title: '描述',
             dataIndex: 'apiDesc',
             key: 'apiDesc',
+            width:300
             
 
         }, {
