@@ -103,7 +103,7 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className=" api-mine nobackground m-card m-tabs">
+            <div className=" api-mine nobackground m-card height-auto m-tabs"> 
                 <h1 className="box-title">我的API</h1>
                 <Card
                 style={{marginTop:"0px"}}

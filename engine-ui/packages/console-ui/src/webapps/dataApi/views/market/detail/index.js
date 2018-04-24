@@ -151,6 +151,18 @@ class APIDetail extends Component {
                             </section>
                         </Col>
                     </Row>
+                    <section style={{ marginTop: 18 }}>
+                        <h1 className="title-border-l-blue">JSON样例</h1>
+                        <div style={{ marginTop: 18 }}>
+                        <pre>
+                        {JSON.stringify({
+                                "inFields":{
+                                    id:1
+                                }
+                            },null,"    \r")}
+                        </pre>
+                        </div>
+                    </section>
 
 
                 </Card>

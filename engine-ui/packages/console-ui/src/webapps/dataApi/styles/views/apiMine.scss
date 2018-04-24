@@ -65,7 +65,7 @@
     top: 50%;
     background: #EE2C2C;
     border-radius: 50%;
-    left: -10px;
+    left: -10px; 
     transform: translateY(-50%);
 }
 .child-span-padding-r20 span{
@@ -77,4 +77,8 @@
 }
 .tabs-filter-show .ant-tabs-content{
     min-height: 200px;
+}
+.height-auto .ant-tabs{
+    min-height: 100%;
+    height: auto;
 }
