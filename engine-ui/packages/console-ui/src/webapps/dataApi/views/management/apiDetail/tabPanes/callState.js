@@ -231,12 +231,12 @@ class ApiManageCallState extends Component {
                                     <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
                                 </section>
                             </Col>
-                            <Col span={10}>
+                            {/* <Col span={10}>
                                 <section className="m-count-section margin-t20" style={{ width: 150 }}>
                                     <span className="m-count-title text-left">TOP调用用户 </span>
                                     <span className="m-count-content font-black text-left">{this.state.topCallUser || '---'}</span>
                                 </section>
-                            </Col>
+                            </Col> */}
                         </Row>
                         <Resize onResize={this.resize}>
                             <article id="manageApiDetail" style={{ width: '100%', height: '300px' }} />

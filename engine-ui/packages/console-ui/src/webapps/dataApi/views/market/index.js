@@ -259,6 +259,7 @@ class APIMarket extends Component {
     }
     getSource() {
         const errorDic = {
+            4: "complete",
             3: "complete",
             2: "nothing",
             1: "complete",
