@@ -229,6 +229,7 @@ class ApprovedCard extends Component {
             title: '描述',
             dataIndex: 'apiDesc',
             key: 'apiDesc',
+            width:300
         }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
