@@ -78,9 +78,9 @@ public class MysqlDataConnPool {
             LOG.error("插件存储配置信息不能为空");
             System.exit(-1);
         }
-            dbUrl = pluginStore.get("dbUrl");
-            dbUserName = pluginStore.get("dbUserName");
-            dbPwd = pluginStore.get("dbPwd");
+            dbUrl = pluginStore.get("url");
+            dbUserName = pluginStore.get("userName");
+            dbPwd = pluginStore.get("pwd");
 
             dataSource.setDriverClassName(DRIVER_NAME);
             dataSource.setUrl(dbUrl);

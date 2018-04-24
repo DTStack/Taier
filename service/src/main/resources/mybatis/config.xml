@@ -11,16 +11,16 @@
         <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache" />
         <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTaskCheckpoint" />
         <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo"/>
+        <typeAlias alias="RdosEngineUniqueSign" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign"/>
     </typeAliases>
-
     <environments default="production">
         <environment id="production">
             <transactionManager type="MANAGED"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://172.16.10.61:3306/rdos?charset=utf8"/>
-                <property name="username" value="dtstack"/>
-                <property name="password" value="abc123"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${userName}"/>
+                <property name="password" value="${pwd}"/>
             </dataSource>
         </environment>
     </environments>
@@ -31,5 +31,6 @@
         <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
         <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
         <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosEngineUniqueSignMapping.xml" />
     </mappers>
 </configuration>

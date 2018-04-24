@@ -1,15 +1,14 @@
 package com.dtstack.rdos.engine.db.callback;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.Reader;
-
-import org.apache.ibatis.io.Resources;
+import com.dtstack.rdos.common.config.ConfigParse;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import java.util.Map;
+import java.util.Properties;
+import java.io.InputStream;
 
 /**
  * 
@@ -21,22 +20,25 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
  */
 public class MyBatisConnectionFactory {
 
-    private static  String resource = System.getProperty("user.dir") + "/conf/mybatis/config.xml";
+    private static  String resource = "mybatis/config.xml";
 
     private static SqlSessionFactory sqlSessionFactory;
 
     private static Logger logger = LoggerFactory.getLogger(MyBatisConnectionFactory.class);
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
  
     static {
         try {
-            FileInputStream input = new FileInputStream(new File(resource));
- 
+            Map<String,String> db = ConfigParse.getDB();
+            Properties properties = objectMapper.readValue(objectMapper.writeValueAsBytes(db),Properties.class);
+            InputStream input = MyBatisConnectionFactory.class.getClassLoader().getResourceAsStream(resource);
             if (sqlSessionFactory == null) {
-                sqlSessionFactory = new SqlSessionFactoryBuilder().build(input);
+                sqlSessionFactory = new SqlSessionFactoryBuilder().build(input,properties);
             }
-        }
-        catch (Exception e) {
-            logger.error("MyBatisConnectionFactory error:", e);
+        }catch (Exception e) {
+            logger.error("load db error:", e);
+            throw new RuntimeException(e);
         }
     }
 

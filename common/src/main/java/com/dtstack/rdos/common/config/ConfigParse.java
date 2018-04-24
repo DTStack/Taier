@@ -19,7 +19,6 @@ public class ConfigParse {
         }
     }
 
-
     public static int getSlots(){
         Object slots = configs.get("slots");
         return slots==null?10:Integer.parseInt(slots.toString());
@@ -67,6 +66,12 @@ public class ConfigParse {
     }
 
     public static Map<String,String> getPluginStoreInfo(){
-        return (Map<String, String>) configs.get("pluginStoreInfo");
+        Object storeInfo = configs.get("pluginStoreInfo");
+        return storeInfo == null?getDB():(Map<String, String>)storeInfo;
+    }
+
+    public static Map<String, String> getDB(){
+        Map<String, String> db = (Map<String, String>)configs.get("db");
+        return db;
     }
 }
