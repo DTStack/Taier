@@ -5,9 +5,6 @@ import {
     Card, Input, Tooltip, Popconfirm
 } from 'antd'
 
-import NoData from '../../components/no-data'
-import { showSeach } from '../../store/modules/comm';
-
 const TreeNode = Tree.TreeNode
 
 class CatalogueTree extends Component {

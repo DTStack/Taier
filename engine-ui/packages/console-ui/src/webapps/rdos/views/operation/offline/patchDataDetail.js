@@ -43,7 +43,6 @@ const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
-
 class PatchDataDetail extends Component {
 
     state = {
