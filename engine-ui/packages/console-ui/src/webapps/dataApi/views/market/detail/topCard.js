@@ -16,7 +16,8 @@ class TopCard extends Component {
     getTopRightButton() {
         const status = this.getValue('applyStatus');
         if (status == 1||status == 3) {
-            return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
+            // return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
+            return null;
 
         }
         if (status == 0) {

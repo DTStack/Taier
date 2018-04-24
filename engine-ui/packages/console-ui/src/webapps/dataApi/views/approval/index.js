@@ -88,7 +88,8 @@ class APIApproval extends Component {
     }
     handleSearch(key) {
         this.setState({
-            userName: key
+            userName: key,
+            pageIndex:1
         },
             () => {
                 this.getApprovalList();

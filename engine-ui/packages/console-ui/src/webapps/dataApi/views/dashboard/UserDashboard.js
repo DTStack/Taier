@@ -65,7 +65,7 @@ class UserDashboard extends Component {
                 <div className="box-card m-card">
                     <Row gutter={20}>
                         <Col span={16}>
-                            <OverView mini={true} date={this.props.dashBoard.userDate} chartData={userOverview.callInfo.infoList} callCount={userOverview.callInfo.callCount} topCallFunc={userOverview.callInfo.callTopAPI} failPercent={userOverview.callInfo.failPercent} ></OverView>
+                            <OverView userView={true} mini={true} date={this.props.dashBoard.userDate} chartData={userOverview.callInfo.infoList} callCount={userOverview.callInfo.callCount} topCallFunc={userOverview.callInfo.callTopAPI} failPercent={userOverview.callInfo.failPercent} ></OverView>
                         </Col>
                         <Col span={8} className="m-card-small  m-tabs noheight">
                             <Tabs

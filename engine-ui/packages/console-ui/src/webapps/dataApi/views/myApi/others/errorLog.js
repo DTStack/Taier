@@ -96,9 +96,9 @@ class errorLog extends Component {
                 return errorType[text]
             },
             filters: [
+                { text: '参数错误', value: '3' },
                 { text: '禁用', value: '1' },
                 { text: '未认证', value: '2' },
-                { text: '参数错误', value: '3' },
                 { text: '超时', value: '4' },
                 { text: '超出限制', value: '5' },
                 { text: '其他', value: '6' }

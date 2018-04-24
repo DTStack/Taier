@@ -198,7 +198,8 @@ class APIMana extends Component {
     }
     handleSearch(value) {
         this.setState({
-            searchName: value
+            searchName: value,
+            pageIndex:1
         }, () => {
             this.getAllApi();
         }

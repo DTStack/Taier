@@ -65,11 +65,11 @@ class TopCall extends Component {
         option.tooltip.formatter = function (params) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
-                let unit="次"
-                if(params[i].seriesName=="失败率"){
-                    unit="%"
+                let unit = "次"
+                if (params[i].seriesName == "失败率") {
+                    unit = "%"
                 }
-                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' +params[i].seriesName + ' : ' + params[i].value + unit;
+                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' + params[i].seriesName + ' : ' + params[i].value + unit;
             }
             return relVal;
         }
@@ -129,12 +129,15 @@ class TopCall extends Component {
                             <span className="m-count-content font-red text-left">{this.props.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
                         </section>
                     </Col>
-                    <Col span={6}>
-                        <section className="m-count-section margin-t20" style={{ width: 150 }}>
-                            <span className="m-count-title text-left">TOP调用接口</span>
-                            <span className="m-count-content font-black text-left">{this.props.topCallFunc || '---'}</span>
-                        </section>
-                    </Col>
+                    {this.props.userView ? null :
+                        (
+                            <Col span={6}>
+                                <section className="m-count-section margin-t20" style={{ width: 150 }}>
+                                    <span className="m-count-title text-left">TOP调用接口</span>
+                                    <span className="m-count-content font-black text-left">{this.props.topCallFunc || '---'}</span>
+                                </section>
+                            </Col>
+                        )}
                 </Row>
                 <Resize onResize={this.resize.bind(this)}>
                     <article id="CallGraph" style={{ width: '100%', height: '300px' }} />

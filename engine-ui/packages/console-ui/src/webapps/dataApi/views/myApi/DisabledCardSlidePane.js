@@ -37,7 +37,7 @@ class DisabledCardSlidePane extends Component {
                     if (res) {
                         this.setState({
                             phone: res.data.phoneNumber,
-                            dtuicUserId: res.data.dtuicUserId,
+                            dtuicUserId: res.data.userName,
                             email: res.data.email
                         })
                     }

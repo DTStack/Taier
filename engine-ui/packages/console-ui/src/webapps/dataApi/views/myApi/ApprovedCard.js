@@ -14,7 +14,7 @@ const exchangeDic = {
 }
 
 const sortType = {
-    "applyTime": 'gmt_modified'
+    "applyTime": 'gmt_create'
 }
 const orderType = {
     "ascend": 'asc',
