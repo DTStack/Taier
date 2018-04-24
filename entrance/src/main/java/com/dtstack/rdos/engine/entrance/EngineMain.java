@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.entrance;
 
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.SystemPropertyUtil;
-import com.dtstack.rdos.engine.db.callback.MyBatisConnectionFactory;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
