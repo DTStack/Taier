@@ -204,24 +204,25 @@ class ApprovedCard extends Component {
                 return <a onClick={this.apiClick.bind(this, record)} >{text}</a>
             }
         }, {
-            title: '状态',
+            title: '授权状态',
             dataIndex: 'status',
             key: 'status',
             render(text) {
 
                 const dic = {
-                    success: "正常",
-                    disabled: "禁用",
+                    success: "已通过",
+                    disabled: "取消授权",
                     stop: "停用",
-                    notPass: "未通过"
+                    notPass: "已拒绝"
                 }
                 return <span className={`state-${exchangeDic[text]}`}>{dic[exchangeDic[text]]}</span>
             },
             filters: [
-                { text: '正常', value: '1' },
+                { text: '已通过', value: '1' },
+                { text: '已拒绝', value: '2' },
                 { text: '停用', value: '3' },
-                { text: '禁用', value: '4' },
-                { text: '未通过', value: '2' }
+                { text: '取消授权', value: '4' },
+                
             ]
         }, {
             title: '描述',
