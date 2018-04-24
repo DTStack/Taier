@@ -157,7 +157,9 @@ class APIDetail extends Component {
                         <pre>
                         {JSON.stringify({
                                 "inFields":{
-                                    id:1
+                                    id:175,
+                                    date:"2017-09-08 12:33:23",
+                                    in:"12,34,45"
                                 }
                             },null,"    \r")}
                         </pre>
