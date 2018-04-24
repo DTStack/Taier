@@ -12,6 +12,8 @@ import { modalAction } from '../../store/modules/offlineTask/actionType';
 import { 
     workbenchActions
 } from '../../store/modules//offlineTask/offlineAction';
+import { showSeach } from '../../store/modules/comm';
+
 import { openPage } from '../../store/modules//realtimeTask/browser';
 import { MENU_TYPE } from '../../comm/const';
 
@@ -49,6 +51,7 @@ class SearchTaskModal extends React.Component {
     }
 
     bindEvent = (target) => {
+
         const pathname = location.pathname
         const keyCode = target.keyCode
         const keyMap = this.state.keyStack
@@ -56,7 +59,7 @@ class SearchTaskModal extends React.Component {
         const keyP = 80, ctrlKey = 17;
 
         if (keyCode === keyP || keyCode === ctrlKey) {
-           
+
             const currentKeyMap = Object.assign(keyMap, {
                 [keyCode]: target.type == 'keydown',
             })
@@ -68,34 +71,31 @@ class SearchTaskModal extends React.Component {
             }
 
             if (inRealtime() || inOffline()) {
-                
+
                 if (currentKeyMap[ctrlKey] && currentKeyMap[keyP]) {
                     target.preventDefault();
-                    this.setState({
-                        visible: true,
-                    })
+                    this.props.showSeach(true)
                     this.onfocus()
                 }
-                
             }
-        
         }
         return false;
     }
 
     close = (cb) => {
+        this.props.showSeach(false)
         this.setState({ visible: false, windowsKey: {}, data: undefined })
     }
 
     search = (value) => {
         if (!value) return;
 
-        const pathname = location.pathname
-        
+        const pathname = location.pathname;
+
         const succCall = (res) => {
             if (res.code === 1) {
                 this.setState({
-                    data: res.data
+                    data: res.data,
                 });
             }
         }
@@ -123,7 +123,7 @@ class SearchTaskModal extends React.Component {
                 tabs,
                 currentTab,
                 id: taskId,
-                treeType: MENU_TYPE.TASK_DEV
+                treeType: MENU_TYPE.TASK_DEV,
             })
         } else if(inRealtime()) {
             const { openRealtimeTaskTab } = this.props
@@ -134,14 +134,15 @@ class SearchTaskModal extends React.Component {
     onfocus = () => {
         const selector = document.getElementById('My_Search_Select')
         if (selector) {
-            selector.focus()
+            selector.focus();
             // fix autoComplete问题
-            selector.setAttribute('autocomplete', 'off')
+            selector.setAttribute('autocomplete', 'off');
         }
     }
 
     render() {
         const { data, visible } = this.state;
+        const { visibleSearchTask } = this.props;
         const options = data && data.map(item => 
             <Option key={item.id} data={item} value={item.name}>
                 {item.name}
@@ -150,7 +151,7 @@ class SearchTaskModal extends React.Component {
 
         return <Modal
             title="打开任务"
-            visible={visible}
+            visible={visibleSearchTask}
             footer=""
             onCancel={this.close}
         >
@@ -177,13 +178,16 @@ class SearchTaskModal extends React.Component {
 export default connect(state => {
     const { workbench } = state.offlineTask;
     const { tabs, currentTab } = workbench;
-    return { tabs, currentTab }
+    return { tabs, currentTab, visibleSearchTask: state.visibleSearchTask }
 }, dispatch => {
     const actions = workbenchActions(dispatch)
     return {
         openOfflineTaskTab: actions.openTab,
         openRealtimeTaskTab: function(params) {
             dispatch(openPage(params))
+        },
+        showSeach: function(boolFlag) {
+            dispatch(showSeach(boolFlag))
         }
     }
 })(SearchTaskModal);

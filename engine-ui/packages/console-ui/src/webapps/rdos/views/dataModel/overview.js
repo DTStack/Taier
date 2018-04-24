@@ -159,6 +159,8 @@ export default class Overview extends Component {
         }
         // option.legend.data = ['模型不规范趋势']
         option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [];
+        option.yAxis[0].minInterval = 1;
+
         option.series = [{
             name: '模型不规范趋势',
             type: 'line',
