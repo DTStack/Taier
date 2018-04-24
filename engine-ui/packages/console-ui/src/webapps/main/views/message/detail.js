@@ -40,16 +40,25 @@ class MsgDetail extends Component {
     }
 
     render() {
+       
         const { msgInfo, app } = this.state
+        const msgView=this.props.router.location.query.app=="dataApi"?(
+            <p dangerouslySetInnerHTML={{__html:msgInfo.content}} >
+                            
+            </p>
+        ):(
+            <p >
+                   {msgInfo.content}         
+            </p>
+        )
         return (
             <div className="box-1">
                 <div className="box-card msg-box">
                     <main>
                         <h1 className="card-title"><GoBack history url={`message?app=${app}`}/> 消息详情 </h1>
-                        <p>
-                            {msgInfo.content}
-                        </p>
+                        
                     </main>
+                    {msgView}
                     <footer>
                         <span>
                             <Icon type="notification" />
