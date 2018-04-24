@@ -30,6 +30,7 @@ class ApprovedCard extends Component {
         sortedInfo: {},
         filterInfo: {},
         showRecord: {}
+        
     }
     getAppliedList() {
         this.setState({
@@ -290,8 +291,10 @@ class ApprovedCard extends Component {
             total: this.getTotal(),
         }
     }
+  
 
     render() {
+       
         return (
             <div>
 
@@ -322,6 +325,15 @@ class ApprovedCard extends Component {
                     >
                     </SlidePaneDetail>
                     <Table
+                        rowClassName={
+                            (record, index)=>{
+                                if(this.state.showRecord.apiId==record.apiId){
+                                    return "row-select"
+                                }else{
+                                    return "";
+                                }
+                            }
+                        }
                         rowKey="apiId"
                         className="m-table monitor-table"
                         columns={this.initColumns()}

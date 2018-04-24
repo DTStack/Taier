@@ -148,6 +148,15 @@ class NoApprovedCard extends Component {
                 ></SlidePane>
                 <Table
                     rowKey="id"
+                    rowClassName={
+                        (record, index)=>{
+                            if(this.state.showRecord.apiId==record.apiId){
+                                return "row-select"
+                            }else{
+                                return "";
+                            }
+                        }
+                    }
                     className="m-table monitor-table"
                     columns={this.initColumns()}
                     loading={this.state.loading}
