@@ -6,7 +6,7 @@ exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
 db:
-   url: jdbc:mysql://172.16.8.104:3306/rdos?charset=utf8
+   url: jdbc:mysql://172.16.8.104:3306/rdos?charset=utf8&autoReconnect=true
    userName: dtstack
    pwd: abc123
 
