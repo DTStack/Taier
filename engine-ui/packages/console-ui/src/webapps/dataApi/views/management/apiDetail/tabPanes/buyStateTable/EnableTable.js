@@ -41,7 +41,10 @@ class EnableTable extends Component {
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
-            key: 'recent24HFailRate'
+            key: 'recent24HFailRate',
+            render(text){
+                return text+"%";
+            }
         }, {
             title: '最近7天调用',
             dataIndex: 'recent7DCallNum',
