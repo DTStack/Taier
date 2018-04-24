@@ -21,14 +21,14 @@ class EnableTable extends Component {
             filters: [
                 { text: '正常', value: '1' },
                 { text: '停用', value: '3' },
-                { text: '禁用', value: '4' }
+                { text: '取消授权', value: '4' }
 
             ],
             render: (text, record) => {
                 const dic = {
                     success: "正常",
                     stop: "停用",
-                    disabled:"禁用"
+                    disabled:"取消授权"
                 }
              
                 return <span className={`state-${EXCHANGE_API_STATUS[text]}`}>{dic[EXCHANGE_API_STATUS[text]]}</span>

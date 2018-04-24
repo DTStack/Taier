@@ -229,8 +229,9 @@ class APIManageDetail extends Component {
                     openApi={this.openApi.bind(this)}
                     closeApi={this.closeApi.bind(this)}
                 ></ManageTopCard>
-                <div className="tabs-box m-tabs noheight">
+                <div className="tabs-box m-tabs noheight tabs-filter-show">
                     <Tabs
+                    
                         defaultActiveKey={this.state.nowView}
                         onChange={this.callback.bind(this)}
                         tabBarExtraContent={this.getDateTypeView()}
