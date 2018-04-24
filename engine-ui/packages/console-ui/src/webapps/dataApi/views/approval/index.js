@@ -80,7 +80,7 @@ class APIApproval extends Component {
                 (res) => {
                     if (res) {
                         this.setState({
-                            total: res.totalCount
+                            total: res.data.totalCount
                         })
                     }
                 }
