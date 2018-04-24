@@ -5,8 +5,10 @@ class ApiCallMethod extends Component{
     state={
         callUrl:""
     }
-    getApiCallUrl(){
-        this.props.getApiCallUrl(this.props.showRecord.apiId)
+    getApiCallUrl(apiId){
+      
+        apiId=apiId||this.props.showRecord.apiId;
+        this.props.getApiCallUrl(apiId)
         .then(
             (res)=>{
                 if(res){
@@ -22,7 +24,10 @@ class ApiCallMethod extends Component{
     }
     componentWillReceiveProps(nextProps){
         if(nextProps.showRecord&&this.props.showRecord.apiId!=nextProps.showRecord.apiId){
-            this.getApiCallUrl();
+            if(nextProps.slidePaneShow){
+                this.getApiCallUrl(nextProps.showRecord.apiId);
+            }
+            
         }
     }
     render(){

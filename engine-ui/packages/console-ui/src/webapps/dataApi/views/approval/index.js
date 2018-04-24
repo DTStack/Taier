@@ -88,7 +88,8 @@ class APIApproval extends Component {
     }
     handleSearch(key) {
         this.setState({
-            userName: key
+            userName: key,
+            pageIndex:1
         },
             () => {
                 this.getApprovalList();
@@ -211,6 +212,7 @@ class APIApproval extends Component {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
+            width:"250px"
         }, {
             title: '申请时间',
             dataIndex: 'applyTime',
@@ -339,6 +341,7 @@ class APIApproval extends Component {
                             {getFieldDecorator('APIGroup', {
                                 rules: [
                                     { required: true, message: '请填写审批说明' },
+                                    {max:200,message:"最大字数不能超过200"}
                                 ],
 
                             })(

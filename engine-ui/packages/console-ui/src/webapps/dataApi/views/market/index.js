@@ -57,6 +57,7 @@ class APIMarket extends Component {
             "ascend": 'asc',
             "descend": 'desc'
         }
+        
         this.props.getApiMarketList({
             apiName: this.state.searchValue,
             pid: this.state.type1 || -1,
@@ -163,8 +164,10 @@ class APIMarket extends Component {
 
     }
     handleSearch(value) {
+        
         this.setState({
-            searchValue: value
+            searchValue: value,
+            pageIndex:1
         }, () => {
             this.getMarketApi();
         }
@@ -256,7 +259,8 @@ class APIMarket extends Component {
     }
     getSource() {
         const errorDic = {
-            3: "nothing",
+            4: "complete",
+            3: "complete",
             2: "nothing",
             1: "complete",
             0: "applying",

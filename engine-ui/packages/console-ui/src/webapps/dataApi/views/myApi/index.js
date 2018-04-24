@@ -58,7 +58,12 @@ const mapDispatchToProps = dispatch => ({
             bizType:bizType,
             pageSize:5
         }));
-    }
+    },
+    getApiCreatorInfo(apiId){
+        return dispatch(mineActions.getApiCreatorInfo({
+            apiId:apiId
+        }));
+    }   
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -69,10 +74,16 @@ class MyAPI extends Component {
         pageIndex: 1
     }
     handleClick(e) {
-
+        
         this.setState({
-            nowView: e.key
+            nowView: e
         })
+      
+        if(e=="approved"){
+            this.props.router.replace("/api/mine/approved")
+        }else{
+            this.props.router.replace("/api/mine")
+        }
     }
     componentWillMount() {
         const view=this.props.router.params.view;
@@ -92,7 +103,7 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className=" api-mine nobackground m-card m-tabs">
+            <div className=" api-mine nobackground m-card height-auto m-tabs"> 
                 <h1 className="box-title">我的API</h1>
                 <Card
                 style={{marginTop:"0px"}}

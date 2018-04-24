@@ -191,9 +191,12 @@ class ManageBasicProperties extends Component {
                         <FormItem
                             {...formItemLayout}
                             label="API名称"
+                            
                             hasFeedback >
                             {getFieldDecorator('APIName', {
-                                rules: [{ required: true, message: '请输入API名称' }],
+                                rules: [{ required: true, message: '请输入API名称' },
+                                {max:16,message:"最大字数不能超过16"},
+                                { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
                             })(
                                 <Input />
@@ -203,9 +206,11 @@ class ManageBasicProperties extends Component {
                             {...formItemLayout}
                             label="API描述"
                             hasFeedback
+                            
                         >
                             {getFieldDecorator('APIdescription', {
-                                rules: [{ required: false, message: '请输入API描述' }],
+                                rules: [{ required: false, message: '请输入API描述' },
+                            {max:200,message:"最大字符不能超过200"}],
                                 initialValue: this.props.APIdescription
                             })(
                                 <TextArea />
@@ -217,7 +222,14 @@ class ManageBasicProperties extends Component {
                             hasFeedback >
                             {getFieldDecorator('callLimit', {
                                 rules: [
-                                    { required: true, message: '请输入调用次数限制' }
+                                    { required: true, message: '请输入调用次数限制' },
+                                    {validator:function(rule, value, callback){
+                                        if(value&&(value>1000||value<1)){
+                                            callback("请输入不大于1000的正整数")
+                                            return;
+                                        }
+                                        callback();
+                                    }}
                                     
                                 ]
                                 ,

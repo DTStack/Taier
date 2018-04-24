@@ -59,6 +59,14 @@ class ManageParamsConfig extends Component {
     }
  
     pass() {
+        if(!this.state.inputData||this.state.inputData.length<1){
+            message.error("请设置输入参数")
+            return;
+        }
+        if(!this.state.outputData||this.state.outputData.length<1){
+            message.error("请设置输出参数")
+            return;
+        }
         if(this.state.inputData&&this.state.outputData&&this.state.inputData.length>0&&this.state.outputData.length>0){
             let haveRequired=false;
             for(let i in this.state.inputData){

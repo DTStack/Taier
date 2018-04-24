@@ -34,6 +34,7 @@ export default {
     GET_API_CALL_ERROR_LOG:`${DATA_API_BASE_URL}/log/queryApiCallLogForNormal`,//用户获取api错误统计日志
     GET_API_CALL_ERROR_LOG_ADMIN:`${DATA_API_BASE_URL}/log/queryApiCallLogForManager`,//管理员获取api错误统计日志
     GET_API_CALL_URL:`${DATA_API_BASE_URL}/apis/getApiCallUrl`,//获取api调用方式
+    GET_API_CREATOR_INFO:`${DATA_API_BASE_URL}/apis/getApiCreatorInfo`,//获取api创建人的信息
 
     // ===== 市场信息 =====//
     GET_CATALOGUE:`${DATA_API_BASE_URL}/catalogue/getCatalogue`,//获取市场分类信息

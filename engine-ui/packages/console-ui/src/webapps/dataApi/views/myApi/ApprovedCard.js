@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Menu, Card, Table, Modal } from "antd";
+import { Menu, Card, Table, Modal ,message} from "antd";
 import SlidePane from "./ApprovedSlidePane";
 import SlidePaneDisabled from "./DisabledCardSlidePane"
 import SlidePaneDetail from "./detailSlidePane"
@@ -14,7 +14,7 @@ const exchangeDic = {
 }
 
 const sortType = {
-    "applyTime": 'gmt_modified'
+    "applyTime": 'gmt_create'
 }
 const orderType = {
     "ascend": 'asc',
@@ -156,7 +156,10 @@ class ApprovedCard extends Component {
             onOk: () => {
                 this.props.updateApplyStatus(record.id, 3).
                     then(
-                        () => {
+                        (res) => {
+                            if(res){
+                                message.success("停止成功")
+                            }
                             this.getAppliedList();
                         }
                     )
@@ -175,7 +178,10 @@ class ApprovedCard extends Component {
             onOk: () => {
                 this.props.updateApplyStatus(record.id, 1).
                     then(
-                        () => {
+                        (res) => {
+                            if(res){
+                                message.success("开启成功")
+                            }
                             this.getAppliedList();
                         }
                     )
@@ -231,6 +237,9 @@ class ApprovedCard extends Component {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
             key: 'recentFailRate',
+            render(text){
+                return text+"%"
+            }
 
         },
         {

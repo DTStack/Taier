@@ -56,6 +56,7 @@ class ApplyBox extends Component {
 
     }
     handleCancel() {
+        this.props.form.resetFields();
         this.props.cancelCallback();
     }
     render() {
@@ -110,7 +111,8 @@ class ApplyBox extends Component {
                         >
                             {getFieldDecorator('applyMsg',
                                 {
-                                    rules: [{ required: true, message: '请输入申请信息' }]
+                                    rules: [{ required: true, message: '请输入申请信息' },
+                                    {max:200,message:"最大字符不能超过200"},]
                                 }, )(<TextArea style={{ width: 200 }} rows={4} />)}
 
                         </FormItem>

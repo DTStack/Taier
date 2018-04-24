@@ -5,8 +5,8 @@ import { connect } from "react-redux";
 import { doubleLineAreaChartOptions } from '../../../../consts';
 import { apiManageActions } from '../../../../actions/apiManage';
 import { mineActions } from '../../../../actions/mine';
-import {cloneDeep} from "lodash"
-import util from "utils"
+import { cloneDeep } from "lodash"
+import utils from "utils"
 import ManageTopCall from "./TopCall"
 
 // 引入 ECharts 主模块
@@ -131,17 +131,42 @@ class ApiManageCallState extends Component {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
     initLineChart() {
-        let chartData=this.state.callList
+        let chartData = this.state.callList
         let callCountDate = [];
         let failCountDate = [];
         let times = [];
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate)
-            times.push(util.formatDateTime(chartData[i].time))
+            switch (this.props.dateType) {
+                case "1":
+                    times.push(utils.formatHours(chartData[i].time));
+                    break;
+                case "7":
+                    times.push(utils.formatDateHours(chartData[i].time));
+                    break;
+                case "30":
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
+                case "-1":
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
+            }
+
         }
         let myChart = echarts.init(document.getElementById('manageApiDetail'));
         const option = cloneDeep(doubleLineAreaChartOptions);
+        option.tooltip.formatter = function (params) {
+            var relVal = params[0].name;
+            for (var i = 0, l = params.length; i < l; i++) {
+                let unit = "次"
+                if (params[i].seriesName == "失败率") {
+                    unit = "%"
+                }
+                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' + params[i].seriesName + ' : ' + params[i].value + unit;
+            }
+            return relVal;
+        }
         option.series = [{
             symbol: "none",
             name: "调用次数",
@@ -167,6 +192,7 @@ class ApiManageCallState extends Component {
             },
         }];
         option.xAxis[0].data = times;
+
         console.log(option)
         // 绘制图表
         myChart.setOption(option);
@@ -205,12 +231,12 @@ class ApiManageCallState extends Component {
                                     <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
                                 </section>
                             </Col>
-                            <Col span={10}>
+                            {/* <Col span={10}>
                                 <section className="m-count-section margin-t20" style={{ width: 150 }}>
                                     <span className="m-count-title text-left">TOP调用用户 </span>
                                     <span className="m-count-content font-black text-left">{this.state.topCallUser || '---'}</span>
                                 </section>
-                            </Col>
+                            </Col> */}
                         </Row>
                         <Resize onResize={this.resize}>
                             <article id="manageApiDetail" style={{ width: '100%', height: '300px' }} />
