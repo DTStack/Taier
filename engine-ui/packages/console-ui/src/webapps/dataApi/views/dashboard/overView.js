@@ -116,7 +116,7 @@ class TopCall extends Component {
             <Card
                 noHovering
             >
-                <Row gutter={130} className="m-count padding-l20 height-101">
+                <Row style={{width:"100%"}} gutter={130} className="m-count padding-l20 height-101">
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">累计调用</span>
