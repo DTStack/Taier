@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Tooltip, message } from 'antd';
 
-export default class ClipBoard extends Component {
+export default class ToolTipCopy extends Component {
 
     state = {
         

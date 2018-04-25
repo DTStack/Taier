@@ -6,10 +6,25 @@ import moment from 'moment';
 import { Button, Form, Select, DatePicker, Checkbox, message } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { formItemLayout } from '../../../consts';
+import { halfFormItemLayout } from '../../../consts';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+
+const initialSchedule = {
+    beginDate: moment().format('YYYY-MM-DD'),
+    endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
+    periodType: '2',
+    day: undefined,
+    weekDay: undefined,
+    hour: 0,
+    min: 0,
+    beginHour: 0,
+    beginMin: 0,
+    gapHour: undefined,
+    endHour: 0,
+    endMin: 0
+}
 
 const mapStateToProps = state => {
     const { common } = state;
@@ -27,20 +42,7 @@ export default class StepThree extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            scheduleConfObj: {
-                beginDate: moment().format('YYYY-MM-DD'),
-                endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
-                periodType: '2',
-                day: undefined,
-                weekDay: undefined,
-                hour: 0,
-                min: 0,
-                beginHour: 0,
-                beginMin: 0,
-                gapHour: undefined,
-                endHour: 0,
-                endMin: 0
-            }
+            scheduleConfObj: initialSchedule
         }
     }
 
@@ -57,20 +59,7 @@ export default class StepThree extends Component {
     }
 
     resetScheduleConf = (type) => {
-        let scheduleConfObj = {
-            beginDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
-            periodType: type,
-            day: undefined,
-            weekDay: undefined,
-            hour: 0,
-            min: 0,
-            beginHour: 0,
-            beginMin: 0,
-            gapHour: undefined,
-            endHour: 0,
-            endMin: 0
-        };
+        let scheduleConfObj = { ...initialSchedule, periodType: type };
 
         this.setState({ scheduleConfObj });
         this.props.changeParams({
@@ -81,14 +70,12 @@ export default class StepThree extends Component {
     // 调度周期下拉框
     renderPeriodType = (data) => {
         return data.map((item) => {
-            return (
-                <Option 
-                    key={item.value} 
-                    value={item.value.toString()}>
-                    {item.name}
-                </Option>
-            )
-        })
+            return <Option 
+                key={item.value} 
+                value={item.value.toString()}>
+                {item.name}
+            </Option>
+        });
     }
 
     // 调度周期回调
@@ -112,87 +99,69 @@ export default class StepThree extends Component {
         let notifyUser = form.getFieldValue('notifyUser');
 
         if (value.length === 0 && notifyUser.length === 0) {
-            form.setFieldsValue({
-                notifyUser: []
-            });
+            form.setFieldsValue({ notifyUser: [] });
         }
 
-        this.props.changeParams({
-            sendTypes: value
-        });
+        this.props.changeParams({ sendTypes: value });
     }
 
-    onBeginDateChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'beginDate');
-    }
-
-    onEndDateChange = (date, dateString) => {
-        this.changeScheduleParams(dateString, 'endDate');
-    }
-
-    changeScheduleParams = (date, type) => {
-        const { scheduleConfObj } = this.state;
-
-        let newParams = {};
-        newParams[type] = date;
-
-        this.setState({
-            scheduleConfObj: {...scheduleConfObj, ...newParams}
-        });
-        this.props.changeParams({
-            scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
-        });
-    }
-
+    // 通知人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
-            return (
-                <Option 
-                    key={item.id} 
-                    value={item.id.toString()}>
-                    {item.userName}
-                </Option>
-            )
-        })
+            return <Option 
+                key={item.id} 
+                value={item.id.toString()}>
+                {item.userName}
+            </Option>
+        });
     }
 
+    // 通知人回调
     onNotifyUserChange = (value) => {
         const { form } = this.props;
         let sendTypes = form.getFieldValue('sendTypes');
         
         if (value.length === 0 && sendTypes.length === 0) {
-            form.setFieldsValue({
-                sendTypes: []
-            });
+            form.setFieldsValue({ sendTypes: [] });
         }
 
-        this.props.changeParams({
-            notifyUser: value
-        });
+        this.props.changeParams({ notifyUser: value });
     }
 
+    // 调度日期回调
     changeScheduleConfTime = (type, value) => {
         const { scheduleConfObj } = this.state;
+
         let newParams = {};
         newParams[type] = value;
+        let newConfObj = { ...scheduleConfObj, ...newParams };
 
         this.setState({
-            scheduleConfObj: {...scheduleConfObj, ...newParams}
+            scheduleConfObj: newConfObj
         });
         this.props.changeParams({
-            scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})
+            scheduleConf: JSON.stringify(newConfObj)
         });
     }
 
+    onBeginDateChange = (date, dateString) => {
+        this.changeScheduleConfTime('beginDate', dateString);
+    }
+
+    onEndDateChange = (date, dateString) => {
+        this.changeScheduleConfTime('endDate', dateString);
+    }
+
+    // 根据调度类型的不同返回不同的调度配置
     renderDynamic() {
-        const { form, common, editParams } = this.props;
-        const { scheduleConfObj } = this.state;
-        const { allDict, userList } = common;
-        const { notifyUser, sendTypes } = editParams;
+        const { form, common } = this.props;
+        const { allDict } = common;
         const { getFieldDecorator } = form;
+        const { scheduleConfObj } = this.state;
 
         let periodType = allDict.periodType ? allDict.periodType : [];
 
+        // 小时选择框
         const generateHours = (type) => {
             let options = [];
 
@@ -206,15 +175,14 @@ export default class StepThree extends Component {
                 );
             }
 
-            return (
-                <Select 
-                    style={{ width: 150 }} 
-                    onChange={this.changeScheduleConfTime.bind(this, type)}>
-                    { options }
-                </Select>
-            )
+            return <Select 
+                style={{ width: 200 }} 
+                onChange={this.changeScheduleConfTime.bind(this, type)}>
+                { options }
+            </Select>
         };
 
+        // 分钟选择框
         const generateMins = (type) => {
             let options = [];
 
@@ -228,15 +196,14 @@ export default class StepThree extends Component {
                 );
             }
 
-            return (
-                <Select 
-                    style={{ width: 150 }} 
-                    onChange={this.changeScheduleConfTime.bind(this, type)}>
-                    { options }
-                </Select>
-            )
+            return <Select 
+                style={{ width: 200 }} 
+                onChange={this.changeScheduleConfTime.bind(this, type)}>
+                { options }
+            </Select>
         };
 
+        // 间隔时间选择框
         const generateGapHour = () => {
             let options = [];
 
@@ -250,15 +217,14 @@ export default class StepThree extends Component {
                 );
             }
             
-            return (
-                <Select
-                    style={{ width: 150 }}
-                    onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
-                    { options }
-                </Select>
-            )
+            return <Select
+                style={{ width: 200 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
+                { options }
+            </Select>
         };
 
+        // 月内天数选择框
         const generateDate = () => {
             let options = [];
 
@@ -272,43 +238,39 @@ export default class StepThree extends Component {
                 );
             }
 
-            return (
-                <Select
-                    mode="multiple"
-                    style={{ width: 325 }}
-                    onChange={this.changeScheduleConfTime.bind(this, 'day')}>
-                    { options }
-                </Select>
-            )
-            
+            return <Select
+                mode="multiple"
+                style={{ width: 428 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'day')}>
+                { options }
+            </Select>
         };
 
+        // 周内天数选择框
         const generateDays = () => {
-            return (
-                <Select
-                    mode="multiple"
-                    style={{ width: 325 }}
-                    onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}
-                >
-                    <Option key={1} value="1">星期一</Option>
-                    <Option key={2} value="2">星期二</Option>
-                    <Option key={3} value="3">星期三</Option>
-                    <Option key={4} value="4">星期四</Option>
-                    <Option key={5} value="5">星期五</Option>
-                    <Option key={6} value="6">星期六</Option>
-                    <Option key={7} value="7">星期天</Option>
-                </Select>
-            )
+            return <Select
+                mode="multiple"
+                style={{ width: 428 }}
+                onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}>
+                <Option key={1} value="1">星期一</Option>
+                <Option key={2} value="2">星期二</Option>
+                <Option key={3} value="3">星期三</Option>
+                <Option key={4} value="4">星期四</Option>
+                <Option key={5} value="5">星期五</Option>
+                <Option key={6} value="6">星期六</Option>
+                <Option key={7} value="7">星期天</Option>
+            </Select>
         }
 
         switch (scheduleConfObj.periodType) {
             case '1': {
                 return <div>
-                    <FormItem {...formItemLayout} label="开始时间">
+                    <FormItem {...halfFormItemLayout} label="开始时间">
                         {
                             getFieldDecorator('beginHour', {
                                 rules: [{
-                                    required: true, message: '开始时间不能为空'
+                                    required: true, 
+                                    message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -323,7 +285,8 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('beginMin', {
                                 rules: [{
-                                    required: true, message: '开始时间不能为空'
+                                    required: true, 
+                                    message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -336,11 +299,13 @@ export default class StepThree extends Component {
                             分
                         </span>
                     </FormItem>
-                    <FormItem {...formItemLayout} label="间隔时间">
+
+                    <FormItem {...halfFormItemLayout} label="间隔时间">
                         {
                             getFieldDecorator('gapHour', {
                                 rules: [{
-                                    required: true, message: '间隔时间不能为空'
+                                    required: true, 
+                                    message: '间隔时间不能为空'
                                 }],
                                 initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
                             })(
@@ -348,11 +313,13 @@ export default class StepThree extends Component {
                             )
                         }
                     </FormItem>
-                    <FormItem {...formItemLayout} label="结束时间">
+
+                    <FormItem {...halfFormItemLayout} label="结束时间">
                         {
                             getFieldDecorator('endHour', {
                                 rules: [{
-                                    required: true, message: '结束时间不能为空'
+                                    required: true, 
+                                    message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -367,7 +334,8 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('endMin', {
                                 rules: [{
-                                    required: true, message: '结束时间不能为空'
+                                    required: true, 
+                                    message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -384,7 +352,7 @@ export default class StepThree extends Component {
             }
 
             case '2': {
-                return <FormItem {...formItemLayout} label="起调周期">
+                return <FormItem {...halfFormItemLayout} label="起调周期">
                     {
                         getFieldDecorator('hour', {
                             rules: [{
@@ -404,7 +372,6 @@ export default class StepThree extends Component {
                                 required: true
                             }],
                             initialValue: `${scheduleConfObj.min}`
-
                         })(
                             generateMins('min')
                         )
@@ -417,21 +384,23 @@ export default class StepThree extends Component {
 
             case '3': {
                 return <div>
-                    <FormItem {...formItemLayout} label="选择时间">
+                    <FormItem {...halfFormItemLayout} label="选择时间">
                         {
                             getFieldDecorator('weekDay', {
                                 rules: [{
-                                    required: true, message: '周内天数不能为空'
+                                    required: true, 
+                                    message: '周内天数不能为空'
                                 }],
-                                initialValue: scheduleConfObj.weekDay ? `${scheduleConfObj.weekDay}`.split(',') : []
+                                initialValue: scheduleConfObj.weekDay ? scheduleConfObj.weekDay : []
                             })(
                                 generateDays()
                             )
                         }
                     </FormItem>
-                    <FormItem {...formItemLayout} label="起调周期">
+
+                    <FormItem {...halfFormItemLayout} label="起调周期">
                         {
-                            getFieldDecorator('hour', {
+                            getFieldDecorator('hour1', {
                                 rules: [{
                                     required: true
                                 }],
@@ -444,7 +413,7 @@ export default class StepThree extends Component {
                             时
                         </span>
                         {
-                            getFieldDecorator('min', {
+                            getFieldDecorator('min1', {
                                 rules: [{
                                     required: true
                                 }],
@@ -463,21 +432,23 @@ export default class StepThree extends Component {
 
             case '4': {
                 return <div>
-                    <FormItem {...formItemLayout} label="选择时间">
+                    <FormItem {...halfFormItemLayout} label="选择时间">
                         {
                             getFieldDecorator('day', {
                                 rules: [{
-                                    required: true, message: '月内天数不能为空'
+                                    required: true, 
+                                    message: '月内天数不能为空'
                                 }],
-                                initialValue: scheduleConfObj.day ? `${scheduleConfObj.day}`.split(',') : []
+                                initialValue: scheduleConfObj.day ? scheduleConfObj.day : []
                             })(
                                 generateDate()
                             )
                         }
                     </FormItem>
-                    <FormItem {...formItemLayout} label="起调周期">
+
+                    <FormItem {...halfFormItemLayout} label="起调周期">
                         {
-                            getFieldDecorator('hour', {
+                            getFieldDecorator('hour2', {
                                 rules: [{
                                     required: true
                                 }],
@@ -490,7 +461,7 @@ export default class StepThree extends Component {
                             时
                         </span>
                         {
-                            getFieldDecorator('min', {
+                            getFieldDecorator('min2', {
                                 rules: [{
                                     required: true
                                 }],
@@ -514,25 +485,31 @@ export default class StepThree extends Component {
         }
     }
 
+    // 检查调度开始时间
     checkTime = (rule, value, callback) => {
         const { form } = this.props;
-        let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
-            endTime   = parseInt(form.getFieldValue('endHour')) * 60 + parseInt(form.getFieldValue('endMin'));
+        let beginHour = form.getFieldValue('beginHour'),
+            beginMin  = form.getFieldValue('beginMin'),
+            endHour   = form.getFieldValue('endHour'),
+            endMin    = form.getFieldValue('endMin'),
+            beginTime = parseInt(beginHour) * 60 + parseInt(beginMin),
+            endTime   = parseInt(endHour) * 60 + parseInt(endMin);
 
         if (beginTime >= endTime) {
             callback('开始时间不能晚于结束时间');
         } else {
             form.setFieldsValue({
-                beginHour: form.getFieldValue('beginHour'),
-                beginMin: form.getFieldValue('beginMin'),
-                endHour: form.getFieldValue('endHour'),
-                endMin: form.getFieldValue('endMin')
+                beginHour,
+                beginMin,
+                endHour,
+                endMin
             });
         }
 
         callback();
     }
 
+    // 检查生效日期
     checkDate = (rule, value, callback) => {
         const { form } = this.props;
         let beginDate = form.getFieldValue('beginDate'),
@@ -545,8 +522,8 @@ export default class StepThree extends Component {
                 callback('生效日期的开始时间不能晚于结束时间');
             } else {
                 form.setFieldsValue({
-                    beginDate: form.getFieldValue('beginDate'),
-                    endDate: form.getFieldValue('endDate')
+                    beginDate,
+                    endDate
                 });
             }
         }
@@ -561,16 +538,17 @@ export default class StepThree extends Component {
 
     save = () => {
         const { form, editParams } = this.props;
-        form.validateFields({ force: true }, (err, values) => {
+        form.validateFields((err, values) => {
             console.log(err,values)
             if (err && err.endDate) {
                 message.error(err.endDate.errors[0].message)
             }
+
             if(!err) {
                 editParams.rules.forEach((rule) => {
                     delete rule.id;
                     delete rule.isTable;
-                    delete rule.editStatus;
+                    delete rule.percentType;
                     delete rule.functionName;
                     delete rule.verifyTypeValue;
                 });
@@ -583,10 +561,10 @@ export default class StepThree extends Component {
 
     render() {
         const { form, common, editParams } = this.props;
-        const { scheduleConfObj } = this.state;
+        const { getFieldDecorator } = form;
         const { allDict, userList } = common;
         const { notifyUser, sendTypes } = editParams;
-        const { getFieldDecorator } = form;
+        const { scheduleConfObj } = this.state;
 
         let periodType = allDict.periodType ? allDict.periodType : [],
             notifyType = allDict.notifyType ? allDict.notifyType : [];
@@ -595,13 +573,16 @@ export default class StepThree extends Component {
             <div>
                 <div className="steps-content">
                     <Form>
-                        <FormItem {...formItemLayout} label="调度周期" key="periodType">
+                        <FormItem {...halfFormItemLayout} label="调度周期">
                             {
                                 getFieldDecorator('periodType', {
-                                    rules: [{ required: true, message: '执行周期不能为空' }], 
-                                    initialValue: scheduleConfObj.periodType
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '执行周期不能为空' 
+                                    }], 
+                                    initialValue: `${scheduleConfObj.periodType}`
                                 })(
-                                    <Select style={{ width: 325 }} onChange={this.onPeriodTypeChange}>
+                                    <Select onChange={this.onPeriodTypeChange}>
                                         {
                                             this.renderPeriodType(periodType)
                                         }
@@ -613,21 +594,21 @@ export default class StepThree extends Component {
                         {
                             scheduleConfObj.periodType != 5
                             &&
-                            <FormItem {...formItemLayout} label="生效日期">
+                            <FormItem {...halfFormItemLayout} label="生效日期">
                                 {
                                     getFieldDecorator('beginDate', {
                                         rules: [{
-                                            required: true, message: '生效日期开始时间不能为空'
+                                            required: true, 
+                                            message: '生效日期不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
                                         }],
                                         initialValue: moment(scheduleConfObj.beginDate)
                                     })(
                                         <DatePicker
-                                            // size="large"
+                                            style={{ width: 200 }}
                                             format="YYYY-MM-DD"
                                             placeholder="开始日期"
-                                            style={{ width: 150 }}
                                             onChange={this.onBeginDateChange}
                                         />
                                     )
@@ -638,17 +619,17 @@ export default class StepThree extends Component {
                                 {
                                     getFieldDecorator('endDate', {
                                         rules: [{
-                                            required: true, message: '生效日期结束时间不能为空'
+                                            required: true, 
+                                            message: '生效日期不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
                                         }],
                                         initialValue: moment(scheduleConfObj.endDate)
                                     })(
                                         <DatePicker
-                                            // size="large"
+                                            style={{ width: 200 }}
                                             format="YYYY-MM-DD"
                                             placeholder="结束日期"
-                                            style={{ width: 150 }}
                                             onChange={this.onEndDateChange}
                                         />
                                     )
@@ -660,7 +641,7 @@ export default class StepThree extends Component {
                             this.renderDynamic()
                         }
                         
-                        <FormItem {...formItemLayout} label="通知方式">
+                        <FormItem {...halfFormItemLayout} label="通知方式">
                             {
                                 getFieldDecorator('sendTypes', {
                                     rules: [{
@@ -678,7 +659,7 @@ export default class StepThree extends Component {
                             }
                         </FormItem>
                         
-                        <FormItem {...formItemLayout} label="通知接收人">
+                        <FormItem {...halfFormItemLayout} label="通知接收人">
                             {
                                 getFieldDecorator('notifyUser', {
                                     rules: [{
@@ -690,7 +671,6 @@ export default class StepThree extends Component {
                                     <Select 
                                         allowClear 
                                         mode="multiple" 
-                                        style={{ width: 325 }} 
                                         onChange={this.onNotifyUserChange}>
                                         {
                                             this.renderUserList(userList)

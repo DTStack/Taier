@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
+import { Form, Table, Button, Select, TreeSelect, Icon, message } from 'antd';
 
 import TableCell from 'widgets/tableCell';
 import { dataCheckActions } from '../../../actions/dataCheck';
@@ -37,34 +37,35 @@ export default class StepTwo extends Component {
         };
     }
 
+    // 右侧表下拉框
     renderTargetTable = (data) => {
         return data.map((tableName) => {
-            return (
-                <Option 
-                    key={tableName} 
-                    value={tableName}>
-                    {tableName}
-                </Option>
-            )
+            return <Option 
+                key={tableName} 
+                value={tableName}>
+                {tableName}
+            </Option>
         })
     }
 
     // 右侧表变化回调
     onTargetTableChange = (name) => {
-        const { form, havePart, editParams, changeParams, 
-            getSourcePart, resetSourcePart } = this.props;
-        let target = { ...editParams.target, table: name };
+        const { form, havePart, editParams } = this.props;
+        // let target = { ...editParams.target, table: name };
+        let sourceId = editParams.target.dataSourceId;
+        let target = { 
+            dataSourceId: sourceId, 
+            table: name
+        };
 
         // 重置分区表单和参数
         if (havePart) {
-            resetSourcePart('target');
-            form.setFieldsValue({ 
-                targetColumn: ''
-            });
-            target.partition = undefined;
+            this.props.resetSourcePart('target');
+            form.setFieldsValue({ targetPartition: undefined });
 
-            getSourcePart({
-                sourceId: target.dataSourceId,
+            // 请求分区数据
+            this.props.getSourcePart({
+                sourceId: sourceId,
                 table: name
             }, 'target');
         }
@@ -74,8 +75,9 @@ export default class StepTwo extends Component {
             sourcePreview: {} 
         });
 
-        changeParams({
-            target: { ...editParams.target, ...target }
+        this.props.changeParams({
+            target: target,
+            mappedPK: {}
         });
     }
 
@@ -121,39 +123,28 @@ export default class StepTwo extends Component {
     renderTreeSelect = (data) => {
         if (!isEmpty(data)) {
             return data.children.map((item) => {
-                let partTitle = this.getPartTitle(item.partName, item.partValue);
+                let name = item.partName,
+                    value = item.partValue,
+                    partTitle = value ?  `分区字段：${name}  分区值：${value}` : name;
 
                 if (item.children.length) {
-                    return (
-                        <TreeNode 
-                            key={item.nodeId} 
-                            title={partTitle} 
-                            value={item.partColumn} 
-                            dataRef={item}>
-                            {this.renderTreeSelect(item.children)}
-                        </TreeNode>
-                    )
+                    return <TreeNode 
+                        key={item.nodeId} 
+                        title={partTitle} 
+                        value={item.partColumn} 
+                        dataRef={item}>
+                        {this.renderTreeSelect(item.children)}
+                    </TreeNode>
                 } else {
-                    return (
-                        <TreeNode 
-                            key={item.nodeId} 
-                            title={partTitle} 
-                            value={item.partColumn} 
-                            dataRef={item} 
-                            isLeaf={true} 
-                        />
-                    )
+                    return <TreeNode 
+                        key={item.nodeId} 
+                        title={partTitle} 
+                        value={item.partColumn} 
+                        dataRef={item} 
+                        isLeaf={true} 
+                    />
                 }
             });
-        }
-    }
-
-    // 分区title显示
-    getPartTitle = (name, value) => {
-        if (value) {
-            return `分区字段：${name}  分区值：${value}`
-        } else {
-            return name
         }
     }
 
@@ -163,7 +154,7 @@ export default class StepTwo extends Component {
         let partition = value ? extra.triggerNode.props.dataRef.partColumn : undefined;
 
         this.props.changeParams({
-            target: {...target,  partition}
+            target: { ...target,  partition }
         });
     }
 
@@ -181,7 +172,8 @@ export default class StepTwo extends Component {
             }
         })
     }
-
+    
+    // 数据预览表格配置
     previewTableColumns = (data) => {
         return data && data.map((item) => {
             return {
@@ -237,7 +229,7 @@ export default class StepTwo extends Component {
                             &&
                             <FormItem {...formItemLayout} label="选择分区">
                                 {
-                                    getFieldDecorator('targetColumn', {
+                                    getFieldDecorator('targetPartition', {
                                         rules: [],
                                         initialValue: partition
                                     })(
@@ -259,9 +251,9 @@ export default class StepTwo extends Component {
                             </FormItem>
                         }
                         
-                        <Row type="flex" justify="center" className="font-14">
+                        <div className="txt-center font-14">
                             <a onClick={this.onSourcePreview}>数据预览<Icon type="down" style={{ marginLeft: 5 }} /></a>
-                        </Row>
+                        </div>
                         
                         {
                             showPreview

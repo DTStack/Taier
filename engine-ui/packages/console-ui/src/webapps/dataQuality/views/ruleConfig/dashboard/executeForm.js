@@ -9,6 +9,21 @@ import RCApi from '../../../api/ruleConfig';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+const initialSchedule = {
+    beginDate: moment().format('YYYY-MM-DD'),
+    endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
+    periodType: '2',
+    day: undefined,
+    weekDay: undefined,
+    hour: 0,
+    min: 0,
+    beginHour: 0,
+    beginMin: 0,
+    gapHour: undefined,
+    endHour: 0,
+    endMin: 0
+}
+
 const mapStateToProps = state => {
     const { common } = state;
     return { common }
@@ -19,26 +34,13 @@ export default class ExecuteForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            scheduleConfObj: {
-                beginDate: moment().format('YYYY-MM-DD'),
-                endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
-                periodType: '2',
-                day: undefined,
-                weekDay: undefined,
-                hour: 0,
-                min: 0,
-                beginHour: 0,
-                beginMin: 0,
-                gapHour: undefined,
-                endHour: 0,
-                endMin: 0
-            },
+            scheduleConfObj: initialSchedule,
             params: {
                 monitorId: undefined,
-                scheduleConf: '',
-                notifyUser: [],
                 sendTypes: [],
-                periodType: ''
+                notifyUser: [],
+                periodType: undefined,
+                scheduleConf: undefined
             }
         }
     }
@@ -73,27 +75,12 @@ export default class ExecuteForm extends Component {
 
     // 重置执行信息
     resetScheduleConf = (type) => {
-        const { params } = this.state;
-
-        let scheduleConfObj = {
-            beginDate: moment().format('YYYY-MM-DD'),
-            endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
-            periodType: type,
-            day: undefined,
-            weekDay: undefined,
-            hour: 0,
-            min: 0,
-            beginHour: 0,
-            beginMin: 0,
-            gapHour: undefined,
-            endHour: 0,
-            endMin: 0
-        };
+        let scheduleConfObj = { ...initialSchedule, periodType: type };
 
         this.setState({
             scheduleConfObj,
             params: {
-                ...params, 
+                ...this.state.params, 
                 periodType: type,
                 scheduleConf: JSON.stringify(scheduleConfObj)
             }
@@ -103,14 +90,12 @@ export default class ExecuteForm extends Component {
     // 调度周期下拉框
     renderPeriodType = (data) => {
         return data.map((item) => {
-            return (
-                <Option 
-                    key={item.value} 
-                    value={item.value.toString()}>
-                    {item.name}
-                </Option>
-            )
-        })
+            return <Option 
+                key={item.value} 
+                value={item.value.toString()}>
+                {item.name}
+            </Option>
+        });
     }
 
     // 调度周期回调
@@ -126,7 +111,7 @@ export default class ExecuteForm extends Component {
                 value={item.value.toString()}>
                 {item.name}
             </Checkbox>
-        })
+        });
     }
 
     // 通知方式回调
@@ -135,13 +120,11 @@ export default class ExecuteForm extends Component {
         let notifyUser = form.getFieldValue('notifyUser');
 
         if (value.length === 0 && notifyUser.length === 0) {
-            form.setFieldsValue({
-                notifyUser: []
-            });
+            form.setFieldsValue({ notifyUser: [] });
         }
 
         this.setState({
-            params: {...this.state.params, sendTypes: value}
+            params: { ...this.state.params, sendTypes: value }
         });
     }
 
@@ -156,14 +139,12 @@ export default class ExecuteForm extends Component {
     // 通知人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
-            return (
-                <Option 
-                    key={item.id} 
-                    value={item.id.toString()}>
-                    {item.userName}
-                </Option>
-            )
-        })
+            return <Option 
+                key={item.id} 
+                value={item.id.toString()}>
+                {item.userName}
+            </Option>
+        });
     }
 
     // 通知人回调
@@ -172,9 +153,7 @@ export default class ExecuteForm extends Component {
         let sendTypes = form.getFieldValue('sendTypes');
         
         if (value.length === 0 && sendTypes.length === 0) {
-            form.setFieldsValue({
-                sendTypes: []
-            });
+            form.setFieldsValue({ sendTypes: [] });
         }
 
         this.setState({
@@ -185,12 +164,17 @@ export default class ExecuteForm extends Component {
     // 调度日期回调
     changeScheduleConfTime = (type, value) => {
         const { scheduleConfObj, params } = this.state;
-        let newParams = {};
 
+        let newParams = {};
         newParams[type] = value;
+        let newConfObj = { ...scheduleConfObj, ...newParams };
+
         this.setState({
-            scheduleConfObj: {...scheduleConfObj, ...newParams},
-            params: {...params, scheduleConf: JSON.stringify({...scheduleConfObj, ...newParams})}
+            scheduleConfObj: newConfObj,
+            params: {
+                ...params, 
+                scheduleConf: JSON.stringify(newConfObj)
+            }
         });
     }
 
@@ -203,6 +187,7 @@ export default class ExecuteForm extends Component {
 
         let periodType = allDict.periodType ? allDict.periodType : [];
 
+        // 小时选择框
         const generateHours = (type) => {
             let options = [];
 
@@ -223,6 +208,7 @@ export default class ExecuteForm extends Component {
             </Select>;
         };
 
+        // 分钟选择框
         const generateMins = (type) => {
             let options = [];
 
@@ -243,6 +229,7 @@ export default class ExecuteForm extends Component {
             </Select>;
         };
 
+        // 间隔时间选择框
         const generateGapHour = () => {
             let options = [];
 
@@ -263,6 +250,7 @@ export default class ExecuteForm extends Component {
             </Select>
         };
 
+        // 月份内天数选择框
         const generateDate = () => {
             let options = [];
 
@@ -278,16 +266,17 @@ export default class ExecuteForm extends Component {
 
             return <Select
                 mode="multiple"
-                style={{ width: 325 }}
+                style={{ width: 328 }}
                 onChange={this.changeScheduleConfTime.bind(this, 'day')}>
                 {options}
             </Select>;
         };
 
+        // 周内天数选择框
         const generateDays = () => {
             return <Select
                 mode="multiple"
-                style={{ width: 325 }}
+                style={{ width: 328 }}
                 onChange={this.changeScheduleConfTime.bind(this, 'weekDay')}>
                 <Option key={1} value="1">星期一</Option>
                 <Option key={2} value="2">星期二</Option>
@@ -306,7 +295,8 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('beginHour', {
                                 rules: [{
-                                    required: true, message: '开始时间不能为空'
+                                    required: true, 
+                                    message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -321,7 +311,8 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('beginMin', {
                                 rules: [{
-                                    required: true, message: '开始时间不能为空'
+                                    required: true, 
+                                    message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -334,11 +325,13 @@ export default class ExecuteForm extends Component {
                             分
                         </span>
                     </FormItem>
+
                     <FormItem {...formItemLayout} label="间隔时间">
                         {
                             getFieldDecorator('gapHour', {
                                 rules: [{
-                                    required: true, message: '间隔时间不能为空'
+                                    required: true, 
+                                    message: '间隔时间不能为空'
                                 }],
                                 initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
                             })(
@@ -346,11 +339,13 @@ export default class ExecuteForm extends Component {
                             )
                         }
                     </FormItem>
+
                     <FormItem {...formItemLayout} label="结束时间">
                         {
                             getFieldDecorator('endHour', {
                                 rules: [{
-                                    required: true, message: '结束时间不能为空'
+                                    required: true, 
+                                    message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -365,7 +360,8 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('endMin', {
                                 rules: [{
-                                    required: true, message: '结束时间不能为空'
+                                    required: true, 
+                                    message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
                                 }],
@@ -402,7 +398,6 @@ export default class ExecuteForm extends Component {
                                 required: true
                             }],
                             initialValue: `${scheduleConfObj.min}`
-
                         })(
                             generateMins('min')
                         )
@@ -419,17 +414,19 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('weekDay', {
                                 rules: [{
-                                    required: true, message: '周内天数不能为空'
+                                    required: true, 
+                                    message: '周内天数不能为空'
                                 }],
-                                initialValue: scheduleConfObj.weekDay ? `${scheduleConfObj.weekDay}`.split(',') : []
+                                initialValue: scheduleConfObj.weekDay ? scheduleConfObj.weekDay : []
                             })(
                                 generateDays()
                             )
                         }
                     </FormItem>
+
                     <FormItem {...formItemLayout} label="起调周期">
                         {
-                            getFieldDecorator('hour', {
+                            getFieldDecorator('hour1', {
                                 rules: [{
                                     required: true
                                 }],
@@ -442,7 +439,7 @@ export default class ExecuteForm extends Component {
                             时
                         </span>
                         {
-                            getFieldDecorator('min', {
+                            getFieldDecorator('min1', {
                                 rules: [{
                                     required: true
                                 }],
@@ -465,17 +462,19 @@ export default class ExecuteForm extends Component {
                         {
                             getFieldDecorator('day', {
                                 rules: [{
-                                    required: true, message: '月内天数不能为空'
+                                    required: true, 
+                                    message: '月内天数不能为空'
                                 }],
-                                initialValue: scheduleConfObj.day ? `${scheduleConfObj.day}`.split(',') : []
+                                initialValue: scheduleConfObj.day ? scheduleConfObj.day : []
                             })(
                                 generateDate()
                             )
                         }
                     </FormItem>
+
                     <FormItem {...formItemLayout} label="起调周期">
                         {
-                            getFieldDecorator('hour', {
+                            getFieldDecorator('hour2', {
                                 rules: [{
                                     required: true
                                 }],
@@ -488,7 +487,7 @@ export default class ExecuteForm extends Component {
                             时
                         </span>
                         {
-                            getFieldDecorator('min', {
+                            getFieldDecorator('min2', {
                                 rules: [{
                                     required: true
                                 }],
@@ -514,27 +513,31 @@ export default class ExecuteForm extends Component {
 
     // 取消编辑，关闭弹窗
     cancel = () => {
-        const { form, data, closeModal } = this.props;
+        const { form, data } = this.props;
 
-        this.initState(data);
         form.resetFields();
-        closeModal(false);
+        this.initState(data);
+        this.props.closeModal(false);
     }
 
     // 检查调度开始时间
     checkTime = (rule, value, callback) => {
         const { form } = this.props;
-        let beginTime = parseInt(form.getFieldValue('beginHour')) * 60 + parseInt(form.getFieldValue('beginMin')),
-            endTime   = parseInt(form.getFieldValue('endHour')) * 60 + parseInt(form.getFieldValue('endMin'));
+        let beginHour = form.getFieldValue('beginHour'),
+            beginMin  = form.getFieldValue('beginMin'),
+            endHour   = form.getFieldValue('endHour'),
+            endMin    = form.getFieldValue('endMin'),
+            beginTime = parseInt(beginHour) * 60 + parseInt(beginMin),
+            endTime   = parseInt(endHour) * 60 + parseInt(endMin);
 
         if (beginTime >= endTime) {
             callback('开始时间不能晚于结束时间');
         } else {
             form.setFieldsValue({
-                beginHour: form.getFieldValue('beginHour'),
-                beginMin: form.getFieldValue('beginMin'),
-                endHour: form.getFieldValue('endHour'),
-                endMin: form.getFieldValue('endMin')
+                beginHour,
+                beginMin,
+                endHour,
+                endMin
             });
         }
 
@@ -554,8 +557,8 @@ export default class ExecuteForm extends Component {
                 callback('生效日期的开始时间不能晚于结束时间');
             } else {
                 form.setFieldsValue({
-                    beginDate: form.getFieldValue('beginDate'),
-                    endDate: form.getFieldValue('endDate')
+                    beginDate,
+                    endDate
                 });
             }
         }
@@ -569,7 +572,7 @@ export default class ExecuteForm extends Component {
     }
 
     save = () => {
-        const { form, closeModal } = this.props;
+        const { form } = this.props;
         const { params } = this.state;
 
         form.validateFields((err, values) => {
@@ -577,11 +580,12 @@ export default class ExecuteForm extends Component {
             if (err && err.endDate) {
                 message.error(err.endDate.errors[0].message)
             }
+
             if(!err) {
                 RCApi.updateMonitor(params).then((res) => {
                     if (res.code === 1) {
                         message.success('更新成功！');
-                        closeModal(true);
+                        this.props.closeModal(true);
                     }
                 });
             }
@@ -618,7 +622,7 @@ export default class ExecuteForm extends Component {
                                     required: true, 
                                     message: '执行周期不能为空' 
                                 }], 
-                                initialValue: scheduleConfObj.periodType.toString()
+                                initialValue: `${scheduleConfObj.periodType}`
                             })(
                                 <Select onChange={this.onPeriodTypeChange}>
                                     {
@@ -637,7 +641,7 @@ export default class ExecuteForm extends Component {
                                 getFieldDecorator('beginDate', {
                                     rules: [{
                                         required: true, 
-                                        message: '生效日期开始时间不能为空'
+                                        message: '生效日期不能为空'
                                     }, {
                                         validator: this.checkDate.bind(this)
                                     }],
@@ -658,7 +662,7 @@ export default class ExecuteForm extends Component {
                                 getFieldDecorator('endDate', {
                                     rules: [{
                                         required: true, 
-                                        message: '生效日期结束时间不能为空'
+                                        message: '生效日期不能为空'
                                     }, {
                                         validator: this.checkDate.bind(this)
                                     }],
