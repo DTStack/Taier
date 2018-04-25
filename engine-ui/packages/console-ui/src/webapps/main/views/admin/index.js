@@ -24,7 +24,7 @@ class SysAdmin extends Component {
 
     render() {
         const { user, apps, children } = this.props;
-        const logo = (<Link to="/message">
+        const logo = (<Link to="/admin/user">
             <MyIcon>
                 <Icon type="setting" />
             </MyIcon>
