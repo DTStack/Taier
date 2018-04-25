@@ -176,7 +176,7 @@ class OfflineTaskList extends Component {
             warning({
                 title: '提示',
                 content: `
-                    除去“失败”、“停止”、“完成”状态以外的任务才可以进行杀死操作，
+                    除去“失败”、“取消”、“完成”状态以外的任务才可以进行杀死操作，
                     请您重新选择!
                 `,
             })

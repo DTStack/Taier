@@ -10,16 +10,14 @@ const commAction = mc([
 
 
 // Actions 
-export const showSeach = () => {
+export const showSeach = (boolFlag) => {
     return { 
         type: commAction.SET_SEARCH_TASK_VISIBLE, 
-        data: Math.random() 
+        data: boolFlag,
     }
 }
 
-
 // Reducers
-
 // 全局搜索框
 export const visibleSearchTask = (state = false, action) => {
     switch (action.type) {

@@ -41,7 +41,7 @@ export default class Toolbar extends Component {
     }
 
     filterSql = (sql) => {
-        const arr = []
+        const arr = [];
         let sqls = filterComments(sql);
         // 如果有有效内容
         if (sqls) { sqls = sqls.split(';') }
@@ -117,7 +117,7 @@ export default class Toolbar extends Component {
         const { currentTabData } = this.props
         const uniqueKey = this.state.currentSql
         if (!uniqueKey) return
-        
+
         const succCall = res => {
             if (res.code === 1) {
                 message.success('停止执行成功！')
@@ -146,7 +146,7 @@ export default class Toolbar extends Component {
         if (user.isCheckDDL === 1) { // 不检测，直接执行
             this.execSQL()
             return;
-        } 
+        }
 
         let code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
         code = filterComments(code);
@@ -154,7 +154,7 @@ export default class Toolbar extends Component {
         // 匹配DDL执行语句，如果符合条件，则提醒
         const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;
         const ctx = this;
-        
+
         if (regex.test(code)) {
             this.setState({ execConfirmVisible: true, confirmCode: code });
         } else {

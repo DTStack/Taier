@@ -212,7 +212,7 @@ class OfflinePanel extends Component {
                         </section>
                     </Col>
                     <Col span={6}>
-                        <section className="m-count-section">
+                        <section className="m-count-section" style={{width: '50px'}}>
                             <span className="m-count-title">近30天</span>
                             <span className="m-count-content font-darkgreen">{statistics.month || 0}</span>
                         </section>

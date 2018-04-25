@@ -6,12 +6,15 @@ import {
     Select, Modal, TimePicker,
  } from 'antd'
 
+ import pureRender from 'utils/pureRender';
+
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group
 
+@pureRender
 class AlarmForm extends Component {
 
     state = {
@@ -22,9 +25,8 @@ class AlarmForm extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const alarmInfo = nextProps.alarmInfo
-        const old = this.props.alarmInfo
-        if ( (!old && !isEmpty(alarmInfo)) || (old.alarmId !== alarmInfo.alarmId )) {
+        const { alarmInfo , visible } = nextProps;
+        if (visible && !isEmpty(alarmInfo)) {
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
             })
@@ -74,11 +76,14 @@ class AlarmForm extends Component {
     }
 
     onChangeRunHour = (value) => {
+        console.log('onChangeRunHour:', value);
+        this.props.form.setFieldsValue({'runTime': value})
         this.setState({ runHour: value })
-
     }
 
     onChangeRunMin = (value) => {
+        console.log('onChangeRunMin:', value);
+        this.props.form.setFieldsValue({'runTime': value})
         this.setState({ runMin: value })
     }
 
@@ -110,6 +115,7 @@ class AlarmForm extends Component {
         const { myTrigger, triggerTimeType } = this.state
         const display = myTrigger === 2 ? 'block' : 'none'
 
+        console.log('myTrigger:', myTrigger)
         return (
             <Modal
               title={title}

@@ -88,14 +88,14 @@ class PatchDataList extends Component {
         if (bizDay) {
             reqParams.bizDay = moment(bizDay).unix()
         }
-      
+
         if (runDay) {
             reqParams.runDay = moment(runDay).unix()
         }
         if (dutyUserId) {
              reqParams.dutyUserId = dutyUserId
         }
-     
+
         return reqParams
     }
 

@@ -86,6 +86,7 @@ export default class TableAnalytics extends Component {
             const arr = [{
                 title: '序号',
                 key: 't-id',
+                width: 80,
                 render: (text, item, index) => {
                     return index + 1
                 },
@@ -94,6 +95,7 @@ export default class TableAnalytics extends Component {
                 arr.push({
                     title: item,
                     key: index + item,
+                    width: 200,
                     render: (text, item) => {
                         return <span>{item[index]}</span>
                     },
@@ -126,6 +128,7 @@ export default class TableAnalytics extends Component {
             className="m-table"
             dataSource={showData} 
             loading={this.state.loading}
+            scroll={{ x: true, y: 280 }} 
         />
 
         return (
@@ -148,7 +151,7 @@ export default class TableAnalytics extends Component {
                 }
             >
                 <Row style={{ marginTop: '1px' }}>
-                    <Tabs onChange={ this.onTabChange.bind(this) } >
+                    <Tabs onChange={ this.onTabChange.bind(this) } animated={false}>
                         <TabPane tab={`空指针 (${tableCountInfo.npe || 0}条)`} key="npe">
                             {tablePane}
                         </TabPane>

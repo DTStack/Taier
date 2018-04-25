@@ -171,11 +171,11 @@ class DirtyData extends Component {
     }
     
     onTableNameChange = (e) => {
-        this.setState({ tableName: e.target.value })
+        this.setState({ tableName: e.target.value, currentPage: 1 })
     }
 
     onTableSelectTask = (value) => {
-        this.setState({ taskId: value })
+        this.setState({ taskId: value, currentPage: 1 })
     }
 
     getSeries = (data) => {
@@ -271,7 +271,7 @@ class DirtyData extends Component {
     }
 
     renderProduceList = (taskOptions) => {
-        const { produceList, loading } = this.state
+        const { produceList, loading, currentPage } = this.state
         const ctx = this;
         const columns = [
             {
@@ -370,6 +370,7 @@ class DirtyData extends Component {
         const pagination = { 
             total: produceList.totalCount,
             defaultPageSize: 10,
+            current: currentPage,
         };
 
         return (

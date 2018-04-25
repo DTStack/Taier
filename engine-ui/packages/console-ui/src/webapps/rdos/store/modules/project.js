@@ -11,11 +11,12 @@ const projectAction = mc([
 
 const defaultProject = {
     id: 0,
-    projectName: '项目选择',
+    projectName: '项目选择', 
 }
 
 // Action
 export function getProject(id) {
+    if (!id || id === 0) return;
     if (id) {
         utils.setCookie('project_id', id)
     }
