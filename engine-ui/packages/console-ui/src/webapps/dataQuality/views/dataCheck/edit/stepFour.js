@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox } from 'antd';
+import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox, message } from 'antd';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { formItemLayout } from '../../../consts';
@@ -11,6 +11,14 @@ import { formItemLayout } from '../../../consts';
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
+
+const initialSchedule = {
+    beginDate: moment().format('YYYY-MM-DD'),
+    hour: 0,
+    min: 0,
+    endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
+    periodType: '2'
+}
 
 const mapStateToProps = state => {
     const { common } = state;
@@ -31,23 +39,12 @@ export default class StepFour extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            executeType: 0,
             isInform: false,
-            scheduleConfObj: {
-                beginDate: moment().format('YYYY-MM-DD'),
-                hour: 0,
-                min: 0,
-                endDate: '2121-01-01',
-                periodType: '2'
-            }
+            scheduleConfObj: initialSchedule
         }
     }
 
     componentDidMount() {
-        this.initState();
-    }
-
-    initState = () => {
         const { scheduleConf, notifyVO } = this.props.editParams;
         const { scheduleConfObj } = this.state;
 
@@ -59,35 +56,52 @@ export default class StepFour extends Component {
             });
         }
 
-        if (notifyVO) {
+        if (!isEmpty(notifyVO)) {
             this.setState({ isInform: true });
         } 
     }
 
-    onExecuteTypeChange = (e) => {
+    // 重置schedule
+    resetScheduleConf = () => {
+        let scheduleConfObj = initialSchedule;
+
+        this.setState({ scheduleConfObj });
         this.props.changeParams({
-            executeType: e.target.value,
+            scheduleConf: JSON.stringify(scheduleConfObj)
         });
     }
 
+    // 执行方式回调
+    onExecuteTypeChange = (e) => {
+        if (e.target.value === 0) {
+            this.resetScheduleConf();
+        }
+
+        this.props.changeParams({
+            executeType: e.target.value
+        });
+    }
+
+    // 是否发送通知
     onInformChange = (e) => {
         this.setState({ isInform: e.target.checked });
 
         if (!e.target.checked) {
-            this.props.changeParams({
-                notifyVO: undefined
-            });
+            this.props.changeParams({ notifyVO: {} });
         }
     }
 
+    // 通知方式
     onInformTypeChange = (value) => {
         const { notifyVO } = this.props.editParams;
+
         this.props.changeParams({
             notifyVO: { ...notifyVO, sendTypes: value }
         });
     }
 
-    changeScheduleParams = (type, date, dateString) => {
+    // 执行时间变化
+    changeScheduleConfTime = (type, date, dateString) => {
         const { scheduleConfObj } = this.state;
 
         let newParams = {};
@@ -101,19 +115,24 @@ export default class StepFour extends Component {
         });
     }
 
+    // 通知用户变化
     onInformUserChange = (value) => {
         const { notifyVO } = this.props.editParams;
+
         this.props.changeParams({
             notifyVO: { ...notifyVO, receivers: value }
-        })
+        });
     }
 
+    // 通知人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
-            return (
-                <Option key={item.id} value={item.id.toString()}>{item.userName}</Option>
-            )
-        })
+            return <Option 
+                key={item.id} 
+                value={item.id.toString()}>
+                {item.userName}
+            </Option>
+        });
     }
 
     prev = () => {
@@ -125,13 +144,17 @@ export default class StepFour extends Component {
         const { form, editParams } = this.props;
         form.validateFields({ force: true }, (err, values) => {
             console.log(err,values)
+            if (err && (err.beginDate || err.hour || err.min)) {
+                message.error('执行时间不能为空');
+            }
+
             if(!err) {
                 if (editParams.id) {
                     this.props.updateCheck({...editParams});
                 } else {
                     this.props.addCheck({...editParams});
                 }
-                location.href = "/dataQuality.html#/dq/dataCheck";
+                hashHistory.push("/dq/dataCheck");
             }
         })
 
@@ -139,27 +162,26 @@ export default class StepFour extends Component {
 
     render() {
         const { form, common, editParams, editStatus } = this.props;
-        const { isInform, scheduleConfObj } = this.state;
-        const { executeType, notifyVO, scheduleConf } = editParams;
+        const { userList } = common;
         const { getFieldDecorator } = form;
-
-        let receivers, sendTypes;
-        if (notifyVO) {
-            receivers = notifyVO.receivers;
-            sendTypes = notifyVO.sendTypes;
-        }
+        const { executeType, notifyVO } = editParams;
+        const { sendTypes, receivers } = notifyVO;
+        const { isInform, scheduleConfObj } = this.state;
 
         return (
             <div>
                 <div className="steps-content">
                     <Form>
-                        <FormItem {...formItemLayout} label="执行时间" key="executeType">
+                        <FormItem {...formItemLayout} label="执行时间">
                             {
                                 getFieldDecorator('executeType', {
-                                    rules: [{ required: true, message: '不能为空' }], 
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '不能为空' 
+                                    }], 
                                     initialValue: executeType
                                 })(
-                                    <RadioGroup onChange={this.onExecuteTypeChange} size="default">
+                                    <RadioGroup onChange={this.onExecuteTypeChange}>
                                         <Radio value={0}>立即执行</Radio>
                                         <Radio value={1}>定时执行</Radio>
                                     </RadioGroup>
@@ -180,8 +202,8 @@ export default class StepFour extends Component {
                                             <DatePicker
                                                 format="YYYY-MM-DD"
                                                 placeholder="开始时间"
-                                                onChange={this.changeScheduleParams.bind(this, 'beginDate')}
                                                 style={{ width: 150, marginRight: 15 }}
+                                                onChange={this.changeScheduleConfTime.bind(this, 'beginDate')}
                                             />
                                         )
                                     }
@@ -193,8 +215,8 @@ export default class StepFour extends Component {
                                             <TimePicker
                                                 format="HH"
                                                 placeholder='小时'
-                                                onChange={this.changeScheduleParams.bind(this, 'hour')}
                                                 style={{ marginRight: 15 }}
+                                                onChange={this.changeScheduleConfTime.bind(this, 'hour')}
                                             />
                                         )
                                     }
@@ -206,7 +228,7 @@ export default class StepFour extends Component {
                                             <TimePicker
                                                 format="mm"
                                                 placeholder='分钟'
-                                                onChange={this.changeScheduleParams.bind(this, 'min')}
+                                                onChange={this.changeScheduleConfTime.bind(this, 'min')}
                                             />
                                         )
                                     }
@@ -229,11 +251,14 @@ export default class StepFour extends Component {
                         {
                             isInform === true
                             &&
-                            <Row>
-                                <FormItem {...formItemLayout} label="通知方式" key="sendTypes">
+                            <div>
+                                <FormItem {...formItemLayout} label="通知方式">
                                     {
                                         getFieldDecorator('sendTypes', {
-                                            rules: [{ required: true, message: '选择通知方式' }], 
+                                            rules: [{ 
+                                                required: true, 
+                                                message: '选择通知方式' 
+                                            }], 
                                             initialValue: sendTypes ? sendTypes.map(item => item.toString()) : []
                                         })(
                                             <Checkbox.Group onChange={this.onInformTypeChange}>
@@ -244,28 +269,42 @@ export default class StepFour extends Component {
                                     }
                                 </FormItem>
                                 
-                                <FormItem {...formItemLayout} label="通知接收人" key='receivers'>
+                                <FormItem {...formItemLayout} label="通知接收人">
                                     {
                                         getFieldDecorator('receivers', {
-                                            rules: [{ required: true, message: '选择接收人' }],
+                                            rules: [{ 
+                                                required: true, 
+                                                message: '选择接收人' 
+                                            }],
                                             initialValue: receivers ? receivers.map(item => item.toString()) : []
                                         })(
-                                            <Select mode="multiple" allowClear onChange={this.onInformUserChange}>
+                                            <Select 
+                                                allowClear 
+                                                mode="multiple" 
+                                                onChange={this.onInformUserChange}>
                                                 {
-                                                    this.renderUserList(common.userList)
+                                                    this.renderUserList(userList)
                                                 }
                                             </Select>
                                         )
                                     }
                                 </FormItem>
-                            </Row>
+                            </div>
                         }
                     </Form>
                 </div>
 
                 <div className="steps-action">
-                    <Button onClick={this.prev}>上一步</Button>
-                    <Button className="m-l-8" type="primary" onClick={this.save}>{editStatus === 'edit' ? '保存' : '新建'}</Button>
+                    <Button 
+                        onClick={this.prev}>
+                        上一步
+                    </Button>
+                    <Button 
+                        type="primary" 
+                        className="m-l-8" 
+                        onClick={this.save}>
+                        {editStatus === 'edit' ? '保存' : '新建'}
+                    </Button>
                 </div>
             </div>
         )

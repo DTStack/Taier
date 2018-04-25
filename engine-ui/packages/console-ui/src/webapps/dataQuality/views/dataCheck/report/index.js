@@ -92,11 +92,9 @@ export default class DataCheckReport extends Component {
                     <GoBack /> 
                     <span className="m-l-8">查看报告</span>
                 </h1>
-                <div className="m-report-table">
-                    <h3>
-                        整体校验
-                    </h3>
-                    <table width="100%" cellPadding="0" cellSpacing="0">
+                <div className="report-content">
+                    <h3>整体校验</h3>
+                    <table className="report-table">
                         <tbody>
                             <tr>
                                 <th></th>
@@ -126,40 +124,38 @@ export default class DataCheckReport extends Component {
                         </tbody>
                     </table>
                 </div>
-                <div className="m-report-table">
-                    <h3>
-                        未匹配数据报告
-                    </h3>
-                    <table width="100%" cellPadding="0" cellSpacing="0">
+                <div className="report-content">
+                    <h3>未匹配数据报告</h3>
+                    <table className="report-table">
                         <tbody>
                             <tr>
                                 <th>匹配成功</th>
-                                <td className="width-3">{mapSuccess}</td>
+                                <td className="width-30">{mapSuccess}</td>
                                 <th>左表数据在右表未找到</th>
-                                <td className="width-3">{rightUnfound}</td>
+                                <td className="width-30">{rightUnfound}</td>
                             </tr>
                             <tr>
                                 <th>逻辑主键匹配，但数据不匹配</th>
-                                <td className="width-3">{mapFailure}</td>
+                                <td className="width-30">{mapFailure}</td>
                                 <th>右表数据在左表未找到</th>
-                                <td className="width-3">{leftUnfound}</td>
+                                <td className="width-30">{leftUnfound}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div>
-                    <h3 className="table-h3-title flex" style={{ justifyContent: 'space-between' }}>
+                <div className="report-content">
+                    <h3 className="flex" style={{ justifyContent: 'space-between' }}>
                         具体差异
                         <Icon 
                             type="download" 
                             onClick={this.handleDownload}
-                            style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }} />
+                            style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }} 
+                        />
                     </h3>
                     <Table 
                         // rowKey="key"
                         // bordered
                         className="m-cells m-table"
-                        style={{ margin: '0 20px' }}
                         scroll={{ x: 1000 }}
                         pagination={pagination}
                         dataSource={tableData.data ? tableData.data : []}

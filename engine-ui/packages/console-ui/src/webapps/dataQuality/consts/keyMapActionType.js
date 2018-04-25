@@ -1,6 +1,6 @@
 import mc from 'mirror-creator';
 
-export const keyMapActions = mc([
+export const keyMapActionType = mc([
     'ADD_LINKED_KEYS',
     'DEL_LINKED_KEYS',
     'SET_EDIT_MAP',

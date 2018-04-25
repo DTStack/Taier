@@ -186,6 +186,17 @@ export const formItemLayout = { // 表单常用布局
     },
 };
 
+export const halfFormItemLayout = { // 表单中间布局
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 10 },
+    },
+};
+
 export const tailFormItemLayout = { // 表单末尾布局
     wrapperCol: {
         xs: {

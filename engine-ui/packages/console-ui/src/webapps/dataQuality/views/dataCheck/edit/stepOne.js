@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Row, Table, Button, Form, Select, Input, TreeSelect, Icon, message } from 'antd';
+import { Form, Table, Button, Select, TreeSelect, Icon, message } from 'antd';
 
 import TableCell from 'widgets/tableCell';
 import { dataCheckActions } from '../../../actions/dataCheck';
@@ -50,41 +50,27 @@ export default class StepOne extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        let oldParams = this.props.editParams,
-            newParams = nextProps.editParams;
-
-        // if (oldParams.origin.partition != newParams.origin.partition && newParams.origin.partition) {
-        //     this.props.getDataSourcesPart({
-        //         sourceId: newParams.origin.dataSourceId,
-        //         table: newParams.origin.table
-        //     });
-
-        //     this.setState({ havePart: true });
-        // }
-    }
-
     // 数据源下拉框
     renderSourceType = (data) => {
         return data.map((source) => {
             let title = `${source.dataName}（${source.sourceTypeValue}）`;
-            return (
-                <Option 
-                    key={source.id} 
-                    value={source.id.toString()}
-                    title={title}>
-                    {title}
-                </Option>
-            )
+            return <Option 
+                key={source.id} 
+                value={source.id.toString()}
+                title={title}>
+                {title}
+            </Option>
         });
     }
 
     // 左侧表下拉框
     renderSourceTable = (data) => {
         return data.map((tableName) => {
-            return (
-                <Option key={tableName} value={tableName}>{tableName}</Option>
-            )
+            return <Option 
+                key={tableName} 
+                value={tableName}>
+                {tableName}
+            </Option>
         });
     }
 
@@ -92,48 +78,33 @@ export default class StepOne extends Component {
     renderTreeSelect = (data) => {
         if (!isEmpty(data)) {
             return data.children.map((item) => {
-                let partTitle = this.getPartTitle(item.partName, item.partValue);
+                let name = item.partName,
+                    value = item.partValue,
+                    partTitle = value ?  `分区字段：${name}  分区值：${value}` : name;
 
                 if (item.children.length) {
-                    return (
-                        <TreeNode 
-                            key={item.nodeId} 
-                            title={partTitle} 
-                            value={item.partColumn} 
-                            dataRef={item}>
-                            {this.renderTreeSelect(item)}
-                        </TreeNode>
-                    )
+                    return <TreeNode 
+                        key={item.nodeId} 
+                        title={partTitle} 
+                        value={item.partColumn} 
+                        dataRef={item}>
+                        {this.renderTreeSelect(item)}
+                    </TreeNode>
                 } else {
-                    return (
-                        <TreeNode 
-                            key={item.nodeId} 
-                            title={partTitle} 
-                            value={item.partColumn} 
-                            dataRef={item} 
-                            isLeaf={true}
-                        />
-                    )
+                    return <TreeNode 
+                        key={item.nodeId} 
+                        title={partTitle} 
+                        value={item.partColumn} 
+                        dataRef={item} 
+                        isLeaf={true}
+                    />
                 }
             });
         }
     }
 
     /**
-     * 分区显示的title
-     * @param {String} name 
-     * @param {String} value 
-     */
-    getPartTitle = (name, value) => {
-        if (value) {
-            return `分区字段：${name}   分区值：${value}`;
-        } else {
-            return name;
-        }
-    }
-
-    /**
-     * 是否是Hive或MaxCompute
+     * 是否有分区
      * @param {String} id 
      */
     havePartition = (id) => {
@@ -142,7 +113,6 @@ export default class StepOne extends Component {
         sourceList.forEach((item) => {
             if (item.id == id) {
                 this.props.changeHavePart(item.type === 7 || item.type === 10);
-                // this.setState({ havePart: item.type === 7 || item.type === 10 });
             }
         });
     } 
@@ -152,35 +122,30 @@ export default class StepOne extends Component {
      * @param {String} id 数据源id
      */
     onSourceTypeChange = (id) => {
-        const { 
-            form, 
-            editParams, 
-            changeParams,
-            resetSourcePart,
-            getDataSourcesTable } = this.props;
-        let origin = { ...editParams.origin, dataSourceId: id };
+        const { form, havePart, editParams } = this.props;
+        let origin = { dataSourceId: id };
 
         this.havePartition(id);
-        form.setFieldsValue({ sourceTable: '' });
-        getDataSourcesTable({ sourceId: id });
+        this.props.getDataSourcesTable({ sourceId: id });
+        form.setFieldsValue({ originTable: undefined });
 
-        // 重置分区表单和参数
-        if (origin.partition) {
-            resetSourcePart('origin');
-            form.setFieldsValue({ 
-                originColumn: ''
-            });
-            origin.partition = undefined;
+        // 重置分区数据
+        if (havePart) {
+            this.props.resetSourcePart('origin');
+            form.setFieldsValue({ originPartition: undefined });
         }
 
+        // 重置预览数据
         this.setState({ 
             showPreview: false,
             sourcePreview: {} 
         });
 
-        changeParams({
-            origin: { ...editParams.origin, ...origin },
-            target: { ...editParams.target, dataSourceId: id, table: '' }
+        // console.log(origin,{ ...editParams.origin, ...origin },11)
+        this.props.changeParams({
+            origin: origin,
+            target: origin,
+            mappedPK: {}
         });
     }
 
@@ -189,36 +154,37 @@ export default class StepOne extends Component {
      * @param {String} name 
      */
     onOriginTableChange = (name) => {
-        const { form, havePart, editParams, changeParams,
-            getSourcePart, resetSourcePart } = this.props;
-        let origin = { ...editParams.origin, table: name };
+        const { form, havePart, editParams } = this.props;
+
+        let sourceId = editParams.origin.dataSourceId;
+        let origin = { 
+            dataSourceId: sourceId, 
+            table: name
+        };
 
         // 重置分区表单和参数
         if (havePart) {
-            resetSourcePart('origin');
-            form.setFieldsValue({ 
-                originColumn: ''
-            });
-            origin.partition = undefined;
+            this.props.resetSourcePart('origin');
+            form.setFieldsValue({ originPartition: undefined });
+
+            // 请求分区数据
+            this.props.getSourcePart({
+                sourceId: sourceId,
+                table: name
+            }, 'origin');
         }
 
+        // 重置预览数据
         this.setState({ 
             showPreview: false,
             sourcePreview: {} 
         });
+        // console.log(origin,{ ...editParams.origin, ...origin },22)
 
-        changeParams({
-            origin: { ...editParams.origin, ...origin }
+        this.props.changeParams({
+            origin: origin,
+            mappedPK: {}
         });
-
-        // 请求分区数据
-        let sourceId = form.getFieldValue('sourceId');
-        if (sourceId && name && havePart) {
-            getSourcePart({
-                sourceId,
-                table: name
-            }, 'origin');
-        }
     }
 
     // 获取预览数据
@@ -267,7 +233,7 @@ export default class StepOne extends Component {
         let partition = value ? extra.triggerNode.props.dataRef.partColumn : undefined;
 
         this.props.changeParams({
-            origin: {...origin,  partition}
+            origin: { ...origin,  partition }
         });
     }
 
@@ -282,6 +248,7 @@ export default class StepOne extends Component {
         })
     }
 
+    // 数据预览表格配置
     previewTableColumns = (data) => {
         return data && data.map((item) => {
             return {
@@ -316,7 +283,10 @@ export default class StepOne extends Component {
                         <FormItem {...formItemLayout} label="选择数据源">
                             {
                                 getFieldDecorator('sourceId', {
-                                    rules: [{ required: true, message: '请选择数据源' }],
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '请选择数据源' 
+                                    }],
                                     initialValue: dataSourceId ? dataSourceId.toString() : undefined
                                 })(
                                     <Select 
@@ -336,8 +306,11 @@ export default class StepOne extends Component {
 
                         <FormItem {...formItemLayout} label="选择左侧表">
                             {
-                                getFieldDecorator('sourceTable', {
-                                    rules: [{ required: true, message: '请选择左侧表' }],
+                                getFieldDecorator('originTable', {
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '请选择左侧表' 
+                                    }],
                                     initialValue: table
                                 })(
                                     <Select 
@@ -358,7 +331,7 @@ export default class StepOne extends Component {
                             &&
                             <FormItem {...formItemLayout} label="选择分区">
                                 {
-                                    getFieldDecorator('originColumn', {
+                                    getFieldDecorator('originPartition', {
                                         rules: [],
                                         initialValue: partition
                                     })(
@@ -380,9 +353,9 @@ export default class StepOne extends Component {
                             </FormItem>
                         }
 
-                        <Row type="flex" justify="center" className="font-14">
+                        <div className="txt-center font-14">
                             <a onClick={this.onSourcePreview}>数据预览<Icon type="down" style={{ marginLeft: 5 }} /></a>
-                        </Row>
+                        </div>
                         
                         {
                             showPreview

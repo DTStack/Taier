@@ -64,7 +64,6 @@ export default class StepTwo extends Component {
 
         if (editParams.rules.length) {
             if (!isEmpty(currentRule)) {
-                // this.cancel(currentRule.id);
                 message.error('监控规则未保存');
             } else {
                 navToStep(currentStep + 1);
@@ -80,6 +79,7 @@ export default class StepTwo extends Component {
         // }
     }
 
+    // 规则列表配置
     initColumns = () => {
         return [{
             title: '字段',
@@ -93,8 +93,7 @@ export default class StepTwo extends Component {
             key: 'functionId',
             render: (text, record) => this.renderColumns(text, record, 'functionId'),
             width: '15%',
-        }, 
-        {
+        }, {
             title: '过滤条件',
             dataIndex: 'filter',
             key: 'filter',
@@ -119,20 +118,20 @@ export default class StepTwo extends Component {
                 const { editable } = record;
                 return (
                     <div>
-                    {
-                        editable ?
-                        <span>
-                            <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
-                            <a onClick={() => this.cancel(record.id)}>取消</a>
-                        </span>
-                        : 
-                        <span>
-                            <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
-                            <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
-                                <a>删除</a>
-                            </Popconfirm>
-                        </span>
-                    }
+                        {
+                            editable ?
+                            <span>
+                                <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
+                                <a onClick={() => this.cancel(record.id)}>取消</a>
+                            </span>
+                            : 
+                            <span>
+                                <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
+                                <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
+                                    <a>删除</a>
+                                </Popconfirm>
+                            </span>
+                        }
                     </div>
                 );
             },
@@ -142,12 +141,12 @@ export default class StepTwo extends Component {
     renderColumns(text, record, type) {
         let obj = {
             children: <Form layout="inline">
-            {
-                record.editable ?
-                this.renderEditTD(text, record, type)
-                :
-                this.renderTD(text, record, type)
-            }
+                {
+                    record.editable ?
+                    this.renderEditTD(text, record, type)
+                    :
+                    this.renderTD(text, record, type)
+                }
             </Form>,
             props: {},
         };
@@ -176,7 +175,7 @@ export default class StepTwo extends Component {
         let obj = {};
         obj[type] = value.target ? value.target.value : value;
 
-        this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
+        this.setState({ currentRule: {...this.state.currentRule, ...obj} });
     }
 
     // 校验字段回调
@@ -204,28 +203,23 @@ export default class StepTwo extends Component {
         const { functionList } = this.state;
 
         let isPercentage = functionList.filter(item => item.id == id)[0].isPercent,
-            nameZc       = functionList.filter(item => item.id == id)[0].nameZc,
-            currentRule  = {
-                ...this.state.currentRule, 
-                functionId: id,
-                functionName: nameZc, 
-                verifyType: undefined,
-                isPercentage, 
-                percentType: isPercentage === 1 ? 'limit' : 'free'
-            };
+            nameZc = functionList.filter(item => item.id == id)[0].nameZc,
+            isEnum = nameZc === '枚举值' ? true : false;
+
+        let currentRule  = {
+            ...this.state.currentRule, 
+            functionId: id,
+            functionName: nameZc, 
+            verifyType: isEnum ? '1' : undefined,
+            operator: isEnum ? 'in' : undefined,
+            isPercentage: isPercentage, 
+            percentType: isPercentage === 1 ? 'limit' : 'free'
+        };
 
         form.setFieldsValue({ 
-            verifyType: undefined,
+            verifyType: isEnum ? '1' : undefined,
             operator: undefined 
         });
-
-        if (nameZc === '枚举值') {
-            currentRule.operator = 'in';
-            currentRule.verifyType = '1';
-            form.setFieldsValue({ verifyType: '1' });
-        } else {
-            currentRule.operator = undefined;
-        }
 
         this.setState({ currentRule });
     }
@@ -233,25 +227,18 @@ export default class StepTwo extends Component {
     // 校验方法变化回调
     onVerifyTypeChange = (value) => {
         const { verifyType } = this.props.common.allDict;
-        let { isPercentage, percentType } = this.state.currentRule;
-        let verifyTypeValue = verifyType.filter(item => item.value == value)[0].name;
 
-        if (percentType === 'free' || !percentType) {
-            isPercentage = value == 1 ? 0 : 1;
-        } 
+        let currentRule = {
+            ...this.state.currentRule,
+            verifyType: value,
+            verifyTypeValue: verifyType.filter(item => item.value == value)[0].name
+        };
 
-        this.setState({
-            currentRule: {
-                ...this.state.currentRule,
-                verifyType: value,
-                verifyTypeValue,
-                isPercentage
-            }
-        });
-    }
+        if (currentRule.percentType !== 'limit') {
+            currentRule.isPercentage = value == 1 ? 0 : 1;
+        }
 
-    isStringLength = (name) => {
-        return name === '字符串最大长度' || name === '字符串最小长度';
+        this.setState({ currentRule });
     }
 
     // 编辑状态的TD
@@ -262,7 +249,11 @@ export default class StepTwo extends Component {
         const { verifyType } = common.allDict;
         const { currentRule, functionList } = this.state;
 
-        let operatorMap = this.isStringLength(currentRule.functionName) ? operatorSelect1 : operatorSelect;
+        const isStringLength = (name) => {
+            return name === '字符串最大长度' || name === '字符串最小长度';
+        }
+
+        let operatorMap = isStringLength(currentRule.functionName) ? operatorSelect1 : operatorSelect;
 
         switch(type) {
             case 'columnName': {
@@ -534,6 +525,7 @@ export default class StepTwo extends Component {
     // 保存规则
     save(id) {
         const { currentRule, enumFields, SQLFields, columnFields } = this.state;
+
         let newData = [...this.props.editParams.rules],
             target  = newData.filter(item => id === item.id)[0],
             index   = newData.indexOf(target),
@@ -546,7 +538,6 @@ export default class StepTwo extends Component {
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
             console.log(err,values)
             if(!err) {
-                
                 delete currentRule.editStatus;
                 delete currentRule.editable;
                 newData[index] = currentRule;
@@ -572,7 +563,10 @@ export default class StepTwo extends Component {
             } else {
                 newData.shift();
                 form.resetFields();
-                this.setState({ currentRule: {} });
+                this.setState({ 
+                    currentRule: {}, 
+                    functionList: [] 
+                });
             }
         }
 
@@ -613,9 +607,7 @@ export default class StepTwo extends Component {
 
         newData.unshift(target);
         this.setState({ currentRule: target });
-        this.props.changeParams({
-            rules: newData
-        });
+        this.props.changeParams({ rules: newData });
     }
 
     render() {
