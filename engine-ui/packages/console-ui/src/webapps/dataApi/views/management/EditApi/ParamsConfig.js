@@ -133,7 +133,7 @@ class ManageParamsConfig extends Component {
                         <Button style={{ marginLeft: 8 }} onClick={() => this.props.prev()}>上一步</Button>
                     }
                     {
-                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>提交</Button>
+                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>保存</Button>
                     }
 
                 </div>

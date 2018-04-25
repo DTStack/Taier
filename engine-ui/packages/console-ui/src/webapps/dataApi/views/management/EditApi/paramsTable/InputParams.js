@@ -313,12 +313,10 @@ class InputParams extends Component {
             title: '操作符',
             dataIndex: 'operators',
             key: 'operators',
-            width: "80px",
+            width: "100px",
             render: (text, record, index) => {
                 if (record.isEdit) {
-                    console.log("****")
-                    console.log(record.operators)
-                    console.log("****")
+                    
                     return (
                         <Select onChange={this.operatorsChange.bind(this, index)} value={record.operators}  style={{ width: "100%" }} >
                             <Option value="=">=</Option>
@@ -327,7 +325,6 @@ class InputParams extends Component {
                             <Option value="<"> &lt;</Option>
                             <Option value="<=">&lt;=</Option>
                             <Option value="!=">!=</Option>
-                            <Option value="between">between</Option>
                             <Option value="in">in</Option>
                             <Option value="not in">not in</Option>
                             <Option value="like">like</Option>

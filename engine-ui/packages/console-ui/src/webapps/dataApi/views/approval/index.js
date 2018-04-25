@@ -80,7 +80,7 @@ class APIApproval extends Component {
                 (res) => {
                     if (res) {
                         this.setState({
-                            total: res.totalCount
+                            total: res.data.totalCount
                         })
                     }
                 }
@@ -176,7 +176,7 @@ class APIApproval extends Component {
                     "pass": "已通过",
                     "rejected": "已拒绝",
                     "stop": "停用",
-                    "disabled": "禁用"
+                    "disabled": "取消授权"
                 }
                 return <span className={`state-${EXCHANGE_APPLY_STATUS[text]}`}>{dic[EXCHANGE_APPLY_STATUS[text]]}</span>
             },
@@ -198,7 +198,7 @@ class APIApproval extends Component {
                     text: '停用',
                     value: '3'
                 },{
-                    text: '禁用',
+                    text: '取消授权',
                     value: '4'
                 }
             ],
