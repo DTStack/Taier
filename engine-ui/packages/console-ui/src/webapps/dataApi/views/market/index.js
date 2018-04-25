@@ -236,6 +236,7 @@ class APIMarket extends Component {
             title: '描述',
             dataIndex: 'description',
             key: 'description',
+            width:300
         }, {
             title: '累计调用（次）',
             dataIndex: 'callCount',

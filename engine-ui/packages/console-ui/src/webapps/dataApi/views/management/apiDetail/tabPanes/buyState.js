@@ -59,11 +59,15 @@ class BuyManageState extends Component {
     }
     tableChange(params, apiId) {
         const { filter, sortedInfo, page } = params;
+        let status=filter.status
+        if(!status||status.length<0){
+            status=[1,3,4]
+        }
         let requestParams = {};
         requestParams.apiId = apiId || this.props.apiId;
         requestParams.pageSize = 10;
         requestParams.currentPage = page
-        requestParams.status = filter.status;
+        requestParams.status = status;
         this.getData(requestParams);
     }
     getData(params) {
