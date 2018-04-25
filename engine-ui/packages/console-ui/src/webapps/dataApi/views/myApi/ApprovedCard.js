@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Menu, Card, Table, Modal } from "antd";
+import { Menu, Card, Table, Modal ,message} from "antd";
 import SlidePane from "./ApprovedSlidePane";
 import SlidePaneDisabled from "./DisabledCardSlidePane"
 import SlidePaneDetail from "./detailSlidePane"
@@ -14,7 +14,7 @@ const exchangeDic = {
 }
 
 const sortType = {
-    "applyTime": 'gmt_modified'
+    "applyTime": 'gmt_create'
 }
 const orderType = {
     "ascend": 'asc',
@@ -30,6 +30,7 @@ class ApprovedCard extends Component {
         sortedInfo: {},
         filterInfo: {},
         showRecord: {}
+        
     }
     getAppliedList() {
         this.setState({
@@ -68,7 +69,7 @@ class ApprovedCard extends Component {
     }
     componentWillReceiveProps(nextProps){
         if(this.props.apiId!=nextProps.apiId&&nextProps.apiId){
-            debugger;
+                
                 const res=this.getSource();
                 if(res){
                     for(let i in res.data){
@@ -156,7 +157,10 @@ class ApprovedCard extends Component {
             onOk: () => {
                 this.props.updateApplyStatus(record.id, 3).
                     then(
-                        () => {
+                        (res) => {
+                            if(res){
+                                message.success("停止成功")
+                            }
                             this.getAppliedList();
                         }
                     )
@@ -175,7 +179,10 @@ class ApprovedCard extends Component {
             onOk: () => {
                 this.props.updateApplyStatus(record.id, 1).
                     then(
-                        () => {
+                        (res) => {
+                            if(res){
+                                message.success("开启成功")
+                            }
                             this.getAppliedList();
                         }
                     )
@@ -198,29 +205,31 @@ class ApprovedCard extends Component {
                 return <a onClick={this.apiClick.bind(this, record)} >{text}</a>
             }
         }, {
-            title: '状态',
+            title: '授权状态',
             dataIndex: 'status',
             key: 'status',
             render(text) {
 
                 const dic = {
-                    success: "正常",
-                    disabled: "禁用",
+                    success: "已通过",
+                    disabled: "取消授权",
                     stop: "停用",
-                    notPass: "未通过"
+                    notPass: "已拒绝"
                 }
                 return <span className={`state-${exchangeDic[text]}`}>{dic[exchangeDic[text]]}</span>
             },
             filters: [
-                { text: '正常', value: '1' },
+                { text: '已通过', value: '1' },
+                { text: '已拒绝', value: '2' },
                 { text: '停用', value: '3' },
-                { text: '禁用', value: '4' },
-                { text: '未通过', value: '2' }
+                { text: '取消授权', value: '4' },
+                
             ]
         }, {
             title: '描述',
             dataIndex: 'apiDesc',
             key: 'apiDesc',
+            width:300
         }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
@@ -231,6 +240,9 @@ class ApprovedCard extends Component {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
             key: 'recentFailRate',
+            render(text){
+                return text+"%"
+            }
 
         },
         {
@@ -280,8 +292,10 @@ class ApprovedCard extends Component {
             total: this.getTotal(),
         }
     }
+  
 
     render() {
+       
         return (
             <div>
 
@@ -291,6 +305,7 @@ class ApprovedCard extends Component {
                 >
                     <SlidePane
                         {...this.props}
+                        isApproved={true}
                         showRecord={this.state.showRecord}
                         slidePaneShow={this.state.slidePaneShowNoApproved}
                         closeSlidePane={this.closeSlidePane.bind(this)}
@@ -311,6 +326,15 @@ class ApprovedCard extends Component {
                     >
                     </SlidePaneDetail>
                     <Table
+                        rowClassName={
+                            (record, index)=>{
+                                if(this.state.showRecord.apiId==record.apiId){
+                                    return "row-select"
+                                }else{
+                                    return "";
+                                }
+                            }
+                        }
                         rowKey="apiId"
                         className="m-table monitor-table"
                         columns={this.initColumns()}

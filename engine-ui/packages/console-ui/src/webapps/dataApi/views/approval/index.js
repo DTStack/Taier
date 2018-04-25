@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import  { Card, Input, Table, Select, Modal, Form, Button,message } from "antd";
 import { connect } from "react-redux";
+import utils from "utils";
 import { formItemLayout, EXCHANGE_APPLY_STATUS } from "../../consts"
 import { approvalActions } from '../../actions/approval';
 const TextArea = Input.TextArea;
@@ -72,14 +73,14 @@ class APIApproval extends Component {
             status: this.state.filter.status&&this.state.filter.status[0],
             currentPage: this.state.pageIndex,
             pageSize: 20,
-            orderBy:orderType[this.state.sorter.order],
-            sort:sortType[this.state.sorter.columnKey]
+            sort:orderType[this.state.sorter.order],
+            orderBy:sortType[this.state.sorter.columnKey]
         })
             .then(
                 (res) => {
                     if (res) {
                         this.setState({
-                            total: res.totalCount
+                            total: res.data.totalCount
                         })
                     }
                 }
@@ -87,7 +88,8 @@ class APIApproval extends Component {
     }
     handleSearch(key) {
         this.setState({
-            userName: key
+            userName: key,
+            pageIndex:1
         },
             () => {
                 this.getApprovalList();
@@ -174,7 +176,7 @@ class APIApproval extends Component {
                     "pass": "已通过",
                     "rejected": "已拒绝",
                     "stop": "停用",
-                    "disabled": "禁用"
+                    "disabled": "取消授权"
                 }
                 return <span className={`state-${EXCHANGE_APPLY_STATUS[text]}`}>{dic[EXCHANGE_APPLY_STATUS[text]]}</span>
             },
@@ -196,7 +198,7 @@ class APIApproval extends Component {
                     text: '停用',
                     value: '3'
                 },{
-                    text: '禁用',
+                    text: '取消授权',
                     value: '4'
                 }
             ],
@@ -210,11 +212,15 @@ class APIApproval extends Component {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
+            width:"250px"
         }, {
             title: '申请时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            sorter: true
+            sorter: true,
+            render(text){
+                return utils.formatDateTime(text);
+            }
         }, {
             title: '操作',
             dataIndex: 'deal',
@@ -335,6 +341,7 @@ class APIApproval extends Component {
                             {getFieldDecorator('APIGroup', {
                                 rules: [
                                     { required: true, message: '请填写审批说明' },
+                                    {max:200,message:"最大字数不能超过200"}
                                 ],
 
                             })(

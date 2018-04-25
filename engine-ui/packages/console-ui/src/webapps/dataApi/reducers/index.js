@@ -3,7 +3,7 @@ import { routerReducer as routing } from 'react-router-redux'
 
 
 import { user } from 'main/reducers/modules/user'
-import { apps } from 'main/reducers/modules/apps'
+import { apps,app } from 'main/reducers/modules/apps'
 
 import common from './modules/common';
 import dashBoard from './modules/dashBoard';
@@ -19,6 +19,7 @@ const rootReducer = combineReducers({
     dataSource,
     user,
     apps,
+    app,
     common,
     dashBoard,
     apiMarket,

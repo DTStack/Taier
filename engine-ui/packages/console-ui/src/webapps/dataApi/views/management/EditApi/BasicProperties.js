@@ -18,60 +18,61 @@ class ManageBasicProperties extends Component {
         this.getDataSource();
         this.setDefault(this.props.initValues);
     }
-    componentWillReceiveProps(nextProps){
-        if(this.props.initValues!=nextProps.initValues||this.props.apiMarket.apiCatalogue!=nextProps.apiMarket.apiCatalogue){
-            this.setDefault(nextProps.initValues);
+    componentWillReceiveProps(nextProps) {
+        if (this.props.initValues != nextProps.initValues || this.props.apiMarket.apiCatalogue != nextProps.apiMarket.apiCatalogue) {
+            this.setDefault(nextProps.initValues, nextProps.apiMarket.apiCatalogue);
         }
     }
-    getInitCatagoryList(value){
-        const tree = this.props.apiMarket.apiCatalogue;
-        let arr=[];
+    getInitCatagoryList(value, catagorys) {
+
+        const tree = catagorys || this.props.apiMarket.apiCatalogue;
+        let arr = [];
         function exchangeTree(data) {
-            
-            if (!data||data.length<1) {
+
+            if (!data || data.length < 1) {
                 return null;
             }
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
-                
-                if(item.id==value){
+
+                if (item.id == value) {
                     arr.push(item.id);
                     return item.id;
                 }
-                if(exchangeTree(item.childCatalogue)){
+                if (exchangeTree(item.childCatalogue)) {
                     arr.push(item.id);
                     return item.id
                 }
             }
             return null;
         }
-        if(exchangeTree(tree)){
+        if (exchangeTree(tree)) {
             return arr.reverse();
         }
         return null;
 
     }
-    setDefault(initValues){
-        if(!initValues||!initValues.name){
+    setDefault(initValues, catalogue) {
+        if (!initValues || !initValues.name) {
             return;
         }
-        const name=initValues.name,
-        dataSrcId=initValues.dataSrcId,
-        tableName=initValues.tableName,
-        reqLimit=initValues.reqLimit,
-        respLimit=initValues.respLimit,
-        apiDesc=initValues.apiDesc,
-        catalogueId=initValues.catId;
+        const name = initValues.name,
+            dataSrcId = initValues.dataSrcId,
+            tableName = initValues.tableName,
+            reqLimit = initValues.reqLimit,
+            respLimit = initValues.respLimit,
+            apiDesc = initValues.apiDesc,
+            catalogueId = initValues.catalogueId;
         this.props.form.setFieldsValue({
-            APIGroup:this.getInitCatagoryList(catalogueId),
-            APIName:name,
-            APIdescription:apiDesc,
-            callLimit:reqLimit,
-            backLimit:respLimit,
-            table:tableName+'',
-            dataSource:dataSrcId+''
+            APIGroup: this.getInitCatagoryList(catalogueId, catalogue),
+            APIName: name,
+            APIdescription: apiDesc,
+            callLimit: reqLimit,
+            backLimit: respLimit,
+            table: tableName + '',
+            dataSource: dataSrcId + ''
         })
-       
+
     }
     pass() {
         this.props.form.validateFields((err, values) => {
@@ -194,13 +195,13 @@ class ManageBasicProperties extends Component {
 
         function exchangeTree(data) {
             let arr = []
-            if (!data||data.length<1) {
+            if (!data || data.length < 1) {
                 return null;
             }
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
-                
-                if(item.api){
+
+                if (item.api) {
                     return null;
                 }
                 arr.push({
@@ -211,7 +212,7 @@ class ManageBasicProperties extends Component {
             }
             return arr;
         }
-        
+
         return exchangeTree(tree);
 
 
@@ -232,9 +233,9 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { required: true, message: '请选择分组' },
                                 ],
-                                initialValue:this.props.APIGroup
+                                initialValue: this.props.APIGroup
                             })(
-                                <Cascader options={options} placeholder="请选择分组" />
+                                <Cascader showSearch options={options} placeholder="请选择分组" />
                             )
                             }
                         </FormItem>
@@ -243,7 +244,9 @@ class ManageBasicProperties extends Component {
                             label="API名称"
                             hasFeedback >
                             {getFieldDecorator('APIName', {
-                                rules: [{ required: true, message: '请输入API名称' }],
+                                rules: [{ required: true, message: '请输入API名称' },
+                                { max: 16, message: "最大字数不能超过16" },
+                                { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
                             })(
                                 <Input />
@@ -255,7 +258,8 @@ class ManageBasicProperties extends Component {
                             hasFeedback
                         >
                             {getFieldDecorator('APIdescription', {
-                                rules: [{ required: false, message: '请输入API描述' }],
+                                rules: [{ required: false, message: '请输入API描述' },
+                                { max: 200, message: "最大字数不能超过200" }],
                                 initialValue: this.props.APIdescription
                             })(
                                 <TextArea />
@@ -266,7 +270,18 @@ class ManageBasicProperties extends Component {
                             label="调用限制"
                             hasFeedback >
                             {getFieldDecorator('callLimit', {
-                                rules: [{ required: true, message: '请输入调用次数限制' }],
+                                rules: [
+                                    { required: true, message: '请输入调用次数限制' },
+                                    {
+                                        validator: function (rule, value, callback) {
+                                            if (value && (value > 1000 || value < 1)) {
+                                                callback("请输入不大于1000的正整数")
+                                                return;
+                                            }
+                                            callback();
+                                        }
+                                    }
+                                ],
                                 initialValue: this.props.callLimit
                             })(
                                 <Input placeholder="单用户每秒最高调用次数" />
@@ -277,7 +292,8 @@ class ManageBasicProperties extends Component {
                             label="返回条数限制"
                             hasFeedback >
                             {getFieldDecorator('backLimit', {
-                                rules: [{ required: true, message: '请输入最大返回条数' }],
+                                rules: [{ required: true, message: '请输入最大返回条数' },
+                                { pattern: new RegExp(/^1[0-9]{0,3}$|^2000$|^[0-9]$|^[1-9][0-9]{1,2}$/), message: '请输入不大于2000的正整数' }],
                                 initialValue: this.props.backLimit
                             })(
                                 <Input placeholder="单次最大返回数据条数 (最高支持2000条)" />

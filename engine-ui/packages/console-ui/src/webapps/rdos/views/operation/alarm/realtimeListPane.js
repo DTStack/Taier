@@ -147,7 +147,7 @@ class RealTimePanel extends Component {
             render: (text, record) => {
                 const recivers = record.receiveUsers
                 if (recivers.length > 0) {
-                    return recivers.map(item => item.userName)
+                    return recivers.map(item => item.userName).join(', ')
                 }
                 return ''
             },

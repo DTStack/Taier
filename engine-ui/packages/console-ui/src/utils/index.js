@@ -182,6 +182,13 @@ const utils = {
         let re=/(?=(?!(\b))(\d{3})+$)/g;
         str=str.replace(re,",");
         return str;
+    },
+    //文字溢出转换
+    textOverflowExchange(text,length){
+        if(text&&text.length>length){
+            return text.substring(0,length)+"..."
+        }
+        return text
     }
 }
 

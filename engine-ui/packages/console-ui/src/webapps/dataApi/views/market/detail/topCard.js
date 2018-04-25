@@ -15,11 +15,12 @@ class TopCard extends Component {
     }
     getTopRightButton() {
         const status = this.getValue('applyStatus');
-        if (status == 2) {
-            return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
+        if (status == 1||status == 3) {
+            // return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
+            return null;
 
         }
-        if (status == 1) {
+        if (status == 0) {
             return <Button onClick={this.jumpToMine.bind(this)} size="large" type="primary">查看审批情况</Button>
 
         }
@@ -30,7 +31,7 @@ class TopCard extends Component {
         this.setState({
             applyBox: true,
             apply: {
-                apiId: this.props.appId,
+                apiId: this.props.apiId,
                 apiName: this.getApiValue('apiName'),
                 desc: this.getApiValue('desc')
             }
@@ -77,7 +78,7 @@ class TopCard extends Component {
 
     }
     jumpToMineApproved() {
-        this.props.router.push("/api/mine/approved");
+        this.props.router.push("/api/mine/approved?apiId="+this.props.apiId);
     }
     handleOk() {
 

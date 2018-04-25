@@ -51,11 +51,15 @@ class ApiCallState extends Component {
             ||
             (this.props.dateType !== nextProps.dateType)
         ) {
+            
             this.setState({
                 apiId: nextProps.showRecord.apiId
             },
                 () => {
-                    this.getInfo();
+                    if(nextProps.slidePaneShow){
+                        this.getInfo();
+                    }
+                    
 
                 })
         }
@@ -92,6 +96,17 @@ class ApiCallState extends Component {
         let myChart = echarts.init(document.getElementById('MyApiDetailState'));
         const option = cloneDeep(doubleLineAreaChartOptions);
         option.grid.right="40px";
+        option.tooltip.formatter = function (params) {
+            var relVal = params[0].name;
+            for (var i = 0, l = params.length; i < l; i++) {
+                let unit="次"
+                if(params[i].seriesName=="失败率"){
+                    unit="%"
+                }
+                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' +params[i].seriesName + ' : ' + params[i].value + unit;
+            }
+            return relVal;
+        }
         option.series = [{
             symbol: "none",
             name: "调用次数",

@@ -20,6 +20,7 @@ export default {
             default: return;
         }
     },
+
     // ================== 角色相关 ==================//
     queryRole(app, params) {
         switch (app) {

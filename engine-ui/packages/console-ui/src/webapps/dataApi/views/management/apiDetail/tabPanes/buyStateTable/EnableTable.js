@@ -21,14 +21,14 @@ class EnableTable extends Component {
             filters: [
                 { text: '正常', value: '1' },
                 { text: '停用', value: '3' },
-                { text: '禁用', value: '4' }
+                { text: '取消授权', value: '4' }
 
             ],
             render: (text, record) => {
                 const dic = {
                     success: "正常",
                     stop: "停用",
-                    disabled:"禁用"
+                    disabled:"取消授权"
                 }
              
                 return <span className={`state-${EXCHANGE_API_STATUS[text]}`}>{dic[EXCHANGE_API_STATUS[text]]}</span>
@@ -41,7 +41,10 @@ class EnableTable extends Component {
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
-            key: 'recent24HFailRate'
+            key: 'recent24HFailRate',
+            render(text){
+                return text+"%";
+            }
         }, {
             title: '最近7天调用',
             dataIndex: 'recent7DCallNum',
@@ -70,7 +73,7 @@ class EnableTable extends Component {
             dataIndex: '',
             key: 'deal',
             render: (text, record) => {
-                if (record.status == "success") {
+                if (EXCHANGE_API_STATUS[record.status] != "disabled") {
                     return <a onClick={
                         () => {
                             this.props.cancelApi(record.applyId)

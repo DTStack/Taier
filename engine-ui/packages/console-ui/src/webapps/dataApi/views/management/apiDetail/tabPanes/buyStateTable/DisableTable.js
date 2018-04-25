@@ -17,11 +17,14 @@ class DisableTable extends Component {
             title: '最近24小时调用',
             dataIndex: 'recent24HCallNum',
             key: 'recent24HCallNum'
-
+ 
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
-            key: 'recent24HFailRate'
+            key: 'recent24HFailRate',
+            render(text){
+                return text+"%";
+            }
         }, {
             title: '最近7天调用',
             dataIndex: 'recent7DCallNum',
