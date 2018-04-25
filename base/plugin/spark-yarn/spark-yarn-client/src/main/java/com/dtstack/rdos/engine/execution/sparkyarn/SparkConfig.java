@@ -37,6 +37,8 @@ public class SparkConfig {
     //如果设置为 "true" , 则执行任务的推测执行. 这意味着如果一个或多个任务在一个阶段中运行缓慢, 则将重新启动它们
     private static final String spark_speculation = "true";
 
+    private static final String spark_yarn_maxAppAttempts = "0";
+
     public static void initDefautlConf(SparkConf sparkConf){
         try{
             Field[] fields = SparkConfig.class.getDeclaredFields();
