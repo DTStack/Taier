@@ -48,6 +48,7 @@ class OfflineTaskMana extends Component {
         checkAll: false,
 
         current: 1, // 当前页
+        tabKey: 'taskFlow',
         person: '',
         taskName: utils.getParameterByName('tname') ? utils.getParameterByName('tname') : '',
         selectedTask: '',
@@ -200,6 +201,12 @@ class OfflineTaskMana extends Component {
     changeTaskName = (e) => {// 任务名变更
         this.setState({ taskName: e.target.value })
     }
+    
+    onTabChange = (tabKey) => {
+        this.setState({
+            tabKey,
+        })
+    }
 
     onCheckAllChange = (e) => {
         let selectedRowKeys = []
@@ -319,7 +326,7 @@ class OfflineTaskMana extends Component {
     tableFooter = (currentPageData) => {
         return (
             <Row>
-                <Col className="inline" style={{ padding: '15px 10px 10px 30px' }}>
+                <Col className="inline" style={{ padding: '15px 10px 10px 38px' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -349,7 +356,7 @@ class OfflineTaskMana extends Component {
         const { projectUsers, project } = this.props
         const { 
             tasks, patchDataVisible, selectedTask, person, checkVals,
-            current, taskName, visibleSlidePane, selectedRowKeys
+            current, taskName, visibleSlidePane, selectedRowKeys, tabKey,
         } = this.state;
 
         const userItems = projectUsers && projectUsers.length > 0 ?
@@ -440,10 +447,11 @@ class OfflineTaskMana extends Component {
                         visible={ visibleSlidePane } 
                         style={{ right: '0px', width: '80%', height: '100%', minHeight: '530px'  }}
                     >
-                        <Tabs animated={false}>
+                        <Tabs animated={false} onChange={this.onTabChange}>
                             <TabPane tab="依赖视图" key="taskFlow">
                                 <TaskView 
                                     reload={this.search}
+                                    tabKey={tabKey}
                                     visibleSlidePane={visibleSlidePane}
                                     goToTaskDev={this.props.goToTaskDev} 
                                     clickPatchData={this.clickPatchData}

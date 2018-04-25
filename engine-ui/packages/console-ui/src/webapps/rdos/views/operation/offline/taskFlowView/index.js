@@ -273,13 +273,6 @@ class TaskFlowView extends Component {
         graph.view.setTranslate(cx, cy);
         this.insertVertex(graph, data, parent, type)
         this.executeLayout();
-        // model.beginUpdate()
-        // try {
-        //     // Executes the layout
-        //     layout.execute(parent);
-        // } finally {
-        //     model.endUpdate()
-        // }
     }
 
     loadTaskChidren = (params) => {

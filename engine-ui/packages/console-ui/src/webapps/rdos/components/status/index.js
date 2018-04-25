@@ -61,7 +61,7 @@ export function TaskStatus(props) {
         default:
             return <span>
                 <Circle style={{ background: '#d9d9d9' }} />&nbsp;
-                未提交
+                等待提交
             </span>
     }
 }
@@ -116,7 +116,7 @@ export function OfflineTaskStatus(props) {
         default:
             return <span>
                 <Circle style={{ background: '#d9d9d9' }} />&nbsp;
-                未提交
+                等待提交
             </span>
     }
 }

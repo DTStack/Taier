@@ -93,7 +93,6 @@ export default class TaskLog extends Component {
             series: [
                 {
                     name: '执行时长',
-                    symbol: 'none',
                     type:'line',
                     yAxisIndex: 0,
                     markLine: {
@@ -102,7 +101,6 @@ export default class TaskLog extends Component {
                     data: stayTiming,
                 }, {
                     name: '读取数据',
-                    symbol: 'none',
                     type:'line',
                     yAxisIndex: 1,
                     markLine: {
@@ -111,7 +109,6 @@ export default class TaskLog extends Component {
                     data: readData,
                 }, {
                     name: '脏数据',
-                    symbol: 'none',
                     yAxisIndex: 1,
                     markLine: {
                         precision: 1,

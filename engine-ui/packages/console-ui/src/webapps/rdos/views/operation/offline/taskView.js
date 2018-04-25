@@ -84,9 +84,12 @@ export default class TaskView extends Component {
     componentWillReceiveProps(nextProps) {
         const currentTask = this.props.tabData
         const graph = this.graph;
-        const { tabData, visibleSlidePane } = nextProps
+        const { tabData, visibleSlidePane, tabKey } = nextProps
         if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
             this.initGraph(tabData.id)
+        }
+        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'taskFlow') {
+            this.refresh();
         }
     }
 
@@ -206,7 +209,7 @@ export default class TaskView extends Component {
             layout.levelDistance = 30;
             layout.nodeDistance = 10;
 
-            this.layout = layout
+            this.layout = layout;
             this.executeLayout = function(change, post) {
 
                 model.beginUpdate();
@@ -406,13 +409,13 @@ export default class TaskView extends Component {
         const w = Math.ceil(bounds.x + bounds.width);
         const h = Math.ceil(bounds.y + bounds.height);
  
-        const myCanvas = this.MyCanvas
+        const myCanvas = this.MyCanvas;
         const ctx = myCanvas.getContext('2d');
         const svgData = this.Container.innerHTML
         const DOMURL = window.URL || window.webkitURL || window;
 
-        myCanvas.width = w
-        myCanvas.height = h
+        myCanvas.width = w;
+        myCanvas.height = h;
 
         const img = new Image();
         const svg = new Blob([svgData], {type: 'image/svg+xml'});
@@ -442,7 +445,7 @@ export default class TaskView extends Component {
         return (
             <div className="graph-editor" 
                 style={{
-                    position: 'relative', 
+                    position: 'relative',
                     height: '100%',
                 }}
             >

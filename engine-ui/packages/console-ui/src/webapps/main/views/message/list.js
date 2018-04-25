@@ -184,30 +184,37 @@ class MessageList extends Component {
 
     tableFooter = (currentPageData) => {
         const { msgList } = this.props
-        const { selectedAll } = this.state
+        const { selectedAll, table } = this.state
+        const disabled = !table || !table.data || (table.data.length === 0);
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '0 24px' }}>
                     <Checkbox 
                         checked={selectedAll}
+                        disabled={disabled}
                         onChange={this.onCheckAllChange}></Checkbox>
                 </td>
                 <td>
-                    <Button 
-                        size="small"
-                        type="primary" 
-                        onClick={this.deleteMsg}>
-                        删除
-                    </Button>
+                    {
+                        <Button 
+                            size="small"
+                            type="primary" 
+                            disabled={disabled}
+                            onClick={this.deleteMsg}>
+                            删除
+                        </Button>
+                    }
                     {
                         msgList.msgType !== '3' && <span>
                             <Button 
                                 size="small"
-                                type="primary" 
+                                type="primary"
+                                disabled={disabled}
                                 onClick={this.markAsRead}>
                                 标为已读
                             </Button>
-                            <Button 
+                            <Button
+                                disabled={disabled}
                                 size="small"
                                 type="primary" 
                                 onClick={this.markAsAllRead}>

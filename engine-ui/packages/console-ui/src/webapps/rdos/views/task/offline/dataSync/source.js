@@ -172,6 +172,7 @@ class SourceForm extends React.Component {
                     })
                 }
             }
+
             // 分区，获取任务自定义参数
             if (values.partition) {
                 const taskVariables = matchTaskParams(taskCustomParams, values.partition)

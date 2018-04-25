@@ -62,11 +62,11 @@ export default class TableOverview extends React.Component{
     getSeries = (data) => {
         const arr = []
         if (data && data.y) {
-            const legend = data && data.type ? data.type.data : []
+            const legendData = data && data.type ? data.type.data : [];
+            const legend = this.coverToCN(legendData);
             for (let i = 0; i < legend.length; i++) {
                 arr.push({
                     name: legend[i],
-                    symbol: 'none',
                     type:'line',
                     data: data.y[i].data,
                 })
@@ -75,18 +75,40 @@ export default class TableOverview extends React.Component{
         return arr
     }
 
+    coverToCN(arr) {
+        for (let i = 0; i < arr.length; i++) {
+            switch(arr[i]) {
+                case 'total':
+                    arr[i] = '错误总数'; continue;
+                case 'npe':
+                    arr[i] = '空指针错误'; continue;
+                case 'duplicate':
+                    arr[i] = '主键冲突'; continue;
+                case 'conversion':
+                    arr[i] = '字段类型转换错误'; continue;
+                case 'other':
+                    arr[i] = '其他'; continue;
+            }
+        }
+        return arr;
+    }
+
     renderLineChart = (chartData) => {
         let myChart = echarts.init(document.getElementById('Table_Overview'));
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = '脏数据概览图'
         const formatDate = function(obj) {
-            return utils.formatDate(obj.value);
+            return utils.formatDate(parseInt(obj.value, 10));
         }
         option.tooltip.axisPointer.label.formatter = formatDate
-        option.xAxis[0].axisLabel.formatter = formatDate;
+        option.xAxis[0].axisLabel.formatter = function(value) {
+            return utils.formatDate(+value);
+        }
 
         option.yAxis[0].minInterval = 1
-        option.legend.data = chartData && chartData.type ? chartData.type.data : []
+        option.yAxis[0].axisLabel.formatter = '{value} 条'
+        const legendData = chartData && chartData.type ? chartData.type.data : []
+        option.legend.data = this.coverToCN(legendData);
         option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
         option.series = this.getSeries(chartData)
         // 绘制图表
