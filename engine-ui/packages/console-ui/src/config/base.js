@@ -4,13 +4,8 @@
 export const UIC_BASE_URL = '/uic/api';
 export const RDOS_BASE_URL = '/api/rdos';
 export const DQ_BASE_URL = '/api/dq/service';
-<<<<<<< HEAD
-export const DATA_API_BASE_URL = '/api/da';
-export const DL_BASE_URL = '/api/tag/service';
-=======
 export const DATA_API_BASE_URL = '/api/da/service';
-export const DL_BASE_URL = '/api/dl';
->>>>>>> 4ce705cc79d8ff85d88292df35e5dc6cc8180181
+export const DL_BASE_URL = '/api/tag/service';
 
 export const rdosApp = {
     id: 'rdos',
