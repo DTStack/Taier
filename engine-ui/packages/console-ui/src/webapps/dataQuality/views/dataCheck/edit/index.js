@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Steps, Button, Icon } from 'antd';
+import { Steps } from 'antd';
 
 import StepOne from './stepOne';
 import StepTwo from './stepTwo';
@@ -17,11 +17,11 @@ export default class DataCheckEdit extends Component {
         editParams: {
             origin: {},
             target: {},
-            setting: {},
-            mappedPK: null,
+            mappedPK: {},
             executeType: 0,
-            scheduleConf: '',
-            notifyVO: null,
+            setting: {},
+            scheduleConf: undefined,
+            notifyVO: {},
         },
         editStatus: 'new',
         havePart: false
@@ -33,12 +33,14 @@ export default class DataCheckEdit extends Component {
 
         if (verifyId) {
             this.setState({ editStatus: 'edit' });
-            DCApi.getCheckDetail({ verifyId: verifyId }).then((res) => {
+
+            DCApi.getCheckDetail({ verifyId }).then((res) => {
                 if (res.code === 1) {
                     let data = res.data;
                     
                     this.setState({ 
-                        editParams: { ...editParams, 
+                        editParams: { 
+                            ...editParams, 
                             id: data.id,
                             origin: data.origin,
                             target: data.target,
@@ -56,6 +58,7 @@ export default class DataCheckEdit extends Component {
 
     changeParams = (obj) => {
         let editParams = { ...this.state.editParams, ...obj };
+        console.log(obj,editParams)
         this.setState({ editParams });
     }
 
@@ -63,8 +66,8 @@ export default class DataCheckEdit extends Component {
         this.setState({ havePart });
     }
 
-    navToStep = (value) => {
-        this.setState({ current: value });
+    navToStep = (current) => {
+        this.setState({ current });
     }
  
     render() {
@@ -89,7 +92,6 @@ export default class DataCheckEdit extends Component {
                     editParams={editParams}
                     editStatus={editStatus}
                     changeParams={this.changeParams}
-                    changeHavePart={this.changeHavePart}
                 />
             },
             {
@@ -117,9 +119,10 @@ export default class DataCheckEdit extends Component {
                 <h1 className="box-title">
                     <GoBack /> 
                     <span className="m-l-8">
-                        { editStatus === 'new' ? '新建' : '编辑' }逐行校验
+                        { editStatus === 'new' ? '新建逐行校验' : '编辑逐行校验' }
                     </span>
                 </h1>
+
                 <div className="steps-container">
                     <Steps current={current}>
                         { steps.map(item => <Step key={item.title} title={item.title} />) }

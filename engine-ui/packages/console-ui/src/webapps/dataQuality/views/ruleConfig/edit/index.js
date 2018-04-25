@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Steps, Button, Icon } from 'antd';
+import { Steps } from 'antd';
 
 import StepOne from './stepOne';
 import StepTwo from './stepTwo';
@@ -22,7 +22,8 @@ export default class RuleConfigEdit extends Component {
             notifyUser: [],
             rules: []
         },
-        havePart: false
+        havePart: false,
+        useInput: true
     }
 
     changeParams = (obj) => {
@@ -34,21 +35,27 @@ export default class RuleConfigEdit extends Component {
         this.setState({ havePart });
     }
 
+    changeUseInput = (useInput) => {
+        this.setState({ useInput });
+    }
+
     navToStep = (value) => {
         this.setState({ current: value });
     }
  
     render() {
-        const { current, editParams, havePart } = this.state;
+        const { current, editParams, havePart, useInput } = this.state;
         const steps = [
             {
                 title: '监控对象', content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
                     havePart={havePart}
+                    useInput={useInput}
                     editParams={editParams}
                     changeParams={this.changeParams}
                     changeHavePart={this.changeHavePart}
+                    changeUseInput={this.changeUseInput}
                 />
             },
             {

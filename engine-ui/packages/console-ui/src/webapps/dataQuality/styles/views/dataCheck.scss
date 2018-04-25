@@ -1,17 +1,4 @@
 .check-setting {
-  	.setting-table {
-  		background: #FFF;
-
-  		p {
-  			height: 26px;
-  			line-height: 26px;
-  		}
-
-  		.ant-input-number {
-  			margin: 0 8px;
-  		}
-  	}
-
 	.keymap-title {
 		font-size: 14px;
 		color: #ccc;
@@ -30,10 +17,6 @@
 			background: #fff;
 
 			.ant-table-thead {
-		        .ant-table-selection-column > span {
-		            visibility: hidden;
-		        }
-
 		        & > tr > th {
 		            height: 40px;
 		        }
@@ -55,6 +38,12 @@
             }
         }
 
+        .mapline {
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
 		.keymap-action {
 			margin-left: 10px;
 
@@ -62,29 +51,25 @@
 				margin-bottom: 10px;
 			}
 		}
+
+        .setting-table {
+            background: #FFF;
+
+            p {
+                height: 26px;
+                line-height: 26px;
+            }
+
+            .ant-input-number {
+                margin: 0 8px;
+            }
+        }
+
 	}
 
 }
-   
-.cell-input {
-    height: 28px;
-    margin: 5px 5px 5px 0px;
-    width: 100%;
-    text-align: left;
-    background-color: transparent;
-    background-image: none;
-    border: none;
-}
 
-.table-h3-title {
-	margin-left: 20px;
-    margin-bottom: 10px;
-    border-left: 3px solid #2491F7;
-	padding-left: 5px;
-	font-size: 14px;
-}
-
-.m-report-table {
+.report-content {
     margin: 25px 20px;
 
     h3 {
@@ -94,13 +79,11 @@
     	font-size: 14px;
     }
 
-    table {
-        /*margin-bottom: 20px;*/
+    .report-table {
+        width: 100%;
         border-collapse: collapse;
-        /*border-radius: 3px;*/
-        /*border: 1px solid #E6E6E6;*/
-        td,
-        th {
+
+        td, th {
         	font-size: 12px;
             height: 40px;
             border: 1px solid #E6E6E6;
@@ -115,14 +98,8 @@
             text-align: left;
             width: 40%;
         }
-        .width-2 {
-        	width: 20%;
-        }
-        .width-3 {
+        .width-30 {
         	width: 30%;
-        }
-        .width-5 {
-        	width: 50%;
         }
     }
 }

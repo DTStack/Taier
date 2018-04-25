@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { select, selectAll, mouse } from 'd3-selection';
-import { isEmpty, isEqual } from 'lodash';
+import { isEmpty } from 'lodash';
 import { Table, Form, InputNumber, Button, message, Row, Col } from 'antd';
 
-import { keyMapActions } from '../../../actions/dataSource/keyMapActions';
+import { keyMapActions } from '../../../actions/dataCheck/keyMapActions';
 import API from '../../../api/dataSource';
 
 const FormItem = Form.Item;
@@ -22,11 +22,9 @@ export default class StepThree extends Component {
             selectedSetting: [],
             selectedSource: [],
             selectedTarget: [],
-            diverseData: [],
             h: 40,
             W: 0,
             H: 0,
-            padding: 10,
             originColumn: [],
             targetColumn: [],
             rowMap: false,
@@ -46,7 +44,7 @@ export default class StepThree extends Component {
         this.listenResize();
         this.getColumnData();
         this.setEditKeymapData();
-        this.setKeymapCheck();
+        this.setKeymapCheckData();
         this.setSettingTableFields();
         this.drawSvg();
     }
@@ -55,7 +53,7 @@ export default class StepThree extends Component {
 		let newKeymap = nextProps.keymap,
 			oldKeymap = this.props.keymap;
 
-		// keymap有改变则改变params
+		// keymap有变化
 		if (newKeymap.source.length != oldKeymap.source.length) {
 			const { origin, target } = this.props.editParams;
 			this.props.changeParams({
@@ -76,13 +74,11 @@ export default class StepThree extends Component {
     }
 
     listenResize() {
-        if (window.addEventListener) {
-            window.addEventListener('resize', this.resize, false);
-        }
+        window.addEventListener('resize', this.resize, false);
     }
 
     /**
-     * 调整窗口
+     * 获取窗口大小
      */
     resize = () => {
         this.setState({
@@ -92,11 +88,10 @@ export default class StepThree extends Component {
     }
 
     /**
-     * 获取左右表字段
+     * 获取左右表字段数据
      */
 	getColumnData = () => {
 		const { origin, target } = this.props.editParams;
-		const { setEditMap } = this.props;
 
 		API.getDataSourcesColumn({
 			sourceId: origin.dataSourceId,
@@ -128,6 +123,7 @@ export default class StepThree extends Component {
      */
     setEditKeymapData = () => {
         const { origin, target } = this.props.editParams;
+
         if (origin.column && target.column) {
             this.props.setEditMap({
                 source: origin.column,
@@ -164,22 +160,22 @@ export default class StepThree extends Component {
     /**
      * 已勾选的逻辑主键
      */
-    setKeymapCheck = () => {
+    setKeymapCheckData = () => {
         const { mappedPK } = this.props.editParams;
 
         // 填充keymap的checkbox
-        if (mappedPK) {
-            let sourceCheck = [],
-                targetCheck = [];
+        if (!isEmpty(mappedPK)) {
+            let selectedSource = [],
+                selectedTarget = [];
 
             for (let [key, value] of Object.entries(mappedPK)) {
-                sourceCheck.push(key);
-                targetCheck.push(value);
+                selectedSource.push(key);
+                selectedTarget.push(value);
             }
 
             this.setState({
-                selectedSource: sourceCheck,
-                selectedTarget: targetCheck
+                selectedSource,
+                selectedTarget
             });
         } 
     }
@@ -193,8 +189,9 @@ export default class StepThree extends Component {
         this.bindEvents();
     }
 
+    // 绘制两边小圆点
     renderDags() {
-        const { h, W, padding, originColumn, targetColumn } = this.state;
+        const { h, W, originColumn, targetColumn } = this.state;
 
         this.$canvas.append('g')
             .attr('class', 'dl')
@@ -229,74 +226,47 @@ export default class StepThree extends Component {
             .attr('fill', '#2491F7');
     }
 
+    // 绘制已连接的线段
     renderLines() {
-        const { h, W, padding } = this.state;
+        const { h, W } = this.state;
         const { source, target } = this.props.keymap;
         const $dagL = selectAll('.col-dag-l');
         const $dagR = selectAll('.col-dag-r');
-        const posArr = [];
 
-        /**
-         * 左侧source中连接起点对象keymap.source[i] 匹配到 所有字段对象中的一个 sourceMap.column[i]
-         * @param {*} columnItem
-         * @param {*} keymapItem
-         * @return {boolean} isMatch
-         */
-        const matchKeymapToColumn_s = (columnItem, keymapItem) => {
-            let isMatch = false;
-            isMatch = columnItem.key === keymapItem;
-            return isMatch;
-        };
+        let map = [];
 
-        const matchKeymapToColumn_t = (columnItem, keymapItem) => {
-            let isMatch = false;
-            isMatch = columnItem.key === keymapItem;
-            return isMatch;
-        }
-
-        /**
-         * source中的元素 key_obj 类型：
-         * if (sourceSrcType === 1, 2, 3) string
-         * if ( === 6) { index, type }
-         */
-        source.forEach((key_obj, ii) => {
+        source.forEach((sourceKey, sourceIndex) => {
             $dagL.each((dl, i) => {
                 let sx, sy, ex, ey;
 
-                if (matchKeymapToColumn_s(dl, key_obj)) {
+                if (dl.key === sourceKey) {
                     sx = 15;
                     sy = (i + 1.5) * h;
 
                     $dagR.each((dr, j) => {
-                        /**
-                         * target[ii] 类型：
-                         * if (targetSrcType === 1, 2, 3) string
-                         * if ( === 6)  obj{ key, type }
-                         */
-                        if (matchKeymapToColumn_t(dr, target[ii])) {
+                        if (dr.key === target[sourceIndex]) {
                             ex = W - 15;
                             ey = (j + 1.5) * h;
 
-                            posArr.push({
+                            map.push({
                                 s: {x: sx, y: sy},
                                 e: {x: ex, y: ey},
-                                dl: key_obj,
-                                dr: target[ii]
+                                dl: sourceKey,
+                                dr: target[sourceIndex]
                             });
                         }
                     });
                 }
-            })
+            });
         });
 
         const mapline = this.$canvas.append('g').attr('class', 'lines')
             .selectAll('g')
-            .data(posArr)
+            .data(map)
             .enter()
             .append('g')
-            .attr('class', 'mapline');
-
-        mapline.append('line')
+            .attr('class', 'mapline')
+            .append('line')
             .attr("x1", d => d.s.x)
             .attr("y1", d => d.s.y)
             .attr("x2", d => d.e.x)
@@ -306,12 +276,13 @@ export default class StepThree extends Component {
             .attr("marker-end","url(#arrow)");
     }
 
+    // 绑定事件
     bindEvents() {
-        const { h, W, padding, selectedSource, selectedTarget } = this.state;
-        const { addLinkedKeys, delLinkedKeys } = this.props;
+        const { h, W, selectedSource, selectedTarget } = this.state;
 
         const $line = this.$activeLine;
         const $dagL = selectAll('.col-dag-l');
+        const $dagR = selectAll('.col-dag-r');
 
         let isMouseDown = false;
         let sourceKey_obj, targetKey_obj;
@@ -329,20 +300,19 @@ export default class StepThree extends Component {
 
         this.$canvas.on('mousemove', () => {
             if (isMouseDown) {
-                const xy = mouse(this.$canvas.node());
+                let xy = mouse(this.$canvas.node());
                 $line.attr('x2', xy[0]).attr('y2', xy[1]);
             }
         }).on('mouseup', () => {
             if (isMouseDown) {
-                const xy = mouse(this.$canvas.node());
-                const [ex, ey] = xy;
-                const threholdX = W - 25;
+                let xy = mouse(this.$canvas.node());
+                let [ex, ey] = xy;
+                let threholdX = W - 30;
 
                 if (ex < threholdX) {
                 	this.resetActiveLine();
                 } else {
-                    const tidx = Math.floor(ey / h) - 1;
-                    const $dagR = selectAll('.col-dag-r');
+                    let tidx = Math.floor(ey / h) - 1;
 
                     $dagR.each((d, i) => {
                         if (i === tidx) {
@@ -353,7 +323,7 @@ export default class StepThree extends Component {
             }
 
             if (sourceKey_obj && targetKey_obj) {
-                addLinkedKeys({
+                this.props.addLinkedKeys({
                     source: sourceKey_obj.key,
                     target: targetKey_obj.key
                 });
@@ -368,7 +338,7 @@ export default class StepThree extends Component {
             .on('mouseover', (d, i, nodes) => {
                 select(nodes[i])
                     .select('line')
-                    .attr('stroke-width', 3)
+                    .attr('stroke-width', 4)
                     .attr('stroke', '#2491F7')
             })
             .on('mouseout', (d, i, nodes) => {
@@ -378,7 +348,7 @@ export default class StepThree extends Component {
                     .attr('stroke', '#2491F7')
             })
             .on('click', (d, i, nodes) => {
-                delLinkedKeys({
+                this.props.delLinkedKeys({
                     source: d.dl,
                     target: d.dr,
                 });
@@ -387,136 +357,149 @@ export default class StepThree extends Component {
                     targetCheck = [...selectedTarget],
                     mapPk = {};
 
-                if (selectedSource.includes(d.dl)) {
-                    sourceCheck = sourceCheck.filter(item => item !== d.dl);
-                }
-
-                if (selectedTarget.includes(d.dr)) {
-                    targetCheck = targetCheck.filter(item => item !== d.dr);
-                }
+                sourceCheck = sourceCheck.filter(item => item !== d.dl);
+                targetCheck = targetCheck.filter(item => item !== d.dr);
 
                 this.setState({
                     selectedSource: sourceCheck,
                     selectedTarget: targetCheck
                 });
 
-                // mapperPk
                 sourceCheck.forEach((s, index) => {
                     mapPk[s] = targetCheck[index]
                 });
-                this.props.changeParams({
-                    mappedPK: mapPk
-                });
+                this.props.changeParams({ mappedPK: mapPk });
             });
     }
 
     resetActiveLine() {
-        this.$activeLine.attr('x1', -10)
+        this.$activeLine
+            .attr('x1', -10)
             .attr('y1', -10)
             .attr('x2', -10)
             .attr('y2', -10);
     }
 
     initDiverseSetting = () => {
-        return [
-            {
-                title: '差异特征',
-                dataIndex: 'setting',
-                key: 'setting',
-                render: (text, record) => {
-                    return this.getSettingItem(text);
-                },
-                width: '95%',
-            }, 
-        ]
+        return [{
+            title: '差异特征',
+            dataIndex: 'setting',
+            key: 'setting',
+            render: (text, record) => {
+                return this.getSettingItem(text);
+            },
+            width: '95%',
+        }];
     }
 
     initDiverseData = () => {
-        let diverseData = [
-            {
-                id: 1,
-                setting: 'diverseNum'
-            },
-            {
-                id: 2,
-                setting: 'diverseRatio'
-            },
-            {
-                id: 3,
-                setting: 'diverseAbsolute'
-            },
-            {
-                id: 4,
-                setting: 'decimalRetain'
-            },
-            {
-                id: 5,
-                setting: 'matchCase'
-            },
-            {
-                id: 6,
-                setting: 'matchNull'
-            }
-        ];
-        this.setState({ diverseData });
+        return [{
+            id: 1,
+            setting: 'diverseNum'
+        }, {
+            id: 2,
+            setting: 'diverseRatio'
+        }, {
+            id: 3,
+            setting: 'diverseAbsolute'
+        }, {
+            id: 4,
+            setting: 'decimalRetain'
+        }, {
+            id: 5,
+            setting: 'matchCase'
+        }, {
+            id: 6,
+            setting: 'matchNull'
+        }];
     }
 
     getSettingItem = (key) => {
     	const { getFieldDecorator } = this.props.form;
     	const { setting } = this.props.editParams;
+
         switch (key) {
             case 'diverseNum':
-                return <div>
+                return <FormItem style={{ marginBottom: 0 }}>
                     记录数差异，对比左右表的总记录数，差距小于
                     {
                         getFieldDecorator('diverseNum', {
-                            rules: [{ required: true, message: '不能为空' }],
+                            rules: [{ 
+                                required: true, 
+                                message: '不能为空' 
+                            }],
                             initialValue: setting.diverseNum
                         })(
-                            <InputNumber min={1} step={1} />
+                            <InputNumber 
+                                size="default" 
+                                min={1} 
+                                step={1} 
+                            />
                         )
                     }
                     %时候，计为成功匹配
-                </div>
+                </FormItem>
             case 'diverseRatio':
-                return <div>
+                return <FormItem style={{ marginBottom: 0 }}>
                     数值差异百分比，对比左右表的数值型数据时，差距百分比小于
                     {
                         getFieldDecorator('diverseRatio', {
-                            rules: [{ required: true, message: '不能为空' }],
+                            rules: [{ 
+                                required: true, 
+                                message: '不能为空' 
+                            }],
                             initialValue: setting.diverseRatio
                         })(
-                            <InputNumber min={1} step={1} />
+                            <InputNumber 
+                                size="default" 
+                                min={1} 
+                                step={1} 
+                            />
                         )
                     }
                     %时候，计为成功匹配
-                </div>
+                </FormItem>
             case 'diverseAbsolute':
-                return <div>
+                return <FormItem style={{ marginBottom: 0 }}>
                     数值差异绝对值，对比左右表的数值型数据时，差距绝对值小于
                     {
                         getFieldDecorator('diverseAbsolute', {
-                            rules: [{ required: true, message: '不能为空' }],
+                            rules: [{ 
+                                required: true, 
+                                message: '不能为空' 
+                            }],
                             initialValue: setting.diverseAbsolute
                         })(
-                            <InputNumber min={1} step={1} />
+                            <InputNumber 
+                                size="default" 
+                                min={1} 
+                                step={1} 
+                            />
                         )
                     }
                     时候，计为成功匹配
-                </div>
+                </FormItem>
             case 'decimalRetain':
-                return <div>
+                return <FormItem style={{ marginBottom: 0 }}>
                     数值对比忽略小数点，忽略小数点后
                     {
                         getFieldDecorator('decimalRetain', {
-                            rules: [{ required: true, message: '不能为空' }],
+                            rules: [{ 
+                                required: true, 
+                                message: '不能为空' 
+                            }],
                             initialValue: setting.decimalRetain
                         })(
-                            <InputNumber min={1} step={1} />
+                            <InputNumber 
+                                size="default" 
+                                min={1} 
+                                step={1}
+                                precision={0}
+                            />
                         )
                     }
                     位
-                </div>
+                </FormItem>
             case 'matchCase':
                 return <p>字符不区分大小写，对比左右表的字符串型数据时，不区分大小写</p>
             case 'matchNull':
@@ -525,10 +508,6 @@ export default class StepThree extends Component {
                 break;
         }
     }
-
-	scrollText = (value) => {
-	    return <input className="cell-input" defaultValue={value} />
-	}
 
     getCanvasW() {
         return document.querySelector('.keymap-svg').getBoundingClientRect().width;
@@ -540,38 +519,18 @@ export default class StepThree extends Component {
         return left > right ? left : right;
     }
 
-	initLeftTable = () => {
-		return [
-            {
-                title: '左侧表字段',
-                dataIndex: 'key',
-                key: 'key',
-                width: '45%'
-            }, 
-            {
-            	title: '类型',
-                dataIndex: 'type',
-                key: 'type',
-                width: '40%'
-            }
-        ]
-	}
-
-    initRightTable = () => {
-        return [
-            {
-                title: '右侧表字段',
-                dataIndex: 'key',
-                key: 'key',
-                width: '45%'
-            }, 
-            {
-                title: '类型',
-                dataIndex: 'type',
-                key: 'type',
-                width: '40%'
-            }
-        ]
+    keymapTableColumn = (type) => {
+        return [{
+            title: type === 'left' ? '左侧表字段' : '右侧表字段',
+            dataIndex: 'key',
+            key: 'key',
+            width: '45%'
+        }, {
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
+            width: '40%'
+        }];
     }
 
     prev = () => {
@@ -580,7 +539,7 @@ export default class StepThree extends Component {
     }
 
     next = () => {
-    	const { editParams, keymap, currentStep, navToStep, form, changeParams } = this.props;
+    	const { form, editParams, keymap, currentStep } = this.props;
     	const { selectedSetting } = this.state;
 
     	if (!keymap.source.length) {
@@ -593,15 +552,22 @@ export default class StepThree extends Component {
 	    		return
 	    	}
 
+            Object.keys(form.getFieldsValue()).forEach((item) => {
+                if (selectedSetting.indexOf(item) < 0) {
+                    form.resetFields([item]);
+                }
+            });
+
 	        form.validateFields(selectedSetting, (err, values) => {
+                console.log(err, values)
 	            if (!err) {
 	            	Object.keys(values).forEach((item) => {
 	            		if (item === 'matchCase' || item === 'matchNull') {
 	            			values[item] = true;
 	            		}
 	            	});
-	                changeParams({ setting: values });
-	                navToStep(currentStep + 1);
+	                this.props.changeParams({ setting: values });
+	                this.props.navToStep(currentStep + 1);
 	            } else {
 	            	message.error('请填写已选中的差异设置');
 	            }
@@ -614,20 +580,19 @@ export default class StepThree extends Component {
      */
 	setRowMap = () => {
 		const { rowMap, nameMap, originColumn, targetColumn } = this.state;
-		const { origin, target } = this.props.editParams;
-
-        const convertColumn2Keymap = (column) => {
-            column = column.map(o => o.key);
-            return column;
-        }
 
     	if (!rowMap) {
             this.props.setRowMap({
-                sourceCol: convertColumn2Keymap(originColumn),
-                targetCol: convertColumn2Keymap(targetColumn)
+                sourceKeyCol: originColumn.map(item => item.key),
+                targetKeyCol: targetColumn.map(item => item.key)
             });
         } else {
             this.props.resetLinkedKeys();
+            this.setState({ 
+                selectedSource: [],
+                selectedTarget: []
+            });
+            this.props.changeParams({ mappedPK: {} });
         }
 
     	this.setState({
@@ -645,11 +610,16 @@ export default class StepThree extends Component {
 
         if (!nameMap) {
             this.props.setNameMap({
-                sourceCol: originColumn,
-                targetCol: targetColumn
+                sourceKeyCol: originColumn.map(item => item.key),
+                targetKeyCol: targetColumn.map(item => item.key)
             });
         } else {
             this.props.resetLinkedKeys();
+            this.setState({ 
+                selectedSource: [],
+                selectedTarget: []
+            });
+            this.props.changeParams({ mappedPK: {} });
         }
 
         this.setState({
@@ -659,12 +629,10 @@ export default class StepThree extends Component {
     }
 
     render() {
-        const { selectedSetting, selectedSource, selectedTarget, 
-            diverseData, h, W, H, padding, 
-            originColumn, targetColumn } = this.state;
+        const { selectedSetting, selectedSource, selectedTarget, h, W, H, originColumn, targetColumn, nameMap, rowMap } = this.state;
         const { source, target } = this.props.keymap;
-        const { mappedPK } = this.props.editParams;
 
+        // 左侧表选择配置
         const keymapSourceSelection = {
             selectedRowKeys: selectedSource,
         	getCheckboxProps(record) {
@@ -686,21 +654,18 @@ export default class StepThree extends Component {
                 }
 
 	  			this.setState({
-	  				selectedTarget: targetCheck,
 	  				selectedSource: sourceCheck,
+                    selectedTarget: targetCheck,
 	  			});
 
-		  		// mapperPk
 		  		sourceCheck.forEach((s, index) => {
 	  				mapPk[s] = targetCheck[index]
 	  			});
-
-	  			this.props.changeParams({
-	  				mappedPK: mapPk
-	  			});
+	  			this.props.changeParams({ mappedPK: mapPk });
 		  	}
         };
 
+        // 右侧表选择配置
         const keymapTargetSelection = {
             selectedRowKeys: selectedTarget,
             getCheckboxProps(record) {
@@ -726,17 +691,14 @@ export default class StepThree extends Component {
 	  				selectedTarget: targetCheck
 	  			});
 
-		  		// mapperPk
 		  		sourceCheck.forEach((s, index) => {
 	  				mapPk[s] = targetCheck[index]
 	  			});
-
-	  			this.props.changeParams({
-	  				mappedPK: mapPk
-	  			});
+	  			this.props.changeParams({ mappedPK: mapPk });
 		  	}
         };
 
+        // 差异比对选择配置
         const settingRowSelection = {
             selectedRowKeys: selectedSetting,
             onChange: (selectedIds) => {
@@ -757,11 +719,11 @@ export default class StepThree extends Component {
 		                <Col offset={2} span={6}>
 		                	<Table
 				                className="keymap-table m-table"
-				                columns={this.initLeftTable()}
-				                rowSelection={keymapSourceSelection}
 				                rowKey={record => record.key}
-				                dataSource={originColumn}
-				                pagination={false}
+                                columns={this.keymapTableColumn('left')}
+                                dataSource={originColumn}
+                                rowSelection={keymapSourceSelection}
+                                pagination={false}
 				            />
 				        </Col>
 
@@ -800,10 +762,10 @@ export default class StepThree extends Component {
 	                   	<Col span={6}>
 	                        <Table
 				                className="keymap-table m-table"
-				                columns={this.initRightTable()}
+                                rowKey={record => record.key}
+                                columns={this.keymapTableColumn('right')}
+                                dataSource={targetColumn}
 				                rowSelection={keymapTargetSelection}
-				                rowKey={record => record.key}
-				                dataSource={targetColumn}
 				                pagination={false}
 				            />
 		                </Col>
@@ -811,17 +773,15 @@ export default class StepThree extends Component {
 	                	<Col span={2}>
 		                	<div className="keymap-action">
 		                        <Button
-		                            type={this.state.rowMap ? 'primary' : 'default'}
-		                            onClick={this.setRowMap}
-		                        >
-		                        	{this.state.rowMap ? '取消同行映射' : '同行映射'}
+		                            type={rowMap ? 'primary' : 'default'}
+		                            onClick={this.setRowMap}>
+		                        	{rowMap ? '取消同行映射' : '同行映射'}
 		                        </Button>
 		                        <br />
 		                        <Button
-		                            type={this.state.nameMap ? 'primary' : 'default'}
-		                            onClick={this.setNameMap}
-		                        >
-		                        	{ this.state.nameMap ? '取消同名映射' : '同名映射' }
+		                            type={nameMap ? 'primary' : 'default'}
+		                            onClick={this.setNameMap}>
+		                        	{nameMap ? '取消同名映射' : '同名映射'}
 		                        </Button>
 	                        </div>
 		                </Col>
@@ -832,10 +792,10 @@ export default class StepThree extends Component {
 				            <Table
 				                className="m-table setting-table"
 				                showHeader={false}
-				                columns={this.initDiverseSetting()}
-				                rowSelection={settingRowSelection}
 				                rowKey={record => record.setting}
-				                dataSource={diverseData}
+                                columns={this.initDiverseSetting()}
+				                dataSource={this.initDiverseData()}
+                                rowSelection={settingRowSelection}
 				                pagination={false}
 				            />
 		                </Col>
