@@ -34,7 +34,7 @@ module.exports = [
         link: 'dataApi.html#/',
         filename: 'dataApi.html',
         target: '_blank',
-        enable: false,
+        enable: true,
         apiBase: '/dataApi',
     }, {
         id: 'dataLabel',
@@ -42,7 +42,7 @@ module.exports = [
         link: 'dataLabel.html#/',
         filename: 'dataLabel.html',
         target: '_blank',
-        enable: true,
+        enable: false,
         apiBase: '/dataLabel',
     }, {
         id: 'map',
