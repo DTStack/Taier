@@ -10,7 +10,7 @@ import Overview from './overview'
 class Index extends Component {
 
     componentDidMount() {
-        this.props.dispatch(setProject({ id: -1 }))
+        this.props.dispatch(setProject({ id: 0 }))
     }
 
     render() {

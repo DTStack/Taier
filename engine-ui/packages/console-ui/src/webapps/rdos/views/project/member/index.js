@@ -78,6 +78,7 @@ class ProjectMember extends Component {
     loadUsers = (params) => {
         const ctx = this
         this.setState({ loading: true })
+        if (params.projectId === 0) return;
         Api.getProjectUsers(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ users: res.data, loading: false })
