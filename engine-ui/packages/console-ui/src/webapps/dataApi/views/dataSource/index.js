@@ -159,6 +159,7 @@ export default class DataSource extends Component {
             title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
+            width:300
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
