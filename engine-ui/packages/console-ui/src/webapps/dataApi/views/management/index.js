@@ -457,7 +457,7 @@ class APIMana extends Component {
     changeManCheck(e) {
         let changeMan = null;
         if (e.target.checked) {
-            changeMan = this.props.user.dtuicUserId;
+            changeMan = this.props.user.id;
         }
         this.setState({
             changeMan: changeMan
