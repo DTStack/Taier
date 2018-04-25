@@ -10,7 +10,7 @@ const projectAction = mc([
 ], { prefix: 'project/' })
 
 const defaultProject = {
-    id: 0,
+    id: null,
     projectName: '项目选择',
 }
 
