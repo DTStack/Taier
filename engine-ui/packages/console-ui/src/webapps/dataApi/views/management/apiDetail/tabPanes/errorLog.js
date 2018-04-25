@@ -53,7 +53,8 @@ class ManageErrorLog extends Component {
         data: [],
         loading: false,
         pageIndex: 1,
-        total: 0
+        total: 0,
+        filter:{}
     }
     componentDidMount() {
 
@@ -89,7 +90,7 @@ class ManageErrorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter && this.state.filter.bizType[0])
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
