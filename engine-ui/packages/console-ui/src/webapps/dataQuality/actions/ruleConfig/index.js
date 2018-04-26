@@ -96,15 +96,6 @@ export const ruleConfigActions = {
 			});
 		}
 	},
-	executeMonitor(params) {
-		return dispatch => {
-			API.executeMonitor(params).then((res) => {
-				if (res.code === 1) {
-					message.success('操作成功，可在任务查询中查看详情');
-				}
-			});
-		}
-	},
 	getRemoteTrigger(params) {
 		return dispatch => {
 			API.getRemoteTrigger(params).then((res) => {

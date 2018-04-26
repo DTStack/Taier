@@ -30,9 +30,6 @@ const mapDispatchToProps = dispatch => ({
     changeMonitorStatus(params) {
         dispatch(ruleConfigActions.changeMonitorStatus(params));
     },
-    executeMonitor(params) {
-        dispatch(ruleConfigActions.executeMonitor(params));
-    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -688,9 +685,15 @@ export default class RuleEditPane extends Component {
     executeMonitor = (monitorId) => {
         const { data } = this.props;
 
-        this.props.executeMonitor({ monitorId });
-        this.props.closeSlidePane();
-        // hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
+        RCApi.executeMonitor({ monitorId }).then((res) => {
+            if (res.code === 1) {
+                message.success('操作成功，稍后可在任务查询中查看详情');
+                this.props.closeSlidePane();
+                // hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
+            } else {
+                message.error('执行失败');
+            }
+        });
     }
 
     // 开启或关闭监控
