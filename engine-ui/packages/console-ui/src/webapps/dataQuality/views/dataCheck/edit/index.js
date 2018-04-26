@@ -21,7 +21,7 @@ export default class DataCheckEdit extends Component {
             executeType: 0,
             setting: {},
             scheduleConf: undefined,
-            notifyVO: {},
+            notifyVO: null,
         },
         editStatus: 'new',
         havePart: false

@@ -690,7 +690,7 @@ export default class RuleEditPane extends Component {
 
         this.props.executeMonitor({ monitorId });
         this.props.closeSlidePane();
-        hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
+        // hashHistory.push(`/dq/taskQuery?tb=${data.tableName}&source=${data.dataSourceType}`);
     }
 
     // 开启或关闭监控
