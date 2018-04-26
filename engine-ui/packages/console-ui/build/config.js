@@ -24,10 +24,10 @@ module.exports = {
                 secure: false,
             },
             "/api/da": { // da地址
-                // target: "http://172.16.8.106",
-                target: "http://172.16.8.107:8087",//测试环境
+                target: "http://172.16.8.106",
+                // target: "http://172.16.8.107:8087",//测试环境
 
-                // pathRewrite:{"^/api/da":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
+                pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
                 secure: false,
             },
