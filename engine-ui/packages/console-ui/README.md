@@ -163,7 +163,7 @@ $ npm run build
 <i style="color:red">* 注：可以通过`nginx_init.sh`脚本，帮你安装nignx和拷贝默认服务器配置文件</i>
 
 ### UIC相关配置
-由于目前数据中台是多个项目，所以每个项目都有单独的UIC相关配置文件， 而具体的config文件分布在。
+由于目前数据中台是多个项目，所以每个项目都有单独的UIC相关配置文件，而具体的config文件分布如下：
 
 ```
 | - dist
@@ -182,7 +182,7 @@ $ npm run build
                 | - config.js
     | - ...
 ```
-具体配置文件在根目录config.js中
+主要需要主要的即是 UIC 相关的配置项了。
 
 # 其他文档
 
