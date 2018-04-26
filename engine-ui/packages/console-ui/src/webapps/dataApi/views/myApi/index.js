@@ -11,21 +11,23 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApplyingList(currentPage, orderBy, sort) {
+    getApplyingList(currentPage, orderBy, sort,apiName) {
         return dispatch(mineActions.getApplyingList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
-            sort: sort
+            sort: sort,
+            apiName:apiName
         }));
     },
-    getAppliedList(currentPage, orderBy, sort, status) {
+    getAppliedList(currentPage, orderBy, sort, status,apiName) {
         return dispatch(mineActions.getAppliedList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
             sort: sort,
-            status: status
+            status: status,
+            apiName:apiName
         }));
     },
     updateApplyStatus(id,status){

@@ -42,6 +42,7 @@ class APIApproval extends Component {
         userName: "",
         applyContent: "",
         replyContent: "",
+        apiName:"",
         spApplyMsg:{},
         total: 0,
         
@@ -74,7 +75,8 @@ class APIApproval extends Component {
             currentPage: this.state.pageIndex,
             pageSize: 20,
             sort:orderType[this.state.sorter.order],
-            orderBy:sortType[this.state.sorter.columnKey]
+            orderBy:sortType[this.state.sorter.columnKey],
+            apiName:this.state.apiName
         })
             .then(
                 (res) => {
@@ -89,6 +91,15 @@ class APIApproval extends Component {
     handleSearch(key) {
         this.setState({
             userName: key,
+            pageIndex:1
+        },
+            () => {
+                this.getApprovalList();
+            })
+    }
+    handleApiSearch(key) {
+        this.setState({
+            apiName: key,
             pageIndex:1
         },
             () => {
@@ -240,6 +251,12 @@ class APIApproval extends Component {
                     placeholder="输入用户名称搜索"
                     style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch.bind(this)}
+                />
+
+                <Search
+                    placeholder="输入API名称搜索"
+                    style={{ width: 150, margin: '10px 0px' ,marginLeft:"30px"}}
+                    onSearch={this.handleApiSearch.bind(this)}
                 />
 
 
