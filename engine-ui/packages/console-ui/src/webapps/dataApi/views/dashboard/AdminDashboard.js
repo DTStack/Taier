@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import { Alert, Card, Col, Row, Table, Radio } from 'antd';
-import {Link} from "react-router";
+import { Alert, Card, Col, Row, Table, Radio, Tabs } from 'antd';
+import { Link } from "react-router";
 import TopCall from "./TopCall";
 import TopFail from "./TopFail";
+import TopCallFunc from "./TopCallFunc";
 import ErrorDistributed from "./ErrorDistributed";
 
 
@@ -12,12 +13,20 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 class AdminDashboard extends Component {
+    state = {
+        nowView: "callTop"
+    }
 
     componentDidMount() {
-        this.props.chooseAdminDate(10,{
-            target:{
-                value:this.props.dashBoard.adminDate
+        this.props.chooseAdminDate(10, {
+            target: {
+                value: this.props.dashBoard.adminDate
             }
+        })
+    }
+    topViewChange(key) {
+        this.setState({
+            nowView: key
         })
     }
     getDateChoose() {
@@ -27,13 +36,13 @@ class AdminDashboard extends Component {
 
 
     render() {
-        const approval_alert=this.props.dashBoard.approvedMsgCount>0?(
+        const approval_alert = this.props.dashBoard.approvedMsgCount > 0 ? (
             <Alert
-                        message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
-                        type="warning"
-                    />
-        ):null
-        const marketOverview=this.props.dashBoard.marketOverview[this.getDateChoose()];
+                message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
+                type="warning"
+            />
+        ) : null
+        const marketOverview = this.props.dashBoard.marketOverview[this.getDateChoose()];
         return (
             <div>
                 <div className="padding_t14_lr20">
@@ -44,7 +53,7 @@ class AdminDashboard extends Component {
                     <RadioGroup
                         defaultValue={this.getDateChoose()}
                         className="no-bd nobackground"
-                        onChange={this.props.chooseAdminDate.bind(this,10)}
+                        onChange={this.props.chooseAdminDate.bind(this, 10)}
                         style={{ marginTop: '8.5px', float: "right" }}
                     >
                         <RadioButton value='1'>最近24小时</RadioButton>
@@ -55,12 +64,29 @@ class AdminDashboard extends Component {
                 <div className="box-card m-card">
                     <Row gutter={20}>
                         <Col span={24}>
-                            <OverView date={this.props.dashBoard.adminDate} chartData={marketOverview.callInfo.infoList} callCount={marketOverview.callInfo.callCount} topCallFunc={marketOverview.callInfo.callTopAPI} failPercent={marketOverview.callInfo.failPercent} ></OverView>
+                            <OverView date={this.props.dashBoard.adminDate} chartData={marketOverview.callInfo.infoList} callCount={marketOverview.callInfo.callCount} apiNum={marketOverview.callInfo.apiNum} failPercent={marketOverview.callInfo.failPercent} ></OverView>
                         </Col>
                     </Row>
                     <Row className="m-card-small margin-t20" gutter={20}>
-                        <Col span={8} className="m-card-small">
-                            <TopCall data={marketOverview.callCountTop}></TopCall>
+                        <Col span={8} className="m-card-small m-tabs noheight">
+                            <Card
+                                noHovering
+
+                            >
+                                <Tabs
+                                    style={{ borderTop: "1px #dcdcdc solid" }}
+                                    defaultActiveKey={this.state.nowView}
+                                    onChange={this.topViewChange.bind(this)}
+
+                                >
+                                    <Tabs.TabPane tab="调用用户Top10" key="callTop">
+                                        <TopCall data={marketOverview.callCountTop}></TopCall>
+                                    </Tabs.TabPane>
+                                    <Tabs.TabPane tab="调用量Top10" key="callFuncTop">
+                                        <TopCallFunc idAdmin={true} router={this.props.router} data={marketOverview.topCallFunc}></TopCallFunc>
+                                    </Tabs.TabPane>
+                                </Tabs>
+                            </Card>
                         </Col>
                         <Col span={8}>
                             <ErrorDistributed chartData={marketOverview.failInfoList}></ErrorDistributed>

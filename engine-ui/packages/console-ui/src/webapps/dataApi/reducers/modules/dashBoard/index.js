@@ -23,6 +23,7 @@ const initialState = {
             callCountTop:[],//调用次数排行
             callFailTop:[],//调用失败率排行
             failInfoList:[],//错误信息列表
+            topCallFunc:[],//调用方法排行
         },
         "7":{
             callInfo:{//调用情况
@@ -36,6 +37,7 @@ const initialState = {
             callCountTop:[],//调用次数排行
             callFailTop:[],//调用失败率排行
             failInfoList:[],//错误信息列表
+            topCallFunc:[],//调用方法排行
         },
         "30":{
             callInfo:{//调用情况
@@ -49,6 +51,7 @@ const initialState = {
             callCountTop:[],//调用次数排行
             callFailTop:[],//调用失败率排行
             failInfoList:[],//错误信息列表
+            topCallFunc:[],//调用方法排行
         },
         
     },
@@ -147,6 +150,11 @@ export default function dashBoard(state = initialState, action) {
         case dashBoardActionType.GET_MARKET_API_ERROR_INFO: {
             const clone = cloneDeep(state);
             clone.marketOverview[date].failInfoList=payload;   
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_TOP_CALL_FUNC: {
+            const clone = cloneDeep(state);
+            clone.marketOverview[date].topCallFunc=payload;   
             return clone;
         }
         case dashBoardActionType.GET_MARKET_API_APPLY_INFO:{

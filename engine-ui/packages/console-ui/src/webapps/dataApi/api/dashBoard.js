@@ -33,4 +33,7 @@ export default {
     getApplyCount(params) {
         return http.post(req.GET_MARKET_API_APPLY_INFO, params);
     },
+    listApiCallNumTopNForManager(params){
+        return http.post(req.GET_MARKET_TOP_CALL_FUNC,params)
+    }
 }

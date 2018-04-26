@@ -7,6 +7,12 @@ class TopCall extends Component {
         return this.props.data||[];
     }
     openNewDetail(text){
+        if(this.props.idAdmin){
+            this.props.router.push({
+                pathname:'/api/manage/detail/'+text
+            })
+            return;
+        }
         this.props.router.push({
             pathname:'/api/mine/approved',
             query:{
