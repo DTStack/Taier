@@ -30,3 +30,41 @@ export function TaskScheduleStatus(props) {
             return <Circle title="正常" style={{ background: '#2491F7' }} />;
     }
 }
+
+export function IndexType(props) {
+    switch (props.value) {
+        case 1:
+        return <span>原子指标</span>;
+        case 2:
+        default:
+            return <span>修饰词</span>;
+    }
+}
+
+export function TableNameCheck(props) {
+    switch (props.value) {
+        case 1:
+        return <span>分层不合理</span>;
+        case 2:
+            return <span>分层不合理</span>;
+        case 3:
+        return <span>引用标识不合理</span>;
+        case 4:
+            return <span>引用不合理</span>;
+        default:
+            return <span></span>;
+    }
+}
+
+export function FieldNameCheck(props) {
+    switch (props.value) {
+        case 1:
+        return <span>字段名称不合理</span>;
+        case 2:
+            return <span>字段类型不合理</span>;
+        case 3:
+        return <span>字段描述不合理</span>;
+        default:
+            return <span></span>;
+    }
+}

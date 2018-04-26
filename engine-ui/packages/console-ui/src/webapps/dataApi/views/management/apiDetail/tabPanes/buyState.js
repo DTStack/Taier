@@ -59,11 +59,15 @@ class BuyManageState extends Component {
     }
     tableChange(params, apiId) {
         const { filter, sortedInfo, page } = params;
+        let status=filter.status
+        if(!status||status.length<1){
+            status=['1','3','4']
+        }
         let requestParams = {};
         requestParams.apiId = apiId || this.props.apiId;
-        requestParams.pageSize = 20;
+        requestParams.pageSize = 10;
         requestParams.currentPage = page
-        requestParams.status = filter.status;
+        requestParams.status = status;
         this.getData(requestParams);
     }
     getData(params) {
@@ -147,7 +151,7 @@ class BuyManageState extends Component {
         console.log("lookAllErrorText")
     }
     getTable() {
-        if (!this.props.statusDisAble) {
+        if (this.props.statusDisAble) {
             return <DisableTable loading={this.state.loading} key={this.state.disAbleKey} total={this.state.total} data={this.state.data} tableChange={this.tableChange.bind(this)}></DisableTable>
         }
         return <EnableTable

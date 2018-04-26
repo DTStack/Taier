@@ -164,7 +164,10 @@ class TargetForm extends React.Component{
     render() {
         const { getFieldDecorator } = this.props.form;
 
-        const { targetMap, dataSourceList, navtoStep, isCurrentTabNew } = this.props;
+        const {
+            targetMap, sourceMap, dataSourceList,
+            navtoStep, isCurrentTabNew 
+        } = this.props;
 
         return <div className="g-step2">
             <Form>
@@ -187,6 +190,7 @@ class TargetForm extends React.Component{
                         {dataSourceList.map(src => {
                             return <Option key={ src.id } 
                                 name={src.dataName}
+                                disabled={sourceMap.sourceId === src.id}
                                 value={ `${src.id}` }>
                                 { src.dataName }( { dataSourceTypes[src.type] } )
                             </Option>
@@ -644,6 +648,7 @@ const mapState = state => {
         currentTab,
         isCurrentTabNew,
         targetMap: dataSync.targetMap,
+        sourceMap: dataSync.sourceMap,
         dataSourceList: dataSync.dataSourceList,
         taskCustomParams: workbench.taskCustomParams,
     };

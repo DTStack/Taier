@@ -122,6 +122,7 @@ class APIDetail extends Component {
                             <p data-title="支持格式：" className="pseudo-title p-line">{this.getValue('supportType')}</p>
                             <p data-title="请求协议：" className="pseudo-title p-line">{this.getValue('reqProtocol')}</p>
                             <p data-title="请求方式：" className="pseudo-title p-line">{this.getValue('reqMethod')}</p>
+                           
                         </div>
                     </section>
                     <Row gutter={30} style={{ marginTop: 19.3 }}>
@@ -150,6 +151,20 @@ class APIDetail extends Component {
                             </section>
                         </Col>
                     </Row>
+                    <section style={{ marginTop: 18 }}>
+                        <h1 className="title-border-l-blue">JSON样例</h1>
+                        <div style={{ marginTop: 18 }}>
+                        <pre>
+                        {JSON.stringify({
+                                "inFields":{
+                                    id:175,
+                                    date:"2017-09-08 12:33:23",
+                                    in:"12,34,45"
+                                }
+                            },null,"    \r")}
+                        </pre>
+                        </div>
+                    </section>
 
 
                 </Card>

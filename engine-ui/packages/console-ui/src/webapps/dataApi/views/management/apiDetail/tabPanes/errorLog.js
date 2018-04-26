@@ -10,7 +10,7 @@ const errorType = {
     3: "paramerror",
     4: "timeout",
     5: "outlimit",
-    10: "other"
+    6: "other"
 }
 const errorExchange = {
     disable: "禁用",
@@ -18,7 +18,7 @@ const errorExchange = {
     paramerror: "参数错误",
     timeout: "超时",
     outlimit: "超过限制",
-    other: "未识别",
+    other: "其他",
 
 }
 const mapStateToProps = state => {
@@ -27,9 +27,10 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiCallErrorInfo(id) {
-        return dispatch(mineActions.getApiCallErrorInfo({
-            apiId: id
+    getApiCallErrorInfo(id,date) {
+        return dispatch(apiManageActions.getApiCallErrorInfo({
+            apiId: id,
+            time:date
         }));
     },
     queryApiCallLog(id, currentPage, bizType) {
@@ -52,7 +53,8 @@ class ManageErrorLog extends Component {
         data: [],
         loading: false,
         pageIndex: 1,
-        total: 0
+        total: 0,
+        filter:{}
     }
     componentDidMount() {
 
@@ -66,7 +68,7 @@ class ManageErrorLog extends Component {
 
         }
 
-        this.props.getApiCallErrorInfo(apiId)
+        this.props.getApiCallErrorInfo(apiId,this.props.dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -88,7 +90,7 @@ class ManageErrorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter && this.state.filter.bizType)
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -122,8 +124,8 @@ class ManageErrorLog extends Component {
 
         }, {
             title: '调用用户',
-            dataIndex: 'callMan',
-            key: 'callMan'
+            dataIndex: 'userName',
+            key: 'userName'
 
         }, {
             title: '错误类型',
@@ -133,13 +135,14 @@ class ManageErrorLog extends Component {
                 return errorExchange[errorType[text]]
             },
             filters: [
+                { text: '参数错误', value: '3' },
                 { text: '禁用', value: '1' },
                 { text: '未认证', value: '2' },
-                { text: '参数错误', value: '3' },
                 { text: '超时', value: '4' },
                 { text: '超过限制', value: '5' },
-                { text: '未识别', value: '10' }
-            ]
+                { text: '其他', value: '6' }
+            ],
+            filterMultiple:false
         }, {
             title: '错误日志',
             dataIndex: 'content',
@@ -160,7 +163,7 @@ class ManageErrorLog extends Component {
     getPagination() {
         return {
             current: this.state.pageIndex,
-            pageSize: 5,
+            pageSize: 10,
             total: this.state.total,
         }
     }
@@ -196,23 +199,28 @@ class ManageErrorLog extends Component {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
     render() {
-        return (
+        const data=this.getSource();
+        let className="m-table monitor-table table-p-l20"
+        if(data.length<3){
+            className+=" mini-filter"
+        }
+        return ( 
             <div>
                 <p style={{ lineHeight: "1", padding: "14px 0px 14px 20px" }} className="child-span-padding-r20">
                     <span>参数错误: {this.getErrorPercent('paramerror')}% ({this.getErrorCount('paramerror')}次)</span>
                     <span>禁用: {this.getErrorPercent('disable')}% ({this.getErrorCount('disable')}次)</span>
                     <span>未认证: {this.getErrorPercent('unauthorize')}% ({this.getErrorCount('unauthorize')}次)</span>
-                    <span>超时: {this.getErrorPercent('timeout')} ({this.getErrorCount('timeout')}次)</span>
-                    <span>超过限制: {this.getErrorPercent('outlimit')} ({this.getErrorCount('outlimit')}次)</span>
-                    <span>未识别: {this.getErrorPercent('other')} ({this.getErrorCount('other')}次)</span>
+                    <span>超时: {this.getErrorPercent('timeout')}% ({this.getErrorCount('timeout')}次)</span>
+                    <span>超过限制: {this.getErrorPercent('outlimit')}% ({this.getErrorCount('outlimit')}次)</span>
+                    <span>其他: {this.getErrorPercent('other')}% ({this.getErrorCount('other')}次)</span>
                 </p>
                 <Table
-                    rowKey="content"
-                    className="m-table monitor-table table-p-l20"
+                    rowKey="id"
+                    className={className}
                     columns={this.initColumns()}
                     loading={this.state.loading}
                     pagination={this.getPagination()}
-                    dataSource={this.getSource()}
+                    dataSource={data}
                     onChange={this.onTableChange}
                 />
             </div>

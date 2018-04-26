@@ -33,9 +33,14 @@ class TopCall extends Component {
         }
     }
     initLineChart(chartData) {
+
+
         let callCountDate = [];
         let failCountDate = [];
         let times = [];
+
+
+
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate)
@@ -52,12 +57,24 @@ class TopCall extends Component {
                         break;
                 }
             }
-            
+
         }
+
         let myChart = echarts.init(document.getElementById('CallGraph'));
         const option = cloneDeep(doubleLineAreaChartOptions);
+        option.tooltip.formatter = function (params) {
+            var relVal = params[0].name;
+            for (var i = 0, l = params.length; i < l; i++) {
+                let unit = "次"
+                if (params[i].seriesName == "失败率") {
+                    unit = "%"
+                }
+                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' + params[i].seriesName + ' : ' + params[i].value + unit;
+            }
+            return relVal;
+        }
         option.series = [{
-            symbol: "none",
+
             name: "调用次数",
             data: callCountDate,
             type: 'line',
@@ -66,9 +83,9 @@ class TopCall extends Component {
                 normal: {
                     color: '#1C86EE'
                 }
-            },
+            }
         }, {
-            symbol: "none",
+
             name: "失败率",
             data: failCountDate,
             type: 'line',
@@ -80,8 +97,15 @@ class TopCall extends Component {
                 }
             },
         }];
+
+
+
+
+
+
         option.xAxis[0].data = times;
         console.log(option)
+
         // 绘制图表
         myChart.setOption(option);
         this.setState({ lineChart: myChart })
@@ -92,7 +116,7 @@ class TopCall extends Component {
             <Card
                 noHovering
             >
-                <Row gutter={130} className="m-count padding-l20 height-101">
+                <Row style={{width:"100%"}} gutter={130} className="m-count padding-l20 height-101">
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">累计调用</span>
@@ -105,12 +129,15 @@ class TopCall extends Component {
                             <span className="m-count-content font-red text-left">{this.props.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
                         </section>
                     </Col>
-                    <Col span={6}>
-                        <section className="m-count-section margin-t20" style={{ width: 150 }}>
-                            <span className="m-count-title text-left">TOP调用接口</span>
-                            <span className="m-count-content font-black text-left">{this.props.topCallFunc || '---'}</span>
-                        </section>
-                    </Col>
+                    {this.props.userView ? null :
+                        (
+                            <Col span={6}>
+                                <section className="m-count-section margin-t20" style={{ width: 150 }}>
+                                    <span className="m-count-title text-left">TOP调用接口</span>
+                                    <span className="m-count-content font-black text-left">{this.props.topCallFunc || '---'}</span>
+                                </section>
+                            </Col>
+                        )}
                 </Row>
                 <Resize onResize={this.resize.bind(this)}>
                     <article id="CallGraph" style={{ width: '100%', height: '300px' }} />

@@ -17,11 +17,14 @@ class DisableTable extends Component {
             title: '最近24小时调用',
             dataIndex: 'recent24HCallNum',
             key: 'recent24HCallNum'
-
+ 
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
-            key: 'recent24HFailRate'
+            key: 'recent24HFailRate',
+            render(text){
+                return text+"%";
+            }
         }, {
             title: '最近7天调用',
             dataIndex: 'recent7DCallNum',
@@ -50,7 +53,7 @@ class DisableTable extends Component {
     getPagination() {
         return {
             current: this.state.pageIndex,
-            pageSize: 5,
+            pageSize: 10,
             total: this.props.total,
         }
     }
@@ -73,7 +76,7 @@ class DisableTable extends Component {
     render() {
         return (
             <Table
-            rowKey="userId"
+            rowKey="applyId"
                 className="m-table monitor-table table-p-l20"
                 columns={this.initColumns()}
                 loading={this.props.loading}

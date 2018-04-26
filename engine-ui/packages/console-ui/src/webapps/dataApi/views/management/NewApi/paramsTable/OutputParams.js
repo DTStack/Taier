@@ -84,7 +84,7 @@ class OutputParams extends Component {
         const data = cloneDeep(this.state.tableColumns);
         return data.map(
             (item) => {
-                return (<Option key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
+                return (<Option title={item.key} key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
             }
         )
     }
@@ -150,7 +150,13 @@ class OutputParams extends Component {
             message.error("请选择字段");
             return false;
         }
-       
+        if (!checkItem.paramName) {
+            message.error("请填写参数名");
+            return false;
+        }
+        if(!this.checkVal(checkItem)){
+            return false;
+        }
         for(let i in table){
             if(i==index){
                 continue;
@@ -166,6 +172,18 @@ class OutputParams extends Component {
                 return false;
             }
         }
+        return true;
+    }
+    checkVal(item){
+        if(item.instructions&&item.instructions.length>200){
+            message.error("说明不得大于200字符")
+            return false;
+        }
+        if(item.paramName&&item.paramName.length>16){
+            message.error("参数名不得大于16字符")
+            return false;
+        }
+
         return true;
     }
     //保存信息
@@ -229,11 +247,11 @@ class OutputParams extends Component {
             title: '字段',
             dataIndex: 'param',
             key: 'param',
-            width: "100px",
+            width: "200px",
             render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
-                        <Select defaultValue={record.param.type?(record.param.type+"@@"+record.param.key):null} onChange={this.changeTableParam.bind(this, index)} style={{ width: "100%" }} >
+                        <Select showSearch defaultValue={record.param.type?(record.param.type+"@@"+record.param.key):null} onChange={this.changeTableParam.bind(this, index)} style={{ width: "100%" }} >
                             {this.getColumnsView()}
 
                         </Select>

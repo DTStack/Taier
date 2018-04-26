@@ -4,13 +4,14 @@ import { connect } from "react-redux";
 import utils from "utils"
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
+import { dataSourceActions } from '../../actions/dataSource';
 import { dataSourceTypes, EXCHANGE_API_STATUS,EXCHANGE_ADMIN_API_STATUS } from "../../consts"
 const Search = Input.Search;
 const Option = Select.Option;
 const confirm=Modal.confirm;
 const mapStateToProps = state => {
-    const { user, apiMarket, apiManage } = state;
-    return { apiMarket, apiManage, user }
+    const { user, apiMarket, apiManage,dataSource } = state;
+    return { apiMarket, apiManage, user,dataSource }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -31,6 +32,9 @@ const mapDispatchToProps = dispatch => ({
     },
     closeApi(apiId){
         return dispatch(apiManageActions.closeApi(apiId));
+    },
+    getDataSourcesType(){
+        return dispatch(dataSourceActions.getDataSourcesType());
     }
 });
 
@@ -42,8 +46,8 @@ class APIMana extends Component {
         type1: undefined,
         type2: undefined,
         total: 0,
-        dataSourceType: null,
-        dataSource: null,
+        dataSourceType: undefined,
+        dataSource: undefined,
         searchName: null,
         filter: {},
         sortedInfo: {},
@@ -55,6 +59,24 @@ class APIMana extends Component {
         this.props.getCatalogue(0);
         this.getAllApi();
         this.getDataSource(null);
+        this.props.getDataSourcesType();
+    }
+    exchangeSourceType(){
+        let arr=[];
+        let dic={};
+
+        const items=this.props.dataSource.sourceType;
+        for(let i in items){
+            let item=items[i];
+            dic[item.value]=item.name;
+            arr.push({
+                text:item.name,
+                value:item.value
+            })
+        }
+
+        return {typeList:arr,typeDic:dic};
+        
     }
     getAllApi() {
         const sortType = {
@@ -69,7 +91,7 @@ class APIMana extends Component {
         params.pid = this.state.type1;//一级目录
         params.cid = this.state.type2;//二级目录
         params.dataSourceType = this.state.dataSourceType&&parseInt(this.state.dataSourceType);//数据源类型
-        params.dataSourceId = this.state.dataSource;//数据源
+        params.dataSourceId = this.state.dataSource&&parseInt(this.state.dataSource);//数据源
         params.modifyUserId = this.state.changeMan;//修改人id
         params.orderBy = sortType[this.state.sortedInfo.columnKey];
         params.sort = orderType[this.state.sortedInfo.order];
@@ -145,6 +167,9 @@ class APIMana extends Component {
 
 
             for (let i = 0; i < item_child.length; i++) {
+                if(item_child[i].api){
+                    continue;
+                }
                 arr.push({
                     id: item_child[i].id,
                     name: item_child[i].catalogueName
@@ -173,7 +198,8 @@ class APIMana extends Component {
     }
     handleSearch(value) {
         this.setState({
-            searchName: value
+            searchName: value,
+            pageIndex:1
         }, () => {
             this.getAllApi();
         }
@@ -201,7 +227,7 @@ class APIMana extends Component {
         this.props.router.push("/api/manage/detail/" + text)
     }
     initColumns() {
-
+        
         return [{
             title: 'API名称',
             dataIndex: 'name',
@@ -216,7 +242,7 @@ class APIMana extends Component {
             render: (text, record) => {
                 const dic = {
                     success: "正常",
-                    stop: "已停用",
+                    stop: "已禁用",
                 }
                 return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
             }
@@ -224,7 +250,8 @@ class APIMana extends Component {
             title: '描述',
             dataIndex: 'apiDesc',
             key: 'apiDesc',
-            width: "30%"
+            width:300
+            
 
         }, {
             title: '数据源',
@@ -238,7 +265,7 @@ class APIMana extends Component {
             dataIndex: 'total1d',
             key: "total1d"
 
-        },
+        }, 
         {
             title: '累计调用',
             dataIndex: 'invokeTotal',
@@ -396,21 +423,22 @@ class APIMana extends Component {
     }
     //获取类型视图
     getDataSourceTypeView() {
-        const type = dataSourceTypes;
-        if (!type) {
+        const {typeList,typeDic}=this.exchangeSourceType();
+        
+        
+        if (!typeList||typeList.length<1) {
             return null;
         }
-        return type.map(function (value, index) {
-            if (index == 0) {
-                return;
-            }
-            return <Option key={index}>{value}</Option>
+        return typeList.map(function (item) {
+        
+            return <Option key={item.value}>{item.text}</Option>
         })
     }
     //数据源类型改变
     dataSourceTypeChange(key) {
         this.setState({
-            dataSourceType: key
+            dataSourceType: key,
+            dataSource:undefined
         },
             () => {
                 this.getDataSource();
@@ -429,7 +457,7 @@ class APIMana extends Component {
     changeManCheck(e) {
         let changeMan = null;
         if (e.target.checked) {
-            changeMan = this.props.user.dtuicUserId;
+            changeMan = this.props.user.id;
         }
         this.setState({
             changeMan: changeMan
@@ -449,7 +477,7 @@ class APIMana extends Component {
                 />
                 <div className="m-l-8">
                     类型：
-                    <Select allowClear onChange={this.dataSourceTypeChange.bind(this)} style={{ width: 100 }}>
+                    <Select value={this.state.dataSourceType} allowClear onChange={this.dataSourceTypeChange.bind(this)} style={{ width: 100 }}>
                         {
                             this.getDataSourceTypeView()
                         }
@@ -457,7 +485,7 @@ class APIMana extends Component {
                 </div>
                 <div className="m-l-8">
                     数据源：
-                    <Select allowClear onChange={this.dataSourceChange.bind(this)} style={{ width: 100 }}>
+                    <Select value={this.state.dataSource} allowClear onChange={this.dataSourceChange.bind(this)} style={{ width: 100 }}>
                         {
                             this.gerDataSourceView()
                         }

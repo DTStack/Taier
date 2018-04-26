@@ -4,6 +4,7 @@ import { DATA_API_BASE_URL } from 'config/base';
 export default {
 
     // ===== common ===== //
+    GET_ALL_MENU_LIST:`${DATA_API_BASE_URL}/user/showMenuList`,//获取所有功能菜单
     // ===== api授权审批 ====//
     HANDLE_APPLY:`${DATA_API_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST:`${DATA_API_BASE_URL}/apply/allApplyList`,//获取审批列表
@@ -33,6 +34,7 @@ export default {
     GET_API_CALL_ERROR_LOG:`${DATA_API_BASE_URL}/log/queryApiCallLogForNormal`,//用户获取api错误统计日志
     GET_API_CALL_ERROR_LOG_ADMIN:`${DATA_API_BASE_URL}/log/queryApiCallLogForManager`,//管理员获取api错误统计日志
     GET_API_CALL_URL:`${DATA_API_BASE_URL}/apis/getApiCallUrl`,//获取api调用方式
+    GET_API_CREATOR_INFO:`${DATA_API_BASE_URL}/apis/getApiCreatorInfo`,//获取api创建人的信息
 
     // ===== 市场信息 =====//
     GET_CATALOGUE:`${DATA_API_BASE_URL}/catalogue/getCatalogue`,//获取市场分类信息

@@ -5,7 +5,7 @@ import { EXCHANGE_ADMIN_API_STATUS } from "../../../consts"
 import utils from "utils";
 class ManageTopCard extends Component {
     getTopRightButton() {
-        const key = EXCHANGE_ADMIN_API_STATUS[this.getValue('apiStatus')];
+        const key = EXCHANGE_ADMIN_API_STATUS[this.getValue('status')];
         if (key) {
             if (key == "stop") {
                 return (
@@ -32,7 +32,7 @@ class ManageTopCard extends Component {
     }
     openApiDetail() {
 
-        window.open(`${location.origin + location.pathname}#/api/market/detail/${this.props.apiId}`)
+        window.open(`${location.origin + location.pathname}#/api/market/detail/${this.props.apiId}?isHideBack=true`)
 
     }
     getValue(key) {

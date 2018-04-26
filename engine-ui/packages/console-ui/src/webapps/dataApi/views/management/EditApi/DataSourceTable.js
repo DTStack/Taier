@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Input } from "antd"
-
+import utils from "utils"
 class NewApiDataSourceTable extends Component {
     state = {
         pageIndex: 1,
@@ -33,7 +33,12 @@ class NewApiDataSourceTable extends Component {
                 key:i,
                 dataIndex:i,
                 title:columns[i],
-                width:"100px"
+                width:(columns[i].length*12+28)+"px",
+                render:function(text){
+                    return (
+                        <span title={text}>{utils.textOverflowExchange(text,30)}</span>
+                    );
+                }
             })
         }
         console.log(arr);
@@ -43,7 +48,7 @@ class NewApiDataSourceTable extends Component {
         const dataList=this.props.data.dataList;
         if(!dataList){
             return null;
-        }
+        } 
         let arr=[];
         for(let i=0;i<dataList.length;i++){
             let dic={
@@ -69,18 +74,14 @@ class NewApiDataSourceTable extends Component {
         }
     }
     getScroll(){
-        const max=120;
-        const init=100;
-        if(this.props.data.columnList){
-            let x=this.props.data.columnList.length;
-            if(x<5){
-                return init+"%";
-            }
-            x=init+x*2;
-            return (x>max?max:x)+"%";
+        let i=100;
+        const columnList=this.props.data.columnList;
+        for(let j in columnList){
+            let item=columnList[j];
+            i=i+item.length*12+28
         }
-        return init+"%";
-    }
+        return i+"px";
+     }
 
     render() {
         return (

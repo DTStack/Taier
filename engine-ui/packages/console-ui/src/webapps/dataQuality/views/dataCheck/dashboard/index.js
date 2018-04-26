@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card, Tooltip } from 'antd';
@@ -15,13 +14,6 @@ import '../../../styles/views/dataCheck.scss';
 const Search = Input.Search;
 const InputGroup = Input.Group;
 const Option = Select.Option;
-
-const enableCheckReport = (status) => {
-    return status === CHECK_STATUS.SUCCESS ||
-    status === CHECK_STATUS.PASS ||
-    status === CHECK_STATUS.UNPASS ||
-    status === CHECK_STATUS.EXPIRED;
-}
 
 const mapStateToProps = state => {
     const { dataCheck, dataSource, common } = state;
@@ -171,7 +163,7 @@ export default class DataCheck extends Component {
                 let menu = (
                     <Menu>
                         {
-                            enableCheckReport(record.status) &&
+                            this.enableCheckReport(record.status) &&
                             <Menu.Item>
                                 <Link to={`dq/dataCheck/report/${record.id}`}>查看报告</Link>
                             </Menu.Item>
@@ -196,9 +188,18 @@ export default class DataCheck extends Component {
                     </Dropdown>
                 )
             }
-        }]
+        }];
     }
 
+    // 是否能查看报告
+    enableCheckReport = (status) => {
+        return status === CHECK_STATUS.SUCCESS ||
+        status === CHECK_STATUS.PASS ||
+        status === CHECK_STATUS.UNPASS ||
+        status === CHECK_STATUS.EXPIRED;
+    }
+
+    // 删除逐行校验
     deleteDataCheck = (id) => {
         DCApi.deleteCheck({ verifyRecordId: id }).then((res) => {
             if (res.code === 1) {
@@ -208,7 +209,7 @@ export default class DataCheck extends Component {
         })
     }
 
-    // 表格换页/排序
+    // 表格回调
     onTableChange = (page, filter, sorter) => {
         let params = {...this.state.params, 
             currentPage: page.current,
@@ -223,14 +224,13 @@ export default class DataCheck extends Component {
     renderUserSource = (data) => {
         return data.map((source) => {
             let title = `${source.dataName}（${source.sourceTypeValue}）`;
-            return (
-                <Option 
-                    key={source.id} 
-                    value={source.id.toString()}
-                    title={title}>
-                    {title}
-                </Option>
-            )
+
+            return <Option 
+                key={source.id} 
+                value={source.id.toString()}
+                title={title}>
+                {title}
+            </Option>
         });
     }
 
@@ -249,14 +249,12 @@ export default class DataCheck extends Component {
     // 校验状态下拉框
     renderCheckStatus = (data) => {
         return data.map((item) => {
-            return (
-                <Option 
-                    key={item.value} 
-                    value={item.value}
-                    title={item.text}>
-                    {item.text}
-                </Option>
-            )
+            return <Option 
+                key={item.value} 
+                value={item.value}
+                title={item.text}>
+                {item.text}
+            </Option>
         });
     }
 
@@ -275,15 +273,13 @@ export default class DataCheck extends Component {
     // user的select选项
     renderUserList = (data) => {
         return data.map((item) => {
-            return (
-                <Option 
-                    key={item.id} 
-                    value={item.id.toString()}
-                    name={item.userName}>
-                    {item.userName}
-                </Option>
-            )
-        })
+            return <Option 
+                key={item.id} 
+                value={item.id.toString()}
+                name={item.userName}>
+                {item.userName}
+            </Option>
+        });
     }
 
     // 监听userList的select
@@ -322,6 +318,7 @@ export default class DataCheck extends Component {
         this.setState({ params });
     }
 
+    // 时间不能超过当天
     disabledDate = (current) => {
         return current && current.valueOf() > Date.now();
     }

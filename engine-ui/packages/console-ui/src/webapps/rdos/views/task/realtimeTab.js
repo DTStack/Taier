@@ -384,7 +384,7 @@ class RealTimeTabPane extends Component {
                 return;
             }
             case 'task:search': {
-                dispatch(showSeach())
+                dispatch(showSeach(true))
                 return;
             }
             case 'resource:newFolder': {

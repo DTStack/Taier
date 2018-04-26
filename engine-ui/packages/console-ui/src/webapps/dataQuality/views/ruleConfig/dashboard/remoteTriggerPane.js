@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 import { Button, Table, message, Modal, Input, Select, Popconfirm, Form, Tooltip } from 'antd';
 import moment from 'moment';
 
-import ClipBoard from '../../../components/copy';
+import ToolTipCopy from '../../../components/tooltipCopy';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { rowFormItemLayout } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
@@ -17,8 +17,8 @@ const FormItem = Form.Item;
 const API_SERVER = APP_CONF ? APP_CONF.API_SERVER : '';
 
 const mapStateToProps = state => {
-    const { ruleConfig, common } = state;
-    return { ruleConfig, common }
+    const { ruleConfig } = state;
+    return { ruleConfig }
 }
 
 const mapDispatchToProps = dispatch => ({
@@ -45,10 +45,9 @@ export default class RemoteTriggerPane extends Component {
 
     componentDidMount() {
         const { data } = this.props;
-        let monitorId = data.monitorPartVOS[0].monitorId;
+        let monitorId  = data.monitorPartVOS[0].monitorId;
 
         this.props.getRemoteTrigger({ tableId: data.tableId });
-        this.props.getMonitorRule({ monitorId });
         this.setState({ monitorId });
     }
 
@@ -56,17 +55,16 @@ export default class RemoteTriggerPane extends Component {
         let oldData = this.props.data,
             newData = nextProps.data;
 
-        if (!isEmpty(newData) && oldData !== newData) {
+        if (!isEmpty(newData) && oldData.tableId !== newData.tableId) {
             let monitorId = newData.monitorPartVOS[0].monitorId;
-
-            if (monitorId) {
-                this.props.getRemoteTrigger({ tableId: newData.tableId });
-                this.props.getMonitorRule({ monitorId });
-                this.setState({ 
-                    monitorId,
-                    havePart: false
-                });
-            }
+            
+            this.props.getRemoteTrigger({ tableId: newData.tableId });
+            this.setState({ 
+                monitorId,
+                havePart: false,
+                remark: undefined,
+                selectedIds: []
+            });
 
             if (newData.dataSourceType === 7 || newData.dataSourceType === 10) {
                 this.setState({ havePart: true });
@@ -86,18 +84,15 @@ export default class RemoteTriggerPane extends Component {
             dataIndex: 'ruleNumber',
             key: 'ruleNumber',
             width: '8%',
-        }, 
-        {
+        }, {
             title: '访问接口',
-            // className: 'copy-area',
             dataIndex: 'url',
             key: 'url',
             width: '23%',
             render: (url) => {
-                return <ClipBoard value={`${API_SERVER}${url}`} />
+                return <ToolTipCopy value={`${API_SERVER}${url}`} />
             }
-        }, 
-        {
+        }, {
             title: '请求方式',
             dataIndex: 'method',
             key: 'method',
@@ -124,13 +119,13 @@ export default class RemoteTriggerPane extends Component {
             width: '10%',
             render: (text, record) => {
                 return (
-                    <div className="editable-row-operations">
+                    <div>
                         <a className="m-r-8" onClick={() => this.editTrigger(record)}>编辑</a>
                         <Popconfirm title="确定要删除吗？" onConfirm={() => this.deleteTrigger(record.id)}>
                             <a>删除</a>
                         </Popconfirm>
                     </div>
-                );
+                )
             },
         }]
     }
@@ -138,23 +133,21 @@ export default class RemoteTriggerPane extends Component {
     // 编辑远程调用
     editTrigger = (record) => {
         const { data } = this.props;
-        let monitorPart = data.monitorPartVOS.filter(item => record.id === item.monitorId)[0];
 
-        if (monitorPart) {
-            this.showRemoteModal();
-
-            this.setState({ 
-                monitorId: record.id, 
-                selectedIds: record.ruleIds,
-                remark: record.remark
-            });
-        }
+        this.showRemoteModal();
         this.props.getMonitorRule({ monitorId: record.id });
+
+        this.setState({ 
+            monitorId: record.id, 
+            selectedIds: record.ruleIds,
+            remark: record.remark
+        });
     }
 
     // 删除远程调用
     deleteTrigger = (id) => {
         const { data } = this.props;
+
         RCApi.delRemoteTrigger({ monitorId: id }).then((res) => {
             if (res.code === 1) {
                 message.success('删除成功！');
@@ -163,6 +156,7 @@ export default class RemoteTriggerPane extends Component {
         });
     }
 
+    // 规则表格配置
     initRulesColumns = () => {
         return [{
             title: '字段',
@@ -194,8 +188,7 @@ export default class RemoteTriggerPane extends Component {
                 return obj;
             },
             width: '13%',
-        }, 
-        {
+        }, {
             title: '过滤条件',
             dataIndex: 'filter',
             key: 'filter',
@@ -238,6 +231,7 @@ export default class RemoteTriggerPane extends Component {
         }]  
     }
 
+    // 切换分区
     onMonitorIdChange = (value) => {
         let monitorId = value;
 
@@ -249,8 +243,17 @@ export default class RemoteTriggerPane extends Component {
         });
     }
 
+    // 备注回调
     onRemarkChange = (e) => {
         this.setState({ remark: e.target.value });
+    }
+
+    // 新建远程调用
+    newRemoteTrigger = () => {
+        const { monitorId } = this.state;
+
+        this.props.getMonitorRule({ monitorId });
+        this.showRemoteModal();
     }
 
     showRemoteModal = () => {
@@ -268,13 +271,14 @@ export default class RemoteTriggerPane extends Component {
         this.props.form.resetFields();
     }
 
-    onRemoteTrigger = () => {
+    // 生成远程调用
+    saveRemoteTrigger = () => {
         const { selectedIds, monitorId, remark } = this.state;
         const { data, form, getRemoteTrigger } = this.props;
         
         if (selectedIds.length) {
-            form.validateFields({ force: true }, (err, values) => {
-                console.log(err,values)
+            form.validateFields((err, values) => {
+                // console.log(err,values)
                 if(!err) {
                     RCApi.addRemoteTrigger({
                         monitorId: monitorId,
@@ -295,19 +299,16 @@ export default class RemoteTriggerPane extends Component {
     }
 
     render() {
-        const { data, ruleConfig, common, form } = this.props;
-        const { monitorId, havePart, visible, selectedIds, remark } = this.state;
-        const { triggerList, monitorRules } = ruleConfig;
+        const { data, ruleConfig, form } = this.props;
         const { getFieldDecorator } = form;
+        const { triggerList, monitorRules } = ruleConfig;
+        const { monitorId, havePart, visible, selectedIds, remark } = this.state;
 
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
         let rowSelection = {
             selectedRowKeys: selectedIds,
-            onChange: (selectedIds, selectedRows) => {
-                this.setState({
-                    selectedIds: selectedIds,
-                    selectedRows: selectedRows
-                })
+            onChange: (selectedIds) => {
+                this.setState({ selectedIds });
             },
         };
 
@@ -340,20 +341,19 @@ export default class RemoteTriggerPane extends Component {
                 {
                     triggerList.length < 1
                     &&
-                    <Button style={{ marginTop: 10 }} type="primary" onClick={this.showRemoteModal}>配置远程触发</Button>
+                    <Button style={{ marginTop: 10 }} type="primary" onClick={this.newRemoteTrigger}>配置远程触发</Button>
                 }
 
                 <Modal
                     title="配置远程调用"
                     wrapClassName="remoteTriggerModal"
-                    maskClosable={false}
-                    visible={visible}
                     width={'85%'}
+                    visible={visible}
+                    maskClosable={false}
                     okText="生成远程调用API"
                     cancelText="取消"
-                    onOk={this.onRemoteTrigger}
+                    onOk={this.saveRemoteTrigger}
                     onCancel={this.closeRemoteModal}>
-
                     {
                         havePart
                         &&
@@ -379,6 +379,7 @@ export default class RemoteTriggerPane extends Component {
                     <Table 
                         rowKey="id"
                         className="m-table select-all-table"
+                        style={{ padding: '16px 0' }}
                         pagination={false}
                         rowSelection={rowSelection}
                         dataSource={monitorRules}
@@ -386,19 +387,21 @@ export default class RemoteTriggerPane extends Component {
                     />
 
                     <Form>
-                        <FormItem {...rowFormItemLayout} style={{ marginTop: 16, marginBottom: 0 }}>
+                        <FormItem {...rowFormItemLayout} style={{ marginBottom: 0 }}>
                             {
                                 getFieldDecorator('remark', {
-                                    rules: [
-                                        { max: 100, message: '备注不能超过100个字符'}
-                                    ], 
+                                    rules: [{ 
+                                        max: 100, 
+                                        message: '备注不能超过100个字符' 
+                                    }], 
                                     initialValue: remark
                                 })(
                                     <TextArea 
                                         placeholder="备注信息" 
                                         className="trigger-remarks" 
                                         autosize={{ minRows: 3, maxRows: 6 }} 
-                                        onChange={this.onRemarkChange} />
+                                        onChange={this.onRemarkChange} 
+                                    />
                                 )
                             }
                         </FormItem>

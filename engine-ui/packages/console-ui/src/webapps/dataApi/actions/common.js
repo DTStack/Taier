@@ -15,4 +15,16 @@ export const commonActions = {
 			});
 		}
 	},
+	getMenuList(){
+		return dispatch => {
+			API.getMenuList().then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: commonActionType.GET_ALL_MENU_LIST,
+						payload: res.data
+					});
+				}
+			});
+		}
+	}
 }

@@ -106,5 +106,5 @@ export function hasProject(app) {
  * @param {s} app 
  */
 export function filterComments(sql) {
-    return sql.replace(/(--)+(.)+(\n|\s)+/g, '')
+    return sql.replace(/([^'])(--)+(.)+(\n|\s)+/g, '')
 }

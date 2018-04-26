@@ -3,29 +3,29 @@ import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import { debounce } from 'lodash';
 
-import utils from 'utils'
-import { filterComments } from 'funcs'
+import utils from 'utils';
+import { filterComments } from 'funcs';
 
-import Toolbar from './toolbar'
-import Console from './console'
+import Toolbar from './toolbar';
+import Console from './console';
 
 import Api from '../../../../api';
-import { matchTaskParams } from '../../../../comm'
-import CodeEditor from '../../../../components/code-editor'
+import { matchTaskParams } from '../../../../comm';
+import CodeEditor from '../../../../components/code-editor';
 
 import {
-    workbenchAction
+    workbenchAction,
 } from '../../../../store/modules/offlineTask/actionType';
 
 import {
     getTab,
     setSelectionContent,
-} from '../../../../store/modules/offlineTask/sqlEditor'
+} from '../../../../store/modules/offlineTask/sqlEditor';
 
  class SQLEditor extends Component {
 
     componentDidMount() {
-        const currentNode = this.props.currentTabData
+        const currentNode = this.props.currentTabData;
         if (currentNode) {
             this.props.getTab(currentNode.id)
         }
@@ -80,7 +80,7 @@ import {
         const data = consoleData && consoleData[currentTab] ? 
         consoleData[currentTab] : { results: [] }
 
-        const cursor = currentTabData.cursor || undefined
+        const cursor = currentTabData.cursor || undefined;
 
         return (
             <div className="ide-sql">

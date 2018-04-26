@@ -57,6 +57,7 @@ class APIMarket extends Component {
             "ascend": 'asc',
             "descend": 'desc'
         }
+        
         this.props.getApiMarketList({
             apiName: this.state.searchValue,
             pid: this.state.type1 || -1,
@@ -120,6 +121,7 @@ class APIMarket extends Component {
             let item_child;//二级目录
             //查找二级目录
             for (let i = 0; i < items.length; i++) {
+                
                 if (items[i].id == id) {
                     item_child = items[i].childCatalogue;
                     break;
@@ -132,6 +134,9 @@ class APIMarket extends Component {
 
 
             for (let i = 0; i < item_child.length; i++) {
+                if(item_child[i].api){
+                    continue;
+                }
                 arr.push({
                     id: item_child[i].id,
                     name: item_child[i].catalogueName
@@ -159,8 +164,10 @@ class APIMarket extends Component {
 
     }
     handleSearch(value) {
+        
         this.setState({
-            searchValue: value
+            searchValue: value,
+            pageIndex:1
         }, () => {
             this.getMarketApi();
         }
@@ -182,7 +189,7 @@ class APIMarket extends Component {
 
     }
     dealcomplete(record) {
-        this.props.router.push("/api/mine/approved");    
+        this.props.router.push("/api/mine/approved?apiId="+record.key);    
         console.log("dealcomplete", record);
     }
     dealnothing(record) {
@@ -197,7 +204,7 @@ class APIMarket extends Component {
         console.log("dealnothing", record);
     }
     dealapplying(record) {
-        this.props.router.push("/api/mine");
+        this.props.router.push("/api/mine?apiId="+record.key);
         console.log("dealapplying", record);
     }
     // 表格换页/排序
@@ -229,6 +236,7 @@ class APIMarket extends Component {
             title: '描述',
             dataIndex: 'description',
             key: 'description',
+            width:300
         }, {
             title: '累计调用（次）',
             dataIndex: 'callCount',
@@ -252,7 +260,8 @@ class APIMarket extends Component {
     }
     getSource() {
         const errorDic = {
-            3: "nothing",
+            4: "complete",
+            3: "complete",
             2: "nothing",
             1: "complete",
             0: "applying",
@@ -289,7 +298,7 @@ class APIMarket extends Component {
                     onSearch={this.handleSearch.bind(this)}
                 />
                 <div className="m-l-8">
-                    API分类:
+                    API分类：
                     <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
                         {
                             this.renderSourceType(0, true)
@@ -297,7 +306,7 @@ class APIMarket extends Component {
                     </Select>
                 </div>
                 <div className="m-l-8">
-                    二级分类:
+                    二级分类：
                     <Select value={this.state.type2} allowClear onChange={this.onUserSourceChange.bind(this)} style={{ width: 150 }}>
                         {
                             this.renderSourceType(this.state.type1, false)
@@ -345,6 +354,7 @@ class APIMarket extends Component {
                     apiId={this.state.apply.apiId}
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
+                    getMarketApi={this.getMarketApi.bind(this)}
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">

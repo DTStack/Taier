@@ -9,6 +9,13 @@ const TextArea = Input.TextArea
 const mapDispatchToProps = dispatch => ({
     apiApply(apiId, applyContent) {
         return dispatch(apiMarketActions.apiApply({ apiId: apiId, applyContent: applyContent }));
+    },
+    getApiExtInfo(apiId) {
+        dispatch(
+            apiMarketActions.getApiExtInfo({
+                apiId: apiId
+            })
+        )
     }
 });
 
@@ -32,6 +39,11 @@ class ApplyBox extends Component {
                             this.setState({
                                 loading: false
                             })
+                            this.props.getApiExtInfo(this.props.apiId);
+                            if(this.props.getMarketApi){
+                                this.props.getMarketApi();
+                            }
+                            
                             if (res) {
                                 message.success('操作成功')
                                 this.props.successCallBack();
@@ -44,6 +56,7 @@ class ApplyBox extends Component {
 
     }
     handleCancel() {
+        this.props.form.resetFields();
         this.props.cancelCallback();
     }
     render() {
@@ -98,7 +111,8 @@ class ApplyBox extends Component {
                         >
                             {getFieldDecorator('applyMsg',
                                 {
-                                    rules: [{ required: true, message: '请输入申请信息' }]
+                                    rules: [{ required: true, message: '请输入申请信息' },
+                                    {max:200,message:"最大字符不能超过200"},]
                                 }, )(<TextArea style={{ width: 200 }} rows={4} />)}
 
                         </FormItem>

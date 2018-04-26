@@ -22,8 +22,8 @@ import {
 } from '../../store/modules/offlineTask/actionType';
 
 import {
-    workbenchActions
-} from '../../store/modules/offlineTask/offlineAction' 
+    workbenchActions,
+} from '../../store/modules/offlineTask/offlineAction';
 
 import { showSeach } from '../../store/modules/comm';
 import { clearTreeData } from '../../store/modules/offlineTask/folderTree';
@@ -381,7 +381,7 @@ dispatch => {
 
     return {
         showSeachTask: function() {
-            dispatch(showSeach())
+            dispatch(showSeach(true))
         },
 
         goToTaskDev: (id) => {

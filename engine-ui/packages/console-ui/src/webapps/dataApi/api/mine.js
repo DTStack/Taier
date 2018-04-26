@@ -33,5 +33,8 @@ export default {
    queryApiCallLogForManager:function(params){
     return http.post(req.GET_API_CALL_ERROR_LOG_ADMIN, params);
    },
+   getApiCreatorInfo:function(params){
+    return http.post(req.GET_API_CREATOR_INFO, params);
+   },
 
 }

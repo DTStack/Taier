@@ -19,7 +19,9 @@ export default class Root extends React.Component {
         const { store , history } = this.props
         return (
             <Provider store={store} >
-                <Router routes={routers} history={history} key={Math.random()} />
+                <Router routes={routers} history={history} key={Math.random()} onEnter={()=>{
+                    console.log("enter")
+                }} />
             </Provider>
         )
     }

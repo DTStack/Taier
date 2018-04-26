@@ -17,7 +17,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(apiMarketActions.getCatalogue(pid));
     },
     deleteCatalogue(pid) {
-        return dispatch(apiManageActions.deleteCatalogue({ pid }));
+        return dispatch(apiManageActions.deleteCatalogue({ id:pid }));
     },
     updateCatalogue(pid, nodeName) {
         return dispatch(apiManageActions.updateCatalogue({ pid, nodeName }));
@@ -49,9 +49,10 @@ class ApiType extends Component {
             .then(
                 (res) => {
                     if (res) {
-                        this.props.getCatalogue(0);
+                        
                         message.success("删除成功")
                     }
+                    this.props.getCatalogue(0);
                 }
             )
 
@@ -61,9 +62,10 @@ class ApiType extends Component {
             .then(
                 (res) => {
                     if (res) {
-                        this.props.getCatalogue(0);
+                        
                         message.success("新增成功")
                     }
+                    this.props.getCatalogue(0);
                 }
             )
     }
@@ -72,12 +74,13 @@ class ApiType extends Component {
             .then(
                 (res) => {
                     if (res) {
-                        this.props.getCatalogue(0);
+                        
                         message.success("更改成功")
                     }
+                    this.props.getCatalogue(0);
                 }
             )
-    }
+    } 
     render() {
         return (
             <div className="m-card">
@@ -86,7 +89,7 @@ class ApiType extends Component {
                     className="box-2 g-datamanage"
                     noHovering
                 >
-                    <ApiTypeTree addCatalogue={this.addCatalogue.bind(this)} addCatalogueEdit={this.props.addCatalogueEdit} updateCatalogue={this.updateCatalogue.bind(this)} deleteCatalogue={this.deleteCatalogue.bind(this)} tree={this.props.apiMarket.apiCatalogue}></ApiTypeTree>
+                    <ApiTypeTree getCatalogue={this.props.getCatalogue} addCatalogue={this.addCatalogue.bind(this)} addCatalogueEdit={this.props.addCatalogueEdit} updateCatalogue={this.updateCatalogue.bind(this)} deleteCatalogue={this.deleteCatalogue.bind(this)} tree={this.props.apiMarket.apiCatalogue}></ApiTypeTree>
 
                 </Card>
 

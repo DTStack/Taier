@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Card, Tree, Tooltip, Icon, Popconfirm } from "antd";
+import { Card, Tree, Tooltip, Icon, Popconfirm,message } from "antd";
 import { cloneDeep } from 'lodash';
 const TreeNode = Tree.TreeNode;
 class ApiTypeTree extends Component {
@@ -8,7 +8,8 @@ class ApiTypeTree extends Component {
         expandedKeys: [],
         editNode: null,
         mode:"",
-        addPid:""
+        addPid:"",
+        autoExpandParent:true
     }
     constructor(props) {
         super(props);
@@ -78,6 +79,15 @@ class ApiTypeTree extends Component {
     deleteNode(id) {
         this.props.deleteCatalogue(id);
     }
+    //校验字段合法
+    checkVal = (value) => {
+        const reg = /^([\w|\u4e00-\u9fa5]{1,20})$/ // [A-Za-z0-9]|汉字 长度1-20
+        const isValid = reg.test(value)
+        if (!isValid) {
+            message.error('类目名称不能超过20个字符，只能以字母、数字、下划线和汉字组成！')
+        }
+        return isValid;
+    }
     getTreeNodeTitle(id, text, isRoot, isLeaf, deepLength) {
         const maxDeepLength = this.state.maxDeepLength;
         let item;
@@ -91,18 +101,29 @@ class ApiTypeTree extends Component {
                 </span>
             );
         }
-        //非叶子节点（必然不处于deepLength的限制）
+        //非叶子节点
         else if (!isLeaf) {
-            item = (
-                <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
-                    <Tooltip title="添加新分类" >
-                        <Icon type="plus-square-o" onClick={this.addNode.bind(this,id)} />
-                    </Tooltip>
-                    <Tooltip title="编辑">
-                        <Icon type="edit" onClick={this.editNode.bind(this, id)} />
-                    </Tooltip>
-                </span>
-            )
+            if(deepLength<maxDeepLength){
+                item = (
+                    <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
+                        <Tooltip title="添加新分类" >
+                            <Icon type="plus-square-o" onClick={this.addNode.bind(this,id)} />
+                        </Tooltip>
+                        <Tooltip title="编辑">
+                            <Icon type="edit" onClick={this.editNode.bind(this, id)} />
+                        </Tooltip>
+                    </span>
+                )
+            }else{
+                item = (
+                    <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
+                        <Tooltip title="编辑">
+                            <Icon type="edit" onClick={this.editNode.bind(this, id)} />
+                        </Tooltip>
+                    </span>
+                )
+            }
+           
         }
         //叶子节点，且达到deepLength
         else if (deepLength >= maxDeepLength) {
@@ -173,6 +194,13 @@ class ApiTypeTree extends Component {
     editOver(id,e) {
 
         const nodeName=this.editInput.value;
+        if(!this.checkVal(nodeName)){
+            this.props.getCatalogue(0);
+            this.setState({
+                editNode:null
+            })
+            return;
+        }
         this.setState({
             editNode: null
         },
@@ -194,6 +222,14 @@ class ApiTypeTree extends Component {
         const tree=cloneDeep(this.props.tree);
         const tmpId=Math.random();
         function addTreeNode(data,id){
+            if(id==0){
+                data.push({
+                    id:tmpId,
+                    catalogueName:"新建分类名",
+                    childCatalogue:[]
+                });
+                return;
+            }
             for(let i=0;i<data.length;i++){
                 let item=data[i];
                 
@@ -201,7 +237,7 @@ class ApiTypeTree extends Component {
                     
                     item.childCatalogue.push({
                         id:tmpId,
-                        catalogueName:"新建分类名",
+                        catalogueName:"新建分类名"+item.childCatalogue.length,
                         childCatalogue:[]
                     })
                     return;
@@ -222,7 +258,8 @@ class ApiTypeTree extends Component {
         
     }
     onExpands = (onExpands, info) => {
-        this.setState({ expandedKeys: onExpands });
+       
+        this.setState({ expandedKeys: onExpands,autoExpandParent:false });
       }
     render() {
         const { view,expandedKeys:TreeExpandedKeys } = this.getTreeView();
@@ -237,6 +274,7 @@ class ApiTypeTree extends Component {
                 onSelect={this.onSelect}
                 onCheck={this.onCheck}
                 onExpand={this.onExpands}
+                autoExpandParent={this.state.autoExpandParent}
             >
                 <TreeNode title={this.getTreeNodeTitle.call(this, 0, "API管理", true, false, 0)} key={0}>
                     {view}

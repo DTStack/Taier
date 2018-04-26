@@ -10,6 +10,7 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+
 export const API_STATUS = {
     "-1":'NO_APPLY',
     "0":'IN_HAND',
@@ -249,7 +250,8 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
             axisTick: {
                 show: false,
             },
-            splitLine: false
+            splitLine: false,
+            minInterval:1
         },
         {
             nameGap: 25,
@@ -276,7 +278,8 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
                     color: '#DDDDDD',
                     type: 'dashed'
                 }
-            }
+            },
+            max:100
         }
     ],
     series: []

@@ -20,7 +20,7 @@ const errorDic = [
     },
     {
         code: "unauthorize",
-        name: "异常访问",
+        name: "未认证",
         color: "#EE4000"
     },
     {
@@ -30,12 +30,12 @@ const errorDic = [
     },
     {
         code: "timeout",
-        name: "调用超时",
+        name: "超时",
         color: "#EE9A00"
     },
     {
         code: "outlimit",
-        name: "超出限额",
+        name: "超出限制",
         color: "#40E0D0"
     },
     {
@@ -67,7 +67,7 @@ class ErrorDistributed extends Component {
         for (let i = 0; i < chartData.length; i++) {
             let d = chartData[i];
             let errorItem = errorDic[d.type-1]
-            if (item.indexOf(errorItem.name) < 0) {
+            if (errorItem&&item.indexOf(errorItem.name) < 0) {
                 item.push(errorItem.name)
                 data.push({
                     value: d.callNum,

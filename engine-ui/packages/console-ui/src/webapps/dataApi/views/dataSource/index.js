@@ -124,8 +124,25 @@ export default class DataSource extends Component {
             source,
         })
     }
+    exchangeSourceType(){
+        let arr=[];
+        let dic={};
 
+        const items=this.props.dataSource.sourceType;
+        for(let i in items){
+            let item=items[i];
+            dic[item.value]=item.name;
+            arr.push({
+                text:item.name,
+                value:item.value
+            })
+        }
+
+        return {typeList:arr,typeDic:dic};
+        
+    }
     initColumns = () => {
+        const {typeList,typeDic}=this.exchangeSourceType();
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
@@ -134,29 +151,15 @@ export default class DataSource extends Component {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
-            filters: [{
-                text: 'MySql',
-                value: 1
-            }, {
-                text: 'Oracle',
-                value: 2
-            }, {
-                text: 'SQLServer',
-                value: 3
-            }, {
-                text: 'Hive',
-                value: 7
-            }, {
-                text: 'MaxCompute',
-                value: 10
-            }],
+            filters: typeList,
             filterMultiple: false,
-            render: (text) => dataSourceTypes[text]
+            render: (text) => typeDic[text]
         }, 
         {
             title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
+            width:300
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
