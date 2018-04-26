@@ -10,26 +10,28 @@ const orderType = {
     "descend": 'desc'
 }
 const TextArea = Input.TextArea;
+const Search = Input.Search;
 class NoApprovedCard extends Component {
     state = {
         pageIndex: 1,
         slidePaneShow: false,
         sortedInfo: {},
         loading: false,
-        showRecord: {}
+        showRecord: {},
+        apiName:""
     }
     getApplyingList(callback) {
         this.setState({
             loading: true
         })
-        this.props.getApplyingList(this.state.pageIndex, sortType[this.state.sortedInfo.columnKey], orderType[this.state.sortedInfo.order])
+        this.props.getApplyingList(this.state.pageIndex, sortType[this.state.sortedInfo.columnKey], orderType[this.state.sortedInfo.order],this.state.apiName)
             .then(
                 () => {
                     this.setState({
                         loading: false
                     })
-                    if(callback){
-                        
+                    if (callback) {
+
                         callback();
                     }
                 }
@@ -37,7 +39,7 @@ class NoApprovedCard extends Component {
     }
     componentDidMount() {
         this.getApplyingList(
-            ()=>{
+            () => {
                 this.openCard(this.props.apiId);
             }
         );
@@ -51,15 +53,15 @@ class NoApprovedCard extends Component {
         }
     }
     openCard(apiId) {
-   
+
         const res = this.getSource();
         if (res) {
-            
+
             for (let i in res) {
                 let item = res[i];
-                
+
                 if (apiId == item.apiId) {
-                    
+
                     this.openApprovedState(item);
                     break;
                 }
@@ -103,7 +105,7 @@ class NoApprovedCard extends Component {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
-            width:"250px"
+            width: "250px"
 
         }, {
             title: '申请时间',
@@ -133,6 +135,15 @@ class NoApprovedCard extends Component {
             slidePaneShow: false
         })
     }
+    handleApiSearch(key) {
+        this.setState({
+            apiName: key,
+            pageIndex:1
+        },
+            () => {
+                this.getApplyingList();
+            })
+    }
     render() {
         return (
 
@@ -146,13 +157,24 @@ class NoApprovedCard extends Component {
                     showRecord={this.state.showRecord}
                     closeSlidePane={this.closeSlidePane.bind(this)}
                 ></SlidePane>
+                <div className="flex font-12">
+
+
+                    <Search
+                        placeholder="输入API名称搜索"
+                        style={{ width: 150, margin: '10px 0px', marginLeft: "10px" }}
+                        onSearch={this.handleApiSearch.bind(this)}
+                    />
+
+
+                </div>
                 <Table
                     rowKey="id"
                     rowClassName={
-                        (record, index)=>{
-                            if(this.state.showRecord.apiId==record.apiId){
+                        (record, index) => {
+                            if (this.state.showRecord.apiId == record.apiId) {
                                 return "row-select"
-                            }else{
+                            } else {
                                 return "";
                             }
                         }

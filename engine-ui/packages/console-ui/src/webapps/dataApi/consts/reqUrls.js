@@ -43,6 +43,7 @@ export default {
     GET_API_EXT_INFO:`${DATA_API_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
     GET_API_EXT_INFO_ADMIN:`${DATA_API_BASE_URL}/apis/getApiExtInfoForManager`,//管理员获取api详情调用情况等
     APPLY_API:`${DATA_API_BASE_URL}/apply/apiApply`,//申请API
+    GET_MARKET_TOP_CALL_FUNC:`${DATA_API_BASE_URL}/apis/listApiCallNumTopNForManager`,//管理员获取api调用次数topN
     // ===== 概览 =====//
     GET_API_FAIL_RANK:`${DATA_API_BASE_URL}/apis/listApiCallFailRateTopNForNormal`,//用户获取API调用失败率排行
     GET_API_FAIL_RANK_ADMIN:`${DATA_API_BASE_URL}/apis/listApiCallFailRateTopNForManager`,//管理员获取API调用失败率排行

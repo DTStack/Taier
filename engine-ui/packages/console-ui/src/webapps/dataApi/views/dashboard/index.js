@@ -55,6 +55,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getApiCallErrorInfo(date){
         dispatch(dashBoardActions.getApiCallErrorInfo(date));
+    },
+    listApiCallNumTopNForManager(date){
+        dispatch(dashBoardActions.listApiCallNumTopNForManager({topn:10,time:date}))
     }
 });
 
