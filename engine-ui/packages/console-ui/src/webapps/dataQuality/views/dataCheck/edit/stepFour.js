@@ -56,7 +56,7 @@ export default class StepFour extends Component {
             });
         }
 
-        if (!isEmpty(notifyVO)) {
+        if (notifyVO) {
             this.setState({ isInform: true });
         } 
     }
@@ -87,7 +87,7 @@ export default class StepFour extends Component {
         this.setState({ isInform: e.target.checked });
 
         if (!e.target.checked) {
-            this.props.changeParams({ notifyVO: {} });
+            this.props.changeParams({ notifyVO: null });
         }
     }
 
@@ -165,8 +165,10 @@ export default class StepFour extends Component {
         const { userList } = common;
         const { getFieldDecorator } = form;
         const { executeType, notifyVO } = editParams;
-        const { sendTypes, receivers } = notifyVO;
         const { isInform, scheduleConfObj } = this.state;
+
+        let sendTypes = notifyVO ? notifyVO.sendTypes : undefined,
+            receivers = notifyVO ? notifyVO.receivers : undefined;
 
         return (
             <div>
@@ -237,15 +239,11 @@ export default class StepFour extends Component {
                         }
 
                         <FormItem {...formItemLayout} label="通知设置">
-                            {
-                                getFieldDecorator('informSetting', {
-                                    rules: [],
-                                    valuePropName: 'checked',
-                                    initialValue: isInform
-                                })(
-                                    <Checkbox onChange={this.onInformChange}>执行完成后发送通知</Checkbox>
-                                )
-                            }
+                            <Checkbox 
+                                value={isInform} 
+                                onChange={this.onInformChange}>
+                                执行完成后发送通知
+                            </Checkbox>
                         </FormItem>
 
                         {
