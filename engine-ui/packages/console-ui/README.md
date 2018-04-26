@@ -25,11 +25,8 @@ yarn add package.name
 # 其他文档
 - [项目技术和架构设计说明
 ](http://git.dtstack.cn/ziv/data-stack-web/wikis/Development)
-- [RedmineAPI文档地址]
-(http://redmine.prod.dtstack.cn/projects/rdos1/wiki)
+- [RedmineAPI文档地址](http://redmine.prod.dtstack.cn/projects/rdos)
 - [部署说明](http://git.dtstack.cn/ziv/data-stack-web/wikis/deploy)
 - [RDOS API接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
 
-项目状态0：初始化，1：正常,2:禁用,3:失败
-项目角色0：租户所有者，1：项目所有者,2:项目管理员,3:普通成员
 
