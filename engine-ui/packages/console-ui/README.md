@@ -163,6 +163,25 @@ $ npm run build
 <i style="color:red">* 注：可以通过`nginx_init.sh`脚本，帮你安装nignx和拷贝默认服务器配置文件</i>
 
 ### UIC相关配置
+由于目前数据中台是多个项目，所以每个项目都有单独的UIC相关配置文件， 而具体的config文件分布在。
+
+```
+| - dist
+    | - index.html
+    | - rdos.html
+    | - dataQuality.html
+    | - public
+        | - main
+            | - config
+                | - config.js
+        | - rdos
+            | - config
+                | - config.js
+        | - dataQuality
+            | - config
+                | - config.js
+    | - ...
+```
 具体配置文件在根目录config.js中
 
 # 其他文档
