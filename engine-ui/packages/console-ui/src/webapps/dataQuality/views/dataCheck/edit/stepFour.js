@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import { Button, Form, Select, Input, Row, Col, Radio, TimePicker, DatePicker, Checkbox, message } from 'antd';
+import { Button, Form, Select, Row, Col, Radio, TimePicker, DatePicker, Checkbox, message } from 'antd';
 
-import { dataCheckActions } from '../../../actions/dataCheck';
 import { formItemLayout } from '../../../consts';
+import DCApi from '../../../api/dataCheck';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -25,16 +25,7 @@ const mapStateToProps = state => {
     return { common }
 }
 
-const mapDispatchToProps = dispatch => ({
-    addCheck(params) {
-        dispatch(dataCheckActions.addCheck(params));
-    },
-    updateCheck(params) {
-        dispatch(dataCheckActions.updateCheck(params));
-    },
-})
-
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(mapStateToProps)
 export default class StepFour extends Component {
     constructor(props) {
         super(props);
@@ -56,7 +47,7 @@ export default class StepFour extends Component {
             });
         }
 
-        if (!isEmpty(notifyVO)) {
+        if (notifyVO) {
             this.setState({ isInform: true });
         } 
     }
@@ -87,7 +78,7 @@ export default class StepFour extends Component {
         this.setState({ isInform: e.target.checked });
 
         if (!e.target.checked) {
-            this.props.changeParams({ notifyVO: {} });
+            this.props.changeParams({ notifyVO: null });
         }
     }
 
@@ -135,6 +126,11 @@ export default class StepFour extends Component {
         });
     }
 
+    // 不能选取当天以前的时间
+    disabledDate = (current) => {
+        return current && current.valueOf() < moment().startOf('day').valueOf();
+    }
+
     prev = () => {
         const { currentStep, navToStep } = this.props;
         navToStep(currentStep - 1);
@@ -142,19 +138,28 @@ export default class StepFour extends Component {
 
     save = () => {
         const { form, editParams } = this.props;
+
         form.validateFields({ force: true }, (err, values) => {
-            console.log(err,values)
             if (err && (err.beginDate || err.hour || err.min)) {
                 message.error('执行时间不能为空');
             }
 
             if(!err) {
                 if (editParams.id) {
-                    this.props.updateCheck({...editParams});
+                    DCApi.updateCheck(editParams).then((res) => {
+                        if (res.code === 1) {
+                            message.success('操作成功');
+                            hashHistory.push("/dq/dataCheck");
+                        }
+                    });
                 } else {
-                    this.props.addCheck({...editParams});
+                    DCApi.addCheck(editParams).then((res) => {
+                        if (res.code === 1) {
+                            message.success('操作成功');
+                            hashHistory.push("/dq/dataCheck");
+                        }
+                    });
                 }
-                hashHistory.push("/dq/dataCheck");
             }
         })
 
@@ -165,8 +170,10 @@ export default class StepFour extends Component {
         const { userList } = common;
         const { getFieldDecorator } = form;
         const { executeType, notifyVO } = editParams;
-        const { sendTypes, receivers } = notifyVO;
         const { isInform, scheduleConfObj } = this.state;
+
+        let sendTypes = notifyVO ? notifyVO.sendTypes : undefined,
+            receivers = notifyVO ? notifyVO.receivers : undefined;
 
         return (
             <div>
@@ -203,6 +210,7 @@ export default class StepFour extends Component {
                                                 format="YYYY-MM-DD"
                                                 placeholder="开始时间"
                                                 style={{ width: 150, marginRight: 15 }}
+                                                disabledDate={this.disabledDate}
                                                 onChange={this.changeScheduleConfTime.bind(this, 'beginDate')}
                                             />
                                         )
@@ -237,15 +245,11 @@ export default class StepFour extends Component {
                         }
 
                         <FormItem {...formItemLayout} label="通知设置">
-                            {
-                                getFieldDecorator('informSetting', {
-                                    rules: [],
-                                    valuePropName: 'checked',
-                                    initialValue: isInform
-                                })(
-                                    <Checkbox onChange={this.onInformChange}>执行完成后发送通知</Checkbox>
-                                )
-                            }
+                            <Checkbox 
+                                value={isInform} 
+                                onChange={this.onInformChange}>
+                                执行完成后发送通知
+                            </Checkbox>
                         </FormItem>
 
                         {
