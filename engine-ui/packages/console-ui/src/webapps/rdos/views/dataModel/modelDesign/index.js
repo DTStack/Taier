@@ -27,8 +27,8 @@ class TableList extends Component {
             filterDropdownVisible: false,
 
             params: {
-                currentPage: 1,
-                fuzzyName: '',
+                pageIndex: 1,
+                tableName: '',
                 isDeleted: 0, // 添加删除标记
                 isDirtyDataTable: 0, // 非脏数据标记
             },
@@ -112,8 +112,8 @@ class TableList extends Component {
     onTableNameChange = (e) => {
         this.setState({
             params: Object.assign(this.state.params, {
-                currentPage: 1,
-                fuzzyName: e.target.value
+                pageIndex: 1,
+                tableName: e.target.value
             })
         })
     }
@@ -164,15 +164,15 @@ class TableList extends Component {
 
     render() {
         const ROUTER_BASE = '/data-model/table';
-        const { subjectFields, modelLevels } = this.state
+        const { subjectFields, modelLevels, params } = this.state
         const tableList = this.state.table;
         const { project } = this.props;
-        const { totalCount, currentPage, data } = tableList;
+        const { totalCount, data } = tableList;
 
         const pagination = {
             total: totalCount,
             defaultPageSize: 20,
-            current: currentPage,
+            current: params.pageIndex,
         };
 
         const marginTop10 = { marginTop: '8px' };
@@ -305,7 +305,7 @@ class TableList extends Component {
                             columns={ columns }
                             dataSource={ data }
                             pagination={ pagination }
-                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
+                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
                         />
                         <Modal className="m-codemodal"
                             width={750}
