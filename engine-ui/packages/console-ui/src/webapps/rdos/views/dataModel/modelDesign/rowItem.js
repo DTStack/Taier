@@ -101,11 +101,6 @@ export default class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                {/* <Input name="name" value={ data.name }
-                    autoComplete="off"
-                    onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
-                /> */}
                 <Select
                     mode="combobox"
                     value={data.name}
