@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -49,11 +50,20 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
     public boolean judgeSlots(JobClient jobClient) {
         int totalFreeCore = 0;
         int totalFreeMem = 0;
+
+        int totalCore = 0;
+        int totalMem = 0;
+
         for(NodeResourceInfo tmpMap : nodeResourceMap.values()){
             int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
             int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
+            int nodeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_TOTAL_KEY));
+            int nodeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_TOTAL_KEY));
+
             totalFreeMem += nodeFreeMem;
             totalFreeCore += nodeFreeCores;
+            totalCore += nodeCores;
+            totalMem += nodeMem;
         }
 
         if(totalFreeCore == 0 || totalFreeMem == 0){
@@ -66,10 +76,11 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
             instances = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
         }
 
-        return judgeCores(jobClient, instances, totalFreeCore) && judgeMem(jobClient, instances, totalFreeMem);
+        return judgeCores(jobClient, instances, totalFreeCore, totalCore)
+                && judgeMem(jobClient, instances, totalFreeMem, totalMem);
     }
 
-    private boolean judgeCores(JobClient jobClient, int instances, int freeCore){
+    private boolean judgeCores(JobClient jobClient, int instances, int freeCore, int totalCore){
 
         Properties properties = jobClient.getConfProperties();
         int executorCores = DEFAULT_CORES;
@@ -78,10 +89,14 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         }
 
         int needCores = instances * executorCores;
+        if(needCores > totalCore){
+            throw new RdosException("任务设置的core 大于 集群最大的core");
+        }
+
         return needCores <= freeCore;
     }
 
-    private boolean judgeMem(JobClient jobClient, int instances, int freeMem){
+    private boolean judgeMem(JobClient jobClient, int instances, int freeMem, int totalMem){
         Properties properties = jobClient.getConfProperties();
 
         int oneNeedMem = DEFAULT_MEM;
@@ -97,8 +112,11 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         }
 
         oneNeedMem += executorJvmMem;
-
         int needTotal = instances * oneNeedMem;
+
+        if(needTotal > totalMem){
+            throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
+        }
 
         return needTotal <= freeMem;
     }

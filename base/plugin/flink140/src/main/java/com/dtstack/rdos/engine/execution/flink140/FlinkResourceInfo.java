@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -21,9 +22,13 @@ public class FlinkResourceInfo extends EngineResourceInfo{
     public boolean judgeSlots(JobClient jobClient) {
 
         int availableSlots = 0;
+        int totalSlots = 0;
+
         for(NodeResourceInfo value : nodeResourceMap.values()){
             int freeSlots = MathUtil.getIntegerVal(value.getProp("freeSlots"));
+            int slotsNumber = MathUtil.getIntegerVal(value.getProp("slotsNumber"));
             availableSlots += freeSlots;
+            totalSlots += slotsNumber;
         }
 
         //没有资源直接返回false
@@ -32,14 +37,20 @@ public class FlinkResourceInfo extends EngineResourceInfo{
         }
 
         boolean result = true;
+        int maxParall = 0;
+
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
-            int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
+            maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
             result = result && availableSlots >= maxParall;
         }
 
         if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
-            int maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
+            maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
             result = result && availableSlots >= maxParall;
+        }
+
+        if(totalSlots < maxParall){
+            throw new RdosException("任务配置资源超过集群最大资源");
         }
 
         return result;
