@@ -240,6 +240,7 @@ class BaseForm extends React.Component {
  * @extends {React.Component}
  */
 export class RowItem extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -322,7 +323,7 @@ export class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                <Input name="name" value={ data.name }
+                <Input name="name" defaultValue={ data.name }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
                     disabled={ isSaved }
