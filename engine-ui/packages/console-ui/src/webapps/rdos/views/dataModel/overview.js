@@ -120,7 +120,7 @@ export default class Overview extends Component {
         // 绘制图表
         myChart.setOption(option);
 
-        this.chart1 = myChart;
+        this._chart1 = myChart;
     }
 
     drawChart2 = (chartData) => {
@@ -200,7 +200,7 @@ export default class Overview extends Component {
         // 绘制图表
         myChart.setOption(option);
 
-        this.chart3 = myChart;
+        this._chart3 = myChart;
     }
 
     drawChart4 = (chartData) => {
@@ -253,11 +253,11 @@ export default class Overview extends Component {
     }
 
     resizeChart = () => {
-        if (this.chart1) {
-            this.chart1.resize()
-            this.chart2.resize()
-            this.chart3.resize()
-            this.chart4.resize()
+        if (this._chart1) {
+            this._chart1.resize()
+            this._chart2.resize()
+            this._chart3.resize()
+            this._chart4.resize()
         }
     }
 

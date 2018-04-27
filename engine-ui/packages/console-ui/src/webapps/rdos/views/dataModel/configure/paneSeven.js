@@ -32,21 +32,21 @@ export default class DeriveIndexDefine extends PaneSix {
             dataIndex: 'columnNameZh',
             key: 'columnNameZh',
         }, {
-            width: 80,
             title: '指标命名',
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 80,
+            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 80,
+            width: 120,
             title: '指标口径',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
+            width: 120,
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',
