@@ -29,7 +29,7 @@ class DeriveIndexModal extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.visible) {
+        if (!this.props.visible && nextProps.visible) {
             this.loadAtomIndex();
         }
     }
