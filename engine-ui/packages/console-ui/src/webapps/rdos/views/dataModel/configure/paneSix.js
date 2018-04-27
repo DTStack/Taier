@@ -57,7 +57,7 @@ export default class AtomIndexDefine extends BasePane {
     changeSearchName = (e) => {
         this.setState({
             params: Object.assign(this.state.params, {
-                name: e.target.value,
+                columnNameZh: e.target.value,
                 currentPage: 1,
             }),
         })
@@ -94,12 +94,13 @@ export default class AtomIndexDefine extends BasePane {
 
     initColumns = () => {
         return [{
+            width: 100,
             title: '指标类型',
             dataIndex: 'columnType',
             key: 'columnType',
             render: type => <IndexType value={type} />,
         }, {
-            width: 120,
+            width: 150,
             title: '原子指标名称',
             dataIndex: 'columnNameZh',
             key: 'columnNameZh',
@@ -109,12 +110,12 @@ export default class AtomIndexDefine extends BasePane {
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 80,
+            width: 120,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 80,
+            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',

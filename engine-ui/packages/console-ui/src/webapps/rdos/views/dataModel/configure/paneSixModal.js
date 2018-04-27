@@ -53,7 +53,7 @@ class AtomIndexDefineModal extends Component {
         const { getFieldDecorator } = form
 
         const isEdit = data && !isEmpty(data);
-        const title = isEdit ? '编辑增量规则': '创建增量规则'
+        const title = isEdit ? '编辑原子指标': '创建原子指标'
 
         return (
             <Modal
