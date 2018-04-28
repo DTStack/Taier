@@ -59,6 +59,13 @@ export default function dataSource(state = initialState, action) {
             return clone;
         }
 
+        case dataSourceActionType.RESET_DATA_SOURCES_TABLE: {
+            const clone = cloneDeep(state);
+            const { sourceTable } = clone;
+            clone.sourceTable = [];
+            return clone;
+        }
+
         case dataSourceActionType.GET_DATA_SOURCES_COLUMN: {
             const clone = cloneDeep(state);
             const { sourceColumn } = clone;
