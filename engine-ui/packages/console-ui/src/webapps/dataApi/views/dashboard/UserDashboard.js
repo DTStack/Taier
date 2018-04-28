@@ -72,6 +72,7 @@ class UserDashboard extends Component {
                                 style={{borderTop:"1px #dcdcdc solid"}}
                                 defaultActiveKey={this.state.nowView}
                                 onChange={this.topViewChange.bind(this)}
+                                className="shadow"
                                 
                             >
                                 <Tabs.TabPane tab="调用量Top10" key="callTop">
@@ -89,6 +90,7 @@ class UserDashboard extends Component {
                             <Card
                                 noHovering
                                 title="订购情况"
+                                className="shadow"
                             >
                                 <Row  className="m-count height-101" justify="space-around" type="flex">
                                     <Col span={8} >
