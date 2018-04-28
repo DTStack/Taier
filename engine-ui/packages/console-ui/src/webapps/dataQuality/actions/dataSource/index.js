@@ -67,6 +67,13 @@ export const dataSourceActions = {
 			});
 		}
 	},
+	resetDataSourcesTable() {
+		return dispatch => {
+			dispatch({
+				type: dataSourceActionType.RESET_DATA_SOURCES_TABLE
+			});
+		}
+	},
 	getDataSourcesColumn(params) {
 		return dispatch => {
 			API.getDataSourcesColumn(params).then((res) => {

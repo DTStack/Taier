@@ -26,6 +26,9 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
+    resetDataSourcesTable() {
+        dispatch(dataSourceActions.resetDataSourcesTable());
+    },
     getSourcePart(params, type) {
         dispatch(dataCheckActions.getSourcePart(params, type));
     },
@@ -126,6 +129,7 @@ export default class StepOne extends Component {
         let origin = { dataSourceId: id };
 
         this.havePartition(id);
+        this.props.resetDataSourcesTable();
         this.props.getDataSourcesTable({ sourceId: id });
         form.setFieldsValue({ originTable: undefined });
 
