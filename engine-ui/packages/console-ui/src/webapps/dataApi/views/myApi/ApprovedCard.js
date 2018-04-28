@@ -103,7 +103,8 @@ class ApprovedCard extends Component {
         this.setState({
             slidePaneShowNoApproved: false,
             slidePaneShowDisabled: false,
-            slidePaneShowSuccess: false
+            slidePaneShowSuccess: false,
+            showRecord:{}
         })
     }
     apiClick(record) {

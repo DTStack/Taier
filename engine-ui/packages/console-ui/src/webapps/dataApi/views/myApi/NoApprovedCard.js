@@ -132,7 +132,8 @@ class NoApprovedCard extends Component {
     }
     closeSlidePane() {
         this.setState({
-            slidePaneShow: false
+            slidePaneShow: false,
+            showRecord:{}
         })
     }
     handleApiSearch(key) {
