@@ -69,14 +69,11 @@ class AdminDashboard extends Component {
                     </Row>
                     <Row className="m-card-small margin-t20" gutter={20}>
                         <Col span={8} className="m-card-small m-tabs noheight">
-                            <Card
-                                noHovering
-
-                            >
+                            
                                 <Tabs
-                                    style={{ borderTop: "1px #dcdcdc solid" }}
                                     defaultActiveKey={this.state.nowView}
                                     onChange={this.topViewChange.bind(this)}
+                                    className="shadow"
 
                                 >
                                     <Tabs.TabPane tab="调用用户Top10" key="callTop">
@@ -86,7 +83,7 @@ class AdminDashboard extends Component {
                                         <TopCallFunc idAdmin={true} router={this.props.router} data={marketOverview.topCallFunc}></TopCallFunc>
                                     </Tabs.TabPane>
                                 </Tabs>
-                            </Card>
+                            
                         </Col>
                         <Col span={8}>
                             <ErrorDistributed chartData={marketOverview.failInfoList}></ErrorDistributed>

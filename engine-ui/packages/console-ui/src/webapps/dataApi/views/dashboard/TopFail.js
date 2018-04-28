@@ -17,6 +17,7 @@ class TopFail extends Component {
                 noHovering
                 title={this.props.noTitle?'':"失败率TOP10"}
                 style={{ height: this.props.cardHeight||403 }}
+                className="shadow"
             >
                 <Table
                     rowKey={(record)=>{
