@@ -96,6 +96,7 @@ class ErrorDistributed extends Component {
                 noHovering
                 title="错误类型分布"
                 style={{ height: 403 }}
+                className="shadow"
             >
                 <Resize onResize={this.resize.bind(this)}>
                     <article id="ErrorDistributedPie" style={{ width: '100%', height: '300px' }} />

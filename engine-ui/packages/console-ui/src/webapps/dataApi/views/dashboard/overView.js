@@ -115,6 +115,7 @@ class TopCall extends Component {
 
             <Card
                 noHovering
+                className="shadow"
             >
                 <Row style={{width:"100%"}} gutter={130} className="m-count padding-l20 height-101">
                     <Col span={6}>

@@ -22,7 +22,11 @@ const hdfsConf =
 }`
 const configConf = 
 `{
-    "poolSize":12
+    "initialPoolSize": 100,
+    "maxIdleTime": 30,
+    "maxPoolSize": 100,
+    "minPoolSize": 10,
+    "maxStatements": 200
 }`
 
 const mapStateToProps = state => {
@@ -305,28 +309,28 @@ export default class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>,
-                    <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
-                    {
-                        getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
-                        })(
-                            <Checkbox checked={detailConfig} onChange={this.enableDetailConfig}>
-                                高级配置
-                            </Checkbox>,
-                        )
-                    }
-                </FormItem>,
-                <FormItem {...formItemLayout} label="连接池信息" key="detailConfig" style={{display: detailConfig ? 'block' : 'none'}}>
-                    {
-                        getFieldDecorator('dataJson.config', {
-                            rules: [],
-                            initialValue: config.config || ''
-                        })(
-                            <Input type="textarea" rows={5} placeholder={configConf} />,
-                        )
-                    }
-                    {/* <HelpDoc doc="hdfsConfig" /> */}
-                </FormItem>
+                //     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
+                //     {
+                //         getFieldDecorator('hasHdfsConfig', {
+                //             initialValue: false,
+                //         })(
+                //             <Checkbox checked={detailConfig} onChange={this.enableDetailConfig}>
+                //                 高级配置
+                //             </Checkbox>,
+                //         )
+                //     }
+                // </FormItem>,
+                // <FormItem {...formItemLayout} label="连接池信息" key="detailConfig" style={{display: detailConfig ? 'block' : 'none'}}>
+                //     {
+                //         getFieldDecorator('dataJson.config', {
+                //             rules: [],
+                //             initialValue: config.config || ''
+                //         })(
+                //             <Input type="textarea" rows={5} placeholder={configConf} />,
+                //         )
+                //     }
+                //     {/* <HelpDoc doc="hdfsConfig" /> */}
+                // </FormItem>
                 ]
             }
         }

@@ -316,6 +316,7 @@ class APIApproval extends Component {
 
                         noHovering
                         title={this.getCardTitle()}
+                        className="shadow"
                     >
                         <Table
                             rowKey="id"
