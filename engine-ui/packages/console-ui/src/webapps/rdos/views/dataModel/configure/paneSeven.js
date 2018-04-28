@@ -41,7 +41,7 @@ export default class DeriveIndexDefine extends PaneSix {
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 120,
+            width: 150,
             title: '指标口径',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
