@@ -40,7 +40,7 @@ class Header extends Component {
         
         return <Navigator 
             logo={logo}
-            // menuItems={apps}
+            menuItems={apps}
             {...this.props}
         />
     }
