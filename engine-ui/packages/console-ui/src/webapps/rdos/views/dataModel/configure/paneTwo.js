@@ -30,12 +30,11 @@ export default class SubjectDomain extends BasePane {
 
     initColumns = () => {
         return [{
-            width: 10,
+            width: 100,
             title: '主题域名称',
             dataIndex: 'name',
             key: 'name',
         }, {
-            width: 200,
             title: '主题域说明',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
@@ -44,16 +43,18 @@ export default class SubjectDomain extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
-            width: 80,
+            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
+            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
+            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -61,7 +62,13 @@ export default class SubjectDomain extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.delete(record) }}>删除</a>
+                        <Popconfirm 
+                            title="确定删除此条记录吗?" 
+                            onConfirm={() => { this.delete(record) }}
+                            okText="是" cancelText="否"
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
                     </div>
                 )
             },
