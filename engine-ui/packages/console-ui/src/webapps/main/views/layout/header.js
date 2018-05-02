@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Icon } from 'antd'
 
 import { Navigator, Logo }  from '../../components/nav';
 
@@ -20,7 +21,22 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
-        const logo = <Logo linkTo="/" img={'public/main/img/logo.png'}/>
+        const logo = <span>
+            <img 
+                alt="logo" 
+                style={{ height: '20px', marginTop: '15px' }}
+                src="public/main/img/logo.svg" 
+            />
+            <span style={{
+                fontSize: '14px', 
+                color: '#ffffff', 
+                position: 'absolute', 
+                left: '70px', top: 0,
+                letterSpacing: '1px',
+            }}>
+                DTinsight
+            </span>
+        </span>
         return <Navigator 
             logo={logo}
             menuItems={apps}
@@ -29,4 +45,3 @@ class Header extends Component {
     }
 }
 export default Header
-
