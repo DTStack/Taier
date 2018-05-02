@@ -322,7 +322,7 @@ public class FlinkClient extends AbsClient {
             haYarnConf();
             confField.set(clusterDescriptor, hadoopConf);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("",e);
             throw new RdosException(e.getMessage());
         }
 
@@ -330,6 +330,7 @@ public class FlinkClient extends AbsClient {
         clusterClient.setDetached(isDetact);
 
         client = clusterClient;
+        isClientOn = true;
         logger.warn("---init flink client with yarn session success----");
     }
 
@@ -421,7 +422,6 @@ public class FlinkClient extends AbsClient {
             packagedProgram = FlinkUtil.buildProgram((String) jarPath, tmpFileDirPath, classpaths, entryPointClass, programArgs, spSettings);
         }catch (Throwable e){
             JobResult jobResult = JobResult.createErrorResult(e);
-            e.printStackTrace();
             logger.error("", e);
             return jobResult;
         }

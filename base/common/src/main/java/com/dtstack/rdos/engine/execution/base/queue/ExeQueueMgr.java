@@ -162,16 +162,23 @@ public class ExeQueueMgr {
                     LOG.info("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
                     LOG.info("", e);
                     gq.remove(jobClient.getTaskId());
-                    JobResult jobResult = JobResult.createErrorResult(e);
-                    jobClient.setJobResult(jobResult);
-                    JobSubmitExecutor.getInstance().addJobIntoTaskListenerQueue(jobClient);
+                    addJobToFail(jobClient, e);
                     return;
                 }
 
                 EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-                if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
+
+                try{
+                    if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
+                        return;
+                    }
+                }catch (RdosException e){
+                    //判断资源的时候抛出异常,直接将任务设置为失败
+                    gq.remove(jobClient.getTaskId());
+                    addJobToFail(jobClient, e);
                     return;
                 }
+
 
                 gq.remove(jobClient.getTaskId());
                 try {
@@ -194,6 +201,12 @@ public class ExeQueueMgr {
                 break;
             }
         }
+    }
+
+    private void addJobToFail(JobClient jobClient, Exception e){
+        JobResult jobResult = JobResult.createErrorResult(e);
+        jobClient.setJobResult(jobResult);
+        JobSubmitExecutor.getInstance().addJobIntoTaskListenerQueue(jobClient);
     }
 
     public Map<String, EngineTypeQueue> getEngineTypeQueueMap() {

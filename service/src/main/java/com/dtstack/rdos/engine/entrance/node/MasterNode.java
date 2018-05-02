@@ -165,10 +165,10 @@ public class MasterNode {
     }
 
     /**
-     * TODO 需要多看几次。。。逻辑比较绕
+     * 下发任务到slave
      * @param jobClient
      * @param retryNum
-     * @param excludeNodes
+     * @param excludeNodes 排除的slave节点，用于重试过滤
      * @return
      */
     public boolean sendTask(JobClient jobClient, int retryNum, List<String> excludeNodes){

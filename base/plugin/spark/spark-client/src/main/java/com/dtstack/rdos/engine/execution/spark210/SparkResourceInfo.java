@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -36,16 +37,27 @@ public class SparkResourceInfo extends EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        int coreNum = 0;
-        int memNum = 0;
+        int freeCoreNum = 0;
+        int freeMemNum = 0;
+
+        int totalCore = 0;
+        int totalMem = 0;
+
         for(NodeResourceInfo tmpMap : nodeResourceMap.values()){
             int workerFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.MEMORY_FREE_KEY));
             int workerFreeCpu = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.CORE_FREE_KEY));
-            memNum += workerFreeMem;
-            coreNum += workerFreeCpu;
+
+            int workerTotalCpu = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.CORE_TOTAL_KEY));
+            int workerTotalMem = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.MEMORY_TOTAL_KEY));
+
+            freeMemNum += workerFreeMem;
+            freeCoreNum += workerFreeCpu;
+
+            totalCore += workerTotalCpu;
+            totalMem += workerTotalMem;
         }
 
-        if(coreNum == 0 || memNum == 0){
+        if(freeCoreNum == 0 || freeMemNum == 0){
             return false;
         }
 
@@ -59,11 +71,11 @@ public class SparkResourceInfo extends EngineResourceInfo {
         int executorNum = coresMax/executorCores;
         executorNum = executorNum > 0 ? executorNum : 1;
 
-        return checkNeedMEMForSparkStandalone(jobClient, memNum, executorNum)
-                && checkNeedCPUForSparkStandalone(jobClient, coreNum, executorCores);
+        return checkNeedMEMForSparkStandalone(jobClient, freeMemNum, executorNum, totalMem)
+                && checkNeedCPUForSparkStandalone(jobClient, freeCoreNum, executorCores, totalCore);
     }
 
-    public boolean checkNeedMEMForSparkStandalone(JobClient jobClient, int memNum, int executorNum){
+    public boolean checkNeedMEMForSparkStandalone(JobClient jobClient, int freeMemNum, int executorNum, int totalMem){
         int needMem = 512; //默认driver内存512
         if(jobClient.getConfProperties().containsKey(SPARK_DRIVER_MEM)) {
             String driverMem = (String) jobClient.getConfProperties().get(SPARK_DRIVER_MEM);
@@ -79,7 +91,11 @@ public class SparkResourceInfo extends EngineResourceInfo {
         executorMem = executorMem * executorNum;
         needMem += executorMem;
 
-        if(needMem > memNum){
+        if(needMem > totalMem){
+            throw new RdosException("任务配置的MEM 大于集群的MEM");
+        }
+
+        if(needMem > freeMemNum){
             return false;
         }
 
@@ -89,10 +105,10 @@ public class SparkResourceInfo extends EngineResourceInfo {
     /**
      * 判断core是否符合需求
      * @param jobClient
-     * @param coreNum
+     * @param freeCoreNum
      * @return
      */
-    public boolean checkNeedCPUForSparkStandalone(JobClient jobClient, int coreNum, int executorNum){
+    public boolean checkNeedCPUForSparkStandalone(JobClient jobClient, int freeCoreNum, int executorNum, int totalCore){
         int needCore = 1;
         if(jobClient.getConfProperties().containsKey(SPARK_DRIVER_CPU)){
             String driverCPU = (String) jobClient.getConfProperties().get(SPARK_DRIVER_CPU);
@@ -107,7 +123,11 @@ public class SparkResourceInfo extends EngineResourceInfo {
 
         needCore += executorCores * executorNum;
 
-        if(needCore > coreNum){
+        if(needCore > totalCore){
+            throw new RdosException("任务配置的Core 大于 集群最大的Core");
+        }
+
+        if(needCore > freeCoreNum){
             return false;
         }
         return true;
