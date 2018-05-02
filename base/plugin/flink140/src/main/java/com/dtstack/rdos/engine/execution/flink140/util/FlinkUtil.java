@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -367,40 +366,29 @@ public class FlinkUtil {
             Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
             Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
 
-            File commonDir = new File(flinkSyncPluginRoot + fileSP + "common");
-            File readerDir = new File(flinkSyncPluginRoot + fileSP + readerName);
-            File writerDir = new File(flinkSyncPluginRoot + fileSP + writerName);
+            String readerClasspath = "file://" + flinkSyncPluginRoot + fileSP + readerName + fileSP + readerName + ".jar";
+            String writerClasspath = "file://" + flinkSyncPluginRoot + fileSP + writerName + fileSP + writerName + ".jar";
+            urlList.add(new URL(readerClasspath));
+            urlList.add(new URL(writerClasspath));
 
-            urlList.addAll(findJarsInDir(commonDir));
-            urlList.addAll(findJarsInDir(readerDir));
-            urlList.addAll(findJarsInDir(writerDir));
-
+            File commonDir = new File(flinkSyncPluginRoot + fileSP + "common" + fileSP);
+            if(commonDir.exists() && commonDir.isDirectory()) {
+                File[] commonJarFiles = commonDir.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return name.toLowerCase().endsWith(".jar");
+                    }
+                });
+                for(File commonJarFile : commonJarFiles) {
+                    urlList.add(commonJarFile.toURI().toURL());
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             return urlList;
         }
 
-    }
-
-    private static List<URL> findJarsInDir(File dir)  throws MalformedURLException {
-        List<URL> urlList = new ArrayList<>();
-
-        if(dir.exists() && dir.isDirectory()) {
-            File[] jarFiles = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.toLowerCase().endsWith(".jar");
-                }
-            });
-
-            for(File jarFile : jarFiles) {
-                urlList.add(jarFile.toURI().toURL());
-            }
-
-        }
-
-        return urlList;
     }
 
     public static TypeInformation[] transformTypes(Class[] fieldTypes){
