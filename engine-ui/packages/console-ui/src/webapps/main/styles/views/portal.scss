@@ -58,6 +58,10 @@
             text-align: center;
             margin: 0 8px;
 
+            &:hover {
+                background: rgba(158, 158, 158, 0.02);
+            }
+
             img {
                 width: 80px;
                 height: 80px;
