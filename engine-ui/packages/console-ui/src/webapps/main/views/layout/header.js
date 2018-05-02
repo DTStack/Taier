@@ -39,7 +39,7 @@ class Header extends Component {
         </span>
         return <Navigator 
             logo={logo}
-            // menuItems={apps}
+            menuItems={apps}
             {...this.props}
         />
     }
