@@ -115,6 +115,7 @@ class TopCall extends Component {
 
             <Card
                 noHovering
+                className="shadow"
             >
                 <Row style={{width:"100%"}} gutter={130} className="m-count padding-l20 height-101">
                     <Col span={6}>
@@ -133,8 +134,8 @@ class TopCall extends Component {
                         (
                             <Col span={6}>
                                 <section className="m-count-section margin-t20" style={{ width: 150 }}>
-                                    <span className="m-count-title text-left">TOP调用接口</span>
-                                    <span className="m-count-content font-black text-left">{this.props.topCallFunc || '---'}</span>
+                                    <span className="m-count-title text-left">接口总数</span>
+                                    <span className="m-count-content font-black text-left">{this.props.apiNum || '---'}</span>
                                 </section>
                             </Col>
                         )}

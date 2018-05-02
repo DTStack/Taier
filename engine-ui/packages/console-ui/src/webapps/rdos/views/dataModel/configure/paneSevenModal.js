@@ -29,8 +29,8 @@ class DeriveIndexModal extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.visible) {
-            console.log('DeriveIndexModal componentWillReceiveProps',  )
+        if (!this.props.visible && nextProps.visible) {
+            this.loadAtomIndex();
         }
     }
 
@@ -228,6 +228,7 @@ class DeriveIndexModal extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="当前命名"
+                        style={{ wordBreak: 'break-all' }}
                     >
                         {
                             indexNames && indexNames.length > 0 && indexNames.join('_')

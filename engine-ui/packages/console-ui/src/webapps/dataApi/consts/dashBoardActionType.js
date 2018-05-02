@@ -19,5 +19,6 @@ export const dashBoardActionType = mc([
     'GET_MARKET_API_CALL_RANK',//获取市场API调用次数用户排行
     'GET_MARKET_API_ERROR_INFO',//获取市场API错误分布
     'GET_MARKET_API_APPLY_INFO',//获取API申请记录信息
+    'GET_MARKET_TOP_CALL_FUNC',//获取市场方法调用排行
 
 ], { prefix: 'dashBoard/' })

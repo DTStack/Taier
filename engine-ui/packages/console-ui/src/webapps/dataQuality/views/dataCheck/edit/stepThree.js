@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash';
 import { Table, Form, InputNumber, Button, message, Row, Col } from 'antd';
 
 import { keyMapActions } from '../../../actions/dataCheck/keyMapActions';
-import API from '../../../api/dataSource';
+import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
 
@@ -93,7 +93,7 @@ export default class StepThree extends Component {
 	getColumnData = () => {
 		const { origin, target } = this.props.editParams;
 
-		API.getDataSourcesColumn({
+		DSApi.getDataSourcesColumn({
 			sourceId: origin.dataSourceId,
 			tableName: origin.table
 		}).then((res) => {
@@ -105,7 +105,7 @@ export default class StepThree extends Component {
 			}
 		});
 
-		API.getDataSourcesColumn({
+		DSApi.getDataSourcesColumn({
 			sourceId: target.dataSourceId,
 			tableName: target.table
 		}).then((res) => {

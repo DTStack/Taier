@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Menu, Card, Table, Modal ,message} from "antd";
+import { Menu, Card, Table, Modal, message,Input } from "antd";
 import SlidePane from "./ApprovedSlidePane";
 import SlidePaneDisabled from "./DisabledCardSlidePane"
 import SlidePaneDetail from "./detailSlidePane"
 import utils from "utils"
 const confirm = Modal.confirm;
+const Search = Input.Search;
 const exchangeDic = {
     0: 'inhand',
     1: 'success',
@@ -29,8 +30,9 @@ class ApprovedCard extends Component {
         loading: false,
         sortedInfo: {},
         filterInfo: {},
-        showRecord: {}
-        
+        showRecord: {},
+        apiName:""
+
     }
     getAppliedList() {
         this.setState({
@@ -40,17 +42,18 @@ class ApprovedCard extends Component {
             this.state.pageIndex,
             sortType[this.state.sortedInfo.columnKey],
             orderType[this.state.sortedInfo.order],
-            this.state.filterInfo.status
+            this.state.filterInfo.status,
+            this.state.apiName
         )
 
             .then(
                 (res) => {
-     
-                    if(this.props.apiId){
-                        if(res){
-                            for(let i in res.data.data){
-                                let item=res.data.data[i];
-                                if(this.props.apiId==item.apiId){
+
+                    if (this.props.apiId) {
+                        if (res) {
+                            for (let i in res.data.data) {
+                                let item = res.data.data[i];
+                                if (this.props.apiId == item.apiId) {
                                     this.apiClick(item);
                                     break;
                                 }
@@ -65,22 +68,22 @@ class ApprovedCard extends Component {
     }
     componentDidMount() {
         this.getAppliedList();
-        
+
     }
-    componentWillReceiveProps(nextProps){
-        if(this.props.apiId!=nextProps.apiId&&nextProps.apiId){
-                
-                const res=this.getSource();
-                if(res){
-                    for(let i in res.data){
-                        let item=res.data[i];
-                        if(nextProps.apiId==item.apiId){
-                            this.dealClick(item);
-                            break;
-                        }
+    componentWillReceiveProps(nextProps) {
+        if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
+
+            const res = this.getSource();
+            if (res) {
+                for (let i in res.data) {
+                    let item = res.data[i];
+                    if (nextProps.apiId == item.apiId) {
+                        this.dealClick(item);
+                        break;
                     }
                 }
-            
+            }
+
         }
     }
     // 表格换页/排序
@@ -100,7 +103,8 @@ class ApprovedCard extends Component {
         this.setState({
             slidePaneShowNoApproved: false,
             slidePaneShowDisabled: false,
-            slidePaneShowSuccess: false
+            slidePaneShowSuccess: false,
+            showRecord:{}
         })
     }
     apiClick(record) {
@@ -158,7 +162,7 @@ class ApprovedCard extends Component {
                 this.props.updateApplyStatus(record.id, 3).
                     then(
                         (res) => {
-                            if(res){
+                            if (res) {
                                 message.success("停止成功")
                             }
                             this.getAppliedList();
@@ -180,7 +184,7 @@ class ApprovedCard extends Component {
                 this.props.updateApplyStatus(record.id, 1).
                     then(
                         (res) => {
-                            if(res){
+                            if (res) {
                                 message.success("开启成功")
                             }
                             this.getAppliedList();
@@ -202,7 +206,9 @@ class ApprovedCard extends Component {
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
-                return <a onClick={this.apiClick.bind(this, record)} >{text}</a>
+                const isDelete = record.apiStatus == 1 ? true : false;
+                const deleteText = isDelete ? '(全平台禁用)' : ''
+                return <a className={isDelete?'disable-all':''} onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
             }
         }, {
             title: '授权状态',
@@ -223,13 +229,13 @@ class ApprovedCard extends Component {
                 { text: '已拒绝', value: '2' },
                 { text: '停用', value: '3' },
                 { text: '取消授权', value: '4' },
-                
+
             ]
         }, {
             title: '描述',
             dataIndex: 'apiDesc',
             key: 'apiDesc',
-            width:300
+            width: 300
         }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
@@ -240,8 +246,8 @@ class ApprovedCard extends Component {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
             key: 'recentFailRate',
-            render(text){
-                return text+"%"
+            render(text) {
+                return text + "%"
             }
 
         },
@@ -292,10 +298,17 @@ class ApprovedCard extends Component {
             total: this.getTotal(),
         }
     }
-  
-
+    handleApiSearch(key) {
+        this.setState({
+            apiName: key,
+            pageIndex:1
+        },
+            () => {
+                this.getAppliedList();
+            })
+    }
     render() {
-       
+
         return (
             <div>
 
@@ -318,19 +331,30 @@ class ApprovedCard extends Component {
                     >
                     </SlidePaneDisabled>
                     <SlidePaneDetail
-                    style={{right:"0px"}}
+                        style={{ right: "0px" }}
                         {...this.props}
                         showRecord={this.state.showRecord}
                         slidePaneShow={this.state.slidePaneShowSuccess}
                         closeSlidePane={this.closeSlidePane.bind(this)}
                     >
                     </SlidePaneDetail>
+                    <div className="flex font-12">
+
+
+                        <Search
+                            placeholder="输入API名称搜索"
+                            style={{ width: 150, margin: '10px 0px',marginLeft:"10px" }}
+                            onSearch={this.handleApiSearch.bind(this)}
+                        />
+
+
+                    </div>
                     <Table
                         rowClassName={
-                            (record, index)=>{
-                                if(this.state.showRecord.apiId==record.apiId){
+                            (record, index) => {
+                                if (this.state.showRecord.apiId == record.apiId) {
                                     return "row-select"
-                                }else{
+                                } else {
                                     return "";
                                 }
                             }

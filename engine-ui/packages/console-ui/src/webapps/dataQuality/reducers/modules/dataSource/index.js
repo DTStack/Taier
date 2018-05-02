@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
     loading: false,
+    tableLoading: false,
     sourceQuery: [],
     sourceType: [],
     sourceList: [],
@@ -20,6 +21,13 @@ export default function dataSource(state = initialState, action) {
             const clone = cloneDeep(state);
             const { loading } = clone;
             clone.loading = !loading;
+            return clone;
+        }
+
+        case dataSourceActionType.CHANGE_GETTABLE_LOADING: {
+            const clone = cloneDeep(state);
+            const { tableLoading } = clone;
+            clone.tableLoading = !tableLoading;
             return clone;
         }
 

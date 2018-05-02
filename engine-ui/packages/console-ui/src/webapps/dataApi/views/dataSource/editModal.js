@@ -20,6 +20,14 @@ const hdfsConf =
         "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }
 }`
+const configConf = 
+`{
+    "initialPoolSize": 100,
+    "maxIdleTime": 30,
+    "maxPoolSize": 100,
+    "minPoolSize": 10,
+    "maxStatements": 200
+}`
 
 const mapStateToProps = state => {
     const { dataSource } = state;
@@ -123,9 +131,14 @@ export default class DataSourceModal extends Component {
             hasHdfsConfig: !e.target.value,
         });
     }
+    enableDetailConfig = (e) => {
+        this.setState({
+            detailConfig: !e.target.value,
+        });
+    }
 
     renderDynamic() {
-        const { hasHdfsConfig, sourceType } = this.state
+        const { hasHdfsConfig, sourceType,detailConfig } = this.state
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -295,7 +308,29 @@ export default class DataSourceModal extends Component {
                                 <Input type="password"/>,
                             )
                         }
-                    </FormItem>
+                    </FormItem>,
+                //     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
+                //     {
+                //         getFieldDecorator('hasHdfsConfig', {
+                //             initialValue: false,
+                //         })(
+                //             <Checkbox checked={detailConfig} onChange={this.enableDetailConfig}>
+                //                 高级配置
+                //             </Checkbox>,
+                //         )
+                //     }
+                // </FormItem>,
+                // <FormItem {...formItemLayout} label="连接池信息" key="detailConfig" style={{display: detailConfig ? 'block' : 'none'}}>
+                //     {
+                //         getFieldDecorator('dataJson.config', {
+                //             rules: [],
+                //             initialValue: config.config || ''
+                //         })(
+                //             <Input type="textarea" rows={5} placeholder={configConf} />,
+                //         )
+                //     }
+                //     {/* <HelpDoc doc="hdfsConfig" /> */}
+                // </FormItem>
                 ]
             }
         }

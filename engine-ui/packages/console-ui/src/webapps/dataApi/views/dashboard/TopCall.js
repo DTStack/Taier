@@ -7,8 +7,7 @@ class TopCall extends Component {
         return (
             <Card
                 noHovering
-                title="调用用户TOP10"
-                style={{ height: 403 }}
+                style={{ height: 363 }}
             >
                 <Table
                     rowKey={(record)=>{

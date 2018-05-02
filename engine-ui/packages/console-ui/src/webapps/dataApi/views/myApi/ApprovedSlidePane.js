@@ -13,7 +13,7 @@ class ApprovedSlidePane extends Component {
     render() {
         const replyTime = this.props.showRecord && this.props.showRecord.replyTime;
         let format_replyTime = null;
-
+        
         return (
 
 

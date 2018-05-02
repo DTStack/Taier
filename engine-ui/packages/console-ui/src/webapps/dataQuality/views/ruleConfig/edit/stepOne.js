@@ -124,26 +124,25 @@ export default class StepOne extends Component {
 
     // 数据源变化回调
     onSourceTypeChange = (id) => {
-        const { form, editParams } = this.props;
-        let params = { dataSourceId: id };
+        const { form, havePart, editParams } = this.props;
+        let params = { 
+            dataSourceId: id,
+            rules: [],
+            partition: undefined
+        };
 
         this.havePartition(id);
+        this.props.resetDataSourcesTable();
         this.props.getDataSourcesTable({ sourceId: id });
         form.setFieldsValue({ sourceTable: undefined });
 
         // 重置分区数据
-        if (editParams.partition) {
+        if (havePart) {
             this.props.resetDataSourcesPart();
             form.setFieldsValue({ 
                 partition: undefined,
                 partitionInput: undefined
             });
-            params.partition = undefined;
-        }
-
-        // 重置规则
-        if (editParams.rules.length) {
-            params.rules = [];
         }
 
         // 重置预览数据
@@ -157,23 +156,26 @@ export default class StepOne extends Component {
 
     // 数据表变化回调
     onTableChange = (name) => {
-        const { form, editParams } = this.props;
-        let params = { tableName: name };
-        let sourceId = form.getFieldValue('sourceId');
+        const { form, havePart, editParams } = this.props;
+
+        let params = { 
+            tableName: name,
+            rules: [],
+            partition: undefined
+        };
 
         // 重置分区数据
-        if (editParams.partition) {
+        if (havePart) {
             this.props.resetDataSourcesPart();
             form.setFieldsValue({ 
                 partition: undefined,
                 partitionInput: undefined
             });
-            params.partition = undefined;
-        }
 
-        // 重置规则
-        if (editParams.rules.length) {
-            params.rules = [];
+            this.props.getDataSourcesPart({
+                sourceId: editParams.dataSourceId,
+                table: name
+            });
         }
 
         // 重置预览数据
@@ -182,20 +184,7 @@ export default class StepOne extends Component {
             sourcePreview: {} 
         });
 
-        this.getSourcesPart(editParams.dataSourceId, name);
         this.props.changeParams(params);
-    }
-
-    // 获取分区数据
-    getSourcesPart = (id, name) => {
-        const { havePart } = this.props;
-
-        if (id && name && havePart) {
-            this.props.getDataSourcesPart({
-                sourceId: id,
-                table: name
-            });
-        }
     }
 
     // 获取预览数据
@@ -355,10 +344,10 @@ export default class StepOne extends Component {
     }
 
     render() {
-        const { editParams, form, dataSource, havePart } = this.props;
+        const { form, editParams, dataSource, havePart } = this.props;
         const { getFieldDecorator } = form;
-        const { dataSourceId, tableName, partition } = editParams;
-        const { sourceList, sourceTable, sourcePart } = dataSource;
+        const { dataSourceId, tableName } = editParams;
+        const { sourceList, sourceTable, tableLoading } = dataSource;
         const { showPreview, sourcePreview } = this.state;
 
         return (
@@ -372,13 +361,14 @@ export default class StepOne extends Component {
                                         required: true, 
                                         message: '请选择数据源' 
                                     }],
-                                    initialValue: dataSourceId ? dataSourceId.toString() : ''
+                                    initialValue: dataSourceId ? dataSourceId.toString() : dataSourceId
                                 })(
                                     <Select 
                                         showSearch
                                         optionFilterProp="title"
                                         style={{ width: '85%', marginRight: 15 }} 
-                                        onChange={this.onSourceTypeChange}>
+                                        onChange={this.onSourceTypeChange}
+                                        disabled={tableLoading}>
                                         {
                                             this.renderSourceType(sourceList)
                                         }
@@ -407,7 +397,6 @@ export default class StepOne extends Component {
                                     </Select>
                                 )
                             }
-
                             {
                                 tableName 
                                 &&

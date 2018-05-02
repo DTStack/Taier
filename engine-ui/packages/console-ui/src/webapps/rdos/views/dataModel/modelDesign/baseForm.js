@@ -180,10 +180,16 @@ export default class BaseForm extends React.Component {
                 {renderRules(rule, index)}
             </span>
         ))
-
+        const style = {
+            width: '100%',
+            wordBreak: 'break-all',
+            lineHeight: '18px',
+            display: 'inline-block',
+            marginTop: '5px',
+        }
         return <div>
             {rules}
-            <span> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
+            <span style={style}> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
         </div>
     }
 
