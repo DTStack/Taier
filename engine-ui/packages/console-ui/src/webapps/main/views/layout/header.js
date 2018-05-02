@@ -36,7 +36,7 @@ class Header extends Component {
             }}>
                 DTinsight
             </span>
-        </span>;
+        </span>
         
         return <Navigator 
             logo={logo}
