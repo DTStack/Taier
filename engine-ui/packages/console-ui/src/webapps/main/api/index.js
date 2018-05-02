@@ -65,7 +65,7 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getRolePerission(params);
             case MY_APPS.API:
-                return DqSysApi.getRolePerission(params);
+                return http.post(req.DATAAPI_ROLE_PERMISSION,params)
             default: return;
         }
     },
