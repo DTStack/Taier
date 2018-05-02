@@ -330,6 +330,7 @@ public class FlinkClient extends AbsClient {
         clusterClient.setDetached(isDetact);
 
         client = clusterClient;
+        isClientOn = true;
         logger.warn("---init flink client with yarn session success----");
     }
 
