@@ -128,7 +128,7 @@ class Dashboard extends Component {
                     市场概览
                 </Menu.Item>
                 <Menu.Item key="MyView">
-                    我的Api
+                    我的API
                 </Menu.Item>
             </Menu>);
     }
