@@ -20,11 +20,15 @@ import RoleEdit from 'main/views/admin/role/edit'
 
 // 标签工厂
 import Container from './views'
+<<<<<<< HEAD
 import TagMarket from './views/market'
 import MyAPI from './views/myApi'
 import TagManagement from './views/management'
 import TagApproval from './views/approval'
 
+=======
+import Dashboard from './views/dashboard'
+>>>>>>> a130c240f0d91da6ce633482fdbe86280fce8f31
 import TagConfig from './views/tagConfig'
 import DataSourceIndex from './views/dataSource'
 
