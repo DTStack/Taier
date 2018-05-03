@@ -58,6 +58,11 @@
             text-align: center;
             margin: 0 8px;
 
+            &:hover, &:active, &:visited, &:focus {
+                text-decoration: none;
+                -webkit-appearance: none;
+            }
+
             &:hover {
                 background: rgba(158, 158, 158, 0.02);
             }
