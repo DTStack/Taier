@@ -94,7 +94,7 @@ export default class Overview extends Component {
 
     drawChart1 = (chartData) => {
         let myChart = echarts.init(document.getElementById('Chart1'));
-        const legendData = ['分层不合理', '主题域不合理', '增量不合理', '引用不合理'];
+        const legendData = ['分层不合理', '主题域不合理', '增量不合理', '刷新频率不合理'];
         const option = cloneDeep(pieChartOptions);
         option.title.text = '';
         option.legend = {
@@ -139,12 +139,12 @@ export default class Overview extends Component {
         }
 
         option.xAxis[0].axisTick = {
-            show: false,
+            show: true,
             alignWithLabel: true,
         }
 
         option.tooltip.formatter = function (params) {
-            return `${utils.formatDateTime(params[0] && +params[0].axisValue)} <br> 数量：${params[0] && params[0].value}
+            return `${utils.formatDate(params[0] && +params[0].axisValue)} <br> 数量：${params[0] && params[0].value}
                 `
         }
 
@@ -154,7 +154,7 @@ export default class Overview extends Component {
             color: '#666666',
             margin: 12,
             formatter: function(value) {
-                return value ? utils.formatDateTime(+value) : null;
+                return value ? utils.formatDate(+value) : null;
             }
         }
         // option.legend.data = ['模型不规范趋势']
@@ -218,12 +218,12 @@ export default class Overview extends Component {
         }
 
         option.xAxis[0].axisTick = {
-            show: false,
+            show: true,
             alignWithLabel: true,
         }
 
         option.tooltip.formatter = function (params) {
-            return `${utils.formatDateTime(params[0] && +params[0].axisValue )} <br> 数量：${params[0] && params[0].value}
+            return `${utils.formatDate(params[0] && +params[0].axisValue )} <br> 数量：${params[0] && params[0].value}
                 `
         }
 
@@ -233,7 +233,7 @@ export default class Overview extends Component {
             color: '#666666',
             margin: 12,
             formatter: function(value) {
-                return value ? utils.formatDateTime(+value) : null;
+                return value ? utils.formatDate(+value) : null;
             }
         }
         option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [];

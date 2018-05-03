@@ -38,7 +38,7 @@ export default class ProjectList extends Component {
         this.setState({ loading: 'loading' })
         const reqParams = Object.assign({
             projectName: '',
-            isAdmin: true,
+            isAdmin: false,
             currentPage: 1,
             pageSize: 10,
         }, params)

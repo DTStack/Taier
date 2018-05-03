@@ -25,16 +25,24 @@ class DeriveIndexModal extends Component {
 
     componentDidMount() {
         // 加载原子指标
+        const isEdit = this.props.data && !isEmpty(this.props.data);
         this.loadAtomIndex();
     }
 
     componentWillReceiveProps(nextProps) {
         if (!this.props.visible && nextProps.visible) {
-            this.loadAtomIndex();
+            const isEdit = nextProps.data && !isEmpty(nextProps.data);
+            this.loadAtomIndex(isEdit);
+            if (isEdit) {
+                const indexNames = nextProps.data.columnName.split('_');
+                this.setState({
+                    indexNames: indexNames,
+                })
+            }
         }
     }
 
-    loadAtomIndex = () => {
+    loadAtomIndex = (isEdit) => {
         Api.getModelIndexs({
             type: 1,
             pageSize: 1000,
@@ -42,10 +50,11 @@ class DeriveIndexModal extends Component {
         }).then(res => {
             if (res.code === 1) {
                 const automIndexs = res.data ? res.data.data : []
-                this.setState({
-                    automIndexs,
-                    indexNames: automIndexs.length > 0 ? [automIndexs[0].columnName] : [],
-                })
+                const initalState = { automIndexs, }
+                if (!isEdit) {
+                    initalState.indexNames = automIndexs.length > 0 ? [automIndexs[0].columnName] : [];
+                }
+                this.setState(initalState)
             }
         });
     }
