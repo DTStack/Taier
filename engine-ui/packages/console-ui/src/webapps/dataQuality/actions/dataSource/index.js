@@ -46,6 +46,9 @@ export const dataSourceActions = {
 	},
 	getDataSourcesTable(params) {
 		return dispatch => {
+			dispatch({
+				type: dataSourceActionType.CHANGE_GETTABLE_LOADING
+			});
 			API.getDataSourcesTable(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
@@ -58,6 +61,9 @@ export const dataSourceActions = {
 						payload: []
 					});
 				}
+				dispatch({
+					type: dataSourceActionType.CHANGE_GETTABLE_LOADING
+				});
 			});
 		}
 	},

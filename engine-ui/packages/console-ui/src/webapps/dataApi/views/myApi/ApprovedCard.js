@@ -103,7 +103,8 @@ class ApprovedCard extends Component {
         this.setState({
             slidePaneShowNoApproved: false,
             slidePaneShowDisabled: false,
-            slidePaneShowSuccess: false
+            slidePaneShowSuccess: false,
+            showRecord:{}
         })
     }
     apiClick(record) {
@@ -206,8 +207,8 @@ class ApprovedCard extends Component {
             key: 'apiName',
             render: (text, record) => {
                 const isDelete = record.apiStatus == 1 ? true : false;
-                const deleteText = isDelete ? '(全平台禁用)' : null
-                return <a onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
+                const deleteText = isDelete ? '(全平台禁用)' : ''
+                return <a className={isDelete?'disable-all':''} onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
             }
         }, {
             title: '授权状态',

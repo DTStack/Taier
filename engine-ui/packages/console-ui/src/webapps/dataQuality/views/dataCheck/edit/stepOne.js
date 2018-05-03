@@ -26,6 +26,9 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
+    resetDataSourcesTable() {
+        dispatch(dataSourceActions.resetDataSourcesTable());
+    },
     getSourcePart(params, type) {
         dispatch(dataCheckActions.getSourcePart(params, type));
     },
@@ -126,6 +129,7 @@ export default class StepOne extends Component {
         let origin = { dataSourceId: id };
 
         this.havePartition(id);
+        this.props.resetDataSourcesTable();
         this.props.getDataSourcesTable({ sourceId: id });
         form.setFieldsValue({ originTable: undefined });
 
@@ -141,7 +145,6 @@ export default class StepOne extends Component {
             sourcePreview: {} 
         });
 
-        // console.log(origin,{ ...editParams.origin, ...origin },11)
         this.props.changeParams({
             origin: origin,
             target: origin,
@@ -179,7 +182,6 @@ export default class StepOne extends Component {
             showPreview: false,
             sourcePreview: {} 
         });
-        // console.log(origin,{ ...editParams.origin, ...origin },22)
 
         this.props.changeParams({
             origin: origin,
@@ -241,11 +243,10 @@ export default class StepOne extends Component {
         const { currentStep, navToStep, form } = this.props;
 
         form.validateFields({ force: true }, (err, values) => {
-            console.log(err,values)
             if (!err) {
                 navToStep(currentStep + 1);
             }
-        })
+        });
     }
 
     // 数据预览表格配置
@@ -272,7 +273,7 @@ export default class StepOne extends Component {
         const { editStatus, editParams, form, dataSource, dataCheck, havePart } = this.props;
         const { originPart } = dataCheck;
         const { getFieldDecorator } = form;
-        const { sourceList, sourceTable } = dataSource;
+        const { sourceList, sourceTable, tableLoading } = dataSource;
         const { dataSourceId, table, partition } = editParams.origin;
         const { sourcePreview, showPreview } = this.state;
 
@@ -294,7 +295,7 @@ export default class StepOne extends Component {
                                         optionFilterProp="title"
                                         style={{ width: '85%', marginRight: 15 }} 
                                         onChange={this.onSourceTypeChange} 
-                                        disabled={editStatus === 'edit'}>
+                                        disabled={editStatus === 'edit' || tableLoading}>
                                         {
                                             this.renderSourceType(sourceList)
                                         }
