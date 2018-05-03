@@ -171,7 +171,7 @@ class BaseForm extends React.Component {
                 {...formItemLayout}
                 label="描述"
             >
-                {getFieldDecorator('desc', {
+                {getFieldDecorator('tableDesc', {
                     rules: [{
                         max: 200,
                         message: '描述不得超过200个字符！',
