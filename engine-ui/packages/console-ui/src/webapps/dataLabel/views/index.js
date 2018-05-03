@@ -26,10 +26,10 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
-        // dispatch(UserAction.getUser());
+        dispatch(UserAction.getUser());
         dispatch(updateApp(dlApp));
-        // dispatch(commonActions.getUserList());
-        // dispatch(dataSourceActions.getDataSourcesType());
+        dispatch(commonActions.getUserList());
+        dispatch(dataSourceActions.getDataSourcesType());
     }
 
     render() {

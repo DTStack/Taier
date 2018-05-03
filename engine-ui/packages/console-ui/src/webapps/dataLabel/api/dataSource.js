@@ -11,13 +11,13 @@ export default {
         return http.post(req.CHECK_CONNECTION, params);
     },
     addDataSource(params) {
-        return http.post(req.ADD_DATA_SOURCES, params);
+        return http.post(req.ADD_DATA_SOURCE, params);
     },
     updateDataSource(params) {
-        return http.post(req.UPDATE_DATA_SOURCES, params);
+        return http.post(req.UPDATE_DATA_SOURCE, params);
     },
     deleteDataSource(params) {
-        return http.post(req.DELETE_DATA_SOURCES, params);
+        return http.post(req.DELETE_DATA_SOURCE, params);
     },
     getDataSourcesType(params) {
     	return http.post(req.GET_DATA_SOURCES_TYPE, params);
