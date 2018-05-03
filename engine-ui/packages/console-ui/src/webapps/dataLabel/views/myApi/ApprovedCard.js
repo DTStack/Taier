@@ -197,12 +197,12 @@ class ApprovedCard extends Component {
         });
     }
     dealnotPass(record) {
-        this.props.router.push("/api/market")
+        this.props.router.push("/dl/market")
     }
     initColumns() {
 
         return [{
-            title: 'API名称',
+            title: '标签名称',
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
@@ -311,10 +311,9 @@ class ApprovedCard extends Component {
 
         return (
             <div>
-
                 <Card
-
                     noHovering
+                    bordered={false}
                 >
                     <SlidePane
                         {...this.props}
@@ -339,15 +338,11 @@ class ApprovedCard extends Component {
                     >
                     </SlidePaneDetail>
                     <div className="flex font-12">
-
-
                         <Search
                             placeholder="输入API名称搜索"
                             style={{ width: 150, margin: '10px 0px',marginLeft:"10px" }}
                             onSearch={this.handleApiSearch.bind(this)}
                         />
-
-
                     </div>
                     <Table
                         rowClassName={

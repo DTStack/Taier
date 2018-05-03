@@ -91,7 +91,7 @@ class NoApprovedCard extends Component {
     initColumns() {
         const sortedInfo = this.state.sortedInfo;
         return [{
-            title: 'API名称',
+            title: '标签名称',
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
@@ -150,8 +150,8 @@ class NoApprovedCard extends Component {
 
             <Card
                 noHovering
+                bordered={false}
             >
-
                 <SlidePane
                     {...this.props}
                     slidePaneShow={this.state.slidePaneShow}
@@ -160,13 +160,11 @@ class NoApprovedCard extends Component {
                 ></SlidePane>
                 <div className="flex font-12">
 
-
                     <Search
-                        placeholder="输入API名称搜索"
+                        placeholder="输入标签名称搜索"
                         style={{ width: 150, margin: '10px 0px', marginLeft: "10px" }}
                         onSearch={this.handleApiSearch.bind(this)}
                     />
-
 
                 </div>
                 <Table
