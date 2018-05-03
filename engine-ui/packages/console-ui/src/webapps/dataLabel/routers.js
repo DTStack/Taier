@@ -21,6 +21,7 @@ import RoleEdit from 'main/views/admin/role/edit'
 // 标签工厂
 import Container from './views'
 import Dashboard from './views/dashboard'
+import TagConfig from './views/tagConfig'
 import DataSourceIndex from './views/dataSource'
 
 // ======= 测试 =======
@@ -45,6 +46,7 @@ export default (
         <Route path="/dl" component={ Container }>
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
+            <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
     </Route>
