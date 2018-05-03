@@ -23,9 +23,33 @@ class Header extends Component {
         const { user, apps } = this.props;
         const baseUrl = '/dataLabel.html#'
         const menuItems = [{
-            id: 'dl/overview',
-            name: '概览',
-            link: `${baseUrl}/dl/overview`,
+            id: 'dl/market',
+            name: '标签市场',
+            link: `${baseUrl}/dl/market`,
+            enable: true,
+        }, 
+        {
+            id: 'dl/mine',
+            name: '我的标签',
+            link: `${baseUrl}/dl/mine`,
+            enable: true,
+        }, 
+        {
+            id: 'dl/configure',
+            name: '标签配置',
+            link: `${baseUrl}/dl/configure`,
+            enable: true,
+        }, 
+        {
+            id: 'dl/approve',
+            name: '审批授权',
+            link: `${baseUrl}/dl/approve`,
+            enable: true,
+        }, 
+        {
+            id: 'dl/management',
+            name: '服务管理',
+            link: `${baseUrl}/dl/management`,
             enable: true,
         }, {
             id: 'dl/tagConfig',
