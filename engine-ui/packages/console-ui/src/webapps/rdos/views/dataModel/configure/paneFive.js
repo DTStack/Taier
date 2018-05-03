@@ -55,8 +55,6 @@ class ModelDefineRule extends Component {
         const optionIndex = valueOption.props.index;
         const newArrs = [...this.state.tbNameRules];
 
-        console.log('arguments:', optionIndex, index);
-
         newArrs[index] = tableModelRules[optionIndex];
         this.setState({
             tbNameRules: newArrs

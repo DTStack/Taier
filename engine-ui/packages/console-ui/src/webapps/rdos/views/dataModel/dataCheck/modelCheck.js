@@ -105,6 +105,10 @@ export default class ModelCheck extends Component {
             dataIndex: 'increType',
             key: 'increType',
         }, {
+            title: '刷新频率',
+            dataIndex: 'refreshRate',
+            key: 'refreshRate',
+        }, {
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',

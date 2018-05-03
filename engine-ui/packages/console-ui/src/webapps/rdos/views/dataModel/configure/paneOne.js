@@ -31,6 +31,7 @@ export default class ModelLevel extends BasePane {
 
     initColumns = () => {
         return [{
+            width: 80,
             title: '层级编号',
             dataIndex: 'id',
             key: 'id',
@@ -41,7 +42,6 @@ export default class ModelLevel extends BasePane {
             key: 'name',
         }, {
             title: '层级说明',
-            width: 200,
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
@@ -49,24 +49,29 @@ export default class ModelLevel extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
+            width: 100,
             title: '生命周期',
             dataIndex: 'lifeDay',
             key: 'lifeDay',
         }, {
+            width: 100,
             title: '是否记入层级依赖',
             dataIndex: 'depend',
             key: 'depend',
             render: depend => depend === 1 ? '是' : '否',
         }, {
+            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
+            width: 150,
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
+            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -74,7 +79,13 @@ export default class ModelLevel extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>编辑</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.delete(record) }}>删除</a>
+                        <Popconfirm 
+                            title="确定删除此条记录吗?" 
+                            onConfirm={() => { this.delete(record) }}
+                            okText="是" cancelText="否"
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
                     </div>
                 )
             },
