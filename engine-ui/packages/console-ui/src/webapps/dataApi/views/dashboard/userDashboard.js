@@ -2,10 +2,10 @@ import React, { Component } from 'react'
 import { Alert, Card, Col, Row, Table, Radio,Tabs } from 'antd';
 
 
-import TopCallFunc from "./TopCallFunc";
-import HaveNoApi from "./HaveNoApi"
+import TopCallFunc from "./topCallFunc";
+import HaveNoApi from "./haveNoApi"
 import OverView from "./overView"
-import TopFail from "./TopFail"
+import TopFail from "./topFail"
 
 
 
