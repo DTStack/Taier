@@ -188,7 +188,6 @@ class APIMarket extends Component {
         if (method) {
             method.call(this, record);
         }
-
     }
     dealcomplete(record) {
         this.props.router.push("/api/mine/approved?apiId="+record.key);    
@@ -235,15 +234,19 @@ class APIMarket extends Component {
                 return <a onClick={this.openDetail(record.key)} >{text}</a>
             }
         }, {
-            title: '描述',
-            dataIndex: 'description',
-            key: 'description',
-            width:300
+            title: '值域',
+            dataIndex: 'valueRange',
+            key: 'valueRange',
+            width: 100
         }, {
-            title: '累计调用（次）',
+            title: '覆盖数',
+            dataIndex: 'overCount',
+            key: 'overCount',
+            width: 100
+        }, {
+            title: '昨日调用次数',
             dataIndex: 'callCount',
-            key: 'callCount'
-
+            key: 'callCount',
         }, {
             title: '更新时间',
             dataIndex: 'updateTime',
@@ -253,6 +256,12 @@ class APIMarket extends Component {
             },
             sorter:true
         }, {
+            width: 80,
+            title: '预览',
+            dataIndex: 'id',
+            key: 'id',
+        }, {
+            width: 80,
             title: '操作',
             dataIndex: 'deal',
             render: (text, record) => {
@@ -358,10 +367,8 @@ class APIMarket extends Component {
                     desc={this.state.apply.desc}
                     getMarketApi={this.getMarketApi.bind(this)}
                 ></ApplyBox>
-                <h1 className="box-title">Api市场</h1>
-                <div className="margin-0-20 m-card box-2">
+                <div className="margin-0-20 m-card box-1">
                     <Card
-
                         noHovering
                         title={this.getCardTitle()}
                     >

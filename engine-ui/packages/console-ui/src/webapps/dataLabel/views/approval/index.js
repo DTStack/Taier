@@ -48,7 +48,6 @@ class APIApproval extends Component {
         
     }
     componentWillMount(){
-        
     }
     componentDidMount() {
         const status=this.props.router.location.query&&this.props.router.location.query.status
@@ -56,7 +55,6 @@ class APIApproval extends Component {
         if(status){
             arr.push(status.toString())
         }
-        
         
         this.setState({
             filter:{
@@ -78,37 +76,38 @@ class APIApproval extends Component {
             orderBy:sortType[this.state.sorter.columnKey],
             apiName:this.state.apiName
         })
-            .then(
-                (res) => {
-                    if (res) {
-                        this.setState({
-                            total: res.data.totalCount
-                        })
-                    }
+        .then(
+            (res) => {
+                if (res) {
+                    this.setState({
+                        total: res.data.totalCount
+                    })
                 }
-            );
+            }
+        );
     }
     handleSearch(key) {
         this.setState({
             userName: key,
             pageIndex:1
         },
-            () => {
-                this.getApprovalList();
-            })
+        () => {
+            this.getApprovalList();
+        })
     }
     handleApiSearch(key) {
         this.setState({
             apiName: key,
             pageIndex:1
         },
-            () => {
-                this.getApprovalList();
-            })
+        () => {
+            this.getApprovalList();
+        })
     }
-    onSourceChange() {
 
+    onSourceChange() {
     }
+
     handleCancel() {
         this.setState({
             spVisible: false,
@@ -123,9 +122,9 @@ class APIApproval extends Component {
             sorter: sorter
 
         },
-            () => {
-                this.getApprovalList();
-            });
+        () => {
+            this.getApprovalList();
+        });
     }
     getPagination() {
         return {
@@ -145,31 +144,38 @@ class APIApproval extends Component {
         }
         return dic[type || 'nothing']
     }
+
     deal(record) {
         const method = this['deal' + EXCHANGE_APPLY_STATUS[record.status]]
         if (method) {
             method.call(this, record);
         }
-
     }
+
     dealrejected(record) {
         this.lookDetail(record);
     }
+
     dealstop(record) {
         this.lookDetail(record);
     }
+
     dealdisabled(record) {
         this.lookDetail(record);
     }
+
     dealpass(record) {
         this.lookDetail(record);
     }
+
     dealnotApproved(record) {
         this.spShow(record);
     }
+
     getSource() {
         return this.props.approval.approvalList;
     }
+
     initColumns() {
 
         return [{
@@ -215,7 +221,7 @@ class APIApproval extends Component {
             ],
             filteredValue:this.state.filter.status||null
         }, {
-            title: '申请API',
+            title: '申请标签',
             dataIndex: 'apiName',
             key: 'apiName'
 
@@ -254,12 +260,10 @@ class APIApproval extends Component {
                 />
 
                 <Search
-                    placeholder="输入API名称搜索"
+                    placeholder="输入标签名称搜索"
                     style={{ width: 150, margin: '10px 0px' ,marginLeft:"30px"}}
                     onSearch={this.handleApiSearch.bind(this)}
                 />
-
-
             </div>
         )
     }

@@ -43,9 +43,9 @@ class Header extends Component {
             link: `${baseUrl}/dl/approval`,
             enable: true,
         }, {
-            id: 'dl/management',
+            id: 'dl/manage',
             name: '服务管理',
-            link: `${baseUrl}/dl/management`,
+            link: `${baseUrl}/dl/manage`,
             enable: true,
         }, {
             id: 'dl/dataSource',

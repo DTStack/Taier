@@ -276,7 +276,7 @@ class ApiTypeTree extends Component {
                 onExpand={this.onExpands}
                 autoExpandParent={this.state.autoExpandParent}
             >
-                <TreeNode title={this.getTreeNodeTitle.call(this, 0, "API管理", true, false, 0)} key={0}>
+                <TreeNode title={this.getTreeNodeTitle.call(this, 0, "标签管理", true, false, 0)} key={0}>
                     {view}
                 </TreeNode>
 
