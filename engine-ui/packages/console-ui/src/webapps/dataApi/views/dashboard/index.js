@@ -5,14 +5,14 @@ import { Alert, Menu } from 'antd';
 import { isEmpty, cloneDeep } from 'lodash';
 
 import Resize from 'widgets/resize';
-import TopCall from "./TopCall";
-import TopFail from "./TopFail";
-import ErrorDistributed from "./ErrorDistributed";
+import TopCall from "./topCall";
+import TopFail from "./topFail";
+import ErrorDistributed from "./errorDistributed";
 
 import { lineAreaChartOptions } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
-import AdminDashboard from './AdminDashboard';
-import UserDashboard from './UserDashboard';
+import AdminDashboard from './adminDashboard';
+import UserDashboard from './userDashboard';
 
 
 

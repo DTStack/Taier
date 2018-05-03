@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { Card, Steps,Button } from "antd";
 import GoBack from 'main/components/go-back'
-import BasicProperties from "./BasicProperties"
-import ParamsConfig from "./ParamsConfig"
-import Complete from "./Complete"
+import BasicProperties from "./basicProperties"
+import ParamsConfig from "./paramsConfig"
+import Complete from "./complete"
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
 import {connect} from "react-redux"
