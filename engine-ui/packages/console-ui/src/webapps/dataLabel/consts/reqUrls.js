@@ -3,6 +3,10 @@ import { DL_BASE_URL } from 'config/base';
 
 export default {
 
+    // ===== common ===== //
+    LB_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
+    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,       //获取所有功能菜单
+
     // ===== 系统管理 ===== //
     LB_ROLE_QUERY: `${DL_BASE_URL}/role/pageQuery`,
     LB_ROLE_UPDATE: `${DL_BASE_URL}/role/addOrUpdateRole`,
@@ -55,8 +59,46 @@ export default {
     GET_DATA_SOURCES_TABLE: `${DL_BASE_URL}/dataSource/tablelist`,    // 查询数据源下的表
     GET_DATA_SOURCES_COLUMN: `${DL_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
     GET_DATA_SOURCES_PREVIEW: `${DL_BASE_URL}/dataSource/preview`,    // 预览数据源下的数据
-    
 
-    // ===== common ===== //
-    LB_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
+    // ===== api授权审批 ====//
+    HANDLE_APPLY: `${DL_BASE_URL}/apply/handleApply`,//审批
+    GET_ALL_APPLY_LIST: `${DL_BASE_URL}/apply/allApplyList`,//获取审批列表
+    // ===== api管理 ===== //
+    GET_ALL_API_LIST: `${DL_BASE_URL}/apis/listByConditionForAdmin`,//获取所有的api
+    GET_DATASOURCE_BASE_INFO: `${DL_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源
+    DELETE_API: `${DL_BASE_URL}/apis/deleteApi`,//删除api
+    UPDATE_API: `${DL_BASE_URL}/apis/updateApiStatus`,//更新api状态
+    GET_API_CALL_RANK: `${DL_BASE_URL}/apis/getApiCallUserRankList`,//获取api调用排行
+    GET_API_BUY_STATE: `${DL_BASE_URL}/apply/getApiApplyList`,//获取api订购状态
+    DELETE_CATAGORY: `${DL_BASE_URL}/catalogue/deleteCatalogue`,//删除节点
+    ADD_CATAGORY: `${DL_BASE_URL}/catalogue/addCatalogue`,//添加节点
+    UPDATE_CATAGORY: `${DL_BASE_URL}/catalogue/updateCatalogue`,//更新节点
+    NEW_API: `${DL_BASE_URL}/apis/createApi`,//新建api
+    CHANGE_API: `${DL_BASE_URL}/apis/updateApi`,//更新api信息
+    GET_TABLE_BY_DATASOURCE: `${DL_BASE_URL}/dataSource/tablelist`,//根据数据源获取表
+    GET_TABLE_COLUMNS_DETAIL: `${DL_BASE_URL}/dataSource/tablecolumn`,//获取表字段信息
+    GET_TABLE_PREVIEW_DATA: `${DL_BASE_URL}/dataSource/preview`,//数据预览
+    GET_API_DETAIL_INFO: `${DL_BASE_URL}/apis/getApiInfo`,//获取api详细信息
+
+    // ===== 我的api =====//
+    GET_APPLY_LIST: `${DL_BASE_URL}/apply/userApplyList`,//获取申请列表
+    UPDATE_APPLY_STATUS: `${DL_BASE_URL}/apply/updateApplyStatusForNormal`,//用户停用，启用,禁用
+    UPDATE_APPLY_STATUS_ADMIN: `${DL_BASE_URL}/apply/updateApplyStatusForManager`,//管理员停用，启用,禁用
+    GET_USER_API_CALL_INFO: `${DL_BASE_URL}/apis/getApiCallInfoForNormal`,//用户获取api调用情况
+    GET_USER_API_CALL_INFO_ADMIN: `${DL_BASE_URL}/apis/getApiCallInfoForManager`,//管理员获取api调用情况
+    GET_API_CALL_ERROR_INFO: `${DL_BASE_URL}/log/getApiCallErrorInfoForNormal`,//获取api错误统计信息
+    GET_API_CALL_ERROR_LOG: `${DL_BASE_URL}/log/queryApiCallLogForNormal`,//用户获取api错误统计日志
+    GET_API_CALL_ERROR_LOG_ADMIN: `${DL_BASE_URL}/log/queryApiCallLogForManager`,//管理员获取api错误统计日志
+    GET_API_CALL_URL: `${DL_BASE_URL}/apis/getApiCallUrl`,//获取api调用方式
+    GET_API_CREATOR_INFO: `${DL_BASE_URL}/apis/getApiCreatorInfo`,//获取api创建人的信息
+
+    // ===== 市场信息 =====//
+    GET_CATALOGUE: `${DL_BASE_URL}/catalogue/getCatalogue`,//获取市场分类信息
+    GET_API_MARKET_LIST: `${DL_BASE_URL}/apis/listByCondition`,//获取市场api列表
+    GET_MARKET_API_DETAIL: `${DL_BASE_URL}/apis/getApiDetail`,//获取市场api详情
+    GET_API_EXT_INFO: `${DL_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
+    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/apis/getApiExtInfoForManager`,//管理员获取api详情调用情况等
+    APPLY_API: `${DL_BASE_URL}/apply/apiApply`,//申请API
+    GET_MARKET_TOP_CALL_FUNC: `${DL_BASE_URL}/apis/listApiCallNumTopNForManager`,//管理员获取api调用次数topN
+
 }
