@@ -174,6 +174,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     ],
     series: []
 };
+
 export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
 
     tooltip: {

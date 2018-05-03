@@ -20,7 +20,11 @@ import RoleEdit from 'main/views/admin/role/edit'
 
 // 标签工厂
 import Container from './views'
-import Dashboard from './views/dashboard'
+import TagMarket from './views/market'
+import MyAPI from './views/myApi'
+import TagManagement from './views/management'
+import TagApprove from './views/approve'
+
 import TagConfig from './views/tagConfig'
 import DataSourceIndex from './views/dataSource'
 
@@ -44,8 +48,11 @@ export default (
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/dl" component={ Container }>
-            <IndexRoute component={ Dashboard } />
-            <Route path="overview" component={ Dashboard }></Route>
+            <IndexRoute component={ TagMarket } />
+            <Route path="market" component={ TagMarket }></Route>
+            <Route path="mine" component={ MyAPI }></Route>
+            <Route path="approve" component={ TagApprove }></Route>
+            <Route path="management" component={ TagManagement }></Route>
             <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
