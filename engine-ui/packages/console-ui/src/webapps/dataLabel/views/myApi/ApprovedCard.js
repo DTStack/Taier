@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Modal, message,Input } from "antd";
-import SlidePane from "./ApprovedSlidePane";
-import SlidePaneDisabled from "./DisabledCardSlidePane"
+import SlidePane from "./approvedSlidePane";
+import SlidePaneDisabled from "./disabledCardSlidePane"
 import SlidePaneDetail from "./detailSlidePane"
 import utils from "utils"
 const confirm = Modal.confirm;
