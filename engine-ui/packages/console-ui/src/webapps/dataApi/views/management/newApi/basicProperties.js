@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, message,InputNumber  } from "antd";
 import { Link } from 'react-router';
 
-import DataSourceTable from "./DataSourceTable"
+import DataSourceTable from "./dataSourceTable"
 import { formItemLayout } from "../../../consts"
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
