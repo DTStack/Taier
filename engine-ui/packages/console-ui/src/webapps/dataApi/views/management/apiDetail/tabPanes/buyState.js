@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { Table, message, Modal } from "antd"
 import { connect } from "react-redux";
-import EnableTable from "./buyStateTable/EnableTable"
-import DisableTable from "./buyStateTable/DisableTable"
+import EnableTable from "./buyStateTable/enableTable"
+import DisableTable from "./buyStateTable/disableTable"
 import { apiManageActions } from '../../../../actions/apiManage';
 import { mineActions } from '../../../../actions/mine';
 const confirm = Modal.confirm;
