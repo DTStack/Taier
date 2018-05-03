@@ -1,8 +1,8 @@
 import React, { Component } from "react"
 import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table,message } from "antd";
 import { Link } from 'react-router';
-import InputParams from "./paramsTable/InputParams"
-import OutputParams from "./paramsTable/OutputParams"
+import InputParams from "./paramsTable/inputParams"
+import OutputParams from "./paramsTable/outputParams"
 import { formItemLayout } from "../../../consts"
 const TextArea=Input.TextArea;
 class ManageParamsConfig extends Component {

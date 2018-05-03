@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Menu, Card, Table, Tabs } from "antd"
 import { connect } from "react-redux";
 import { mineActions } from '../../actions/mine';
-import NoApprovedCard from "./NoApprovedCard"
-import ApprovedCard from "./ApprovedCard"
+import NoApprovedCard from "./noApprovedCard"
+import ApprovedCard from "./approvedCard"
 
 const mapStateToProps = state => {
     const { user, mine } = state;
