@@ -31,6 +31,7 @@ export default class IncrementDefine extends BasePane {
             dataIndex: 'name',
             key: 'name',
         }, {
+            width: 120,
             title: '增量方式标识',
             dataIndex: 'prefix',
             key: 'prefix',
