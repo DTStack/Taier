@@ -73,25 +73,6 @@ export const dataSourceActions = {
 			});
 		}
 	},
-	getDataSourcesPart(params) {
-		return dispatch => {
-			API.getDataSourcesPart(params).then((res) => {
-				if (res.code === 1) {
-					dispatch({
-						type: dataSourceActionType.GET_DATA_SOURCES_PART,
-						payload: res.data ? res.data : {}
-					});
-				}
-			});
-		}
-	},
-	resetDataSourcesPart() {
-		return dispatch => {
-			dispatch({
-				type: dataSourceActionType.RESET_DATA_SOURCES_PART
-			});
-		}
-	},
 	getDataSourcesPreview(params) {
 		return dispatch => {
 			API.getDataSourcesPreview(params).then((res) => {

@@ -46,5 +46,5 @@ export const dlApp = {
     filename: 'dataLabel.html',
     target: '_blank',
     enable: true,
-    apiBase: '/dataLabel',
+    apiBase: '/tag',
 }
