@@ -147,3 +147,115 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     ],
     series : []
 };
+
+
+export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
+
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            label: {
+                backgroundColor: '#6a7985'
+            }
+        }
+    },
+    color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
+    legend: {
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {
+                show: false,
+            }
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '30',
+        top: 40,
+        containLabel: true
+    },
+    xAxis: [
+        {
+
+            type: 'category',
+            boundaryGap: false,
+            data: [],
+            axisTick: {
+                show: true,
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#DDDDDD'
+                }
+            },
+            axisLabel: {
+                textStyle: {
+                    color: '#666666',
+                },
+            },
+            nameTextStyle: {
+                color: '#666666',
+            },
+            splitLine: {
+                color: '#666666',
+            }
+        }
+    ],
+    yAxis: [
+        {
+            nameGap: 25,
+            type: 'value',
+            name: "调用次数",
+            axisLabel: {
+                textStyle: {
+                    color: '#666666',
+                    baseline: 'bottom',
+                },
+            },
+            nameTextStyle: {
+                color: '#666666'
+            },
+            nameLocation: 'end',
+            axisLine: {
+                show: false
+            },
+            axisTick: {
+                show: false,
+            },
+            splitLine: false,
+            minInterval:1
+        },
+        {
+            nameGap: 25,
+            type: 'value',
+            name: "失败率 (%)",
+            axisLabel: {
+                textStyle: {
+                    color: '#666666',
+                    baseline: 'bottom',
+                },
+            },
+            nameTextStyle: {
+                color: '#666666',
+            },
+            nameLocation: 'end',
+            axisLine: {
+                show: false
+            },
+            axisTick: {
+                show: false,
+            },
+            splitLine: {
+                lineStyle: {
+                    color: '#DDDDDD',
+                    type: 'dashed'
+                }
+            },
+            max:100
+        }
+    ],
+    series: []
+};
