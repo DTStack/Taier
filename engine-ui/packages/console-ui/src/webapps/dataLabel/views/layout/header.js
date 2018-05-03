@@ -38,9 +38,9 @@ class Header extends Component {
             link: `${baseUrl}/dl/tagConfig`,
             enable: true,
         }, {
-            id: 'dl/approve',
+            id: 'dl/approval',
             name: '审批授权',
-            link: `${baseUrl}/dl/approve`,
+            link: `${baseUrl}/dl/approval`,
             enable: true,
         }, {
             id: 'dl/management',

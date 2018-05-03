@@ -23,7 +23,7 @@ import Container from './views'
 import TagMarket from './views/market'
 import MyAPI from './views/myApi'
 import TagManagement from './views/management'
-import TagApprove from './views/approve'
+import TagApproval from './views/approval'
 
 import TagConfig from './views/tagConfig'
 import DataSourceIndex from './views/dataSource'
@@ -51,7 +51,7 @@ export default (
             <IndexRoute component={ TagMarket } />
             <Route path="market" component={ TagMarket }></Route>
             <Route path="mine" component={ MyAPI }></Route>
-            <Route path="approve" component={ TagApprove }></Route>
+            <Route path="approval" component={ TagApproval }></Route>
             <Route path="management" component={ TagManagement }></Route>
             <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>

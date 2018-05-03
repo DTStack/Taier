@@ -10,6 +10,35 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+export const API_STATUS = {
+    "-1":'NO_APPLY',
+    "0":'IN_HAND',
+    "1":'PASS',
+    "2":'REJECT',
+    "3":'STOPPED',
+    "4":'DISABLE'
+}
+export const EXCHANGE_API_STATUS= {
+    '-1':"nothing",
+    0: 'inhand',
+    1: 'success',
+    2: 'notPass',
+    3: 'stop',
+    4: 'disabled'
+}
+export const EXCHANGE_APPLY_STATUS= {
+    0: 'notApproved',
+    1: 'pass',
+    2: 'rejected',
+    3: 'stop',
+    4: 'disabled',
+
+}
+export const EXCHANGE_ADMIN_API_STATUS= {
+    0: 'success',
+    1: 'stop',
+}
+
 export const dataSourceFilter = [{
     text: 'MySQL',
     value: 1

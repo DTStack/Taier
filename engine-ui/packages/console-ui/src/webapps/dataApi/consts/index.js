@@ -38,7 +38,6 @@ export const EXCHANGE_APPLY_STATUS= {
 export const EXCHANGE_ADMIN_API_STATUS= {
     0: 'success',
     1: 'stop',
-
 }
 
 export const dataSourceTypes = [ // 数据源类型
