@@ -190,7 +190,6 @@ class TargetForm extends React.Component{
                         {dataSourceList.map(src => {
                             return <Option key={ src.id } 
                                 name={src.dataName}
-                                disabled={sourceMap.sourceId === src.id}
                                 value={ `${src.id}` }>
                                 { src.dataName }( { dataSourceTypes[src.type] } )
                             </Option>
@@ -238,7 +237,9 @@ class TargetForm extends React.Component{
                             optionFilterProp="value"
                         >
                             {this.state.tableList.map(table => {
-                                return <Option key={ `rdb-target-${table}` } value={ table }>
+                                return <Option 
+                                    key={ `rdb-target-${table}` } 
+                                    value={ table }>
                                     { table }
                                 </Option>
                             })}
