@@ -104,7 +104,7 @@ public class RestartStrategyUtil {
         return dealer.checkNOResource(msg);
     }
 
-    public boolean checkCanRestart(String engineJobId, String engineType, IClient client){
+    public boolean checkCanRestart(String jobId, String engineJobId, String engineType, IClient client){
         IRestartStrategy dealer = getDealer(engineType);
         if(dealer == null){
             throw new RdosException("can't find result dealer with engine type:" + engineType);
