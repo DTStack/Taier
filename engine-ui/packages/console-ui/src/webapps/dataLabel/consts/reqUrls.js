@@ -63,6 +63,7 @@ export default {
     // ===== api授权审批 ====//
     HANDLE_APPLY: `${DL_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST: `${DL_BASE_URL}/apply/allApplyList`,//获取审批列表
+    
     // ===== api管理 ===== //
     GET_ALL_API_LIST: `${DL_BASE_URL}/apis/listByConditionForAdmin`,//获取所有的api
     GET_DATASOURCE_BASE_INFO: `${DL_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源

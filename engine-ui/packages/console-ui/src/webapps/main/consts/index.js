@@ -8,7 +8,7 @@ export const MY_APPS = {
     RDOS: 'rdos',
     DATA_QUALITY: 'dataQuality',
     API: 'dataApi',
-    LABEL: 'label',
+    LABEL: 'dataLabel',
     DATA_MAP: 'map',
     META_DATA: 'metaData',
 }

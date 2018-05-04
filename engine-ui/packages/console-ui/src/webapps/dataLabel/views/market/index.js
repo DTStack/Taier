@@ -190,7 +190,7 @@ class APIMarket extends Component {
         }
     }
     dealcomplete(record) {
-        this.props.router.push("/api/mine/approved?apiId="+record.key);    
+        this.props.router.push("/dl/mine/approved?apiId="+record.key);    
         console.log("dealcomplete", record);
     }
     dealnothing(record) {
@@ -205,7 +205,7 @@ class APIMarket extends Component {
         console.log("dealnothing", record);
     }
     dealapplying(record) {
-        this.props.router.push("/api/mine?apiId="+record.key);
+        this.props.router.push("/dl/mine?apiId="+record.key);
         console.log("dealapplying", record);
     }
     // 表格换页/排序
@@ -220,7 +220,7 @@ class APIMarket extends Component {
     }
     openDetail(text) {
         return function () {
-            window.open(`${location.origin + location.pathname}#/api/market/detail/${text}?isHideBack=true`)
+            window.open(`${location.origin + location.pathname}#/dl/market/detail/${text}?isHideBack=true`)
         }
 
     }
