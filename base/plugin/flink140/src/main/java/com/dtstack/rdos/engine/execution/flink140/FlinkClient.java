@@ -26,6 +26,7 @@ import com.dtstack.rdos.engine.execution.flink140.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink140.source.batch.BatchSourceFactory;
 import com.dtstack.rdos.engine.execution.flink140.source.stream.StreamSourceFactory;
 import com.dtstack.rdos.engine.execution.flink140.util.FlinkUtil;
+import com.dtstack.rdos.engine.execution.flink140.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -97,11 +98,6 @@ public class FlinkClient extends AbsClient {
 
     private static final String sqlPluginDirName = "sqlplugin";
 
-    //private static final String syncPluginDirName = "syncplugin";
-
-    /**同步数据插件jar名称*/
-    //private static final String syncJarFileName = "flinkx.jar";
-
     private static final int failureRate = 3;
 
     private static final int failureInterval = 6; //min
@@ -115,18 +111,17 @@ public class FlinkClient extends AbsClient {
 
     private String tmpFileDirPath = "./tmp";
 
-    private ClusterClient client;
-
-    //同步模块在flink集群加载插件
-    //private String flinkRemoteSyncPluginRoot;
-
-    //同步模块的monitorAddress, 用于获取错误记录数等信息
-    //private String monitorAddress;
-
     private FlinkConfig flinkConfig;
 
-    //TODO 修改
-    private FlinkClientBuilder flinkClientBuilder = new FlinkClientBuilder();
+    private org.apache.hadoop.conf.Configuration hadoopConf;
+
+    private org.apache.hadoop.conf.Configuration yarnConf;
+
+    private FlinkClientBuilder flinkClientBuilder;
+
+    private SyncPluginInfo syncPluginInfo;
+
+    private ClusterClient client;
 
     /**客户端是否处于可用状态*/
     private AtomicBoolean isClientOn = new AtomicBoolean(false);
@@ -150,21 +145,13 @@ public class FlinkClient extends AbsClient {
         PluginSourceUtil.setSourceJarRootDir(localSqlPluginDir);
         PluginSourceUtil.setRemoteSourceJarRootDir(remoteSqlPluginDir);
 
-        if(flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
-            Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
-                    "flink client can not init for host and zkNamespace is null at the same time.");
-        }
-
-        String localSyncPluginDir = getSyncPluginDir(flinkConfig.getFlinkPluginRoot());
-        FlinkUtil.setLocalSyncFileDir(localSyncPluginDir);
-
-        String remoteSyncPluginDir = getSyncPluginDir(flinkConfig.getRemotePluginRootDir());
-        this.flinkRemoteSyncPluginRoot = remoteSyncPluginDir;
-        this.monitorAddress = flinkConfig.getMonitorAddress();
+        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
         this.yarnMonitorES = new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
 
+        initHadoopConf(flinkConfig);
+        flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
         initClient();
     }
 
@@ -178,13 +165,18 @@ public class FlinkClient extends AbsClient {
         setClientOn(true);
     }
 
+    private void initHadoopConf(FlinkConfig flinkConfig){
+        HadoopConf customerConf = new HadoopConf();
+        customerConf.initHadoopConf(flinkConfig.getHadoopConf());
+        customerConf.initYarnConf(flinkConfig.getYarnConf());
+
+        hadoopConf = customerConf.getConfiguration();
+        yarnConf = customerConf.getYarnConfiguration();
+    }
+
 
     public String getSqlPluginDir(String pluginRoot){
         return pluginRoot + sp + sqlPluginDirName;
-    }
-
-    public String getSyncPluginDir(String pluginRoot){
-        return pluginRoot + sp + syncPluginDirName;
     }
 
     @Override
@@ -219,7 +211,8 @@ public class FlinkClient extends AbsClient {
         PackagedProgram packagedProgram = null;
         try{
             String[] programArgs = programArgList.toArray(new String[programArgList.size()]);
-            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass, programArgs, spSettings);
+            packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass,
+                    programArgs, spSettings, hadoopConf);
         }catch (Throwable e){
             JobResult jobResult = JobResult.createErrorResult(e);
             logger.error("", e);
@@ -327,7 +320,7 @@ public class FlinkClient extends AbsClient {
 
                     AddJarOperator addJarOperator = (AddJarOperator) operator;
                     String addFilePath = addJarOperator.getJarPath();
-                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
+                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf);
                     jarURList.add(tmpFile.toURI().toURL());
                     jarPathList.add(tmpFile.getAbsolutePath());
 
@@ -440,7 +433,7 @@ public class FlinkClient extends AbsClient {
 
                     BatchAddJarOperator addJarOperator = (BatchAddJarOperator) operator;
                     String addFilePath = addJarOperator.getJarPath();
-                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath);
+                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf);
                     jarURList.add(tmpFile.toURI().toURL());
                     jarPathList.add(tmpFile.getAbsolutePath());
 
@@ -588,7 +581,7 @@ public class FlinkClient extends AbsClient {
      * 获取jobMgr-web地址
      * @return
      */
-    private String getReqUrl(){
+    public String getReqUrl(){
         String url = client.getWebInterfaceURL();
         logger.info("get req url=" + url);
         return url;
@@ -625,26 +618,11 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
-        //需要构造出add jar
-        AddJarOperator addjarOperator = new AddJarOperator();
-        addjarOperator.setJarPath(syncJarFileName);
+        AddJarOperator addjarOperator = syncPluginInfo.createAddJarOperator();
         jobClient.addOperator(addjarOperator);
 
-        String args = jobClient.getClassArgs();
-        List<String> programArgList = Lists.newArrayList();
-        if(StringUtils.isNotBlank(args)){
-            programArgList.addAll(Arrays.asList(args.split("\\s+")));
-        }
-
-        List<URL> classPaths = flinkRemoteSyncPluginRoot != null ?
-                FlinkUtil.getUserClassPath(programArgList, flinkRemoteSyncPluginRoot) : new ArrayList<>();
-
-        programArgList.add("-monitor");
-        if(StringUtils.isNotEmpty(monitorAddress)) {
-            programArgList.add(monitorAddress);
-        } else {
-            programArgList.add(getReqUrl());
-        }
+        List<String> programArgList = syncPluginInfo.createSyncPluginArgs(jobClient, this);
+        List<URL> classPaths = syncPluginInfo.getClassPaths(programArgList);
 
         return submitJobWithJar(jobClient, classPaths, programArgList);
     }

@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
-import com.dtstack.rdos.engine.execution.flink140.util.HadoopConf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.ClusterClient;
@@ -46,8 +45,14 @@ public class FlinkClientBuilder {
 
     private org.apache.hadoop.conf.Configuration yarnConf;
 
-    public FlinkClientBuilder(){
+    private FlinkClientBuilder(){
+    }
 
+    public static FlinkClientBuilder create(org.apache.hadoop.conf.Configuration hadoopConf, org.apache.hadoop.conf.Configuration yarnConf){
+        FlinkClientBuilder builder = new FlinkClientBuilder();
+        builder.setHadoopConf(hadoopConf);
+        builder.setYarnConf(yarnConf);
+        return builder;
     }
 
     public ClusterClient create(FlinkConfig flinkConfig, FlinkClient flinkClient){
@@ -67,6 +72,10 @@ public class FlinkClientBuilder {
     }
 
     private ClusterClient createStandalone(FlinkConfig flinkConfig){
+
+        Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
+                "flink client can not init for host and zkNamespace is null at the same time.");
+
         if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
             Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
             return initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),
@@ -77,7 +86,6 @@ public class FlinkClientBuilder {
     }
 
     private ClusterClient createYarnClient(FlinkConfig flinkConfig){
-        initHadoopConf(flinkConfig);
         ClusterClient clusterClient = initYarnClusterClient(flinkConfig);
         return clusterClient;
     }
@@ -224,12 +232,19 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public void initHadoopConf(FlinkConfig flinkConfig){
-        HadoopConf customerConf = new HadoopConf();
-        customerConf.initHadoopConf(flinkConfig.getHadoopConf());
-        customerConf.initYarnConf(flinkConfig.getYarnConf());
+    public org.apache.hadoop.conf.Configuration getHadoopConf() {
+        return hadoopConf;
+    }
 
-        hadoopConf = customerConf.getConfiguration();
-        yarnConf = customerConf.getYarnConfiguration();
+    public void setHadoopConf(org.apache.hadoop.conf.Configuration hadoopConf) {
+        this.hadoopConf = hadoopConf;
+    }
+
+    public org.apache.hadoop.conf.Configuration getYarnConf() {
+        return yarnConf;
+    }
+
+    public void setYarnConf(org.apache.hadoop.conf.Configuration yarnConf) {
+        this.yarnConf = yarnConf;
     }
 }

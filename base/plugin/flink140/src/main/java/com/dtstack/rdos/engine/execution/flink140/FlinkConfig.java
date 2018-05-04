@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
+import com.google.common.base.Strings;
+
 import java.util.Map;
 
 /**
@@ -9,9 +11,13 @@ import java.util.Map;
  */
 public class FlinkConfig {
 
-	private static String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
+	private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
-	private static String DEFAULT_REMOTE_PLUGIN_ROOTDIR = "/opt/dtstack/flinkplugin";
+	private static final String DEFAULT_REMOTE_PLUGIN_ROOT_DIR = "/opt/dtstack/flinkplugin";
+
+	private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink140";
+
+	private static final String DEFAULT_JAR_TMP_DIR = "../tmp140";
 
     private String typeName;
 
@@ -49,6 +55,10 @@ public class FlinkConfig {
 	}
 
 	public String getFlinkZkNamespace() {
+	    if(Strings.isNullOrEmpty(flinkZkNamespace)){
+	        return DEFAULT_FLINK_ZK_NAMESPACE;
+        }
+
 		return flinkZkNamespace;
 	}
 
@@ -65,6 +75,10 @@ public class FlinkConfig {
 	}
 
 	public String getJarTmpDir() {
+	    if(Strings.isNullOrEmpty(jarTmpDir)){
+	        return DEFAULT_JAR_TMP_DIR;
+        }
+
 		return jarTmpDir;
 	}
 
@@ -98,8 +112,7 @@ public class FlinkConfig {
 	}
 
 	public String getFlinkPluginRoot() {
-
-	    if(flinkPluginRoot == null){
+	    if(Strings.isNullOrEmpty(flinkPluginRoot)){
 	        return DEFAULT_FLINK_PLUGIN_ROOT;
         }
 
@@ -120,8 +133,8 @@ public class FlinkConfig {
 
     public String getRemotePluginRootDir() {
 
-	    if(remotePluginRootDir == null){
-	        return DEFAULT_REMOTE_PLUGIN_ROOTDIR;
+	    if(Strings.isNullOrEmpty(remotePluginRootDir)){
+	        return DEFAULT_REMOTE_PLUGIN_ROOT_DIR;
         }
 
         return remotePluginRootDir;
