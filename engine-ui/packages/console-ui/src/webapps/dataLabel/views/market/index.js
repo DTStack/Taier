@@ -190,7 +190,11 @@ class APIMarket extends Component {
         }
     }
     dealcomplete(record) {
+<<<<<<< HEAD
         this.props.router.push("/dl/mine/approved?apiId="+record.key);    
+=======
+        this.props.router.push("/api/mine/approved?apiId="+record.key);    
+>>>>>>> a6028299a30a6c37e18aa7f70589a238335dbd23
         console.log("dealcomplete", record);
     }
     dealnothing(record) {
