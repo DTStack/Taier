@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
+import java.util.Map;
+
 /**
  * 
  * @author sishu.yss
@@ -32,6 +34,10 @@ public class FlinkConfig {
 	private String remotePluginRootDir;
 
 	private String clusterMode; // 集群运行模式: standalone or yarn
+
+	private Map<String, Object> hadoopConf;
+
+	private Map<String, Object> yarnConf;
 
 
 	public String getFlinkZkAddress() {
@@ -133,4 +139,19 @@ public class FlinkConfig {
 		this.clusterMode = clusterMode;
 	}
 
+	public Map<String, Object> getHadoopConf() {
+		return hadoopConf;
+	}
+
+	public void setHadoopConf(Map<String, Object> hadoopConf) {
+		this.hadoopConf = hadoopConf;
+	}
+
+	public Map<String, Object> getYarnConf() {
+		return yarnConf;
+	}
+
+	public void setYarnConf(Map<String, Object> yarnConf) {
+		this.yarnConf = yarnConf;
+	}
 }

@@ -5,16 +5,12 @@ nodeZkAddress: node01:2181,node02:2181,node03:2181/ysq_engine
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
+
+#选配参数--如果包含mysql,oracle,sqlserver插件则需要该配置,存储元数据信息
 db:
    url: jdbc:mysql://172.16.8.104:3306/rdos?charset=utf8&autoReconnect=true
    userName: dtstack
    pwd: abc123
-
-#选配参数--如果包含mysql,oracle,sqlserver插件则需要该配置,存储元数据信息
-#pluginStoreInfo:
-#    dbUrl: jdbc:mysql://172.16.8.104:3306/rdos?charset=utf8
-#    dbUserName: dtstack
-#    dbPwd: abc123
 
 engineTypes:
     #-
@@ -53,24 +49,37 @@ engineTypes:
         #yarnConfPath: D:\yarn-site.xml
 
 
-    #-
-    #    typeName: flink140
-    #    clusterMode: yarn
-    #    flinkZkAddress: node01:2181,node02:2181,node03:2181
-    #    flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
-    #    flinkZkNamespace: /flink140
-    #    jarTmpDir: ../tmp140
-    #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
-    #    remotePluginRootDir: /opt/dtstack/flinkplugin
-
-
     -
         typeName: flink140
-        clusterMode: standalone
-        flinkJobMgrUrl: localhost:6123
+        clusterMode: yarn
+        flinkZkAddress: node01:2181,node02:2181,node03:2181
+        flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
+        flinkZkNamespace: /flink140
         jarTmpDir: ../tmp140
-        flinkPluginRoot: E:\flinkplugin
-        remotePluginRootDir: E:\flinkplugin
+        flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
+        remotePluginRootDir: /opt/dtstack/flinkplugin
+        hadoopConf:
+            dfs.nameservices: ns1
+            fs.defaultFS: hdfs://ns1
+            dfs.ha.namenodes.ns1: nn1,nn2
+            dfs.namenode.rpc-address.ns1.nn1: node02:9000
+            dfs.namenode.rpc-address.ns1.nn2: node03:9000
+            dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+            fs.hdfs.impl.disable.cache: true
+        yarnConf:
+            yarn.resourcemanager.address.rm1: node02:8032
+            yarn.resourcemanager.address.rm2: node03:8032
+            yarn.resourcemanager.ha.rm-ids: rm1,rm2
+            yarn.resourcemanager.ha.enabled: true
+
+
+    #-
+    #    typeName: flink140
+    #    clusterMode: standalone
+    #    flinkJobMgrUrl: localhost:6123
+    #    jarTmpDir: ../tmp140
+    #    flinkPluginRoot: E:\flinkplugin
+    #    remotePluginRootDir: E:\flinkplugin
 
     #-
     #    typeName: spark_yarn

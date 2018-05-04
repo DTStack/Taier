@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
@@ -80,13 +81,12 @@ public class SparkClient extends AbsClient {
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
 
-        Properties properties = adaptToJarSubmit(jobClient);
+        JobParam jobParam = new JobParam(jobClient);
 
-
-        String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
-        String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);//只支持hdfs
-        String appName = properties.getProperty(JOB_APP_NAME_KEY);
-        String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
+        String mainClass = jobParam.getMainClass();
+        String jarPath = jobParam.getJarPath();//只支持hdfs
+        String appName = jobParam.getJobName();
+        String exeArgsStr = jobParam.getClassArgs();
 
         if(!jarPath.startsWith("hdfs://")){
             throw new RdosException("spark jar path protocol must be hdfs://");
@@ -113,30 +113,6 @@ public class SparkClient extends AbsClient {
         return processRemoteResponse(response);
     }
 
-    public Properties adaptToJarSubmit(JobClient jobClient){
-
-        BatchAddJarOperator jarOperator = null;
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof BatchAddJarOperator){
-                jarOperator = (BatchAddJarOperator) operator;
-                break;
-            }
-        }
-
-        if(jarOperator == null){
-            throw new RdosException("submit type of MR need to add jar operator.");
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
-        properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
-        properties.setProperty(JOB_MAIN_CLASS_KEY, jarOperator.getMainClass());
-
-        if(jobClient.getClassArgs() != null){
-            properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
-        }
-        return properties;
-    }
 
     @Override
     public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {

@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
@@ -357,9 +358,9 @@ public class FlinkClient extends AbsClient {
             }
         }
 
-        Properties properties = adaptToJarSubmit(jobClient);
+        JobParam jobParam = new JobParam(jobClient);
 
-        Object jarPath = properties.get(JOB_JAR_PATH_KEY);
+        String jarPath = jobParam.getJarPath();
         if(jarPath == null){
             logger.error("can not submit a job without jarpath, please check it");
             JobResult jobResult = JobResult.createErrorResult("can not submit a job without jarpath, please check it");
@@ -368,10 +369,10 @@ public class FlinkClient extends AbsClient {
 
         PackagedProgram packagedProgram = null;
 
-        String entryPointClass = properties.getProperty(JOB_MAIN_CLASS_KEY);//如果jar包里面未指定mainclass,需要设置该参数
+        String entryPointClass = jobParam.getMainClass();//如果jar包里面未指定mainclass,需要设置该参数
 
         List<String> programArgList = new ArrayList<>();
-        String args = properties.getProperty(JOB_EXE_ARGS);
+        String args = jobParam.getClassArgs();
 
         if(StringUtils.isNotBlank(args)){
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
@@ -434,37 +435,6 @@ public class FlinkClient extends AbsClient {
         JobResult jobResult = JobResult.createSuccessResult(result.getJobID().toString());
 
         return jobResult;
-    }
-
-    public Properties adaptToJarSubmit(JobClient jobClient){
-        Properties properties = new Properties();
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof AddJarOperator){
-                AddJarOperator addjarOperator = (AddJarOperator) operator;
-                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
-
-                if(addjarOperator.getMainClass() != null){
-                    properties.setProperty(JOB_MAIN_CLASS_KEY, addjarOperator.getMainClass());
-                }
-                break;
-            }else if(operator instanceof BatchAddJarOperator){
-                BatchAddJarOperator addjarOperator = (BatchAddJarOperator) operator;
-                properties.setProperty(JOB_JAR_PATH_KEY, addjarOperator.getJarPath());
-                break;
-            }
-        }
-
-        if(!properties.containsKey(JOB_JAR_PATH_KEY)){
-            throw new RdosException("submit type of MR need to add jar operator.");
-        }
-
-        properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
-
-        if(jobClient.getClassArgs() != null){
-            properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
-        }
-
-        return properties;
     }
 
     public SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){

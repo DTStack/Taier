@@ -63,7 +63,7 @@ public class YarnAppStatusMonitor implements Runnable{
         //重试
         try{
             LOG.warn("--retry flink client with yarn session----");
-            flinkClient.initYarnClusterClient();
+            flinkClient.initClient();
         }catch (Exception e){
             LOG.error("", e);
         }

@@ -6,6 +6,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
@@ -165,13 +166,13 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public JobResult submitJobWithJar(JobClient jobClient){
-        Properties properties = adaptToJarSubmit(jobClient);
 
-        String mainClass = properties.getProperty(JOB_MAIN_CLASS_KEY);
+        JobParam jobParam = new JobParam(jobClient);
+        String mainClass = jobParam.getMainClass();
         //只支持hdfs
-        String jarPath = properties.getProperty(JOB_JAR_PATH_KEY);
-        String appName = properties.getProperty(JOB_APP_NAME_KEY);
-        String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
+        String jarPath = jobParam.getJarPath();
+        String appName = jobParam.getJobName();
+        String exeArgsStr = jobParam.getClassArgs();
 
         if(!jarPath.startsWith(HDFS_PREFIX)){
             throw new RdosException("spark jar path protocol must be " + HDFS_PREFIX);
@@ -225,11 +226,11 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public JobResult submitPythonJob(JobClient jobClient){
 
-        Properties properties = adaptToJarSubmit(jobClient);
+        JobParam jobParam = new JobParam(jobClient);
         //.py .egg .zip 存储的hdfs路径
-        String pyFilePath = properties.getProperty(JOB_JAR_PATH_KEY);
-        String appName = properties.getProperty(JOB_APP_NAME_KEY);
-        String exeArgsStr = properties.getProperty(JOB_EXE_ARGS);
+        String pyFilePath = jobParam.getJarPath();
+        String appName = jobParam.getJobName();
+        String exeArgsStr = jobParam.getClassArgs();
 
         if(Strings.isNullOrEmpty(pyFilePath)){
             return JobResult.createErrorResult("exe python file can't be null.");
@@ -267,7 +268,7 @@ public class SparkYarnClient extends AbsClient {
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.set("spark.submit.pyFiles", pythonExtPath);
         sparkConf.setAppName(appName);
-        fillExtSparkConf(sparkConf, properties);
+        fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
@@ -447,33 +448,6 @@ public class SparkYarnClient extends AbsClient {
         return aliveWebAddr;
     }
 
-    public Properties adaptToJarSubmit(JobClient jobClient){
-
-        BatchAddJarOperator jarOperator = null;
-        for(Operator operator : jobClient.getOperators()){
-            if(operator instanceof BatchAddJarOperator){
-                jarOperator = (BatchAddJarOperator) operator;
-                break;
-            }
-        }
-
-        if(jarOperator == null){
-            throw new RdosException("submit type of MR need to add jar operator.");
-        }
-
-        Properties properties = new Properties();
-        properties.setProperty(JOB_JAR_PATH_KEY, jarOperator.getJarPath());
-        properties.setProperty(JOB_APP_NAME_KEY, jobClient.getJobName());
-
-        if(jarOperator.getMainClass() != null){
-            properties.setProperty(JOB_MAIN_CLASS_KEY, jarOperator.getMainClass());
-        }
-
-        if(jobClient.getClassArgs() != null){
-            properties.setProperty(JOB_EXE_ARGS, jobClient.getClassArgs());
-        }
-        return properties;
-    }
 
     /**
      * 处理yarn HA的配置项
