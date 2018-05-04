@@ -109,7 +109,7 @@ public class RestartDealer {
         }
 
         try {
-            if(!checkNeedResubmit(engineJobId, engineType, pluginInfo)){
+            if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo)){
                 return false;
             }
 
@@ -132,7 +132,7 @@ public class RestartDealer {
         }
     }
 
-    private boolean checkNeedResubmit(String engineJobId, String engineType, String pluginInfo) throws Exception {
+    private boolean checkNeedResubmit(String jobId, String engineJobId, String engineType, String pluginInfo) throws Exception {
         if(Strings.isNullOrEmpty(engineJobId)){
             return false;
         }
@@ -143,7 +143,7 @@ public class RestartDealer {
             return false;
         }
 
-        return RestartStrategyUtil.getInstance().checkCanRestart(engineJobId, engineType, client);
+        return RestartStrategyUtil.getInstance().checkCanRestart(jobId, engineJobId, engineType, client);
     }
 
 
