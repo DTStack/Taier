@@ -7,7 +7,7 @@ import { apiManageActions } from '../../../../actions/apiManage';
 import { mineActions } from '../../../../actions/mine';
 import { cloneDeep } from "lodash"
 import utils from "utils"
-import ManageTopCall from "./TopCall"
+import ManageTopCall from "./topCall"
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
