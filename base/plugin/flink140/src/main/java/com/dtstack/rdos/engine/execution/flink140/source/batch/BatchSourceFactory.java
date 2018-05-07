@@ -33,7 +33,7 @@ public class BatchSourceFactory {
      * @param sourceOperator
      * @return
      */
-    public static BatchTableSource getBatchSource(BatchCreateSourceOperator sourceOperator) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static BatchTableSource getBatchSource(BatchCreateSourceOperator sourceOperator, SqlPluginInfo sqlPluginInfo) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
         Properties properties = sourceOperator.getProperties();
         String sourceTypeStr = sourceOperator.getType();
@@ -46,8 +46,8 @@ public class BatchSourceFactory {
         }
 
         sourceTypeStr += SUFFIX_JAR;
-        String pluginJarPath = SqlPluginInfo.getJarFilePath(sourceTypeStr);
-        String className = SqlPluginInfo.getClassName(sourceTypeStr);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(sourceTypeStr);
+        String className = sqlPluginInfo.getClassName(sourceTypeStr);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

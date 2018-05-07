@@ -15,9 +15,11 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.flink.yarn.YarnClusterDescriptor;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +168,7 @@ public class FlinkClientBuilder {
         }
 
         if(System.getenv("HADOOP_CONF_DIR") != null) {
-            config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
+            //config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
         }
 
         if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
@@ -226,7 +228,7 @@ public class FlinkClientBuilder {
         try {
             Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
             confField.setAccessible(true);
-            confField.set(clusterDescriptor, hadoopConf);
+            confField.set(clusterDescriptor, yarnConf);
         } catch (Exception e) {
             LOG.error("", e);
             throw new RdosException(e.getMessage());

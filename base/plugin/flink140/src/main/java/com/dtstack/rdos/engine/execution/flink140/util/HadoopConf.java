@@ -23,62 +23,72 @@ public class HadoopConf {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(HadoopConf.class);
 
-    private final static String HADOOP_CONFIGE = System.getProperty("user.dir")+"/conf/hadoop/";
+    private final static String HADOOP_CONF = System.getProperty("user.dir")+"/conf/hadoop/";
 
     private final static String HADOOP_CONF_DIR = System.getenv("HADOOP_CONF_DIR");
 
-    private static Configuration defaultConfiguration = new Configuration();
+    private static volatile Configuration defaultConfiguration = null;
 
-    private static Configuration defaultYarnConfiguration = new YarnConfiguration();
+    private static volatile Configuration defaultYarnConfiguration = null;
+
+    private static final Object initLock = new Object();
 
 	private Configuration configuration;
 
 	private Configuration yarnConfiguration;
 
-    static{
-        try {
-            String dir = StringUtils.isNotBlank(HADOOP_CONF_DIR) ? HADOOP_CONF_DIR : HADOOP_CONFIGE;
-            File dirFile = new File(dir);
-            if(!dirFile.exists()){
-                LOG.error("-----------not set env for HADOOP_CONF_DIR!!!");
-            }else if(!dirFile.isDirectory()){
-                LOG.error("HADOOP_CONF_DIR:{} is not dir.", dir);
-            }else{
-                defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-                File[] xmlFileList = new File(dir).listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        if(name.endsWith(".xml"))
-                            return true;
-                        return false;
-                    }
-                });
+	private static void initDefaultConfig(){
 
-                if(xmlFileList != null) {
-                    for(File xmlFile : xmlFileList) {
-                        defaultConfiguration.addResource(xmlFile.toURI().toURL());
-                        defaultYarnConfiguration.addResource(xmlFile.toURI().toURL());
+	    if(defaultConfiguration == null){
+            synchronized (initLock){
+                if(defaultConfiguration != null){
+                    return;
+                }
+
+                try {
+                    defaultConfiguration = new Configuration();
+                    defaultYarnConfiguration = new YarnConfiguration();
+                    String dir = StringUtils.isNotBlank(HADOOP_CONF_DIR) ? HADOOP_CONF_DIR : HADOOP_CONF;
+                    File dirFile = new File(dir);
+                    if(!dirFile.exists()){
+                        LOG.error("-----------not set env for HADOOP_CONF_DIR!!!");
+                    }else if(!dirFile.isDirectory()){
+                        LOG.error("HADOOP_CONF_DIR:{} is not dir.", dir);
+                    }else{
+                        defaultConfiguration.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+                        File[] xmlFileList = new File(dir).listFiles(new FilenameFilter() {
+                            @Override
+                            public boolean accept(File dir, String name) {
+                                if(name.endsWith(".xml")) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+
+                        if(xmlFileList != null) {
+                            for(File xmlFile : xmlFileList) {
+                                defaultConfiguration.addResource(xmlFile.toURI().toURL());
+                                defaultYarnConfiguration.addResource(xmlFile.toURI().toURL());
+                            }
+                        }
                     }
+                } catch (Exception e) {
+                    LOG.error("",e);
                 }
             }
-        } catch (Exception e) {
-            LOG.error("",e);
         }
     }
-
 
     public HadoopConf(){
 
     }
 
-
-
     public void initHadoopConf(Map<String, Object> conf){
 
 	    if(conf == null || conf.size() == 0){
             //读取环境变量--走默认配置
-            configuration = defaultConfiguration;
-            yarnConfiguration = defaultYarnConfiguration;
+            configuration = getDefaultConfiguration();
             return;
         }
 
@@ -112,11 +122,17 @@ public class HadoopConf {
 
     public void initYarnConf(Map<String, Object> conf){
 
+        if(conf == null || conf.size() == 0){
+            //读取环境变量--走默认配置
+            yarnConfiguration = getDefaultYarnConfiguration();
+            return;
+        }
+
         String haRmIds = YarnConfTool.getYarnResourcemanagerHaRmIds(conf);
         List<String> addressKeys = YarnConfTool.getYarnResourceManagerAddressKeys(conf);
         String haEnabled = YarnConfTool.getYarnResourcemanagerHaEnabled(conf);
 
-        yarnConfiguration = new YarnConfiguration();
+        yarnConfiguration = new YarnConfiguration(configuration);
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_RM_IDS, haRmIds);
         addressKeys.forEach(key -> {
             String rmMgrAddr = YarnConfTool.getYarnResourceManagerAddressVal(conf, key);
@@ -125,10 +141,21 @@ public class HadoopConf {
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_ENABLED, haEnabled);//必要
     }
 
+    public static Configuration getDefaultConfiguration() {
+        if(defaultConfiguration == null){
+            initDefaultConfig();
+        }
+        return defaultConfiguration;
+    }
 
+    public static Configuration getDefaultYarnConfiguration() {
+        if(defaultYarnConfiguration == null){
+            initDefaultConfig();
+        }
+        return defaultYarnConfiguration;
+    }
 
-    
-	public Configuration getConfiguration(){
+    public Configuration getConfiguration(){
 		return configuration;
 	}
 	

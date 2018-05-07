@@ -104,8 +104,6 @@ public class FlinkClient extends AbsClient {
     //FIXME key值需要根据客户端传输名称调整
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
-    private static final String sp = File.separator;
-
     private String tmpFileDirPath = "./tmp";
 
     private FlinkConfig flinkConfig;
@@ -135,22 +133,21 @@ public class FlinkClient extends AbsClient {
 
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
-        this.yarnMonitorES = new ThreadPoolExecutor(1, 1,
+        yarnMonitorES = new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
 
         initHadoopConf(flinkConfig);
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
         initClient();
-    }
-
-    private void initClient(){
-        client = flinkClientBuilder.create(flinkConfig);
         if(flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
             //启动守护线程---用于获取当前application状态和更新flink对应的application
             yarnMonitorES.submit(new YarnAppStatusMonitor(client, this));
         }
+    }
 
+    public void initClient(){
+        client = flinkClientBuilder.create(flinkConfig);
         setClientOn(true);
     }
 
@@ -343,7 +340,7 @@ public class FlinkClient extends AbsClient {
                 }else if(operator instanceof StreamCreateResultOperator){
 
                     StreamCreateResultOperator resultOperator = (StreamCreateResultOperator) operator;
-                    TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator);
+                    TableSink tableSink = StreamSinkFactory.getTableSink(resultOperator, sqlPluginInfo);
                     //只需要注册到tableEnv即可 不再主动写入到sink中,所有操作均在sql中完成
                     TypeInformation[] flinkTypes = FlinkUtil.transformTypes(resultOperator.getFieldTypes());
                     tableEnv.registerTableSink(resultOperator.getName(), resultOperator.getFields(), flinkTypes, tableSink);
@@ -430,7 +427,7 @@ public class FlinkClient extends AbsClient {
                     currStep = 1;
 
                     BatchCreateSourceOperator sourceOperator = (BatchCreateSourceOperator) operator;
-                    BatchTableSource tableSource = BatchSourceFactory.getBatchSource(sourceOperator);
+                    BatchTableSource tableSource = BatchSourceFactory.getBatchSource(sourceOperator, sqlPluginInfo);
                     tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
                     String sourceType = sourceOperator.getType() + BatchSourceFactory.SUFFIX_JAR;

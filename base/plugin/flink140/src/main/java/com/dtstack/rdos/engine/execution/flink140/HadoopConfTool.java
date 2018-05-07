@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink140;
 import avro.shaded.com.google.common.collect.Lists;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 
@@ -102,6 +103,10 @@ public class HadoopConfTool {
 
     public static String getFsHdfsImplDisableCache(Map<String, Object> conf){
         String disableCache = MathUtil.getString(conf.get(FS_HDFS_IMPL_DISABLE_CACHE));
+        if(Strings.isNullOrEmpty(disableCache)){
+            return "true";
+        }
+
         return disableCache;
     }
 }

@@ -27,7 +27,7 @@ public class StreamSinkFactory {
     /**jar包后缀*/
     public static String SUFFIX_JAR = "streamsink140";
 
-    public static TableSink getTableSink(StreamCreateResultOperator resultOperator) throws IOException,
+    public static TableSink getTableSink(StreamCreateResultOperator resultOperator, SqlPluginInfo sqlPluginInfo) throws IOException,
             ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -38,8 +38,8 @@ public class StreamSinkFactory {
         String resultType = resultOperator.getType();
         resultType += SUFFIX_JAR;
 
-        String pluginJarPath = SqlPluginInfo.getJarFilePath(resultType);
-        String className = SqlPluginInfo.getClassName(resultType);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(resultType);
+        String className = sqlPluginInfo.getClassName(resultType);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();
