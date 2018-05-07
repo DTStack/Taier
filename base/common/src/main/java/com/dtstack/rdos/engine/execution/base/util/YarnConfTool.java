@@ -1,15 +1,15 @@
-package com.dtstack.rdos.engine.execution.flink140;
+package com.dtstack.rdos.engine.execution.base.util;
 
-import avro.shaded.com.google.common.collect.Lists;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * FIXME 公共配置--之后抽到common
+ * 解析配置获取yarnconf
  * Date: 2018/5/3
  * Company: www.dtstack.com
  * @author xuchao
@@ -53,6 +53,10 @@ public class YarnConfTool {
         }
 
         return haEnable;
+    }
+
+    public static String getYarnResourceManagerWebAppAddressVal(Map<String, Object> conf, String key){
+        return MathUtil.getString(conf.get(key));
     }
 
     public static List<String> getYarnResourceManagerWebAppAddressKeys(Map<String, Object> conf){

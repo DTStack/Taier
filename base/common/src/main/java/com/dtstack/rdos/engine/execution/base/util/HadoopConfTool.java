@@ -1,17 +1,16 @@
-package com.dtstack.rdos.engine.execution.flink140;
+package com.dtstack.rdos.engine.execution.base.util;
 
-import avro.shaded.com.google.common.collect.Lists;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * FIXME 公共配置--之后抽到common
+ * 解析配置获取Hadoop配置
  * Date: 2018/5/3
  * Company: www.dtstack.com
  * @author xuchao
@@ -28,7 +27,7 @@ public class HadoopConfTool {
     public static final String FS_HDFS_IMPL = "fs.hdfs.impl";
 
     private static final String DEFAULT_DFS_CLIENT_FAILOVER_PROXY_PROVIDER = "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider";
-    private static final String DEFAULT_FS_HDFS_IMPL = DistributedFileSystem.class.getName();
+    private static final String DEFAULT_FS_HDFS_IMPL = "org.apache.hadoop.hdfs.DistributedFileSystem";
 
 
     public static String getDfsNameServices(Map<String, Object> conf){

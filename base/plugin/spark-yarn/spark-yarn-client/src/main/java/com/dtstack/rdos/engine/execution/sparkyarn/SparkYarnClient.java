@@ -10,9 +10,9 @@ import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -35,8 +35,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.datanucleus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
-import java.io.FilenameFilter;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -55,16 +54,6 @@ public class SparkYarnClient extends AbsClient {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private SparkYarnConfig sparkYarnConfig;
-
-    private Configuration yarnConf = new YarnConfiguration();
-
-    private YarnClient yarnClient = YarnClient.createYarnClient();
-
-    private static final String HADOOP_CONF_DIR_KEY = "HADOOP_CONF_DIR";
-
-    private static final String XML_SUFFIX = ".xml";
-
     private static final String HDFS_PREFIX = "hdfs://";
 
     private static final String HTTP_PREFIX = "http://";
@@ -73,65 +62,36 @@ public class SparkYarnClient extends AbsClient {
 
     private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
 
-    private static final String DEFAULT_SPARK_SQL_PROXY_JAR_PATH = "/user/spark/spark-0.0.1-SNAPSHOT.jar";
-
-    private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
-
-    private List<String> webAppAddrList = Lists.newArrayList();
-
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
     private static final String ALIVE_WEB_FLAG = "clusterInfo";
 
+    private List<String> webAppAddrList = Lists.newArrayList();
+
+    private SparkYarnConfig sparkYarnConfig;
+
+    private Configuration yarnConf;
+
+    private YarnClient yarnClient = YarnClient.createYarnClient();
+
     @Override
     public void init(Properties prop) throws Exception {
 
-        String errorMessage = null;
         sparkYarnConfig = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsBytes(prop), SparkYarnConfig.class);
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkYarnArchive())){
-            errorMessage = "you need to set sparkYarnArchive when used spark engine.";
-        }
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyPath())){
-            logger.info("use default spark proxy jar with path:{}", DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
-            sparkYarnConfig.setSparkSqlProxyPath(DEFAULT_SPARK_SQL_PROXY_JAR_PATH);
-        }
-
-        if(StringUtils.isEmpty(sparkYarnConfig.getSparkSqlProxyMainClass())){
-            logger.info("use default spark proxy jar with main class:{}", DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
-            sparkYarnConfig.setSparkSqlProxyMainClass(DEFAULT_SPARK_SQL_PROXY_MAINCLASS);
-        }
-
-        if(errorMessage != null){
-            logger.error(errorMessage);
-            throw new RdosException(errorMessage);
-        }
-
-        if(System.getenv(HADOOP_CONF_DIR_KEY) !=  null) {
-            File[] xmlFileList = new File(System.getenv(HADOOP_CONF_DIR_KEY)).listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    if(name.endsWith(XML_SUFFIX)){
-                        return true;
-                    }
-                    return false;
-                }
-            });
-
-            if(xmlFileList != null) {
-                for(File xmlFile : xmlFileList) {
-                    yarnConf.addResource(xmlFile.toURI().toURL());
-                }
-            }
-        }
-
+        initYarnConf(sparkYarnConfig);
         System.setProperty("SPARK_YARN_MODE", "true");
-        yarnConf();
+        parseWebAppAddr();
         yarnClient.init(yarnConf);
         yarnClient.start();
+    }
 
+    private void initYarnConf(SparkYarnConfig sparkConfig){
+        HadoopConf customerConf = new HadoopConf();
+        customerConf.initHadoopConf(sparkConfig.getHadoopConf());
+        customerConf.initYarnConf(sparkConfig.getYarnConf());
+
+        yarnConf = customerConf.getYarnConfiguration();
     }
 
     private SparkConf buildBasicSparkConf(){
@@ -146,7 +106,7 @@ public class SparkYarnClient extends AbsClient {
 
     /**
      * 通过提交的paramsOperator 设置sparkConf
-     * FIXME 解析传递过来的参数是不带spark.前面缀的,如果参数和spark支持不一致的话是否需要转换
+     * 解析传递过来的参数不带spark.前面缀的
      * @param sparkConf
      * @param confProperties
      */
@@ -159,7 +119,9 @@ public class SparkYarnClient extends AbsClient {
         for(Map.Entry<Object, Object> param : confProperties.entrySet()){
             String key = (String) param.getKey();
             String val = (String) param.getValue();
-            key = KEY_PRE_STR + key;
+            if(!key.contains(KEY_PRE_STR)){
+                key = KEY_PRE_STR + key;
+            }
             sparkConf.set(key, val);
         }
     }
@@ -218,11 +180,6 @@ public class SparkYarnClient extends AbsClient {
 
     }
 
-    /**
-     * FIXME spark yarn参数设置
-     * @param jobClient
-     * @return
-     */
     @Override
     public JobResult submitPythonJob(JobClient jobClient){
 
@@ -449,10 +406,7 @@ public class SparkYarnClient extends AbsClient {
     }
 
 
-    /**
-     * 处理yarn HA的配置项
-     */
-    private void yarnConf() {
+    private void parseWebAppAddr() {
         Iterator<Map.Entry<String, String>> iterator = yarnConf.iterator();
         List<String> tmpWebAppAddr = Lists.newArrayList();
 

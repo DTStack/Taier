@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink140.util;
+package com.dtstack.rdos.engine.execution.sparkyarn.util;
 
 
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
@@ -131,14 +131,22 @@ public class HadoopConf {
 
         String haRmIds = YarnConfTool.getYarnResourcemanagerHaRmIds(conf);
         List<String> addressKeys = YarnConfTool.getYarnResourceManagerAddressKeys(conf);
+        List<String> webAppAddrKeys = YarnConfTool.getYarnResourceManagerWebAppAddressKeys(conf);
         String haEnabled = YarnConfTool.getYarnResourcemanagerHaEnabled(conf);
 
-        yarnConfiguration = new YarnConfiguration(configuration);
+        yarnConfiguration = configuration == null ? new YarnConfiguration() : new YarnConfiguration(configuration);
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_RM_IDS, haRmIds);
         addressKeys.forEach(key -> {
             String rmMgrAddr = YarnConfTool.getYarnResourceManagerAddressVal(conf, key);
             yarnConfiguration.set(key, rmMgrAddr);
         });
+
+        webAppAddrKeys.forEach(key -> {
+            String rmMgrWebAppAddr = YarnConfTool.getYarnResourceManagerWebAppAddressVal(conf, key);
+            yarnConfiguration.set(key, rmMgrWebAppAddr);
+
+        });
+
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_ENABLED, haEnabled);//必要
     }
 
