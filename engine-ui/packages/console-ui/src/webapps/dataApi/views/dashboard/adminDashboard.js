@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import { Alert, Card, Col, Row, Table, Radio, Tabs } from 'antd';
 import { Link } from "react-router";
-import TopCall from "./topCall";
-import TopFail from "./topFail";
-import TopCallFunc from "./topCallFunc";
-import ErrorDistributed from "./errorDistributed";
+import TopCall from "./TopCall";
+import TopFail from "./TopFail";
+import TopCallFunc from "./TopCallFunc";
+import ErrorDistributed from "./ErrorDistributed";
 
 
 import OverView from "./overView"
