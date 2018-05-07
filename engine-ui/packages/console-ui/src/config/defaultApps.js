@@ -41,7 +41,7 @@ module.exports = [
         enable: true,
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_3.png',
-        description: '快速实现据服务，统一管理对内对外的API服务',
+        description: '快速实现数据服务，统一管理对内对外的API服务',
     }, {
         id: 'dataLabel',
         name: '标签管理',
