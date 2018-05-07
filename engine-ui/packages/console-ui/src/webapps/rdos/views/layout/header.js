@@ -191,6 +191,8 @@ class Header extends Component {
                     app={ app }
                     apps={ apps }
                     onClick={ this.clickUserMenu }
+                    showHelpSite={true}
+                    helpUrl="/public/rdos/helpSite/index.html"
                 /> 
                 {/* <div className="user-info right">
                     <Dropdown overlay={userMenu} trigger={['click']}>

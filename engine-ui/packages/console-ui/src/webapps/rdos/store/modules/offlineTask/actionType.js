@@ -148,4 +148,7 @@ export const editorAction = mc([
     'GET_TAB',
     'SET_TAB',
     'SET_SELECTION_CONTENT',
+    'ADD_LOADING_TAB',//添加指定的的tab loading
+    'REMOVE_LOADING_TAB',//移除指定的tab loading
+    'REMOVE_ALL_LOAING_TAB',//移除所有tab loading
 ], { prefix: 'offline/sqlEditor/' })

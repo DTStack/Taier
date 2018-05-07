@@ -59,6 +59,7 @@ export function setSelectionContent(data) {
     }
 }
 
+
 // Console Reducers 
 const console = (state = {}, action) => {
     switch (action.type) {
@@ -138,7 +139,54 @@ export const selection = (state = '', action) => {
     }
 }
 
+/**running**/
+export function addLoadingTab(id) {
+    return {
+        type: editorAction.ADD_LOADING_TAB,
+        data:{
+            id:id
+        }
+    }
+}
+export function removeLoadingTab(id) {
+    return {
+        type: editorAction.REMOVE_LOADING_TAB,
+        data:{
+            id:id
+        }
+    }
+}
+export function removeAllLoadingTab() {
+    return {
+        type: editorAction.REMOVE_ALL_LOAING_TAB
+    }
+}
+//运行中的任务
+export const running = (state = [], action) => {
+    switch(action.type) {
+        case editorAction.ADD_LOADING_TAB: {
+            const list=cloneDeep(state);
+            list.push(action.data.id);
+            return list
+        }
+        case editorAction.REMOVE_LOADING_TAB: {
+            
+            let list=state.filter(function(value){
+                return value!=action.data.id
+            })
+            return list
+        }
+        case editorAction.REMOVE_ALL_LOAING_TAB: {
+            return []
+        }
+    default:
+        return state
+    }
+}
+/**running**/
+
 export const sqlEditor = combineReducers({
     console,
     selection,
+    running
 })

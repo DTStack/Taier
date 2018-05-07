@@ -13,8 +13,8 @@ module.exports = [
     }, {
         id: 'rdos',
         name: '开发套件',
-        filename: 'rdos.html',
-        link: '/rdos.html#',
+        filename: 'ide.html',
+        link: '/ide.html#',
         target: '_blank',
         enable: true,
         hasProject: true, // 是否拥有项目选择
@@ -28,7 +28,7 @@ module.exports = [
         link: 'dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_blank',
-        enable: true,
+        enable: false,
         apiBase: '/dq',
         icon: '/public/main/img/icon_2.png',
         description: '支持多种异构数据源的质量校验、异常通知',
@@ -38,7 +38,7 @@ module.exports = [
         link: 'dataApi.html#/',
         filename: 'dataApi.html',
         target: '_blank',
-        enable: true,
+        enable: false,
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_3.png',
         description: '快速实现据服务，统一管理对内对外的API服务',

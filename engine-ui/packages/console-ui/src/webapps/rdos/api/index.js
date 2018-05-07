@@ -363,6 +363,9 @@ export default {
     stopSQLImmediately(params) { // 停止执行SQL
         return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
     },
+    selectSQLResultData(params) { // 定时轮询获取sql结果
+        return http.post(offlineReq.SELECT_SQL_RESULT_DATA, params)
+    },
     checkIsLoop(prams) {
         return http.post(offlineReq.CHECK_IS_LOOP, prams)
     },

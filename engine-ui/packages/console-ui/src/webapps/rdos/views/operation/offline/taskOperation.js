@@ -407,6 +407,7 @@ class OfflineTaskList extends Component {
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
+            selectedTask:null
         })
     }
 
@@ -564,6 +565,15 @@ class OfflineTaskList extends Component {
                     > 
                          <Table
                             rowKey="id"
+                            rowClassName={
+                                (record, index) => {
+                                    if (this.state.selectedTask&&this.state.selectedTask.id == record.id) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             style={{marginTop: '1px'}}
                             className="m-table"
                             rowSelection={rowSelection}
