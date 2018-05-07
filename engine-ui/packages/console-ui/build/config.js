@@ -31,6 +31,12 @@ module.exports = {
                 changeOrigin: true,
                 secure: false,
             },
+            "/api/tag": { // 数据标签
+                target: "http://172.16.8.107:8085",//测试环境
+                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+                changeOrigin: true,
+                secure: false,
+            },
         }
     },
 };

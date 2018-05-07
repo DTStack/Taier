@@ -113,9 +113,6 @@ class APIMana extends Component {
                     }
                 }
             );
-
-
-
     }
 
     renderSourceType(id, root) {
@@ -224,12 +221,12 @@ class APIMana extends Component {
         }
     }
     openDetail(text) {
-        this.props.router.push("/api/manage/detail/" + text)
+        this.props.router.push("/dl/manage/detail/" + text)
     }
     initColumns() {
         
         return [{
-            title: 'API名称',
+            title: '标签名称',
             dataIndex: 'name',
             key: 'name',
             render: (text,record) => {
@@ -320,7 +317,7 @@ class APIMana extends Component {
     openApi(apiId){
         confirm({
             title: '确认开启?',
-            content: '确认开启api',
+            content: '确认开启标签',
             onOk:()=>{
                 this.setState({
                     loading:true
@@ -346,7 +343,7 @@ class APIMana extends Component {
     closeApi(apiId){
         confirm({
             title: '确认禁用?',
-            content: '确认禁用api',
+            content: '确认禁用标签',
             onOk:()=>{
                 this.setState({
                     loading:true
@@ -373,7 +370,7 @@ class APIMana extends Component {
     deleteApi(apiId) {
         confirm({
             title: '确认删除?',
-            content: '确认删除api',
+            content: '确认删除标签',
             onOk:()=>{
                 this.setState({
                     loading:true
@@ -471,10 +468,18 @@ class APIMana extends Component {
         return (
             <div className="flex font-12">
                 <Search
-                    placeholder="输入API名称搜索"
+                    placeholder="输入标签名称搜索"
                     style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch.bind(this)}
                 />
+                <div className="m-l-8">
+                    标签分类：
+                    <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
+                        {
+                            this.renderSourceType(0, true)
+                        }
+                    </Select>
+                </div>
                 <div className="m-l-8">
                     类型：
                     <Select value={this.state.dataSourceType} allowClear onChange={this.dataSourceTypeChange.bind(this)} style={{ width: 100 }}>
@@ -483,19 +488,11 @@ class APIMana extends Component {
                         }
                     </Select>
                 </div>
-                <div className="m-l-8">
+                {/* <div className="m-l-8">
                     数据源：
                     <Select value={this.state.dataSource} allowClear onChange={this.dataSourceChange.bind(this)} style={{ width: 100 }}>
                         {
                             this.gerDataSourceView()
-                        }
-                    </Select>
-                </div>
-                <div className="m-l-8">
-                    API分类：
-                    <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
-                        {
-                            this.renderSourceType(0, true)
                         }
                     </Select>
                 </div>
@@ -506,25 +503,24 @@ class APIMana extends Component {
                             this.renderSourceType(this.state.type1, false)
                         }
                     </Select>
-                </div>
+                </div> 
                 <div className="m-l-8">
                     <Checkbox onChange={this.changeManCheck.bind(this)}>我修改的</Checkbox>
-                </div>
+                </div> */}
             </div>
         )
     }
     openApiType() {
-        this.props.router.push("/api/manage/apiType");
+        this.props.router.push("/dl/manage/apiType");
     }
     newApi() {
-        this.props.router.push("/api/manage/newApi");
+        this.props.router.push("/dl/manage/newApi");
     }
     getCardExtra() {
         return (
             <div style={{ paddingTop: "10px" }}>
                 <Button onClick={this.openApiType.bind(this)} style={{ marginRight: "8px" }} type="primary">类目管理</Button>
-                <Button type="primary" onClick={this.newApi.bind(this)}>新建API</Button>
-
+                {/* <Button type="primary" onClick={this.newApi.bind(this)}>新建API</Button> */}
             </div>
         )
     }
@@ -534,7 +530,6 @@ class APIMana extends Component {
             <div className="api-management">
                 <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
                     <Card
-
                         noHovering
                         title={this.getCardTitle()}
                         extra={this.getCardExtra()}

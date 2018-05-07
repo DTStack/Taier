@@ -29,6 +29,12 @@ import TagConfig from './views/tagConfig'
 import IdentifyColumn from './views/tagConfig/identifyColumn'
 import DataSourceIndex from './views/dataSource'
 
+import APIDetail from './views/market/detail'
+import APIManageDetail from './views/management/apiDetail'
+import ApiType from './views/management/apiType'
+import NewApi from "./views/management/newApi"
+import EditAPI from './views/management/editApi';
+
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then(module => module.default), { name: 'testPage' })
@@ -51,9 +57,15 @@ export default (
         <Route path="/dl" component={ Container }>
             <IndexRoute component={ TagMarket } />
             <Route path="market" component={ TagMarket }></Route>
+            <Route path="market/detail/:api" component={ APIDetail }></Route>
             <Route path="mine" component={ MyAPI }></Route>
+            <Route path="mine/:view" component={ MyAPI }></Route>
             <Route path="approval" component={ TagApproval }></Route>
-            <Route path="management" component={ TagManagement }></Route>
+            <Route path="manage" component={ TagManagement }></Route>
+            <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
+            <Route path="manage/apiType" component={ ApiType }></Route>
+            <Route path="manage/newApi" component={ NewApi }></Route>
+            <Route path="manage/editApi/:apiId" component={ EditAPI }></Route>
             <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>

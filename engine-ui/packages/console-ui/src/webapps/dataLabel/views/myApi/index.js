@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Menu, Card, Table, Tabs } from "antd"
 import { connect } from "react-redux";
 import { mineActions } from '../../actions/mine';
-import NoApprovedCard from "./NoApprovedCard"
-import ApprovedCard from "./ApprovedCard"
+import NoApprovedCard from "./noApprovedCard"
+import ApprovedCard from "./approvedCard"
 
 const mapStateToProps = state => {
     const { user, mine } = state;
@@ -82,9 +82,9 @@ class MyAPI extends Component {
         })
       
         if(e=="approved"){
-            this.props.router.replace("/api/mine/approved")
+            this.props.router.replace("/dl/mine/approved")
         }else{
-            this.props.router.replace("/api/mine")
+            this.props.router.replace("/dl/mine")
         }
     }
     componentWillMount() {
@@ -105,16 +105,14 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className=" api-mine nobackground m-card height-auto m-tabs"> 
-                <h1 className="box-title">我的API</h1>
+            <div className="api-mine nobackground m-card height-auto m-tabs"> 
                 <Card
-                style={{marginTop:"0px"}}
                 className="box-1"
+                bordered={false}
                 noHovering>
                     <Tabs
                         defaultActiveKey={this.state.nowView}
                         onChange={this.handleClick.bind(this)}
-
                     >
                         <Tabs.TabPane tab="未审批" key="notApproved">
                             <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>

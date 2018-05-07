@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from "react-redux";
 import { Menu, Card, Table, Tabs, Radio, Modal, message } from "antd"
 import { Link } from "react-router";
-import ManageTopCard from "./TopCard"
+import ManageTopCard from "./topCard"
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
 import { EXCHANGE_ADMIN_API_STATUS } from "../../../consts"

@@ -19,6 +19,11 @@ import Api from '../../../api/dataModel';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
+const defaultRule = {
+    value: TABLE_MODEL_RULE.CUSTOM,
+    name: '自定义',
+};
+
 class ModelDefineRule extends Component {
 
     state = {
@@ -55,8 +60,6 @@ class ModelDefineRule extends Component {
         const optionIndex = valueOption.props.index;
         const newArrs = [...this.state.tbNameRules];
 
-        console.log('arguments:', optionIndex, index);
-
         newArrs[index] = tableModelRules[optionIndex];
         this.setState({
             tbNameRules: newArrs
@@ -65,13 +68,12 @@ class ModelDefineRule extends Component {
 
     insertTbNameRule = (index) => {
         const originArr = this.state.tbNameRules;
-
         const start = index + 1;
         let arrOne = originArr.slice(0, start);
         const arrTwo = originArr.slice(start, originArr.length);
 
         // Insert a default object to array.
-        arrOne.push(tableModelRules[0]);
+        arrOne.push(defaultRule);
 
         arrOne = arrOne.concat(arrTwo);
 
@@ -83,7 +85,7 @@ class ModelDefineRule extends Component {
     appendTbNameRule = (index) => {
         const originArr = [...this.state.tbNameRules];
         // Append new one.
-        originArr.push(tableModelRules[0])
+        originArr.push(defaultRule)
         this.setState({
             tbNameRules: originArr
         });
@@ -97,6 +99,12 @@ class ModelDefineRule extends Component {
         });
     }
 
+    isDisabled = (rule) => {
+        const tbNameRules = this.state.tbNameRules;
+        console.log('')
+        return rule.value !== TABLE_MODEL_RULE.CUSTOM && tbNameRules.find(item => item.value === rule.value)
+    }
+
     renderTableNameRules = () => {
 
         const { tbNameRules } = this.state;
@@ -105,6 +113,7 @@ class ModelDefineRule extends Component {
         const options = tableModelRules.map((rule, index) => <Option 
             key={rule.value}
             index={index}
+            disabled={this.isDisabled(rule)}
             value={rule.value}
         >
             {rule.name}

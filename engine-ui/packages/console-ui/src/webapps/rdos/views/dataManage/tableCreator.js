@@ -63,7 +63,7 @@ class BaseForm extends React.Component {
                         required: true, message: '表名不可为空！',
                     }, {
                         pattern: /^([A-Za-z0-9_]{1,64})$/,
-                        message: '表名称只能的字母、数字、下划线组成，且长度不超过64个字符!',
+                        message: '表名称只能由字母、数字、下划线组成，且长度不超过64个字符!',
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
@@ -171,7 +171,7 @@ class BaseForm extends React.Component {
                 {...formItemLayout}
                 label="描述"
             >
-                {getFieldDecorator('desc', {
+                {getFieldDecorator('tableDesc', {
                     rules: [{
                         max: 200,
                         message: '描述不得超过200个字符！',

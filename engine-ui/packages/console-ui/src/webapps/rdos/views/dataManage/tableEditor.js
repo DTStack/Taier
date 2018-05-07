@@ -122,10 +122,6 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="描述"
                             >
-                                {/* <Input type="textarea"
-                                    name="desc"
-                                    value={desc}
-                                ></Input> */}
                                 {getFieldDecorator('desc', {
                                     rules: [{
                                         max: 200,
@@ -135,6 +131,7 @@ class TableEditor extends Component {
                                 })(
                                     <Input 
                                         onChange={this.changeTable.bind(this)}
+                                        name="tableDesc"
                                         type="textarea" placeholder="描述信息" 
                                     />
                                 )}

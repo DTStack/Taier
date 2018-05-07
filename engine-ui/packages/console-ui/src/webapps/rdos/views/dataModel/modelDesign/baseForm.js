@@ -39,15 +39,16 @@ export default class BaseForm extends React.Component {
         this.props.form.setFieldsValue({'lifeDay': value})
     }
 
-    changeTableName = (value, index, modelType) => {
+    changeTableName = (value, index, modelType, option) => {
         const newArrs = [...this.state.tableNameArr];
         newArrs[index] = value;
         this.setState({ tableNameArr: newArrs });
         const fields = { tableName: newArrs.join('_') };
         if (modelType && modelType === TABLE_MODEL_RULE.LEVEL) {
-            fields.subject = value;
-        } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
             fields.grade = value;
+            fields.lifeDay = option.props.data.lifeDay;
+        } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
+            fields.subject = value;
         }
         this.props.form.setFieldsValue(fields)
     }
@@ -152,12 +153,13 @@ export default class BaseForm extends React.Component {
                 <Select
                     placeholder="请选择"
                     style={inlineStyle}
-                    onSelect={(value, option) => this.changeTableName(value, index, rule.value)}
+                    onSelect={(value, option) => this.changeTableName(value, index, rule.value, option)}
                 >
                     {
                         data && data.map(item =>
                             <Option
                                 id={item.id}
+                                data={item}
                                 title={item.prefix}
                                 value={item.prefix}
                             >
@@ -320,7 +322,7 @@ export default class BaseForm extends React.Component {
                 {...formItemLayout}
                 label="描述"
             >
-                {getFieldDecorator('desc', {
+                {getFieldDecorator('tableDesc', {
                     rules: [{
                         max: 200,
                         message: '描述不得超过200个字符！',

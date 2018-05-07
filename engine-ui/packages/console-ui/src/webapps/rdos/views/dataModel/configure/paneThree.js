@@ -39,20 +39,22 @@ export default class FreshFrequency extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
-            width: 200,
             title: '刷新方式描述',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
+            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
+            width: 150,
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
+            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -60,7 +62,13 @@ export default class FreshFrequency extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>编辑</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.delete(record) }}>删除</a>
+                        <Popconfirm 
+                            title="确定删除此条记录吗?" 
+                            onConfirm={() => { this.delete(record) }}
+                            okText="是" cancelText="否"
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
                     </div>
                 )
             },
