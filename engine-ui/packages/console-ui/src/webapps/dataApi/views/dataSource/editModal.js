@@ -22,15 +22,11 @@ const hdfsConf =
 }`
 const configConf = 
 `{
-<<<<<<< HEAD
-    "poolSize":12
-=======
     "initialPoolSize": 100,
     "maxIdleTime": 30,
     "maxPoolSize": 100,
     "minPoolSize": 10,
     "maxStatements": 200
->>>>>>> bugfix
 }`
 
 const mapStateToProps = state => {

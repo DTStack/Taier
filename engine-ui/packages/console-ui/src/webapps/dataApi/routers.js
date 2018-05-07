@@ -31,8 +31,8 @@ import MyAPI from './views/myApi'
 import APIDetail from './views/market/detail'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
-import NewApi from "./views/management/NewApi"
-import EditAPI from './views/management/EditApi';
+import NewApi from "./views/management/newApi"
+import EditAPI from './views/management/editApi';
 
 
 // ======= 测试 =======

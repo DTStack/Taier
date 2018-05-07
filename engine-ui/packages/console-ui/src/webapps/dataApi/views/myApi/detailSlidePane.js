@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Tabs, Radio } from "antd"
 import SlidePane from "widgets/slidePane";
-import ApiCallMethod from "./others/ApiCallMethod";
-import ApiCallState from "./others/ApiCallState";
+import ApiCallMethod from "./others/apiCallMethod";
+import ApiCallState from "./others/apiCallState";
 import ErrorLog from "./others/errorLog";
 
 

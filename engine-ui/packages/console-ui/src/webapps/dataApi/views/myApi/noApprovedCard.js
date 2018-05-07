@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Input } from "antd"
-import SlidePane from "./ApprovedSlidePane";
+import SlidePane from "./approvedSlidePane";
 import utils from "utils"
 const sortType = {
     "applyTime": 'gmt_modified'
