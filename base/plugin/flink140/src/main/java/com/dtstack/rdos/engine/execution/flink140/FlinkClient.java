@@ -27,7 +27,6 @@ import com.dtstack.rdos.engine.execution.flink140.source.batch.BatchSourceFactor
 import com.dtstack.rdos.engine.execution.flink140.source.stream.StreamSourceFactory;
 import com.dtstack.rdos.engine.execution.flink140.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink140.util.HadoopConf;
-import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -96,8 +95,6 @@ public class FlinkClient extends AbsClient {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String sqlPluginDirName = "sqlplugin";
-
     private static final int failureRate = 3;
 
     private static final int failureInterval = 6; //min
@@ -121,6 +118,8 @@ public class FlinkClient extends AbsClient {
 
     private SyncPluginInfo syncPluginInfo;
 
+    private SqlPluginInfo sqlPluginInfo;
+
     private ClusterClient client;
 
     /**客户端是否处于可用状态*/
@@ -134,18 +133,8 @@ public class FlinkClient extends AbsClient {
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
-        String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
-        File sqlPluginDirFile = new File(localSqlPluginDir);
-
-        if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
-            throw new RdosException("not exists flink sql dir:" + localSqlPluginDir + ", please check it!!!");
-        }
-
-        String remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
-        PluginSourceUtil.setSourceJarRootDir(localSqlPluginDir);
-        PluginSourceUtil.setRemoteSourceJarRootDir(remoteSqlPluginDir);
-
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
+        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
         this.yarnMonitorES = new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
@@ -155,8 +144,8 @@ public class FlinkClient extends AbsClient {
         initClient();
     }
 
-    public void initClient(){
-        client = flinkClientBuilder.create(flinkConfig, this);
+    private void initClient(){
+        client = flinkClientBuilder.create(flinkConfig);
         if(flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
             //启动守护线程---用于获取当前application状态和更新flink对应的application
             yarnMonitorES.submit(new YarnAppStatusMonitor(client, this));
@@ -174,10 +163,6 @@ public class FlinkClient extends AbsClient {
         yarnConf = customerConf.getYarnConfiguration();
     }
 
-
-    public String getSqlPluginDir(String pluginRoot){
-        return pluginRoot + sp + sqlPluginDirName;
-    }
 
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
@@ -327,11 +312,11 @@ public class FlinkClient extends AbsClient {
                 }else if(operator instanceof CreateSourceOperator){//添加数据源,注册指定table
 
                     CreateSourceOperator sourceOperator = (CreateSourceOperator) operator;
-                    Table table = StreamSourceFactory.getStreamSource(sourceOperator, env, tableEnv);
+                    Table table = StreamSourceFactory.getStreamSource(sourceOperator, env, tableEnv, sqlPluginInfo);
                     tableEnv.registerTable(sourceOperator.getName(), table);
 
                     String sourceType = sourceOperator.getType() + StreamSourceFactory.SUFFIX_JAR;
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceType);
+                    String remoteJarPath = sqlPluginInfo.getRemoteJarFilePath(sourceType);
                     classPathSet.add(remoteJarPath);
 
                 }else if(operator instanceof CreateFunctionOperator){//注册自定义func
@@ -364,7 +349,7 @@ public class FlinkClient extends AbsClient {
                     tableEnv.registerTableSink(resultOperator.getName(), resultOperator.getFields(), flinkTypes, tableSink);
 
                     String sinkType = resultOperator.getType() + StreamSinkFactory.SUFFIX_JAR;
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkType);
+                    String remoteJarPath = sqlPluginInfo.getRemoteJarFilePath(sinkType);
                     classPathSet.add(remoteJarPath);
 
                 }else{
@@ -386,7 +371,7 @@ public class FlinkClient extends AbsClient {
 
             List<URL> classPathList = Lists.newArrayList();
             for(String remoteJarPth : classPathSet){
-                URL url = new URL(PluginSourceUtil.getFileURLFormat(remoteJarPth));
+                URL url = new URL(SqlPluginInfo.getFileURLFormat(remoteJarPth));
                 classPathList.add(url);
             }
 
@@ -449,7 +434,7 @@ public class FlinkClient extends AbsClient {
                     tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
 
                     String sourceType = sourceOperator.getType() + BatchSourceFactory.SUFFIX_JAR;
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sourceType);
+                    String remoteJarPath = sqlPluginInfo.getRemoteJarFilePath(sourceType);
                     classPathSet.add(remoteJarPath);
 
                 }else if(operator instanceof CreateFunctionOperator){//注册自定义func
@@ -487,11 +472,11 @@ public class FlinkClient extends AbsClient {
                     currStep = 4;
 
                     BatchCreateResultOperator sinkOperator = (BatchCreateResultOperator) operator;
-                    TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator);
+                    TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator, sqlPluginInfo);
                     resultTable.writeToSink(tableSink);
 
                     String sinkType = sinkOperator.getType() + BatchSinkFactory.SUFFIX_JAR;
-                    String remoteJarPath = PluginSourceUtil.getRemoteJarFilePath(sinkType);
+                    String remoteJarPath = sqlPluginInfo.getRemoteJarFilePath(sinkType);
                     classPathSet.add(remoteJarPath);
                 }
             }
@@ -504,7 +489,7 @@ public class FlinkClient extends AbsClient {
 
             List<URL> classPathList = Lists.newArrayList();
             for(String jarPath : classPathSet){
-                URL jarURL = new URL(PluginSourceUtil.getFileURLFormat(jarPath));
+                URL jarURL = new URL(SqlPluginInfo.getFileURLFormat(jarPath));
                 classPathList.add(jarURL);
             }
 

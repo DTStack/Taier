@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink140.sink.stream;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.flink140.SqlPluginInfo;
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sinks.TableSink;
 
@@ -38,8 +38,8 @@ public class StreamSinkFactory {
         String resultType = resultOperator.getType();
         resultType += SUFFIX_JAR;
 
-        String pluginJarPath = PluginSourceUtil.getJarFilePath(resultType);
-        String className = PluginSourceUtil.getClassName(resultType);
+        String pluginJarPath = SqlPluginInfo.getJarFilePath(resultType);
+        String className = SqlPluginInfo.getClassName(resultType);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

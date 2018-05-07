@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink140.source.stream;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.flink140.SqlPluginInfo;
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
@@ -42,7 +42,7 @@ public class StreamSourceFactory {
      * @return
      */
     public static Table getStreamSource(CreateSourceOperator sourceOperator, StreamExecutionEnvironment env,
-                                        StreamTableEnvironment tableEnv) throws Exception {
+                                        StreamTableEnvironment tableEnv, SqlPluginInfo sqlPluginInfo) throws Exception {
 
         String sourceTypeStr = sourceOperator.getType();
         Properties properties = sourceOperator.getProperties();
@@ -55,8 +55,8 @@ public class StreamSourceFactory {
         }
 
         sourceTypeStr += SUFFIX_JAR;
-        String pluginJarPath = PluginSourceUtil.getJarFilePath(sourceTypeStr);
-        String className = PluginSourceUtil.getClassName(sourceTypeStr);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(sourceTypeStr);
+        String className = sqlPluginInfo.getClassName(sourceTypeStr);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

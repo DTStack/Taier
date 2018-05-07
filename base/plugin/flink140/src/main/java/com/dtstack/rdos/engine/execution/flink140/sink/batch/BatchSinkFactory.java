@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink140.sink.batch;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink140.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.flink140.SqlPluginInfo;
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sinks.TableSink;
 
@@ -27,7 +27,7 @@ public class BatchSinkFactory {
     /**jar包后缀*/
     public static String SUFFIX_JAR = "batchsink140";
 
-    public static TableSink getTableSink(BatchCreateResultOperator resultOperator) throws IOException,
+    public static TableSink getTableSink(BatchCreateResultOperator resultOperator, SqlPluginInfo sqlPluginInfo) throws IOException,
             ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -38,8 +38,8 @@ public class BatchSinkFactory {
         String resultType = resultOperator.getType();
         resultType += SUFFIX_JAR;
 
-        String pluginJarPath = PluginSourceUtil.getJarFilePath(resultType);
-        String className = PluginSourceUtil.getClassName(resultType);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(resultType);
+        String className = sqlPluginInfo.getClassName(resultType);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

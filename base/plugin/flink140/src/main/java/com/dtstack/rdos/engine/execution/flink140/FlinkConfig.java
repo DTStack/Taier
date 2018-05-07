@@ -19,6 +19,8 @@ public class FlinkConfig {
 
 	private static final String DEFAULT_JAR_TMP_DIR = "../tmp140";
 
+	private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "hdfs://%s/flink140/ha";
+
     private String typeName;
 
 	private String flinkZkAddress;
@@ -102,6 +104,11 @@ public class FlinkConfig {
 			String flinkHighAvailabilityStorageDir) {
 		this.flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir;
 	}
+
+    public void setDefaultFlinkHighAvailabilityStorageDir(String nameServices) {
+        String defaultVal = String.format(DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR, nameServices);
+        this.flinkHighAvailabilityStorageDir = defaultVal;
+    }
 
 	public String getTypeName() {
 		return typeName;

@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.ClusterClient;
@@ -55,11 +56,17 @@ public class FlinkClientBuilder {
         return builder;
     }
 
-    public ClusterClient create(FlinkConfig flinkConfig, FlinkClient flinkClient){
+    public ClusterClient create(FlinkConfig flinkConfig){
 
         String clusterMode = flinkConfig.getClusterMode();
         if(StringUtils.isEmpty(clusterMode)) {
             clusterMode = Deploy.standalone.name();
+        }
+
+        if(Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())){
+            //设置默认值
+            String nameServices = hadoopConf.get(HadoopConfTool.DFS_NAME_SERVICES);
+            flinkConfig.setDefaultFlinkHighAvailabilityStorageDir(nameServices);
         }
 
         if(clusterMode.equals( Deploy.standalone.name())) {
