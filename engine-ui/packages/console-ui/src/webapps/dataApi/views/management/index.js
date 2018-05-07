@@ -23,14 +23,14 @@ const mapDispatchToProps = dispatch => ({
     },
     getDataSourceList(type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
-    },
+    },   
     deleteApi(apiId){
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
     openApi(apiId){
         return dispatch(apiManageActions.openApi(apiId));   
     },
-    closeApi(apiId){
+    closeApi(apiId){ 
         return dispatch(apiManageActions.closeApi(apiId));
     },
     getDataSourcesType(){
