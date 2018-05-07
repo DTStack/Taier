@@ -7,7 +7,7 @@ import { apps, app } from 'main/reducers/modules/apps'
 
 import dataSource from './modules/dataSource';
 import common from './modules/common';
-
+import tagConfig from './modules/tagConfig';
 import apiMarket from './modules/apiMarket';
 import mine from './modules/mine';
 import apiManage from './modules/apiManage';
@@ -19,6 +19,7 @@ const rootReducer = combineReducers({
     user,
     app,
     apps,
+    tagConfig,
     dataSource,
     common,
     apiMarket,
