@@ -295,7 +295,7 @@ class PatchDataDetail extends Component {
 
         if (e.target.checked) {
             const tasks = this.state.table.data && this.state.table.data.recordList
-            selectedRowKeys = tasks && tasks.map(item => item.id)
+            selectedRowKeys = tasks && tasks.map(item => {if (item.batchTask.isDeleted !== 1) { return item.id }})
         } 
 
         this.setState({
@@ -372,7 +372,7 @@ class PatchDataDetail extends Component {
     tableFooter = (currentPageData) => {
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
-                <td style={{ padding: '15px 10px 10px 30px' }}>
+                <td style={{ padding: '15px 10px 10px 32px' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -415,6 +415,9 @@ class PatchDataDetail extends Component {
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange,
+            getCheckboxProps: record => ({
+                disabled: record.batchTask && record.batchTask.isDeleted === 1
+            })
         };
 
         return (

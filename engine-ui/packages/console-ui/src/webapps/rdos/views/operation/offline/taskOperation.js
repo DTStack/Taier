@@ -176,7 +176,7 @@ class OfflineTaskList extends Component {
             warning({
                 title: '提示',
                 content: `
-                    除去“失败”、“取消”、“完成”状态以外的任务才可以进行杀死操作，
+                    除去“失败”、“取消”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
                     请您重新选择!
                 `,
             })
@@ -246,7 +246,8 @@ class OfflineTaskList extends Component {
                 if (res && (
                     res.status === TASK_STATUS.SUBMIT_FAILED || 
                     res.status === TASK_STATUS.STOPED || 
-                    res.status === TASK_STATUS.FINISHED
+                    res.status === TASK_STATUS.FINISHED ||
+                    res.batchTask.isDeleted === 1
                 )) return false
             }
             return true
@@ -319,7 +320,7 @@ class OfflineTaskList extends Component {
         let selectedRowKeys = []
 
         if (e.target.checked) {
-            selectedRowKeys = this.state.tasks.data.map(item => item.id)
+            selectedRowKeys = this.state.tasks.data.map(item => {if (item.batchTask.isDeleted !== 1) { return item.id }})
         }
 
         this.setState({
@@ -453,6 +454,9 @@ class OfflineTaskList extends Component {
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange,
+            getCheckboxProps: record => ({
+                disabled: record.batchTask && record.batchTask.isDeleted === 1
+            })
         };
 
         return (

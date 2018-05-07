@@ -42,6 +42,7 @@ class APIApproval extends Component {
         userName: "",
         applyContent: "",
         replyContent: "",
+        apiName:"",
         spApplyMsg:{},
         total: 0,
         
@@ -74,7 +75,8 @@ class APIApproval extends Component {
             currentPage: this.state.pageIndex,
             pageSize: 20,
             sort:orderType[this.state.sorter.order],
-            orderBy:sortType[this.state.sorter.columnKey]
+            orderBy:sortType[this.state.sorter.columnKey],
+            apiName:this.state.apiName
         })
             .then(
                 (res) => {
@@ -89,6 +91,15 @@ class APIApproval extends Component {
     handleSearch(key) {
         this.setState({
             userName: key,
+            pageIndex:1
+        },
+            () => {
+                this.getApprovalList();
+            })
+    }
+    handleApiSearch(key) {
+        this.setState({
+            apiName: key,
             pageIndex:1
         },
             () => {
@@ -242,6 +253,12 @@ class APIApproval extends Component {
                     onSearch={this.handleSearch.bind(this)}
                 />
 
+                <Search
+                    placeholder="输入API名称搜索"
+                    style={{ width: 150, margin: '10px 0px' ,marginLeft:"30px"}}
+                    onSearch={this.handleApiSearch.bind(this)}
+                />
+
 
             </div>
         )
@@ -299,6 +316,7 @@ class APIApproval extends Component {
 
                         noHovering
                         title={this.getCardTitle()}
+                        className="shadow"
                     >
                         <Table
                             rowKey="id"

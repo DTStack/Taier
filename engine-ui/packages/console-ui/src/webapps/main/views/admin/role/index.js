@@ -95,7 +95,10 @@ class AdminRole extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
-        }, this.loadData)
+        }, ()=>{
+            this.props.router.replace("/admin/role?app="+key)
+            this.loadData();
+        })
     }
 
     onProjectSelect = (value) => {

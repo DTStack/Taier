@@ -57,7 +57,7 @@ export default class AtomIndexDefine extends BasePane {
     changeSearchName = (e) => {
         this.setState({
             params: Object.assign(this.state.params, {
-                name: e.target.value,
+                columnNameZh: e.target.value,
                 currentPage: 1,
             }),
         })
@@ -94,36 +94,37 @@ export default class AtomIndexDefine extends BasePane {
 
     initColumns = () => {
         return [{
+            width: 100,
             title: '指标类型',
             dataIndex: 'columnType',
             key: 'columnType',
             render: type => <IndexType value={type} />,
         }, {
-            width: 120,
             title: '原子指标名称',
             dataIndex: 'columnNameZh',
             key: 'columnNameZh',
         }, {
-            width: 120,
             title: '原子指标命名',
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 80,
+            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 80,
+            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
+            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
+            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -131,7 +132,13 @@ export default class AtomIndexDefine extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.delete(record) }}>删除</a>
+                        <Popconfirm 
+                            title="确定删除此条记录吗?" 
+                            onConfirm={() => { this.delete(record) }}
+                            okText="是" cancelText="否"
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
                     </div>
                 )
             },

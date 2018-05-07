@@ -55,7 +55,7 @@ export default class FieldCheck extends Component {
 
     ignore = (record) => {
         Api.ignoreCheck({
-            monitorId: record.monitorId,
+            id: record.id,
             type: '2',
         }).then(res => {
             if (res.code === 1) {
@@ -66,9 +66,13 @@ export default class FieldCheck extends Component {
     }
 
     changeParams = (field, value) => {
-        this.setState(Object.assign(this.state.params, {
+        const params = {
             [field]: value,
-        }), this.loadData)
+        }
+
+        if (field !== 'pageIndex') params.pageIndex = 1;
+
+        this.setState(Object.assign(this.state.params, params), this.loadData)
     }
 
     onTableNameChange = (e) => {
@@ -105,23 +109,25 @@ export default class FieldCheck extends Component {
             key: 'userName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'lastModify',
-            key: 'lastModify',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '检测结果',
-            dataIndex: 'triggerType',
-            key: 'triggerType',
-            render: value => <FieldNameCheck value={value} />,
+            dataIndex: 'checkResult',
+            key: 'checkResult',
         }, {
+            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
+                const showText = record.isIgnore ? '恢复' : '忽略';
+
                 return (
                     <div key={record.id}>
                         <Link to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.ignore(record) }}>忽略</a>
+                        <a onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
             },

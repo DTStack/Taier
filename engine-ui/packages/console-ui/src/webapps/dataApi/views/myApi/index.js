@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Menu, Card, Table, Tabs } from "antd"
 import { connect } from "react-redux";
 import { mineActions } from '../../actions/mine';
-import NoApprovedCard from "./NoApprovedCard"
-import ApprovedCard from "./ApprovedCard"
+import NoApprovedCard from "./noApprovedCard"
+import ApprovedCard from "./approvedCard"
 
 const mapStateToProps = state => {
     const { user, mine } = state;
@@ -11,21 +11,23 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApplyingList(currentPage, orderBy, sort) {
+    getApplyingList(currentPage, orderBy, sort,apiName) {
         return dispatch(mineActions.getApplyingList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
-            sort: sort
+            sort: sort,
+            apiName:apiName
         }));
     },
-    getAppliedList(currentPage, orderBy, sort, status) {
+    getAppliedList(currentPage, orderBy, sort, status,apiName) {
         return dispatch(mineActions.getAppliedList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
             sort: sort,
-            status: status
+            status: status,
+            apiName:apiName
         }));
     },
     updateApplyStatus(id,status){
