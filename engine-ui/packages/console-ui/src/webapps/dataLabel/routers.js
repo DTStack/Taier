@@ -26,6 +26,7 @@ import TagManagement from './views/management'
 import TagApproval from './views/approval'
 
 import TagConfig from './views/tagConfig'
+import IdentifyColumn from './views/tagConfig/identifyColumn'
 import DataSourceIndex from './views/dataSource'
 
 // ======= 测试 =======
@@ -54,6 +55,7 @@ export default (
             <Route path="approval" component={ TagApproval }></Route>
             <Route path="management" component={ TagManagement }></Route>
             <Route path="tagConfig" component={ TagConfig }></Route>
+            <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
     </Route>

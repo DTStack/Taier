@@ -4,19 +4,19 @@ import { DL_BASE_URL } from 'config/base';
 export default {
 
     // ===== 系统管理 ===== //
-    LB_ROLE_QUERY: `${DL_BASE_URL}/role/pageQuery`,
-    LB_ROLE_UPDATE: `${DL_BASE_URL}/role/addOrUpdateRole`,
-    LB_ROLE_DELETE: `${DL_BASE_URL}/role/deleteRole`,
-    LB_ROLE_PERMISSION_TREE: `${DL_BASE_URL}/permission/tree`,
-    LB_ROLE_PERMISSION: `${DL_BASE_URL}/permission/getPermissionIdsByRoleId`,
+    DL_ROLE_QUERY: `${DL_BASE_URL}/role/pageQuery`,
+    DL_ROLE_UPDATE: `${DL_BASE_URL}/role/addOrUpdateRole`,
+    DL_ROLE_DELETE: `${DL_BASE_URL}/role/deleteRole`,
+    DL_ROLE_PERMISSION_TREE: `${DL_BASE_URL}/permission/tree`,
+    DL_ROLE_PERMISSION: `${DL_BASE_URL}/permission/getPermissionIdsByRoleId`,
 
     // ===== 用户相关 ===== //
-    LB_GET_USER_BY_ID: `${DL_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
-    LB_GET_USER_PAGES: `${DL_BASE_URL}/user/pageQuery`,
-    LB_GET_USER_NOT_IN_PROJECT: `${DL_BASE_URL}/user/listNotIn`,
-    LB_USER_ROLE_ADD: `${DL_BASE_URL}/roleUser/addRoleUser`,
-    LB_USER_ROLE_DELETE: `${DL_BASE_URL}/roleUser/remove`,
-    LB_USER_ROLE_UPDATE: `${DL_BASE_URL}/roleUser/updateUserRole`,
+    DL_GET_USER_BY_ID: `${DL_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
+    DL_GET_USER_PAGES: `${DL_BASE_URL}/user/pageQuery`,
+    DL_GET_USER_NOT_IN_PROJECT: `${DL_BASE_URL}/user/listNotIn`,
+    DL_USER_ROLE_ADD: `${DL_BASE_URL}/roleUser/addRoleUser`,
+    DL_USER_ROLE_DELETE: `${DL_BASE_URL}/roleUser/remove`,
+    DL_USER_ROLE_UPDATE: `${DL_BASE_URL}/roleUser/updateUserRole`,
 
     // ===== 消息管理 ===== //
     MASSAGE_QUERY: `${DL_BASE_URL}/notify/pageQuery`,
@@ -28,19 +28,19 @@ export default {
     // ===== 总览 ===== //
 
     // ===== 标签注册 ===== //
-    QUERY_REGISTERED_LABEL: `${DL_BASE_URL}/tag/registerQuery`,       // 查询注册标签
-    ADD_REGISTER_LABEL: `${DL_BASE_URL}/tag/registerAdd`,             // 新增注册标签
-    UPDATE_LABEL: `${DL_BASE_URL}/tag/update`,                        // 更新标签
-    DEL_LABEL: `${DL_BASE_URL}/tag/deleteTag`,                        // 删除标签
+    QUERY_REGISTERED_TAG: `${DL_BASE_URL}/tag/registerQuery`,         // 查询注册标签
+    ADD_REGISTER_TAG: `${DL_BASE_URL}/tag/registerAdd`,               // 新增注册标签
+    UPDATE_TAG: `${DL_BASE_URL}/tag/update`,                          // 更新标签
+    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
 
     // ===== 标签生成 ===== //
-    QUERY_RESOLVED_LABEL: `${DL_BASE_URL}/tag/customQuery`,           // 查询生成标签
-    ADD_LABEL: `${DL_BASE_URL}/tag/customAdd`,                        // 新增标签生成
-    UPDATE_LABEL: `${DL_BASE_URL}/tag/update`,                        // 更新标签
-    DEL_LABEL: `${DL_BASE_URL}/tag/deleteTag`,                        // 删除标签
-    GET_RESOLVED_LABEL_RETAIL: `${DL_BASE_URL}/tag/getOne`,           // 标签生成详情
-    EDIT_CONDITION: `${DL_BASE_URL}/tag/editCustomCondition`,         // 编辑过滤条件
-    DELETE_CONDITION: `${DL_BASE_URL}/tag/deleteCustomCondition`,     // 删除过滤条件
+    QUERY_RULE_TAG: `${DL_BASE_URL}/tag/customQuery`,                 // 查询生成标签
+    ADD_RULE_TAG: `${DL_BASE_URL}/tag/customAdd`,                     // 新增标签生成
+    UPDATE_TAG: `${DL_BASE_URL}/tag/update`,                          // 更新标签
+    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
+    GET_RULE_TAG_RETAIL: `${DL_BASE_URL}/tag/getOne`,                 // 标签生成详情
+    EDIT_TAG_CONDITION: `${DL_BASE_URL}/tag/editCustomCondition`,     // 编辑过滤条件
+    DELETE_TAG_CONDITION: `${DL_BASE_URL}/tag/deleteCustomCondition`, // 删除过滤条件
 
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DL_BASE_URL}/dataSource/pageQuery`,          // 查询数据源
@@ -58,5 +58,5 @@ export default {
     
 
     // ===== common ===== //
-    LB_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
+    DL_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
 }

@@ -32,11 +32,11 @@ export default {
     },
 
     getLoginedUser() {
-        return http.post(req.LB_GET_USER_BY_ID)
+        return http.post(req.DL_GET_USER_BY_ID)
     },
     
     getUserList() {
-        return http.post(req.LB_GET_USER_LIST)
+        return http.post(req.DL_GET_USER_LIST)
     }
 
 }

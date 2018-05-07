@@ -5,7 +5,7 @@ import req from '../consts/reqUrls'
 export default {
 
     getUserList() {
-        return http.post(req.LB_GET_USER_LIST)
+        return http.post(req.DL_GET_USER_LIST)
     },
 
 }
