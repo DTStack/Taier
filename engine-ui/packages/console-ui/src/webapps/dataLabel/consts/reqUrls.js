@@ -63,7 +63,7 @@ export default {
     // ===== api授权审批 ====//
     HANDLE_APPLY: `${DL_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST: `${DL_BASE_URL}/apply/allApplyList`,//获取审批列表
-    
+
     // ===== api管理 ===== //
     GET_ALL_API_LIST: `${DL_BASE_URL}/apis/listByConditionForAdmin`,//获取所有的api
     GET_DATASOURCE_BASE_INFO: `${DL_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源
@@ -95,11 +95,11 @@ export default {
 
     // ===== 市场信息 =====//
     GET_CATALOGUE: `${DL_BASE_URL}/catalogue/getCatalogue`,//获取市场分类信息
-    GET_API_MARKET_LIST: `${DL_BASE_URL}/apis/listByCondition`,//获取市场api列表
+    GET_API_MARKET_LIST: `${DL_BASE_URL}/tag/pageQuery`,//获取市场api列表
     GET_MARKET_API_DETAIL: `${DL_BASE_URL}/apis/getApiDetail`,//获取市场api详情
     GET_API_EXT_INFO: `${DL_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
-    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/apis/getApiExtInfoForManager`,//管理员获取api详情调用情况等
-    APPLY_API: `${DL_BASE_URL}/apply/apiApply`,//申请API
+    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/tag/getApiExtInfoForManager`,//管理员获取api详情调用情况等
+    APPLY_API: `${DL_BASE_URL}/apply/tagApply`,//申请API
     GET_MARKET_TOP_CALL_FUNC: `${DL_BASE_URL}/apis/listApiCallNumTopNForManager`,//管理员获取api调用次数topN
 
 }
