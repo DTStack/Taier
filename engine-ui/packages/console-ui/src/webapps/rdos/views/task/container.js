@@ -6,6 +6,9 @@ import { connect } from 'react-redux'
 
 import Sidebar from './sidebar'
 import SearchTaskModal from './searchTaskModal'
+import { 
+    stopSql
+} from '../../store/modules/offlineTask/sqlEditorAction'
 
 const { Content } = Layout
 
@@ -16,6 +19,11 @@ const defaultPro = {
     children: [],
 }
 
+function mapStateToProps(state) {
+    return { sqlEditor: state.sqlEditor }
+}
+
+@connect(mapStateToProps)
 class Container extends Component {
 
     constructor(props) {
@@ -30,8 +38,17 @@ class Container extends Component {
     }
 
     componentWillUnmount() {
+        
+        const {dispatch,sqlEditor}=this.props;
+        const running=sqlEditor.running;
+        //清楚所有运行中的tabs状态
+        for(let i in running){
+            dispatch(stopSql(running[i],null,true))
+        }
         window.removeEventListener('beforeunload', this.beforeunload, false)
+        
     }
+
 
     beforeunload = (e) => {
         /* eslint-disable */

@@ -55,6 +55,7 @@ export default {
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batch/batchJobJob/displayForefathers`, // 获取父节点
     EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
     STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
+    SELECT_SQL_RESULT_DATA:`${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`,//轮询调度查询sql结果
     CHECK_IS_LOOP: `${RDOS_BASE_URL}/batch/batchTask/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${RDOS_BASE_URL}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
