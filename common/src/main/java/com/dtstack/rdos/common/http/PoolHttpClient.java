@@ -83,7 +83,7 @@ public class PoolHttpClient {
 			setConfig(httPost);
 			if (bodyData != null && bodyData.size() > 0) {
 				httPost.setEntity(new StringEntity(objectMapper
-						.writeValueAsString(bodyData)));
+						.writeValueAsString(bodyData),charset));
 			}
 
 			// 请求数据
