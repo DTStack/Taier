@@ -339,8 +339,8 @@ class ApprovedCard extends Component {
                     </SlidePaneDetail>
                     <div className="flex font-12">
                         <Search
-                            placeholder="输入API名称搜索"
-                            style={{ width: 150, margin: '10px 0px',marginLeft:"10px" }}
+                            placeholder="输入标签名称搜索"
+                            style={{ width: 150, margin: '10px 0px', marginLeft:"10px" }}
                             onSearch={this.handleApiSearch.bind(this)}
                         />
                     </div>
