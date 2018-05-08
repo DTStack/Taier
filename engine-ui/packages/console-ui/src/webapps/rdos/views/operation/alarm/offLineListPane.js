@@ -21,7 +21,7 @@ const Option = Select.Option
 const FormItem = Form.Item
 
 class OfflinePanel extends Component {
-
+    
     state = {
         alarmRecords: { data: [] },
         loading: false,
@@ -244,6 +244,7 @@ class OfflinePanel extends Component {
                                     allowClear
                                     style={{ width: 120 }}
                                     onChange={this.changeTaskName} 
+                                    onPressEnter={this.search}
                                 />
                             </FormItem>
                             <FormItem
@@ -256,6 +257,8 @@ class OfflinePanel extends Component {
                                     placeholder="请选择接收人"
                                     optionFilterProp="name"
                                     onChange={this.changeReceive}
+                                    
+                                    
                                 >
                                     {userItems}
                                 </Select>
