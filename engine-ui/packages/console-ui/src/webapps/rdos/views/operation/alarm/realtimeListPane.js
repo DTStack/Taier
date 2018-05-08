@@ -215,6 +215,7 @@ class RealTimePanel extends Component {
                                 allowClear
                                 style={{ width: 120 }}
                                 onChange={this.changeTaskName} 
+                                onPressEnter={this.search}
                             />
                             </FormItem>
                             <FormItem
