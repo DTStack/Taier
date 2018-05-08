@@ -12,6 +12,7 @@ import moment from 'moment';
 import { isEmpty } from 'lodash';
 
 import Editor from '../../components/code-editor';
+import {DDL_placeholder} from "../../comm/DDLCommon"
 
 import actions from '../../store/modules/dataManage/actionCreator';
 import CatalogueTree from './catalogTree';
@@ -274,6 +275,7 @@ class TableList extends Component {
                             onCancel={this.handleCancel.bind(this)}
                         >
                             <Editor
+                                placeholder={DDL_placeholder}
                                 onChange={ this.handleDdlChange.bind(this) } 
                                 value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
                             />
