@@ -28,7 +28,7 @@ const mapDispatchToProps = dispatch => ({
         return dispatch(apiManageActions.deleteApi({ apiIds: [tagId] }));
     },
     openApi(tagId){
-        return dispatch(apiManageActions.openApi(tagId));   
+        return dispatch(apiManageActions.openApi(tagId));
     },
     closeApi(tagId){
         return dispatch(apiManageActions.closeApi(tagId));
