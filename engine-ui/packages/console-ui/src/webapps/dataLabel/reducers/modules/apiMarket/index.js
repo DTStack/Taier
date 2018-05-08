@@ -29,12 +29,12 @@ export default function apiMarket(state = initialState, action) {
         }
         case apiMarketActionType.GET_MARKET_API_DETAIL:{
             const clone=cloneDeep(state);
-            clone.api[payload.apiId]=payload;
+            clone.api[payload.tagId]=payload;
             return clone
         }
         case apiMarketActionType.GET_API_EXT_INFO:{
             const clone=cloneDeep(state);
-            clone.apiCallInfo[payload.apiId]=payload;
+            clone.apiCallInfo[payload.tagId]=payload;
             return clone
         }
 

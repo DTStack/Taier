@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Icon } from 'antd'
 
-import { Navigator, Logo }  from 'main/components/nav';
+import { Navigator, Logo } from 'main/components/nav';
 
 @connect(state => {
     return {
@@ -10,6 +10,7 @@ import { Navigator, Logo }  from 'main/components/nav';
         apps: state.apps,
         routing: state.routing,
         app: state.app,
+        common: state.common,
     }
 })
 class Header extends Component {
@@ -21,7 +22,8 @@ class Header extends Component {
 
     render() {
         const { user, apps } = this.props;
-        const baseUrl = '/dataLabel.html#'
+        const baseUrl = '/dataLabel.html#';
+
         const menuItems = [{
             id: 'dl/market',
             name: '标签市场',
@@ -55,12 +57,12 @@ class Header extends Component {
         }];
 
         const logo = <span>
-            <Icon style={{ fontSize: '18px', color: '#2491F7', marginRight: '10px' }} type="tags-o"/>
+            <Icon style={{ fontSize: '18px', color: '#2491F7', marginRight: '10px' }} type="tags-o" />
             <span style={{ fontSize: '14px', color: '#ffffff' }}>
                 DTinsight.Tag
             </span>
         </span>
-        return <Navigator 
+        return <Navigator
             logo={logo}
             menuItems={menuItems}
             {...this.props}

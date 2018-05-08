@@ -65,7 +65,7 @@ export default {
     GET_ALL_APPLY_LIST: `${DL_BASE_URL}/apply/allApplyList`,//获取审批列表
 
     // ===== api管理 ===== //
-    GET_ALL_API_LIST: `${DL_BASE_URL}/apis/listByConditionForAdmin`,//获取所有的api
+    GET_ALL_API_LIST: `${DL_BASE_URL}/tag/customQuery`,//获取所有的api
     GET_DATASOURCE_BASE_INFO: `${DL_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源
     DELETE_API: `${DL_BASE_URL}/apis/deleteApi`,//删除api
     UPDATE_API: `${DL_BASE_URL}/apis/updateApiStatus`,//更新api状态

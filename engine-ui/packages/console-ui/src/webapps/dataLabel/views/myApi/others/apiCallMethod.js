@@ -5,10 +5,10 @@ class ApiCallMethod extends Component{
     state={
         callUrl:""
     }
-    getApiCallUrl(apiId){
+    getApiCallUrl(tagId){
       
-        apiId=apiId||this.props.showRecord.apiId;
-        this.props.getApiCallUrl(apiId)
+        tagId=tagId||this.props.showRecord.tagId;
+        this.props.getApiCallUrl(tagId)
         .then(
             (res)=>{
                 if(res){
@@ -23,15 +23,15 @@ class ApiCallMethod extends Component{
         this.getApiCallUrl();
     }
     componentWillReceiveProps(nextProps){
-        if(nextProps.showRecord&&this.props.showRecord.apiId!=nextProps.showRecord.apiId){
+        if(nextProps.showRecord&&this.props.showRecord.tagId!=nextProps.showRecord.tagId){
             if(nextProps.slidePaneShow){
-                this.getApiCallUrl(nextProps.showRecord.apiId);
+                this.getApiCallUrl(nextProps.showRecord.tagId);
             }
             
         }
     }
     render(){
-        const url="/api/market/detail/"+this.props.showRecord.apiId;
+        const url="/api/market/detail/"+this.props.showRecord.tagId;
         return (
             <div style={{paddingLeft:30}}>
                 <p style={{lineHeight:"30px"}}>调用URL：{this.state.callUrl}</p>

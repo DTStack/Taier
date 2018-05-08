@@ -37,7 +37,7 @@ class APIMarket extends Component {
         loading: true,
         applyBox: false,
         apply:{
-            apiId:"",
+            tagId:"",
             apiName:"",
             desc:""
         },
@@ -190,14 +190,14 @@ class APIMarket extends Component {
         }
     }
     dealcomplete(record) {
-        this.props.router.push("/dl/mine/approved?apiId="+record.key);    
+        this.props.router.push("/dl/mine/approved?tagId="+record.key);    
         console.log("dealcomplete", record);
     }
     dealnothing(record) {
         this.setState({
             applyBox: true,
             apply:{
-                apiId:record.key,
+                tagId:record.key,
                 apiName:record.apiName,
                 desc:record.description
             }
@@ -205,7 +205,7 @@ class APIMarket extends Component {
         console.log("dealnothing", record);
     }
     dealapplying(record) {
-        this.props.router.push("/dl/mine?apiId="+record.key);
+        this.props.router.push("/dl/mine?tagId="+record.key);
         console.log("dealapplying", record);
     }
     // 表格换页/排序
@@ -362,7 +362,7 @@ class APIMarket extends Component {
                 <ApplyBox show={this.state.applyBox}
                     successCallBack={this.handleOk.bind(this)}
                     cancelCallback={this.handleCancel.bind(this)}
-                    apiId={this.state.apply.apiId}
+                    tagId={this.state.apply.tagId}
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
                     getMarketApi={this.getMarketApi.bind(this)}

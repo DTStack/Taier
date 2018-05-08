@@ -49,11 +49,11 @@ class ApprovedCard extends Component {
             .then(
                 (res) => {
 
-                    if (this.props.apiId) {
+                    if (this.props.tagId) {
                         if (res) {
                             for (let i in res.data.data) {
                                 let item = res.data.data[i];
-                                if (this.props.apiId == item.apiId) {
+                                if (this.props.tagId == item.tagId) {
                                     this.apiClick(item);
                                     break;
                                 }
@@ -71,13 +71,13 @@ class ApprovedCard extends Component {
 
     }
     componentWillReceiveProps(nextProps) {
-        if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
+        if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
 
             const res = this.getSource();
             if (res) {
                 for (let i in res.data) {
                     let item = res.data[i];
-                    if (nextProps.apiId == item.apiId) {
+                    if (nextProps.tagId == item.tagId) {
                         this.dealClick(item);
                         break;
                     }
@@ -347,14 +347,14 @@ class ApprovedCard extends Component {
                     <Table
                         rowClassName={
                             (record, index) => {
-                                if (this.state.showRecord.apiId == record.apiId) {
+                                if (this.state.showRecord.tagId == record.tagId) {
                                     return "row-select"
                                 } else {
                                     return "";
                                 }
                             }
                         }
-                        rowKey="apiId"
+                        rowKey="tagId"
                         className="m-table monitor-table"
                         columns={this.initColumns()}
                         loading={this.state.loading}

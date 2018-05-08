@@ -24,14 +24,14 @@ const mapDispatchToProps = dispatch => ({
     getDataSourceList(type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
     },
-    deleteApi(apiId){
-        return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
+    deleteApi(tagId){
+        return dispatch(apiManageActions.deleteApi({ apiIds: [tagId] }));
     },
-    openApi(apiId){
-        return dispatch(apiManageActions.openApi(apiId));   
+    openApi(tagId){
+        return dispatch(apiManageActions.openApi(tagId));   
     },
-    closeApi(apiId){
-        return dispatch(apiManageActions.closeApi(apiId));
+    closeApi(tagId){
+        return dispatch(apiManageActions.closeApi(tagId));
     },
     getDataSourcesType(){
         return dispatch(dataSourceActions.getDataSourcesType());
@@ -314,7 +314,7 @@ class APIMana extends Component {
     editApi(id){
         this.props.router.push("/api/manage/editApi/"+id);
     }
-    openApi(apiId){
+    openApi(tagId){
         confirm({
             title: '确认开启?',
             content: '确认开启标签',
@@ -322,7 +322,7 @@ class APIMana extends Component {
                 this.setState({
                     loading:true
                 })
-                this.props.openApi(apiId)
+                this.props.openApi(tagId)
                     .then(
                         (res) => {
                             this.setState({
@@ -340,7 +340,7 @@ class APIMana extends Component {
             },
         });
     }
-    closeApi(apiId){
+    closeApi(tagId){
         confirm({
             title: '确认禁用?',
             content: '确认禁用标签',
@@ -348,7 +348,7 @@ class APIMana extends Component {
                 this.setState({
                     loading:true
                 })
-                this.props.closeApi(apiId)
+                this.props.closeApi(tagId)
                     .then(
                         (res) => {
                             this.setState({
@@ -367,7 +367,7 @@ class APIMana extends Component {
         });
     }
     //删除api
-    deleteApi(apiId) {
+    deleteApi(tagId) {
         confirm({
             title: '确认删除?',
             content: '确认删除标签',
@@ -375,7 +375,7 @@ class APIMana extends Component {
                 this.setState({
                     loading:true
                 })
-                this.props.deleteApi(apiId)
+                this.props.deleteApi(tagId)
                     .then(
                         (res) => {
                             this.setState({

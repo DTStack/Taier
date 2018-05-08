@@ -8,7 +8,7 @@ class TopCard extends Component {
     state = {
         applyBox: false,
         apply: {
-            apiId: "",
+            tagId: "",
             apiName: "",
             desc: ""
         }
@@ -31,7 +31,7 @@ class TopCard extends Component {
         this.setState({
             applyBox: true,
             apply: {
-                apiId: this.props.apiId,
+                tagId: this.props.tagId,
                 apiName: this.getApiValue('apiName'),
                 desc: this.getApiValue('desc')
             }
@@ -41,7 +41,7 @@ class TopCard extends Component {
         this.props.router.replace("/api/market");
     }
     getValue(key) {
-        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.apiId];
+        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.tagId];
         if (api) {
             return api[key]
         } else {
@@ -50,7 +50,7 @@ class TopCard extends Component {
 
     }
     getApiValue(key) {
-        const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.apiId];
+        const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.tagId];
         if (api) {
             return api[key]
         } else {
@@ -78,7 +78,7 @@ class TopCard extends Component {
 
     }
     jumpToMineApproved() {
-        this.props.router.push("/api/mine/approved?apiId="+this.props.apiId);
+        this.props.router.push("/api/mine/approved?tagId="+this.props.tagId);
     }
     handleOk() {
 
@@ -101,7 +101,7 @@ class TopCard extends Component {
                 <ApplyBox show={this.state.applyBox}
                     successCallBack={this.handleOk.bind(this)}
                     cancelCallback={this.handleCancel.bind(this)}
-                    apiId={this.state.apply.apiId}
+                    tagId={this.state.apply.tagId}
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
                 ></ApplyBox>

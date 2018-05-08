@@ -26,13 +26,13 @@ class errorLog extends Component {
         this.getErrorInfo();
 
     }
-    getErrorInfo(apiId) {
-        apiId=apiId||this.props.showRecord.apiId;
-        if (!apiId) {
+    getErrorInfo(tagId) {
+        tagId=tagId||this.props.showRecord.tagId;
+        if (!tagId) {
             return;
         }
         
-        this.props.getApiCallErrorInfo(apiId)
+        this.props.getApiCallErrorInfo(tagId)
             .then(
                 (res) => {
                     if (res) {
@@ -54,7 +54,7 @@ class errorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
+        this.props.queryApiCallLog(tagId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -70,10 +70,10 @@ class errorLog extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (
-            (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
+            (this.props.showRecord && this.props.showRecord.tagId !== nextProps.showRecord.tagId)
         ) {
             if(nextProps.slidePaneShow){
-                this.getErrorInfo(nextProps.showRecord.apiId);
+                this.getErrorInfo(nextProps.showRecord.tagId);
             }
             
 
