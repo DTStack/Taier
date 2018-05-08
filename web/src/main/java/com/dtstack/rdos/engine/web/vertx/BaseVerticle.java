@@ -15,7 +15,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -37,6 +37,8 @@ public class BaseVerticle {
 	
 	private final static String CODE = "UTF-8";
 
+	private static ObjectMapper objectMapper = new ObjectMapper();
+
 	public void request(final RoutingContext routingContext){
 		
 		final BaseVerticle allRequestVerticle  = this;
@@ -55,10 +57,11 @@ public class BaseVerticle {
 	protected Object reflectionMethod(RoutingContext routingContext) throws Exception{
 		HttpServerRequest httpServerRequest = routingContext.request();
 		//调用合法性验证
-		check(routingContext);
-		Map<String,Object> params = routingContext.getBodyAsJson().getMap();
+//		check(routingContext);
+		String rbody = routingContext.getBodyAsString(CODE);
+		Map<String,Object> params = objectMapper.readValue(rbody,Map.class);
 		String path = httpServerRequest.path();
-		logger.warn("receive http request:{}:{}",path,routingContext.getBodyAsString());
+		logger.warn("receive http request:{}:{}",path,rbody);
 		String[] paths = path.split("/");
 		if(paths.length < 2){
 			throw new RdosException("请求地址异常", ErrorCode.SERVICE_NOT_EXIST);
