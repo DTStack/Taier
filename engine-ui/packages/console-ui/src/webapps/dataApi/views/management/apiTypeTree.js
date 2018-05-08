@@ -174,7 +174,7 @@ class ApiTypeTree extends Component {
             >
 
                 {this.state.editNode == id ? (
-                    <input ref={this.setRange.bind(this)} autoFocus={true} defaultValue={text} onBlur={this.editOver.bind(this,id)} />
+                    <input ref={this.setRange.bind(this)} autoFocus={true} defaultValue={text} onBlur={this.editOver.bind(this,id,text)} />
                 ) : (
                         text
                     )}
@@ -191,7 +191,8 @@ class ApiTypeTree extends Component {
         q.setSelectionRange(pos, pos);
         this.editInput = q;
     }
-    editOver(id,e) {
+    editOver(id,oldText,e) {
+        
 
         const nodeName=this.editInput.value;
         if(!this.checkVal(nodeName)){
@@ -205,6 +206,9 @@ class ApiTypeTree extends Component {
             editNode: null
         },
             () => {
+                if(oldText==nodeName){
+                    return;
+                }
                 if(this.state.mode=="add"){
                     this.props.addCatalogue(this.state.addPid,nodeName)
                     return;
