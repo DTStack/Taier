@@ -57,7 +57,7 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                                         stopSign[currentTab] = false;
                                         return;
                                     }
-
+                                    dispatch(output(currentTab, `执行中.....`))
                                     doSelect(resolve, dispatch, jobId, currentTab)
 
                                 }, INTERVALS
@@ -185,6 +185,7 @@ export function stopSql(currentTab, currentTabData, isSilent) {
                 }
                 return;
             }
+            return;
 
         }
         const uniqueKey = runningSql[currentTab]
