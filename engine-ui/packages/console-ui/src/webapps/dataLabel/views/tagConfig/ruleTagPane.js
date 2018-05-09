@@ -57,14 +57,17 @@ export default class RuleTagPane extends Component {
     }
 
     componentDidMount() {
-        this.getRuleTagData(this.state.queryParams);
         this.props.getDataSourcesList();
         this.props.getAllIdentifyColumn();
         this.props.getCatalogue(0);
+
+        this.getRuleTagData(this.state.queryParams);
     }
 
+    // 获取标签列表数据
     getRuleTagData = (params) => {
         this.setState({ loading: true });
+
         TCApi.queryRuleTag(params).then((res) => {
             if (res.code === 1) {
                 this.setState({ 
@@ -144,7 +147,7 @@ export default class RuleTagPane extends Component {
                             <Popconfirm
                                 title="确定删除此标签？"
                                 okText="确定" cancelText="取消"
-                                onConfirm={() => {this.removeTag(record)}}
+                                onConfirm={this.removeTag.bind(this, record.id)}
                             >
                                 <a>删除</a>
                             </Popconfirm>
@@ -172,14 +175,34 @@ export default class RuleTagPane extends Component {
         }]
     }
 
+    // 编辑标签基本信息
     editBaseInfo = (record) => {
         const { apiCatalogue } = this.props.apiMarket;
 
+        let editData = {
+            ...record, 
+            catalogueId: this.getCatalogueArray(record.catalogueId)
+        }
+        console.log(editData)
         this.openModal();
-        let editData = {...record, catalogueId: this.getInitCatagoryList(record.catalogueId, apiCatalogue)}
-        this.setState({ editData: editData });
+        this.setState({ editData });
     }
 
+    // 删除标签
+    removeTag = (id) => {
+        const { queryParams } = this.state;
+
+        if (id) {
+            TCApi.deleteTag({ tagId: id }).then((res) => {
+                if (res.code === 1) {
+                    message.success('删除成功！');
+                    this.getRuleTagData(queryParams);
+                }
+            });
+        }
+    }
+
+    // 取消编辑
     cancel = () => {
         this.closeModal();
         this.setState({ editData: {} });
@@ -193,6 +216,7 @@ export default class RuleTagPane extends Component {
         this.setState({ visible: false });
     }
 
+    // 保存标签基本信息
     saveRuleTag = () => {
         const { form } = this.props;
         const { queryParams, editData } = this.state;
@@ -201,7 +225,7 @@ export default class RuleTagPane extends Component {
             console.log(err,values)
             let api, params, msg;
             if(!err) {
-                values.catalogueId = values.catalogueId.pop();
+                values.catalogueId = [...values.catalogueId].pop();
 
                 if (editData.id) {
                     api = TCApi.updateTagBaseInfo;
@@ -217,9 +241,10 @@ export default class RuleTagPane extends Component {
                     if (res.code === 1) {
                         message.success(msg);
                         this.closeModal();
-                        this.getRuleTagData(queryParams);
                         this.setState({ editData: {} });
+                        
                         form.resetFields();
+                        this.getRuleTagData(queryParams);
                     }
                 });
             }
@@ -241,6 +266,7 @@ export default class RuleTagPane extends Component {
         });
     }
 
+    // 识别列类型下拉框
     renderIdentifyColumn = (data) => {
         return data.map((item) => {
             return (
@@ -264,14 +290,14 @@ export default class RuleTagPane extends Component {
 
     // TagName
     onTagNameSearch = (name) => {
-        let params = {
-            ...this.state.params, 
-            pageSize: 1,
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
             name: name ? name : undefined
         };
 
-        this.props.getRuleTagList(params);
-        this.setState({ params });
+        this.getRuleTagData(queryParams);
+        this.setState({ queryParams });
     }
 
     // 类目下拉框数据初始化
@@ -280,9 +306,6 @@ export default class RuleTagPane extends Component {
             return [];
         } else {
             return data.map((item) => {
-                if (item.api) {
-                    return null;
-                }
                 return {
                     value: item.id,
                     label: item.catalogueName,
@@ -292,63 +315,36 @@ export default class RuleTagPane extends Component {
         }
     }
 
-    getCatagoryArray = (value) => {
+    // 获取已选取的类目array
+    getCatalogueArray = (value) => {
         const { apiCatalogue } = this.props.apiMarket;
-
         let arr = [];
 
-        function 
+        const flat = (data) => {
+            let id;
 
-        if (this.arrint(apiCatalogue, value)) {
-            arr.push(this.arrint(apiCatalogue, value));
-            this.arrint(apiCatalogue, value)
-        }
-
-        return arr;
-
-    }
-
-    arrint = (data, value) => {
-        data.forEach((item) => {
-            if (item.id === value) {
-                return item.id
-            } else {
-                return false;
-            }
-        })
-    }
-
-
-    getInitCatagoryList(value, catagorys) {
-
-        const tree = catagorys || this.props.apiMarket.apiCatalogue;
-        let arr = [];
-        // console.log(value,catagorys)
-        function exchangeTree(data) {
-
-            if (!data || data.length < 1) {
-                return null;
-            }
-            for (let i = 0; i < data.length; i++) {
-                let item = data[i];
-
-                if (item.id == value) {
-                    arr.push(item.id);
-                    return item.id;
+            data.forEach((item) => {
+                if (item.api) {
+                    return
                 }
-                if (exchangeTree(item.childCatalogue)) {
+                // 匹配节点
+                if (item.id === value) {
                     arr.push(item.id);
-                    return item.id
+                    id = item.id;
                 }
-            }
-            return null;
-        }
-        if (exchangeTree(tree)) {
-            // console.log(exchangeTree(tree),this.getCatagoryArray(value),arr)
-            return arr.reverse();
-        }
-        return null;
+                // 若子节点含有对应的值，父节点入队
+                if (flat(item.childCatalogue)) {
+                    arr.push(item.id);
+                    id = item.id;
+                }
+            });
 
+            return id;
+        }
+
+        flat(apiCatalogue);
+
+        return arr.reverse();
     }
 
     render() {

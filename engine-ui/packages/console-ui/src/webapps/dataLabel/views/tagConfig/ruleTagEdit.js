@@ -1043,7 +1043,7 @@ export default class RuleTagEdit extends Component {
                                         required: true, 
                                         message: '不可为空'
                                     }], 
-                                    initialValue: currentData.computeSourceId
+                                    initialValue: currentData.computeSourceId ? currentData.computeSourceId.toString() : undefined
                                 })(
                                     <Select
                                         style={{ width: 300 }}
