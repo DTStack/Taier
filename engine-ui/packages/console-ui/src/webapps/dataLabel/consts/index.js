@@ -10,6 +10,14 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+export const TAG_STATUS = {
+    0: '新建',
+    1: "等待运行",
+    2: "更新中", 
+    3: "更新完成", 
+    4: "更新失败",
+}
+
 export const API_STATUS = {
     "-1":'NO_APPLY',
     "0":'IN_HAND',

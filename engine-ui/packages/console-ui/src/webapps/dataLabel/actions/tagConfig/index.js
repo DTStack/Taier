@@ -25,7 +25,7 @@ export const tagConfigActions = {
 			dispatch({
 				type: tagConfigActionType.CHANGE_LOADING
 			});
-			API.getRuleTag(params).then((res) => {
+			API.queryRuleTag(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
 						type: tagConfigActionType.GET_RULE_TAG_LIST,
@@ -38,5 +38,16 @@ export const tagConfigActions = {
 			});
 		}
 	},
-	
+	getAllIdentifyColumn(params) {
+		return dispatch => {
+			API.getAllIdentifyColumn(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: tagConfigActionType.GET_ALL_IDENTIFY_COLUMN,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 }

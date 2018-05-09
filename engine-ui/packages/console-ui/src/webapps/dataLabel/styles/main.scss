@@ -3,12 +3,22 @@
 ** CSS 主引入口
 **/
 
+.m-8 {
+    margin: 0 8px;
+}
+
 .m-l-8 {
 	margin-left: 8px;
 }
 
 .m-r-8 {
 	margin-right: 8px;
+}
+
+.help-doc {
+    position: absolute;
+    right: -20px;
+    top: 10px;
 }
 
 .m-tooltip {
@@ -39,7 +49,6 @@
 	    white-space: nowrap;
 	    text-overflow: ellipsis;
     }
-
 }
 
 .txt-center-table {

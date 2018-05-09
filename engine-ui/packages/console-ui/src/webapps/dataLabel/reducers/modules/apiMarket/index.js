@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
    
-    apiCatalogue:{},
+    apiCatalogue: [],
     apiList:[],
     api:{
 
