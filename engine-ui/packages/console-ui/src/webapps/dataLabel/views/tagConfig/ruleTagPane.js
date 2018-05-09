@@ -297,8 +297,6 @@ export default class RuleTagPane extends Component {
 
         let arr = [];
 
-        function 
-
         if (this.arrint(apiCatalogue, value)) {
             arr.push(this.arrint(apiCatalogue, value));
             this.arrint(apiCatalogue, value)
