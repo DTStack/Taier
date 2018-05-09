@@ -331,7 +331,7 @@ export default class ImportTarget extends Component {
                 </Row>
                 <Modal className="m-codemodal"
                     title="建表语句"
-                    style={{height: 350}}
+                    style={{height: 424}}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}
                     onOk={this.createTable}
