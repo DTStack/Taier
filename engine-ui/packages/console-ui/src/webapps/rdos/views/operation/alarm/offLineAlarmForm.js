@@ -26,7 +26,8 @@ class AlarmForm extends Component {
 
     componentWillReceiveProps(nextProps) {
         const { alarmInfo , visible } = nextProps;
-        if (visible && !isEmpty(alarmInfo)) {
+        if (visible && !isEmpty(alarmInfo)&&alarmInfo!=this.props.alarmInfo) {
+            
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
             })
@@ -116,6 +117,7 @@ class AlarmForm extends Component {
         const display = myTrigger === 2 ? 'block' : 'none'
 
         console.log('myTrigger:', myTrigger)
+        
         return (
             <Modal
               title={title}

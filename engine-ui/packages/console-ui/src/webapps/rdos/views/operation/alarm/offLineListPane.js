@@ -94,6 +94,8 @@ class OfflinePanel extends Component {
             startTime: start,
             endTime: end,
             current: 1
+        },()=>{
+            this.search();
         })
     }
 
@@ -104,7 +106,10 @@ class OfflinePanel extends Component {
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPe: target, current: 1 })
+        this.setState({ alarmPe: target, current: 1 }
+        ,()=>{
+            this.search();
+        })
     }
 
     changeTaskName = (evt) => {
