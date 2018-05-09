@@ -11,6 +11,7 @@ import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const TextArea=Input.TextArea;
 
 const mapStateToProps = state => {
     const { ruleConfig, common } = state;
@@ -274,12 +275,19 @@ export default class RuleEditPane extends Component {
                                     message: '自定义SQL不可为空'
                                 }],
                                 initialValue: record.customizeSql
-                            })(
-                                <Input 
+                            })( record.isCustomizeSql?
+                                (<TextArea 
+                                    autosize={{ minRows: 3,maxRows:8}}
+                                    placeholder="查询结果为一个数值类型"
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
+                                    
+                                />)
+                                :
+                                (<Input 
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
                                     disabled={record.editStatus === 'edit'} 
-                                />
+                                />)
                             )
                         }
                     </FormItem>

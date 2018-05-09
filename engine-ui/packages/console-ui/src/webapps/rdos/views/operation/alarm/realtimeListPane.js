@@ -89,6 +89,8 @@ class RealTimePanel extends Component {
             current: 1,
             startTime: start,
             endTime: end,
+        },()=>{
+            this.search();
         })
     }
 
@@ -99,7 +101,9 @@ class RealTimePanel extends Component {
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPe: target, current: 1 })
+        this.setState({ alarmPe: target, current: 1 },()=>{
+            this.search();
+        })
     }
 
     changeTaskName = (evt) => {
@@ -215,6 +219,7 @@ class RealTimePanel extends Component {
                                 allowClear
                                 style={{ width: 120 }}
                                 onChange={this.changeTaskName} 
+                                onPressEnter={this.search}
                             />
                             </FormItem>
                             <FormItem

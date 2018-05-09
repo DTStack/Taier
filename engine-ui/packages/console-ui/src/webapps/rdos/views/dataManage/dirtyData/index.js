@@ -101,7 +101,7 @@ class DirtyData extends Component {
     loadProduceTop30 = (params) => {
         const ctx = this
         this.setState({
-            loadingTop: 'loading',
+            loadingTop: true,
         })
         Api.top30DirtyData(params).then((res) => {
             if (res.code === 1) {
@@ -185,7 +185,7 @@ class DirtyData extends Component {
             for (let i = 0; i < legend.length; i++) {
                 arr.push({
                     name: legend[i],
-                    symbol: 'none',
+                    
                     type:'line',
                     data: data.y[i].data,
                 })
@@ -220,7 +220,8 @@ class DirtyData extends Component {
         option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
         option.series = this.getSeries(chartData)
         // 绘制图表
-        myChart.setOption(option);
+        console.log(option)
+        myChart.setOption(option,true);
         this.setState({ lineChart: myChart })
     }
 
@@ -304,8 +305,8 @@ class DirtyData extends Component {
                 key: 'tableDesc'
             }, {
                 title: '最近更新时间',
-                dataIndex: 'lastDataChangeTime',
-                key: 'lastDataChangeTime',
+                dataIndex: 'gmtModified',
+                key: 'gmtModified',
                 render: function(text) {
                     return utils.formatDateTime(text);
                 }

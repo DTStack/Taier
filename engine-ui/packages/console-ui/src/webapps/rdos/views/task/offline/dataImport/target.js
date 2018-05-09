@@ -240,7 +240,7 @@ export default class ImportTarget extends Component {
 
     render() {
         const { data, file, display, formState } = this.props
-        const { tableList, tableData, queryTable } = formState
+        const { tableList, tableData, queryTable,asTitle } = formState
 
         const columns = this.generateCols(data, tableData)
         
@@ -303,8 +303,8 @@ export default class ImportTarget extends Component {
                                 value={formState.matchType} 
                                 onChange={this.changeMatchWay}
                             >
-                                <Radio value={0}>按位置匹配</Radio>
-                                <Radio value={1}>按名称匹配</Radio>
+                                <Radio  value={0}>按位置匹配</Radio>
+                                <Radio disabled={!asTitle} value={1}>按名称匹配</Radio>
                             </RadioGroup>
                         </FormItem>
                         <FormItem
@@ -331,7 +331,7 @@ export default class ImportTarget extends Component {
                 </Row>
                 <Modal className="m-codemodal"
                     title="建表语句"
-                    style={{height: 350}}
+                    style={{height: 424}}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}
                     onOk={this.createTable}

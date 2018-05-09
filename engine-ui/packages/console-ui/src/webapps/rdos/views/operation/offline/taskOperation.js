@@ -413,19 +413,19 @@ class OfflineTaskList extends Component {
 
     tableFooter = (currentPageData) => {
         return (
-            <tr className="ant-table-row  ant-table-row-level-0">
-                <td style={{ padding: '15px 10px 10px 30px' }}>
+            <div className="ant-table-row  ant-table-row-level-0">
+                <div style={{ padding: '15px 10px 10px 30px',display:"inline-block" }}>
                     <Checkbox
                         checked={ this.state.checkAll }
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
-                </td>
-                <td>
+                </div>
+                <div style={{display:"inline-block"}}>
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
-                </td>
-            </tr>
+                </div>
+            </div>
         )
     }
 
@@ -440,7 +440,7 @@ class OfflineTaskList extends Component {
 
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
@@ -547,7 +547,7 @@ class OfflineTaskList extends Component {
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="业务日期"
-                                        value={bussinessDate}
+                                        value={bussinessDate||null}
                                         onChange={this.changeBussinessDate}
                                     />
                                 </FormItem>
