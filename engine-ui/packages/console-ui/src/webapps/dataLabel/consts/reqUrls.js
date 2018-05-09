@@ -95,7 +95,7 @@ export default {
 
     // ===== 市场信息 =====//
     GET_CATALOGUE: `${DL_BASE_URL}/catalogue/getCatalogue`,//获取市场分类信息
-    GET_API_MARKET_LIST: `${DL_BASE_URL}/tag/pageQuery`,//获取市场api列表
+    GET_API_MARKET_LIST: `${DL_BASE_URL}/tag/marketQuery`,//获取市场api列表
     GET_MARKET_API_DETAIL: `${DL_BASE_URL}/apis/getApiDetail`,//获取市场api详情
     GET_API_EXT_INFO: `${DL_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
     GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/tag/getApiExtInfoForManager`,//管理员获取api详情调用情况等
