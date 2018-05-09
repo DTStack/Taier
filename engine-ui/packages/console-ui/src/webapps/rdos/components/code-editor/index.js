@@ -84,7 +84,7 @@ class CodeEditor extends Component {
             `${renderClass} ${className}` : renderClass
         let renderStyle = {
             position: 'relative',
-            height:"400px"
+            minHeight:"400px"
         }
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle
         
