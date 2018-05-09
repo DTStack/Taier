@@ -255,7 +255,8 @@ export default class TableViewer extends React.Component{
                                             columns={ this.previewCols.map((str,i) => ({
                                                 title: str,
                                                 dataIndex: str,
-                                                key: str + i
+                                                key: str + i,
+                                                width:"200px"
                                             })) }
                                             className="m-table"
                                             dataSource={ previewData }
