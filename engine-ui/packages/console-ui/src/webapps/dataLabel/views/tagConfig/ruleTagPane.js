@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Card, Modal, Form, Button, Input, Select, Menu, Dropdown, Popconfirm } from 'antd';
+import { Table, Card, Modal, Form, Button, Input, Select, Menu, Dropdown, Popconfirm, Cascader, Icon, message } from 'antd';
 
 import { tagConfigActions } from '../../actions/tagConfig';
-import { formItemLayout } from '../../consts';
+import { apiMarketActions } from '../../actions/apiMarket';
+import { dataSourceActions } from '../../actions/dataSource';
+import { formItemLayout, TAG_STATUS } from '../../consts';
+import TCApi from '../../api/tagConfig';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -12,13 +15,19 @@ const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
 const mapStateToProps = state => {
-    const { tagConfig } = state;
-    return { tagConfig }
+    const { tagConfig, dataSource, apiMarket } = state;
+    return { tagConfig, dataSource, apiMarket }
 }
 
 const mapDispatchToProps = dispatch => ({
-    getRuleTagList(params) {
-        dispatch(tagConfigActions.getRuleTagList(params));
+    getAllIdentifyColumn(params) {
+        dispatch(tagConfigActions.getAllIdentifyColumn(params));
+    },
+    getDataSourcesList(params) {
+        dispatch(dataSourceActions.getDataSourcesList(params));
+    },
+    getCatalogue(pid) {
+        dispatch(apiMarketActions.getCatalogue(pid));
     },
 })
 
@@ -27,6 +36,7 @@ export default class RuleTagPane extends Component {
 
     state = {
         visible: false,
+        loading: false,
         selectedIds: [],
         queryParams: {
             currentPage: 1,
@@ -38,19 +48,31 @@ export default class RuleTagPane extends Component {
             identityId: undefined,
             status: undefined,
             dataSourceId: undefined
-        }
+        },
+        tagList: {},
+        // params: {
+        //     name: undefined
+        // }
+        editData: {}
     }
 
     componentDidMount() {
-        this.props.getRuleTagList(this.state.queryParams);
+        this.getRuleTagData(this.state.queryParams);
+        this.props.getDataSourcesList();
+        this.props.getAllIdentifyColumn();
+        this.props.getCatalogue(0);
     }
 
-    openModal = () => {
-        this.setState({ visible: true });
-    }
-
-    closeModal = () => {
-        this.setState({ visible: false });
+    getRuleTagData = (params) => {
+        this.setState({ loading: true });
+        TCApi.queryRuleTag(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ 
+                    loading: false,
+                    tagList: res.data 
+                });
+            }
+        });
     }
 
     // table设置
@@ -59,37 +81,37 @@ export default class RuleTagPane extends Component {
             title: '标签名称',
             dataIndex: 'name',
             key: 'name',
-            // width: '12%'
+            width: '12%'
         }, {
             title: '标签描述',
-            dataIndex: 'des',
-            key: 'des',
-            // width: '15%'
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
+            width: '12%'
         }, {
             title: '标签类目',
-            dataIndex: 'type',
-            key: 'type',
-            // width: '8%',
+            dataIndex: 'catalogueName',
+            key: 'catalogueName',
+            width: '10%',
         }, {
             title: '值域',
-            dataIndex: 'valueRange',
-            key: 'valueRange',
-            // width: '12%'
+            dataIndex: 'tagRange',
+            key: 'tagRange',
+            width: '10%'
         }, {
             title: '目标数据库',
-            dataIndex: 'db',
-            key: 'db',
-            // width: '10%'
+            dataIndex: 'dataSourceName',
+            key: 'dataSourceName',
+            width: '10%'
         }, {
             title: '识别列ID',
-            dataIndex: 'configureID',
-            key: 'configureID',
-            // width: '8%'
+            dataIndex: 'identityColumn',
+            key: 'identityColumn',
+            width: '8%'
         }, {
             title: '识别列类型',
-            dataIndex: 'configureType',
-            key: 'configureType',
-            // width: '8%'
+            dataIndex: 'identityName',
+            key: 'identityName',
+            width: '8%'
         }, {
             title: '数据更新日期',
             dataIndex: 'executeTime',
@@ -97,15 +119,18 @@ export default class RuleTagPane extends Component {
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
             },
-            // width: '12%'
+            width: '10%'
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            // width: '10%',
+            width: '8%',
+            render: (text) => {
+                return TAG_STATUS[text];
+            },
         }, {
             title: '操作',
-            // width: '10%',
+            width: '12%',
             render: (text, record) => {
                 const menu = (
                     <Menu>
@@ -129,9 +154,11 @@ export default class RuleTagPane extends Component {
 
                 return (
                     <div>
-                        <a onClick={() => {this.editTag(record)}}>
-                            编辑
+                        <a onClick={this.editBaseInfo.bind(this, record)}>
+                            编辑 
                         </a>
+                        <span className="ant-divider" />
+                        <Link to={`/dl/tagConfig/ruleTagEdit/${record.id}`}>配置计算逻辑</Link>
                         <span className="ant-divider" />
                         <Dropdown overlay={menu} trigger={['click']}>
                             <a className="ant-dropdown-link">
@@ -145,12 +172,94 @@ export default class RuleTagPane extends Component {
         }]
     }
 
-    saveTag = () => {
-        console.log('save')
+    editBaseInfo = (record) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        this.openModal();
+        let editData = {...record, catalogueId: this.getInitCatagoryList(record.catalogueId, apiCatalogue)}
+        this.setState({ editData: editData });
+    }
+
+    cancel = () => {
+        this.closeModal();
+        this.setState({ editData: {} });
+    }
+
+    openModal = () => {
+        this.setState({ visible: true });
+    }
+
+    closeModal = () => {
+        this.setState({ visible: false });
+    }
+
+    saveRuleTag = () => {
+        const { form } = this.props;
+        const { queryParams, editData } = this.state;
+
+        form.validateFields((err, values) => {
+            console.log(err,values)
+            let api, params, msg;
+            if(!err) {
+                values.catalogueId = values.catalogueId.pop();
+
+                if (editData.id) {
+                    api = TCApi.updateTagBaseInfo;
+                    params = {...values, id: editData.id};
+                    msg = '更新成功';
+                } else {
+                    api = TCApi.addRuleTag;
+                    params = values;
+                    msg = '新增成功';
+                }
+
+                api(params).then((res) => {
+                    if (res.code === 1) {
+                        message.success(msg);
+                        this.closeModal();
+                        this.getRuleTagData(queryParams);
+                        this.setState({ editData: {} });
+                        form.resetFields();
+                    }
+                });
+            }
+        });
+    }
+
+    // 数据源下拉框
+    renderUserSource = (data) => {
+        return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
+            return (
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
+            )
+        });
+    }
+
+    renderIdentifyColumn = (data) => {
+        return data.map((item) => {
+            return (
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}
+                    title={item.name}>
+                    {item.name}
+                </Option>
+            )
+        });
     }
 
     onUserSourceChange = (value) => {
         console.log(value)
+    }
+
+    onCatagoryIdChange = (value, option) => {
+        console.log(value, option)
     }
 
     // TagName
@@ -165,9 +274,90 @@ export default class RuleTagPane extends Component {
         this.setState({ params });
     }
 
+    // 类目下拉框数据初始化
+    initCatagoryOption = (data) => {
+        if (data.some(item => item.api === true)) {
+            return [];
+        } else {
+            return data.map((item) => {
+                if (item.api) {
+                    return null;
+                }
+                return {
+                    value: item.id,
+                    label: item.catalogueName,
+                    children: this.initCatagoryOption(item.childCatalogue)
+                }
+            });
+        }
+    }
+
+    getCatagoryArray = (value) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        let arr = [];
+
+        function 
+
+        if (this.arrint(apiCatalogue, value)) {
+            arr.push(this.arrint(apiCatalogue, value));
+            this.arrint(apiCatalogue, value)
+        }
+
+        return arr;
+
+    }
+
+    arrint = (data, value) => {
+        data.forEach((item) => {
+            if (item.id === value) {
+                return item.id
+            } else {
+                return false;
+            }
+        })
+    }
+
+
+    getInitCatagoryList(value, catagorys) {
+
+        const tree = catagorys || this.props.apiMarket.apiCatalogue;
+        let arr = [];
+        // console.log(value,catagorys)
+        function exchangeTree(data) {
+
+            if (!data || data.length < 1) {
+                return null;
+            }
+            for (let i = 0; i < data.length; i++) {
+                let item = data[i];
+
+                if (item.id == value) {
+                    arr.push(item.id);
+                    return item.id;
+                }
+                if (exchangeTree(item.childCatalogue)) {
+                    arr.push(item.id);
+                    return item.id
+                }
+            }
+            return null;
+        }
+        if (exchangeTree(tree)) {
+            // console.log(exchangeTree(tree),this.getCatagoryArray(value),arr)
+            return arr.reverse();
+        }
+        return null;
+
+    }
+
     render() {
-        const { visible, selectedIds } = this.state;
-        const { getFieldDecorator } = this.props.form;
+        const { form, tagConfig, dataSource, apiMarket } = this.props;
+        const { getFieldDecorator } = form;
+        const { sourceList } = dataSource;
+        const { apiCatalogue } = apiMarket;
+        const { identifyColumn } = tagConfig;
+        const { queryParams, visible, selectedIds, loading, tagList, editData } = this.state;
 
         const cardTitle = (
             <div className="flex font-12">
@@ -183,7 +373,7 @@ export default class RuleTagPane extends Component {
                         allowClear
                         showSearch
                         style={{ width: 150 }}
-                        // placeholder="选择数据源类型"
+                        placeholder="选择标签分类"
                         onChange={this.onSourceChange}>
                         <Option key={"1"} value={"1"}>标签1</Option>
                         <Option key={"2"} value={"2"}>标签2</Option>
@@ -197,7 +387,7 @@ export default class RuleTagPane extends Component {
                         showSearch
                         style={{ width: 150 }}
                         // optionFilterProp="title"
-                        // placeholder="选择数据源"
+                        placeholder="选择二级分类"
                         onChange={this.onUserSourceChange}>
                         <Option key={"1"} value={"1"}>标签1</Option>
                         <Option key={"2"} value={"2"}>标签2</Option>
@@ -208,8 +398,16 @@ export default class RuleTagPane extends Component {
 
         const cardExtra = (
             <div>
-                <Button type="primary" style={{ margin: 10 }}><Link to="dl/tagConfig/identify">识别列配置</Link></Button>
-                <Button type="primary" onClick={this.openModal}>新建标签</Button>
+                <Button 
+                    type="primary" 
+                    style={{ margin: 10 }}>
+                    <Link to="dl/tagConfig/identify">识别列配置</Link>
+                </Button>
+                <Button 
+                    type="primary" 
+                    onClick={this.openModal}>
+                    新建标签
+                </Button>
             </div>
         )
 
@@ -218,6 +416,12 @@ export default class RuleTagPane extends Component {
             onChange: (selectedIds) => {
                 this.setState({ selectedIds });
             },
+        };
+
+        const pagination = {
+            current: queryParams.currentPage,
+            pageSize: queryParams.pageSize,
+            total: tagList.totalCount
         };
 
         return (
@@ -231,10 +435,10 @@ export default class RuleTagPane extends Component {
                     rowKey="id"
                     className="m-table"
                     columns={this.initColumns()} 
-                    // loading={loading}
+                    loading={loading}
                     rowSelection={rowSelection}
-                    pagination={false}
-                    dataSource={[]}
+                    pagination={pagination}
+                    dataSource={tagList.data}
                     onChange={this.onTableChange}
                 />
 
@@ -246,8 +450,8 @@ export default class RuleTagPane extends Component {
                     maskClosable={false}
                     okText="保存"
                     cancelText="取消"
-                    onOk={this.saveTag}
-                    onCancel={this.closeModal}
+                    onOk={this.saveRuleTag}
+                    onCancel={this.cancel}
                 >
                     <Form>
                         <FormItem {...formItemLayout} label="标签名称">
@@ -257,7 +461,7 @@ export default class RuleTagPane extends Component {
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: name
+                                    initialValue: editData.name
                                 })(
                                     <Input />
                                 )
@@ -265,9 +469,9 @@ export default class RuleTagPane extends Component {
                         </FormItem>
                         <FormItem {...formItemLayout} label="标签描述">
                             {
-                                getFieldDecorator('des', {
+                                getFieldDecorator('tagDesc', {
                                     rules: [], 
-                                    // initialValue: des
+                                    initialValue: editData.tagDesc
                                 })(
                                     <TextArea 
                                         placeholder="标签描述" 
@@ -280,33 +484,31 @@ export default class RuleTagPane extends Component {
                         </FormItem>
                         <FormItem {...formItemLayout} label="标签类目">
                             {
-                                getFieldDecorator('type', {
+                                getFieldDecorator('catalogueId', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签类目不可为空' 
                                     }], 
-                                    // initialValue: type
+                                    initialValue: editData.catalogueId
                                 })(
-                                    <Select
-                                        showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
-                                        // placeholder="选择数据源"
-                                        onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
-                                    </Select>
+                                    <Cascader 
+                                        showSearch 
+                                        popupClassName="noheight" 
+                                        options={this.initCatagoryOption(apiCatalogue)} 
+                                        placeholder="请选择分组" 
+                                        onChange={this.onCatagoryIdChange}
+                                    />
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="值域">
                             {
-                                getFieldDecorator('range', {
+                                getFieldDecorator('tagRange', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: range
+                                    initialValue: editData.tagRange
                                 })(
                                     <TextArea 
                                         placeholder="值域" 
@@ -319,63 +521,56 @@ export default class RuleTagPane extends Component {
                         </FormItem>
                         <FormItem {...formItemLayout} label="目标数据库">
                             {
-                                getFieldDecorator('db', {
+                                getFieldDecorator('dataSourceId', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: db
+                                    initialValue: editData.dataSourceId ? editData.dataSourceId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
                                         // optionFilterProp="title"
                                         placeholder="选择目标数据库"
-                                        onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        onChange={this.onSourceChange}>
+                                        {
+                                            this.renderUserSource(sourceList)
+                                        }
                                     </Select>
+
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="识别列ID">
                             {
-                                getFieldDecorator('configureID', {
+                                getFieldDecorator('identityColumn', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: configureID
+                                    initialValue: editData.identityColumn
                                 })(
-                                    <Select
-                                        showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
-                                        placeholder="选择识别列ID"
-                                        onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
-                                    </Select>
+                                    <Input />
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="识别列类型">
                             {
-                                getFieldDecorator('configureType', {
+                                getFieldDecorator('identityId', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: configureType
+                                    initialValue: editData.identityId ? editData.identityId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
                                         // optionFilterProp="title"
                                         placeholder="选择识别列类型"
                                         onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        {
+                                            this.renderIdentifyColumn(identifyColumn)
+                                        }
                                     </Select>
                                 )
                             }

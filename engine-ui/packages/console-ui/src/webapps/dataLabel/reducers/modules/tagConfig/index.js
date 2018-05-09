@@ -4,7 +4,8 @@ import { cloneDeep } from 'lodash';
 const initialState = {
     loading: false,
     ruleTagList: [],
-    registeredTagList: []
+    registeredTagList: [],
+    identifyColumn: []
 }
 
 export default function tagConfig(state = initialState, action) {
@@ -31,6 +32,14 @@ export default function tagConfig(state = initialState, action) {
             clone.registeredTagList = payload;
             return clone;
         }
+
+        case tagConfigActionType.GET_ALL_IDENTIFY_COLUMN: {
+            const clone = cloneDeep(state);
+            const { identifyColumn } = clone;
+            clone.identifyColumn = payload;
+            return clone;
+        }
+
 
 
         default:
