@@ -7,5 +7,11 @@ export default {
     getUserList() {
         return http.post(req.DL_GET_USER_LIST)
     },
+    getPeriodType() {
+    	return http.post(req.GET_PERIOD_TYPE);
+    },
+    getNotifyType() {
+    	return http.post(req.GET_NOTIFY_TYPE);
+    },
 
 }

@@ -227,7 +227,7 @@ class APIMarket extends Component {
     initColumns() {
 
         return [{
-            title: 'API名称',
+            title: '标签名称',
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
@@ -304,12 +304,12 @@ class APIMarket extends Component {
         return (
             <div className="flex font-12">
                 <Search
-                    placeholder="输入API名称搜索"
+                    placeholder="输入标签名称搜索"
                     style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch.bind(this)}
                 />
                 <div className="m-l-8">
-                    API分类：
+                    标签分类：
                     <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
                         {
                             this.renderSourceType(0, true)
@@ -330,14 +330,14 @@ class APIMarket extends Component {
    
     jumpToMine() {
         modal.destroy();
-        this.props.router.push("/api/mine");
+        this.props.router.push("/dl/mine");
 
     }
     showApplySuccessModal() {
         modal = Modal.success({
             title: '申请提交成功',
             content: (
-                <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的API</a> 中查看审批进度</span>
+                <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的标签</a> 中查看审批进度</span>
             ),
             okText: "确定"
         });
