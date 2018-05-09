@@ -7,13 +7,13 @@ const TextArea = Input.TextArea
 
 
 const mapDispatchToProps = dispatch => ({
-    apiApply(apiId, applyContent) {
-        return dispatch(apiMarketActions.apiApply({ apiId: apiId, applyContent: applyContent }));
+    apiApply(tagId, applyContent) {
+        return dispatch(apiMarketActions.apiApply({ tagId: tagId, applyContent: applyContent }));
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo(tagId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
-                apiId: apiId
+                tagId: tagId
             })
         )
     }
@@ -33,13 +33,13 @@ class ApplyBox extends Component {
                 this.setState({
                     loading: true
                 })
-                this.props.apiApply(this.props.apiId, values.applyMsg)
+                this.props.apiApply(this.props.tagId, values.applyMsg)
                     .then(
                         (res) => {
                             this.setState({
                                 loading: false
                             })
-                            this.props.getApiExtInfo(this.props.apiId);
+                            this.props.getApiExtInfo(this.props.tagId);
                             if(this.props.getMarketApi){
                                 this.props.getMarketApi();
                             }

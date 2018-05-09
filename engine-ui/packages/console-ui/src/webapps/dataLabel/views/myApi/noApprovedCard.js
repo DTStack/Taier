@@ -40,19 +40,19 @@ class NoApprovedCard extends Component {
     componentDidMount() {
         this.getApplyingList(
             () => {
-                this.openCard(this.props.apiId);
+                this.openCard(this.props.tagId);
             }
         );
     }
     componentWillReceiveProps(nextProps) {
 
-        if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
+        if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
 
-            this.openCard(nextProps.apiId);
+            this.openCard(nextProps.tagId);
 
         }
     }
-    openCard(apiId) {
+    openCard(tagId) {
 
         const res = this.getSource();
         if (res) {
@@ -60,7 +60,7 @@ class NoApprovedCard extends Component {
             for (let i in res) {
                 let item = res[i];
 
-                if (apiId == item.apiId) {
+                if (tagId == item.tagId) {
 
                     this.openApprovedState(item);
                     break;
@@ -171,7 +171,7 @@ class NoApprovedCard extends Component {
                     rowKey="id"
                     rowClassName={
                         (record, index) => {
-                            if (this.state.showRecord.apiId == record.apiId) {
+                            if (this.state.showRecord.tagId == record.tagId) {
                                 return "row-select"
                             } else {
                                 return "";

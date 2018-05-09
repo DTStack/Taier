@@ -27,6 +27,9 @@ import {
     taskTreeAction,
     editorAction,
 } from '../../../store/modules/offlineTask/actionType';
+import { 
+    stopSql
+} from '../../../store/modules/offlineTask/sqlEditorAction'
 
 import {
     workbenchActions
@@ -247,14 +250,14 @@ class Workbench extends React.Component {
             }
 
             if(allClean) {
-                this.props.closeAll();
+                this.props.closeAll(tabs);
             }
             else {
                 confirm({
                     title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                     content: '强制关闭将丢弃所有修改数据',
                     onOk() {
-                        closeAll();
+                        closeAll(tabs);
                     },
                     onCancel() {}
                 });
@@ -269,14 +272,14 @@ class Workbench extends React.Component {
             }
 
             if(allClean) {
-                closeOthers(currentTab);
+                closeOthers(currentTab,tabs);
             }
             else {
                 confirm({
                     title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                     content: '强制关闭将丢弃这些修改数据',
                     onOk() {
-                        closeOthers(currentTab);
+                        closeOthers(currentTab,tabs);
                     },
                     onCancel() {}
                 });
@@ -510,17 +513,33 @@ const mapDispatch = dispatch => {
             });
         },
         
-        closeTab: id => dispatch({
-            type: workbenchAction.CLOSE_TASK_TAB,
-            payload: id
-        }),
-        closeAll: () => dispatch({
-            type: workbenchAction.CLOSE_ALL_TABS
-        }),
-        closeOthers: id => dispatch({
-            type: workbenchAction.CLOSE_OTHER_TABS,
-            payload: id
-        }),
+        closeTab: id =>{
+            dispatch(stopSql(id,null,true))
+            dispatch({
+                type: workbenchAction.CLOSE_TASK_TAB,
+                payload: id
+            })
+        },
+        closeAll: (tabs) =>{
+            for(let i in tabs){
+                dispatch(stopSql(tabs[i].id,null,true))
+            }
+            dispatch({
+                type: workbenchAction.CLOSE_ALL_TABS
+            })
+        },
+        closeOthers: (id,tabs) =>{
+            for(let i in tabs){
+                if(tabs[i].id==id){
+                    continue;
+                }
+                dispatch(stopSql(tabs[i].id,null,true))
+            }
+            dispatch({
+                type: workbenchAction.CLOSE_OTHER_TABS,
+                payload: id
+            })
+        } ,
 
         saveTab(params, isSave, type) {
 

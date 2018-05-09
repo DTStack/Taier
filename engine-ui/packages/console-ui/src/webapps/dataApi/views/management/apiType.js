@@ -20,7 +20,7 @@ const mapDispatchToProps = dispatch => ({
         return dispatch(apiManageActions.deleteCatalogue({ id:pid }));
     },
     updateCatalogue(pid, nodeName) {
-        return dispatch(apiManageActions.updateCatalogue({ pid, nodeName }));
+        return dispatch(apiManageActions.updateCatalogue({ id:pid, nodeName })); 
     },
     addCatalogue(pid,nodeName) {
         return dispatch(apiManageActions.addCatalogue({ pid ,nodeName}));
@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => ({
             type: ACTION_TYPE.GET_CATALOGUE,
             payload: tree
         });
-    }
+    } 
 });
 
 @connect(mapStateToProps, mapDispatchToProps)

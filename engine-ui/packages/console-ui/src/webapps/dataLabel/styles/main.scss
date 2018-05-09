@@ -2,6 +2,10 @@
 /**
 ** CSS 主引入口
 **/
+@import './views/apiMarket.scss';
+@import './views/apiMine.scss';
+@import './views/management.scss';
+@import './views/approval.scss';
 
 .m-8 {
     margin: 0 8px;

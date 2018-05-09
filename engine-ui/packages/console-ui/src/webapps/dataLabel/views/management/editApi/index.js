@@ -54,8 +54,8 @@ const mapDispatchToProps = dispatch => ({
     updateApi(params){
         return dispatch(apiManageActions.updateApi(params));
     },
-    getApiInfo(apiId){
-        return dispatch(apiManageActions.getApiInfo({apiId}));
+    getApiInfo(tagId){
+        return dispatch(apiManageActions.getApiInfo({tagId}));
     },
 });
 
@@ -70,7 +70,7 @@ class EditAPI extends Component {
     }
     //获取api信息
     getApiInfo(){
-        const id=this.props.router.params.apiId;
+        const id=this.props.router.params.tagId;
         this.props.getApiInfo(id)
         .then(
             (res)=>{
@@ -102,7 +102,7 @@ class EditAPI extends Component {
         params.tableName=this.state.basicProperties.table;
         params.reqLimit=this.state.basicProperties.callLimit;
         params.respLimit=this.state.basicProperties.backLimit;
-        params.id=this.props.router.params.apiId;
+        params.id=this.props.router.params.tagId;
         params.inputParam=[];
         params.outputParam=[];
         for(let i in data.inputData){

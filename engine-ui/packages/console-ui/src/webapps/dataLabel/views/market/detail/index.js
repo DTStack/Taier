@@ -11,17 +11,17 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiDetail(apiId) {
+    getApiDetail(tagId) {
         dispatch(
             apiMarketActions.getApiDetail({
-                apiId: apiId
+                tagId: tagId
             })
         )
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo(tagId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
-                apiId: apiId
+                tagId: tagId
             })
         )
     }
@@ -30,16 +30,16 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class APIDetail extends Component {
     state = {
-        apiId: ''
+        tagId: ''
     }
     componentDidMount() {
-        const apiId = this.props.router.params && this.props.router.params.api;
-        if (apiId) {
+        const tagId = this.props.router.params && this.props.router.params.api;
+        if (tagId) {
             this.setState({
-                apiId: apiId
+                tagId: tagId
             },()=>{
-                this.props.getApiDetail(apiId);
-                this.props.getApiExtInfo(apiId);
+                this.props.getApiDetail(tagId);
+                this.props.getApiExtInfo(tagId);
             })
         }
 
@@ -103,7 +103,7 @@ class APIDetail extends Component {
         }];
     }
     getValue(key){
-        const api=this.props.apiMarket&&this.props.apiMarket.api&&this.props.apiMarket.api[this.state.apiId];
+        const api=this.props.apiMarket&&this.props.apiMarket.api&&this.props.apiMarket.api[this.state.tagId];
         if(api){
             return api[key]
         }else{

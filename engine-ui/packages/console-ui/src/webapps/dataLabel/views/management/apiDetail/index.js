@@ -20,36 +20,36 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiDetail(apiId) {
+    getApiDetail(tagId) {
         dispatch(
             apiMarketActions.getApiDetail({
-                apiId: apiId
+                tagId: tagId
             })
         )
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo(tagId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
-                apiId: apiId,
+                tagId: tagId,
                 useAdmin:true
             })
         )
     },
-    deleteApi(apiId) {
-        return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
+    deleteApi(tagId) {
+        return dispatch(apiManageActions.deleteApi({ apiIds: [tagId] }));
     },
-    openApi(apiId) {
-        return dispatch(apiManageActions.openApi(apiId));
+    openApi(tagId) {
+        return dispatch(apiManageActions.openApi(tagId));
     },
-    closeApi(apiId) {
-        return dispatch(apiManageActions.closeApi(apiId));
+    closeApi(tagId) {
+        return dispatch(apiManageActions.closeApi(tagId));
     }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
 class APIManageDetail extends Component {
     state = {
-        apiId: '',
+        tagId: '',
         nowView: "callState",
         callStateDate: '1',
         errorLogDate: '7',
@@ -57,13 +57,13 @@ class APIManageDetail extends Component {
     }
     //删除api
     deleteApi() {
-        let apiId = this.state.apiId;
+        let tagId = this.state.tagId;
         confirm({
             title: '确认删除?',
             content: '确认删除api',
             onOk: () => {
 
-                this.props.deleteApi(apiId)
+                this.props.deleteApi(tagId)
                     .then(
                         (res) => {
                             if (res) {
@@ -81,13 +81,13 @@ class APIManageDetail extends Component {
 
     }
     openApi() {
-        let apiId = this.state.apiId;
+        let tagId = this.state.tagId;
         confirm({
             title: '确认开启?',
             content: '确认开启api',
             onOk: () => {
 
-                this.props.openApi(apiId)
+                this.props.openApi(tagId)
                     .then(
                         (res) => {
 
@@ -105,13 +105,13 @@ class APIManageDetail extends Component {
         });
     }
     closeApi() {
-        let apiId = this.state.apiId;
+        let tagId = this.state.tagId;
         confirm({
             title: '确认禁用?',
             content: '确认禁用api',
             onOk: () => {
 
-                this.props.closeApi(apiId)
+                this.props.closeApi(tagId)
                     .then(
                         (res) => {
 
@@ -128,13 +128,13 @@ class APIManageDetail extends Component {
         });
     }
     getApiExtInfo() {
-        this.props.getApiExtInfo(this.state.apiId)
+        this.props.getApiExtInfo(this.state.tagId)
     }
     componentDidMount() {
-        const apiId = this.props.router.params && this.props.router.params.api;
-        if (apiId) {
+        const tagId = this.props.router.params && this.props.router.params.api;
+        if (tagId) {
             this.setState({
-                apiId: apiId
+                tagId: tagId
             },
                 () => {
                     this.getApiExtInfo();
@@ -159,7 +159,7 @@ class APIManageDetail extends Component {
         });
     }
     getValue(key) {
-        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.state.apiId];
+        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.state.tagId];
         if (api) {
             return api[key]
         } else {
@@ -237,13 +237,13 @@ class APIManageDetail extends Component {
                         tabBarExtraContent={this.getDateTypeView()}
                     >
                         <Tabs.TabPane tab="调用情况" key="callState">
-                            <ApiManageCallState dateType={this.state.callStateDate} apiId={this.state.apiId}></ApiManageCallState>
+                            <ApiManageCallState dateType={this.state.callStateDate} tagId={this.state.tagId}></ApiManageCallState>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="错误日志" key="errorLog">
-                            <ManageErrorLog dateType={this.state.errorLogDate} apiId={this.state.apiId}></ManageErrorLog>
+                            <ManageErrorLog dateType={this.state.errorLogDate} tagId={this.state.tagId}></ManageErrorLog>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="订购情况" key="buyState">
-                            <BuyManageState statusDisAble={isDisAble} apiId={this.state.apiId}></BuyManageState>
+                            <BuyManageState statusDisAble={isDisAble} tagId={this.state.tagId}></BuyManageState>
                         </Tabs.TabPane>
                     </Tabs>
                 </div>

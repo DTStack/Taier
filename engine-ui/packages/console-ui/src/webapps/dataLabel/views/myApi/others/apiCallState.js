@@ -15,15 +15,15 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 class ApiCallState extends Component {
     state = {
-        apiId: "",
+        tagId: "",
         data: {}
     }
     getInfo() {
 
-        if (!this.state.apiId) {
+        if (!this.state.tagId) {
             return;
         }
-        this.props.getApiCallInfo(this.state.apiId, this.props.dateType)
+        this.props.getApiCallInfo(this.state.tagId, this.props.dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -40,20 +40,20 @@ class ApiCallState extends Component {
     }
     componentDidMount() {
         this.setState({
-            apiId: this.props.showRecord && this.props.showRecord.apiId
+            tagId: this.props.showRecord && this.props.showRecord.tagId
         })
         this.getInfo();
 
     }
     componentWillReceiveProps(nextProps) {
         if (
-            (nextProps.showRecord && this.state.apiId !== nextProps.showRecord.apiId)
+            (nextProps.showRecord && this.state.tagId !== nextProps.showRecord.tagId)
             ||
             (this.props.dateType !== nextProps.dateType)
         ) {
             
             this.setState({
-                apiId: nextProps.showRecord.apiId
+                tagId: nextProps.showRecord.tagId
             },
                 () => {
                     if(nextProps.slidePaneShow){

@@ -318,6 +318,35 @@ export default class RuleTagPane extends Component {
     // 获取已选取的类目array
     getCatalogueArray = (value) => {
         const { apiCatalogue } = this.props.apiMarket;
+<<<<<<< HEAD
+=======
+
+        let arr = [];
+
+        if (this.arrint(apiCatalogue, value)) {
+            arr.push(this.arrint(apiCatalogue, value));
+            this.arrint(apiCatalogue, value)
+        }
+
+        return arr;
+
+    }
+
+    arrint = (data, value) => {
+        data.forEach((item) => {
+            if (item.id === value) {
+                return item.id
+            } else {
+                return false;
+            }
+        })
+    }
+
+
+    getInitCatagoryList(value, catagorys) {
+
+        const tree = catagorys || this.props.apiMarket.apiCatalogue;
+>>>>>>> a9a6dad57b8674ce5795c6c64b8f5617b86cf153
         let arr = [];
 
         const flat = (data) => {

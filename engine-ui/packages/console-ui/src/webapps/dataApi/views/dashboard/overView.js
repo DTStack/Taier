@@ -33,7 +33,7 @@ class TopCall extends Component {
         }
     }
     initLineChart(chartData) {
-
+ 
 
         let callCountDate = [];
         let failCountDate = [];

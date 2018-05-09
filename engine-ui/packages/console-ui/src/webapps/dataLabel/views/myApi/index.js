@@ -38,32 +38,32 @@ const mapDispatchToProps = dispatch => ({
     },
     getApiCallInfo(id,time){
         return dispatch(mineActions.getApiCallInfo({
-            apiId:id,
+            tagId:id,
             time:time
         }));
     },
    
     getApiCallErrorInfo(id){
         return dispatch(mineActions.getApiCallErrorInfo({
-            apiId:id
+            tagId:id
         }));
     },
     getApiCallUrl(id){
         return dispatch(mineActions.getApiCallUrl({
-            apiId:id
+            tagId:id
         }));
     },
     queryApiCallLog(id,currentPage,bizType){
         return dispatch(mineActions.queryApiCallLog({
-            apiId:id,
+            tagId:id,
             currentPage:currentPage,
             bizType:bizType,
             pageSize:5
         }));
     },
-    getApiCreatorInfo(apiId){
+    getApiCreatorInfo(tagId){
         return dispatch(mineActions.getApiCreatorInfo({
-            apiId:apiId
+            tagId:tagId
         }));
     }   
 });
@@ -115,10 +115,10 @@ class MyAPI extends Component {
                         onChange={this.handleClick.bind(this)}
                     >
                         <Tabs.TabPane tab="未审批" key="notApproved">
-                            <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
+                            <NoApprovedCard tagId={this.props.location.query&&this.props.location.query.tagId} {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="已审批" key="approved">
-                            <ApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
+                            <ApprovedCard tagId={this.props.location.query&&this.props.location.query.tagId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>
                 </Card>
