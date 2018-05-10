@@ -63,10 +63,10 @@ class ManageBasicProperties extends Component {
             respLimit = initValues.respLimit,
             apiDesc = initValues.apiDesc,
             catalogueId = initValues.catalogueId,
-            identityColumn = initValues.identityColumn,
+            originColumn = initValues.originColumn,
             identityId = initValues.identityId,
             tagRange = initValues.tagRange,
-            identifyType = initValues.identifyType;
+            identifyName = initValues.identifyName;
 
         this.props.form.setFieldsValue({
             APIGroup: this.getInitCatagoryList(catalogueId, catalogue),
@@ -76,10 +76,10 @@ class ManageBasicProperties extends Component {
             backLimit: respLimit,
             table: tableName + '',
             dataSource: dataSrcId + '',
-            identityColumn,
+            originColumn,
             identityId,
             tagRange,
-            identifyType
+            identifyName
         })
     }
     pass() {
@@ -361,9 +361,9 @@ class ManageBasicProperties extends Component {
                             {...formItemLayout}
                             label="选择列"
                             hasFeedback >
-                            {getFieldDecorator('identityColumn', {
+                            {getFieldDecorator('originColumn', {
                                 rules: [{ required: true, message: '选择列' } ],
-                                initialValue: this.props.identityColumn,
+                                initialValue: this.props.originColumn,
                             })(
                                 <Select disabled placeholder="请选择列">
                                     {this.getTableListView()}
@@ -387,9 +387,9 @@ class ManageBasicProperties extends Component {
                             {...formItemLayout}
                             label="识别列类型"
                             hasFeedback >
-                            {getFieldDecorator('identityType', {
+                            {getFieldDecorator('identityName', {
                                 rules: [{ required: true, message: '选择列' } ],
-                                initialValue: this.props.identityType,
+                                initialValue: this.props.identityName,
                             })(
                                 <Select disabled placeholder="请选择列">
                                     {this.getTableListView()}

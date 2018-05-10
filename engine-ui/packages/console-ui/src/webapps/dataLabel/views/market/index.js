@@ -37,9 +37,9 @@ class APIMarket extends Component {
         loading: true,
         applyBox: false,
         apply:{
-            tagId:"",
-            apiName:"",
-            desc:""
+            tagId: "",
+            tagName: "",
+            tagDesc: ""
         },
         type1: undefined,
         type2: undefined,
@@ -166,7 +166,6 @@ class APIMarket extends Component {
 
     }
     handleSearch(value) {
-        
         this.setState({
             searchValue: value,
             pageIndex:1
@@ -187,9 +186,9 @@ class APIMarket extends Component {
         this.setState({
             applyBox: true,
             apply: {
-                tagId:record.key,
-                apiName:record.apiName,
-                desc:record.description
+                tagId: record.id,
+                name: record.name,
+                tagDesc: record.tagDesc
             }
         })
         console.log("dealnothing", record);
@@ -245,7 +244,7 @@ class APIMarket extends Component {
         }, {
             width: 120,
             title: '操作',
-            dataIndex: 'status',
+            dataIndex: 'applyStatus',
             render: (status, record) => {
                 switch(status) {
                     case 0: {
@@ -315,8 +314,8 @@ class APIMarket extends Component {
     jumpToMine() {
         modal.destroy();
         this.props.router.push("/dl/mine");
-
     }
+
     showApplySuccessModal() {
         modal = Modal.success({
             title: '申请提交成功',
