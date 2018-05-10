@@ -85,7 +85,7 @@ export default class TaskView extends Component {
         const currentTask = this.props.tabData
         const graph = this.graph;
         const { tabData, visibleSlidePane, tabKey } = nextProps
-        if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+        if ((!currentTask&&tabData)||tabData && visibleSlidePane && tabData.id !== currentTask.id) {
             this.initGraph(tabData.id)
         }
         if (tabKey && this.props.tabKey !== tabKey && tabKey === 'taskFlow') {
