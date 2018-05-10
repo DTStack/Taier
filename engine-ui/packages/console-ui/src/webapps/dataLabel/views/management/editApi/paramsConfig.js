@@ -103,6 +103,7 @@ class ManageParamsConfig extends Component {
                         extra={<Button onClick={this.addInput.bind(this)} style={{ marginTop: "10px" }} type="primary">添加输入参数</Button>}
                         className="box-2"
                         noHovering
+                        bordered={false}
                     >
                         <InputParams initValue={this.props.initValues&&this.props.initValues.inputParam} inputParamsChange={this.inputParamsChange.bind(this)} changeAddinputOverSignal={this.changeAddinputOverSignal.bind(this)} addInputsignal={this.state.addInputsignal} {...this.props} ></InputParams>
                     </Card>
@@ -116,9 +117,9 @@ class ManageParamsConfig extends Component {
                         style={{ marginTop: "20px" }}
                         className="box-2"
                         noHovering
+                        bordered={false}
                     >
                          <OutputParams initValue={this.props.initValues&&this.props.initValues.outputParam} inputToOutputData={this.state.inputToOutputData} outputParamsChange={this.outputParamsChange.bind(this)} changeAddoutputOverSignal={this.changeAddoutputOverSignal.bind(this)} addOutputsignal={this.state.addOutputsignal} {...this.props} ></OutputParams>
-                       
                 </Card>
                 </div>
                 <div
