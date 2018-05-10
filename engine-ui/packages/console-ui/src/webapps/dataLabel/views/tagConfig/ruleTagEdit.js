@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
-import { isEmpty, isNull } from 'lodash';
-import { Table, Card, Modal, Form, Button, Input, Select, Popconfirm, DatePicker, Checkbox, message } from 'antd';
+import { Link, hashHistory } from 'react-router';
+import { isEmpty } from 'lodash';
+import { 
+    Table, Card, Form, 
+    Button, Input, Select, 
+    Popconfirm, DatePicker, 
+    Checkbox, message 
+} from 'antd';
 import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
 import { dataSourceActions } from '../../actions/dataSource';
-import { formItemLayout, halfFormItemLayout, rowFormItemLayout } from '../../consts';
+import { rowFormItemLayout } from '../../consts';
 import TCApi from '../../api/tagConfig';
 
 const Option = Select.Option;
@@ -27,6 +32,17 @@ const initialSchedule = {
     gapHour: undefined,
     endHour: 0,
     endMin: 0
+}
+
+const formItemLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 9 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 10 },
+    },
 }
 
 const mapStateToProps = state => {
@@ -63,12 +79,14 @@ export default class RuleTagEdit extends Component {
     }
 
     componentDidMount() {
-        this.getData({ tagId: this.state.tagId });
+        this.getTagDetailInfo();
+        this.getComputeSourceData();
         this.props.getDataSourcesList();
     }
 
-    getData = (params) => {
-        TCApi.getRuleTagDetail(params).then((res) => {
+    // 获取标签详细数据
+    getTagDetailInfo = () => {
+        TCApi.getRuleTagDetail({ tagId: this.state.tagId }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     currentData: res.data,
@@ -88,11 +106,25 @@ export default class RuleTagEdit extends Component {
                 }
             }
         });
+    }
 
+    // 获取计算引擎数据
+    getComputeSourceData = () => {
         TCApi.getComputeSource().then((res) => {
             if (res.code === 1) {
                 this.setState({
                     computeList: res.data
+                });
+            }
+        });
+    }
+
+    // 获取Tag资源数据
+    getTagCondition = (params) => {
+        TCApi.getTagCondition(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({
+                    conditionList: res.data
                 });
             }
         });
@@ -105,36 +137,41 @@ export default class RuleTagEdit extends Component {
             dataIndex: 'dataSourceId',
             key: 'dataSourceId',
             width: '25%',
-            render: (text, record) => this.renderColumns(text, record, 'dataSourceId'),
+            render: (text, record) => this.renderColumns(text, record, 'dataSourceId')
         }, {
             title: '表名',
             dataIndex: 'tableName',
             key: 'tableName',
             width: '25%',
-            render: (text, record) => this.renderColumns(text, record, 'tableName'),
+            render: (text, record) => this.renderColumns(text, record, 'tableName')
         }, {
             title: '过滤条件',
             dataIndex: 'sqlCondition',
             key: 'sqlCondition',
             width: '40%',
-            render: (text, record) => this.renderColumns(text, record, 'sqlCondition'),
+            render: (text, record) => this.renderColumns(text, record, 'sqlCondition')
         }, {
             title: '操作',
             width: '10%',
             render: (text, record) => {
-                const { editable } = record;
                 return (
                     <div>
                         {
-                            editable ?
+                            record.editable ?
                             <span>
-                                <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
-                                <a onClick={() => this.cancel(record.id)}>取消</a>
+                                <a className="m-r-8" onClick={this.saveCondition.bind(this, record.id)}>
+                                    保存
+                                </a>
+                                <a onClick={this.cancelEdit.bind(this, record.id)}>
+                                    取消
+                                </a>
                             </span>
                             : 
                             <span>
-                                <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
-                                <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
+                                <a className="m-r-8" onClick={this.editCondition.bind(this, record.id)}>
+                                    编辑
+                                </a>
+                                <Popconfirm title="确定要删除吗？" onConfirm={this.deleteCondition.bind(this, record.id)}>
                                     <a>删除</a>
                                 </Popconfirm>
                             </span>
@@ -161,76 +198,6 @@ export default class RuleTagEdit extends Component {
         return obj;
     }
 
-    // 参数改变回调
-    changeConditionParams = (type, value) => {
-        let obj = {};
-        obj[type] = value.target ? value.target.value : value;
-
-        this.setState({ curCondition: {...this.state.curCondition, ...obj} });
-    }
-
-    // 数据源下拉框
-    renderDataSource = (data) => {
-        return data.map((source) => {
-            let title = `${source.dataName}（${source.sourceTypeValue}）`;
-            return (
-                <Option 
-                    key={source.id} 
-                    value={source.id.toString()}
-                    title={title}>
-                    {title}
-                </Option>
-            )
-        });
-    }
-
-    // 数据表下拉框
-    renderSourceTable = (data) => {
-        return data.map((tableName) => {
-            return <Option 
-                key={tableName} 
-                value={tableName}>
-                {tableName}
-            </Option>
-        });
-    }
-
-    // 计算资源下拉框
-    renderComputeSource = (data) => {
-        return data.map((source) => {
-            let title = `${source.dataName}（${source.sourceTypeValue}）`;
-            return (
-                <Option 
-                    key={source.id} 
-                    value={source.id.toString()}
-                    title={title}>
-                    {title}
-                </Option>
-            )
-        });
-    }
-
-    // 数据源变化回调
-    onDataSourceChange = (id) => {
-        const { form, dataSource } = this.props;
-        const { sourceList } = dataSource;
-
-        let item = sourceList.filter(item => item.id == id)[0];
-
-        this.props.resetDataSourcesTable();
-        this.props.getDataSourcesTable({ sourceId: id });
-
-        form.setFieldsValue({ tableName: undefined });
-        this.setState({ 
-            curCondition: {
-                ...this.state.curCondition, 
-                dataSourceId: id,
-                dataSourceName: `${item.dataName}（${item.sourceTypeValue}）`,
-                tableName: undefined
-            }
-        });
-    }
-
     // 编辑状态的TD
     renderEditTD = (text, record, type) => {
         const { form, dataSource } = this.props;
@@ -253,7 +220,15 @@ export default class RuleTagEdit extends Component {
                                 optionFilterProp="title"
                                 onChange={this.onDataSourceChange}>
                                 {
-                                    this.renderDataSource(sourceList)
+                                    sourceList.map(source => {
+                                        let title = `${source.dataName}（${source.sourceTypeValue}）`;
+                                        return <Option 
+                                            key={source.id} 
+                                            value={source.id.toString()}
+                                            title={title}>
+                                            {title}
+                                        </Option>
+                                    })
                                 }
                             </Select>
                         )
@@ -271,11 +246,15 @@ export default class RuleTagEdit extends Component {
                             }],
                             initialValue: record.tableName
                         })(
-                            <Select
-                                showSearch 
-                                onChange={this.changeConditionParams.bind(this, 'tableName')}>
+                            <Select showSearch>
                                 {
-                                    this.renderSourceTable(sourceTable)
+                                    sourceTable.map(tableName => {
+                                        return <Option 
+                                            key={tableName} 
+                                            value={tableName}>
+                                            {tableName}
+                                        </Option>
+                                    })
                                 }
                             </Select>
                         )
@@ -290,10 +269,7 @@ export default class RuleTagEdit extends Component {
                             rules: [],
                             initialValue: record.sqlCondition
                         })(
-                            <Input 
-                                placeholder={`sql过滤条件`}
-                                onChange={this.changeConditionParams.bind(this, 'sqlCondition')} 
-                            />
+                            <Input placeholder={`sql过滤条件`} />
                         )
                     }
                 </FormItem>
@@ -306,15 +282,25 @@ export default class RuleTagEdit extends Component {
         // return text;
         switch (type) {
             case 'dataSourceId': {
-                return record.dataSourceName
+                return `${record.dataSourceName}（${record.sourceTypeValue}）`
             }
             default:
                 return text;
         }
     }
 
+    // 数据源变化回调
+    onDataSourceChange = (id) => {
+        const { form } = this.props;
+
+        this.props.resetDataSourcesTable();
+        this.props.getDataSourcesTable({ sourceId: id });
+
+        form.setFieldsValue({ tableName: undefined });
+    }
+
     // 编辑规则
-    edit(id) {
+    editCondition(id) {
         const { curCondition, conditionList } = this.state;
 
         let newData = [...conditionList],
@@ -332,6 +318,7 @@ export default class RuleTagEdit extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
+            this.props.getDataSourcesTable({ sourceId: target.dataSourceId });
 
             this.setState({ 
                 curCondition: target,
@@ -341,16 +328,17 @@ export default class RuleTagEdit extends Component {
     }
 
     // 取消编辑
-    cancel(id) {
-        let newData = [...this.state.conditionList],
-            target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target);
+    cancelEdit(id) {
+        const { conditionList } = this.state;
+
+        let newData = [...conditionList],
+            target  = newData.filter(item => id === item.id)[0];
 
         if (target.editStatus === 'edit') {
             delete target.editable;
             delete target.editStatus;
         } else {
-            newData.splice(index, 1);
+            newData.splice(newData.indexOf(target), 1);
         }
 
         this.setState({ 
@@ -360,64 +348,46 @@ export default class RuleTagEdit extends Component {
     }
 
     // 删除规则
-    delete(id) {
-        const { tagId, conditionList } = this.state;
-
-        let newData = [...conditionList],
-            target  = newData.filter(item => id === item.id)[0];
+    deleteCondition(id) {
+        const { tagId } = this.state;
         
-        if (target) {
-            TCApi.deleteTagCondition({
-                conditionId: id
-            }).then((res) => {
-                if (res.code === 1) {
-                    message.success('删除成功');
-                    TCApi.getTagCondition({ tagId }).then((res) => {
-                        if (res.code === 1) {
-                            this.setState({
-                                conditionList: res.data
-                            });
-                        }
-                    });
-                }
-            });
-        }
+        TCApi.deleteTagCondition({
+            conditionId: id
+        }).then((res) => {
+            if (res.code === 1) {
+                message.success('删除成功');
+
+                this.getTagCondition({ tagId });
+            }
+        });
     }
 
-    // 保存规则
-    save(id) {
-        const { tagId, curCondition, conditionList } = this.state;
+    // 保存condition
+    saveCondition(id) {
+        const { form } = this.props;
+        const { tagId } = this.state;
 
-        let newData = [...conditionList],
-            target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target);
-
-        this.props.form.validateFields(['dataSourceId', 'tableName', 'sqlCondition'], (err, values) => {
-            console.log(err,values)
+        form.validateFields(['dataSourceId', 'tableName', 'sqlCondition'], (err, values) => {
             if(!err) {
-                delete curCondition.editable;
-                delete curCondition.editStatus;
-                newData[index] = curCondition;
-
-                TCApi.editTagCondition({...curCondition}).then((res) => {
+                TCApi.editTagCondition({
+                    ...values, 
+                    id: id > 0 ? id : undefined, 
+                    tagId: tagId
+                }).then((res) => {
                     if (res.code === 1) {
                         message.success('保存成功');
-                        TCApi.getTagCondition({ tagId }).then((res) => {
-                            if (res.code === 1) {
-                                this.setState({
-                                    conditionList: res.data,
-                                    currentRule: {}
-                                });
-                            }
-                        });
+
+                        this.setState({ curCondition: {} });
+                        this.getTagCondition({ tagId });
                     }
                 });
             }
         });
     }
 
-    // 新增规则
+    // 新增condition
     addNewCondition = () => {
+        const { form } = this.props;
         const { tagId, conditionList, curCondition } = this.state;
 
         let newData = [...conditionList];
@@ -428,11 +398,8 @@ export default class RuleTagEdit extends Component {
                 delete curCondition.editStatus
             } else {
                 newData.shift();
-                this.props.form.resetFields();
-                this.setState({ 
-                    curCondition: {}, 
-                    functionList: [] 
-                });
+                form.resetFields();
+                this.setState({ curCondition: {} });
             }
         }
 
@@ -453,83 +420,17 @@ export default class RuleTagEdit extends Component {
         });
     }
 
-    onComputeSourceChange = (id) => {
-        const { form } = this.props;
-        const { currentData } = this.state;
-
-        this.setState({ 
-            currentData: {
-                ...currentData, 
-                computeSourceId: id
-            }
-        });
-    }
-
-    // 重置执行信息
-    resetScheduleConf = (type) => {
-        let scheduleConfObj = { ...initialSchedule, periodType: type };
-
-        this.setState({
-            scheduleConfObj,
-            currentData: {
-                ...this.state.currentData, 
-                // periodType: type,
-                scheduleConf: JSON.stringify(scheduleConfObj)
-            }
-        });
-    }
-
-    // 调度周期下拉框
-    renderPeriodType = (data) => {
-        return data.map((item) => {
-            return <Option 
-                key={item.value} 
-                value={item.value.toString()}>
-                {item.name}
-            </Option>
-        });
-    }
-
     // 调度周期回调
     onPeriodTypeChange = (type) => {
-        this.resetScheduleConf(type);
-    }
+        let scheduleConfObj = {...initialSchedule, periodType: type};
 
-    // 通知方式列表
-    renderSendTypeList = (data) => {
-        return data && data.map((item) => {
-            return <Checkbox 
-                key={item.value} 
-                value={item.value.toString()}>
-                {item.name}
-            </Checkbox>
-        });
-    }
-
-
-    onBeginDateChange = (date, dateString) => {
-        this.changeScheduleConfTime('beginDate', dateString);
-    }
-
-    onEndDateChange = (date, dateString) => {
-        this.changeScheduleConfTime('endDate', dateString);
-    }
-
-    // 通知人下拉框
-    renderUserList = (data) => {
-        return data.map((item) => {
-            return <Option 
-                key={item.id} 
-                value={item.id.toString()}>
-                {item.userName}
-            </Option>
-        });
+        this.setState({ scheduleConfObj });
     }
 
     // 通知方式回调
-    onSendTypeChange = (value) => {
+    onSendTypesChange = (value) => {
         const { form } = this.props;
-        const { currentData } = this.state;
+        const { notifyVO } = this.state;
 
         let receivers = form.getFieldValue('receivers');
 
@@ -537,17 +438,13 @@ export default class RuleTagEdit extends Component {
             form.setFieldsValue({ receivers: [] });
         }
 
-        let notifyVO = {...currentData.notifyVO, sendTypes: value};
-
-        this.setState({
-            currentData: {...currentData, notifyVO}
-        });
+        this.setState({ notifyVO: {...notifyVO, sendTypes: value} });
     }
 
     // 通知人回调
-    onNotifyUserChange = (value) => {
+    onReceiversChange = (value) => {
         const { form } = this.props;
-        const { currentData } = this.state;
+        const { notifyVO } = this.state;
 
         let sendTypes = form.getFieldValue('sendTypes');
 
@@ -555,28 +452,25 @@ export default class RuleTagEdit extends Component {
             form.setFieldsValue({ sendTypes: [] });
         }
 
-        let notifyVO = {...currentData.notifyVO, receivers: value};
-
-        this.setState({
-            currentData: {...currentData, notifyVO}
-        });
+        this.setState({ notifyVO: {...notifyVO, receivers: value} });
     }
 
     // 调度日期回调
     changeScheduleConfTime = (type, value) => {
-        const { scheduleConfObj, currentData } = this.state;
+        const { scheduleConfObj } = this.state;
 
-        let newParams = {};
-        newParams[type] = value;
-        let newConfObj = { ...scheduleConfObj, ...newParams };
+        let newValue = {};
+        newValue[type] = value;
 
-        this.setState({
-            scheduleConfObj: newConfObj,
-            currentData: {
-                ...currentData, 
-                scheduleConf: JSON.stringify(newConfObj)
-            }
-        });
+        this.setState({ scheduleConfObj: {...scheduleConfObj, ...newValue} });
+    }
+
+    onBeginDateChange = (date, dateString) => {
+        this.changeScheduleConfTime('beginDate', dateString);
+    }
+
+    onEndDateChange = (date, dateString) => {
+        this.changeScheduleConfTime('endDate', dateString);
     }
 
     // 根据调度类型的不同返回不同的调度配置
@@ -732,7 +626,7 @@ export default class RuleTagEdit extends Component {
                                     required: true, 
                                     message: '间隔时间不能为空'
                                 }],
-                                initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
+                                initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : undefined
                             })(
                                 generateGapHour()
                             )
@@ -958,31 +852,37 @@ export default class RuleTagEdit extends Component {
 
     saveRuleTag = () => {
         const { form } = this.props;
-        const { tagId, curCondition, conditionList, currentData, scheduleConfObj } = this.state;
+        const { tagId, curCondition, conditionList, scheduleConfObj, notifyVO } = this.state;
 
         if (!isEmpty(curCondition)) {
-            message.error('还有未保存的数据源');
+            message.error('基本信息未保存');
             return
         }
 
         if (conditionList.length < 1) {
-            message.error('请添加数据源');
+            message.error('请添加基本信息');
             return
         }
 
         form.validateFields((err, values) => {
             console.log(err,values)
-
+            if (err && err.endDate) {
+                message.error(err.endDate.errors[0].message)
+            }
+            
             if (!err) {
                 TCApi.updateTagSqlInfo({
                     id: tagId,
                     conditions: conditionList,
-                    notifyVO: currentData.notifyVO,
+                    notifyVO: notifyVO,
                     scheduleConf: JSON.stringify(scheduleConfObj),
-                    sqlText: form.getFieldValue('sqlText'),
-                    computeSourceId: currentData.computeSourceId
+                    sqlText: values.sqlText,
+                    computeSourceId: values.computeSourceId
                 }).then((res) => {
-
+                    if (res.code === 1) {
+                        message.success('保存成功');
+                        hashHistory.push('/dl/tagConfig');
+                    }
                 })
             }
         })
@@ -992,13 +892,13 @@ export default class RuleTagEdit extends Component {
         const { form, common } = this.props;
         const { getFieldDecorator } = form;
         const { periodType, notifyType, userList } = common;
-        const { loading, currentData, conditionList, computeList, scheduleConfObj } = this.state;
-
-        let sendTypes = currentData.notifyVO ? currentData.notifyVO.sendTypes : [],
-            receivers = currentData.notifyVO ? currentData.notifyVO.receivers : [];
+        const { currentData, conditionList, computeList, scheduleConfObj, notifyVO } = this.state;
+        const { sendTypes, receivers } = notifyVO;
 
         const cardTitle = (
-            <div><GoBack /> 配置计算逻辑</div>
+            <div>
+                <GoBack /> 配置计算逻辑
+            </div>
         )
 
         return (
@@ -1017,7 +917,7 @@ export default class RuleTagEdit extends Component {
                                 type="primary" 
                                 className="right"
                                 onClick={this.addNewCondition}>
-                                添加资源
+                                添加
                             </Button>
                         </h2>
 
@@ -1025,7 +925,6 @@ export default class RuleTagEdit extends Component {
                             rowKey="id"
                             className="m-table"
                             columns={this.initColumns()} 
-                            loading={loading}
                             pagination={false}
                             dataSource={conditionList}
                         />
@@ -1047,10 +946,17 @@ export default class RuleTagEdit extends Component {
                                 })(
                                     <Select
                                         style={{ width: 300 }}
-                                        placeholder="选择要同步的计算引擎"
-                                        onChange={this.onComputeSourceChange}>
+                                        placeholder="选择要同步的计算引擎">
                                         {
-                                            this.renderComputeSource(computeList)
+                                            computeList.map(source => {
+                                                let title = `${source.dataName}（${source.sourceTypeValue}）`;
+                                                return <Option 
+                                                    key={source.id} 
+                                                    value={source.id.toString()}
+                                                    title={title}>
+                                                    {title}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -1061,7 +967,7 @@ export default class RuleTagEdit extends Component {
                     <div className="tag-edit-step">
                         <h2>
                             <div className="rank-number m-r-8">3</div>
-                            根据以上数据源输入指标计算sql
+                            根据以上数据源输入指标计算SQL
                         </h2>
                         <FormItem>
                             {
@@ -1074,8 +980,7 @@ export default class RuleTagEdit extends Component {
                                 })(
                                     <TextArea 
                                         placeholder="在此输入指标计算sql" 
-                                        autosize={{ minRows: 6 }} 
-                                        onChange={this.onSqlTextChange}
+                                        autosize={{ minRows: 6 }}
                                     />
                                 )
                             }
@@ -1100,7 +1005,13 @@ export default class RuleTagEdit extends Component {
                                         style={{ width: 328 }}
                                         onChange={this.onPeriodTypeChange}>
                                         {
-                                            this.renderPeriodType(periodType)
+                                            periodType.map(item => {
+                                                return <Option 
+                                                    key={item.value} 
+                                                    value={item.value.toString()}>
+                                                    {item.name}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -1166,9 +1077,15 @@ export default class RuleTagEdit extends Component {
                                     }], 
                                     initialValue: sendTypes.map(item => item.toString())
                                 })(
-                                    <Checkbox.Group onChange={this.onSendTypeChange}>
+                                    <Checkbox.Group onChange={this.onSendTypesChange}>
                                         {
-                                            this.renderSendTypeList(notifyType)
+                                            notifyType.map(item => {
+                                                return <Checkbox 
+                                                    key={item.value} 
+                                                    value={item.value.toString()}>
+                                                    {item.name}
+                                                </Checkbox>
+                                            })
                                         }
                                     </Checkbox.Group>
                                 )
@@ -1188,9 +1105,15 @@ export default class RuleTagEdit extends Component {
                                         allowClear 
                                         mode="multiple" 
                                         style={{ width: 328 }}
-                                        onChange={this.onNotifyUserChange}>
+                                        onChange={this.onReceiversChange}>
                                         {
-                                            this.renderUserList(userList)
+                                            userList.map(item => {
+                                                return <Option 
+                                                    key={item.id} 
+                                                    value={item.id.toString()}>
+                                                    {item.userName}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -1198,15 +1121,14 @@ export default class RuleTagEdit extends Component {
                         </FormItem>
                     </div>
 
-                    <div className="tag-edit-step">
+                    <div className="tag-edit-step txt-right">
                         <Button 
                             type="primary" 
-                            className="right m-r-8">
+                            className="m-r-8">
                             <Link to="/dl/tagConfig">取消</Link>
                         </Button>
                         <Button 
                             type="primary" 
-                            className="right"
                             onClick={this.saveRuleTag}>
                             保存
                         </Button>

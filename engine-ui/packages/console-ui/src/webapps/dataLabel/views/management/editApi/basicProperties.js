@@ -388,7 +388,7 @@ class ManageBasicProperties extends Component {
                             label="识别列类型"
                             hasFeedback >
                             {getFieldDecorator('identityType', {
-                                // rules: [{ required: true, message: '选择列' } ],
+                                rules: [{ required: true, message: '选择列' } ],
                                 initialValue: this.props.identityType,
                             })(
                                 <Select disabled placeholder="请选择列">
