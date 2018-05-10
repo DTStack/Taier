@@ -12,6 +12,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -50,6 +51,7 @@ import java.util.Properties;
  */
 public class SparkYarnClient extends AbsClient {
 
+    public static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -73,15 +75,17 @@ public class SparkYarnClient extends AbsClient {
 
     private Configuration yarnConf;
 
-    private YarnClient yarnClient = YarnClient.createYarnClient();
+    private YarnClient yarnClient;
 
     @Override
     public void init(Properties prop) throws Exception {
 
         sparkYarnConfig = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsBytes(prop), SparkYarnConfig.class);
         initYarnConf(sparkYarnConfig);
-        System.setProperty("SPARK_YARN_MODE", "true");
+        sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
+        System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
+        yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
     }
@@ -92,38 +96,6 @@ public class SparkYarnClient extends AbsClient {
         customerConf.initYarnConf(sparkConfig.getYarnConf());
 
         yarnConf = customerConf.getYarnConfiguration();
-    }
-
-    private SparkConf buildBasicSparkConf(){
-
-        SparkConf sparkConf = new SparkConf();
-        sparkConf.remove("spark.jars");
-        sparkConf.remove("spark.files");
-        sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
-        SparkConfig.initDefautlConf(sparkConf);
-        return sparkConf;
-    }
-
-    /**
-     * 通过提交的paramsOperator 设置sparkConf
-     * 解析传递过来的参数不带spark.前面缀的
-     * @param sparkConf
-     * @param confProperties
-     */
-    private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
-
-        if(confProperties == null){
-            return;
-        }
-
-        for(Map.Entry<Object, Object> param : confProperties.entrySet()){
-            String key = (String) param.getKey();
-            String val = (String) param.getValue();
-            if(!key.contains(KEY_PRE_STR)){
-                key = KEY_PRE_STR + key;
-            }
-            sparkConf.set(key, val);
-        }
     }
 
     @Override
@@ -156,11 +128,9 @@ public class SparkYarnClient extends AbsClient {
         argList.add("--class");
         argList.add(mainClass);
 
-        if(appArgs != null) {
-            for(String appArg : appArgs) {
-                argList.add("--arg");
-                argList.add(appArg);
-            }
+        for(String appArg : appArgs) {
+            argList.add("--arg");
+            argList.add(appArg);
         }
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
@@ -293,6 +263,39 @@ public class SparkYarnClient extends AbsClient {
         }
 
     }
+
+    private SparkConf buildBasicSparkConf(){
+
+        SparkConf sparkConf = new SparkConf();
+        sparkConf.remove("spark.jars");
+        sparkConf.remove("spark.files");
+        sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
+        SparkConfig.initDefautlConf(sparkConf);
+        return sparkConf;
+    }
+
+    /**
+     * 通过提交的paramsOperator 设置sparkConf
+     * 解析传递过来的参数不带spark.前面缀的
+     * @param sparkConf
+     * @param confProperties
+     */
+    private void fillExtSparkConf(SparkConf sparkConf, Properties confProperties){
+
+        if(confProperties == null){
+            return;
+        }
+
+        for(Map.Entry<Object, Object> param : confProperties.entrySet()){
+            String key = (String) param.getKey();
+            String val = (String) param.getValue();
+            if(!key.contains(KEY_PRE_STR)){
+                key = KEY_PRE_STR + key;
+            }
+            sparkConf.set(key, val);
+        }
+    }
+
 
     private JobResult submitSparkSqlJobForStream(JobClient jobClient){
         throw new RdosException("not support spark sql job for stream type.");

@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
 public class HadoopConf {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(HadoopConf.class);
 
     private final static String HADOOP_CONF = System.getProperty("user.dir")+"/conf/hadoop/";
@@ -167,7 +167,7 @@ public class HadoopConf {
     public Configuration getConfiguration(){
 		return configuration;
 	}
-	
+
 	public String getDefaultFs(){
 		return configuration.get("fs.defaultFS");
 	}
