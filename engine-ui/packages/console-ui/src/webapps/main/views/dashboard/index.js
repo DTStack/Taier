@@ -38,7 +38,7 @@ class Dashboard extends Component {
                         <div className="middle">
                             <div className="left txt">
                                 <h1>袋鼠云·数栈</h1>
-                                <span>数据中台-让数据产生价值</span>
+                                <span>企业级一站式数据中台-让数据产生价值</span>
                             </div>
                             <div className="left img">
                                 <img src="/public/main/img/pic_banner.png"/>
