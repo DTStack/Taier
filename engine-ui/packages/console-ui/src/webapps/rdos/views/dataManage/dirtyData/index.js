@@ -34,6 +34,37 @@ const Option = Select.Option;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
+const TIME_OBJ={
+    3:{
+        interval:2,
+        field:1,
+        formatter:function(time){
+            return utils.formatDateHours(time)
+        }
+    },
+    7:{
+        interval:3,
+        field:1,
+        formatter:function(time){
+            return utils.formatDateHours(time)
+        }
+    },
+    30:{
+        interval:1,
+        field:2,
+        formatter:function(time){
+            return utils.formatDate(time)
+        }
+    },
+    60:{
+        interval:1,
+        field:2,
+        formatter:function(time){
+            return utils.formatDate(time)
+        }
+    },
+}
+
 @connect(null, (dispatch) => {
     const actions = workbenchActions(dispatch)
     return {
@@ -91,6 +122,10 @@ class DirtyData extends Component {
 
     loadProduceTrendData = (params) => {
         const ctx = this
+        const time=params.recent;
+        params.interval=TIME_OBJ[time].interval;
+        params.field=TIME_OBJ[time].field;
+
         Api.getDirtyDataTrend(params).then((res) => {
             if (res.code === 1) {
                 this.renderProduceTrend(res.data)
@@ -197,22 +232,23 @@ class DirtyData extends Component {
     renderProduceTrend = (chartData) => {
         let myChart = echarts.init(document.getElementById('ProduceTrend'));
         const option = cloneDeep(lineAreaChartOptions);
+        const {timeRange} =this.state;
        
         option.grid = {
             left: '2%',
-            right: '4%',
+            right: '8%',
             bottom: '2%',
             containLabel: true
         }
         option.legend.show = false
         option.title.text = ''
         option.tooltip.axisPointer.label.formatter = function(obj) {
-            return obj ? utils.formatDate(+obj.value) : null;
+            return obj ? TIME_OBJ[timeRange].formatter(+obj.value) : null;
         };
 
         option.xAxis[0].boundaryGap = ['5%', '5%'];
         option.xAxis[0].axisLabel.formatter = function(value) {
-            return value ? utils.formatDate(+value) : null;
+            return value ? TIME_OBJ[timeRange].formatter(+value) : null;
         };
 
         option.yAxis[0].minInterval = 1
