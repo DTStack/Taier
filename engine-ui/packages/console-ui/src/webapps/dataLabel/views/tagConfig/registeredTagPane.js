@@ -48,7 +48,8 @@ export default class RegisteredTagPane extends Component {
             pageSize: 20
         },
         tagList: {},
-        editData: {}
+        editData: {},
+        catalogue2Data: []
     }
 
     componentDidMount() {
@@ -316,6 +317,36 @@ export default class RegisteredTagPane extends Component {
         this.setState({ queryParams });
     }
 
+    // 一级分类
+    onFirstCatalogueChange = (id) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            pid: id ? id : undefined
+        };
+
+        if (id) {
+            this.getSecondCatalogue(id)
+        } else {
+            this.setState({ catalogue2Data: [] });
+        }
+
+        this.getRegisteredTagData(queryParams);
+        this.setState({ queryParams });
+    }
+
+    // 二级分类
+    onSecondCatalogueChange = (id) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            cid: id ? id : undefined
+        };
+
+        this.getRegisteredTagData(queryParams);
+        this.setState({ queryParams });
+    }
+    
     // 类目下拉框数据初始化
     initCatagoryOption = (data) => {
         if (data.some(item => item.api === true)) {
@@ -331,66 +362,41 @@ export default class RegisteredTagPane extends Component {
         }
     }
 
-    getCatagoryOption = () => {
-        const { apiCatalogue } = this.props.apiMarket;
-
-        function exchangeTree(data) {
-            let arr = []
-            if (!data||data.length<1) {
-                return null;
-            }
-            
-            
-            for (let i = 0; i < data.length; i++) {
-            
-                let item = data[i];
-                
-                if(item.api){
-                    return null;
-                }
-                arr.push({
-                    value: item.id,
-                    label: item.catalogueName,
-                    children: exchangeTree(item.childCatalogue)
-                })
-            }
-            return arr;
-        }
-
-        return exchangeTree(apiCatalogue);
-
-    }
-
     // 获取已选取的类目array
     getCatalogueArray = (value) => {
         const { apiCatalogue } = this.props.apiMarket;
         let arr = [];
 
         const flat = (data) => {
-            let id;
-
-            data.forEach((item) => {
-                if (item.api) {
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].api) {
                     return
                 }
                 // 匹配节点
-                if (item.id === value) {
-                    arr.push(item.id);
-                    id = item.id;
+                if (data[i].id === value) {
+                    arr.push(data[i].id);
+                    return data[i].id;
                 }
                 // 若子节点含有对应的值，父节点入队
-                if (flat(item.childCatalogue)) {
-                    arr.push(item.id);
-                    id = item.id;
+                if (flat(data[i].childCatalogue)) {
+                    arr.push(data[i].id);
+                    return data[i].id;
                 }
-            });
-
-            return id;
+            }
         }
 
         flat(apiCatalogue);
-
         return arr.reverse();
+    }
+
+    // 获取二级分类数据
+    getSecondCatalogue = (id) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
+        child = child.some(item => item.api) ? [] : child;
+
+        this.setState({ catalogue2Data: child });
     }
 
     render() {
@@ -399,7 +405,7 @@ export default class RegisteredTagPane extends Component {
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
         const { sourceList, sourceTable, sourceColumn } = dataSource;
-        const { queryParams, visible, selectedIds, loading, tagList, editData } = this.state;
+        const { queryParams, visible, selectedIds, loading, tagList, editData, catalogue2Data } = this.state;
 
         const cardTitle = (
             <div className="flex font-12">
@@ -415,10 +421,19 @@ export default class RegisteredTagPane extends Component {
                         allowClear
                         showSearch
                         style={{ width: 150 }}
-                        // placeholder="选择数据源类型"
-                        onChange={this.onssSourceChange}>
-                        <Option key={"1"} value={"1"}>标签1</Option>
-                        <Option key={"2"} value={"2"}>标签2</Option>
+                        placeholder="选择标签分类"
+                        optionFilterProp="title"
+                        onChange={this.onFirstCatalogueChange}>
+                        {
+                            apiCatalogue.map(item => {
+                                return <Option 
+                                    key={item.id} 
+                                    value={item.id.toString()}
+                                    title={item.catalogueName}>
+                                    {item.catalogueName}
+                                </Option>
+                            })
+                        }
                     </Select>
                 </div>
 
@@ -428,11 +443,19 @@ export default class RegisteredTagPane extends Component {
                         allowClear 
                         showSearch
                         style={{ width: 150 }}
-                        // optionFilterProp="title"
-                        // placeholder="选择数据源"
-                        onChange={this.onUserSourceChange}>
-                        <Option key={"1"} value={"1"}>标签1</Option>
-                        <Option key={"2"} value={"2"}>标签2</Option>
+                        optionFilterProp="title"
+                        placeholder="选择二级分类"
+                        onChange={this.onSecondCatalogueChange}>
+                        {
+                            catalogue2Data.map(item => {
+                                return <Option 
+                                    key={item.id} 
+                                    value={item.id.toString()}
+                                    title={item.catalogueName}>
+                                    {item.catalogueName}
+                                </Option>
+                            })
+                        }
                     </Select>
                 </div>
             </div>
