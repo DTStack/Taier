@@ -3,6 +3,7 @@
     .middle {
         width: 980px;
         margin: auto;
+        overflow: hidden;
     }
 
     .container {
@@ -22,7 +23,7 @@
         .txt {
             margin-left: 30px;
             margin-top: 110px;
-            width: 240px;
+            
 
             h1 {
                 font-size: 36px;
@@ -39,7 +40,7 @@
         }
 
         .img {
-            margin-left: 112px;
+            margin-left: 30px;
             margin-top: 40px;
         }
     }
@@ -58,7 +59,7 @@
             padding-bottom:40px;
             text-align: center;
             margin: 0 8px;
-            margin-bottom:100px;
+            margin-bottom:120px;
             &:hover, &:active, &:visited, &:focus {
                 text-decoration: none;
                 -webkit-appearance: none;
