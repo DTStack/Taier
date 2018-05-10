@@ -239,7 +239,7 @@ export default class TaskDetailPane extends Component {
                         title={cardTitle}
                     >
                         <Resize onResize={this.resize}>
-                            <article id="TaskTrend" style={{ width: '100%', height: '300px' }}/>
+                            <article id="TaskTrend" style={{ width: '100%', height: '350px' }}/>
                         </Resize>
                     </Card>
                 }
