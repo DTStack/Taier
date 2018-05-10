@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Card, Modal, Form, Button, Input, Select, Popconfirm, message } from 'antd';
+import { Table, Card, Modal, Form, Button, Input, Popconfirm, message } from 'antd';
 
 import GoBack from 'main/components/go-back';
 import { formItemLayout } from '../../consts';
 import TCApi from '../../api/tagConfig';
 
-const Option = Select.Option;
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
@@ -20,25 +19,21 @@ export default class IdentifyColumn extends Component {
             currentPage: 1,
             pageSize: 20
         },
-        identifyData: {},
+        columnData: {},
         currentData: {},
     }
 
     componentDidMount() {
-        this.getData(this.state.queryParams);
+        this.getColumnData(this.state.queryParams);
     }
 
-    componentWillReceiveProps(nextProps) {
-        console.log(this.props,nextProps)
-    }
-
-    getData = (params) => {
+    getColumnData = (params) => {
         this.setState({ loading: true });
 
         TCApi.queryIdentifyColumn(params).then((res) => {
             if (res.code === 1) {
                 this.setState({
-                    identifyData: res.data,
+                    columnData: res.data,
                     loading: false
                 });
             }
@@ -78,8 +73,7 @@ export default class IdentifyColumn extends Component {
                         <Popconfirm
                             title="确定删除此识别列？"
                             okText="确定" cancelText="取消"
-                            onConfirm={this.delete.bind(this, record.id)}
-                        >
+                            onConfirm={this.deleteColumn.bind(this, record.id)}>
                             <a>删除</a>
                         </Popconfirm>
                     </div>
@@ -88,6 +82,7 @@ export default class IdentifyColumn extends Component {
         }]
     }
 
+    // 保存识别列
     saveColumn = () => {
         const { form } = this.props;
         const { queryParams, currentData } = this.state;
@@ -110,7 +105,7 @@ export default class IdentifyColumn extends Component {
                 api(params).then((res) => {
                     if (res.code === 1) {
                         message.success(msg);
-                        this.getData(queryParams);
+                        this.getColumnData(queryParams);
                         this.closeModal();
                         this.setState({ currentData: {} });
                         form.resetFields();
@@ -120,24 +115,27 @@ export default class IdentifyColumn extends Component {
         });
     }
 
+    // 编辑识别列
     editColumn = (record) => {
         this.openModal();
         this.setState({ currentData: record });
     }
 
-    delete = (id) => {
+    // 删除
+    deleteColumn = (id) => {
         const { queryParams } = this.state;
 
         if (id) {
             TCApi.deleteIdentifyColumn({ identifyId: id }).then((res) => {
                 if (res.code === 1) {
                     message.success('删除成功！');
-                    this.getData(queryParams);
+                    this.getColumnData(queryParams);
                 }
             });
         }
     }
 
+    // 取消编辑
     cancel = () => {
         this.closeModal();
         this.setState({ currentData: {} });
@@ -145,86 +143,90 @@ export default class IdentifyColumn extends Component {
     }
 
     render() {
-        const { visible, queryParams, loading, identifyData, currentData } = this.state;
         const { getFieldDecorator } = this.props.form;
+        const { visible, queryParams, loading, columnData, currentData } = this.state;
 
         const cardTitle = (
-            <div><GoBack /> 识别列类型配置</div>
+            <div>
+                <GoBack /> 识别列类型配置
+            </div>
         )
 
         const cardExtra = (
-            <Button type="primary" style={{ margin: 10 }} onClick={this.openModal}>新建识别列</Button>
+            <Button 
+                type="primary" 
+                style={{ margin: 10 }} 
+                onClick={this.openModal}>
+                新建识别列
+            </Button>
         )
 
         const pagination = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
-            total: identifyData.totalCount
+            total: columnData.totalCount
         };
 
         return (
-           
+            <div className="box-1 m-card shadow">
+                <Card 
+                    title={cardTitle}
+                    extra={cardExtra}
+                    noHovering 
+                    bordered={false}
+                >
+                    <Table 
+                        rowKey="id"
+                        className="m-table"
+                        columns={this.initColumns()} 
+                        loading={loading}
+                        pagination={pagination}
+                        dataSource={columnData.data}
+                        onChange={this.onTableChange}
+                    />
 
-                <div className="box-1 m-card shadow">
-                    
-                    <Card 
-                        title={cardTitle}
-                        extra={cardExtra}
-                        noHovering 
-                        bordered={false}
+                    <Modal
+                        title={currentData.id ? "编辑识别列": "新建识别列"}
+                        wrapClassName="identifyColumnModal"
+                        width={'50%'}
+                        visible={visible}
+                        maskClosable={false}
+                        okText="确定"
+                        cancelText="取消"
+                        onOk={this.saveColumn}
+                        onCancel={this.cancel}
                     >
-                        <Table 
-                            rowKey="id"
-                            className="m-table"
-                            columns={this.initColumns()} 
-                            loading={loading}
-                            pagination={pagination}
-                            dataSource={identifyData.data}
-                            onChange={this.onTableChange}
-                        />
-
-                        <Modal
-                            title={currentData.id ? "编辑识别列": "新建识别列"}
-                            wrapClassName="identifyColumnModal"
-                            width={'50%'}
-                            visible={visible}
-                            maskClosable={false}
-                            okText="确定"
-                            cancelText="取消"
-                            onOk={this.saveColumn}
-                            onCancel={this.cancel}
-                        >
-                            <Form>
-                                <FormItem {...formItemLayout} label="类型名称">
-                                    {
-                                        getFieldDecorator('name', {
-                                            rules: [{ 
-                                                required: true, 
-                                                message: '类型名称不可为空' 
-                                            }], 
-                                            initialValue: currentData.name
-                                        })(
-                                            <Input placeholder="请输入类型名称" />
-                                        )
-                                    }
-                                </FormItem>
-                                <FormItem {...formItemLayout} label="描述">
-                                    {
-                                        getFieldDecorator('identityDesc', {
-                                            rules: [], 
-                                            initialValue: currentData.identityDesc
-                                        })(
-                                            <TextArea 
-                                                placeholder="类型描述" 
-                                                autosize={{ minRows: 3, maxRows: 6 }} 
-                                            />
-                                        )
-                                    }
-                                </FormItem>
-                            </Form>
-                        </Modal>
-                    </Card>
-                </div>
+                        <Form>
+                            <FormItem {...formItemLayout} label="类型名称">
+                                {
+                                    getFieldDecorator('name', {
+                                        rules: [{ 
+                                            required: true, 
+                                            message: '类型名称不可为空' 
+                                        }], 
+                                        initialValue: currentData.name
+                                    })(
+                                        <Input placeholder="请输入类型名称" />
+                                    )
+                                }
+                            </FormItem>
+                            <FormItem {...formItemLayout} label="描述">
+                                {
+                                    getFieldDecorator('identityDesc', {
+                                        rules: [], 
+                                        initialValue: currentData.identityDesc
+                                    })(
+                                        <TextArea 
+                                            placeholder="类型描述" 
+                                            autosize={{ minRows: 3, maxRows: 6 }} 
+                                        />
+                                    )
+                                }
+                            </FormItem>
+                        </Form>
+                    </Modal>
+                </Card>
+            </div>
         )
     }
 }

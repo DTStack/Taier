@@ -8,6 +8,7 @@ import { apiMarketActions } from '../../actions/apiMarket';
 import { dataSourceActions } from '../../actions/dataSource';
 import { formItemLayout, TAG_STATUS } from '../../consts';
 import TCApi from '../../api/tagConfig';
+import apiMarketApi from '../../api/apiMarket';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -53,7 +54,8 @@ export default class RuleTagPane extends Component {
         // params: {
         //     name: undefined
         // }
-        editData: {}
+        editData: {},
+        catalogue2Data: []
     }
 
     componentDidMount() {
@@ -119,10 +121,10 @@ export default class RuleTagPane extends Component {
             title: '数据更新日期',
             dataIndex: 'executeTime',
             key: 'executeTime',
+            width: '10%',
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
             },
-            width: '10%'
         }, {
             title: '状态',
             dataIndex: 'status',
@@ -133,17 +135,35 @@ export default class RuleTagPane extends Component {
             },
         }, {
             title: '操作',
-            width: '12%',
+            width: '8%',
             render: (text, record) => {
                 const menu = (
                     <Menu>
-                        <Menu.Item key="0">
+                        {
+                            record.status != 2
+                            &&
+                            <Menu.Item key="edit">
+                                <a onClick={this.editBaseInfo.bind(this, record)}>
+                                    编辑
+                                </a>
+                            </Menu.Item>
+                        }
+                        {
+                            record.status != 2
+                            &&
+                            <Menu.Item key="edit2">
+                                <Link to={`/dl/tagConfig/ruleTagEdit/${record.id}`}>
+                                    配置计算逻辑
+                                </Link>
+                            </Menu.Item>
+                        }
+                        <Menu.Item key="log">
                             <a>查看更新历史</a>
                         </Menu.Item>
-                        <Menu.Item key="1">
+                        <Menu.Item key="pub">
                             <a>发布</a>
                         </Menu.Item>
-                        <Menu.Item key="2">
+                        <Menu.Item key="del">
                             <Popconfirm
                                 title="确定删除此标签？"
                                 okText="确定" cancelText="取消"
@@ -154,22 +174,10 @@ export default class RuleTagPane extends Component {
                         </Menu.Item>
                     </Menu>
                 )
-
                 return (
-                    <div>
-                        <a onClick={this.editBaseInfo.bind(this, record)}>
-                            编辑 
-                        </a>
-                        <span className="ant-divider" />
-                        <Link to={`/dl/tagConfig/ruleTagEdit/${record.id}`}>配置计算逻辑</Link>
-                        <span className="ant-divider" />
-                        <Dropdown overlay={menu} trigger={['click']}>
-                            <a className="ant-dropdown-link">
-                                更多 
-                                <Icon type="down" />
-                            </a>
-                        </Dropdown>
-                    </div>
+                    <Dropdown overlay={menu} trigger={['click']}>
+                        <Button>操作<Icon type="down" /></Button>
+                    </Dropdown>
                 )
             }
         }]
@@ -182,8 +190,8 @@ export default class RuleTagPane extends Component {
         let editData = {
             ...record, 
             catalogueId: this.getCatalogueArray(record.catalogueId)
-        }
-        console.log(editData)
+        };
+
         this.openModal();
         this.setState({ editData });
     }
@@ -251,44 +259,37 @@ export default class RuleTagPane extends Component {
         });
     }
 
-    // 数据源下拉框
-    renderUserSource = (data) => {
-        return data.map((source) => {
-            let title = `${source.dataName}（${source.sourceTypeValue}）`;
-            return (
-                <Option 
-                    key={source.id} 
-                    value={source.id.toString()}
-                    title={title}>
-                    {title}
-                </Option>
-            )
-        });
+    // 一级分类
+    onFirstCatalogueChange = (id) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            pid: id ? id : undefined
+        };
+
+        if (id) {
+            this.getSecondCatalogue(id)
+        } else {
+            this.setState({ catalogue2Data: [] });
+        }
+
+        this.getRuleTagData(queryParams);
+        this.setState({ queryParams });
     }
 
-    // 识别列类型下拉框
-    renderIdentifyColumn = (data) => {
-        return data.map((item) => {
-            return (
-                <Option 
-                    key={item.id} 
-                    value={item.id.toString()}
-                    title={item.name}>
-                    {item.name}
-                </Option>
-            )
-        });
+    // 二级分类
+    onSecondCatalogueChange = (id) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            cid: id ? id : undefined
+        };
+
+        this.getRuleTagData(queryParams);
+        this.setState({ queryParams });
     }
 
-    onUserSourceChange = (value) => {
-        console.log(value)
-    }
-
-    onCatagoryIdChange = (value, option) => {
-        console.log(value, option)
-    }
-
-    // TagName
+    // name
     onTagNameSearch = (name) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -318,34 +319,38 @@ export default class RuleTagPane extends Component {
     // 获取已选取的类目array
     getCatalogueArray = (value) => {
         const { apiCatalogue } = this.props.apiMarket;
-
         let arr = [];
 
         const flat = (data) => {
-            let id;
-
-            data.forEach((item) => {
-                if (item.api) {
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].api) {
                     return
                 }
                 // 匹配节点
-                if (item.id === value) {
-                    arr.push(item.id);
-                    id = item.id;
+                if (data[i].id === value) {
+                    arr.push(data[i].id);
+                    return data[i].id;
                 }
                 // 若子节点含有对应的值，父节点入队
-                if (flat(item.childCatalogue)) {
-                    arr.push(item.id);
-                    id = item.id;
+                if (flat(data[i].childCatalogue)) {
+                    arr.push(data[i].id);
+                    return data[i].id;
                 }
-            });
-
-            return id;
+            }
         }
 
         flat(apiCatalogue);
-
         return arr.reverse();
+    }
+
+    // 获取二级分类数据
+    getSecondCatalogue = (id) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
+        child = child.some(item => item.api) ? [] : child;
+
+        this.setState({ catalogue2Data: child });
     }
 
     render() {
@@ -354,7 +359,7 @@ export default class RuleTagPane extends Component {
         const { sourceList } = dataSource;
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
-        const { queryParams, visible, selectedIds, loading, tagList, editData } = this.state;
+        const { queryParams, visible, selectedIds, loading, tagList, editData, catalogue2Data } = this.state;
 
         const cardTitle = (
             <div className="flex font-12">
@@ -371,9 +376,18 @@ export default class RuleTagPane extends Component {
                         showSearch
                         style={{ width: 150 }}
                         placeholder="选择标签分类"
-                        onChange={this.onSourceChange}>
-                        <Option key={"1"} value={"1"}>标签1</Option>
-                        <Option key={"2"} value={"2"}>标签2</Option>
+                        optionFilterProp="title"
+                        onChange={this.onFirstCatalogueChange}>
+                        {
+                            apiCatalogue.map(item => {
+                                return <Option 
+                                    key={item.id} 
+                                    value={item.id.toString()}
+                                    title={item.catalogueName}>
+                                    {item.catalogueName}
+                                </Option>
+                            })
+                        }
                     </Select>
                 </div>
 
@@ -383,11 +397,19 @@ export default class RuleTagPane extends Component {
                         allowClear 
                         showSearch
                         style={{ width: 150 }}
-                        // optionFilterProp="title"
+                        optionFilterProp="title"
                         placeholder="选择二级分类"
-                        onChange={this.onUserSourceChange}>
-                        <Option key={"1"} value={"1"}>标签1</Option>
-                        <Option key={"2"} value={"2"}>标签2</Option>
+                        onChange={this.onSecondCatalogueChange}>
+                        {
+                            catalogue2Data.map(item => {
+                                return <Option 
+                                    key={item.id} 
+                                    value={item.id.toString()}
+                                    title={item.catalogueName}>
+                                    {item.catalogueName}
+                                </Option>
+                            })
+                        }
                     </Select>
                 </div>
             </div>
@@ -472,9 +494,7 @@ export default class RuleTagPane extends Component {
                                 })(
                                     <TextArea 
                                         placeholder="标签描述" 
-                                        // className="trigger-remarks" 
                                         autosize={{ minRows: 2, maxRows: 6 }} 
-                                        // onChange={this.onRemarkChange} 
                                     />
                                 )
                             }
@@ -509,9 +529,7 @@ export default class RuleTagPane extends Component {
                                 })(
                                     <TextArea 
                                         placeholder="值域" 
-                                        // className="trigger-remarks" 
                                         autosize={{ minRows: 2, maxRows: 6 }} 
-                                        onChange={this.onRemarkChange} 
                                     />
                                 )
                             }
@@ -527,11 +545,21 @@ export default class RuleTagPane extends Component {
                                 })(
                                     <Select
                                         showSearch
-                                        // optionFilterProp="title"
+                                        optionFilterProp="title"
                                         placeholder="选择目标数据库"
                                         onChange={this.onSourceChange}>
                                         {
-                                            this.renderUserSource(sourceList)
+                                            sourceList.map((source) => {
+                                                let title = `${source.dataName}（${source.sourceTypeValue}）`;
+                                                return (
+                                                    <Option 
+                                                        key={source.id} 
+                                                        value={source.id.toString()}
+                                                        title={title}>
+                                                        {title}
+                                                    </Option>
+                                                )
+                                            })
                                         }
                                     </Select>
 
@@ -562,11 +590,17 @@ export default class RuleTagPane extends Component {
                                 })(
                                     <Select
                                         showSearch
-                                        // optionFilterProp="title"
-                                        placeholder="选择识别列类型"
-                                        onChange={this.onUserSourceChange}>
+                                        optionFilterProp="title"
+                                        placeholder="选择识别列类型">
                                         {
-                                            this.renderIdentifyColumn(identifyColumn)
+                                            identifyColumn.map((item) => {
+                                                return <Option 
+                                                    key={item.id} 
+                                                    value={item.id.toString()}
+                                                    title={item.name}>
+                                                    {item.name}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
