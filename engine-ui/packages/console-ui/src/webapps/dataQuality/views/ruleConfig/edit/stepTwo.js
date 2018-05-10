@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { isEmpty } from 'lodash';
+import { isEmpty,cloneDeep } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -30,6 +30,7 @@ export default class StepTwo extends Component {
         super(props);
         this.state = {
             currentRule: {},
+            shining:[],
             functionList: [],
             enumFields: ['columnName', 'functionId', 'thresholdEnum'],
             SQLFields: ['customizeSql', 'verifyType', 'operator', 'threshold'],
@@ -50,7 +51,7 @@ export default class StepTwo extends Component {
     prev = () => {
         const { currentStep, navToStep } = this.props;
         const { currentRule } = this.state;
-        
+
         if (!isEmpty(currentRule)) {
             message.error('监控规则未保存');
         } else {
@@ -60,10 +61,16 @@ export default class StepTwo extends Component {
 
     next = () => {
         const { currentStep, navToStep, editParams } = this.props;
-        const { currentRule } = this.state;
+        const { currentRule,shining } = this.state;
 
         if (editParams.rules.length) {
             if (!isEmpty(currentRule)) {
+                if(shining.indexOf(currentRule.id)<0){
+                    this.setState({
+                        shining:this.state.shining.concat(currentRule.id)
+                    })
+                }
+                
                 message.error('监控规则未保存');
             } else {
                 navToStep(currentStep + 1);
@@ -120,17 +127,17 @@ export default class StepTwo extends Component {
                     <div>
                         {
                             editable ?
-                            <span>
-                                <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
-                                <a onClick={() => this.cancel(record.id)}>取消</a>
-                            </span>
-                            : 
-                            <span>
-                                <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
-                                <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
-                                    <a>删除</a>
-                                </Popconfirm>
-                            </span>
+                                <span>
+                                    <a className="m-r-8" onClick={() => this.save(record.id)}>保存</a>
+                                    <a onClick={() => this.cancel(record.id)}>取消</a>
+                                </span>
+                                :
+                                <span>
+                                    <a className="m-r-8" onClick={() => this.edit(record.id)}>编辑</a>
+                                    <Popconfirm title="确定要删除吗？" onConfirm={() => this.delete(record.id)}>
+                                        <a>删除</a>
+                                    </Popconfirm>
+                                </span>
                         }
                     </div>
                 );
@@ -143,16 +150,16 @@ export default class StepTwo extends Component {
             children: <Form layout="inline">
                 {
                     record.editable ?
-                    this.renderEditTD(text, record, type)
-                    :
-                    this.renderTD(text, record, type)
+                        this.renderEditTD(text, record, type)
+                        :
+                        this.renderTD(text, record, type)
                 }
             </Form>,
             props: {},
         };
 
         if (record.isCustomizeSql) {
-            switch(type) {
+            switch (type) {
                 case 'columnName':
                     obj.props.colSpan = 3;
                     break;
@@ -175,7 +182,7 @@ export default class StepTwo extends Component {
         let obj = {};
         obj[type] = value.target ? value.target.value : value;
 
-        this.setState({ currentRule: {...this.state.currentRule, ...obj} });
+        this.setState({ currentRule: { ...this.state.currentRule, ...obj } });
     }
 
     // 校验字段回调
@@ -183,14 +190,14 @@ export default class StepTwo extends Component {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
 
-        let columnType   = tableColumn.filter(item => item.key === name)[0].type,
+        let columnType = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
 
         form.setFieldsValue({ functionId: undefined });
-        this.setState({ 
+        this.setState({
             functionList,
             currentRule: {
-                ...this.state.currentRule, 
+                ...this.state.currentRule,
                 columnName: name,
                 functionId: undefined
             }
@@ -206,19 +213,19 @@ export default class StepTwo extends Component {
             nameZc = functionList.filter(item => item.id == id)[0].nameZc,
             isEnum = nameZc === '枚举值' ? true : false;
 
-        let currentRule  = {
-            ...this.state.currentRule, 
+        let currentRule = {
+            ...this.state.currentRule,
             functionId: id,
-            functionName: nameZc, 
+            functionName: nameZc,
             verifyType: isEnum ? '1' : undefined,
             operator: isEnum ? 'in' : undefined,
-            isPercentage: isPercentage, 
+            isPercentage: isPercentage,
             percentType: isPercentage === 1 ? 'limit' : 'free'
         };
 
-        form.setFieldsValue({ 
+        form.setFieldsValue({
             verifyType: isEnum ? '1' : undefined,
-            operator: undefined 
+            operator: undefined
         });
 
         this.setState({ currentRule });
@@ -255,19 +262,19 @@ export default class StepTwo extends Component {
 
         let operatorMap = isStringLength(currentRule.functionName) ? operatorSelect1 : operatorSelect;
 
-        switch(type) {
+        switch (type) {
             case 'columnName': {
                 if (record.isCustomizeSql) {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '自定义SQL不可为空'
                                 }],
                                 initialValue: record.customizeSql
                             })(
-                                <Input 
+                                <Input
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} />
                             )
@@ -278,19 +285,19 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '字段不可为空'
                                 }],
                                 initialValue: record.columnName
                             })(
-                                <Select 
-                                    showSearch 
-                                    onChange={this.onColumnNameChange} 
+                                <Select
+                                    showSearch
+                                    onChange={this.onColumnNameChange}
                                     disabled={record.isTable}>
                                     {
                                         tableColumn.map((item) => {
-                                            return <Option 
-                                                key={item.key} 
+                                            return <Option
+                                                key={item.key}
                                                 value={item.key}>
                                                 {item.key}
                                             </Option>
@@ -308,7 +315,7 @@ export default class StepTwo extends Component {
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
-                                required: true, 
+                                required: true,
                                 message: '统计函数不可为空'
                             }],
                             initialValue: record.functionId
@@ -317,8 +324,8 @@ export default class StepTwo extends Component {
                                 onChange={this.onFunctionChange}>
                                 {
                                     functionList.map((item) => {
-                                        return <Option 
-                                            key={item.id} 
+                                        return <Option
+                                            key={item.id}
                                             value={item.id.toString()}>
                                             {item.nameZc}
                                         </Option>
@@ -337,9 +344,9 @@ export default class StepTwo extends Component {
                             rules: [],
                             initialValue: record.filter
                         })(
-                            <Input 
+                            <Input
                                 placeholder={`以"and"开头的条件语句，例：and colA = "value"`}
-                                onChange={this.changeRuleParams.bind(this, 'filter')}/>
+                                onChange={this.changeRuleParams.bind(this, 'filter')} />
                         )
                     }
                 </FormItem>
@@ -350,18 +357,18 @@ export default class StepTwo extends Component {
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
-                                required: true, 
+                                required: true,
                                 message: '校验方法不可为空'
                             }],
                             initialValue: record.verifyType
                         })(
-                            <Select 
+                            <Select
                                 onChange={this.onVerifyTypeChange}
                                 disabled={currentRule.operator === 'in'}>
                                 {
                                     verifyType.map((item) => {
-                                        return <Option 
-                                            key={item.value} 
+                                        return <Option
+                                            key={item.value}
                                             value={item.value.toString()}>
                                             {item.name}
                                         </Option>
@@ -379,7 +386,7 @@ export default class StepTwo extends Component {
                         {
                             getFieldDecorator('thresholdEnum', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '范围不可为空'
                                 }],
                                 initialValue: record.threshold
@@ -387,7 +394,7 @@ export default class StepTwo extends Component {
                                 <Input
                                     placeholder="枚举格式为(value1,value2,.....)"
                                     onChange={this.changeRuleParams.bind(this, 'threshold')}
-                                /> 
+                                />
                             )
                         }
                     </FormItem>
@@ -398,20 +405,20 @@ export default class StepTwo extends Component {
                                 {
                                     getFieldDecorator('operator', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '设置不可为空'
                                         }],
                                         initialValue: record.operator
                                     })(
-                                        <Select 
-                                            style={{ width: 70 }} 
+                                        <Select
+                                            style={{ width: 70 }}
                                             onChange={this.changeRuleParams.bind(this, 'operator')}>
                                             {
                                                 operatorMap.map((item) => {
-                                                    return <Option 
-                                                        key={item.value} 
-                                                        value={item.value}> 
-                                                        {item.text} 
+                                                    return <Option
+                                                        key={item.value}
+                                                        value={item.value}>
+                                                        {item.text}
                                                     </Option>
                                                 })
                                             }
@@ -423,15 +430,15 @@ export default class StepTwo extends Component {
                                 {
                                     getFieldDecorator('threshold', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '阈值不可为空'
                                         }],
                                         initialValue: record.threshold
                                     })(
                                         <InputNumber
-                                          style={{ width: 70, marginRight: 10 }} 
-                                          onChange={this.changeRuleParams.bind(this, 'threshold')}
-                                        /> 
+                                            style={{ width: 70, marginRight: 10 }}
+                                            onChange={this.changeRuleParams.bind(this, 'threshold')}
+                                        />
                                     )
                                 }
                             </FormItem>
@@ -473,7 +480,7 @@ export default class StepTwo extends Component {
         const { currentRule } = this.state;
 
         let newData = [...this.props.editParams.rules],
-            target  = newData.filter(item => id === item.id)[0];
+            target = newData.filter(item => id === item.id)[0];
 
         if (!isEmpty(currentRule)) {
             if (currentRule.editStatus === 'edit') {
@@ -496,8 +503,10 @@ export default class StepTwo extends Component {
     // 取消编辑
     cancel(id) {
         let newData = [...this.props.editParams.rules],
-            target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target);
+            target = newData.filter(item => id === item.id)[0],
+            {shining} = this.state,
+            index = newData.indexOf(target);
+            
 
         if (target.editStatus === 'edit') {
             delete target.editable;
@@ -505,17 +514,17 @@ export default class StepTwo extends Component {
         } else {
             newData.splice(index, 1);
         }
-
-        this.setState({ currentRule: {} });
+        const shining_new=shining.filter((value)=>{value!=id});
+        this.setState({ currentRule: {},shining:shining_new });
         this.props.changeParams({ rules: newData });
     }
 
     // 删除规则
     delete(id) {
         let newData = [...this.props.editParams.rules],
-            target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target);
-        
+            target = newData.filter(item => id === item.id)[0],
+            index = newData.indexOf(target);
+
         if (target) {
             newData.splice(index, 1);
             this.props.changeParams({ rules: newData });
@@ -524,25 +533,25 @@ export default class StepTwo extends Component {
 
     // 保存规则
     save(id) {
-        const { currentRule, enumFields, SQLFields, columnFields } = this.state;
+        const { currentRule, enumFields, SQLFields, columnFields ,shining} = this.state;
 
         let newData = [...this.props.editParams.rules],
-            target  = newData.filter(item => id === item.id)[0],
-            index   = newData.indexOf(target),
-            fields  = currentRule.isCustomizeSql ? SQLFields : columnFields;
+            target = newData.filter(item => id === item.id)[0],
+            index = newData.indexOf(target),
+            fields = currentRule.isCustomizeSql ? SQLFields : columnFields;
 
         if (currentRule.operator === 'in') {
             fields = enumFields;
         }
 
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
-            console.log(err,values)
-            if(!err) {
+            console.log(err, values)
+            if (!err) {
                 delete currentRule.editStatus;
                 delete currentRule.editable;
                 newData[index] = currentRule;
-
-                this.setState({ currentRule: {} });
+                const shining_new=shining.filter((value)=>{value!=id});
+                this.setState({ currentRule: {},shining:shining_new});
                 this.props.changeParams({ rules: newData });
             }
         });
@@ -563,9 +572,9 @@ export default class StepTwo extends Component {
             } else {
                 newData.shift();
                 form.resetFields();
-                this.setState({ 
-                    currentRule: {}, 
-                    functionList: [] 
+                this.setState({
+                    currentRule: {},
+                    functionList: []
                 });
             }
         }
@@ -597,8 +606,8 @@ export default class StepTwo extends Component {
                 target.functionId = undefined;
 
                 // 表规则的统计函数
-                this.setState({ 
-                    functionList: monitorFunction.all.filter(item => item.level === 1) 
+                this.setState({
+                    functionList: monitorFunction.all.filter(item => item.level === 1)
                 });
                 break;
             default:
@@ -612,33 +621,36 @@ export default class StepTwo extends Component {
 
     render() {
         const { rules } = this.props.editParams;
-
+        const {shining} = this.state;
         return (
             <div>
                 <div className="steps-content">
                     <div className="rule-action">
-                        <Button 
-                            type="primary" 
+                        <Button
+                            type="primary"
                             onClick={this.addNewRule.bind(this, 'table')}>
                             添加表级规则
                         </Button>
-                        <Button 
-                            type="primary" 
-                            className="m-l-8" 
+                        <Button
+                            type="primary"
+                            className="m-l-8"
                             onClick={this.addNewRule.bind(this, 'column')}>
                             添加字段级规则
                         </Button>
-                        <Button 
-                            type="primary" 
-                            className="m-l-8" 
+                        <Button
+                            type="primary"
+                            className="m-l-8"
                             onClick={this.addNewRule.bind(this, 'SQL')}>
                             添加自定义SQL
                         </Button>
                     </div>
 
-                    <Table 
+                    <Table
                         rowKey="id"
                         className="m-table rule-edit-table"
+                        rowClassName={(record)=>{
+                            return record&&shining.indexOf(record.id)>-1?'shining':''
+                        }}
                         style={{ margin: '0 20px' }}
                         columns={this.initColumns()}
                         pagination={false}
