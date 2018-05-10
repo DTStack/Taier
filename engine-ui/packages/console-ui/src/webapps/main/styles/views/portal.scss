@@ -47,17 +47,18 @@
     .applink {
         display: flex;
         margin-top: 60px;
-        height: 400px;
+        
 
         .app-tag {
             flex: 1;
             border: 1px solid #DDDDDD;
             width: 230px;
-            height: 280px;
+        
             padding: 0 30px;
+            padding-bottom:40px;
             text-align: center;
             margin: 0 8px;
-
+            margin-bottom:100px;
             &:hover, &:active, &:visited, &:focus {
                 text-decoration: none;
                 -webkit-appearance: none;
