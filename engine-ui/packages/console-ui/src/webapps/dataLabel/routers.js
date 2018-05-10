@@ -66,7 +66,7 @@ export default (
             <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
             <Route path="manage/apiType" component={ ApiType }></Route>
             <Route path="manage/newApi" component={ NewApi }></Route>
-            <Route path="manage/editApi/:apiId" component={ EditAPI }></Route>
+            <Route path="manage/editApi/:tagId" component={ EditAPI }></Route>
             <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
             <Route path="tagConfig/ruleTagEdit/:id" component={ RuleTagEdit }></Route>

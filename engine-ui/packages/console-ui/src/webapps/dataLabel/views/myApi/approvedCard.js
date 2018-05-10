@@ -31,7 +31,7 @@ class ApprovedCard extends Component {
         sortedInfo: {},
         filterInfo: {},
         showRecord: {},
-        apiName:""
+        apiName: undefined,
 
     }
     getAppliedList() {
@@ -45,26 +45,25 @@ class ApprovedCard extends Component {
             this.state.filterInfo.status,
             this.state.apiName
         )
+        .then(
+            (res) => {
 
-            .then(
-                (res) => {
-
-                    if (this.props.tagId) {
-                        if (res) {
-                            for (let i in res.data.data) {
-                                let item = res.data.data[i];
-                                if (this.props.tagId == item.tagId) {
-                                    this.apiClick(item);
-                                    break;
-                                }
+                if (this.props.tagId) {
+                    if (res) {
+                        for (let i in res.data.data) {
+                            let item = res.data.data[i];
+                            if (this.props.tagId == item.tagId) {
+                                this.apiClick(item);
+                                break;
                             }
                         }
                     }
-                    this.setState({
-                        loading: false
-                    })
                 }
-            );
+                this.setState({
+                    loading: false
+                })
+            }
+        );
     }
     componentDidMount() {
         this.getAppliedList();
@@ -112,7 +111,6 @@ class ApprovedCard extends Component {
         if (method) {
             method.call(this, record);
         }
-
     }
     statesuccess(record) {
 
@@ -203,8 +201,8 @@ class ApprovedCard extends Component {
 
         return [{
             title: '标签名称',
-            dataIndex: 'apiName',
-            key: 'apiName',
+            dataIndex: 'tagName',
+            key: 'tagName',
             render: (text, record) => {
                 const isDelete = record.apiStatus == 1 ? true : false;
                 const deleteText = isDelete ? '(全平台禁用)' : ''
@@ -229,7 +227,6 @@ class ApprovedCard extends Component {
                 { text: '已拒绝', value: '2' },
                 { text: '停用', value: '3' },
                 { text: '取消授权', value: '4' },
-
             ]
         }, {
             title: '描述',

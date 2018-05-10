@@ -18,7 +18,7 @@ class NoApprovedCard extends Component {
         sortedInfo: {},
         loading: false,
         showRecord: {},
-        apiName:""
+        apiName: undefined,
     }
     getApplyingList(callback) {
         this.setState({
