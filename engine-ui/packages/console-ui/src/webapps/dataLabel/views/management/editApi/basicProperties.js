@@ -57,12 +57,17 @@ class ManageBasicProperties extends Component {
             return;
         }
         const name = initValues.name,
-            dataSrcId = initValues.dataSrcId,
+            dataSrcId = initValues.dataSourceId,
             tableName = initValues.tableName,
             reqLimit = initValues.reqLimit,
             respLimit = initValues.respLimit,
             apiDesc = initValues.apiDesc,
-            catalogueId = initValues.catalogueId;
+            catalogueId = initValues.catalogueId,
+            identityColumn = initValues.identityColumn,
+            identityId = initValues.identityId,
+            tagRange = initValues.tagRange,
+            identifyType = initValues.identifyType;
+
         this.props.form.setFieldsValue({
             APIGroup: this.getInitCatagoryList(catalogueId, catalogue),
             APIName: name,
@@ -70,9 +75,12 @@ class ManageBasicProperties extends Component {
             callLimit: reqLimit,
             backLimit: respLimit,
             table: tableName + '',
-            dataSource: dataSrcId + ''
+            dataSource: dataSrcId + '',
+            identityColumn,
+            identityId,
+            tagRange,
+            identifyType
         })
-
     }
     pass() {
         this.props.form.validateFields((err, values) => {
@@ -82,9 +90,7 @@ class ManageBasicProperties extends Component {
                     ...values
                 })
             }
-
         });
-
     }
     //数据源改变，获取表
     dataSourceChange(key) {
@@ -212,11 +218,9 @@ class ManageBasicProperties extends Component {
             }
             return arr;
         }
-
         return exchangeTree(tree);
-
-
     }
+
     render() {
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
@@ -241,10 +245,10 @@ class ManageBasicProperties extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="API名称"
+                            label="标签名称"
                             hasFeedback >
                             {getFieldDecorator('APIName', {
-                                rules: [{ required: true, message: '请输入API名称' },
+                                rules: [{ required: true, message: '请输入标签名称' },
                                 { max: 16, message: "最大字数不能超过16" },
                                 { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
@@ -254,11 +258,11 @@ class ManageBasicProperties extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="API描述"
+                            label="标签描述"
                             hasFeedback
                         >
                             {getFieldDecorator('APIdescription', {
-                                rules: [{ required: false, message: '请输入API描述' },
+                                rules: [{ required: false, message: '请输入标签描述' },
                                 { max: 200, message: "最大字数不能超过200" }],
                                 initialValue: this.props.APIdescription
                             })(
@@ -267,8 +271,24 @@ class ManageBasicProperties extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
+                            label="标签值域"
+                            hasFeedback >
+                            {getFieldDecorator('tagRange', {
+                                rules: [
+                                    { required: true },
+                                ],
+                                initialValue: this.props.tagRange
+                            })(
+                                <Input placeholder="请输入标签值域" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
                             label="调用限制"
                             hasFeedback >
+                            <span>
+                                单用户调用次数不能超过&nbsp; 
+                            </span> 
                             {getFieldDecorator('callLimit', {
                                 rules: [
                                     { required: true, message: '请输入调用次数限制' },
@@ -284,20 +304,25 @@ class ManageBasicProperties extends Component {
                                 ],
                                 initialValue: this.props.callLimit
                             })(
-                                <Input placeholder="单用户每秒最高调用次数" />
+                                <Input placeholder="单用户每秒最高调用次数" style={{width: 100}}/>
                             )}
+                            <span> 次/秒</span>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="返回条数限制"
                             hasFeedback >
+                            <span>
+                                单次返回不超过&nbsp; 
+                            </span> 
                             {getFieldDecorator('backLimit', {
                                 rules: [{ required: true, message: '请输入最大返回条数' },
                                 { pattern: new RegExp(/^1[0-9]{0,3}$|^2000$|^[0-9]$|^[1-9][0-9]{1,2}$/), message: '请输入不大于2000的正整数' }],
                                 initialValue: this.props.backLimit
                             })(
-                                <Input placeholder="单次最大返回数据条数 (最高支持2000条)" />
+                                <Input style={{width: 100}} placeholder="单次最大返回数据条数 (最高支持2000条)" />
                             )}
+                             <span> 条数据（最高支持2000条）</span>
                         </FormItem>
 
                         <FormItem
@@ -315,7 +340,7 @@ class ManageBasicProperties extends Component {
                                 </Select>
 
                             )}
-                            <Link to="/api/dataSource">添加数据源</Link>
+                            <Link to="/dl/dataSource">添加数据源</Link>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -332,31 +357,62 @@ class ManageBasicProperties extends Component {
                                 </Select>
                             )}
                         </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="选择列"
+                            hasFeedback >
+                            {getFieldDecorator('identityColumn', {
+                                rules: [{ required: true, message: '选择列' } ],
+                                initialValue: this.props.identityColumn,
+                            })(
+                                <Select disabled placeholder="请选择列">
+                                    {this.getTableListView()}
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="识别列ID"
+                            hasFeedback >
+                            {getFieldDecorator('identityId', {
+                                rules: [{ required: true, message: '选择列' } ],
+                                initialValue: this.props.identityId,
+                            })(
+                                <Select disabled placeholder="请选择列">
+                                    {this.getTableListView()}
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="识别列类型"
+                            hasFeedback >
+                            {getFieldDecorator('identityType', {
+                                rules: [{ required: true, message: '选择列' } ],
+                                initialValue: this.props.identityType,
+                            })(
+                                <Select disabled placeholder="请选择列">
+                                    {this.getTableListView()}
+                                </Select>
+                            )}
+                        </FormItem>
                         <Row type="flex" justify="center" className="font-14">
                             <a onClick={this.onSourcePreview.bind(this)}>数据预览<Icon type={this.state.showTable ? 'up' : 'down'} style={{ marginLeft: 5 }} /></a>
                         </Row>
-
                         {this.getTable()}
-
-
                     </Form>
                 </div>
                 <div
                     className="steps-action"
                 >
                     {
-
-
                         <Button onClick={() => this.props.cancel()}>
                             取消
                         </Button>
                     }
                     {
-
                         <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
                     }
-
-
                 </div>
             </div>
         )

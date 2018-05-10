@@ -328,6 +328,7 @@ export default class TaskQuery extends Component {
                         allowClear 
                         showSearch
                         style={{ width: 150 }}
+                        
                         optionFilterProp="title"
                         placeholder="选择数据源"
                         onChange={this.onUserSourceChange}>
@@ -399,7 +400,7 @@ export default class TaskQuery extends Component {
                         <SlidePane 
                             onClose={this.closeSlidePane}
                             visible={showSlidePane} 
-                            style={{ right: '0', width: '80%', minHeight: '450px', height: 'auto' }}
+                            style={{ right: '0', width: '80%', minHeight: '600px', height: '100%' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 
