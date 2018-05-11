@@ -162,7 +162,7 @@ export default class TableViewer extends React.Component{
                                 <tbody>
                                     <tr>
                                         <th>所属项目</th>
-                                        <td>{ tableData.table.project }</td>
+                                        <td>{ tableData.table.projectAlias }</td>
                                     </tr>
                                     <tr>
                                         <th>创建者：</th>

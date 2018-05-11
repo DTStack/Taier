@@ -21,16 +21,16 @@ function myFrom(props) {
         <Form>
             <FormItem
                 {...formItemLayout}
-                label="项目别名"
+                label="项目显示名称"
             >
                 {getFieldDecorator('projectAlias', {
                     rules: [{
                         max: 20,
-                        message: '项目别名不得超过20个字符！',
+                        message: '项目显示名称不得超过20个字符！',
                     }],
                     initialValue: props.project ? props.project.projectAlias : '',
                 })(
-                    <Input placeholder="请输入项目别名" />,
+                    <Input placeholder="请输入项目显示名称" />,
                 )}
             </FormItem>
             <FormItem
@@ -96,7 +96,7 @@ class ProjectConfig extends Component {
                     <table className="project-config-table bd">
                         <tbody>
                             <tr><td className="t-title">项目名称</td><td>{project.projectIdentifier}</td></tr>
-                            <tr><td className="t-title">项目别名</td><td>
+                            <tr><td className="t-title">项目显示名称</td><td>
                                 {project.projectAlias}
                                 &nbsp;
                                 <a onClick={() => { this.setState({ visibleUpdateDesc: true }) }}>

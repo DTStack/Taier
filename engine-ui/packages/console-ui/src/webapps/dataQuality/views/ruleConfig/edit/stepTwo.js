@@ -30,7 +30,6 @@ export default class StepTwo extends Component {
         super(props);
         this.state = {
             currentRule: {},
-            shining:[],
             functionList: [],
             enumFields: ['columnName', 'functionId', 'thresholdEnum'],
             SQLFields: ['customizeSql', 'verifyType', 'operator', 'threshold'],
@@ -53,7 +52,9 @@ export default class StepTwo extends Component {
         const { currentRule } = this.state;
 
         if (!isEmpty(currentRule)) {
-            message.error('监控规则未保存');
+            this.cancel(currentRule.id)
+            navToStep(currentStep - 1);
+            // message.error('监控规则未保存');
         } else {
             navToStep(currentStep - 1);
         }
@@ -61,17 +62,14 @@ export default class StepTwo extends Component {
 
     next = () => {
         const { currentStep, navToStep, editParams } = this.props;
-        const { currentRule,shining } = this.state;
+        const { currentRule } = this.state;
 
         if (editParams.rules.length) {
             if (!isEmpty(currentRule)) {
-                if(shining.indexOf(currentRule.id)<0){
-                    this.setState({
-                        shining:this.state.shining.concat(currentRule.id)
-                    })
-                }
-                
-                message.error('监控规则未保存');
+                this.save(currentRule.id,()=>{
+                    navToStep(currentStep + 1);
+                });                
+                // message.error('监控规则未保存');
             } else {
                 navToStep(currentStep + 1);
             }
@@ -89,7 +87,7 @@ export default class StepTwo extends Component {
     // 规则列表配置
     initColumns = () => {
         return [{
-            title: '字段',
+            title: '字段/数据表',
             dataIndex: 'columnName',
             key: 'columnName',
             render: (text, record) => this.renderColumns(text, record, 'columnName'),
@@ -504,7 +502,6 @@ export default class StepTwo extends Component {
     cancel(id) {
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0],
-            {shining} = this.state,
             index = newData.indexOf(target);
             
 
@@ -514,8 +511,8 @@ export default class StepTwo extends Component {
         } else {
             newData.splice(index, 1);
         }
-        const shining_new=shining.filter((value)=>{value!=id});
-        this.setState({ currentRule: {},shining:shining_new });
+
+        this.setState({ currentRule: {} });
         this.props.changeParams({ rules: newData });
     }
 
@@ -532,8 +529,8 @@ export default class StepTwo extends Component {
     }
 
     // 保存规则
-    save(id) {
-        const { currentRule, enumFields, SQLFields, columnFields ,shining} = this.state;
+    save(id,callback) {
+        const { currentRule, enumFields, SQLFields, columnFields } = this.state;
 
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0],
@@ -550,13 +547,24 @@ export default class StepTwo extends Component {
                 delete currentRule.editStatus;
                 delete currentRule.editable;
                 newData[index] = currentRule;
-                const shining_new=shining.filter((value)=>{value!=id});
-                this.setState({ currentRule: {},shining:shining_new});
+                this.setState({ currentRule: {}},()=>{
+                    callback();
+                });
                 this.props.changeParams({ rules: newData });
             }
         });
     }
-
+    addNewRuleWrap=(type)=>{
+        const { currentRule } = this.state;
+        if (!isEmpty(currentRule)) {
+            this.save(currentRule.id,()=>{
+                this.addNewRule(type);
+            });
+        }else{
+            this.addNewRule(type);
+        }
+        
+    }
     // 新增规则
     addNewRule = (type) => {
         const { form, editParams, ruleConfig } = this.props;
@@ -621,26 +629,25 @@ export default class StepTwo extends Component {
 
     render() {
         const { rules } = this.props.editParams;
-        const {shining} = this.state;
         return (
             <div>
                 <div className="steps-content">
                     <div className="rule-action">
                         <Button
                             type="primary"
-                            onClick={this.addNewRule.bind(this, 'table')}>
+                            onClick={this.addNewRuleWrap.bind(this, 'table')}>
                             添加表级规则
                         </Button>
                         <Button
                             type="primary"
                             className="m-l-8"
-                            onClick={this.addNewRule.bind(this, 'column')}>
+                            onClick={this.addNewRuleWrap.bind(this, 'column')}>
                             添加字段级规则
                         </Button>
                         <Button
                             type="primary"
                             className="m-l-8"
-                            onClick={this.addNewRule.bind(this, 'SQL')}>
+                            onClick={this.addNewRuleWrap.bind(this, 'SQL')}>
                             添加自定义SQL
                         </Button>
                     </div>
@@ -648,9 +655,6 @@ export default class StepTwo extends Component {
                     <Table
                         rowKey="id"
                         className="m-table rule-edit-table"
-                        rowClassName={(record)=>{
-                            return record&&shining.indexOf(record.id)>-1?'shining':''
-                        }}
                         style={{ margin: '0 20px' }}
                         columns={this.initColumns()}
                         pagination={false}

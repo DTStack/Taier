@@ -716,7 +716,22 @@ export default class StepThree extends Component {
 		            </p>
 
 		            <Row className="keymap-content">
-		                <Col offset={2} span={6}>
+                    <Col   span={3}>
+		                	<div className="keymap-action">
+		                        <Button
+		                            type={rowMap ? 'primary' : 'default'}
+		                            onClick={this.setRowMap}>
+		                        	{rowMap ? '取消同行映射' : '同行映射'}
+		                        </Button>
+		                        <br />
+		                        <Button
+		                            type={nameMap ? 'primary' : 'default'}
+		                            onClick={this.setNameMap}>
+		                        	{nameMap ? '取消同名映射' : '同名映射'}
+		                        </Button>
+	                        </div>
+		                </Col>
+		                <Col   span={6}>
 		                	<Table
 				                className="keymap-table m-table"
 				                rowKey={record => record.key}
@@ -770,21 +785,7 @@ export default class StepThree extends Component {
 				            />
 		                </Col>
 
-	                	<Col span={2}>
-		                	<div className="keymap-action">
-		                        <Button
-		                            type={rowMap ? 'primary' : 'default'}
-		                            onClick={this.setRowMap}>
-		                        	{rowMap ? '取消同行映射' : '同行映射'}
-		                        </Button>
-		                        <br />
-		                        <Button
-		                            type={nameMap ? 'primary' : 'default'}
-		                            onClick={this.setNameMap}>
-		                        	{nameMap ? '取消同名映射' : '同名映射'}
-		                        </Button>
-	                        </div>
-		                </Col>
+	                	
 		            </Row>
 
 		            <Row className="keymap-content">
