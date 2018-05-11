@@ -554,7 +554,13 @@ export default class StepThree extends Component {
                 });
 
                 this.props.addMonitor({...editParams});
-                hashHistory.push('/dq/rule');
+                setTimeout(
+                    ()=>{
+                        hashHistory.push('/dq/rule');
+                    },
+                    1000
+                )
+                
             }
         });
     }

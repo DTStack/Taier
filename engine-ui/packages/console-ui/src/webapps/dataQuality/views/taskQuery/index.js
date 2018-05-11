@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon } from 'antd';
+import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon,Modal } from 'antd';
 import moment from 'moment';
 
 import utils from 'utils';
@@ -44,11 +44,13 @@ export default class TaskQuery extends Component {
             dataSourceType: utils.getParameterByName('source') || undefined,
             subscribe: undefined,
             executeTime: 0,
-            bizTime: 0
+            bizTime: 0,
+           
         },
         tabKey: '1',
         showSlidePane: false,
         currentTask: {},
+        visibleList:[],
     }
 
     componentDidMount() {
@@ -58,6 +60,7 @@ export default class TaskQuery extends Component {
 
     // table设置
     initColumns = () => {
+        const {visibleList}=this.state;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -87,7 +90,13 @@ export default class TaskQuery extends Component {
                         &&
                         <Tooltip 
                             placement="right" 
-                            title={record.logInfo}
+                            visible={visibleList.indexOf(record.id)>-1?true:false}
+                            onVisibleChange={this.tooltipChange.bind(this,record.id)}
+                            title={
+                                (
+                                    <a className="tooltip_content_a" onClick={this.showDetailLogInfo.bind(this,record.id,record.tableName,record.logInfo)}>{record.logInfo}</a>
+                                )
+                                }
                             overlayStyle={{ wordBreak: 'break-word' }}
                         >
                             <Icon className="font-14" type="info-circle-o" />
@@ -262,7 +271,34 @@ export default class TaskQuery extends Component {
         this.props.getTaskList(params);
         this.setState({ params });
     }
-
+    showDetailLogInfo(id,tableName,info){
+        this.tooltipChange(id,false);
+        Modal.error({
+            width:"70%",
+            title: '表: '+tableName,
+            content:(
+                <pre style={{wordBreak:"break-word",whiteSpace:"pre-wrap"}}>
+                {info}
+                </pre>
+            ) ,
+          });
+    }
+    tooltipChange(id,show){
+        
+        const {visibleList}=this.state;
+        if(show){
+            this.setState({
+                visibleList:visibleList.concat(id)
+            })
+        }else{
+            this.setState({
+                visibleList:visibleList.filter((itemId)=>{
+                    return id!=itemId
+                })
+            })
+        }
+        
+    }
     openSlidePane = (record) => {
         this.setState({
             showSlidePane: true,
