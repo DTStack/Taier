@@ -53,7 +53,9 @@ export default class StepTwo extends Component {
         const { currentRule } = this.state;
 
         if (!isEmpty(currentRule)) {
-            message.error('监控规则未保存');
+            this.cancel(currentRule.id)
+            navToStep(currentStep - 1);
+            // message.error('监控规则未保存');
         } else {
             navToStep(currentStep - 1);
         }

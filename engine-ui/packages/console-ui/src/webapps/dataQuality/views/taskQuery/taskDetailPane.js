@@ -63,7 +63,7 @@ export default class TaskDetailPane extends Component {
                 };
                 return obj;
             },
-            width: '12%'
+            width: '100px'
         }, {
             title: '统计函数',
             dataIndex: 'functionId',
@@ -77,7 +77,7 @@ export default class TaskDetailPane extends Component {
                 };
                 return obj;
             },
-            width: '12%'
+            width: '100px'
         }, {
             title: '过滤条件',
             dataIndex: 'filter',
@@ -91,7 +91,7 @@ export default class TaskDetailPane extends Component {
                 };
                 return obj;
             },
-            width: '10%'
+            width: '100px'
         }, {
             title: '校验方法',
             dataIndex: 'verifyTypeValue',
