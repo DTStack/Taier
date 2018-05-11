@@ -31,6 +31,8 @@ public class ClientCache {
     
     private static final Logger LOG = LoggerFactory.getLogger(ClientCache.class);
 
+    private static final String MD5_SUM_KEY = "md5sum";
+
     private static String userDir = System.getProperty("user.dir");
 
     private Map<String, IClient> defaultClientMap = Maps.newConcurrentMap();
@@ -56,13 +58,16 @@ public class ClientCache {
 
             loadComputerPlugin(clientTypeStr);
             IClient client = ClientFactory.createPluginClass(clientTypeStr);
+
             Properties clusterProp = new Properties();
             clusterProp.putAll(params);
+            String paramsStr = PublicUtil.objToString(params);
+            String pluginInfoMd5 = MD5Util.getMD5String(paramsStr);
+            clusterProp.put(MD5_SUM_KEY, pluginInfoMd5);
             client.init(clusterProp);
 
             String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            String paramsStr = PublicUtil.objToString(params);
-            addDefaultClient(key, client, paramsStr);
+            addDefaultClient(key, client, pluginInfoMd5);
         }
 
         LOG.warn("init local plugin success,{}", defaultClientMap.toString());
@@ -82,10 +87,17 @@ public class ClientCache {
 
         Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, k -> Maps.newConcurrentMap());
 
-        String pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
+        String pluginInfoMd5;
+        Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
+        if(properties.containsKey(MD5_SUM_KEY)){
+            pluginInfoMd5 = MathUtil.getString(properties.get(MD5_SUM_KEY));
+        }else{
+            pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
+            properties.setProperty(MD5_SUM_KEY, pluginInfoMd5);
+        }
+
         IClient client = clientMap.get(pluginInfoMd5);
         if(client == null){
-            Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
             client = buildPluginClient(pluginInfo);
             client.init(properties);
             clientMap.putIfAbsent(pluginInfoMd5, client);
@@ -143,7 +155,7 @@ public class ClientCache {
         return new DtClassLoader(urls, this.getClass().getClassLoader());
     }
 
-    private void addDefaultClient(String pluginKey, IClient client, String pluginInfo){
+    private void addDefaultClient(String pluginKey, IClient client, String pluginInfoMd5){
 
         if(defaultClientMap.get(pluginKey) != null){
             LOG.error("------setting error: conflict default plugin key:{}-----", pluginKey);
@@ -153,8 +165,6 @@ public class ClientCache {
         defaultClientMap.putIfAbsent(pluginKey, client);
 
         Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, key -> Maps.newConcurrentMap());
-
-        String pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
         clientMap.put(pluginInfoMd5, client);
     }
 }

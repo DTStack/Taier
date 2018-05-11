@@ -27,6 +27,11 @@ public class SparkYarnConfig {
 
     private String sparkPythonExtLibPath;
 
+    private String md5sum;
+
+    /**如果不是使用默认的配置---需要设置配置文件所在的hdfs路径*/
+    private String confHdfsPath;
+
     private Map<String, Object> hadoopConf;
 
     private Map<String, Object> yarnConf;
@@ -112,5 +117,21 @@ public class SparkYarnConfig {
 
     public void setDefaultFS(String defaultFS) {
         this.defaultFS = defaultFS;
+    }
+
+    public String getMd5sum() {
+        return md5sum;
+    }
+
+    public void setMd5sum(String md5sum) {
+        this.md5sum = md5sum;
+    }
+
+    public String getConfHdfsPath() {
+        return confHdfsPath;
+    }
+
+    public void setConfHdfsPath(String confHdfsPath) {
+        this.confHdfsPath = confHdfsPath;
     }
 }

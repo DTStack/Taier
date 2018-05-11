@@ -44,7 +44,7 @@
             <version>${spark.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>hadoop-hdfs</artifactId>
+                    <artifactId>hadoop-confHdfsPath</artifactId>
                     <groupId>org.apache.hadoop</groupId>
                 </exclusion>
                 <exclusion>
