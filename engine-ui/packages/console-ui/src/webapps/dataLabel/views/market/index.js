@@ -255,6 +255,7 @@ class APIMarket extends Component {
                     case 4: {
                         return <Link to={`/dl/mine?tagId=${record.id}`}>查看使用情况</Link>;
                     }
+                    case -1:
                     case 2: {
                         return <a onClick={this.doApply.bind(this, record)}>申请</a>;
                     }
