@@ -3,7 +3,7 @@ import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, 
 import { Link } from 'react-router';
 
 import DataSourceTable from "./dataSourceTable"
-import { formItemLayout } from "../../../consts"
+import { formItemLayout, TAG_TYPE } from "../../../consts"
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 const Option = Select.Option;
@@ -97,7 +97,6 @@ class ManageBasicProperties extends Component {
         this.setState({
             showTable: false
         })
-        console.log(key)
         this.props.tablelist(key)
             .then(
                 (res) => {
@@ -223,6 +222,8 @@ class ManageBasicProperties extends Component {
 
     render() {
         const { getFieldDecorator } = this.props.form
+        const tagInfo = this.props.initValues; // tag对象
+        const isRegisterTag = tagInfo && tagInfo.type === TAG_TYPE.REGISTER;
         const options = this.getCatagoryOption();
         return (
             <div>
@@ -231,7 +232,6 @@ class ManageBasicProperties extends Component {
                         <FormItem
                             {...formItemLayout}
                             label="所属分组"
-
                         >
                             {getFieldDecorator('APIGroup', {
                                 rules: [
@@ -342,34 +342,38 @@ class ManageBasicProperties extends Component {
                             )}
                             <Link to="/dl/dataSource">添加数据源</Link>
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="请选择表"
-                        >
-                            {getFieldDecorator('table', {
-                                rules: [{ required: true, message: '请选择表' }],
-                                initialValue: this.props.table
-                            })(
-                                <Select disabled placeholder="请选择表"
-                                    onChange={this.tableChange.bind(this)}
+                        {
+                            isRegisterTag && <span>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="请选择表"
                                 >
-                                    {this.getTableListView()}
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="选择列"
-                            hasFeedback >
-                            {getFieldDecorator('originColumn', {
-                                rules: [{ required: true, message: '选择列' } ],
-                                initialValue: this.props.originColumn,
-                            })(
-                                <Select disabled placeholder="请选择列">
-                                    {this.getTableListView()}
-                                </Select>
-                            )}
-                        </FormItem>
+                                    {getFieldDecorator('table', {
+                                        rules: [{ required: true, message: '请选择表' }],
+                                        initialValue: this.props.table
+                                    })(
+                                        <Select disabled placeholder="请选择表"
+                                            onChange={this.tableChange.bind(this)}
+                                        >
+                                            {this.getTableListView()}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="选择列"
+                                    hasFeedback >
+                                    {getFieldDecorator('originColumn', {
+                                        rules: [{ required: true, message: '选择列' } ],
+                                        initialValue: this.props.originColumn,
+                                    })(
+                                        <Select disabled placeholder="请选择列">
+                                            {this.getTableListView()}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            </span>
+                        }
                         <FormItem
                             {...formItemLayout}
                             label="识别列ID"

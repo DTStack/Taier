@@ -69,7 +69,6 @@ class ApprovedCard extends Component {
     }
     componentDidMount() {
         this.getAppliedList();
-
     }
     componentWillReceiveProps(nextProps) {
         if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
@@ -89,7 +88,6 @@ class ApprovedCard extends Component {
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
-        console.log(filter);
         this.setState({
             pageIndex: page.current,
             sortedInfo: sorter,
@@ -124,6 +122,7 @@ class ApprovedCard extends Component {
 
         })
     }
+
     statenotPass(record) {
         this.setState({
             slidePaneShowSuccess: false,

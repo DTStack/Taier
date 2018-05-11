@@ -5,7 +5,10 @@ import utils from "utils"
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
-import { dataSourceTypes, EXCHANGE_API_STATUS, EXCHANGE_ADMIN_API_STATUS } from "../../consts"
+import { 
+    dataSourceTypes, EXCHANGE_API_STATUS, 
+    EXCHANGE_ADMIN_API_STATUS, TAG_TYPE
+} from "../../consts"
 const Search = Input.Search;
 const Option = Select.Option;
 const confirm = Modal.confirm;
@@ -197,8 +200,7 @@ class APIMana extends Component {
             pageIndex: 1
         }, () => {
             this.getAllApi();
-        }
-        )
+        })
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
@@ -242,6 +244,18 @@ class APIMana extends Component {
                     stop: "已禁用",
                 }
                 return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
+            }
+        }, {
+            width: 100,
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
+            render: (tagType, record) => {
+                if (tagType === TAG_TYPE.REGISTER) {
+                    return '注册标签';
+                } else {
+                    return '自定义标签';
+                }
             }
         }, {
             title: '描述',

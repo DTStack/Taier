@@ -10,6 +10,12 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+// 标签类型
+export const TAG_TYPE = {
+    REGISTER: 1,
+    CUSTOM: 2,
+}
+
 // 标签状态
 export const TAG_STATUS = {
     0: '新建',
@@ -17,6 +23,7 @@ export const TAG_STATUS = {
     2: "更新中", 
     3: "更新完成", 
     4: "更新失败",
+    5: "禁用",
 };
 
 export const API_STATUS = {
@@ -25,7 +32,7 @@ export const API_STATUS = {
     "1":'PASS',
     "2":'REJECT',
     "3":'STOPPED',
-    "4":'DISABLE'
+    "4":'DISABLE',
 }
 
 export const EXCHANGE_API_STATUS= {
