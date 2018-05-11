@@ -38,12 +38,14 @@ class ApprovedCard extends Component {
         this.setState({
             loading: true
         })
+        const { filterInfo, sortedInfo, pageIndex, apiName } = this.state;
+
         this.props.getAppliedList(
-            this.state.pageIndex,
-            sortType[this.state.sortedInfo.columnKey],
-            orderType[this.state.sortedInfo.order],
-            this.state.filterInfo.status,
-            this.state.apiName
+            pageIndex,
+            sortType[sortedInfo.columnKey],
+            orderType[sortedInfo.order],
+            filterInfo.status,
+            apiName,
         )
         .then(
             (res) => {
@@ -67,7 +69,6 @@ class ApprovedCard extends Component {
     }
     componentDidMount() {
         this.getAppliedList();
-
     }
     componentWillReceiveProps(nextProps) {
         if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
@@ -87,7 +88,6 @@ class ApprovedCard extends Component {
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
-        console.log(filter);
         this.setState({
             pageIndex: page.current,
             sortedInfo: sorter,
@@ -122,6 +122,7 @@ class ApprovedCard extends Component {
 
         })
     }
+
     statenotPass(record) {
         this.setState({
             slidePaneShowSuccess: false,
@@ -213,7 +214,6 @@ class ApprovedCard extends Component {
             dataIndex: 'status',
             key: 'status',
             render(text) {
-
                 const dic = {
                     success: "已通过",
                     disabled: "取消授权",
@@ -230,15 +230,13 @@ class ApprovedCard extends Component {
             ]
         }, {
             title: '描述',
-            dataIndex: 'apiDesc',
-            key: 'apiDesc',
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
             width: 300
         }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
             key: 'recentCallNum',
-
-
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
@@ -246,7 +244,6 @@ class ApprovedCard extends Component {
             render(text) {
                 return text + "%"
             }
-
         },
         {
             title: '累计调用',

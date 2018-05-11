@@ -13,6 +13,7 @@ require('echarts/lib/chart/line');
 require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
+
 class ApiCallState extends Component {
     state = {
         tagId: "",
@@ -43,7 +44,6 @@ class ApiCallState extends Component {
             tagId: this.props.showRecord && this.props.showRecord.tagId
         })
         this.getInfo();
-
     }
     componentWillReceiveProps(nextProps) {
         if (
@@ -91,7 +91,6 @@ class ApiCallState extends Component {
                         break;
                 }
             }
-            
         }
         let myChart = echarts.init(document.getElementById('MyApiDetailState'));
         const option = cloneDeep(doubleLineAreaChartOptions);
@@ -147,7 +146,6 @@ class ApiCallState extends Component {
                 return "30天";
             default:
                 return '';
-
         }
     }
     render() {

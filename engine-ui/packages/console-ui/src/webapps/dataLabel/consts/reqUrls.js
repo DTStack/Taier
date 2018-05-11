@@ -76,13 +76,23 @@ export default {
     GET_DATA_SOURCES_COLUMN: `${DL_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
     GET_COMPUTE_SOURCE: `${DL_BASE_URL}/dataSource/listComputeSource`,// 获取计算资源
     GET_DATA_SOURCES_PREVIEW: `${DL_BASE_URL}/dataSource/preview`,    // 预览数据源下的数据
+ 
+    // ===== 概览 =====//
+    GET_API_FAIL_RANK:`${DL_BASE_URL}/apis/listApiCallFailRateTopNForNormal`,//用户获取API调用失败率排行
+    GET_API_FAIL_RANK_ADMIN:`${DL_BASE_URL}/apis/listApiCallFailRateTopNForManager`,//管理员获取API调用失败率排行
+    GET_API_CALL_INFO:`${DL_BASE_URL}/apis/getApiCallInfoForNormal`,//获取API调用情况
+    GET_USER_API_CALL_RANK:`${DL_BASE_URL}/apis/listApiCallNumTopN`,//获取用户个人API调用次数排行
+    GET_USER_API_SUB_INFO:`${DL_BASE_URL}/apply/getApiSubscribe`,//获取用户个人API订购与审核情况
+    GET_MARKET_API_CALL_RANK:`${DL_BASE_URL}/apis/listUserCallTopN`,//获取市场API调用次数用户排行
+    GET_API_CALL_ERROR_INFO_ADMIN:`${DL_BASE_URL}/log/getApiCallErrorInfoForManager`,//获取市场API错误分布
+    GET_MARKET_API_APPLY_INFO:`${DL_BASE_URL}/apply/getApplyCount`,//获取API申请记录信息
 
     // ===== api授权审批 ====//
     HANDLE_APPLY: `${DL_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST: `${DL_BASE_URL}/apply/allApplyList`,//获取审批列表
 
     // ===== api管理 ===== //
-    GET_ALL_API_LIST: `${DL_BASE_URL}/tag/customQuery`,//获取所有的api
+    GET_ALL_API_LIST: `${DL_BASE_URL}/tag/manageQuery`,//获取所有管理的api
     GET_DATASOURCE_BASE_INFO: `${DL_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源
     DELETE_API: `${DL_BASE_URL}/apis/deleteApi`,//删除api
     UPDATE_API: `${DL_BASE_URL}/apis/updateApiStatus`,//更新api状态
