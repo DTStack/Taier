@@ -4,6 +4,7 @@ import com.clearspring.analytics.util.Lists;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobParam;
@@ -13,6 +14,7 @@ import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
+import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
@@ -51,10 +53,9 @@ import java.util.Properties;
  */
 public class SparkYarnClient extends AbsClient {
 
-    public static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
 
     private static final String HDFS_PREFIX = "hdfs://";
 
@@ -79,8 +80,8 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-
-        sparkYarnConfig = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsBytes(prop), SparkYarnConfig.class);
+        String propStr = PublicUtil.objToString(prop);
+        sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
         initYarnConf(sparkYarnConfig);
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
@@ -141,7 +142,9 @@ public class SparkYarnClient extends AbsClient {
         ApplicationId appId = null;
 
         try {
-            appId = new Client(clientArguments, yarnConf, sparkConf).submitApplication();
+            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            clientExt.setSparkYarnConfig(sparkYarnConfig);
+            appId = clientExt.submitApplication();
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
@@ -232,7 +235,7 @@ public class SparkYarnClient extends AbsClient {
 
         String sqlExeJson = null;
         try{
-            sqlExeJson = OBJECT_MAPPER.writeValueAsString(paramsMap);
+            sqlExeJson = PublicUtil.objToString(paramsMap);
             sqlExeJson = URLEncoder.encode(sqlExeJson, Charsets.UTF_8.name());
         }catch (Exception e){
             logger.error("", e);
@@ -256,7 +259,9 @@ public class SparkYarnClient extends AbsClient {
         ApplicationId appId = null;
 
         try {
-            appId = new Client(clientArguments, yarnConf, sparkConf).submitApplication();
+            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            clientExt.setSparkYarnConfig(sparkYarnConfig);
+            appId = clientExt.submitApplication();
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             return JobResult.createErrorResult("submit job get unknown error\n" + ExceptionUtil.getErrorMessage(ex));

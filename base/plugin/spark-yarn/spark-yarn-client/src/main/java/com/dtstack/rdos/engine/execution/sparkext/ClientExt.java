@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnConfig;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.FileUtil;
 import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 修改Saprk yarn client ---> 修改提交之前的配置包打包
@@ -51,7 +53,7 @@ public class ClientExt extends DtClient {
 
     @Override
     public void loadHadoopConf(scala.collection.mutable.HashMap hadoopConfFiles){
-        if(Strings.isNullOrEmpty(sparkYarnConfig.getConfHdfsPath())){
+        if(!Strings.isNullOrEmpty(sparkYarnConfig.getConfHdfsPath())){
             isLocal = false;
         }
 
@@ -75,8 +77,7 @@ public class ClientExt extends DtClient {
 
         for(File file : files){
             String fileName = file.getName();
-            String filePath = file.getAbsolutePath();
-            hadoopConfFiles.put(fileName, filePath);
+            hadoopConfFiles.put(fileName, file);
         }
 
     }
@@ -85,6 +86,13 @@ public class ClientExt extends DtClient {
         String confMd5Sum = sparkYarnConfig.getMd5sum();
         String confFileDirName = String.format("%s/%s", tmpHadoopFilePath, confMd5Sum);
         File dirFile = new File(confFileDirName);
+
+        try {
+            Files.createParentDirs(dirFile);
+        } catch (IOException e) {
+            throw new RdosException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
+        }
+
         //FIXME 是否需要检查文件夹下文件的
         if(dirFile.exists()){
             return confFileDirName;
