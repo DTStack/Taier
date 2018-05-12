@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -93,8 +94,6 @@ public class FlinkClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private static final int failureRate = 3;
 
     private static final int failureInterval = 6; //min
@@ -127,7 +126,9 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-        flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);
+
+        String propStr = PublicUtil.objToString(prop);
+        flinkConfig = PublicUtil.jsonStrToObject (propStr, FlinkConfig.class);
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
@@ -542,7 +543,7 @@ public class FlinkClient extends AbsClient {
         }
 
         try{
-            Map<String, Object> statusMap = objectMapper.readValue(response, Map.class);
+            Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
             Object stateObj = statusMap.get("state");
             if(stateObj == null){
                 return null;
