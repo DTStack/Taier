@@ -38,6 +38,8 @@ public class SparkYarnConfig {
 
     private String defaultFS;
 
+    private String hadoopUserName;
+
     public String getTypeName() {
         return typeName;
     }
@@ -133,5 +135,13 @@ public class SparkYarnConfig {
 
     public void setConfHdfsPath(String confHdfsPath) {
         this.confHdfsPath = confHdfsPath;
+    }
+
+    public String getHadoopUserName() {
+        return hadoopUserName;
+    }
+
+    public void setHadoopUserName(String hadoopUserName) {
+        this.hadoopUserName = hadoopUserName;
     }
 }

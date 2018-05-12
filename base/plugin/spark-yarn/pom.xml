@@ -94,6 +94,11 @@
                     <artifactId>hadoop-yarn-api</artifactId>
                     <groupId>org.apache.hadoop</groupId>
                 </exclusion>
+
+                <exclusion>
+                    <artifactId>org.apache.hadoop</artifactId>
+                    <groupId>hadooop-yarn-server-web-proxy</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 

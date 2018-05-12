@@ -20,6 +20,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
@@ -55,7 +56,9 @@ public class SparkYarnClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
 
-    public static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
+    private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
+
+    private static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
 
     private static final String HDFS_PREFIX = "hdfs://";
 
@@ -82,6 +85,7 @@ public class SparkYarnClient extends AbsClient {
     public void init(Properties prop) throws Exception {
         String propStr = PublicUtil.objToString(prop);
         sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
+        setHadoopUserName(sparkYarnConfig);
         initYarnConf(sparkYarnConfig);
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
@@ -101,7 +105,7 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public JobResult submitJobWithJar(JobClient jobClient){
-
+        setHadoopUserName(sparkYarnConfig);
         JobParam jobParam = new JobParam(jobClient);
         String mainClass = jobParam.getMainClass();
         //只支持hdfs
@@ -155,7 +159,7 @@ public class SparkYarnClient extends AbsClient {
 
     @Override
     public JobResult submitPythonJob(JobClient jobClient){
-
+        setHadoopUserName(sparkYarnConfig);
         JobParam jobParam = new JobParam(jobClient);
         //.py .egg .zip 存储的hdfs路径
         String pyFilePath = jobParam.getJarPath();
@@ -216,7 +220,7 @@ public class SparkYarnClient extends AbsClient {
      * @return
      */
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
-
+        setHadoopUserName(sparkYarnConfig);
         if(jobClient.getOperators().size() < 1){
             throw new RdosException("don't have any batch operator for spark sql job. please check it.");
         }
@@ -506,5 +510,13 @@ public class SparkYarnClient extends AbsClient {
         }
 
         return resourceInfo;
+    }
+
+    public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){
+        if(Strings.isNullOrEmpty(sparkYarnConfig.getHadoopUserName())){
+            return;
+        }
+
+        UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, sparkYarnConfig.getHadoopUserName());
     }
 }
