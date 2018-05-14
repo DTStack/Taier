@@ -38,7 +38,8 @@ public class HadoopClient extends AbsClient {
     private static final Logger LOG = LoggerFactory.getLogger(HadoopClient.class);
     private static final String YARN_CONF_PATH = "yarnConfPath";
     private static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
-    private static final String TMP_PATH = "/tmp";
+    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String TMP_PATH = USER_DIR + "/tmp";
     private static final String HDFS_PREFIX = "hdfs://";
     private EngineResourceInfo resourceInfo;
     private Configuration conf = new Configuration();
@@ -51,12 +52,6 @@ public class HadoopClient extends AbsClient {
         resourceInfo = new HadoopResourceInfo();
 
         conf.clear();
-        conf.set("mapreduce.framework.name", "yarn");
-        conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
-        conf.set("yarn.nodemanager.resource.memory-mb", "1024");
-        conf.set("mapreduce.map.memory.mb","1024");
-        conf.set("mapreduce.reduce.memory.mb","1024");
-        conf.setBoolean("mapreduce.app-submission.cross-platform", true);
 
         String hadoopConfDir = null;
         if(System.getenv(HADOOP_CONF_DIR) != null) {
@@ -68,7 +63,7 @@ public class HadoopClient extends AbsClient {
         }
 
         if(StringUtils.isNotBlank(hadoopConfDir)) {
-            File dir = new File(prop.getProperty(YARN_CONF_PATH));
+            File dir = new File(hadoopConfDir);
             File[] files = dir.listFiles();
             for (File file : files) {
                 if (file.getPath().endsWith("xml")) {
@@ -76,6 +71,13 @@ public class HadoopClient extends AbsClient {
                 }
             }
         }
+
+        conf.set("mapreduce.framework.name", "yarn");
+        conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
+        conf.set("yarn.nodemanager.resource.memory-mb", "1024");
+        conf.set("mapreduce.map.memory.mb","1024");
+        conf.set("mapreduce.reduce.memory.mb","1024");
+        conf.setBoolean("mapreduce.app-submission.cross-platform", true);
 
         prop.remove(YARN_CONF_PATH);
         prop.remove("type");
@@ -196,6 +198,8 @@ public class HadoopClient extends AbsClient {
         } catch (Exception ex) {
             ex.printStackTrace();
             return JobResult.createErrorResult(ex);
+        }finally {
+            //TODO 删除临时文件
         }
 
     }

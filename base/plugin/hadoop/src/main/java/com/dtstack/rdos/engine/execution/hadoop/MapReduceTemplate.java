@@ -71,7 +71,7 @@ public class MapReduceTemplate {
         Configuration conf = new Configuration();
         conf.clear();
         conf.set("mapreduce.framework.name", "yarn");
-        File dir = new File("/Users/softfly/hadoop");
+        File dir = new File("D:\\hadoop\\etc\\hadoop");
         File[] files = dir.listFiles();
         for(File file : files) {
             String path = "path: " + file.getPath();
@@ -88,9 +88,13 @@ public class MapReduceTemplate {
         conf.setBoolean("mapreduce.app-submission.cross-platform", true);
 
         Map<String,String> params = new HashMap<>();
-        params.put(JAR, "/Users/softfly/company/mymr/target/mymr-1.0-SNAPSHOT.jar");
+        params.put(JAR, "D:\\Users/mymr-1.0-SNAPSHOT.jar");
         params.put(MAPPER, "bigdata.TokenizerMapper");
         params.put(REDUCER, "bigdata.IntSumReducer");
+        params.put(INPUT_PATH, "/hyf/xx.txt");
+        params.put(OUTPUT_PATH, "/hyf/xxout.txt");
+
+        System.setProperty("HADOOP_USER_NAME", "admin");
 
         MapReduceTemplate job = new MapReduceTemplate(jobName, conf, params);
         job.run();
