@@ -92,6 +92,8 @@ class EditAPI extends Component {
             current: 1
         })
     }
+
+    // 重新组合更新参数
     paramsConfig(data) {
         console.log(data)
         const params = {}
