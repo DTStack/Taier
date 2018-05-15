@@ -845,6 +845,7 @@ export default class RuleEditPane extends Component {
                     pagination={false}
                     dataSource={rules}
                     columns={this.initColumns()}
+                    scroll={{y:350}}
                 />
                 
                 <ExecuteForm 
