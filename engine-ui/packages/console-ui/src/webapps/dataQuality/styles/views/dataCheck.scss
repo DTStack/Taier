@@ -1,7 +1,7 @@
 .check-setting {
 	.keymap-title {
 		font-size: 14px;
-		color: #ccc;
+		color: rgba(0,0,0,.54);
 		text-align: center;
 	}
 
@@ -39,8 +39,9 @@
         }
 
         .mapline {
+            cursor: url("/public/dataQuality/img/close.ico"),pointer;
             &:hover {
-                cursor: pointer;
+                
             }
         }
 
