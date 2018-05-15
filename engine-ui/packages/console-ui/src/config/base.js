@@ -10,8 +10,8 @@ export const DL_BASE_URL = '/api/tag/service';
 export const rdosApp = {
     id: 'rdos',
     name: '开发套件',
-    filename: 'rdos.html',
-    link: '/rdos.html#/',
+    filename: 'ide.html',
+    link: '/ide.html#',
     target: '_blank',
     enable: true,
     hasProject: true, // 是否拥有项目选择
@@ -46,5 +46,5 @@ export const dlApp = {
     filename: 'dataLabel.html',
     target: '_blank',
     enable: true,
-    apiBase: '/dataLabel',
+    apiBase: '/tag',
 }

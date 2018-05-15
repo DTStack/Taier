@@ -38,7 +38,6 @@ export const EXCHANGE_APPLY_STATUS= {
 export const EXCHANGE_ADMIN_API_STATUS= {
     0: 'success',
     1: 'stop',
-
 }
 
 export const dataSourceTypes = [ // 数据源类型
@@ -174,6 +173,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     ],
     series: []
 };
+
 export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
 
     tooltip: {

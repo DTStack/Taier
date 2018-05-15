@@ -8,6 +8,7 @@ export default {
     // ===== api授权审批 ====//
     HANDLE_APPLY:`${DATA_API_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST:`${DATA_API_BASE_URL}/apply/allApplyList`,//获取审批列表
+
     // ===== api管理 ===== //
     GET_ALL_API_LIST:`${DATA_API_BASE_URL}/apis/listByConditionForAdmin`,//获取所有的api
     GET_DATASOURCE_BASE_INFO:`${DATA_API_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源
@@ -24,6 +25,7 @@ export default {
     GET_TABLE_COLUMNS_DETAIL:`${DATA_API_BASE_URL}/dataSource/tablecolumn`,//获取表字段信息
     GET_TABLE_PREVIEW_DATA:`${DATA_API_BASE_URL}/dataSource/preview`,//数据预览
     GET_API_DETAIL_INFO:`${DATA_API_BASE_URL}/apis/getApiInfo`,//获取api详细信息
+
     // ===== 我的api =====//
     GET_APPLY_LIST:`${DATA_API_BASE_URL}/apply/userApplyList`,//获取申请列表
     UPDATE_APPLY_STATUS:`${DATA_API_BASE_URL}/apply/updateApplyStatusForNormal`,//用户停用，启用,禁用
@@ -55,8 +57,6 @@ export default {
     GET_MARKET_API_CALL_RANK:`${DATA_API_BASE_URL}/apis/listUserCallTopN`,//获取市场API调用次数用户排行
     GET_API_CALL_ERROR_INFO_ADMIN:`${DATA_API_BASE_URL}/log/getApiCallErrorInfoForManager`,//获取市场API错误分布
     GET_MARKET_API_APPLY_INFO:`${DATA_API_BASE_URL}/apply/getApplyCount`,//获取API申请记录信息
-    
-
 
     // ===== 用户相关 ===== //
     DA_GET_USER_BY_ID: `${DATA_API_BASE_URL}/user/getUserById`, // 根据用户ID获取用户

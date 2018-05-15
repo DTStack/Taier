@@ -23,7 +23,7 @@ export const mineActions = {
     //获取已审批个人api
     getAppliedList(params) {
         params=params||{};
-        if(!params.status){
+        if(!params.status || params.status.length === 0){
             params.status=[1,2,3,4];
         }
         

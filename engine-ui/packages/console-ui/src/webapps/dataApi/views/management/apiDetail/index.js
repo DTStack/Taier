@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from "react-redux";
 import { Menu, Card, Table, Tabs, Radio, Modal, message } from "antd"
 import { Link } from "react-router";
-import ManageTopCard from "./TopCard"
+import ManageTopCard from "./topCard"
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
 import { EXCHANGE_ADMIN_API_STATUS } from "../../../consts"
@@ -31,7 +31,7 @@ const mapDispatchToProps = dispatch => ({
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId,
-                useAdmin:true
+                useAdmin: true
             })
         )
     },
@@ -94,7 +94,7 @@ class APIManageDetail extends Component {
                             message.success("开启成功")
                             if (res) {
                                 this.getApiExtInfo();
-                                
+
                             }
                         }
                     )
@@ -215,23 +215,23 @@ class APIManageDetail extends Component {
 
     }
     render() {
-        let status=EXCHANGE_ADMIN_API_STATUS[this.getValue('status')];
+        let status = EXCHANGE_ADMIN_API_STATUS[this.getValue('status')];
         let isDisAble;
-        if(status=="stop"){
-            isDisAble=true;
+        if (status == "stop") {
+            isDisAble = true;
         }
         console.log(status);
-        
+
         return (
             <div>
-                <ManageTopCard  {...this.state} {...this.props}
+                <ManageTopCard {...this.state} {...this.props}
                     deleteApi={this.deleteApi.bind(this)}
                     openApi={this.openApi.bind(this)}
                     closeApi={this.closeApi.bind(this)}
                 ></ManageTopCard>
                 <div className="tabs-box m-tabs noheight tabs-filter-show">
                     <Tabs
-                    
+
                         defaultActiveKey={this.state.nowView}
                         onChange={this.callback.bind(this)}
                         tabBarExtraContent={this.getDateTypeView()}
