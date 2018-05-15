@@ -30,11 +30,13 @@ import RuleTagEdit from './views/tagConfig/ruleTagEdit'
 import IdentifyColumn from './views/tagConfig/identifyColumn'
 import DataSourceIndex from './views/dataSource'
 
+import PublishTag from './views/management/publishTag'
+
 import APIDetail from './views/market/detail'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
 import NewApi from "./views/management/newApi"
-import EditAPI from './views/management/editApi';
+import EditAPI from './views/management/editApi'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -65,8 +67,8 @@ export default (
             <Route path="manage" component={ TagManagement }></Route>
             <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
             <Route path="manage/apiType" component={ ApiType }></Route>
-            <Route path="manage/newApi" component={ NewApi }></Route>
-            <Route path="manage/editApi/:tagId" component={ EditAPI }></Route>
+            <Route path="manage/newApi/:tagId" component={ PublishTag }></Route>
+            <Route path="manage/editApi/:tagId" component={ PublishTag }></Route>
             <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
             <Route path="tagConfig/ruleTagEdit/:id" component={ RuleTagEdit }></Route>

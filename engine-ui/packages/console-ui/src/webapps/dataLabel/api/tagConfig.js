@@ -16,6 +16,9 @@ export default {
     deleteTag(params) {
         return http.post(req.DELETE_TAG, params);
     },
+    publishTag(params) {
+    	return http.post(req.PUBLISH_TAG, params);
+    },
 
     queryRuleTag(params) {
         return http.post(req.QUERY_RULE_TAG, params);

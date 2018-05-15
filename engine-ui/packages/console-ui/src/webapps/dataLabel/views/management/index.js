@@ -179,7 +179,7 @@ class APIMana extends Component {
         }
         return null;
     }
-    onSourceChange(key) {
+    onSourceChange = (key) => {
         this.setState({
             type1: key,
             type2: undefined
@@ -443,7 +443,7 @@ class APIMana extends Component {
         })
     }
     //数据源类型改变
-    dataSourceTypeChange(key) {
+    dataSourceTypeChange = (key) => {
         this.setState({
             dataSourceType: key,
             dataSource: undefined
@@ -474,26 +474,45 @@ class APIMana extends Component {
                 this.getAllApi();
             })
     }
-    getCardTitle() {
-        const sourceType = "", sourceList = "", userList = "";
-        return (
+    
+    openApiType() {
+        this.props.router.push("/dl/manage/apiType");
+    }
+    newApi() {
+        this.props.router.push("/dl/manage/newApi");
+    }
+    
+    render() {
+        const { children } = this.props;
+
+        const cardTitle = (
             <div className="flex font-12">
                 <Search
                     placeholder="输入标签名称搜索"
-                    style={{ width: 150, margin: '10px 0' }}
+                    style={{ width: 200, margin: '10px 0' }}
                     onSearch={this.handleSearch.bind(this)}
                 />
+
                 <div className="m-l-8">
                     标签分类：
-                    <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
+                    <Select 
+                        allowClear 
+                        value={this.state.type1} 
+                        style={{ width: 150 }}
+                        onChange={this.onSourceChange}>
                         {
                             this.renderSourceType(0, true)
                         }
                     </Select>
                 </div>
+
                 <div className="m-l-8">
                     类型：
-                    <Select value={this.state.dataSourceType} allowClear onChange={this.dataSourceTypeChange.bind(this)} style={{ width: 100 }}>
+                    <Select 
+                        allowClear 
+                        value={this.state.dataSourceType} 
+                        style={{ width: 150 }}
+                        onChange={this.dataSourceTypeChange}>
                         {
                             this.getDataSourceTypeView()
                         }
@@ -520,30 +539,21 @@ class APIMana extends Component {
                 </div> */}
             </div>
         )
-    }
-    openApiType() {
-        this.props.router.push("/dl/manage/apiType");
-    }
-    newApi() {
-        this.props.router.push("/dl/manage/newApi");
-    }
-    getCardExtra() {
-        return (
+
+        const cardExtra = (
             <div style={{ paddingTop: "10px" }}>
                 <Button onClick={this.openApiType.bind(this)} style={{ marginRight: "8px" }} type="primary">类目管理</Button>
                 {/* <Button type="primary" onClick={this.newApi.bind(this)}>新建API</Button> */}
             </div>
         )
-    }
-    render() {
-        const { children } = this.props
+
         return (
             <div className="api-management">
                 <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
                     <Card
                         noHovering
-                        title={this.getCardTitle()}
-                        extra={this.getCardExtra()}
+                        title={cardTitle}
+                        extra={cardExtra}
                     >
                         <Table
                             rowKey="id"

@@ -50,6 +50,9 @@ export default {
 
     GET_PERIOD_TYPE: `${DL_BASE_URL}/tag/listPeriodType`,       // 编辑过滤条件
     GET_NOTIFY_TYPE: `${DL_BASE_URL}/tag/listNotifyType`,       // 删除过滤条件
+
+    
+    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,       // 删除过滤条件
     
 
     // ===== 识别列 ===== //
@@ -125,7 +128,7 @@ export default {
     GET_API_MARKET_LIST: `${DL_BASE_URL}/tag/marketQuery`,//获取市场api列表
     GET_MARKET_API_DETAIL: `${DL_BASE_URL}/apis/getApiDetail`,//获取市场api详情
     GET_API_EXT_INFO: `${DL_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
-    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/tag/getApiExtInfoForManager`,//管理员获取api详情调用情况等
+    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/apis/getApiExtInfoForManager`,//管理员获取api详情调用情况等
     APPLY_API: `${DL_BASE_URL}/apply/tagApply`,//申请API
     GET_MARKET_TOP_CALL_FUNC: `${DL_BASE_URL}/apis/listApiCallNumTopNForManager`,//管理员获取api调用次数topN
 
