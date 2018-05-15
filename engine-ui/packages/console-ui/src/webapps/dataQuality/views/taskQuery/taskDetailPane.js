@@ -36,7 +36,7 @@ export default class TaskDetailPane extends Component {
                 monitorId: newData.monitorId
             }).then((res) => {
                 if (res.code === 1) {
-                    this.setState({ 
+                    this.setState({
                         taskDetail: res.data,
                         visible: false
                     });
@@ -137,7 +137,7 @@ export default class TaskDetailPane extends Component {
             render: (text, record) => {
                 return <a onClick={this.onCheckReport.bind(this, record)}>查看报告</a>
             }
-        }]  
+        }]
     }
 
     onCheckReport = (record) => {
@@ -157,9 +157,9 @@ export default class TaskDetailPane extends Component {
         const { currentRecord } = this.state;
 
         let myChart = echarts.init(document.getElementById('TaskTrend')),
-            option  = cloneDeep(lineAreaChartOptions),
-            xData   = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
-            yData   = Object.values(chartData);
+            option = cloneDeep(lineAreaChartOptions),
+            xData = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
+            yData = Object.values(chartData);
 
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
@@ -191,13 +191,13 @@ export default class TaskDetailPane extends Component {
                 itemStyle: {
                     normal: {
                         label: {
-                            formatter: function() {
+                            formatter: function () {
                                 return '阈值'
                             }
                         }
                     }
                 },
-                data : [
+                data: [
                     {
                         yAxis: +currentRecord.threshold,
                     }
@@ -216,9 +216,13 @@ export default class TaskDetailPane extends Component {
             !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
         )
 
+        if (currentRecord && currentRecord.isCustomizeSql) {
+            cardTitle = "指标最近波动图"
+        }
+
         return (
             <div style={{ padding: 20 }}>
-                <Table 
+                <Table
                     rowKey="id"
                     className="m-table"
                     columns={this.initRulesColumns()}
@@ -231,15 +235,15 @@ export default class TaskDetailPane extends Component {
                 {
                     visible
                     &&
-                    <Card   
+                    <Card
                         noHovering
                         bordered={false}
-                        loading={false} 
+                        loading={false}
                         className="shadow"
                         title={cardTitle}
                     >
                         <Resize onResize={this.resize}>
-                            <article id="TaskTrend" style={{ width: '100%', height: '350px' }}/>
+                            <article id="TaskTrend" style={{ width: '100%', height: '300px' }} />
                         </Resize>
                     </Card>
                 }
