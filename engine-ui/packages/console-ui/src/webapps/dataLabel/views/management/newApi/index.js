@@ -1,12 +1,13 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Card, Steps,Button } from "antd";
 import GoBack from 'main/components/go-back'
 import BasicProperties from "./basicProperties"
 import ParamsConfig from "./paramsConfig"
-import Complete from "./complete"
+import Complete from "./complete";
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
-import {connect} from "react-redux"
+import TCApi from '../../../api/tagConfig';
 const Step = Steps.Step;
 const steps = [
 
@@ -59,7 +60,9 @@ class NewApi extends Component {
         current: 0,
         basicProperties: {},
         paramsConfig: {},
-        complete: {}
+        complete: {},
+        basicInfo: {},
+
     }
     basicProperties(data) {
         console.log(data)
@@ -68,22 +71,29 @@ class NewApi extends Component {
             current:1
         })
     }
+
+    changeBasicInfo = (obj) => {
+        let basicInfo = {...this.state.basicInfo, ...obj};
+        console.log(obj,basicInfo)
+        this.setState({ basicInfo });
+    }
+
     paramsConfig(data) {
         
-        const params={}
-        params.name=this.state.basicProperties.APIName;
+        let params={}
+        params.name=this.state.basicProperties.name;
         params.catalogueId=this.state.basicProperties.APIGroup[this.state.basicProperties.APIGroup.length-1];
-        params.apiDesc=this.state.basicProperties.APIdescription;
-        params.dataSrcId=this.state.basicProperties.dataSource;
+        params.tagDesc=this.state.basicProperties.APIdescription;
+        params.dataSourceId=this.state.basicProperties.dataSourceId;
         params.tableName=this.state.basicProperties.table;
         params.reqLimit=this.state.basicProperties.callLimit;
         params.respLimit=this.state.basicProperties.backLimit;
-        params.inputParam=[];
-        params.outputParam=[];
+        params.inputParams=[];
+        params.outputParams=[];
         for(let i in data.inputData){
             let item=data.inputData[i];
 
-            params.inputParam.push({
+            params.inputParams.push({
                 fieldName:item.param.key,
                 paramName:item.paramName,
                 paramType:item.param.type,
@@ -94,7 +104,7 @@ class NewApi extends Component {
         }
         for(let i in data.outputData){
             let item=data.outputData[i];
-            params.outputParam.push({
+            params.outputParams.push({
                 fieldName:item.param.key,
                 paramName:item.paramName,
                 paramType:item.param.type,
@@ -103,20 +113,28 @@ class NewApi extends Component {
         }
        
         
-
-
-        this.props.createApi(params)
-        .then(
-            (res)=>{
-                if(res){
-                    
+        TCApi.publishTag(params).then((res) => {
+                if (res.code === 1){
                     this.setState({
-                        paramsConfig: data||{},
+                        paramsConfig: data || {},
                         current:2
-                    })
+                    });
                 }
             }
         )
+
+        // this.props.createApi(params)
+        // .then(
+        //     (res)=>{
+        //         if(res){
+                    
+        //             this.setState({
+        //                 paramsConfig: data||{},
+        //                 current:2
+        //             })
+        //         }
+        //     }
+        // )
     }
     complete(data) {
         this.setState({
@@ -147,7 +165,20 @@ class NewApi extends Component {
         this.props.router.goBack();
     }
     render() {
+        const { current, basicInfo } = this.state;
         const { key, content: Content } = steps[this.state.current];
+
+        // const steps = [
+        //     {
+        //         title: '基本属性', content: <BasicProperties
+        //             currentStep={current}
+        //             navToStep={this.navToStep}
+        //             basicInfo={basicInfo}
+        //             editStatus={editStatus}
+        //             changeParams={this.changeBasicInfo}
+        //         />
+        //     },
+        // ];
 
         return (
             <div className="m-card g-datamanage">
@@ -176,6 +207,21 @@ class NewApi extends Component {
                     
                    
                 </Card>
+            {/*<div className="box-1">
+                            <h1 className="box-title">
+                                <GoBack /> 
+                                <span className="m-l-8">
+                                    发布标签
+                                </span>
+                            </h1>
+            
+                            <div className="steps-container">
+                                <Steps current={current}>
+                                    { steps.map(item => <Step key={item.title} title={item.title} />) }
+                                </Steps>
+                                { steps[current].content }
+                            </div>
+                        </div>*/}
             </div>
         )
     }

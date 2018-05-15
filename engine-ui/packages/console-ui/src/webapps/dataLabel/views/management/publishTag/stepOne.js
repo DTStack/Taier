@@ -6,7 +6,6 @@ import { Form, Table, Input, Icon, Button, Select, Card, Cascader, message, Inpu
 import { tagConfigActions } from '../../../actions/tagConfig';
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { dataSourceActions } from '../../../actions/dataSource';
-import DataSourceTable from "./dataSourceTable";
 import TableCell from 'widgets/tableCell';
 import { formItemLayout } from "../../../consts";
 

@@ -111,7 +111,6 @@ class OutputParams extends Component {
 
     getColumnsView() {
         const { sourceColumn } = this.props.dataSource;
-        const data = cloneDeep(this.state.tableColumns);
         return sourceColumn.map(
             (item) => {
                 return (<Option title={item.key} key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)

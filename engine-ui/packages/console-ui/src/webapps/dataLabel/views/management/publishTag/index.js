@@ -26,21 +26,18 @@ export default class PublishTag extends Component {
             if (res.code === 1) {
                 let data = res.data;
                 let basicInfo = {
-                        name: data.name,
-                        catalogueId: data.catalogueId,
-                        tagDesc: data.tagDesc,
-                        tagRange: data.tagRange,
-                        reqLimit: data.reqLimit,
-                        respLimit: data.respLimit,
-                        dataSourceId: data.dataSourceId,
-                        identityColumn: data.identityColumn,
-                        identityId: data.identityId
-                    }
-
-                if (data.type === 1) {
-                    basicInfo.originTable = data.originTable;
-                    basicInfo.originColumn = data.originColumn;
-                }
+                    name: data.name,
+                    catalogueId: data.catalogueId,
+                    tagDesc: data.tagDesc,
+                    tagRange: data.tagRange,
+                    reqLimit: data.reqLimit,
+                    respLimit: data.respLimit,
+                    dataSourceId: data.dataSourceId,
+                    identityColumn: data.identityColumn,
+                    identityId: data.identityId,
+                    originTable: data.originTable,
+                    originColumn: data.originColumn
+                };
 
                 this.setState({
                     basicInfo: basicInfo,
@@ -60,13 +57,11 @@ export default class PublishTag extends Component {
 
     changeBasicInfo = (obj) => {
         let basicInfo = {...this.state.basicInfo, ...obj};
-        console.log(obj,basicInfo)
         this.setState({ basicInfo });
     }
 
     changeParamsConfig = (obj) => {
         let paramsConfig = {...this.state.paramsConfig, ...obj};
-        console.log(obj,paramsConfig)
         this.setState({ paramsConfig });
     }
 

@@ -19,11 +19,6 @@ class InputParams extends Component {
         dataSource: []
     }
     componentDidMount() {
-        // this.getTableColumns();
-        // this.initDataSource(this.props.inputData);
-        // this.setState({
-        //     dataSource: this.props.inputData
-        // })
     }
     componentWillReceiveProps(nextProps) {
         if (nextProps.addInputsignal && !this.props.addInputsignal) {
@@ -34,28 +29,6 @@ class InputParams extends Component {
         }
     }
     initDataSource(initValue){
-        // if(!initValue||initValue.length<1){
-        //     return ;
-        // }
-        // const table= cloneDeep(this.state.dataSource);
-        // for(let i in initValue){
-        //     let item=initValue[i];
-        //     table.push({
-        //         key: Math.random(),
-        //         // param: {
-        //         //     key:item.fieldName,
-        //         //     paramType:item.paramType
-        //         // },
-        //         fieldName: item.fieldName,
-        //         paramName: item.paramName,
-        //         paramType: item.paramType,
-        //         operator: item.operator,
-        //         required: item.required,
-        //         desc: item.desc,
-        //         isEdit: false
-        //     });
-        // }
-        // console.log(table,'table')
         this.backMsg(initValue);
         this.setState({
             dataSource: initValue

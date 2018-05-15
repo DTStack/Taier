@@ -41,12 +41,10 @@ export default class StepTwo extends Component {
         const { type, basicInfo, paramsConfig } = this.props;
 
         if (!isEmpty(paramsConfig)) {
-            console.log(paramsConfig)
             this.setState({
                 initInputValue: paramsConfig.inputParams,
                 initOutputValue: paramsConfig.outputParams
-            })
-            console.log(this)
+            });
         }
 
         if (type === 1) {
@@ -55,7 +53,6 @@ export default class StepTwo extends Component {
                 tableName: basicInfo.originTable
             });
         }
-        // this.initDataSource(this.props.initValue)
     }
 
     //input子组件处理信号结束
@@ -113,7 +110,7 @@ export default class StepTwo extends Component {
         const { currentStep, navToStep } = this.props;
 
         navToStep(currentStep - 1);
-        
+
         this.props.changeParamsConfig({
             inputParams: inputData,
             outputParams: outputData
