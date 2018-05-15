@@ -105,3 +105,14 @@
         }
     }
 }
+.table-select-text-key .ant-table-thead .ant-table-selection-column > span::before{
+    content:"主键";
+    visibility: visible;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+.table-select-text-key .ant-table-thead .ant-table-selection-column{
+    position: relative;
+}

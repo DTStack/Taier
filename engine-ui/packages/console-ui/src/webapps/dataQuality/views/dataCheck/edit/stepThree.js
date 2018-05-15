@@ -734,7 +734,7 @@ export default class StepThree extends Component {
 		                </Col>
 		                <Col   span={6}>
 		                	<Table
-				                className="keymap-table m-table"
+				                className="keymap-table m-table table-select-text-key"
 				                rowKey={record => record.key}
                                 columns={this.keymapTableColumn('left')}
                                 dataSource={originColumn}
@@ -777,7 +777,7 @@ export default class StepThree extends Component {
 
 	                   	<Col span={6}>
 	                        <Table
-				                className="keymap-table m-table"
+				                className="keymap-table m-table table-select-text-key"
                                 rowKey={record => record.key}
                                 columns={this.keymapTableColumn('right')}
                                 dataSource={targetColumn}
