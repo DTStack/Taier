@@ -14,7 +14,7 @@ const TextArea = Input.TextArea;
 const FormItem = Form.Item;
 
 // API服务器
-const API_SERVER = APP_CONF ? APP_CONF.API_SERVER : '';
+const API_SERVER = (APP_CONF && APP_CONF.API_SERVER) ? APP_CONF.API_SERVER : '';
 
 const mapStateToProps = state => {
     const { ruleConfig } = state;
@@ -45,7 +45,7 @@ export default class RemoteTriggerPane extends Component {
 
     componentDidMount() {
         const { data } = this.props;
-        let monitorId  = data.monitorPartVOS[0].monitorId;
+        let monitorId = data.monitorPartVOS[0].monitorId;
 
         this.props.getRemoteTrigger({ tableId: data.tableId });
         this.setState({ monitorId });
@@ -57,9 +57,9 @@ export default class RemoteTriggerPane extends Component {
 
         if (!isEmpty(newData) && oldData.tableId !== newData.tableId) {
             let monitorId = newData.monitorPartVOS[0].monitorId;
-            
+
             this.props.getRemoteTrigger({ tableId: newData.tableId });
-            this.setState({ 
+            this.setState({
                 monitorId,
                 havePart: false,
                 remark: undefined,
@@ -98,7 +98,7 @@ export default class RemoteTriggerPane extends Component {
             key: 'method',
             width: '8%',
             render: (text) => `POST`
-        },  {
+        }, {
             title: '最近修改人',
             key: 'modifyUser',
             dataIndex: 'modifyUser',
@@ -137,8 +137,8 @@ export default class RemoteTriggerPane extends Component {
         this.showRemoteModal();
         this.props.getMonitorRule({ monitorId: record.id });
 
-        this.setState({ 
-            monitorId: record.id, 
+        this.setState({
+            monitorId: record.id,
             selectedIds: record.ruleIds,
             remark: record.remark
         });
@@ -228,7 +228,7 @@ export default class RemoteTriggerPane extends Component {
             dataIndex: 'gmtModified',
             width: '14%',
             render: (text) => (moment(text).format("YYYY-MM-DD HH:mm"))
-        }]  
+        }]
     }
 
     // 切换分区
@@ -236,7 +236,7 @@ export default class RemoteTriggerPane extends Component {
         let monitorId = value;
 
         this.props.getMonitorRule({ monitorId });
-        this.setState({ 
+        this.setState({
             monitorId,
             selectedIds: [],
             remark: undefined
@@ -275,11 +275,11 @@ export default class RemoteTriggerPane extends Component {
     saveRemoteTrigger = () => {
         const { selectedIds, monitorId, remark } = this.state;
         const { data, form, getRemoteTrigger } = this.props;
-        
+
         if (selectedIds.length) {
             form.validateFields((err, values) => {
                 // console.log(err,values)
-                if(!err) {
+                if (!err) {
                     RCApi.addRemoteTrigger({
                         monitorId: monitorId,
                         ruleIds: selectedIds,
@@ -317,7 +317,7 @@ export default class RemoteTriggerPane extends Component {
                 {
                     triggerList.length > 0
                     &&
-                    <Table 
+                    <Table
                         rowKey="id"
                         className="m-table"
                         columns={this.initTriggerColumns()}
@@ -359,14 +359,14 @@ export default class RemoteTriggerPane extends Component {
                         &&
                         <div>
                             分区：
-                            <Select 
+                            <Select
                                 style={{ width: 150 }}
                                 value={monitorId ? monitorId.toString() : undefined}
                                 onChange={this.onMonitorIdChange}>
                                 {
                                     monitorPart.map((item) => {
-                                        return <Option 
-                                            key={item.monitorId} 
+                                        return <Option
+                                            key={item.monitorId}
                                             value={item.monitorId.toString()}>
                                             {item.partValue ? item.partValue : '全表'}
                                         </Option>
@@ -376,7 +376,7 @@ export default class RemoteTriggerPane extends Component {
                         </div>
                     }
 
-                    <Table 
+                    <Table
                         rowKey="id"
                         className="m-table select-all-table"
                         style={{ padding: '16px 0' }}
@@ -390,17 +390,17 @@ export default class RemoteTriggerPane extends Component {
                         <FormItem {...rowFormItemLayout} style={{ marginBottom: 0 }}>
                             {
                                 getFieldDecorator('remark', {
-                                    rules: [{ 
-                                        max: 100, 
-                                        message: '备注不能超过100个字符' 
-                                    }], 
+                                    rules: [{
+                                        max: 100,
+                                        message: '备注不能超过100个字符'
+                                    }],
                                     initialValue: remark
                                 })(
-                                    <TextArea 
-                                        placeholder="备注信息" 
-                                        className="trigger-remarks" 
-                                        autosize={{ minRows: 3, maxRows: 6 }} 
-                                        onChange={this.onRemarkChange} 
+                                    <TextArea
+                                        placeholder="备注信息"
+                                        className="trigger-remarks"
+                                        autosize={{ minRows: 3, maxRows: 6 }}
+                                        onChange={this.onRemarkChange}
                                     />
                                 )
                             }
