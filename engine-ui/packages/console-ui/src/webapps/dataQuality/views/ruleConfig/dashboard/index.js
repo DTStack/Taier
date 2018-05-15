@@ -412,6 +412,15 @@ export default class RuleConfig extends Component {
                         bordered={false}
                     >
                         <Table 
+                            rowClassName={
+                                (record, index) => {
+                                    if (currentMonitor && currentMonitor.tableId == record.tableId) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             rowKey="tableId"
                             className="m-table"
                             columns={this.initColumns()} 

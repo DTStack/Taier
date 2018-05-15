@@ -423,6 +423,15 @@ export default class TaskQuery extends Component {
                         bordered={false}
                     >
                         <Table 
+                            rowClassName={
+                                (record, index) => {
+                                    if (currentTask && currentTask.id == record.id) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             rowKey="id"
                             className="m-table"
                             columns={this.initColumns()} 
