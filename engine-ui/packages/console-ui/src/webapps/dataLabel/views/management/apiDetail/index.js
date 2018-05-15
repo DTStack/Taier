@@ -220,7 +220,6 @@ class APIManageDetail extends Component {
         if(status=="stop"){
             isDisAble=true;
         }
-        console.log(status);
         
         return (
             <div>

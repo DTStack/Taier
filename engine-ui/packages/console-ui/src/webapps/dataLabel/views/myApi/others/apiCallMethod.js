@@ -31,7 +31,7 @@ class ApiCallMethod extends Component{
         }
     }
     render(){
-        const url="/api/market/detail/"+this.props.showRecord.tagId;
+        const url="/dl/market/detail/"+this.props.showRecord.tagId;
         return (
             <div style={{paddingLeft:30}}>
                 <p style={{lineHeight:"30px"}}>调用URL：{this.state.callUrl}</p>
