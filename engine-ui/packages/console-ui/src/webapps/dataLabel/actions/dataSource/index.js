@@ -61,6 +61,13 @@ export const dataSourceActions = {
 			});
 		}
 	},
+	resetDataSourcesTable() {
+		return dispatch => {
+			dispatch({
+				type: dataSourceActionType.RESET_DATA_SOURCES_TABLE
+			});
+		}
+	},
 	getDataSourcesColumn(params) {
 		return dispatch => {
 			API.getDataSourcesColumn(params).then((res) => {
@@ -70,25 +77,6 @@ export const dataSourceActions = {
 						payload: res.data
 					});
 				}
-			});
-		}
-	},
-	getDataSourcesPart(params) {
-		return dispatch => {
-			API.getDataSourcesPart(params).then((res) => {
-				if (res.code === 1) {
-					dispatch({
-						type: dataSourceActionType.GET_DATA_SOURCES_PART,
-						payload: res.data ? res.data : {}
-					});
-				}
-			});
-		}
-	},
-	resetDataSourcesPart() {
-		return dispatch => {
-			dispatch({
-				type: dataSourceActionType.RESET_DATA_SOURCES_PART
 			});
 		}
 	},

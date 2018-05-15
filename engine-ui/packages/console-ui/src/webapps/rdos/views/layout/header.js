@@ -115,7 +115,8 @@ class Header extends Component {
         const display = current !== 'overview' ? 'inline-block' : 'none'
         const pid = project && project.id ? project.id : ''
         
-        const basePath = '/rdos.html#'
+        const basePath = app.link;
+
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">
@@ -156,7 +157,6 @@ class Header extends Component {
                           key="realtime"
                           style={{ display }}>
                             <a href={`${basePath}${devPath}`}>数据开发</a>
-                            {/* <Link to={ devPath }>数据开发</Link> */}
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
@@ -191,6 +191,8 @@ class Header extends Component {
                     app={ app }
                     apps={ apps }
                     onClick={ this.clickUserMenu }
+                    showHelpSite={true}
+                    helpUrl="/public/rdos/helpSite/index.html"
                 /> 
                 {/* <div className="user-info right">
                     <Dropdown overlay={userMenu} trigger={['click']}>

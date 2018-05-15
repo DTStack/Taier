@@ -27,7 +27,9 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.queryRole(params);
             case MY_APPS.API:
-                return http.post(req.DATAAPI_ROLE_QUERY, params)
+                return http.post(req.DATAAPI_ROLE_QUERY, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_ROLE_QUERY, params);
             case MY_APPS.RDOS:
             default:
                 return RdosApi.getRoleList(params);
@@ -42,6 +44,8 @@ export default {
                 return DqSysApi.updateRole(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ROLE_PERMISSION_ADD_OR_EDIT, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_ROLE_PERMISSION_ADD_OR_EDIT, params);
             default: return;
         }
     },
@@ -54,6 +58,8 @@ export default {
                 return DqSysApi.deleteRole(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_REMOVE_ROLE, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_REMOVE_ROLE, params)
             default: return;
         }
     },
@@ -65,7 +71,9 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getRolePerission(params);
             case MY_APPS.API:
-                return DqSysApi.getRolePerission(params);
+                return http.post(req.DATAAPI_ROLE_PERMISSION, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_ROLE_PERMISSION, params);
             default: return;
         }
     },
@@ -78,14 +86,15 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getRolePerissions(params);
             case MY_APPS.API:
-                return http.post(req.DATAAPI_GET_ROLE_TREE, params)
+                return http.post(req.DATAAPI_GET_ROLE_TREE, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_GET_ROLE_TREE, params);
             default: return;
         }
     },
 
     // ================== 消息相关 ================== //
     getMessage(app, params) {
-    
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.MASSAGE_QUERY, params)
@@ -93,6 +102,8 @@ export default {
                 return DqApi.getMessage(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_QUERY, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_MASSAGE_QUERY, params)
             default: return null;
         }
     },
@@ -105,6 +116,8 @@ export default {
                 return DqApi.getMsgById(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_GET_MASSAGE_BY_ID, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_GET_MASSAGE_BY_ID, params);
             default: return null;
         }
     },
@@ -117,6 +130,8 @@ export default {
                 return DqApi.markAsRead(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_MARK_AS_READ, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_MASSAGE_MARK_AS_READ, params)
             default: return null;
         }
     },
@@ -128,7 +143,9 @@ export default {
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsAllRead(params);
             case MY_APPS.API:
-                return http.post(req.DATAAPI_MASSAGE_MARK_AS_ALL_READ, params)
+                return http.post(req.DATAAPI_MASSAGE_MARK_AS_ALL_READ, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_MASSAGE_MARK_AS_ALL_READ, params);
             default: return null;
         }
     },
@@ -141,6 +158,8 @@ export default {
                 return DqApi.deleteMsgs(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_MASSAGE_DELETE, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_MASSAGE_DELETE, params)
             default: return null;
         }
     },
@@ -154,6 +173,8 @@ export default {
                 return DqSysApi.getUserPages(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_QUERY_USER, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_QUERY_USER, params)
             default: return;
         }
     },
@@ -186,6 +207,8 @@ export default {
                 return DqSysApi.delUser(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_REMOVE_USER, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_REMOVE_USER, params);
             default: return;
         }
     },
@@ -198,6 +221,8 @@ export default {
                 return DqSysApi.updateUser(params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_UPDATE_USER_ROLE, params);
+            case MY_APPS.LABEL:
+                return http.post(req.DL_UPDATE_USER_ROLE, params);
             default: return;
         }
     },

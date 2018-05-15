@@ -21,7 +21,7 @@ export const MyIcon = styled.span`
 `
 
 function renderMenuItems(menuItems) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu => 
+    return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
         menu.enable ? <Menu.Item key={menu.id}>
             <Link to={menu.link} target={menu.target}>{menu.name}</Link>
         </Menu.Item> : ''
@@ -29,7 +29,7 @@ function renderMenuItems(menuItems) {
 }
 
 function renderATagMenuItems(menuItems) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu => 
+    return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
         menu.enable ? <Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target}>{menu.name}</a>
         </Menu.Item> : ''
@@ -60,7 +60,7 @@ export function MenuLeft(props) {
 }
 
 export function MenuRight(props) {
-    const { activeKey, onClick, settingMenus, user, apps, app } = props;
+    const { activeKey, onClick, settingMenus, user, apps, app,showHelpSite,helpUrl } = props;
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -96,6 +96,16 @@ export function MenuRight(props) {
     return (
         <div className="menu right">
             <menu className="menu-right">
+                {showHelpSite ? (
+                    <span title="帮助文档">
+                        <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
+                            <Icon type="question-circle-o" />
+                        </a>
+
+                    </span>
+                ) : null
+
+                }
                 <Dropdown overlay={appMenus} trigger={['click']}>
                     <span>
                         <Icon type="home" />
@@ -104,7 +114,7 @@ export function MenuRight(props) {
                 </Dropdown>
                 <span className="divide"></span>
                 <span>
-                    <a href={`/message${extraParms}`} target="blank" style={{color: '#ffffff'}}>
+                    <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                         <Icon type="message" />
                         {/* <Badge dot>
                         </Badge> */}
@@ -115,9 +125,9 @@ export function MenuRight(props) {
                 </Dropdown>
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">
-                        <Icon  className="avatar" type="user" />
+                        <Icon className="avatar" type="user" />
                         <span className="user-name">
-                            { (user && user.userName) || '未登录'}
+                            {(user && user.userName) || '未登录'}
                         </span>
                     </div>
                 </Dropdown>
@@ -139,13 +149,13 @@ export class Navigator extends Component {
     componentDidMount() {
         this.updateSelected()
     }
-    componentWillReceiveProps(nextProps){
-        if(this.props.routing){
-            if(this.props.routing.locationBeforeTransitions.pathname!=nextProps.routing.locationBeforeTransitions.pathname){
+
+    componentWillReceiveProps(nextProps) {
+        if (this.props.routing) {
+            if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();
             }
         }
-        
     }
 
     componentWillReceiveProps(nextProps) {
@@ -168,14 +178,14 @@ export class Navigator extends Component {
     }
 
     updateSelected = () => {
-       
+
         const menuItems = this.props.menuItems
-        let pathname = window.location.href
+        let pathname = `${window.location.pathname}${window.location.hash}`;
         if (menuItems && menuItems.length > 0) {
             const pathFund = menuItems.find(item => {
                 return pathname.indexOf(item.id) > -1
             });
-            
+
             if (pathFund) {
                 this.setState({
                     current: pathFund.id
@@ -189,34 +199,34 @@ export class Navigator extends Component {
     }
 
     render() {
-       
-        const { 
-            user, logo, menuItems, 
+
+        const {
+            user, logo, menuItems,
             settingMenus, apps, app,
-            menuLeft, menuRight 
+            menuLeft, menuRight
         } = this.props;
         const { current } = this.state
         return (
             <header className="header">
                 <div className="logo left txt-left">
-                    { logo }
+                    {logo}
                 </div>
                 {
-                    menuLeft ? menuLeft : <MenuLeft 
-                        activeKey={ current }
-                        menuItems={ menuItems }
-                        onClick={this.handleClick} 
-                    /> 
+                    menuLeft ? menuLeft : <MenuLeft
+                        activeKey={current}
+                        menuItems={menuItems}
+                        onClick={this.handleClick}
+                    />
                 }
                 {
-                     menuRight ? menuRight : <MenuRight 
-                        activeKey={ current } 
-                        user={ user }
-                        app={ app }
-                        apps={ apps }
-                        onClick={ this.clickUserMenu }
-                        settingMenus={ settingMenus }
-                    /> 
+                    menuRight ? menuRight : <MenuRight
+                        activeKey={current}
+                        user={user}
+                        app={app}
+                        apps={apps}
+                        onClick={this.clickUserMenu}
+                        settingMenus={settingMenus}
+                    />
                 }
             </header>
         )

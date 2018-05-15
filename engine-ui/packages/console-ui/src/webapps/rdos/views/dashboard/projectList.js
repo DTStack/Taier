@@ -38,7 +38,7 @@ export default class ProjectList extends Component {
         this.setState({ loading: 'loading' })
         const reqParams = Object.assign({
             projectName: '',
-            isAdmin: true,
+            isAdmin: false,
             currentPage: 1,
             pageSize: 10,
         }, params)
@@ -122,6 +122,7 @@ export default class ProjectList extends Component {
                 const data = record.adminUsers || []
                 return data.map(item => <span>{item.userName} </span>)
             },
+            width:400
         }, {
             title: '状态',
             dataIndex: 'status',

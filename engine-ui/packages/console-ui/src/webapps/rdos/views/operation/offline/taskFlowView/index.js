@@ -89,6 +89,7 @@ class TaskFlowView extends Component {
         this.initEditor()
         this.loadEditor(editor)
         this.listenOnClick()
+        this.listenDoubleClick();
         this.hideMenu()
         this.loadTaskChidren({
             jobId: id,
@@ -99,7 +100,7 @@ class TaskFlowView extends Component {
     componentWillReceiveProps(nextProps) {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
-        if (taskJob && visibleSlidePane && taskJob.id !== currentJob.id) {
+        if ((!currentJob&&taskJob)||taskJob && visibleSlidePane && taskJob.id !== currentJob.id) {
             this.initGraph(taskJob.id)
         }
     }
@@ -164,7 +165,7 @@ class TaskFlowView extends Component {
                 const task = data ? JSON.parse(data).batchTask : '';
                 const taskType = taskTypeText(task.taskType);
                 if (task) {
-                    return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
+                    return `<div  class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
                     <span style="font-size:10px; color: #666666;">${taskType}</span></span>
                     </div>`
                 }
@@ -415,10 +416,13 @@ class TaskFlowView extends Component {
     }
 
     listenDoubleClick() {
+        const ctx = this
         this.graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const cell = evt.getProperty('cell')
-            if (cell) {
-                // window.open("http://www.google.com")
+            if (cell && cell.vertex) {
+                const currentNode =JSON.parse(cell.getAttribute('data'))
+                ctx.showJobLog(currentNode.jobId)
+                
             }
         })
     }
@@ -542,11 +546,11 @@ class TaskFlowView extends Component {
                         bottom: 0
                     }}
                 >
-                    <span>{ taskJob.batchTask && taskJob.batchTask.name || '-' }</span>&nbsp;
-                    <span>{ (taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-' }</span>&nbsp;
+                    <span>{ taskJob&&taskJob.batchTask && taskJob.batchTask.name || '-' }</span>&nbsp;
+                    <span>{ (taskJob&&taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
-                    <span>{ taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified) }</span>&nbsp;
-                    <a onClick={ () => { goToTaskDev(taskJob.batchTask.id) }}>查看代码</a>
+                    <span>{ taskJob&&taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified) }</span>&nbsp;
+                    <a onClick={ () => { goToTaskDev(taskJob&&taskJob.batchTask.id) }}>查看代码</a>
                 </div>
                 <Modal
                     title="查看属性"

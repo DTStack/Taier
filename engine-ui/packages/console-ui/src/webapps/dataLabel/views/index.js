@@ -6,7 +6,7 @@ import utils from 'utils'
 import { dlApp } from 'config/base'
 
 import Header from './layout/header'
-import Dashboard from '../views/dashboard'
+import TagMarket from '../views/market'
 
 import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
@@ -26,10 +26,12 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props
-        // dispatch(UserAction.getUser());
+        dispatch(UserAction.getUser());
         dispatch(updateApp(dlApp));
-        // dispatch(commonActions.getUserList());
-        // dispatch(dataSourceActions.getDataSourcesType());
+        dispatch(commonActions.getUserList());
+        dispatch(commonActions.getPeriodType());
+        dispatch(commonActions.getNotifyType());
+        dispatch(dataSourceActions.getDataSourcesType());
     }
 
     render() {
@@ -38,7 +40,7 @@ class Main extends Component {
             <div className="main">
                 <Header />
                 <div className="container">
-                    { children || <Dashboard /> }
+                    { children || <TagMarket /> }
                 </div>
             </div>
         )
