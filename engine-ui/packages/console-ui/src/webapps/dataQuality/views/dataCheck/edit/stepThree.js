@@ -235,6 +235,7 @@ export default class StepThree extends Component {
 
         let map = [];
 
+        //将连线数据存入map数组
         source.forEach((sourceKey, sourceIndex) => {
             $dagL.each((dl, i) => {
                 let sx, sy, ex, ey;
@@ -712,7 +713,7 @@ export default class StepThree extends Component {
         	<div>
                 <div className="steps-content">
                     <p className="keymap-title">
-		                您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
+                    提示：您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射,同时，您需要添加主键
 		            </p>
 
 		            <Row className="keymap-content">
@@ -759,7 +760,7 @@ export default class StepThree extends Component {
                                         refX="6" 
                                         refY="6" 
                                         orient="auto">
-	                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
+	                                    <path d="M2,3 L9,6 L2,9 L2,3" style={{ fill: '#2491F7' }}></path>
 	                                </marker>
 	                            </defs>
 	                            <g>

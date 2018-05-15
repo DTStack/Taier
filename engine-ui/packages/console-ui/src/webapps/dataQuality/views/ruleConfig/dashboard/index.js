@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
+import SelectSearch from "../../../components/selectSearch";
 import SlidePane from 'widgets/slidePane';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -318,6 +319,8 @@ export default class RuleConfig extends Component {
 
         const cardTitle = (
             <div className="flex font-12">
+                
+
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.handleSearch}
