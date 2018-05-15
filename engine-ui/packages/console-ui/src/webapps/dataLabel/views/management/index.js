@@ -5,10 +5,12 @@ import utils from "utils"
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
+
 import { 
-    dataSourceTypes, EXCHANGE_API_STATUS, 
-    EXCHANGE_ADMIN_API_STATUS, TAG_TYPE
-} from "../../consts"
+    dataSourceTypes, TAG_TYPE, TAG_STATUS,
+    EXCHANGE_ADMIN_API_STATUS
+} from "../../consts";
+
 const Search = Input.Search;
 const Option = Select.Option;
 const confirm = Modal.confirm;
@@ -239,11 +241,7 @@ class APIMana extends Component {
             dataIndex: 'status',
             key: 'status',
             render: (text, record) => {
-                const dic = {
-                    success: "正常",
-                    stop: "已禁用",
-                }
-                return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
+                return TAG_STATUS[text];
             }
         }, {
             width: 100,

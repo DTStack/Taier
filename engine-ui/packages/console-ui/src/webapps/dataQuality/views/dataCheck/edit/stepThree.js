@@ -235,6 +235,7 @@ export default class StepThree extends Component {
 
         let map = [];
 
+        //将连线数据存入map数组
         source.forEach((sourceKey, sourceIndex) => {
             $dagL.each((dl, i) => {
                 let sx, sy, ex, ey;
@@ -266,14 +267,52 @@ export default class StepThree extends Component {
             .enter()
             .append('g')
             .attr('class', 'mapline')
-            .append('line')
-            .attr("x1", d => d.s.x)
-            .attr("y1", d => d.s.y)
-            .attr("x2", d => d.e.x)
-            .attr("y2", d => d.e.y)
-            .attr("stroke","#2491F7")
-            .attr("stroke-width", 2)
-            .attr("marker-end","url(#arrow)");
+            
+            mapline
+                .append('line')
+                .attr("x1", d => d.s.x)
+                .attr("y1", d => d.s.y)
+                .attr("x2", d => d.e.x)
+                .attr("y2", d => d.e.y)
+                .attr("stroke","#2491F7")
+                .attr("stroke-width", 2)
+                .attr("marker-end","url(#arrow)");
+
+            //加大交互区域
+            mapline
+                .append('rect')
+                .attr("x", d => d.s.x)
+                .attr("y",  
+                    (d)=>{
+                        return d.s.y>d.e.y?(d.s.y-15):(d.s.y-10)
+                    }
+                )
+                .attr("width",
+                    (d)=>{
+                        console.log(d,((d.e.x-d.s.x)^2+(d.e.y-d.s.y)^2)^(1/2))
+                        return Math.pow(Math.pow(d.e.x-d.s.x,2)+Math.pow(d.e.y-d.s.y,2),1/2);
+                    }
+                )
+                .attr("transform",
+                    (d)=>{
+                        return `rotate(
+                            ${180 / (Math.PI / Math.atan((d.e.y-d.s.y)/(d.e.x-d.s.x)))}
+                        )`;
+                    }
+                )
+                .attr("transform-origin",
+                    (d)=>{
+                        const offset=d.s.y>d.e.y?15:10
+                        return d.s.x+' '+(d.s.y-offset)
+                    }
+                )
+                .attr("height",
+                    (d)=>{
+                       return d.s.y>d.e.y?'20px':'15px'
+                    }
+                )
+                .attr("fill","transparent");
+
     }
 
     // 绑定事件
@@ -712,7 +751,7 @@ export default class StepThree extends Component {
         	<div>
                 <div className="steps-content">
                     <p className="keymap-title">
-		                您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
+                    提示：您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射,同时，您需要添加主键
 		            </p>
 
 		            <Row className="keymap-content">
@@ -733,7 +772,7 @@ export default class StepThree extends Component {
 		                </Col>
 		                <Col   span={6}>
 		                	<Table
-				                className="keymap-table m-table"
+				                className="keymap-table m-table table-select-text-key"
 				                rowKey={record => record.key}
                                 columns={this.keymapTableColumn('left')}
                                 dataSource={originColumn}
@@ -759,7 +798,7 @@ export default class StepThree extends Component {
                                         refX="6" 
                                         refY="6" 
                                         orient="auto">
-	                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
+	                                    <path d="M2,3 L9,6 L2,9 L2,3" style={{ fill: '#2491F7' }}></path>
 	                                </marker>
 	                            </defs>
 	                            <g>
@@ -776,7 +815,7 @@ export default class StepThree extends Component {
 
 	                   	<Col span={6}>
 	                        <Table
-				                className="keymap-table m-table"
+				                className="keymap-table m-table table-select-text-key"
                                 rowKey={record => record.key}
                                 columns={this.keymapTableColumn('right')}
                                 dataSource={targetColumn}

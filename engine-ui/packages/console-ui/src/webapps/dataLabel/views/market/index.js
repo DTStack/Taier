@@ -248,12 +248,12 @@ class APIMarket extends Component {
             render: (status, record) => {
                 switch(status) {
                     case 0: {
-                        return <Link to={`/dl/mine/approved?tagId=${record.id}`}>查看审批进度</Link>;;
+                        return <Link to={`/dl/mine?tagId=${record.id}`}>查看审批进度</Link>;;
                     }
                     case 1: 
                     case 3:
                     case 4: {
-                        return <Link to={`/dl/mine?tagId=${record.id}`}>查看使用情况</Link>;
+                        return <Link to={`/dl/mine/approved?tagId=${record.id}`}>查看使用情况</Link>;
                     }
                     case -1:
                     case 2: {
