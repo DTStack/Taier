@@ -50,6 +50,9 @@ export default {
 
     GET_PERIOD_TYPE: `${DL_BASE_URL}/tag/listPeriodType`,       // 编辑过滤条件
     GET_NOTIFY_TYPE: `${DL_BASE_URL}/tag/listNotifyType`,       // 删除过滤条件
+
+    
+    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,       // 删除过滤条件
     
 
     // ===== 识别列 ===== //

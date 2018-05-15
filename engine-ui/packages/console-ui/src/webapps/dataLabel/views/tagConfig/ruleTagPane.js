@@ -161,7 +161,9 @@ export default class RuleTagPane extends Component {
                             <a>查看更新历史</a>
                         </Menu.Item>
                         <Menu.Item key="pub">
-                            <a>发布</a>
+                            <Link to={`/dl/manage/newApi/${record.id}`}>
+                                发布
+                            </Link>
                         </Menu.Item>
                         <Menu.Item key="del">
                             <Popconfirm

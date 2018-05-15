@@ -132,7 +132,9 @@ export default class RegisteredTagPane extends Component {
                 const menu = (
                     <Menu>
                         <Menu.Item key="1">
-                            <a>发布</a>
+                            <Link to={`/dl/manage/newApi/${record.id}`}>
+                                发布
+                            </Link>
                         </Menu.Item>
                         <Menu.Item key="2">
                             <Popconfirm
