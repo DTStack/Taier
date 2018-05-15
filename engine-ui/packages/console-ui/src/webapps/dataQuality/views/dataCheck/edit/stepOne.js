@@ -256,7 +256,7 @@ export default class StepOne extends Component {
                 title: item,
                 key: item,
                 dataIndex: item,
-                width: 80,
+                width: (item.length*8+28)+"px",
                 render: (value) => {
                     return <TableCell 
                         className="no-scroll-bar"
@@ -268,6 +268,17 @@ export default class StepOne extends Component {
             }
         });
     }
+
+    getScroll(){
+        let i=100;
+        const columnList=this.state.sourcePreview&&this.state.sourcePreview.columnList;
+
+        for(let j in columnList){
+            let item=columnList[j];
+            i=i+item.length*8+28
+        }
+        return i+"px";
+     }
 
     render() {
         const { editStatus, editParams, form, dataSource, dataCheck, havePart } = this.props;
@@ -368,7 +379,7 @@ export default class StepOne extends Component {
                                 columns={this.previewTableColumns(sourcePreview.columnList)} 
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
-                                scroll={{ x: 1000 }}
+                                scroll={{ x: this.getScroll() }}
                             />
                         }
                     </Form>
