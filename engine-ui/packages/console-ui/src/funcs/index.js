@@ -144,7 +144,6 @@ export function filterComments(sql) {
 
         //读取字符
         if (char == "'" || char == "\"" || char == "-" || char == "\n") {
-            console.log("推入:", char)
             //推入数组
             tmpArr.push({
                 index: i,
@@ -154,7 +153,6 @@ export function filterComments(sql) {
         //校验数组是否有匹配语法
         if (tmpArr.length < 2) {
             if (tmpArr[0] && tmpArr[0].char == "\n") {
-                console.log("首部无意义字段，清空")
                 tmpArr = [];
             }
             continue;
@@ -165,8 +163,7 @@ export function filterComments(sql) {
 
         if (firstChar.char == "'" || firstChar.char == "\"") {
             //引号匹配，则清空
-            if (lastChar == firstChar) {
-                console.log("引号匹配成功，清空")
+            if (lastChar.char == firstChar.char) {
                 tmpArr = [];
                 continue;
             }
@@ -175,13 +172,11 @@ export function filterComments(sql) {
 
             //判断是否为两个注释符号，不是，则清空
             if (tmpArr[1].char != "-") {
-                console.log("非法注释语句，清空")
                 tmpArr = [];
                 continue;
             }
             //为注释作用域，遇到换行符，则结束注释
             else if (lastChar.char == "\n") {
-                console.log("遇到换行，注释匹配成功")
                 comments.push({
                     begin: firstChar.index,
                     end: lastChar.index
@@ -191,7 +186,6 @@ export function filterComments(sql) {
             }
             //解析结束
             else if (i == sql.length - 1) {
-                console.log("到解析尾，截取")
                 comments.push({
                     begin: firstChar.index,
                     end: i
@@ -199,7 +193,6 @@ export function filterComments(sql) {
                 continue;
             }
         } else {
-            console.log("无意义字段，清空")
             tmpArr = [];
         }
     }
