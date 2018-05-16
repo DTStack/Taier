@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message } from "antd"
 import { connect } from "react-redux";
-import utils from "utils"
+import utils from "utils";
+
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -11,9 +12,12 @@ import {
     EXCHANGE_ADMIN_API_STATUS
 } from "../../consts";
 
+import { dataSourceText } from '../../components/display';
+
 const Search = Input.Search;
 const Option = Select.Option;
 const confirm = Modal.confirm;
+
 const mapStateToProps = state => {
     const { user, apiMarket, apiManage, dataSource } = state;
     return { user, apiMarket, apiManage, dataSource }
@@ -265,7 +269,7 @@ class APIMana extends Component {
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             render(text, record) {
-                return record.dataSourceType + ' / ' + record.dataSourceName
+                return dataSourceText(record.dataSourceType) + ' / ' + record.dataSourceName
             }
         }, {
             width: '10%',
@@ -307,9 +311,11 @@ class APIMana extends Component {
             dataIndex: 'deal',
             key: "deal",
             render: (text, record) => {
-                if (EXCHANGE_ADMIN_API_STATUS[record.status] == "success") {
+                // 更新完成3才可禁用
+                if (record.status == 3) {
                     return <a onClick={this.closeApi.bind(this, record.id)}>禁用</a>
                 }
+             
                 return (
                     <div>
                         <a onClick={this.openApi.bind(this, record.id)}>开启</a>

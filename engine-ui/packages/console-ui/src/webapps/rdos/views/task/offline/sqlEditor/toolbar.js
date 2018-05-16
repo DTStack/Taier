@@ -85,7 +85,6 @@ export default class Toolbar extends Component {
     }
 
     reqExecSQL = (task, params, sqls, index) => {
-
         const { dispatch, currentTab } = this.props
 
         dispatch(execSql(currentTab, task, params, sqls))
@@ -94,6 +93,7 @@ export default class Toolbar extends Component {
 
     stopSQL = () => {
         const { currentTabData,dispatch, currentTab  } = this.props
+        
         dispatch(stopSql(currentTab,currentTabData))
     }
 
