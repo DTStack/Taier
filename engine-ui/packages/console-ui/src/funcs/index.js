@@ -7,7 +7,7 @@ import { debounce } from 'lodash';
 // 请求防抖动
 export function debounceEventHander(...args) {
     const debounced = debounce(...args)
-    return function(e) {
+    return function (e) {
         e.persist()
         return debounced(e)
     }
@@ -68,7 +68,7 @@ export function appendTreeNode(treeNode, append, target) {
 */
 export function replaceTreeNode(treeNode, replace) {
     if (
-        treeNode.id === parseInt(replace.id, 10) 
+        treeNode.id === parseInt(replace.id, 10)
         // && 
         // treeNode.level === replace.level
     ) {
@@ -102,9 +102,9 @@ export function hasProject(app) {
 
 
 /**
- * 检验改应用是否包含项目选项
+ * 过滤sql中的注释
  * @param {s} app 
  */
 export function filterComments(sql) {
-    return sql.replace(/([^'])(--)+(.)+(\n|\s)+/g, '')
+    return sql.replace(/((--).*)/g, '').replace(/([^'])(--)+(.)+(\n|\s)+/g, '')
 }
