@@ -15,17 +15,14 @@ class TopCard extends Component {
     }
     getTopRightButton() {
         const status = this.getValue('applyStatus');
-        if (status == 1||status == 3) {
-            // return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
+        if (status == 1 || status == 3) {
             return null;
 
         }
         if (status == 0) {
             return <Button onClick={this.jumpToMine.bind(this)} size="large" type="primary">查看审批情况</Button>
-
         }
         return <Button onClick={this.doApply.bind(this)} size="large" type="primary">立即订购</Button>
-
     }
     doApply() {
         this.setState({
@@ -38,7 +35,7 @@ class TopCard extends Component {
         })
     }
     back() {
-        this.props.router.replace("/api/market");
+        this.props.router.replace("/dl/market");
     }
     getValue(key) {
         const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.tagId];
@@ -47,7 +44,6 @@ class TopCard extends Component {
         } else {
             return null;
         }
-
     }
     getApiValue(key) {
         const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.tagId];
@@ -72,14 +68,13 @@ class TopCard extends Component {
         if (modal) {
             modal.destroy();
         }
-
-        this.props.router.push("/api/mine");
-
-
+        this.props.router.push("/dl/mine");
     }
+
     jumpToMineApproved() {
-        this.props.router.push("/api/mine/approved?tagId="+this.props.tagId);
+        this.props.router.push("/dl/mine/approved?tagId=" + this.props.tagId);
     }
+
     handleOk() {
 
         this.setState({

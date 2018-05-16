@@ -165,8 +165,6 @@ class APIDetail extends Component {
                         </pre>
                         </div>
                     </section>
-
-
                 </Card>
             </div>
         )
