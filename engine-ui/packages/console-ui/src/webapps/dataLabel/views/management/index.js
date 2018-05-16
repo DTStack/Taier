@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message } from "antd"
 import { connect } from "react-redux";
-import utils from "utils"
+import utils from "utils";
+
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -11,9 +12,12 @@ import {
     EXCHANGE_ADMIN_API_STATUS
 } from "../../consts";
 
+import { dataSourceText } from '../../components/display';
+
 const Search = Input.Search;
 const Option = Select.Option;
 const confirm = Modal.confirm;
+
 const mapStateToProps = state => {
     const { user, apiMarket, apiManage, dataSource } = state;
     return { apiMarket, apiManage, user, dataSource }
@@ -264,7 +268,7 @@ class APIMana extends Component {
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
             render(text, record) {
-                return record.dataSourceType + ' / ' + record.dataSourceName
+                return dataSourceText(record.dataSourceType) + ' / ' + record.dataSourceName
             }
         }, {
             title: '最近24小时调用',

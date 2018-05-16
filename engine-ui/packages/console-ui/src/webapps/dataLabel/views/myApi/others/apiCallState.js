@@ -59,8 +59,6 @@ class ApiCallState extends Component {
                     if(nextProps.slidePaneShow){
                         this.getInfo();
                     }
-                    
-
                 })
         }
     }

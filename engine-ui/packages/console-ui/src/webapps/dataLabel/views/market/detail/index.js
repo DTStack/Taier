@@ -73,9 +73,11 @@ class APIDetail extends Component {
             key: 'desc'
         }];
     }
+
     getResponseDataSource() {
         return this.getValue('respParam')||[];
     }
+
     getResponseColumns() {
         return [{
             title: '参数名',
@@ -122,7 +124,6 @@ class APIDetail extends Component {
                             <p data-title="支持格式：" className="pseudo-title p-line">{this.getValue('supportType')}</p>
                             <p data-title="请求协议：" className="pseudo-title p-line">{this.getValue('reqProtocol')}</p>
                             <p data-title="请求方式：" className="pseudo-title p-line">{this.getValue('reqMethod')}</p>
-                           
                         </div>
                     </section>
                     <Row gutter={30} style={{ marginTop: 19.3 }}>
