@@ -87,7 +87,7 @@ class InputParams extends Component {
         // const data = cloneDeep(this.state.tableColumns);
         return sourceColumn.map(
             (item) => {
-                return (<Option title={item.key} key={item.key} value={item.paramType + "@@" + item.key}>{item.key}</Option>)
+                return (<Option title={item.key} key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
             }
         )
     }
@@ -97,6 +97,7 @@ class InputParams extends Component {
         if (!key) {
             return;
         }
+        console.log(index,key,'key')
         const table = cloneDeep(this.state.dataSource);
         table[index].paramType = key[0];
         table[index].fieldName = key[1];
@@ -298,8 +299,8 @@ class InputParams extends Component {
             }
         }, {
             title: '数据类型',
-            dataIndex: 'dataType',
-            key: 'dataType',
+            dataIndex: 'paramType',
+            key: 'paramType',
             render(text, record) {
                 return record.paramType || "";
             }

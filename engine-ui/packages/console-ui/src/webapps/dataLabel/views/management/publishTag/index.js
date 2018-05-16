@@ -16,7 +16,7 @@ export default class PublishTag extends Component {
         basicInfo: {},
         paramsConfig: {},
         tagId: this.props.routeParams.tagId,
-        type: 'register'
+        type: 1
     }
 
     componentDidMount() {

@@ -39,7 +39,7 @@ class OutputParams extends Component {
 
     initDataSource(initValue){
         let data = initValue;
-        if (initValue.some(item => !item.fieldName)) {
+        if (initValue && initValue.some(item => !item.fieldName)) {
             data = [];
         }
         this.backMsg(data);

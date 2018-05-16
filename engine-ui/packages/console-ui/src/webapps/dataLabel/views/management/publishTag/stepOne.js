@@ -127,11 +127,11 @@ export default class StepOne extends Component {
 
     // 获取预览数据
     onSourcePreview = () => {
-        const { form } = this.props;
+        const { form, basicInfo } = this.props;
         const { showPreview } = this.state;
 
-        let dataSourceId = form.getFieldValue('dataSourceId'),
-            tableName = form.getFieldValue('originTable');
+        let dataSourceId = basicInfo.dataSourceId,
+            tableName = basicInfo.originTable;
 
         if (!dataSourceId || !tableName) {
             message.error('未选择数据源或数据表');

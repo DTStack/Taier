@@ -27,16 +27,16 @@ import TagApproval from './views/approval'
 
 import TagConfig from './views/tagConfig'
 import RuleTagEdit from './views/tagConfig/ruleTagEdit'
-import IdentifyColumn from './views/tagConfig/identifyColumn'
-import DataSourceIndex from './views/dataSource'
-
+import TagLog from './views/tagConfig/tagLog'
 import PublishTag from './views/management/publishTag'
+import IdentifyColumn from './views/tagConfig/identifyColumn'
 
+import DataSourceIndex from './views/dataSource'
 import APIDetail from './views/market/detail'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
-import NewApi from "./views/management/newApi"
-import EditAPI from './views/management/editApi'
+// import NewApi from './views/management/newApi'
+// import EditAPI from './views/management/editApi'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -72,6 +72,7 @@ export default (
             <Route path="tagConfig" component={ TagConfig }></Route>
             <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
             <Route path="tagConfig/ruleTagEdit/:id" component={ RuleTagEdit }></Route>
+            <Route path="tagConfig/tagLog/:id" component={ TagLog }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
     </Route>

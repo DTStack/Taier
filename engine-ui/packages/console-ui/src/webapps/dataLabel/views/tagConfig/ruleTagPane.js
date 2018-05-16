@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Table, Card, Modal, Form, Button, Input, Select, Menu, Dropdown, Popconfirm, Cascader, Icon, message } from 'antd';
+import moment from 'moment';
 
 import { tagConfigActions } from '../../actions/tagConfig';
 import { apiMarketActions } from '../../actions/apiMarket';
@@ -86,7 +87,7 @@ export default class RuleTagPane extends Component {
             title: '标签名称',
             dataIndex: 'name',
             key: 'name',
-            width: '12%'
+            width: '10%'
         }, {
             title: '标签描述',
             dataIndex: 'tagDesc',
@@ -119,8 +120,8 @@ export default class RuleTagPane extends Component {
             width: '8%'
         }, {
             title: '数据更新日期',
-            dataIndex: 'executeTime',
-            key: 'executeTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             width: '10%',
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
@@ -158,13 +159,19 @@ export default class RuleTagPane extends Component {
                             </Menu.Item>
                         }
                         <Menu.Item key="log">
-                            <a>查看更新历史</a>
-                        </Menu.Item>
-                        <Menu.Item key="pub">
-                            <Link to={`/dl/manage/newApi/${record.id}`}>
-                                发布
+                            <Link to={`/dl/tagConfig/tagLog/${record.id}`}>
+                                查看更新历史
                             </Link>
                         </Menu.Item>
+                        {
+                            record.status == 3
+                            &&
+                            <Menu.Item key="pub">
+                                <Link to={`/dl/manage/newApi/${record.id}`}>
+                                    发布
+                                </Link>
+                            </Menu.Item>
+                        }
                         <Menu.Item key="del">
                             <Popconfirm
                                 title="确定删除此标签？"

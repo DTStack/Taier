@@ -3,10 +3,6 @@ import { DL_BASE_URL } from 'config/base';
 
 export default {
 
-    // ===== common ===== //
-    DL_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
-    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,             //获取所有功能菜单
-
     // ===== 系统管理 ===== //
     DL_ROLE_QUERY: `${DL_BASE_URL}/role/pageQuery`,
     DL_ROLE_UPDATE: `${DL_BASE_URL}/role/addOrUpdateRole`,
@@ -15,7 +11,7 @@ export default {
     DL_ROLE_PERMISSION: `${DL_BASE_URL}/permission/getPermissionIdsByRoleId`,
 
     // ===== 用户相关 ===== //
-    DL_GET_USER_BY_ID: `${DL_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
+    DL_GET_USER_BY_ID: `${DL_BASE_URL}/user/getUserById`,
     DL_GET_USER_PAGES: `${DL_BASE_URL}/user/pageQuery`,
     DL_GET_USER_NOT_IN_PROJECT: `${DL_BASE_URL}/user/listNotIn`,
     DL_USER_ROLE_ADD: `${DL_BASE_URL}/roleUser/addRoleUser`,
@@ -29,32 +25,32 @@ export default {
     MASSAGE_MARK_AS_ALL_READ: `${DL_BASE_URL}/notify/allRead`,
     MASSAGE_DELETE: `${DL_BASE_URL}/notify/delete`,
 
+    // ===== common ===== //
+    DL_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
+    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,             //获取所有功能菜单
+    GET_PERIOD_TYPE: `${DL_BASE_URL}/tag/listPeriodType`,             // 获取调度类型
+    GET_NOTIFY_TYPE: `${DL_BASE_URL}/tag/listNotifyType`,             // 获取通知类型
+
     // ===== 标签注册 ===== //
     QUERY_REGISTERED_TAG: `${DL_BASE_URL}/tag/registerQuery`,         // 查询注册标签
     ADD_REGISTER_TAG: `${DL_BASE_URL}/tag/registerAdd`,               // 新增注册标签
-    UPDATE_TAG: `${DL_BASE_URL}/tag/update`,                          // 更新标签
-    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
 
-    // ===== 标签生成 ===== //
-    QUERY_RULE_TAG: `${DL_BASE_URL}/tag/customQuery`,                 // 查询生成标签
-    ADD_RULE_TAG: `${DL_BASE_URL}/tag/customAdd`,                     // 新增标签生成
-    UPDATE_TAG: `${DL_BASE_URL}/tag/update`,                          // 更新标签
-    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
-    UPDATE_TAG_BASE_INFO: `${DL_BASE_URL}/tag/baseInfoUpdate`,        // 更新标签基本信息
+    // ===== 规则标签 ===== //
+    QUERY_RULE_TAG: `${DL_BASE_URL}/tag/customQuery`,                 // 查询规则标签
+    ADD_RULE_TAG: `${DL_BASE_URL}/tag/customAdd`,                     // 新增规则标签
     UPDATE_TAG_SQL_INFO: `${DL_BASE_URL}/tag/computeInfoUpdate`,      // 更新标签计算信息
-    
-    GET_RULE_TAG_RETAIL: `${DL_BASE_URL}/tag/getOne`,                 // 标签生成详情
     GET_TAG_CONDITION: `${DL_BASE_URL}/tag/listCustomCondition`,      // 获取过滤条件
     EDIT_TAG_CONDITION: `${DL_BASE_URL}/tag/editCustomCondition`,     // 编辑过滤条件
     DELETE_TAG_CONDITION: `${DL_BASE_URL}/tag/deleteCustomCondition`, // 删除过滤条件
-
-    GET_PERIOD_TYPE: `${DL_BASE_URL}/tag/listPeriodType`,       // 编辑过滤条件
-    GET_NOTIFY_TYPE: `${DL_BASE_URL}/tag/listNotifyType`,       // 删除过滤条件
+    
+    // ===== 标签 ===== //
+    UPDATE_TAG_BASE_INFO: `${DL_BASE_URL}/tag/baseInfoUpdate`,        // 更新标签基本信息
+    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
+    GET_RULE_TAG_RETAIL: `${DL_BASE_URL}/tag/getOne`,                 // 获取标签详情
+    QUERY_TAG_LOG: `${DL_BASE_URL}/tag/logPageQuery`,                 // 查询标签更新日志
+    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,                     // 标签发布
 
     
-    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,       // 删除过滤条件
-    
-
     // ===== 识别列 ===== //
     QUERY_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/pageQuery`,       // 查询识别列
     GET_ALL_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/identities`,    // 获取所有识别列
@@ -62,8 +58,6 @@ export default {
     UPDATE_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/update`,         // 更新识别列
     DELETE_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/delete`,         // 删除识别列
 
-    // EDIT_TAG_CONDITION: `${DL_BASE_URL}/identify/editCustomCondition`,     // 编辑过滤条件
-    // DELETE_TAG_CONDITION: `${DL_BASE_URL}/identify/deleteCustomCondition`, // 删除过滤条件
 
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DL_BASE_URL}/dataSource/pageQuery`,          // 查询数据源

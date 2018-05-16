@@ -16,7 +16,7 @@ const Option = Select.Option;
 const confirm = Modal.confirm;
 const mapStateToProps = state => {
     const { user, apiMarket, apiManage, dataSource } = state;
-    return { apiMarket, apiManage, user, dataSource }
+    return { user, apiMarket, apiManage, dataSource }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -226,7 +226,6 @@ class APIMana extends Component {
         this.props.router.push("/dl/manage/detail/" + text)
     }
     initColumns() {
-
         return [{
             width: 100,
             title: '标签名称',
@@ -236,7 +235,7 @@ class APIMana extends Component {
                 return <a onClick={this.openDetail.bind(this, record.id)} >{text}</a>
             }
         }, {
-            width: 80,
+            width: 100,
             title: '状态',
             dataIndex: 'status',
             key: 'status',
@@ -256,10 +255,12 @@ class APIMana extends Component {
                 }
             }
         }, {
+            width: '10%',
             title: '描述',
             dataIndex: 'tagDesc',
             key: 'tagDesc',
         }, {
+            width: '10%',
             title: '数据源',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
@@ -267,22 +268,25 @@ class APIMana extends Component {
                 return record.dataSourceType + ' / ' + record.dataSourceName
             }
         }, {
+            width: '10%',
             title: '最近24小时调用',
             dataIndex: 'total1d',
             key: "total1d"
-
         },
         {
+            width: '8%',
             title: '累计调用',
             dataIndex: 'invokeTotal',
             key: "invokeTotal"
         },
         {
+            width: '10%',
             title: '最近修改人',
             dataIndex: 'modifyUser',
             key: "modifyUser"
         },
         {
+            width: '10%',
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: "gmtModified",
@@ -292,13 +296,13 @@ class APIMana extends Component {
             }
         },
         {
-            width: 120,
+            width: '10%',
             title: '创建人',
             dataIndex: 'createUser',
             key: "createUser"
         },
         {
-            width: 120,
+            width: '10%',
             title: '操作',
             dataIndex: 'deal',
             key: "deal",
