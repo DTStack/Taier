@@ -115,8 +115,8 @@ export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
     let arr = [];
     let result = "";
     let index = 0;
-    
-    if(!indexArr||indexArr.length<1){
+
+    if (!indexArr || indexArr.length < 1) {
         return str;
     }
     for (let i = 0; i < indexArr.length; i++) {
