@@ -303,9 +303,11 @@ class APIMana extends Component {
             dataIndex: 'deal',
             key: "deal",
             render: (text, record) => {
-                if (EXCHANGE_ADMIN_API_STATUS[record.status] == "success") {
+                // 更新完成3才可禁用
+                if (record.status == 3) {
                     return <a onClick={this.closeApi.bind(this, record.id)}>禁用</a>
                 }
+             
                 return (
                     <div>
                         <a onClick={this.openApi.bind(this, record.id)}>开启</a>
