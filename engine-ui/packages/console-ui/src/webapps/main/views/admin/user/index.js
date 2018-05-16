@@ -202,12 +202,14 @@ class AdminUser extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
+            currentPage: 1,
         }, this.loadData)
     }
 
     onProjectSelect = (value) => {
         this.setState({
-            selectedProject: value
+            selectedProject: value,
+            currentPage: 1,
         }, this.loadData)
     }
 
