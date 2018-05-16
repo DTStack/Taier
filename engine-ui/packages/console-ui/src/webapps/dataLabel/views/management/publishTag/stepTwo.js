@@ -47,12 +47,10 @@ export default class StepTwo extends Component {
             });
         }
 
-        if (type === 1) {
-            this.props.getDataSourcesColumn({ 
-                sourceId: basicInfo.dataSourceId, 
-                tableName: basicInfo.originTable
-            });
-        }
+        this.props.getDataSourcesColumn({ 
+            sourceId: basicInfo.dataSourceId, 
+            tableName: basicInfo.originTable
+        });
     }
 
     //input子组件处理信号结束
