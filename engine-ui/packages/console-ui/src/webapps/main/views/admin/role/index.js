@@ -96,6 +96,7 @@ class AdminRole extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
+            currentPage: 1,
         }, ()=>{
             this.props.router.replace("/admin/role?app="+key)
             this.loadData();
@@ -110,8 +111,9 @@ class AdminRole extends Component {
 
     onProjectSelect = (value) => {
         this.setState({
-            selectedProject: value
-        })
+            selectedProject: value,
+            currentPage: 1,
+        }, this.loadData)
     }
 
     initColums = () => {
