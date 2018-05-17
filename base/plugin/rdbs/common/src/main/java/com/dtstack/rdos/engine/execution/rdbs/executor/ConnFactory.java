@@ -93,6 +93,10 @@ public abstract class ConnFactory {
         return conn;
     }
 
+    public boolean supportProcedure() {
+        return true;
+    }
+
     public abstract String getCreateProcedureHeader(String procName);
 
     public String getCallProc(String procName) {

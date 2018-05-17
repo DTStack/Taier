@@ -17,6 +17,8 @@
         <module>common</module>
         <module>oracle</module>
         <module>sqlserver</module>
+        <module>hive</module>
+        <module>inceptor</module>
     </modules>
 
 
