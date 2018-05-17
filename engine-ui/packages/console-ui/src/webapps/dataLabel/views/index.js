@@ -29,6 +29,7 @@ class Main extends Component {
         dispatch(UserAction.getUser());
         dispatch(updateApp(dlApp));
         dispatch(commonActions.getUserList());
+        dispatch(commonActions.getAllMenuList());
         dispatch(commonActions.getPeriodType());
         dispatch(commonActions.getNotifyType());
         dispatch(dataSourceActions.getDataSourcesType());

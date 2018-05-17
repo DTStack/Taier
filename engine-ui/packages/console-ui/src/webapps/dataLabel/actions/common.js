@@ -15,6 +15,18 @@ export const commonActions = {
 			});
 		}
 	},
+	getAllMenuList(params) {
+		return dispatch => {
+			API.getAllMenuList(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: commonActionType.GET_ALL_MENU_LIST,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 	getPeriodType(params) {
 		return dispatch => {
 			API.getPeriodType(params).then((res) => {
