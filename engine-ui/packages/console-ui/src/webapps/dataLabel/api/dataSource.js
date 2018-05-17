@@ -31,9 +31,6 @@ export default {
     getDataSourcesColumn(params) {
     	return http.post(req.GET_DATA_SOURCES_COLUMN, params);
     },
-    getDataSourcesPart(params) {
-        return http.post(req.GET_DATA_SOURCES_PART, params);
-    },
     getDataSourcesPreview(params) {
     	return http.post(req.GET_DATA_SOURCES_PREVIEW, params);
     },

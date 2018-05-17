@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Card, Select, DatePicker } from 'antd';
+import { Table, Card, Select, DatePicker, Tooltip } from 'antd';
 import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
@@ -12,6 +12,7 @@ const RangePicker = DatePicker.RangePicker;
 export default class TagLog extends Component {
 
     state = {
+        loading: false,
         queryParams: {
             tagId: this.props.routeParams.id,
             currentPage: 1,
@@ -24,6 +25,7 @@ export default class TagLog extends Component {
         this.getTagLogData(this.state.queryParams);
     }
 
+    // 获取日志数据
     getTagLogData = (params) => {
         this.setState({ loading: true });
 
@@ -61,7 +63,12 @@ export default class TagLog extends Component {
             title: '日志内容',
             dataIndex: 'log',
             key: 'log',
-            width: '55%'
+            width: '55%',
+            render: (text) => {
+                return <Tooltip overlayClassName="m-tooltip" placement="bottom" title={text} arrowPointAtCenter>
+                    <div className="ellipsis-td">{text}</div>
+                </Tooltip>
+            }
         }];
     }
 
@@ -102,13 +109,11 @@ export default class TagLog extends Component {
                 <div className="flex" style={{ alignItems: 'center' }}>
                     更新时间：
                     <RangePicker
-                       // showTime={{ format: 'HH:mm' }}
                        format="YYYY-MM-DD"
                        style={{ width: 250 }}
                        placeholder={['更新开始时间', '更新结束时间']}
                        disabledDate={this.disabledDate}
                        onChange={this.onUpdateTimeChange}
-                       // onOk={this.onUpdateTimeChange}
                     />
                 </div>
 
@@ -130,7 +135,7 @@ export default class TagLog extends Component {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
             total: logList.totalCount
-        }
+        };
 
         return (
             <div>
@@ -147,7 +152,7 @@ export default class TagLog extends Component {
                     >
                         <Table 
                             rowKey="id"
-                            className="m-table"
+                            className="m-table fixed-table"
                             columns={this.initColumns()} 
                             loading={loading}
                             pagination={pagination}

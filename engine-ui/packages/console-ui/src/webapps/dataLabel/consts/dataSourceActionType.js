@@ -8,5 +8,6 @@ export const dataSourceActionType = mc([
     'GET_DATA_SOURCES_TABLE',
     'RESET_DATA_SOURCES_TABLE',
     'GET_DATA_SOURCES_COLUMN',
+    'RESET_DATA_SOURCES_COLUMN',
     'GET_DATA_SOURCES_PREVIEW',
 ], { prefix: 'dataSource/' });

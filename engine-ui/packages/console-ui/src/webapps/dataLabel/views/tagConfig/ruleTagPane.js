@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Card, Modal, Form, Button, Input, Select, Menu, Dropdown, Popconfirm, Cascader, Icon, message } from 'antd';
+import { Table, Card, Modal, Form, Icon,
+    Button, Input, Select, Menu, message,
+    Dropdown, Popconfirm, Cascader
+} from 'antd';
 import moment from 'moment';
 
 import { tagConfigActions } from '../../actions/tagConfig';
 import { apiMarketActions } from '../../actions/apiMarket';
 import { dataSourceActions } from '../../actions/dataSource';
-import { formItemLayout, TAG_STATUS } from '../../consts';
+import { formItemLayout, TAG_STATUS, TAG_PUBLISH_STATUS } from '../../consts';
 import TCApi from '../../api/tagConfig';
-import apiMarketApi from '../../api/apiMarket';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -39,22 +41,11 @@ export default class RuleTagPane extends Component {
     state = {
         visible: false,
         loading: false,
-        selectedIds: [],
         queryParams: {
             currentPage: 1,
-            pageSize: 20,
-            name: undefined,
-            catalogueId: undefined,
-            pid: undefined,
-            cid: undefined,
-            identityId: undefined,
-            status: undefined,
-            dataSourceId: undefined
+            pageSize: 20
         },
         tagList: {},
-        // params: {
-        //     name: undefined
-        // }
         editData: {},
         catalogue2Data: []
     }
@@ -102,7 +93,7 @@ export default class RuleTagPane extends Component {
             title: '值域',
             dataIndex: 'tagRange',
             key: 'tagRange',
-            width: '10%'
+            width: 100
         }, {
             title: '目标数据库',
             dataIndex: 'dataSourceName',
@@ -112,7 +103,7 @@ export default class RuleTagPane extends Component {
             title: '识别列ID',
             dataIndex: 'identityColumn',
             key: 'identityColumn',
-            width: '8%'
+            width: 100
         }, {
             title: '识别列类型',
             dataIndex: 'identityName',
@@ -125,18 +116,26 @@ export default class RuleTagPane extends Component {
             width: '10%',
             render: (text) => {
                 return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
-            },
+            }
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            width: '8%',
+            width: 100,
             render: (text) => {
                 return TAG_STATUS[text];
-            },
+            }
+        }, {
+            title: '发布状态',
+            dataIndex: 'publishStatus',
+            key: 'publishStatus',
+            width: 90,
+            render: (text) => {
+                return TAG_PUBLISH_STATUS[text];
+            }
         }, {
             title: '操作',
-            width: '8%',
+            width: 90,
             render: (text, record) => {
                 const menu = (
                     <Menu>
@@ -189,7 +188,7 @@ export default class RuleTagPane extends Component {
                     </Dropdown>
                 )
             }
-        }]
+        }];
     }
 
     // 编辑标签基本信息
@@ -223,6 +222,7 @@ export default class RuleTagPane extends Component {
     cancel = () => {
         this.closeModal();
         this.setState({ editData: {} });
+        this.props.form.resetFields();
     }
 
     openModal = () => {
@@ -268,7 +268,7 @@ export default class RuleTagPane extends Component {
         });
     }
 
-    // 一级分类
+    // 一级分类筛选
     onFirstCatalogueChange = (id) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -286,7 +286,17 @@ export default class RuleTagPane extends Component {
         this.setState({ queryParams });
     }
 
-    // 二级分类
+    // 获取二级分类数据
+    getSecondCatalogue = (id) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
+        child = child.some(item => item.api) ? [] : child;
+
+        this.setState({ catalogue2Data: child });
+    }
+
+    // 二级分类筛选
     onSecondCatalogueChange = (id) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -298,7 +308,7 @@ export default class RuleTagPane extends Component {
         this.setState({ queryParams });
     }
 
-    // name
+    // name筛选
     onTagNameSearch = (name) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -352,23 +362,13 @@ export default class RuleTagPane extends Component {
         return arr.reverse();
     }
 
-    // 获取二级分类数据
-    getSecondCatalogue = (id) => {
-        const { apiCatalogue } = this.props.apiMarket;
-
-        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
-        child = child.some(item => item.api) ? [] : child;
-
-        this.setState({ catalogue2Data: child });
-    }
-
     render() {
         const { form, tagConfig, dataSource, apiMarket } = this.props;
         const { getFieldDecorator } = form;
         const { sourceList } = dataSource;
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
-        const { queryParams, visible, selectedIds, loading, tagList, editData, catalogue2Data } = this.state;
+        const { queryParams, visible, loading, tagList, editData, catalogue2Data } = this.state;
 
         const cardTitle = (
             <div className="flex font-12">
@@ -439,13 +439,6 @@ export default class RuleTagPane extends Component {
             </div>
         )
 
-        const rowSelection = {
-            selectedRowKeys: selectedIds,
-            onChange: (selectedIds) => {
-                this.setState({ selectedIds });
-            },
-        };
-
         const pagination = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
@@ -464,7 +457,6 @@ export default class RuleTagPane extends Component {
                     className="m-table"
                     columns={this.initColumns()} 
                     loading={loading}
-                    rowSelection={rowSelection}
                     pagination={pagination}
                     dataSource={tagList.data}
                     onChange={this.onTableChange}
@@ -532,7 +524,7 @@ export default class RuleTagPane extends Component {
                                 getFieldDecorator('tagRange', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '值域不可为空' 
                                     }], 
                                     initialValue: editData.tagRange
                                 })(
@@ -548,7 +540,7 @@ export default class RuleTagPane extends Component {
                                 getFieldDecorator('dataSourceId', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '目标数据库不可为空' 
                                     }], 
                                     initialValue: editData.dataSourceId ? editData.dataSourceId.toString() : undefined
                                 })(
@@ -556,22 +548,33 @@ export default class RuleTagPane extends Component {
                                         showSearch
                                         optionFilterProp="title"
                                         placeholder="选择目标数据库"
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
                                         onChange={this.onSourceChange}>
                                         {
                                             sourceList.map((source) => {
                                                 let title = `${source.dataName}（${source.sourceTypeValue}）`;
-                                                return (
-                                                    <Option 
-                                                        key={source.id} 
-                                                        value={source.id.toString()}
-                                                        title={title}>
-                                                        {title}
-                                                    </Option>
-                                                )
+                                                return <Option 
+                                                    key={source.id} 
+                                                    value={source.id.toString()}
+                                                    title={title}>
+                                                    {title}
+                                                </Option>
                                             })
                                         }
                                     </Select>
-
+                                )
+                            }
+                        </FormItem>
+                        <FormItem {...formItemLayout} label="来源表">
+                            {
+                                getFieldDecorator('originTable', {
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '来源表不可为空' 
+                                    }], 
+                                    initialValue: editData.originTable
+                                })(
+                                    <Input disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'} />
                                 )
                             }
                         </FormItem>
@@ -580,11 +583,11 @@ export default class RuleTagPane extends Component {
                                 getFieldDecorator('identityColumn', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '识别列ID不可为空' 
                                     }], 
                                     initialValue: editData.identityColumn
                                 })(
-                                    <Input />
+                                    <Input disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'} />
                                 )
                             }
                         </FormItem>
@@ -593,14 +596,15 @@ export default class RuleTagPane extends Component {
                                 getFieldDecorator('identityId', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '识别列类型不可为空' 
                                     }], 
                                     initialValue: editData.identityId ? editData.identityId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
                                         optionFilterProp="title"
-                                        placeholder="选择识别列类型">
+                                        placeholder="选择识别列类型"
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}>
                                         {
                                             identifyColumn.map((item) => {
                                                 return <Option 
