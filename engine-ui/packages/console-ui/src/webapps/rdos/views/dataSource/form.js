@@ -419,7 +419,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: config.port || '',
                         })(
-                            <Input autoComplete="off" />,
+                            <Input placeholder="FTP默认21，SFTP默认22" autoComplete="off" />,
                         )}
                     </FormItem>,
                     <FormItem
@@ -462,11 +462,11 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '连接模式不可为空！',
                             }],
-                            initialValue: config.connectMode || '',
+                            initialValue: config.connectMode || 1,
                         })(
                             <RadioGroup>
-                                <Radio value={1}>PORT (主动)</Radio>
-                                <Radio value={2}>PASV（被动）</Radio>
+                                <Radio value={1}>Port (主动)</Radio>
+                                <Radio value={2}>Pasv（被动）</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
@@ -488,6 +488,80 @@ class DataSourceForm extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>,
+                ]
+            }
+            case DATA_SOURCE.MAXCOMPUTE: {
+                return [
+                    <FormItem {...formItemLayout} label="AccessId" key="accessId" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.accessId', {
+                                rules: [{
+                                    required: true, message: 'access ID不可为空！',
+                                }],
+                                initialValue: config.accessId || '',
+                            })(
+                                <Input autoComplete="off" />,
+                            )
+                        }
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="AccessKey" key="accessKey" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.accessKey', {
+                                rules: [{
+                                    required: true, message: 'access Key不可为空！',
+                                }],
+                                initialValue: config.accessKey || '',
+                            })(
+                                <Input type="password" autoComplete="off" />,
+                            )
+                        }
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="Project Name" key="project" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.project', {
+                                rules: [{
+                                    required: true, message: 'Project Name不可为空！',
+                                }],
+                                initialValue: config.project || '',
+                            })(
+                                <Input autoComplete="off" />,
+                            )
+                        }
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="End Point" key="endPoint" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.endPoint', {
+                                rules: [{
+                                    required: true, message: 'End Point不可为空！',
+                                }],
+                                initialValue: config.endPoint || '',
+                            })(
+                                <Input autoComplete="off" />,
+                            )
+                        }
+                    </FormItem>
+                ]
+            }
+            case DATA_SOURCE.ES: {
+                return [
+                    <FormItem
+                      {...formItemLayout}
+                      label="Address"
+                      key="Address"
+                      hasFeedback
+                    >
+                        {getFieldDecorator('address', {
+                            rules: [{
+                                required: true, message: 'Address不可为空！',
+                            }],
+                            initialValue: config.address || '',
+                        })(
+                            <Input 
+                                type="textarea" rows={4} 
+                                placeholder="Elasticsearch地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
+                            />,
+                        )}
+                    </FormItem>
                 ]
             }
             case DATA_SOURCE.MYSQL:

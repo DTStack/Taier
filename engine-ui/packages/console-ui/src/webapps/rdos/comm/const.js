@@ -7,7 +7,9 @@ export const DATA_SOURCE = {
     HDFS: 6,
     HIVE: 7,
     HBASE: 8,
-    FTP: 9,
+    MAXCOMPUTE: 9,
+    FTP: 10,
+    ES: 11,
 }
 
 // 锁类型
@@ -297,6 +299,15 @@ export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
 }, {
     text: 'HBase',
     value: 8,
+}, {
+    text: 'MaxCompute',
+    value: 9,
+}, {
+    text: 'FTP',
+    value: 10,
+}, {
+    text: 'ElasticSearch',
+    value: 11,
 }]
 
 export const propEditorOptions = { // 编辑器选项
