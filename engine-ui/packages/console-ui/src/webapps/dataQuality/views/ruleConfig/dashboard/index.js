@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
+import SelectSearch from "../../../components/selectSearch";
 import SlidePane from 'widgets/slidePane';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -318,6 +319,8 @@ export default class RuleConfig extends Component {
 
         const cardTitle = (
             <div className="flex font-12">
+                
+
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.handleSearch}
@@ -409,6 +412,15 @@ export default class RuleConfig extends Component {
                         bordered={false}
                     >
                         <Table 
+                            rowClassName={
+                                (record, index) => {
+                                    if (currentMonitor && currentMonitor.tableId == record.tableId) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             rowKey="tableId"
                             className="m-table"
                             columns={this.initColumns()} 
@@ -422,7 +434,7 @@ export default class RuleConfig extends Component {
                             onClose={this.closeSlidePane}
                             visible={showSlidePane}
                             className="slide-pane-box"
-                            style={{ right: '0px', width: '80%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '80%',height:"100%", minHeight: '650px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 
