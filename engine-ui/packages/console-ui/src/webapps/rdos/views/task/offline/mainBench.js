@@ -108,7 +108,7 @@ export default class MainBench extends React.Component {
 
     renderLock(tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock 
-        let top = '40px';
+        let top = '0px';
         if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL) top = '10px'
         return isLocked ? (
             <div className="lock-layer">
