@@ -364,6 +364,7 @@ export default class TaskQuery extends Component {
                         allowClear 
                         showSearch
                         style={{ width: 150 }}
+                        
                         optionFilterProp="title"
                         placeholder="选择数据源"
                         onChange={this.onUserSourceChange}>
