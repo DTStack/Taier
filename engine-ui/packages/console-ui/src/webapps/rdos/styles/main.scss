@@ -177,3 +177,6 @@ table {
     overflow: auto;
     word-break: break-all;
 }
+.big-tooltip .ant-tooltip-inner{
+    max-width: 350px;
+}

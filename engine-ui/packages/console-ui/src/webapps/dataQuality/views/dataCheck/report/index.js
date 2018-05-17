@@ -36,11 +36,12 @@ export default class DataCheckReport extends Component {
 
     initColumns = (data) => {
         return data.length && data.map((item) => {
+            
             return {
                 title: item,
                 key: item,
                 dataIndex: item,
-                width: 80,
+                width: (item.length*8+28)+"px",
                 render: (value) => {
                     return <TableCell 
                         className="no-scroll-bar"
@@ -52,7 +53,16 @@ export default class DataCheckReport extends Component {
             }
         });
     }
-
+    getScroll(){
+        let i=100;
+        const columnList=this.state.tableData.attachment;
+        for(let j in columnList){
+            let item=columnList[j];
+            i=i+item.length*8+28
+        }
+        console.log(i)
+        return i+"px";
+     }
     // 表格换页
     onTableChange = (page, filter, sorter) => {
         let params = {
@@ -156,7 +166,7 @@ export default class DataCheckReport extends Component {
                         // rowKey="key"
                         // bordered
                         className="m-cells m-table"
-                        scroll={{ x: 1000 }}
+                        scroll={{ x: this.getScroll() }}
                         pagination={pagination}
                         dataSource={tableData.data ? tableData.data : []}
                         columns={this.initColumns(tableData.attachment ? tableData.attachment: [])} 

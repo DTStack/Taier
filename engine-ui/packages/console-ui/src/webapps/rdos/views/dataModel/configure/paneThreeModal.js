@@ -91,6 +91,9 @@ class FreshFrequencyModal extends Component {
                             }, {
                                 pattern: /^[A-Za-z0-9]+$/,
                                 message: '刷新方式标识只能由字母、数字组成!',
+                            },{
+                                max: 128,
+                                message: '刷新方式标识不得超过128个字符！',
                             }],
                             initialValue: data ? data.prefix : '',
                         })(

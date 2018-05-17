@@ -211,6 +211,8 @@ class Console extends Component {
                     <TabPane tab="日志" key="console-log">
                         <div style={{ position: 'relative' }}>
                             <CodeEditor 
+                                cursorAlwaysInEnd
+                                style={{minHeight:"auto"}}
                                 ref={(e) => { this.editor = e }}
                                 options={editorOptions} 
                                 key="output-log" 

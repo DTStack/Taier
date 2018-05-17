@@ -25,7 +25,7 @@ $activeColor: #262e36; // 主色
     }
 
     .my-menu {
-        line-height: 48px;
+        line-height: 47px;
         background: $bgColor2;
         border-bottom: 0;
 
@@ -56,7 +56,7 @@ $activeColor: #262e36; // 主色
     .ant-menu-horizontal>.ant-menu-item-open,
     .ant-menu-horizontal>.ant-menu-submenu-open,
     .ant-menu-horizontal>.ant-menu-item-selected {
-        border-bottom: 2px solid $primaryColor;
+        border-bottom: 3px solid $primaryColor;
         color: #fff;
         background: $activeColor;
     }

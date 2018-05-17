@@ -186,8 +186,8 @@ class TaskForm extends React.Component {
                         >
                             {getFieldDecorator('exeArgs', {
                                 rules: [{
-                                    pattern: /^[A-Za-z0-9_-]+$/,
-                                    message: '任务参数只能由字母、数字、下划线组成!',
+                                    pattern: /^[A-Za-z0-9_\/-]+$/,
+                                    message: '任务参数只能由字母、数字、下划线、斜杠组成!',
                                 }],
                                 initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined :  defaultData.exeArgs
                             })(

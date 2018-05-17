@@ -3,7 +3,8 @@ import React, { Component } from 'react'
 import {
     Table, Input, Button, Row, Col,
     Select, Form, message, Checkbox,
-    Radio, Modal, Popconfirm,
+    Radio, Modal, Popconfirm,Tooltip,
+    Icon
 } from 'antd'
 
 import utils from 'utils';
@@ -14,6 +15,9 @@ import {
     DataSourceTypeFilter,
     DATA_SOURCE,
 } from '../../comm/const';
+import { 
+    jdbcUrlExample
+} from '../../comm/JDBCCommon';
 
 
 import Api from '../../api';
@@ -71,6 +75,9 @@ class DataSourceForm extends Component {
     }
 
     componentDidMount() {
+       this.setState({
+        sourceType: this.props.sourceData&&this.props.sourceData.type || 1
+       })
         this.loadSourceTypes()
     }
 
@@ -109,12 +116,12 @@ class DataSourceForm extends Component {
 
         form.validateFields((err) => {
             if (!err) {
-                handOk(source, form)
-                setTimeout(() => {
-                    ctx.setState({
-                        sourceType: '',
-                    })
-                }, 200)
+                handOk(source, form,()=>{
+                        ctx.setState({
+                            sourceType: '',
+                        })
+                })
+                
             }
         });
     }
@@ -183,7 +190,7 @@ class DataSourceForm extends Component {
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-
+        console.log("\r\n***** "+sourceType+"********\r\n")
         switch(sourceType) {
             case DATA_SOURCE.HDFS: {
                 const formItems = [
@@ -261,6 +268,9 @@ class DataSourceForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
+                        <Tooltip title={'示例：'+jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc"  type="question-circle-o" />
+                        </Tooltip>
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -490,6 +500,7 @@ class DataSourceForm extends Component {
                       label="JDBC URL"
                       hasFeedback
                       key="jdbcUrl"
+                      
                     >
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
@@ -499,6 +510,9 @@ class DataSourceForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
+                        <Tooltip overlayClassName="big-tooltip" title={'示例：'+jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc"  type="question-circle-o" />
+                        </Tooltip>
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -549,7 +563,7 @@ class DataSourceForm extends Component {
                 </Option>
             )
         )
-        const sourceType = types[0] && types[0].value
+        const sourceType = this.state.sourceType||types[0] && types[0].value
         const connectionConf = getConnectionConfig(sourceType)
         return (
             <Modal

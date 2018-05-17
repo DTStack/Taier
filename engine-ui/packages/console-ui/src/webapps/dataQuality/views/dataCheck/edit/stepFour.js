@@ -149,14 +149,26 @@ export default class StepFour extends Component {
                     DCApi.updateCheck(editParams).then((res) => {
                         if (res.code === 1) {
                             message.success('操作成功');
-                            hashHistory.push("/dq/dataCheck");
+                            setTimeout(
+                                ()=>{
+                                    hashHistory.push("/dq/dataCheck");
+                                },
+                                1000
+                            )
+                            
                         }
                     });
                 } else {
                     DCApi.addCheck(editParams).then((res) => {
                         if (res.code === 1) {
                             message.success('操作成功');
-                            hashHistory.push("/dq/dataCheck");
+                            setTimeout(
+                                ()=>{
+                                    hashHistory.push("/dq/dataCheck");
+                                },
+                                1000
+                            )
+                            
                         }
                     });
                 }

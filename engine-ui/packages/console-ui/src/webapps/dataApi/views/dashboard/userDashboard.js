@@ -3,7 +3,7 @@ import { Alert, Card, Col, Row, Table, Radio,Tabs } from 'antd';
 
 
 import TopCallFunc from "./topCallFunc";
-import HaveNoApi from "./haveNoApi";
+import HaveNoApi from "./haveNoApi"
 import OverView from "./overView"
 import TopFail from "./topFail"
 
