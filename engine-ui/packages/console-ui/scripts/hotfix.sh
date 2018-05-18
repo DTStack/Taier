@@ -13,7 +13,6 @@ echo '$branch is merging codes to other main branch.';
 git add .
 git commit -m 'hotfix'
 
-
 # Git merge to dev
 git checkout dev
 git merge $branch
