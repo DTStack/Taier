@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 
-import { 
+import {
     Modal, Button, Form,
-    Icon, Input, Select,  
+    Icon, Input, Select,
     message, Spin
 } from 'antd';
 
@@ -32,6 +32,7 @@ const defaultState = {
     queryTable: '', // 查询表
     overwriteFlag: 0, // 导入模式
     originLineCount: 0, // 原数据总条数
+    targetExchangeWarning: false,//target界面是否提示未选择源字段
 }
 
 export default class ImportLocalData extends Component {
@@ -57,12 +58,32 @@ export default class ImportLocalData extends Component {
 
     checkParams = (params) => {
         let flag = true
-        const { originPartitions } = this.state
+        const { originPartitions, columnMap, matchType } = this.state
         const partitions = params.partitions
 
         if (!params.tableId) {
             message.error('请选择要导入的目标表！')
             return false;
+        }
+
+        if (matchType == 1) {
+            let isValueNull = true;
+
+            for (let i = 0; i < columnMap.length; i++) {
+                let item = columnMap[i];
+
+                if (item) {
+                    isValueNull = false;
+                    break;
+                }
+            }
+
+            if (isValueNull) {
+                this.setState({
+                    targetExchangeWarning: true
+                })
+                return false;
+            }
         }
 
         if (originPartitions && originPartitions.length > 0) {
@@ -81,7 +102,7 @@ export default class ImportLocalData extends Component {
     }
 
     getParams = () => {
-        const { 
+        const {
             file, targetTable, splitSymbol,
             charset, startLine, asTitle,
             matchType, columnMap, partitions,
@@ -117,7 +138,7 @@ export default class ImportLocalData extends Component {
         e.target.value = null;
         this.setState(Object.assign({}, defaultState));
     }
-    
+
     readFile = (file) => {
         const { charset } = this.state
         if (file) {
@@ -126,9 +147,9 @@ export default class ImportLocalData extends Component {
             reader.onload = ((data) => {
                 return (e) => {
                     this.setState({
-                        sourceFile: e.target.result, 
+                        sourceFile: e.target.result,
                     })
-                    this.parseFile(e.target.result) 
+                    this.parseFile(e.target.result)
                 }
             })(file)
             reader.readAsText(file, charset)
@@ -143,19 +164,19 @@ export default class ImportLocalData extends Component {
         for (let i = 0; i < data.length; i++) {
             const str = data[i].replace(/\r/, '') // 清除无用\r字符
             arr.push(str.split(splitVal))
-        } 
+        }
         const subArr = arr.slice(startLine - 1)
-        this.setState({ 
-            data: subArr, 
+        this.setState({
+            data: subArr,
             step: 'source',
-            visible: true, 
+            visible: true,
             originLineCount: data.length,
         })
     }
 
     parseSplitSymbol(value) {
-        switch(value) {
-            case 'blank': 
+        switch (value) {
+            case 'blank':
                 value = ' '
                 break;
             case 'tab':
@@ -180,32 +201,38 @@ export default class ImportLocalData extends Component {
         this.setState({ step: 'source' })
     }
 
-    footer () {
+    footer() {
         const { step } = this.state
         return (
             <div>
-                <Button 
-                    style={{display: step === 'source' 
-                    ? 'inline-block' : 'none'}}
-                    type="primary" 
+                <Button
+                    style={{
+                        display: step === 'source'
+                            ? 'inline-block' : 'none'
+                    }}
+                    type="primary"
                     onClick={this.next}>
                     下一步
                 </Button>
-                <Button 
-                    style={{display: step === 'target' 
-                    ? 'inline-block' : 'none'}}
-                    type="primary" 
+                <Button
+                    style={{
+                        display: step === 'target'
+                            ? 'inline-block' : 'none'
+                    }}
+                    type="primary"
                     onClick={this.prev}>
                     上一步
                 </Button>
                 <Button
-                    style={{display: step === 'target' 
-                    ? 'inline-block' : 'none'}}
+                    style={{
+                        display: step === 'target'
+                            ? 'inline-block' : 'none'
+                    }}
                     onClick={this.importData}
                     type="primary">
                     导入
                 </Button>
-                <Button onClick={() => { 
+                <Button onClick={() => {
                     this.setState({ visible: false })
                 }}>取消</Button>
             </div>
@@ -213,7 +240,7 @@ export default class ImportLocalData extends Component {
     }
 
     render() {
-        const { data, file, visible, step } = this.state
+        const { data, file, visible, step, targetExchangeWarning } = this.state
         return (
             <div>
                 <input
@@ -233,21 +260,22 @@ export default class ImportLocalData extends Component {
                     }}
                     footer={this.footer()}
                 >
-                    <DataSource 
-                        data={data} 
-                        file={file} 
-                        display={step} 
+                    <DataSource
+                        data={data}
+                        file={file}
+                        display={step}
                         formState={this.state}
                         changeStatus={this.changeStatus}
                     />
-                    <DataTarget 
-                        data={data} 
-                        file={file} 
+                    <DataTarget
+                        warning={targetExchangeWarning}
+                        data={data}
+                        file={file}
                         formState={this.state}
                         changeStatus={(target) => {
                             this.setState(target)
                         }}
-                        display={step} 
+                        display={step}
                     />
                 </Modal>
             </div>

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import { isObject, debounce } from 'lodash'
 
-import { 
+import {
     Modal, Button, Form, Radio, message,
     Icon, Input, Select, Row, Table,
 } from 'antd';
@@ -11,6 +11,7 @@ import utils from 'utils'
 import API from '../../../../api'
 import Editor from '../../../../components/code-editor'
 import { formItemLayout } from '../../../../comm/const'
+import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -29,7 +30,7 @@ export default class ImportTarget extends Component {
             API.getTablesByName({ tableName }).then((res) => {
                 if (res.code === 1) {
                     changeStatus({
-                        tableList: res.data || [], 
+                        tableList: res.data || [],
                     });
                 }
             })
@@ -70,8 +71,9 @@ export default class ImportTarget extends Component {
                     tableData: tableData,
                     hasPartition: tableData.partition && tableData.partition.length > 0,
                     columnMap: columnMap,
-                    originPartitions: tableData.partition, 
+                    originPartitions: tableData.partition,
                     partitions: partitions,
+                    targetExchangeWarning: false
                 })
             }
         })
@@ -103,16 +105,19 @@ export default class ImportTarget extends Component {
 
     createTable = () => {
         const { sqlText } = this.props.formState
-        API.createDdlTable({sql: sqlText}).then((res) => {
+        API.createDdlTable({ sql: sqlText }).then((res) => {
             if (res.code === 1) {
                 this.setState({
-                    visible: false
+                    visible: false,
+                    tableList:[res.data]
                 })
+                this.tbNameOnChange(res.data.tableId)
+                this.tableChange(res.data.tableId,{props:{data:res.data}})
                 message.success('表创建成功!')
             }
         })
     }
-    
+
     handleCancel = () => {
         this.setState({
             visible: false
@@ -125,6 +130,7 @@ export default class ImportTarget extends Component {
         arr[key] = value
         changeStatus({
             columnMap: arr,
+            targetExchangeWarning: false
         })
     }
 
@@ -132,7 +138,8 @@ export default class ImportTarget extends Component {
         const { formState } = this.props
         if (formState.asTitle) {
             this.props.changeStatus({
-                matchType: e.target.value 
+                matchType: e.target.value,
+                targetExchangeWarning: false
             })
         }
     }
@@ -146,23 +153,23 @@ export default class ImportTarget extends Component {
     tablePartitionChange = (e, partition, index) => {
         const originPartitions = this.props.formState.partitions
         const newPartitions = [...originPartitions]
-        newPartitions[index] = { 
+        newPartitions[index] = {
             [partition.name]: e.target.value,
         }
         this.props.changeStatus({
-            partitions: newPartitions 
+            partitions: newPartitions
         })
     }
 
     ddlChange = (origin, newVal) => {
         const { changeStatus } = this.props
         changeStatus({
-            sqlText: newVal 
+            sqlText: newVal
         })
     }
 
     generateCols = (data) => {
-        const { formState } = this.props
+        const { formState, warning } = this.props
         const options = data ? data[0].map((item, index) => {
             return (
                 <Option key={`col-${index}`} value={item}>
@@ -170,6 +177,10 @@ export default class ImportTarget extends Component {
                 </Option>
             )
         }) : []
+
+        const sourceTitle = (
+            <span>源字段 {warning && <span style={{ color: "#ce3b3b", float: "right" }}>请至少选择一个源字段</span>}</span>
+        )
 
         const arr = [{
             title: '目标字段',
@@ -180,16 +191,16 @@ export default class ImportTarget extends Component {
                 )
             }
         }, {
-            title: '源字段',
+            title: sourceTitle,
             key: 'source_part',
             render: (text, record, index) => {
                 console.log('record:', record)
                 return (<span>
                     <Select
                         defaultValue={""}
-                        disabled={formState.matchType === 0 }
+                        disabled={formState.matchType === 0}
                         onSelect={(value) => { this.mapChange(value, index) }}
-                        style={{width: '200px'}} 
+                        style={{ width: '200px' }}
                     >
                         <Option key={`col-null`} value={""}>
                             空字段
@@ -206,31 +217,31 @@ export default class ImportTarget extends Component {
         return data.map((item, index) => {
             return (
                 <Row key={`partition-${index}`}>
-                    <div 
-                        className="ellipsis" 
+                    <div
+                        className="ellipsis"
                         title={item.name}
-                        style={{width: '60px', display: 'inline-block'}} 
+                        style={{ width: '60px', display: 'inline-block' }}
                     >
                         {item.name}
                     </div>
-                    <Input 
-                        style={{width: '140px'}}
-                        onChange={(e) => {this.tablePartitionChange(e, item, index)}} 
+                    <Input
+                        style={{ width: '140px' }}
+                        onChange={(e) => { this.tablePartitionChange(e, item, index) }}
                         placeholder="请输入分区名称" />
                     &nbsp;&nbsp;
                     {
-                        index === 0 ? 
-                        <Button 
-                            type="primary"
-                            onClick={this.checkPartition}>检测
+                        index === 0 ?
+                            <Button
+                                type="primary"
+                                onClick={this.checkPartition}>检测
                         </Button>
-                         : ''
+                            : ''
                     }
                     {
-                        index === data.length - 1 ? 
-                        <span style={{color: '#f60'}}>
-                            <br/>
-                            点击"检测"按钮，测试分区是否存在
+                        index === data.length - 1 ?
+                            <span style={{ color: '#f60' }}>
+                                <br />
+                                点击"检测"按钮，测试分区是否存在
                         </span> : ''
                     }
                 </Row>
@@ -240,21 +251,21 @@ export default class ImportTarget extends Component {
 
     render() {
         const { data, file, display, formState } = this.props
-        const { tableList, tableData, queryTable,asTitle } = formState
+        const { tableList, tableData, queryTable, asTitle } = formState
 
         const columns = this.generateCols(data, tableData)
-        
+
         const paritions = this.generatePartitions(tableData.partition || [])
         const dataSource = tableData && tableData.column
-        
-        const tableOptions = tableList.map((item, index) => 
+
+        const tableOptions = tableList.map((item, index) =>
             <Option key={`table-${index}`} data={item} value={item.tableName}>
                 {item.tableName}
             </Option>
         )
 
         return (
-            <div style={{display: display === 'target' ? 'block' : 'none'}}>
+            <div style={{ display: display === 'target' ? 'block' : 'none' }}>
                 <Row>
                     <Form>
                         <FormItem
@@ -262,15 +273,15 @@ export default class ImportTarget extends Component {
                             label="导入至表"
                         >
                             <div>
-                                <Select 
+                                <Select
                                     mode="combobox"
-                                    style={{width: '200px'}} 
+                                    style={{ width: '200px' }}
                                     onChange={this.tbNameOnChange}
                                     onSearch={this.debounceSearch}
                                     onSelect={this.tableChange}
                                     notFoundContent="没有发现相关表"
                                     value={queryTable}
-                                    placeholder="请输入表名" 
+                                    placeholder="请输入表名"
                                     showArrow={false}
                                     filterOption={false}
                                     defaultActiveFirstOption={false}
@@ -278,18 +289,18 @@ export default class ImportTarget extends Component {
                                     {tableOptions}
                                 </Select>
                                 &nbsp;&nbsp;
-                                <Button 
+                                <Button
                                     type="primary"
                                     onClick={() => {
-                                    this.setState({visible: true})
-                                }}>新建表</Button>
+                                        this.setState({ visible: true })
+                                    }}>新建表</Button>
                             </div>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             style={{
-                                display: tableData.partition && 
-                                tableData.partition.length > 0 ? 'block' : 'none'
+                                display: tableData.partition &&
+                                    tableData.partition.length > 0 ? 'block' : 'none'
                             }}
                             label="分区"
                         >
@@ -299,11 +310,11 @@ export default class ImportTarget extends Component {
                             {...formItemLayout}
                             label="字段匹配"
                         >
-                            <RadioGroup 
-                                value={formState.matchType} 
+                            <RadioGroup
+                                value={formState.matchType}
                                 onChange={this.changeMatchWay}
                             >
-                                <Radio  value={0}>按位置匹配</Radio>
+                                <Radio value={0}>按位置匹配</Radio>
                                 <Radio disabled={!asTitle} value={1}>按名称匹配</Radio>
                             </RadioGroup>
                         </FormItem>
@@ -322,21 +333,21 @@ export default class ImportTarget extends Component {
                     </Form>
                 </Row>
                 <Row>
-                    <Table 
+                    <Table
                         className="m-table"
                         bordered
                         columns={columns}
-                        dataSource={dataSource} 
+                        dataSource={dataSource}
                     />
                 </Row>
                 <Modal className="m-codemodal"
                     title="建表语句"
-                    style={{height: 424}}
+                    style={{ height: 424 }}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}
                     onOk={this.createTable}
                 >
-                    <Editor onChange={this.ddlChange} />
+                    <Editor placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
                 </Modal>
             </div>
         )
