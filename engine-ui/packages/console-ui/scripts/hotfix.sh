@@ -18,6 +18,8 @@ git commit -m 'hotfix'
 git checkout dev
 git merge $branch
 
+echo "Merge to dev is succeed."
+
 # # Git merge to dev_main
 # git checkout dev_main
 # git merge $branch
