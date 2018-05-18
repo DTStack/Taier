@@ -48,7 +48,7 @@ module.exports = [
         link: 'dataLabel.html#/',
         filename: 'dataLabel.html',
         target: '_blank',
-        enable: true,
+        enable: false,
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',

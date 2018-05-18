@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { assign } from 'lodash';
 import {
     Select, Table, Card,
     Button, Tabs, Modal,
@@ -49,7 +50,10 @@ class AdminUser extends Component {
             const defaultApp = apps.find(app => app.default);
             const appKey = initialApp || defaultApp.id;
 
-            this.setState({ active: appKey }, this.loadData)
+            this.setState({ active: appKey }, () => {
+                this.loadData();
+                this.loadRoles();
+            })
         }
     }
 
@@ -60,14 +64,16 @@ class AdminUser extends Component {
             currentPage: currentPage,
         }
         if (!selectedProject && hasProject(active)) {
-            this.getProjects(active)
+            this.getProjects(active);
         } else if (!selectedProject && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, params);
         } else {
-            params.projectId = selectedProject
+            params.projectId = selectedProject;
             this.loadUsers(active, params);
-            this.loadRoles(active, params);
+            this.loadRoles(active, assign(params, {
+                currentPage: 1,
+            }));
         }
     }
 
@@ -82,7 +88,7 @@ class AdminUser extends Component {
     }
 
     loadRoles = (app, params) => {
-        const ctx = this
+        const ctx = this;
         Api.queryRole(app, params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ roles: res.data && res.data.data })
