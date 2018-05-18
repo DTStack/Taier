@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { hashHistory } from 'react-router';
+import { connect } from 'react-redux';
 
 import {
     Col, Button, message, Modal, Form, Select, Icon
@@ -9,27 +10,165 @@ import {
 import utils from 'utils'
 
 import API from '../../../../../api'
-import { formItemLayout, DATA_SOURCE, HELP_DOC_URL } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE, HELP_DOC_URL, dataSourceTypes } from '../../../../../comm/const'
 
 import {
-    workbenchAction
+    workbenchAction,
+    dataSourceListAction
 } from '../../../../../store/modules/offlineTask/actionType';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+
 class ImportTemplateForm extends Component {
+
+    state = {
+        sourceType: undefined,
+        targetType: undefined,
+        sourceTable: [],
+        targetTable: []
+    }
 
     newSource() {
         hashHistory.push("/database");
     }
 
+    getTableList = (sourceId, type) => {
+        const ctx = this
+        const newState = {};
+
+        if (type == "source") {
+            newState.sourceTable = [];
+        } else {
+            newState.targetTable = [];
+        }
+
+        this.setState(newState,
+            () => {
+                API.getOfflineTableList({
+                    sourceId,
+                    isSys: false
+                }).then(res => {
+                    if (res.code === 1) {
+                        if (type == "source") {
+                            ctx.setState({
+                                sourceTable: res.data || []
+                            });
+                        } else {
+                            ctx.setState({
+                                targetTable: res.data || []
+                            });
+                        }
+                    }
+                });
+            });
+    }
+
+    sourceTypeChange(value) {
+        const { setFieldsValue } = this.props.form;
+
+        this.setState({
+            sourceType: value
+        },
+            () => {
+                setFieldsValue({
+                    sourceId: undefined,
+                    sourceTable: undefined
+                })
+            })
+    }
+
+    targetTypeChange(value) {
+        const { setFieldsValue } = this.props.form;
+
+        this.setState({
+            targetType: value
+        },
+            () => {
+                setFieldsValue({
+                    targetSourceId: undefined,
+                    targetTable: undefined
+                })
+            })
+
+    }
+
+    sourceIdChange(sourceId) {
+        this.getTableList(sourceId, "source");
+    }
+
+    targetIdChange(targetId) {
+        this.getTableList(targetId, "target");
+    }
+
+    getSourceTable() {
+        const { sourceTable } = this.state;
+
+        return sourceTable.map(
+            (item) => {
+                return (
+                    <Option key={item} value={item}>
+                        {item}
+                    </Option>
+                )
+            }
+        )
+    }
+
+    getTargetTable() {
+        const { targetTable } = this.state;
+
+        return targetTable.map(
+            (item) => {
+                return (
+                    <Option key={item} value={item}>
+                        {item}
+                    </Option>
+                )
+            }
+        )
+
+    }
+
+    getSourceList() {
+        const { sourceType } = this.state;
+        const { dataSourceList } = this.props;
+
+        return dataSourceList
+            .filter(src => {
+                return src.type == sourceType;
+            })
+            .map(src => {
+                return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
+                    {src.dataName}( {dataSourceTypes[src.type]} )
+                </Option>
+            })
+    }
+
+    getTargetList() {
+        const { targetType } = this.state;
+        const { dataSourceList } = this.props;
+
+        return dataSourceList
+            .filter(src => {
+                return src.type == targetType;
+            })
+            .map(src => {
+                return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
+                    {src.dataName}( {dataSourceTypes[src.type]} )
+                </Option>
+            })
+
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
+        const { dataSourceList } = this.props;
 
         const sourceTypeOptions = Object.keys(DATA_SOURCE).map(
             (key) => {
-                return <Option key={DATA_SOURCE[key]} value={DATA_SOURCE[key].toString()}>{key}</Option>
+                return <Option key={DATA_SOURCE[key]} value={DATA_SOURCE[key].toString()}>{dataSourceTypes[DATA_SOURCE[key]]}</Option>
             }
         )
 
@@ -47,6 +186,7 @@ class ImportTemplateForm extends Component {
                     })(
                         <Select
                             placeholder="请选择来源类型"
+                            onChange={this.sourceTypeChange.bind(this)}
                         >
                             {sourceTypeOptions}
                         </Select>
@@ -65,8 +205,9 @@ class ImportTemplateForm extends Component {
                     })(
                         <Select
                             placeholder="请选择数据源"
+                            onChange={this.sourceIdChange.bind(this)}
                         >
-                            {sourceTypeOptions}
+                            {this.getSourceList()}
                         </Select>
                     )}
                     <a onClick={this.newSource.bind(this)}>新增数据源</a>
@@ -85,7 +226,7 @@ class ImportTemplateForm extends Component {
                         <Select
                             placeholder="请选择来源表"
                         >
-                            {sourceTypeOptions}
+                            {this.getSourceTable()}
                         </Select>
                     )}
                 </FormItem>
@@ -101,6 +242,7 @@ class ImportTemplateForm extends Component {
                     })(
                         <Select
                             placeholder="请选择目标类型"
+                            onChange={this.targetTypeChange.bind(this)}
                         >
                             {sourceTypeOptions}
                         </Select>
@@ -119,8 +261,9 @@ class ImportTemplateForm extends Component {
                     })(
                         <Select
                             placeholder="请选择目标数据源"
+                            onChange={this.targetIdChange.bind(this)}
                         >
-                            {sourceTypeOptions}
+                            {this.getTargetList()}
                         </Select>
                     )}
                     <a onClick={this.newSource.bind(this)}>新增数据源</a>
@@ -138,7 +281,7 @@ class ImportTemplateForm extends Component {
                         <Select
                             placeholder="请选择目标表"
                         >
-                            {sourceTypeOptions}
+                            {this.getTargetTable()}
                         </Select>
                     )}
                 </FormItem>
@@ -148,10 +291,39 @@ class ImportTemplateForm extends Component {
 }
 const WrapTemplateForm = Form.create()(ImportTemplateForm);
 
-export default class SyncToolbar extends Component {
+
+@connect(state => {
+    const { dataSync } = state.offlineTask;
+
+    return {
+        dataSourceList: dataSync.dataSourceList,
+    };
+}, dispatch => {
+    return {
+        getDataSource: () => {
+            API.getOfflineDataSource()
+                .then(res => {
+                    let data = []
+                    if (res.code === 1) {
+                        data = res.data
+                    }
+                    dispatch({
+                        type: dataSourceListAction.LOAD_DATASOURCE,
+                        payload: data
+                    });
+                });
+        },
+    }
+})
+class SyncToolbar extends Component {
 
     state = {
         execConfirmVisible: false
+    }
+
+    componentDidMount() {
+        const { getDataSource } = this.props;
+        getDataSource();
     }
 
     importTemplate() {
@@ -199,11 +371,11 @@ export default class SyncToolbar extends Component {
                     格式化
                 </Button>
                 <span style={{ float: "right", marginRight: "18px", lineHeight: "28px" }}>
-                    <Icon 
-                        style={{ color: "#2491F7", marginRight: "2px" }} 
+                    <Icon
+                        style={{ color: "#2491F7", marginRight: "2px" }}
                         type="question-circle-o" />
-                    <a 
-                        href={HELP_DOC_URL.DATA_SYNC} 
+                    <a
+                        href={HELP_DOC_URL.DATA_SYNC}
                         target="blank">
                         帮助文档
                     </a>
@@ -221,3 +393,5 @@ export default class SyncToolbar extends Component {
         )
     }
 }
+
+export default SyncToolbar;
