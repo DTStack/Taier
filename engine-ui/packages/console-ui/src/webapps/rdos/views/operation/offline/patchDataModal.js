@@ -228,7 +228,7 @@ class PatchData extends Component {
                 <Row style={{ lineHeight: '30px'  }}>
                     <FormItem {...formItemLayout} label="补数据名">
                         {getFieldDecorator('fillName', {
-                            initialValue: `P_${task.name}_${moment().format('YYYY_MM_DD')}`,
+                            initialValue: `P_${task&&task.name}_${moment().format('YYYY_MM_DD')}`,
                             rules: [{
                                 required: true,
                                 message: '请输入补数据名!',

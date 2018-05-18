@@ -288,7 +288,7 @@ class OfflineConfig extends Component {
                                     style={{ width: 200 }}
                                     placeholder="任务名称"
                                     size="default"
-                                    allowClear
+                                    
                                     onChange={this.changeTaskName}
                                 />
                             </FormItem>
@@ -327,7 +327,7 @@ class OfflineConfig extends Component {
                     }
                 >
                      <Table
-                        rowKey="id"
+                        rowKey="alarmId"
                         key="offlineConfig"
                         className="m-table"
                         pagination={pagination}
