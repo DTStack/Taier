@@ -25,44 +25,11 @@ class ImportTemplateForm extends Component {
 
     state = {
         sourceType: undefined,
-        targetType: undefined,
-        sourceTable: [],
-        targetTable: []
+        targetType: undefined
     }
 
     newSource() {
         hashHistory.push("/database");
-    }
-
-    getTableList = (sourceId, type) => {
-        const ctx = this
-        const newState = {};
-
-        if (type == "source") {
-            newState.sourceTable = [];
-        } else {
-            newState.targetTable = [];
-        }
-
-        this.setState(newState,
-            () => {
-                API.getOfflineTableList({
-                    sourceId,
-                    isSys: false
-                }).then(res => {
-                    if (res.code === 1) {
-                        if (type == "source") {
-                            ctx.setState({
-                                sourceTable: res.data || []
-                            });
-                        } else {
-                            ctx.setState({
-                                targetTable: res.data || []
-                            });
-                        }
-                    }
-                });
-            });
     }
 
     sourceTypeChange(value) {
@@ -73,8 +40,7 @@ class ImportTemplateForm extends Component {
         },
             () => {
                 setFieldsValue({
-                    sourceId: undefined,
-                    sourceTable: undefined
+                    sourceId: undefined
                 })
             })
     }
@@ -87,47 +53,9 @@ class ImportTemplateForm extends Component {
         },
             () => {
                 setFieldsValue({
-                    targetSourceId: undefined,
-                    targetTable: undefined
+                    targetSourceId: undefined
                 })
             })
-
-    }
-
-    sourceIdChange(sourceId) {
-        this.getTableList(sourceId, "source");
-    }
-
-    targetIdChange(targetId) {
-        this.getTableList(targetId, "target");
-    }
-
-    getSourceTable() {
-        const { sourceTable } = this.state;
-
-        return sourceTable.map(
-            (item) => {
-                return (
-                    <Option key={item} value={item}>
-                        {item}
-                    </Option>
-                )
-            }
-        )
-    }
-
-    getTargetTable() {
-        const { targetTable } = this.state;
-
-        return targetTable.map(
-            (item) => {
-                return (
-                    <Option key={item} value={item}>
-                        {item}
-                    </Option>
-                )
-            }
-        )
 
     }
 
@@ -205,30 +133,11 @@ class ImportTemplateForm extends Component {
                     })(
                         <Select
                             placeholder="请选择数据源"
-                            onChange={this.sourceIdChange.bind(this)}
                         >
                             {this.getSourceList()}
                         </Select>
                     )}
                     <a onClick={this.newSource.bind(this)}>新增数据源</a>
-                </FormItem>
-                <FormItem
-                    style={{ marginBottom: "40px" }}
-                    {...formItemLayout}
-                    label="来源表"
-                    hasFeedback
-                >
-                    {getFieldDecorator('sourceTable', {
-                        rules: [{
-                            required: true, message: '来源表不可为空！',
-                        }]
-                    })(
-                        <Select
-                            placeholder="请选择来源表"
-                        >
-                            {this.getSourceTable()}
-                        </Select>
-                    )}
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
@@ -261,29 +170,11 @@ class ImportTemplateForm extends Component {
                     })(
                         <Select
                             placeholder="请选择目标数据源"
-                            onChange={this.targetIdChange.bind(this)}
                         >
                             {this.getTargetList()}
                         </Select>
                     )}
                     <a onClick={this.newSource.bind(this)}>新增数据源</a>
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="目标表"
-                    hasFeedback
-                >
-                    {getFieldDecorator('targetTable', {
-                        rules: [{
-                            required: true, message: '目标表不可为空！',
-                        }]
-                    })(
-                        <Select
-                            placeholder="请选择目标表"
-                        >
-                            {this.getTargetTable()}
-                        </Select>
-                    )}
                 </FormItem>
             </Form>
         )
