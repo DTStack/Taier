@@ -142,6 +142,17 @@ export default class IdentifyColumn extends Component {
         this.props.form.resetFields();
     }
 
+    // 表格换页/排序
+    onTableChange = (page, filter, sorter) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: page.current,
+        };
+
+        this.getRuleTagData(queryParams);
+        this.setState({ queryParams });
+    }
+    
     render() {
         const { getFieldDecorator } = this.props.form;
         const { visible, queryParams, loading, columnData, currentData } = this.state;

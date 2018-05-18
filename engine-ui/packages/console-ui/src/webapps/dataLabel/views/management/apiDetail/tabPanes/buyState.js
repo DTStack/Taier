@@ -48,23 +48,23 @@ class BuyManageState extends Component {
         })
     }
     componentWillReceiveProps(nextProps) {
-        if (this.props.tagId != nextProps.tagId || this.props.disAble != nextProps.disAble) {
+        if (this.props.apiId != nextProps.apiId || this.props.disAble != nextProps.disAble) {
             this.initState();
             this.tableChange({
                 filter: {},
                 sortedInfo: {},
                 page: 1
-            }, nextProps.tagId)
+            }, nextProps.apiId)
         }
     }
-    tableChange(params, tagId) {
+    tableChange(params, apiId) {
         const { filter, sortedInfo, page } = params;
         let status=filter.status
         if(!status||status.length<1){
             status=['1','3','4']
         }
         let requestParams = {};
-        requestParams.tagId = tagId || this.props.tagId;
+        requestParams.apiId = apiId || this.props.apiId;
         requestParams.pageSize = 10;
         requestParams.currentPage = page
         requestParams.status = status;
@@ -74,7 +74,7 @@ class BuyManageState extends Component {
         if (!params) {//无参数，默认刷新
             params = this.state.requestParams;
         }
-        if (!params.tagId) {
+        if (!params.apiId) {
             return;
         }
         this.setState({

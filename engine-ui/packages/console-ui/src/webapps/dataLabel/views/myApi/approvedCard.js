@@ -50,11 +50,11 @@ class ApprovedCard extends Component {
         .then(
             (res) => {
 
-                if (this.props.tagId) {
+                if (this.props.apiId) {
                     if (res) {
                         for (let i in res.data.data) {
                             let item = res.data.data[i];
-                            if (this.props.tagId == item.tagId) {
+                            if (this.props.apiId == item.apiId) {
                                 this.apiClick(item);
                                 break;
                             }
@@ -71,13 +71,13 @@ class ApprovedCard extends Component {
         this.getAppliedList();
     }
     componentWillReceiveProps(nextProps) {
-        if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
+        if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
 
             const res = this.getSource();
             if (res) {
                 for (let i in res.data) {
                     let item = res.data[i];
-                    if (nextProps.tagId == item.tagId) {
+                    if (nextProps.apiId == item.apiId) {
                         this.dealClick(item);
                         break;
                     }
@@ -202,8 +202,8 @@ class ApprovedCard extends Component {
 
         return [{
             title: '标签名称',
-            dataIndex: 'tagName',
-            key: 'tagName',
+            dataIndex: 'apiName',
+            key: 'apiName',
             render: (text, record) => {
                 const isDelete = record.apiStatus == 1 ? true : false;
                 const deleteText = isDelete ? '(全平台禁用)' : ''
@@ -230,8 +230,8 @@ class ApprovedCard extends Component {
             ]
         }, {
             title: '描述',
-            dataIndex: 'tagDesc',
-            key: 'tagDesc',
+            dataIndex: 'apiDesc',
+            key: 'apiDesc',
             width: 300
         }, {
             title: '最近24小时调用(次)',
@@ -341,14 +341,14 @@ class ApprovedCard extends Component {
                     <Table
                         rowClassName={
                             (record, index) => {
-                                if (this.state.showRecord.tagId == record.tagId) {
+                                if (this.state.showRecord.apiId == record.apiId) {
                                     return "row-select"
                                 } else {
                                     return "";
                                 }
                             }
                         }
-                        rowKey="tagId"
+                        rowKey="id"
                         className="m-table monitor-table"
                         columns={this.initColumns()}
                         loading={this.state.loading}

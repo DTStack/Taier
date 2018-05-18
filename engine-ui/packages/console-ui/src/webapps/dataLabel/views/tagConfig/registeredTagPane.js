@@ -6,7 +6,6 @@ import { Table, Card, Modal, Form, Icon,
     Dropdown, Cascader, Popconfirm
 } from 'antd';
 
-import { tagConfigActions } from '../../actions/tagConfig';
 import { dataSourceActions } from '../../actions/dataSource';
 import { formItemLayout, TAG_STATUS, TAG_PUBLISH_STATUS } from '../../consts';
 import TCApi from '../../api/tagConfig';
@@ -22,9 +21,6 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getRegisteredTagList(params) {
-        dispatch(tagConfigActions.getRegisteredTagList(params));
-    },
     getDataSourcesTable(params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
@@ -141,11 +137,15 @@ export default class RegisteredTagPane extends Component {
             render: (text, record) => {
                 const menu = (
                     <Menu>
-                        <Menu.Item key="1">
-                            <Link to={`/dl/manage/newApi/${record.id}`}>
-                                发布
-                            </Link>
-                        </Menu.Item>
+                        {
+                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] != '已发布')
+                            &&
+                            <Menu.Item key="1">
+                                <Link to={`/dl/manage/newApi/${record.id}`}>
+                                    发布
+                                </Link>
+                            </Menu.Item>
+                        }
                         <Menu.Item key="2">
                             <Popconfirm
                                 title="确定删除此标签？"
@@ -386,6 +386,17 @@ export default class RegisteredTagPane extends Component {
         return arr.reverse();
     }
 
+    // 表格换页/排序
+    onTableChange = (page, filter, sorter) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: page.current,
+        };
+
+        this.getRegisteredTagData(queryParams);
+        this.setState({ queryParams });
+    }
+
     render() {
         const { form, dataSource, tagConfig, apiMarket } = this.props;
         const { getFieldDecorator } = form;
@@ -504,6 +515,12 @@ export default class RegisteredTagPane extends Component {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
+                                    }, { 
+                                        max: 20,
+                                        message: "最大字数不能超过20" 
+                                    }, { 
+                                        pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
+                                        message: 'API名字只能以字母，数字，下划线组成' 
                                     }], 
                                     initialValue: editData.name
                                 })(

@@ -37,7 +37,7 @@ class APIMarket extends Component {
         loading: true,
         applyBox: false,
         apply:{
-            tagId: "",
+            apiId: '',
             tagName: "",
             tagDesc: ""
         },
@@ -186,8 +186,8 @@ class APIMarket extends Component {
         this.setState({
             applyBox: true,
             apply: {
-                tagId: record.id,
                 name: record.name,
+                apiId: record.apiId,
                 tagDesc: record.tagDesc
             }
         })
@@ -205,10 +205,9 @@ class APIMarket extends Component {
         });
     }
 
-    openDetail(text) {
-        return function () {
-            window.open(`${location.origin + location.pathname}#/dl/market/detail/${text}?isHideBack=true`)
-        }
+    openDetail = (id) => {
+        console.log(id)
+        window.open(`dataLabel.html#/dl/market/detail/${id}?isHideBack=true`);
     }
 
     initColumns() {
@@ -216,44 +215,48 @@ class APIMarket extends Component {
             title: '标签名称',
             dataIndex: 'name',
             key: 'name',
+            width: '20%',
             render: (text, record) => {
-                return <a onClick={this.openDetail(record.id)} >{text}</a>
+                return <Link to={`/dl/market/detail/${record.apiId}`}>{text}</Link>
+                // <a onClick={this.openDetail.bind(this, record.id)}>{text}</a>
             }
         }, {
             title: '值域',
             dataIndex: 'tagRange',
             key: 'tagRange',
-            width: 100
+            width: '15%',
         }, {
             title: '覆盖数',
             dataIndex: 'overlayNum',
             key: 'overlayNum',
-            width: 100
+            width: '15%',
         }, {
             title: '昨日调用次数',
             dataIndex: 'invokeTotal',
             key: 'invokeTotal',
+            width: '15%',
         }, {
             title: '更新时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
+            width: '20%',
             render(time){
                 return utils.formatDateTime(time);
             },
             sorter:true
         }, {
-            width: 120,
             title: '操作',
             dataIndex: 'applyStatus',
+            width: '15%',
             render: (status, record) => {
                 switch(status) {
                     case 0: {
-                        return <Link to={`/dl/mine?tagId=${record.id}`}>查看审批进度</Link>;;
+                        return <Link to={`/dl/mine?apiId=${record.id}`}>查看审批进度</Link>;
                     }
                     case 1: 
                     case 3:
                     case 4: {
-                        return <Link to={`/dl/mine/approved?tagId=${record.id}`}>查看使用情况</Link>;
+                        return <Link to={`/dl/mine/approved?apiId=${record.id}`}>查看使用情况</Link>;
                     }
                     case -1:
                     case 2: {
@@ -346,12 +349,12 @@ class APIMarket extends Component {
                 <ApplyBox show={this.state.applyBox}
                     successCallBack={this.handleOk.bind(this)}
                     cancelCallback={this.handleCancel.bind(this)}
-                    tagId={this.state.apply.tagId}
-                    apiName={this.state.apply.apiName}
-                    desc={this.state.apply.desc}
+                    apiId={this.state.apply.apiId}
+                    name={this.state.apply.name}
+                    desc={this.state.apply.tagDesc}
                     getMarketApi={this.getMarketApi.bind(this)}
                 ></ApplyBox>
-                <div className="margin-0-20 m-card box-1">
+                <div className="m-card box-1">
                     <Card
                         noHovering
                         title={this.getCardTitle()}

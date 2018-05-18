@@ -1,14 +1,16 @@
 import React, { Component } from "react";
-import { Modal, Form, Input, Spin, message,Button } from "antd"
+import { Modal, Form, Input, Spin, message, Button } from "antd"
 import { connect } from "react-redux";
+
 import { apiMarketActions } from '../../actions/apiMarket';
+import { formItemLayout } from '../../consts';
+
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
-
 const mapDispatchToProps = dispatch => ({
-    apiApply(tagId, applyContent) {
-        return dispatch(apiMarketActions.apiApply({ tagId: tagId, applyContent: applyContent }));
+    apiApply(apiId, applyContent) {
+        return dispatch(apiMarketActions.apiApply({ apiId: apiId, applyContent: applyContent }));
     },
     getApiExtInfo(tagId) {
         dispatch(
@@ -24,22 +26,20 @@ class ApplyBox extends Component {
     state = {
         loading: false
     }
-    handleSubmit(values) {
-        console.log(values)
-    }
+
     handleOk() {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 this.setState({
                     loading: true
                 })
-                this.props.apiApply(this.props.tagId, values.applyMsg)
+                this.props.apiApply(this.props.apiId, values.applyMsg)
                     .then(
                         (res) => {
                             this.setState({
                                 loading: false
                             })
-                            this.props.getApiExtInfo(this.props.tagId);
+                            // this.props.getApiExtInfo(this.props.tagId);
                             if(this.props.getMarketApi){
                                 this.props.getMarketApi();
                             }
@@ -77,46 +77,44 @@ class ApplyBox extends Component {
                     ]}
                 >
 
-                    <Form onSubmit={this.handleSubmit.bind(this)}>
+                    <Form>
                         <FormItem
-                            className="text-bottom"
-                            label="申请API"
-                            hasFeedback
-                            labelCol={{
-                                sm: 6, xs: 24
-                            }}
-                            wrapperCol={{
-                                sm: 18, xs: 24
-                            }}
+                            label="标签名称"
+                            {...formItemLayout}
                         >
-                            <span style={{ lineHeight: 1.3, fontSize: 14 }}>
-                                {this.props.apiName}
-                            </span>
-                            <br />
-                            <span style={{ lineHeight: 1.2, fontSize: 14 }}>{this.props.desc}</span>
-
+                            <p>{this.props.name}</p>
                         </FormItem>
 
                         <FormItem
-                            className="text-bottom"
+                            label="标签描述"
+                            {...formItemLayout}
+                        >
+                            <p>{this.props.desc}</p>
+                        </FormItem>
+
+                        <FormItem
                             label="申请说明"
                             hasFeedback
                             required
-                            labelCol={{
-                                sm: 6, xs: 24
-                            }}
-                            wrapperCol={{
-                                sm: 18, xs: 24
-                            }}
+                            {...formItemLayout}
                         >
-                            {getFieldDecorator('applyMsg',
-                                {
-                                    rules: [{ required: true, message: '请输入申请信息' },
-                                    {max:200,message:"最大字符不能超过200"},]
-                                }, )(<TextArea style={{ width: 200 }} rows={4} />)}
-
+                            {
+                                getFieldDecorator('applyMsg', {
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '请输入申请信息' 
+                                    }, {
+                                        max: 200,
+                                        message:"最大字符不能超过200"
+                                    }]
+                                })(
+                                    <TextArea 
+                                        placeholder="请输入申请信息"
+                                        autosize={{ minRows: 4, maxRows: 8 }} 
+                                    />
+                                )
+                            }
                         </FormItem>
-
                     </Form>
                 </Modal>
 
