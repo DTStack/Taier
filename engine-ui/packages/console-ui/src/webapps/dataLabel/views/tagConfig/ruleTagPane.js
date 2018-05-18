@@ -496,7 +496,7 @@ export default class RuleTagPane extends Component {
                                         message: "最大字数不能超过20" 
                                     }, { 
                                         pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
-                                        message: 'API名字只能以字母，数字，下划线组成' 
+                                        message: '名称只能以字母，数字，下划线组成' 
                                     }], 
                                     initialValue: editData.name
                                 })(
