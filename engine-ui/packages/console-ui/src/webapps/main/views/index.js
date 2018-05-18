@@ -14,11 +14,19 @@ const defaultPro = {
     children: [],
 }
 
-@connect()
-class Main extends Component {
-    componentDidMount() {
-        this.props.dispatch(getInitUser())
+
+@connect(state => {
+    return {
+        user: state.user,
     }
+})
+class Main extends Component {
+
+    componentDidMount() {
+        const userAction = getInitUser()
+        this.props.dispatch(userAction);
+    }
+
     render() {
         return this.props.children || <NotFund />
     }

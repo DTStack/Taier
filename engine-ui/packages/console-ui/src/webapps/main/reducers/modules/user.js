@@ -4,6 +4,7 @@ import userActions from 'main/consts/userActions'
 
 const initalUser = {
     id: 0, 
+    dtuicUserId: 0,
     userName: '未登录'
 }
 
