@@ -76,7 +76,8 @@
     "mock": "cup config",
     "test": "test",
     "release": "./scripts/build.sh",
-    "ssh": "./scripts/ssh_server.sh"
+    "ssh": "./scripts/ssh_server.sh",
+    "hotfix": "./scripts/hotfix.sh --branch"
   },
   "keywords": [
     "generator",
