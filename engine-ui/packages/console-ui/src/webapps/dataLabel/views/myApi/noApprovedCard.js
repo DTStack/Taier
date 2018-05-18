@@ -40,16 +40,16 @@ class NoApprovedCard extends Component {
     componentDidMount() {
         this.getApplyingList(
             () => {
-                this.openCard(this.props.tagId);
+                this.openCard(this.props.apiId);
             }
         );
     }
     componentWillReceiveProps(nextProps) {
-        if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
-            this.openCard(nextProps.tagId);
+        if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
+            this.openCard(nextProps.apiId);
         }
     }
-    openCard(tagId) {
+    openCard(apiId) {
 
         const res = this.getSource();
         if (res) {
@@ -57,7 +57,7 @@ class NoApprovedCard extends Component {
             for (let i in res) {
                 let item = res[i];
 
-                if (tagId == item.tagId) {
+                if (apiId == item.apiId) {
 
                     this.openApprovedState(item);
                     break;
@@ -89,15 +89,15 @@ class NoApprovedCard extends Component {
         const sortedInfo = this.state.sortedInfo;
         return [{
             title: '标签名称',
-            dataIndex: 'tagName',
+            dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
                 return <a onClick={this.openApprovedState.bind(this, record)} >{text}</a>
             }
         }, {
             title: '描述',
-            dataIndex: 'tagDesc',
-            key: 'tagDesc',
+            dataIndex: 'apiDesc',
+            key: 'apiDesc',
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
@@ -168,7 +168,7 @@ class NoApprovedCard extends Component {
                     rowKey="id"
                     rowClassName={
                         (record, index) => {
-                            if (this.state.showRecord.tagId == record.tagId) {
+                            if (this.state.showRecord.apiId == record.apiId) {
                                 return "row-select"
                             } else {
                                 return "";

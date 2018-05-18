@@ -124,7 +124,7 @@ export default class TagLog extends Component {
                         style={{ width: 150 }}
                         placeholder="选择状态"
                         onChange={this.onStatueChange}>
-                        <Option key="3">更新成功</Option>
+                        <Option key="3">更新完成</Option>
                         <Option key="4">更新失败</Option>
                     </Select>
                 </div>

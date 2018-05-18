@@ -39,6 +39,9 @@ class OutputParams extends Component {
 
     initDataSource(initValue){
         let data = initValue;
+        if (!initValue) {
+            data = [];
+        }
         if (initValue && initValue.some(item => !item.fieldName)) {
             data = [];
         }
