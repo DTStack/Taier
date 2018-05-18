@@ -6,7 +6,7 @@
 # 进行代码同步操作
 #
 
-$branch
+$branch=$b || 'hotfix';
 
 echo '$branch is merging codes to other main branch.';
 
@@ -18,30 +18,30 @@ git commit -m 'hotfix'
 git checkout dev
 git merge $branch
 
-# Git merge to dev_main
-git checkout dev_main
-git merge $branch
+# # Git merge to dev_main
+# git checkout dev_main
+# git merge $branch
 
-# Git merge to dev_ide
-git checkout dev_ide
-git merge $branch
+# # Git merge to dev_ide
+# git checkout dev_ide
+# git merge $branch
 
-# Git merge to dev_tag
-git checkout dev_tag
-git merge $branch
+# # Git merge to dev_tag
+# git checkout dev_tag
+# git merge $branch
 
-# Git merge to dev_valid
-git checkout dev_valid
-git merge $branch
+# # Git merge to dev_valid
+# git checkout dev_valid
+# git merge $branch
 
-# Git merge to dev_api
-git checkout dev_api
-git merge $branch
+# # Git merge to dev_api
+# git checkout dev_api
+# git merge $branch
 
-# Git merge to master
-git checkout master
-git pull origin master
-git merge $branch
+# # Git merge to master
+# git checkout master
+# git pull origin master
+# git merge $branch
 
-# 最后推送到代码到 master
-git push origin master
+# # 最后推送到代码到 master
+# git push origin master
