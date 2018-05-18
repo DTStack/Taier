@@ -204,7 +204,9 @@ class Workbench extends React.Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="备注"
+                        label={(
+                            <span className="ant-form-item-required">备注</span>
+                        )}
                         hasFeedback
                     >
                         <Input

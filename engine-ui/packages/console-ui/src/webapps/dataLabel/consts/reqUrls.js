@@ -27,7 +27,7 @@ export default {
 
     // ===== common ===== //
     DL_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
-    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,             //获取所有功能菜单
+    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,             // 获取所有功能菜单
     GET_PERIOD_TYPE: `${DL_BASE_URL}/tag/listPeriodType`,             // 获取调度类型
     GET_NOTIFY_TYPE: `${DL_BASE_URL}/tag/listNotifyType`,             // 获取通知类型
 

@@ -3,8 +3,9 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
     userList: [],
+    menuList: [],
     periodType: [],
-    notifyType: []
+    notifyType: [],
 }
 
 export default function common(state = initialState, action) {
@@ -15,6 +16,13 @@ export default function common(state = initialState, action) {
             const clone = cloneDeep(state);
             const { userList } = clone;
             clone.userList = payload;
+            return clone;
+        }
+
+        case commonActionType.GET_ALL_MENU_LIST: {
+            const clone = cloneDeep(state);
+            const { menuList } = clone;
+            clone.menuList = payload;
             return clone;
         }
 

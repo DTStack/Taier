@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Card, Modal, Form, Button, Input, Select, Menu, Dropdown, Icon, Cascader, Popconfirm, message } from 'antd';
+import { Table, Card, Modal, Form, Icon,
+    Button, Input, Select, Menu, message,
+    Dropdown, Cascader, Popconfirm
+} from 'antd';
 
 import { tagConfigActions } from '../../actions/tagConfig';
-import { apiMarketActions } from '../../actions/apiMarket';
 import { dataSourceActions } from '../../actions/dataSource';
-import { formItemLayout, TAG_STATUS } from '../../consts';
+import { formItemLayout, TAG_STATUS, TAG_PUBLISH_STATUS } from '../../consts';
 import TCApi from '../../api/tagConfig';
 
 const Search = Input.Search;
@@ -32,8 +34,8 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesColumn(params) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
     },
-    getCatalogue(pid) {
-        dispatch(apiMarketActions.getCatalogue(pid));
+    resetDataSourcesColumn() {
+        dispatch(dataSourceActions.resetDataSourcesColumn());
     },
 })
 
@@ -42,7 +44,7 @@ export default class RegisteredTagPane extends Component {
 
     state = {
         visible: false,
-        selectedIds: [],
+        loading: false,
         queryParams: {
             currentPage: 1,
             pageSize: 20
@@ -53,10 +55,10 @@ export default class RegisteredTagPane extends Component {
     }
 
     componentDidMount() {
-        // this.props.getRegisteredTagList(this.state.queryParams);
         this.getRegisteredTagData(this.state.queryParams);
     }
 
+    // 获取注册标签数据
     getRegisteredTagData = (params) => {
         this.setState({ loading: true });
 
@@ -76,58 +78,66 @@ export default class RegisteredTagPane extends Component {
             title: '标签名称',
             dataIndex: 'name',
             key: 'name',
-            // width: '10%'
+            width: '10%'
         }, {
             title: '标签描述',
             dataIndex: 'tagDesc',
             key: 'tagDesc',
-            // width: '12%'
+            width: '10%'
         }, {
             title: '标签类目',
             dataIndex: 'catalogueName',
             key: 'catalogueName',
-            // width: '8%',
+            width: '8%',
         }, {
             title: '值域',
             dataIndex: 'tagRange',
             key: 'tagRange',
-            // width: '12%'
+            width: 120
         }, {
             title: '目标数据库',
             dataIndex: 'dataSourceName',
             key: 'dataSourceName',
-            // width: '10%'
+            width: '8%'
         }, {
             title: '识别列ID',
             dataIndex: 'identityColumn',
             key: 'identityColumn',
-            // width: '8%'
+            width: '8%'
         }, {
             title: '识别列类型',
             dataIndex: 'identityName',
             key: 'identityName',
-            // width: '8%'
+            width: '8%'
         }, {
             title: '来源表',
             dataIndex: 'originTable',
             key: 'originTable',
-            // width: '10%'
+            width: '8%'
         }, {
             title: '来源列',
             dataIndex: 'originColumn',
             key: 'originColumn',
-            // width: '10%'
+            width: '8%'
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            width: 100,
             render: (text) => {
                 return TAG_STATUS[text];
-            },
-            // width: '10%',
+            }
+        }, {
+            title: '发布状态',
+            dataIndex: 'publishStatus',
+            key: 'publishStatus',
+            width: 90,
+            render: (text) => {
+                return TAG_PUBLISH_STATUS[text];
+            }
         }, {
             title: '操作',
-            // width: '10%',
+            width: 110,
             render: (text, record) => {
                 const menu = (
                     <Menu>
@@ -156,8 +166,7 @@ export default class RegisteredTagPane extends Component {
                         <span className="ant-divider" />
                         <Dropdown overlay={menu} trigger={['click']}>
                             <a className="ant-dropdown-link">
-                                更多 
-                                <Icon type="down" />
+                                更多 <Icon type="down" />
                             </a>
                         </Dropdown>
                     </div>
@@ -171,10 +180,20 @@ export default class RegisteredTagPane extends Component {
         let editData = {
             ...record, 
             catalogueId: this.getCatalogueArray(record.catalogueId)
-        }
-        console.log(editData)
+        };
+
         this.openModal();
         this.setState({ editData });
+
+        if (TAG_PUBLISH_STATUS[editData.publishStatus] !== '已发布') {
+            this.props.getDataSourcesTable({ 
+                sourceId: editData.dataSourceId 
+            });
+            this.props.getDataSourcesColumn({ 
+                sourceId: editData.dataSourceId, 
+                tableName: editData.originTable 
+            });
+        }
     }
 
     // 删除标签
@@ -195,6 +214,7 @@ export default class RegisteredTagPane extends Component {
     cancel = () => {
         this.closeModal();
         this.setState({ editData: {} });
+        this.props.form.resetFields();
     }
 
     openModal = () => {
@@ -241,73 +261,38 @@ export default class RegisteredTagPane extends Component {
         });
     }
 
-    // 数据源下拉框
-    renderUserSource = (data) => {
-        return data.map((source) => {
-            let title = `${source.dataName}（${source.sourceTypeValue}）`;
-            return (
-                <Option 
-                    key={source.id} 
-                    value={source.id.toString()}
-                    title={title}>
-                    {title}
-                </Option>
-            )
-        });
-    }
-
-    // 数据表下拉框
-    renderSourceTable = (data) => {
-        return data.map((tableName) => {
-            return <Option 
-                key={tableName} 
-                value={tableName}>
-                {tableName}
-            </Option>
-        });
-    }
-
-    // 数据列下拉框
-    renderTableColumn = (data) => {
-        return data.map((item) => {
-            return <Option 
-                key={item.key} 
-                value={item.key}>
-                {item.key}
-            </Option>
-        });
-    }
-
-    // 识别列类型下拉框
-    renderIdentifyColumn = (data) => {
-        return data.map((item) => {
-            return (
-                <Option 
-                    key={item.id} 
-                    value={item.id.toString()}
-                    title={item.name}>
-                    {item.name}
-                </Option>
-            )
-        });
-    }
-
+    // 目标数据库变化
     onSourceChange = (id) => {
-        console.log(id)
+        const { form } = this.props;
+
+        form.setFieldsValue({ 
+            originTable: undefined,
+            originColumn: undefined,
+            identityColumn: undefined
+        });
+
         this.props.resetDataSourcesTable();
+        this.props.resetDataSourcesColumn();
         this.props.getDataSourcesTable({ sourceId: id });
     }
 
+    // 来源表变化
     onSourceTableChange = (name) => {
-        console.log(name)
         const { form } = this.props;
+
+        form.setFieldsValue({ 
+            originColumn: undefined,
+            identityColumn: undefined
+        });
+
+        this.props.resetDataSourcesColumn();
         this.props.getDataSourcesColumn({ 
             sourceId: form.getFieldValue("dataSourceId"), 
             tableName: name
         });
     }
 
-    // TagName
+    // TagName筛选
     onTagNameSearch = (name) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -319,7 +304,7 @@ export default class RegisteredTagPane extends Component {
         this.setState({ queryParams });
     }
 
-    // 一级分类
+    // 一级分类筛选
     onFirstCatalogueChange = (id) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -337,7 +322,17 @@ export default class RegisteredTagPane extends Component {
         this.setState({ queryParams });
     }
 
-    // 二级分类
+    // 获取二级分类数据
+    getSecondCatalogue = (id) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
+        child = child.some(item => item.api) ? [] : child;
+
+        this.setState({ catalogue2Data: child });
+    }
+
+    // 二级分类筛选
     onSecondCatalogueChange = (id) => {
         let queryParams = {
             ...this.state.queryParams, 
@@ -349,7 +344,7 @@ export default class RegisteredTagPane extends Component {
         this.setState({ queryParams });
     }
     
-    // 类目下拉框数据初始化
+    // 标签类目下拉框数据初始化
     initCatagoryOption = (data) => {
         if (data.some(item => item.api === true)) {
             return [];
@@ -364,7 +359,7 @@ export default class RegisteredTagPane extends Component {
         }
     }
 
-    // 获取已选取的类目array
+    // 获取已选取的标签类目array
     getCatalogueArray = (value) => {
         const { apiCatalogue } = this.props.apiMarket;
         let arr = [];
@@ -389,16 +384,6 @@ export default class RegisteredTagPane extends Component {
 
         flat(apiCatalogue);
         return arr.reverse();
-    }
-
-    // 获取二级分类数据
-    getSecondCatalogue = (id) => {
-        const { apiCatalogue } = this.props.apiMarket;
-
-        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
-        child = child.some(item => item.api) ? [] : child;
-
-        this.setState({ catalogue2Data: child });
     }
 
     render() {
@@ -484,13 +469,6 @@ export default class RegisteredTagPane extends Component {
             total: tagList.totalCount
         }
 
-        const rowSelection = {
-            selectedRowKeys: selectedIds,
-            onChange: (selectedIds) => {
-                this.setState({ selectedIds });
-            },
-        };
-
         return (
             <Card 
                 title={cardTitle}
@@ -503,7 +481,6 @@ export default class RegisteredTagPane extends Component {
                     className="m-table"
                     columns={this.initColumns()} 
                     loading={loading}
-                    rowSelection={rowSelection}
                     pagination={pagination}
                     dataSource={tagList.data}
                     onChange={this.onTableChange}
@@ -542,9 +519,7 @@ export default class RegisteredTagPane extends Component {
                                 })(
                                     <TextArea 
                                         placeholder="标签描述" 
-                                        // className="trigger-remarks" 
-                                        autosize={{ minRows: 2, maxRows: 6 }} 
-                                        // onChange={this.onRemarkChange} 
+                                        autosize={{ minRows: 2, maxRows: 6 }}
                                     />
                                 )
                             }
@@ -560,9 +535,9 @@ export default class RegisteredTagPane extends Component {
                                 })(
                                     <Cascader 
                                         showSearch 
+                                        placeholder="请选择分组" 
                                         popupClassName="noheight" 
                                         options={this.initCatagoryOption(apiCatalogue)} 
-                                        placeholder="请选择分组" 
                                     />
                                 )
                             }
@@ -572,15 +547,13 @@ export default class RegisteredTagPane extends Component {
                                 getFieldDecorator('tagRange', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '值域不可为空' 
                                     }], 
                                     initialValue: editData.tagRange
                                 })(
                                     <TextArea 
                                         placeholder="值域" 
-                                        // className="trigger-remarks" 
-                                        autosize={{ minRows: 2, maxRows: 6 }} 
-                                        onChange={this.onRemarkChange} 
+                                        autosize={{ minRows: 2, maxRows: 6 }}
                                     />
                                 )
                             }
@@ -590,18 +563,26 @@ export default class RegisteredTagPane extends Component {
                                 getFieldDecorator('dataSourceId', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '请选择目标数据库' 
                                     }], 
                                     initialValue: editData.dataSourceId ? editData.dataSourceId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
+                                        optionFilterProp="title"
                                         placeholder="选择目标数据库"
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
                                         onChange={this.onSourceChange}>
                                         {
-                                            this.renderUserSource(sourceList)
+                                            sourceList.map((source) => {
+                                                let title = `${source.dataName}（${source.sourceTypeValue}）`;
+                                                return <Option 
+                                                    key={source.id} 
+                                                    value={source.id.toString()}
+                                                    title={title}>
+                                                    {title}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -612,18 +593,23 @@ export default class RegisteredTagPane extends Component {
                                 getFieldDecorator('originTable', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '请选择来源表' 
                                     }], 
                                     initialValue: editData.originTable
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
                                         placeholder="选择来源表"
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
                                         onChange={this.onSourceTableChange}>
                                         {
-                                            this.renderSourceTable(sourceTable)
+                                            sourceTable.map((tableName) => {
+                                                return <Option 
+                                                    key={tableName} 
+                                                    value={tableName}>
+                                                    {tableName}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -634,18 +620,23 @@ export default class RegisteredTagPane extends Component {
                                 getFieldDecorator('originColumn', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '不可为空' 
+                                        message: '请选择来源列' 
                                     }], 
                                     initialValue: editData.originColumn
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
                                         placeholder="选择来源列"
                                         onChange={this.onUserSourceChange}>
                                         {
-                                            this.renderTableColumn(sourceColumn)
+                                            sourceColumn.map((item) => {
+                                                return <Option 
+                                                    key={item.key}
+                                                    value={item.key}>
+                                                    {item.key}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -656,18 +647,22 @@ export default class RegisteredTagPane extends Component {
                                 getFieldDecorator('identityColumn', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '识别列ID不可为空' 
                                     }], 
                                     initialValue: editData.identityColumn
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
                                         placeholder="选择识别列ID"
-                                        onChange={this.onUserSourceChange}>
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}>
                                         {
-                                            this.renderTableColumn(sourceColumn)
+                                            sourceColumn.map((item) => {
+                                                return <Option 
+                                                    key={item.key}
+                                                    value={item.key}>
+                                                    {item.key}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
@@ -678,18 +673,24 @@ export default class RegisteredTagPane extends Component {
                                 getFieldDecorator('identityId', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '识别列类型不可为空' 
                                     }], 
                                     initialValue: editData.identityId ? editData.identityId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
+                                        optionFilterProp="title"
                                         placeholder="选择识别列类型"
-                                        onChange={this.onUserSourceChange}>
+                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}>
                                         {
-                                            this.renderIdentifyColumn(identifyColumn)
+                                            identifyColumn.map((item) => {
+                                                return <Option 
+                                                    key={item.id} 
+                                                    value={item.id.toString()}
+                                                    title={item.name}>
+                                                    {item.name}
+                                                </Option>
+                                            })
                                         }
                                     </Select>
                                 )
