@@ -16,7 +16,7 @@ git commit -m 'hotfix'
 
 # Git merge to dev
 git checkout dev
-git rebase $branch
+git merge $branch
 
 echo "Merge to dev is succeed."
 
