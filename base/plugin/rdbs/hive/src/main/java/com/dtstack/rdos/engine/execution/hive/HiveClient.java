@@ -14,4 +14,5 @@ public class HiveClient extends RdbsClient {
     protected ConnFactory getConnFactory() {
         return new HiveConnFactory();
     }
+
 }

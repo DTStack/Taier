@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.rdbs.constant.ConfigConstant;
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,6 +56,13 @@ public abstract class ConnFactory {
 
         Preconditions.checkNotNull(dbURL, "db url can't be null");
         testConn();
+    }
+
+    protected List<String> splitSql(String sql) {
+        if(StringUtils.isBlank(sql)) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(sql.split(";"));
     }
 
     private void testConn() {
@@ -95,6 +106,10 @@ public abstract class ConnFactory {
 
     public boolean supportProcedure() {
         return true;
+    }
+
+    public List<String> buildSqlList(String sql) {
+        throw new UnsupportedOperationException();
     }
 
     public abstract String getCreateProcedureHeader(String procName);

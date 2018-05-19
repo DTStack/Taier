@@ -162,7 +162,7 @@ public class RdbsExeQueue {
             if (connFactory.supportProcedure()) {
                 jobSqlProc =  createSqlProc(sql, jobName, jobId);
             } else {
-                sqlList = Arrays.asList(sql.split(SEMICOLON));
+                sqlList = connFactory.buildSqlList(sql);
             }
             this.engineJobId = jobId;
         }
@@ -314,7 +314,7 @@ public class RdbsExeQueue {
          */
         @Override
         public void run() {
-            if(StringUtils.isBlank(jobSqlProc)) {
+            if(StringUtils.isNotBlank(jobSqlProc)) {
                 runProc();
             } else {
                 executeSqlList();
