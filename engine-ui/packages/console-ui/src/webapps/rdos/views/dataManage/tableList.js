@@ -275,6 +275,7 @@ class TableList extends Component {
                             onCancel={this.handleCancel.bind(this)}
                         >
                             <Editor
+                                style={{height:"400px"}}
                                 placeholder={DDL_placeholder}
                                 onChange={ this.handleDdlChange.bind(this) } 
                                 value={ this._DDL } ref={(e) => { this.DDLEditor = e }}

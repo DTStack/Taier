@@ -21,7 +21,7 @@ module.exports = [
         default: true, // 是否为默认应用选项
         apiBase: '/rdos',
         icon: '/public/main/img/icon_1.png',
-        description: '一站式数据开放平台，快速搭建企业数据平台',
+        description: '一站式数据开发管理平台，加速释放数据价值',
     },{
         id: 'dataQuality',
         name: '数据质量',
@@ -31,7 +31,7 @@ module.exports = [
         enable: true,
         apiBase: '/dq',
         icon: '/public/main/img/icon_2.png',
-        description: '支持多种异构数据源的质量校验、异常通知',
+        description: '支持多种异构数据源的质量校验、通知与管理',
     },{
         id: 'dataApi',
         name: '数据API',
@@ -41,7 +41,7 @@ module.exports = [
         enable: true,
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_3.png',
-        description: '快速实现据服务，统一管理对内对外的API服务',
+        description: '易上手、低成本、稳定的数据开放共享服务',
     }, {
         id: 'dataLabel',
         name: '标签管理',
@@ -51,7 +51,7 @@ module.exports = [
         enable: true,
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
-        description: '缩短标签建设周期，提供统一标签服务管理',
+        description: '快速生成规则标签，提供便捷、统一标签服务管理',
     }, {
         id: 'map',
         name: '数据地图',

@@ -1,13 +1,14 @@
 import moment from 'moment'
 import utils from 'utils'
+import {
+    message
+} from 'antd'
 
 import API from "../../../api";
 import {
     output, outputRes, removeLoadingTab
 } from './sqlEditor'
-import {
-    message
-} from 'antd'
+
 
 const INTERVALS = 3000;
 const EXCHANGE_STATUS = {
@@ -15,13 +16,13 @@ const EXCHANGE_STATUS = {
     5: "success",
     8: "fail"
 }
-
 //储存各个tab的定时器id，用来stop任务时候清楚定时任务
 const intervalsStore = {}
 //停止信号量，stop执行成功之后，设置信号量，来让所有正在执行中的网络请求知道任务已经无需再继续
 const stopSign = {}
 //正在运行中的sql key，调用stop接口的时候需要使用
 const runningSql = {}
+
 function getUniqueKey(id) {
     return `${id}_${moment().valueOf()}`
 }
@@ -59,11 +60,9 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                                     }
                                     dispatch(output(currentTab, `执行中.....`))
                                     doSelect(resolve, dispatch, jobId, currentTab)
-
                                 }, INTERVALS
                             )
                             return;
-
                         }
                         case "fail": {
                             //失败，则直接返回
@@ -85,7 +84,6 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                     resolve(false)
                     return;
                 }
-
             }
         )
 }
@@ -99,8 +97,8 @@ function selectData(dispatch, jobId, currentTab) {
 }
 
 function exec(dispatch, currentTab, task, params, sqls, index) {
-
     const key = getUniqueKey(task.id)
+
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
     runningSql[currentTab] = key;
@@ -158,7 +156,6 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
             API.execSQLImmediately(params).then(succCall)
     } else if (utils.checkExist(task.type)) { // 脚本执行
         params.scriptId = task.id,
-
             API.execScript(params).then(succCall)
     }
 }
@@ -186,7 +183,6 @@ export function stopSql(currentTab, currentTabData, isSilent) {
                 return;
             }
             return;
-
         }
         const uniqueKey = runningSql[currentTab]
         if (!uniqueKey) return
@@ -217,8 +213,5 @@ export function stopSql(currentTab, currentTabData, isSilent) {
                 uniqueKey: uniqueKey,
             }).then(succCall)
         }
-
     }
-
-
 }

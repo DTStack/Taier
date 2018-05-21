@@ -85,7 +85,6 @@ export default class Toolbar extends Component {
     }
 
     reqExecSQL = (task, params, sqls, index) => {
-
         const { dispatch, currentTab } = this.props
 
         dispatch(execSql(currentTab, task, params, sqls))
@@ -94,6 +93,7 @@ export default class Toolbar extends Component {
 
     stopSQL = () => {
         const { currentTabData,dispatch, currentTab  } = this.props
+        
         dispatch(stopSql(currentTab,currentTabData))
     }
 
@@ -187,7 +187,7 @@ export default class Toolbar extends Component {
                     onCancel={() => {this.setState({ execConfirmVisible: false })}}
                     footer={
                         <div>
-                            <Checkbox onChange={this.onNeverWarning}>不在提示</Checkbox>
+                            <Checkbox onChange={this.onNeverWarning}>不再提示</Checkbox>
                             <Button onClick={() => {this.setState({ execConfirmVisible: false })}}>取消</Button>
                             <Button type="primary" onClick={this.execSQL}>执行</Button>
                         </div>

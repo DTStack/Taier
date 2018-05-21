@@ -434,7 +434,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input/>,
+                            <Input autoComplete="off"/>,
                         )}
                     </FormItem>,
                     <FormItem
@@ -449,7 +449,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input type="password"/>,
+                            <Input type="password" autoComplete="off"/>,
                         )}
                     </FormItem>,
                     <FormItem

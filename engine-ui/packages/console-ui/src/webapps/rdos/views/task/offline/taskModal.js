@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select, Radio } from 'antd';
+import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip } from 'antd';
 
 import ajax from '../../../api';
 
@@ -12,7 +12,7 @@ import {
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
-import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const'
+import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE, HELP_DOC_URL } from '../../../comm/const'
 
 import FolderPicker from './folderTree';
 
@@ -28,7 +28,8 @@ class TaskForm extends React.Component {
         this.isEditExist = false;
         this.state = {
             value: 0,
-            taskTypes: [],
+            taskTypes: []
+
         };
 
         this._resChange = false;
@@ -39,12 +40,12 @@ class TaskForm extends React.Component {
     }
 
     handleSelectTreeChange(value) {
-        this.props.form.setFieldsValue({'nodePid': value});
+        this.props.form.setFieldsValue({ 'nodePid': value });
     }
-    
+
     handleResSelectTreeChange(value) {
         this._resChange = true;
-        this.props.form.setFieldsValue({'resourceIdList': value});
+        this.props.form.setFieldsValue({ 'resourceIdList': value });
         this.props.form.validateFields(['resourceIdList']);
     }
 
@@ -81,14 +82,27 @@ class TaskForm extends React.Component {
         this.isEditExist = !isCreateNormal && !isCreateFromMenu;
 
         const value = isCreateNormal ? this.state.value :
-        (!isCreateFromMenu ? defaultData.taskType : this.state.value);
+            (!isCreateFromMenu ? defaultData.taskType : this.state.value);
 
-        const taskRadios = taskTypes.map(item => 
+        const taskRadios = taskTypes.map(item =>
             <Radio key={item.key} value={item.key}>{item.value}</Radio>
+        )
+
+        const syncTaskHelp = (
+            <div>
+                功能释义：
+                <br/>
+                向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
+                <br/>
+                脚本模式：全能 高效，可深度调优，支持全部数据源
+                <br/>
+                <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">查看支持的数据源</a>
+            </div> 
         )
 
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
+        const isSyncTast = value == TASK_TYPE.SYNC
         const acceptType = isMrTask ? RESOURCE_TYPE.JAR : isPyTask ? RESOURCE_TYPE.PY : '';
 
         return (
@@ -108,7 +122,7 @@ class TaskForm extends React.Component {
                             pattern: /^[A-Za-z0-9_]+$/,
                             message: '任务名称只能由字母、数字、下划线组成!',
                         }],
-                        initialValue: isCreateNormal ? undefined :  isCreateFromMenu ? undefined : defaultData.name
+                        initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.name
                     })(
                         <Input placeholder="请输入任务名称" />,
                     )}
@@ -121,11 +135,11 @@ class TaskForm extends React.Component {
                         rules: [{
                             required: true, message: '请选择任务类型',
                         }],
-                        initialValue: this.isEditExist ? defaultData.taskType : (taskTypes.length > 0 && taskTypes[0].key) 
+                        initialValue: this.isEditExist ? defaultData.taskType : (taskTypes.length > 0 && taskTypes[0].key)
                     })(
                         <RadioGroup
-                            disabled={ isCreateNormal ? false : !isCreateFromMenu }
-                            onChange={ this.handleRadioChange }
+                            disabled={isCreateNormal ? false : !isCreateFromMenu}
+                            onChange={this.handleRadioChange}
                         >
                             {taskRadios}
                         </RadioGroup>
@@ -155,9 +169,9 @@ class TaskForm extends React.Component {
                                 placeholder="请选择关联资源"
                                 isFilepicker
                                 acceptRes={acceptType}
-                                treeData={ this.props.resTreeData }
-                                onChange={ this.handleResSelectTreeChange.bind(this) }
-                                defaultNode={ isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0]["resourceName"] }
+                                treeData={this.props.resTreeData}
+                                onChange={this.handleResSelectTreeChange.bind(this)}
+                                defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0]["resourceName"]}
                             />
                         </FormItem>
                         {
@@ -186,15 +200,41 @@ class TaskForm extends React.Component {
                         >
                             {getFieldDecorator('exeArgs', {
                                 rules: [{
-                                    pattern: /^[A-Za-z0-9_-]+$/,
-                                    message: '任务参数只能由字母、数字、下划线组成!',
+                                    pattern: /^[A-Za-z0-9_\/-]+$/,
+                                    message: '任务参数只能由字母、数字、下划线、斜杠组成!',
                                 }],
-                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined :  defaultData.exeArgs
+                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
                             })(
                                 <Input placeholder="请输入任务参数" />,
                             )}
                         </FormItem>
                     </span>
+                }
+                {
+                    isSyncTast &&
+                        <FormItem
+                            {...formItemLayout}
+                            label="配置模式"
+                        >
+                            {getFieldDecorator('createModel', {
+                                rules: [{
+                                    required: true, message: '请选择配置模式',
+                                }],
+                                initialValue: this.isEditExist ? defaultData.createModel : DATA_SYNC_TYPE.GUIDE
+                            })(
+                                <RadioGroup
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                >
+                                    <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+                                    <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+
+                                </RadioGroup>
+                                
+                            )}
+                            <Tooltip  placement="right" title={syncTaskHelp}>
+                                <Icon type="question-circle-o" />
+                            </Tooltip>
+                        </FormItem>
                 }
                 <FormItem
                     {...formItemLayout}
@@ -209,9 +249,9 @@ class TaskForm extends React.Component {
                         <FolderPicker
                             type={MENU_TYPE.TASK}
                             ispicker
-                            treeData={ this.props.treeData }
-                            onChange={ this.handleSelectTreeChange.bind(this) }
-                            defaultNode={ isCreateNormal ?
+                            treeData={this.props.treeData}
+                            onChange={this.handleSelectTreeChange.bind(this)}
+                            defaultNode={isCreateNormal ?
                                 this.props.treeData.name :
                                 isCreateFromMenu ?
                                     this.getFolderName(defaultData.parentId) :
@@ -232,10 +272,10 @@ class TaskForm extends React.Component {
                         }],
                         initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.taskDesc
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入任务描述"/>,
+                        <Input type="textarea" rows={4} placeholder="请输入任务描述" />,
                     )}
                 </FormItem>
-                <FormItem style={{display: 'none'}}>
+                <FormItem style={{ display: 'none' }}>
                     {getFieldDecorator('computeType', {
                         initialValue: 1
                     })(
@@ -259,10 +299,10 @@ class TaskForm extends React.Component {
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === value) {
+                if (node.id === value) {
                     nodeType = node.type;
                 }
-                else{
+                else {
                     loop(node.children || []);
                 }
             });
@@ -270,7 +310,7 @@ class TaskForm extends React.Component {
 
         loop([resTreeData]);
 
-        if(nodeType === 'folder') {
+        if (nodeType === 'folder') {
             callback('请选择具体文件, 而非文件夹');
         }
         callback();
@@ -287,10 +327,10 @@ class TaskForm extends React.Component {
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === id) {
+                if (node.id === id) {
                     name = node.name;
                 }
-                else{
+                else {
                     loop(node.children || []);
                 }
             });
@@ -323,23 +363,23 @@ class TaskModal extends React.Component {
         const isEditExist = !isCreateNormal && !isCreateFromMenu;
 
         form.validateFields((err, values) => {
-            if(!err) {
-                values.lockVersion = 0; 
+            if (!err) {
+                values.lockVersion = 0;
                 values.version = 0;
 
-                if(values.resourceIdList) {
+                if (values.resourceIdList) {
                     values.resourceIdList = [values.resourceIdList];
                 }
-                
-                if(defaultData && defaultData.id) { // 更新操作
+
+                if (defaultData && defaultData.id) { // 更新操作
                     values.id = defaultData.id
                     values.version = defaultData.version;
-                    values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO); 
+                    values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
 
                 this.closeModal();
                 addOfflineTask(values, isEditExist, defaultData);
-                setTimeout(()=> {
+                setTimeout(() => {
                     form.resetFields();
                 }, 500);
             }
@@ -362,36 +402,36 @@ class TaskModal extends React.Component {
     render() {
         const { isModalShow, toggleCreateTask, taskTreeData, resourceTreeData, defaultData } = this.props;
 
-        if(!defaultData) this.isCreate = true;
+        if (!defaultData) this.isCreate = true;
         else {
-            if(!defaultData.name) this.isCreate = true;
+            if (!defaultData.name) this.isCreate = true;
             else this.isCreate = false;
         }
 
         return (
             <div>
                 <Modal
-                    title={ !this.isCreate ? '编辑离线任务' : '新建离线任务' }
-                    visible={ isModalShow }
+                    title={!this.isCreate ? '编辑离线任务' : '新建离线任务'}
+                    visible={isModalShow}
                     footer={[
                         <Button key="back"
                             size="large"
-                            onClick={ this.handleCancel }
+                            onClick={this.handleCancel}
                         >取消</Button>,
                         <Button key="submit"
                             type="primary"
                             size="large"
-                            onClick={ this.handleSubmit }
+                            onClick={this.handleSubmit}
                         > 确认 </Button>
                     ]}
-                    key={ this.dtcount }
+                    key={this.dtcount}
                     onCancel={this.handleCancel}
                 >
                     <TaskFormWrapper
                         ref={el => this.form = el}
-                        treeData={ taskTreeData }
-                        resTreeData={ resourceTreeData }
-                        defaultData={ defaultData }
+                        treeData={taskTreeData}
+                        resTreeData={resourceTreeData}
+                        defaultData={defaultData}
                     />
                 </Modal>
             </div>
@@ -407,59 +447,59 @@ export default connect(state => {
         resourceTreeData: state.offlineTask.resourceTree
     }
 },
-dispatch => {
-    const benchActions = workbenchActions(dispatch)
+    dispatch => {
+        const benchActions = workbenchActions(dispatch)
 
-    return {
-        toggleCreateTask: function() {
-            benchActions.toggleCreateTask();
-        },
+        return {
+            toggleCreateTask: function () {
+                benchActions.toggleCreateTask();
+            },
 
-        /**
-         * @description 新建或编辑
-         * @param {any} params 表单参数
-         * @param {boolean} isEditExist 是否编辑
-         * @param {any} 修改前的数据
-         */
-        addOfflineTask: function(params, isEditExist, defaultData) {
-            ajax.addOfflineTask(params)
-                .then(res => {
-                    if(res.code === 1) {
-                        if(!isEditExist) {
-                            dispatch({
-                                type: taskTreeAction.ADD_FOLDER_CHILD,
-                                payload: res.data
-                            });
-                            benchActions.openTaskInDev(res.data.id)
+            /**
+             * @description 新建或编辑
+             * @param {any} params 表单参数
+             * @param {boolean} isEditExist 是否编辑
+             * @param {any} 修改前的数据
+             */
+            addOfflineTask: function (params, isEditExist, defaultData) {
+                ajax.addOfflineTask(params)
+                    .then(res => {
+                        if (res.code === 1) {
+                            if (!isEditExist) {
+                                dispatch({
+                                    type: taskTreeAction.ADD_FOLDER_CHILD,
+                                    payload: res.data
+                                });
+                                benchActions.openTaskInDev(res.data.id)
+                            }
+                            else {
+                                let newData = Object.assign(defaultData, res.data);
+                                newData.originPid = defaultData.nodePid
+                                dispatch({
+                                    type: taskTreeAction.EDIT_FOLDER_CHILD,
+                                    payload: newData
+                                });
+
+                                // 更新tabs数据
+                                ajax.getOfflineTaskDetail({
+                                    id: newData.id,
+                                }).then(res => {
+                                    if (res.code === 1) {
+                                        dispatch({
+                                            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                                            payload: res.data,
+                                        })
+                                    }
+                                });
+                            }
                         }
-                        else {
-                            let newData = Object.assign(defaultData, res.data);
-                            newData.originPid = defaultData.nodePid
-                            dispatch({
-                                type: taskTreeAction.EDIT_FOLDER_CHILD,
-                                payload: newData
-                            });
+                    });
+            },
 
-                            // 更新tabs数据
-                            ajax.getOfflineTaskDetail({
-                                id: newData.id,
-                            }).then(res => {
-                                if(res.code === 1) {
-                                    dispatch({
-                                        type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                                        payload: res.data,
-                                    })
-                                }
-                            });
-                        }
-                    }
+            emptyModalDefault() {
+                dispatch({
+                    type: modalAction.EMPTY_MODAL_DEFAULT
                 });
-        },
-
-        emptyModalDefault() {
-            dispatch({ 
-                type: modalAction.EMPTY_MODAL_DEFAULT
-            });
+            }
         }
-    }
-})(TaskModal);
+    })(TaskModal);

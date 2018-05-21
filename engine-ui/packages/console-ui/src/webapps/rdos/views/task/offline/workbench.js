@@ -13,7 +13,7 @@ import utils from 'utils'
 
 import ajax from '../../../api';
 
-import { formItemLayout, TASK_TYPE } from '../../../comm/const';
+import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const';
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 
@@ -95,7 +95,10 @@ class Workbench extends React.Component {
 
         if(!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
         if (
-            currentTabData && currentTabData.taskType !== TASK_TYPE.SYNC
+            currentTabData &&
+            (currentTabData.taskType !== TASK_TYPE.SYNC||
+                (currentTabData.createModel==DATA_SYNC_TYPE.SCRIPT&&currentTabData.taskType == TASK_TYPE.SYNC)
+            )
         ) isSaveAvaliable = true;
 
         if (currentTabData && currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {
@@ -204,7 +207,9 @@ class Workbench extends React.Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="备注"
+                        label={(
+                            <span className="ant-form-item-required">备注</span>
+                        )}
                         hasFeedback
                     >
                         <Input
