@@ -52,7 +52,6 @@ class AdminUser extends Component {
 
             this.setState({ active: appKey }, () => {
                 this.loadData();
-                this.loadRoles();
             })
         }
     }
@@ -164,7 +163,8 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject } = this.state
+        const { editTarget, active, selectedProject } = this.state;
+
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
         const params = {
@@ -185,10 +185,17 @@ class AdminUser extends Component {
         })
     }
 
+    onRoleIdsChange = (roleIds) => {
+        this.setState({
+            roleIds,
+        })
+    }
+
     onCancel = () => {
         this.setState({
             visible: false,
             visibleEditRole: false,
+            editTarget: '',
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
@@ -209,6 +216,7 @@ class AdminUser extends Component {
         this.setState({
             active: key,
             currentPage: 1,
+            roleIds: [],
         }, this.loadData)
     }
 

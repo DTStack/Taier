@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
 import { Menu, Dropdown, Icon } from 'antd'
 import { Link } from 'react-router'
+import { connect } from 'react-redux'
+
+import { MenuRight } from 'main/components/nav'
 
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 import { setTaskFlow } from '../../store/modules/operation/taskflow'
 
-
-import { MenuRight } from 'main/components/nav'
+import {
+    workbenchAction,
+} from '../../store/modules/offlineTask/actionType';
+import { clearPages } from '../../store/modules/realtimeTask/browser';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -16,6 +21,16 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
 
 const SubMenu = Menu.SubMenu
 
+@connect(null, dispatch => {
+    return {
+        cleanAllTabData: () => {
+            dispatch(clearPages());
+            dispatch({
+                type: workbenchAction.CLOSE_ALL_TABS
+            });
+        },
+    }
+})
 class Header extends Component {
 
     constructor(props) {
@@ -37,11 +52,13 @@ class Header extends Component {
 
     handleClick = (e) => {
         const props = e.item.props
-        const { router, dispatch } = this.props
+        const { router, dispatch, cleanAllTabData } = this.props
         this.setState({ current: e.key });
         const project = props.data
         if (project) {
-            dispatch(ProjectAction.getProject(project.id))
+            dispatch(ProjectAction.getProject(project.id));
+            // 清理tab数据
+            cleanAllTabData();
             if (this.state.current === 'overview') {
                 router.push('/offline/task')
             }

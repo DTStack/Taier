@@ -23,7 +23,6 @@ export default class RoleEdit extends Component {
     }
 
     componentDidMount() {
-        
         this.getRoleInfo()
     }
 

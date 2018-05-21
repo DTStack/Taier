@@ -26,8 +26,8 @@ export default {
 
     getInitUser() {
         var user = {};
-        user.userName = utils.getCookie('dt_username') 
-        user.dtuicUserId = utils.getCookie('dt_user_id')
+        user.userName = utils.getCookie('dt_username');
+        user.dtuicUserId = utils.getCookie('dt_user_id');
         return user
     },
 
