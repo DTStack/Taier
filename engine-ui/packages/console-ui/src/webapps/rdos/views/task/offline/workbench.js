@@ -97,7 +97,7 @@ class Workbench extends React.Component {
         if (
             currentTabData &&
             (currentTabData.taskType !== TASK_TYPE.SYNC||
-                (currentTabData.createModel!==DATA_SYNC_TYPE.SCRIPT&&currentTabData.taskType == TASK_TYPE.SYNC)
+                (currentTabData.createModel==DATA_SYNC_TYPE.SCRIPT&&currentTabData.taskType == TASK_TYPE.SYNC)
             )
         ) isSaveAvaliable = true;
 

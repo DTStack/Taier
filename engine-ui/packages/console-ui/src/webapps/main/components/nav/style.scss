@@ -146,3 +146,12 @@ $activeColor: #262e36; // 主色
 
     }
 }
+
+.menu-text-ellipsis{
+    display: inline-block;
+    width: 60px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: top;
+}

@@ -137,7 +137,7 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.VIRTUAL_NODE:
                     return <NormalTaskForm key={ tabData.id } {...tabData} />
                 case TASK_TYPE.SYNC: // 数据同步
-                    if(true||tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT){
+                    if(tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT){
                         return <DataSyncScript key={ tabData.id } { ...tabData }  />
                     }
                     return <DataSync key={ tabData.id } { ...tabData }/>

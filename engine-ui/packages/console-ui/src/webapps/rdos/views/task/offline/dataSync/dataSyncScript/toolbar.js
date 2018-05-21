@@ -90,9 +90,43 @@ class ImportTemplateForm extends Component {
 
     }
 
+    getTemplateFromNet(){
+        const { validateFields } = this.props.form;
+        const { id } = this.props;
+
+        validateFields(
+            (err, values)=>{
+                if(!err){
+                    let params={
+                        "id":id,
+                        "sourceMap":{
+                            "sourceId":values.sourceId,
+                            "type":values.sourceType,
+                        },
+                        "targetMap":{
+                            "sourceId":values.targetSourceId,
+                            "type":values.targetType
+                        },
+                        "taskId":id
+                    };
+
+                    API.getSyncTemplate(params)
+                    .then(
+                        (res)=>{
+                            if(res.code==1){
+                                message.success("导入成功");
+                                this.props.onSuccess(res.data);
+                            }
+                        }
+                    )
+                }
+            }
+        )
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { dataSourceList } = this.props;
+        const { dataSourceList, execConfirmVisible } = this.props;
 
         const sourceTypeOptions = Object.keys(DATA_SOURCE).map(
             (key) => {
@@ -101,82 +135,90 @@ class ImportTemplateForm extends Component {
         )
 
         return (
-            <Form>
-                <FormItem
-                    {...formItemLayout}
-                    label="来源类型"
-                    hasFeedback
-                >
-                    {getFieldDecorator('sourceType', {
-                        rules: [{
-                            required: true, message: '来源类型不可为空！',
-                        }]
-                    })(
-                        <Select
-                            placeholder="请选择来源类型"
-                            onChange={this.sourceTypeChange.bind(this)}
-                        >
-                            {sourceTypeOptions}
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    style={{ marginBottom: "8px" }}
-                    {...formItemLayout}
-                    label="数据源"
-                    hasFeedback
-                >
-                    {getFieldDecorator('sourceId', {
-                        rules: [{
-                            required: true, message: '数据源不可为空！',
-                        }]
-                    })(
-                        <Select
-                            placeholder="请选择数据源"
-                        >
-                            {this.getSourceList()}
-                        </Select>
-                    )}
-                    <a onClick={this.newSource.bind(this)}>新增数据源</a>
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="目标类型"
-                    hasFeedback
-                >
-                    {getFieldDecorator('targetType', {
-                        rules: [{
-                            required: true, message: '目标类型不可为空！',
-                        }]
-                    })(
-                        <Select
-                            placeholder="请选择目标类型"
-                            onChange={this.targetTypeChange.bind(this)}
-                        >
-                            {sourceTypeOptions}
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    style={{ marginBottom: "8px" }}
-                    {...formItemLayout}
-                    label="数据源"
-                    hasFeedback
-                >
-                    {getFieldDecorator('targetSourceId', {
-                        rules: [{
-                            required: true, message: '数据源不可为空！',
-                        }]
-                    })(
-                        <Select
-                            placeholder="请选择目标数据源"
-                        >
-                            {this.getTargetList()}
-                        </Select>
-                    )}
-                    <a onClick={this.newSource.bind(this)}>新增数据源</a>
-                </FormItem>
-            </Form>
+            <Modal
+                maskClosable
+                visible={execConfirmVisible}
+                title="导入模版"
+                onCancel={this.props.onCancel}
+                onOk={this.getTemplateFromNet.bind(this)}
+            >
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="来源类型"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('sourceType', {
+                            rules: [{
+                                required: true, message: '来源类型不可为空！',
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择来源类型"
+                                onChange={this.sourceTypeChange.bind(this)}
+                            >
+                                {sourceTypeOptions}
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        style={{ marginBottom: "8px" }}
+                        {...formItemLayout}
+                        label="数据源"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('sourceId', {
+                            rules: [{
+                                required: true, message: '数据源不可为空！',
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择数据源"
+                            >
+                                {this.getSourceList()}
+                            </Select>
+                        )}
+                        <a onClick={this.newSource.bind(this)}>新增数据源</a>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="目标类型"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('targetType', {
+                            rules: [{
+                                required: true, message: '目标类型不可为空！',
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择目标类型"
+                                onChange={this.targetTypeChange.bind(this)}
+                            >
+                                {sourceTypeOptions}
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        style={{ marginBottom: "8px" }}
+                        {...formItemLayout}
+                        label="数据源"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('targetSourceId', {
+                            rules: [{
+                                required: true, message: '数据源不可为空！',
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择目标数据源"
+                            >
+                                {this.getTargetList()}
+                            </Select>
+                        )}
+                        <a onClick={this.newSource.bind(this)}>新增数据源</a>
+                    </FormItem>
+                </Form>
+            </Modal>
         )
     }
 }
@@ -242,6 +284,24 @@ class SyncToolbar extends Component {
 
     }
 
+    onSuccess = (template) => {
+        const { dispatch } = this.props;
+        const data = {
+            merged: true,
+        }
+
+        data.sqlText = utils.jsonFormat(template);
+
+        this.setState({
+            execConfirmVisible:false
+        });
+
+        dispatch({
+            type: workbenchAction.SET_TASK_SQL_FIELD_VALUE,
+            payload: data,
+        })
+    }
+
     render() {
         const { execConfirmVisible } = this.state
         const { currentTabData } = this.props;
@@ -272,14 +332,17 @@ class SyncToolbar extends Component {
                     </a>
                 </span>
 
-                <Modal
-                    maskClosable
-                    visible={execConfirmVisible}
-                    title="导入模版"
-                    onCancel={() => { this.setState({ execConfirmVisible: false }) }}
-                >
-                    <WrapTemplateForm {...this.props} />
-                </Modal>
+
+                <WrapTemplateForm
+                    execConfirmVisible={execConfirmVisible}
+                    onCancel={
+                        () => {
+                            this.setState({ execConfirmVisible: false })
+                        }
+                    }
+                    onSuccess={this.onSuccess.bind(this)}
+                    {...this.props} />
+
             </div>
         )
     }

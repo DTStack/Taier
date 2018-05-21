@@ -76,7 +76,7 @@ class DataSyncScript extends Component {
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
 
     render() {
-        const { merged,sqlText, cursor } = this.props;
+        const { merged, sqlText, cursor } = this.props;
 
         return (
             <div className="ide-sql">
