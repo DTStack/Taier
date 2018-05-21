@@ -77,7 +77,6 @@ class RealTimeTabPane extends Component {
         const newData = nextProps.project
         if (newData && old.id !== 0 && old.id !== newData.id) {
             const { dispatch } = this.props
-            dispatch(BrowserAction.clearPages()) // 切换项目后，清理pages页面
             dispatch(TreeAction.getRealtimeTree(rootNode))
             dispatch(ResAction.getResources())
         }
