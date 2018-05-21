@@ -189,6 +189,22 @@ const utils = {
             return text.substring(0,length)+"..."
         }
         return text
+    },
+    /**
+     * json格式化
+     * @param {格式化内容} text 
+     * @param {格式化占位符} space 
+     */
+    jsonFormat(text,space){
+        try{
+            const json=JSON.parse(text);
+            const output=JSON.stringify(json,null,space||2);
+
+            return output;
+        }
+        catch(e){
+            return null;
+        }
     }
 }
 

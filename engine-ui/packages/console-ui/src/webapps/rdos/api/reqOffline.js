@@ -62,6 +62,7 @@ export default {
     QUERY_JOB_SUB_NODES: `${RDOS_BASE_URL}/batch/batchJob/getAllChildJobWithSameDay`, // 查询子job子节点
     STATISTICS_TASK_RUNTIME: `${RDOS_BASE_URL}/batch/batchJob/statisticsTaskRecentInfo`, // 统计任务运行信息
     STOP_FILL_DATA_JOBS: `${RDOS_BASE_URL}/batch/batchJob/stopFillDataJobs`, // 停止补数据任务
+    GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/batch/batchTask/getJsonTemplate`,//获取数据同步脚本模式的模版
     
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATELOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
