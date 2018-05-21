@@ -376,6 +376,7 @@ public class FlinkUtil {
             urlList.addAll(findJarsInDir(readerDir));
             urlList.addAll(findJarsInDir(writerDir));
 
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
