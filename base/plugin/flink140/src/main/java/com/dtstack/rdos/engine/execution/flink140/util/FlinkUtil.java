@@ -275,6 +275,7 @@ public class FlinkUtil {
     public static int getEnvParallelism(Properties properties){
         String parallelismStr = properties.getProperty(ConfigConstrant.SQL_ENV_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
+
     }
     
     
