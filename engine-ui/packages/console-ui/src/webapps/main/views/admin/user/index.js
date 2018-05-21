@@ -52,7 +52,6 @@ class AdminUser extends Component {
 
             this.setState({ active: appKey }, () => {
                 this.loadData();
-                this.loadRoles();
             })
         }
     }
