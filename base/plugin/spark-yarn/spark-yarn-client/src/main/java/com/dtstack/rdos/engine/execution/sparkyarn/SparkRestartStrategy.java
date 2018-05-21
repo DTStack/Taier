@@ -70,14 +70,16 @@ public class SparkRestartStrategy implements IRestartStrategy {
     @Override
     public boolean checkCanRestart(String engineJobId, IClient client) {
 
-        try {
-            Integer retryNum = retryJobCache.get(engineJobId, ()-> 0);
+        return false;
+
+        /*try {
+            Integer retryNum = retryJobCache.get(jobId, ()-> 0);
             if(retryNum >= RETRY_LIMIT){
                 return false;
             }
 
             retryNum++;
-            retryJobCache.put(engineJobId, retryNum);
+            retryJobCache.put(jobId, retryNum);
         } catch (ExecutionException e) {
             LOG.error("", e);
             return false;
@@ -101,7 +103,7 @@ public class SparkRestartStrategy implements IRestartStrategy {
             }
         }
 
-        return true;
+        return true;*/
     }
 
 }
