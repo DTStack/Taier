@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,20 +97,16 @@ public class SyncPluginInfo {
     // 数据同步专用: 获取flink端插件classpath, 在programArgsList中添加engine端plugin根目录
     private List<URL> getUserClassPath(List<String> programArgList, String flinkSyncPluginRoot) {
         List<URL> urlList = new ArrayList<>();
-        if(programArgList == null || flinkSyncPluginRoot == null) {
+        if(programArgList == null || flinkSyncPluginRoot == null)
             return urlList;
-        }
 
         int i = 0;
-        for(; i < programArgList.size() - 1; ++i) {
-            if (programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job")) {
+        for(; i < programArgList.size() - 1; ++i)
+            if(programArgList.get(i).equals("-job") || programArgList.get(i).equals("--job"))
                 break;
-            }
-        }
 
-        if(i == programArgList.size() - 1) {
+        if(i == programArgList.size() - 1)
             return urlList;
-        }
 
         programArgList.add("-pluginRoot");
         programArgList.add(localSyncFileDir);
@@ -133,28 +130,38 @@ public class SyncPluginInfo {
             Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
             Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
 
-            String readerClasspath = "file://" + flinkSyncPluginRoot + fileSP + readerName + fileSP + readerName + ".jar";
-            String writerClasspath = "file://" + flinkSyncPluginRoot + fileSP + writerName + fileSP + writerName + ".jar";
-            urlList.add(new URL(readerClasspath));
-            urlList.add(new URL(writerClasspath));
+            File commonDir = new File(flinkSyncPluginRoot + fileSP + "common");
+            File readerDir = new File(flinkSyncPluginRoot + fileSP + readerName);
+            File writerDir = new File(flinkSyncPluginRoot + fileSP + writerName);
 
-            File commonDir = new File(flinkSyncPluginRoot + fileSP + "common" + fileSP);
-            if(commonDir.exists() && commonDir.isDirectory()) {
-                File[] commonJarFiles = commonDir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.toLowerCase().endsWith(".jar");
-                    }
-                });
-                for(File commonJarFile : commonJarFiles) {
-                    urlList.add(commonJarFile.toURI().toURL());
-                }
-            }
+            urlList.addAll(findJarsInDir(commonDir));
+            urlList.addAll(findJarsInDir(readerDir));
+            urlList.addAll(findJarsInDir(writerDir));
+
         } catch (Exception e) {
-            LOG.error("", e);
+            e.printStackTrace();
         } finally {
             return urlList;
         }
+    }
 
+    private static List<URL> findJarsInDir(File dir)  throws MalformedURLException {
+        List<URL> urlList = new ArrayList<>();
+
+        if(dir.exists() && dir.isDirectory()) {
+            File[] jarFiles = dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().endsWith(".jar");
+                }
+            });
+
+            for(File jarFile : jarFiles) {
+                urlList.add(jarFile.toURI().toURL());
+            }
+
+        }
+
+        return urlList;
     }
 }
