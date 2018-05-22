@@ -324,7 +324,8 @@ export const jsonEditorOptions = { // json编辑器选项
     indentWithTabs: true,
     smartIndent: true,
     lineNumbers: true,
-    autofocus: false
+    autofocus: false,
+    matchBrackets:true
 }
 
 export const defaultEditorOptions = { // 编辑器选项
