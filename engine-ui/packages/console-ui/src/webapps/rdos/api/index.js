@@ -266,6 +266,9 @@ export default {
     getCustomParams(params) {
         return http.post(offlineReq.GET_CUSTOM_TASK_PARAMS, params)
     },
+    getSyncTemplate(params){
+        return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
+    },
 
     // =========== 脚本模块 ==================//
     saveScript(params) {

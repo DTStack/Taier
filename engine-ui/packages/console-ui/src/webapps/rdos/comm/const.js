@@ -61,6 +61,11 @@ export const TASK_TYPE = { // 任务类型
     VIRTUAL_NODE: 5,
 }
 
+export const DATA_SYNC_TYPE = { //数据同步配置模式
+    GUIDE:0,
+    SCRIPT:1
+}
+
 export const SCRIPT_TYPE = { // 脚本类型
     SQL: 0,
 }
@@ -72,6 +77,11 @@ export const TASK_TYPE_ARRAY = [ //
     TASK_TYPE.PYTHON,
     TASK_TYPE.VIRTUAL_NODE,
 ]
+
+export const HELP_DOC_URL={
+    DATA_SOURCE:"/public/rdos/helpSite/index.html#integration_datasource",
+    DATA_SYNC:"/public/rdos/helpSite/index.html#Integration",
+}
 
 export const TASK_STATUS = { // 任务状态
     WAIT_SUBMIT: 0,
@@ -306,6 +316,16 @@ export const propEditorOptions = { // 编辑器选项
     smartIndent: true,
     lineNumbers: true,
     autofocus: false,
+}
+
+export const jsonEditorOptions = { // json编辑器选项
+    mode: 'application/json',
+    lint: true,
+    indentWithTabs: true,
+    smartIndent: true,
+    lineNumbers: true,
+    autofocus: false,
+    matchBrackets:true
 }
 
 export const defaultEditorOptions = { // 编辑器选项

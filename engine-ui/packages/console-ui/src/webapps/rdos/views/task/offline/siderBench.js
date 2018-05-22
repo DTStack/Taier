@@ -73,7 +73,7 @@ class SiderBench extends React.Component {
                     onFocus={() => { }}
                     focusOut={() => { }}
                     onChange={this.handleTaskParamChange.bind(this)}
-                />;
+                />
                 </TabPane>,
                 <TabPane tab={<span className="title-vertical">任务参数</span>} key="params5">
                     <TaskParams 
@@ -91,7 +91,7 @@ class SiderBench extends React.Component {
     }
 
     render() {
-        return <div className="m-siderbench bd-left" ref={(e) => { this.SideBench = e }}>
+        return <div className="m-siderbench bd-left padding-r0" ref={(e) => { this.SideBench = e }}>
             <Tabs
                 activeKey={this.state.selected}
                 type="card"
