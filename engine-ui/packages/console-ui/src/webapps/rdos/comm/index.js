@@ -173,3 +173,17 @@ export function getVertxtStyle(type) {
             return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;'
     }
 }
+
+/**
+ * 判断当前在离线应用
+ */
+export function inOffline() {
+    return location.href.indexOf('offline') > -1;
+}
+
+/**
+ * 判断当前在实时应用
+ */
+export function inRealtime() {
+    return location.href.indexOf('realtime') > -1;
+}

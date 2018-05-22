@@ -266,6 +266,9 @@ export default {
     getCustomParams(params) {
         return http.post(offlineReq.GET_CUSTOM_TASK_PARAMS, params)
     },
+    getSyncTemplate(params){
+        return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
+    },
 
     // =========== 脚本模块 ==================//
     saveScript(params) {
@@ -387,7 +390,9 @@ export default {
     stopFillDataJobs(params) {
         return http.post(offlineReq.STOP_FILL_DATA_JOBS, params)
     },
-
+    getRestartJobs(params) {
+        return http.post(offlineReq.GET_RESTART_JOBS, params);
+    },
 
     // =========== 离线catalogue目录模块 ==================//
     getOfflineCatelogue(params) {

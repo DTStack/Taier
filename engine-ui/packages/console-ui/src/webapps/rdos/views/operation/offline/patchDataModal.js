@@ -213,10 +213,12 @@ class PatchData extends Component {
     }
 
     render() {
-        const { visible, handCancel, task } = this.props
+
+        const { visible, handCancel, task } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const { treeData } = this.state
-        const treeNodes = this.getTreeNodes(treeData)
+        const { treeData } = this.state;
+        const treeNodes = this.getTreeNodes(treeData);
+
         return (
             <Modal
               title="补数据"

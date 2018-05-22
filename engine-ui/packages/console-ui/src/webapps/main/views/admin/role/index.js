@@ -144,8 +144,7 @@ class AdminRole extends Component {
             render(text) {
                 return text || '-'
             }
-        }, 
-        {
+        }, {
             title: '操作',
             dataIndex: 'id',
             key: 'id',

@@ -45,7 +45,7 @@ export default class TaskLog extends Component {
     componentWillReceiveProps(nextProps) {
         const currentTask = this.props.tabData
         const { tabData, visibleSlidePane} = nextProps
-        if (tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+        if (tabData && currentTask && visibleSlidePane && tabData.id !== currentTask.id) {
             this.loadRuntimeInfo({
                 taskId: tabData.id,
                 count: 30,

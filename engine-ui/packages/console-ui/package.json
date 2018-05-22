@@ -83,6 +83,7 @@
     "generator",
     "react"
   ],
+  "engines" : { "node" : ">=8.9.4" },
   "author": "Ziv",
   "license": "MIT"
 }
