@@ -66,6 +66,19 @@ export default class DashBoard extends Component {
         }
     }
 
+    jumpToTaskQuery(date){
+        const endTime=new moment();
+        const startTime=moment(moment(endTime).subtract(date,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
+
+        this.props.router.push({
+            pathname:"/dq/taskQuery",
+            query:{
+                startTime:startTime.valueOf(),
+                endTime:endTime.valueOf(),
+            }
+        })
+    }
+
     // table设置
     initColumns = () => {
         const { currentDate } = this.state;
@@ -165,21 +178,21 @@ export default class DashBoard extends Component {
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">今日告警数</span>
-                                        <span className="m-count-content font-red">{alarmSum.countToday}</span>
+                                        <a onClick={this.jumpToTaskQuery.bind(this,1)} className="m-count-content font-red">{alarmSum.countToday}</a>
                                     </section>
                                 </Col>
 
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">最近7天告警数</span>
-                                        <span className="m-count-content font-red">{alarmSum.countWeek}</span>
+                                        <a onClick={this.jumpToTaskQuery.bind(this,7)} className="m-count-content font-red">{alarmSum.countWeek}</a>
                                     </section>
                                 </Col>
 
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">最近30天告警数</span>
-                                        <span className="m-count-content font-red">{alarmSum.countMonth}</span>
+                                        <a onClick={this.jumpToTaskQuery.bind(this,30)} className="m-count-content font-red">{alarmSum.countMonth}</a>
                                     </section>
                                 </Col>
                             </Row>

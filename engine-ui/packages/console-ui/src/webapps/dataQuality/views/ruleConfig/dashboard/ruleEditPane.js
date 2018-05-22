@@ -277,7 +277,7 @@ export default class RuleEditPane extends Component {
                                 initialValue: record.customizeSql
                             })( record.isCustomizeSql?
                                 (<TextArea 
-                                    style={{resize: "none"}}
+                                    style={{resize: "vertical"}}
                                     autosize={{ minRows: 3,maxRows:8}}
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} 

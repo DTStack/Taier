@@ -4,6 +4,7 @@ import { Modal, Input, Button,  Select, Form, Checkbox, message } from 'antd';
 
 import utils from 'utils'
 
+import CopyIcon from "main/components/copy-icon"
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -207,6 +208,10 @@ class DataSourceModal extends Component {
                             )
                         }
                         <HelpDoc doc="hdfsConfig" />
+                        <CopyIcon 
+                            style={{position:"absolute",right:"-20px",bottom:"0px"}} 
+                            copyText={hdfsConf} 
+                        />
                     </FormItem>
                 ]
             }

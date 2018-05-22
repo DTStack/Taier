@@ -194,7 +194,7 @@ export default class TaskTablePane extends Component {
 
         const tableReportTitle = (
             <div>
-                表级报告
+                表级统计
                 <span 
                     style={{ fontSize: 12, color: '#999' }}>
                     （执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD HH:mm:ss")}）
