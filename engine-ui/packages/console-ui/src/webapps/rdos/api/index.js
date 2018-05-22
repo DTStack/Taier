@@ -390,7 +390,9 @@ export default {
     stopFillDataJobs(params) {
         return http.post(offlineReq.STOP_FILL_DATA_JOBS, params)
     },
-
+    getRestartJobs(params) {
+        return http.post(offlineReq.GET_RESTART_JOBS, params);
+    },
 
     // =========== 离线catalogue目录模块 ==================//
     getOfflineCatelogue(params) {
