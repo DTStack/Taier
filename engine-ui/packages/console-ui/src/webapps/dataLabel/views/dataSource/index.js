@@ -46,7 +46,7 @@ export default class DataSource extends Component {
     searchDataSources = (name) => {
         let params = {
             ...this.state.params, 
-            name, 
+            name: name ? name : undefined, 
             currentPage: 1
         };
        
@@ -256,7 +256,6 @@ export default class DataSource extends Component {
                     visible={visible}
                     sourceData={source}
                     editDataSource={this.editDataSource}
-                    getDataSources={this.getDataSources}
                     handCancel={() => { this.setState({ visible: false, source: {} }) }}
                 />
             </div>

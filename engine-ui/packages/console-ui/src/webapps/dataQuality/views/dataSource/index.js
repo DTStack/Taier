@@ -46,7 +46,11 @@ export default class DataSource extends Component {
     }
 
     searchDataSources = (name) => {
-        let params = {...this.state.params, name, currentPage: 1};
+        let params = {
+            ...this.state.params, 
+            name: name ? name : undefined, 
+            currentPage: 1
+        };
        
         this.setState({ params });
         this.props.getDataSources(params);
@@ -74,7 +78,7 @@ export default class DataSource extends Component {
         }
 
         formObj.resetFields();
-        this.setState({ visible: false });
+        this.setState({ visible: false, source: {} });
     }
 
     remove = (record) => {
@@ -89,14 +93,6 @@ export default class DataSource extends Component {
                 this.props.getDataSources(this.state.params);
             }
         });
-    }
-
-    testConnection = (params) => { // 测试数据源连通性
-        DSApi.testDSConnection(params).then((res) => {
-            if (res.code === 1) {
-                message.success('数据源连接正常！')
-            }
-        })
     }
 
     handleTableChange = (page, filters) => {
@@ -261,8 +257,7 @@ export default class DataSource extends Component {
                     visible={visible}
                     sourceData={source}
                     editDataSource={this.editDataSource}
-                    testConnection={this.testConnection}
-                    handCancel={() => { this.setState({ visible: false }) }}
+                    handCancel={() => { this.setState({ visible: false, source: {} }) }}
                 />
             </div>
         )
