@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, browserHistory, hashHistory } from 'react-router';
 import { Form, Table, Input, Icon, Button, Select, Card, Cascader, message, InputNumber } from "antd";
 
 import { tagConfigActions } from '../../../actions/tagConfig';
@@ -169,8 +169,8 @@ export default class StepOne extends Component {
 
     getScroll = (width) => {
        const { sourcePreview } = this.props.dataSource;
+
        if (sourcePreview.dataList) {
-           console.log(width,sourcePreview,(width * sourcePreview.dataList.length))
            return width * sourcePreview.dataList.length;
        } else {
            return 0;
@@ -188,6 +188,19 @@ export default class StepOne extends Component {
                 navToStep(currentStep + 1);
             }
         });
+    }
+
+    cancel = () => {
+        const { url, history } = this.props;
+
+        if (url) {
+            if (history) 
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
+        }
     }
 
     render() {
@@ -228,11 +241,11 @@ export default class StepOne extends Component {
                                         required: true, 
                                         message: '请输入标签名称' 
                                     }, { 
-                                        max: 16,
-                                        message: "最大字数不能超过16" 
+                                        max: 20,
+                                        message: "最大字数不能超过20" 
                                     }, { 
                                         pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
-                                        message: 'API名字只能以字母，数字，下划线组成' 
+                                        message: '名称只能以字母，数字，下划线组成' 
                                     }],
                                     initialValue: basicInfo.name
                                 })(
@@ -295,6 +308,7 @@ export default class StepOne extends Component {
                                     min={1}
                                     step={1}
                                     max={1000}
+                                    precision={0}
                                     style={{ width: '85%' }}
                                     placeholder="单用户每秒最高调用次数"
                                 />
@@ -313,6 +327,7 @@ export default class StepOne extends Component {
                                         min={1}
                                         step={1}
                                         max={2000}
+                                        precision={0}
                                         style={{ width: '85%' }}
                                         placeholder="单次最大返回数据条数 (最高支持2000条)" 
                                     />
@@ -350,7 +365,7 @@ export default class StepOne extends Component {
                                     </Select>
                                 )
                             }
-                            <Link to="/api/dataSource">添加数据源</Link>
+                            <Link to="/dl/dataSource">添加数据源</Link>
                         </FormItem>
                         {
                             type == 1
@@ -488,8 +503,9 @@ export default class StepOne extends Component {
                 </div>
                 <div className="steps-action">
                     <Button 
-                        className="m-r-8">
-                        <Link to="/dl/tagConfig">取消</Link>
+                        className="m-r-8"
+                        onClick={this.cancel}>
+                        取消
                     </Button>
                     <Button 
                         type="primary" 

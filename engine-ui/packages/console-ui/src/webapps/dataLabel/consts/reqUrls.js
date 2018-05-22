@@ -123,7 +123,7 @@ export default {
     GET_MARKET_API_DETAIL: `${DL_BASE_URL}/apis/getApiDetail`,//获取市场api详情
     GET_API_EXT_INFO: `${DL_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
     GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/apis/getApiExtInfoForManager`,//管理员获取api详情调用情况等
-    APPLY_API: `${DL_BASE_URL}/apply/tagApply`,//申请API
+    APPLY_API: `${DL_BASE_URL}/apply/apiApply`,//申请API
     GET_MARKET_TOP_CALL_FUNC: `${DL_BASE_URL}/apis/listApiCallNumTopNForManager`,//管理员获取api调用次数topN
 
 }

@@ -16,15 +16,15 @@ require('echarts/lib/component/title');
 
 class ApiCallState extends Component {
     state = {
-        tagId: "",
+        apiId: "",
         data: {}
     }
     getInfo() {
 
-        if (!this.state.tagId) {
+        if (!this.state.apiId) {
             return;
         }
-        this.props.getApiCallInfo(this.state.tagId, this.props.dateType)
+        this.props.getApiCallInfo(this.state.apiId, this.props.dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -41,19 +41,19 @@ class ApiCallState extends Component {
     }
     componentDidMount() {
         this.setState({
-            tagId: this.props.showRecord && this.props.showRecord.tagId
+            apiId: this.props.showRecord && this.props.showRecord.apiId
         })
         this.getInfo();
     }
     componentWillReceiveProps(nextProps) {
         if (
-            (nextProps.showRecord && this.state.tagId !== nextProps.showRecord.tagId)
+            (nextProps.showRecord && this.state.apiId !== nextProps.showRecord.apiId)
             ||
             (this.props.dateType !== nextProps.dateType)
         ) {
             
             this.setState({
-                tagId: nextProps.showRecord.tagId
+                apiId: nextProps.showRecord.apiId
             },
                 () => {
                     if(nextProps.slidePaneShow){
