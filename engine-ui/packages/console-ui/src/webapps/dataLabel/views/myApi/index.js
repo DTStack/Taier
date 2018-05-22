@@ -112,7 +112,7 @@ class MyAPI extends Component {
                         animated={false}
                         defaultActiveKey={this.state.nowView}
                         onChange={this.handleClick.bind(this)}
-                        style={{ overflow: 'inherit' }}
+                        style={{ height: 'auto', overflow: 'inherit' }}
                     >
                         <Tabs.TabPane tab="未审批" key="notApproved">
                             <NoApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></NoApprovedCard>

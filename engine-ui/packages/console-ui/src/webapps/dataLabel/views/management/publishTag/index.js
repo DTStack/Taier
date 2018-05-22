@@ -48,7 +48,7 @@ export default class PublishTag extends Component {
                     type: data.type 
                 });
             }
-        })
+        });
     }
 
     navToStep = (value) => {
@@ -80,7 +80,6 @@ export default class PublishTag extends Component {
             },
             {
                 title: '参数配置', content: <StepTwo
-                    type={type}
                     tagId={tagId}
                     currentStep={current}
                     navToStep={this.navToStep}
