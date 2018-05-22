@@ -16,7 +16,7 @@ export default class RuleConfigEdit extends Component {
             dataSourceId: undefined,
             tableName: undefined,
             partition: undefined,
-            isSubscribe: 0,
+            isSubscribe: 1,
             scheduleConf: '',
             sendTypes: [],
             notifyUser: [],

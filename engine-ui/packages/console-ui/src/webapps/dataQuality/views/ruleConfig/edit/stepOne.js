@@ -411,7 +411,7 @@ export default class StepOne extends Component {
                             {
                                 tableName
                                 &&
-                                <Checkbox onChange={this.onSubscribeChange}>订阅</Checkbox>
+                                <Checkbox checked={true} onChange={this.onSubscribeChange}>订阅</Checkbox>
                             }
                         </FormItem>
 
