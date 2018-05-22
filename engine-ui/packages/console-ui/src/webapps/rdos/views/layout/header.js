@@ -140,7 +140,7 @@ class Header extends Component {
                                 <span className="my-menu-item">
                                 {
                                     project && project.projectName ? 
-                                        (project.projectAlias || project.projectName) : <span className="menu-text-ellipsis">项目选择</span>
+                                    <span className="menu-text-ellipsis">{(project.projectAlias || project.projectName)}</span> : <span className="menu-text-ellipsis">项目选择</span>
                                 } <Icon type="caret-down" /></span>
                             }
                         >
