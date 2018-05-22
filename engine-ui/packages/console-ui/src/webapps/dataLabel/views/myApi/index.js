@@ -106,20 +106,22 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className="box-1 m-card shadow m-tabs">
-                <Tabs
-                    animated={false}
-                    defaultActiveKey={this.state.nowView}
-                    onChange={this.handleClick.bind(this)}
-                    style={{ height: 'auto' }}
-                >
-                    <Tabs.TabPane tab="未审批" key="notApproved">
-                        <NoApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></NoApprovedCard>
-                    </Tabs.TabPane>
-                    <Tabs.TabPane tab="已审批" key="approved">
-                        <ApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></ApprovedCard>
-                    </Tabs.TabPane>
-                </Tabs>
+            <div style={{ height: '100%', overflowX: 'hidden' }}>
+                <div className="box-1 m-card shadow m-tabs">
+                    <Tabs
+                        animated={false}
+                        defaultActiveKey={this.state.nowView}
+                        onChange={this.handleClick.bind(this)}
+                        style={{ height: 'auto', overflow: 'inherit' }}
+                    >
+                        <Tabs.TabPane tab="未审批" key="notApproved">
+                            <NoApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></NoApprovedCard>
+                        </Tabs.TabPane>
+                        <Tabs.TabPane tab="已审批" key="approved">
+                            <ApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></ApprovedCard>
+                        </Tabs.TabPane>
+                    </Tabs>
+                </div>
             </div>
         )
     }
