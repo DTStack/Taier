@@ -480,7 +480,7 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '协议不可为空！',
                             }],
-                            initialValue: config.protocol || '',
+                            initialValue: config.protocol || 1,
                         })(
                             <RadioGroup>
                                 <Radio value={1}>Standard</Radio>
