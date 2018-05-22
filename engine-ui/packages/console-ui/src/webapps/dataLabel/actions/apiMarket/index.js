@@ -3,7 +3,7 @@ import { message } from 'antd';
 import API from '../../api/apiMarket';
 
 export const apiMarketActions = {
-    
+
     //获取市场分离信息
     getCatalogue(pid) {
         return (dispatch) => {

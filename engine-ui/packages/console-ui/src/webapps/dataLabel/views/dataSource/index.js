@@ -135,11 +135,14 @@ export default class DataSource extends Component {
             render: (text => <div className="ellipsis-td" title={text}>{text}</div>)
         }, {
             title: '类型',
-            dataIndex: 'sourceTypeValue',
-            key: 'sourceTypeValue',
+            dataIndex: 'type',
+            key: 'type',
             filters: dataSourceFilter,
             filterMultiple: false,
-            width: '10%'
+            width: '10%',
+            render(text, record) {
+                return record.sourceTypeValue;
+            },
         }, {
             title: '描述信息',
             dataIndex: 'dataDesc',

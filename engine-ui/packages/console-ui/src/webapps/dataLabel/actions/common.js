@@ -15,12 +15,24 @@ export const commonActions = {
 			});
 		}
 	},
-	getAllDict(params) {
+	getPeriodType(params) {
 		return dispatch => {
-			API.getAllDict(params).then((res) => {
+			API.getPeriodType(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: commonActionType.GET_ALL_DICT,
+						type: commonActionType.GET_PERIOD_TYPE,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
+	getNotifyType(params) {
+		return dispatch => {
+			API.getNotifyType(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: commonActionType.GET_NOTIFY_TYPE,
 						payload: res.data
 					});
 				}

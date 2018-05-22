@@ -18,7 +18,7 @@ class NoApprovedCard extends Component {
         sortedInfo: {},
         loading: false,
         showRecord: {},
-        apiName:""
+        apiName: undefined,
     }
     getApplyingList(callback) {
         this.setState({
@@ -45,11 +45,8 @@ class NoApprovedCard extends Component {
         );
     }
     componentWillReceiveProps(nextProps) {
-
         if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
-
             this.openCard(nextProps.tagId);
-
         }
     }
     openCard(tagId) {
@@ -92,15 +89,15 @@ class NoApprovedCard extends Component {
         const sortedInfo = this.state.sortedInfo;
         return [{
             title: '标签名称',
-            dataIndex: 'apiName',
+            dataIndex: 'tagName',
             key: 'apiName',
             render: (text, record) => {
                 return <a onClick={this.openApprovedState.bind(this, record)} >{text}</a>
             }
         }, {
             title: '描述',
-            dataIndex: 'apiDesc',
-            key: 'apiDesc',
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',

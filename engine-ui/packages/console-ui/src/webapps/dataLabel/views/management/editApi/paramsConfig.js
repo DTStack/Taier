@@ -1,93 +1,91 @@
 import React, { Component } from "react"
-import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table,message } from "antd";
+import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table, message } from "antd";
 import { Link } from 'react-router';
 import InputParams from "./paramsTable/inputParams"
 import OutputParams from "./paramsTable/outputParams"
 import { formItemLayout } from "../../../consts"
-const TextArea=Input.TextArea;
+const TextArea = Input.TextArea;
 class ManageParamsConfig extends Component {
     state = {
-        addInputsignal:false,
-        addOutputsignal:false,
-        inputData:[],
-        outputData:[],
-        inputToOutputData:{}
+        addInputsignal: false,
+        addOutputsignal: false,
+        inputData: [],
+        outputData: [],
+        inputToOutputData: {}
     }
     //input子组件处理信号结束
-    changeAddinputOverSignal(){
+    changeAddinputOverSignal() {
         this.setState({
-            addInputsignal:false
+            addInputsignal: false
         })
     }
     //给input子组件发送信号
-    addInput(data){
+    addInput(data) {
         this.setState({
-            addInputsignal:true
-            
+            addInputsignal: true
+
         })
     }
     //input子组件数据更改
-    inputParamsChange(data,newItem){
+    inputParamsChange(data, newItem) {
         // if(newItem){
         //     this.addOutput(newItem);
         // }
         this.setState({
-            inputData:data
+            inputData: data
         })
     }
     //output子组件处理信号结束
-    changeAddoutputOverSignal(){
+    changeAddoutputOverSignal() {
         this.setState({
-            addOutputsignal:false
+            addOutputsignal: false
         })
     }
     //给output子组件发送信号
-    addOutput(data){
-        if(data&&!data.param){
-            data=null;
+    addOutput(data) {
+        if (data && !data.param) {
+            data = null;
         }
         this.setState({
-            addOutputsignal:true,
-            inputToOutputData:data
+            addOutputsignal: true,
+            inputToOutputData: data
         })
     }
-     //output子组件数据更改
-     outputParamsChange(data){
+    //output子组件数据更改
+    outputParamsChange(data) {
         this.setState({
-            outputData:data
+            outputData: data
         })
     }
- 
+
     pass() {
-        if(!this.state.inputData||this.state.inputData.length<1){
+        if (!this.state.inputData || this.state.inputData.length < 1) {
             message.error("请设置输入参数")
             return;
         }
-        if(!this.state.outputData||this.state.outputData.length<1){
+        if (!this.state.outputData || this.state.outputData.length < 1) {
             message.error("请设置输出参数")
             return;
         }
-        if(this.state.inputData&&this.state.outputData&&this.state.inputData.length>0&&this.state.outputData.length>0){
-            let haveRequired=false;
-            for(let i in this.state.inputData){
-                if(this.state.inputData[i].isRequired){
-                    haveRequired=true;
+        if (this.state.inputData && this.state.outputData && this.state.inputData.length > 0 && this.state.outputData.length > 0) {
+            let haveRequired = false;
+            for (let i in this.state.inputData) {
+                if (this.state.inputData[i].isRequired) {
+                    haveRequired = true;
                     break;
                 }
             }
-            if(!haveRequired){
+            if (!haveRequired) {
                 message.error("输入参数必须有一个必填项")
                 return;
             }
             this.props.dataChange({
-                inputData:this.state.inputData,
-                outputData:this.state.outputData
+                inputData: this.state.inputData,
+                outputData: this.state.outputData
             })
-        }else{
+        } else {
             message.error("请设置输入输出参数")
         }
-        
-
     }
 
     render() {
@@ -103,8 +101,9 @@ class ManageParamsConfig extends Component {
                         extra={<Button onClick={this.addInput.bind(this)} style={{ marginTop: "10px" }} type="primary">添加输入参数</Button>}
                         className="box-2"
                         noHovering
+                        bordered={false}
                     >
-                        <InputParams initValue={this.props.initValues&&this.props.initValues.inputParam} inputParamsChange={this.inputParamsChange.bind(this)} changeAddinputOverSignal={this.changeAddinputOverSignal.bind(this)} addInputsignal={this.state.addInputsignal} {...this.props} ></InputParams>
+                        <InputParams initValue={this.props.initValues && this.props.initValues.inputParam} inputParamsChange={this.inputParamsChange.bind(this)} changeAddinputOverSignal={this.changeAddinputOverSignal.bind(this)} addInputsignal={this.state.addInputsignal} {...this.props} ></InputParams>
                     </Card>
                     <Card
                         title={
@@ -116,10 +115,10 @@ class ManageParamsConfig extends Component {
                         style={{ marginTop: "20px" }}
                         className="box-2"
                         noHovering
+                        bordered={false}
                     >
-                         <OutputParams initValue={this.props.initValues&&this.props.initValues.outputParam} inputToOutputData={this.state.inputToOutputData} outputParamsChange={this.outputParamsChange.bind(this)} changeAddoutputOverSignal={this.changeAddoutputOverSignal.bind(this)} addOutputsignal={this.state.addOutputsignal} {...this.props} ></OutputParams>
-                       
-                </Card>
+                        <OutputParams initValue={this.props.initValues && this.props.initValues.outputParam} inputToOutputData={this.state.inputToOutputData} outputParamsChange={this.outputParamsChange.bind(this)} changeAddoutputOverSignal={this.changeAddoutputOverSignal.bind(this)} addOutputsignal={this.state.addOutputsignal} {...this.props} ></OutputParams>
+                    </Card>
                 </div>
                 <div
                     className="steps-action"

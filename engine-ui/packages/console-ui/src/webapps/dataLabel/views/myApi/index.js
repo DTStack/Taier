@@ -11,61 +11,62 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApplyingList(currentPage, orderBy, sort,apiName) {
+    getApplyingList(currentPage, orderBy, sort, apiName) {
         return dispatch(mineActions.getApplyingList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
             sort: sort,
-            apiName:apiName
+            tagName: apiName
         }));
     },
-    getAppliedList(currentPage, orderBy, sort, status,apiName) {
+    getAppliedList(currentPage, orderBy, sort, status, apiName) {
         return dispatch(mineActions.getAppliedList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
             sort: sort,
             status: status,
-            apiName:apiName
+            tagName: apiName
         }));
     },
-    updateApplyStatus(id,status){
+    updateApplyStatus(id, status) {
         return dispatch(mineActions.updateApplyStatus({
-            applyId:id,
+            applyId: id,
             status: status
         }));
     },
-    getApiCallInfo(id,time){
+
+    getApiCallInfo(id, time) {
         return dispatch(mineActions.getApiCallInfo({
-            tagId:id,
-            time:time
+            tagId: id,
+            time: time
         }));
     },
-   
-    getApiCallErrorInfo(id){
+
+    getApiCallErrorInfo(id) {
         return dispatch(mineActions.getApiCallErrorInfo({
-            tagId:id
+            tagId: id
         }));
     },
-    getApiCallUrl(id){
+    getApiCallUrl(id) {
         return dispatch(mineActions.getApiCallUrl({
-            tagId:id
+            tagId: id
         }));
     },
-    queryApiCallLog(id,currentPage,bizType){
+    queryApiCallLog(id, currentPage, bizType) {
         return dispatch(mineActions.queryApiCallLog({
-            tagId:id,
-            currentPage:currentPage,
-            bizType:bizType,
-            pageSize:5
+            tagId: id,
+            currentPage: currentPage,
+            bizType: bizType,
+            pageSize: 5
         }));
     },
-    getApiCreatorInfo(tagId){
+    getApiCreatorInfo(tagId) {
         return dispatch(mineActions.getApiCreatorInfo({
-            tagId:tagId
+            tagId: tagId
         }));
-    }   
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -76,23 +77,23 @@ class MyAPI extends Component {
         pageIndex: 1
     }
     handleClick(e) {
-        
+
         this.setState({
             nowView: e
         })
-      
-        if(e=="approved"){
+
+        if (e == "approved") {
             this.props.router.replace("/dl/mine/approved")
-        }else{
+        } else {
             this.props.router.replace("/dl/mine")
         }
     }
     componentWillMount() {
-        const view=this.props.router.params.view;
-        
-        if(view){
+        const view = this.props.router.params.view;
+
+        if (view) {
             this.setState({
-                nowView:view
+                nowView: view
             })
         }
     }
@@ -105,20 +106,20 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className="api-mine nobackground m-card height-auto m-tabs"> 
+            <div className="api-mine nobackground m-card height-auto m-tabs">
                 <Card
-                className="box-1"
-                bordered={false}
-                noHovering>
+                    className="box-1"
+                    bordered={false}
+                    noHovering>
                     <Tabs
                         defaultActiveKey={this.state.nowView}
                         onChange={this.handleClick.bind(this)}
                     >
                         <Tabs.TabPane tab="未审批" key="notApproved">
-                            <NoApprovedCard tagId={this.props.location.query&&this.props.location.query.tagId} {...this.props}></NoApprovedCard>
+                            <NoApprovedCard tagId={this.props.location.query && this.props.location.query.tagId} {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="已审批" key="approved">
-                            <ApprovedCard tagId={this.props.location.query&&this.props.location.query.tagId} {...this.props}></ApprovedCard>
+                            <ApprovedCard tagId={this.props.location.query && this.props.location.query.tagId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>
                 </Card>

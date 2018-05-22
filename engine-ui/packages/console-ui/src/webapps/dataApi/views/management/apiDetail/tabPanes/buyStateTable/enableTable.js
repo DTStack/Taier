@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import { Table } from "antd"
+import { Table } from "antd";
+
 import utils from "utils";
 import { EXCHANGE_API_STATUS } from '../../../../../consts';
+
 class EnableTable extends Component {
     state = {
         pageIndex: 1,

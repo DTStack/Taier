@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Card, Modal, Form, Button, Input, Select, Popconfirm } from 'antd';
+import { Table, Card, Modal, Form, Button, Input, Select, Menu, Dropdown, Icon, Cascader, Popconfirm, message } from 'antd';
 
 import { tagConfigActions } from '../../actions/tagConfig';
-import { formItemLayout } from '../../consts';
+import { apiMarketActions } from '../../actions/apiMarket';
+import { dataSourceActions } from '../../actions/dataSource';
+import { formItemLayout, TAG_STATUS } from '../../consts';
+import TCApi from '../../api/tagConfig';
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -12,13 +15,25 @@ const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
 const mapStateToProps = state => {
-    const { tagConfig } = state;
-    return { tagConfig }
+    const { tagConfig, dataSource, apiMarket } = state;
+    return { tagConfig, dataSource, apiMarket }
 }
 
 const mapDispatchToProps = dispatch => ({
     getRegisteredTagList(params) {
         dispatch(tagConfigActions.getRegisteredTagList(params));
+    },
+    getDataSourcesTable(params) {
+        dispatch(dataSourceActions.getDataSourcesTable(params));
+    },
+    resetDataSourcesTable() {
+        dispatch(dataSourceActions.resetDataSourcesTable());
+    },
+    getDataSourcesColumn(params) {
+        dispatch(dataSourceActions.getDataSourcesColumn(params));
+    },
+    getCatalogue(pid) {
+        dispatch(apiMarketActions.getCatalogue(pid));
     },
 })
 
@@ -31,19 +46,28 @@ export default class RegisteredTagPane extends Component {
         queryParams: {
             currentPage: 1,
             pageSize: 20
-        }
+        },
+        tagList: {},
+        editData: {},
+        catalogue2Data: []
     }
 
     componentDidMount() {
-        this.props.getRegisteredTagList(this.state.queryParams);
+        // this.props.getRegisteredTagList(this.state.queryParams);
+        this.getRegisteredTagData(this.state.queryParams);
     }
 
-    openModal = () => {
-        this.setState({ visible: true });
-    }
+    getRegisteredTagData = (params) => {
+        this.setState({ loading: true });
 
-    closeModal = () => {
-        this.setState({ visible: false });
+        TCApi.queryRegisteredTag(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ 
+                    loading: false,
+                    tagList: res.data 
+                });
+            }
+        });
     }
 
     // table设置
@@ -55,48 +79,51 @@ export default class RegisteredTagPane extends Component {
             // width: '10%'
         }, {
             title: '标签描述',
-            dataIndex: 'des',
-            key: 'des',
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
             // width: '12%'
         }, {
             title: '标签类目',
-            dataIndex: 'type',
-            key: 'type',
+            dataIndex: 'catalogueName',
+            key: 'catalogueName',
             // width: '8%',
         }, {
             title: '值域',
-            dataIndex: 'valueRange',
-            key: 'valueRange',
+            dataIndex: 'tagRange',
+            key: 'tagRange',
             // width: '12%'
         }, {
             title: '目标数据库',
-            dataIndex: 'db',
-            key: 'db',
+            dataIndex: 'dataSourceName',
+            key: 'dataSourceName',
             // width: '10%'
         }, {
             title: '识别列ID',
-            dataIndex: 'configureID',
-            key: 'configureID',
+            dataIndex: 'identityColumn',
+            key: 'identityColumn',
             // width: '8%'
         }, {
             title: '识别列类型',
-            dataIndex: 'configureType',
-            key: 'configureType',
+            dataIndex: 'identityName',
+            key: 'identityName',
             // width: '8%'
         }, {
             title: '来源表',
-            dataIndex: 'table',
-            key: 'table',
+            dataIndex: 'originTable',
+            key: 'originTable',
             // width: '10%'
         }, {
             title: '来源列',
-            dataIndex: 'column',
-            key: 'column',
+            dataIndex: 'originColumn',
+            key: 'originColumn',
             // width: '10%'
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            render: (text) => {
+                return TAG_STATUS[text];
+            },
             // width: '10%',
         }, {
             title: '操作',
@@ -105,13 +132,15 @@ export default class RegisteredTagPane extends Component {
                 const menu = (
                     <Menu>
                         <Menu.Item key="1">
-                            <a>发布</a>
+                            <Link to={`/dl/manage/newApi/${record.id}`}>
+                                发布
+                            </Link>
                         </Menu.Item>
                         <Menu.Item key="2">
                             <Popconfirm
                                 title="确定删除此标签？"
                                 okText="确定" cancelText="取消"
-                                onConfirm={() => {this.removeTag(record)}}
+                                onConfirm={this.removeTag.bind(this, record.id)}
                             >
                                 <a>删除</a>
                             </Popconfirm>
@@ -121,7 +150,7 @@ export default class RegisteredTagPane extends Component {
 
                 return (
                     <div>
-                        <a onClick={() => {this.editTag(record)}}>
+                        <a onClick={() => {this.editBaseInfo(record)}}>
                             编辑
                         </a>
                         <span className="ant-divider" />
@@ -137,23 +166,254 @@ export default class RegisteredTagPane extends Component {
         }]
     }
 
-    saveTag = () => {
-        console.log('save')
+    // 编辑标签基本信息
+    editBaseInfo = (record) => {
+        let editData = {
+            ...record, 
+            catalogueId: this.getCatalogueArray(record.catalogueId)
+        }
+        console.log(editData)
+        this.openModal();
+        this.setState({ editData });
     }
 
-    onUserSourceChange = (value) => {
-        console.log(value)
+    // 删除标签
+    removeTag = (id) => {
+        const { queryParams } = this.state;
+
+        if (id) {
+            TCApi.deleteTag({ tagId: id }).then((res) => {
+                if (res.code === 1) {
+                    message.success('删除成功！');
+                    this.getRegisteredTagData(queryParams);
+                }
+            });
+        }
+    }
+
+    // 取消编辑
+    cancel = () => {
+        this.closeModal();
+        this.setState({ editData: {} });
+    }
+
+    openModal = () => {
+        this.setState({ visible: true });
+    }
+
+    closeModal = () => {
+        this.setState({ visible: false });
+    }
+
+    // 保存标签基本信息
+    saveRegisterTag = () => {
+        const { form } = this.props;
+        const { queryParams, editData } = this.state;
+
+        form.validateFields((err, values) => {
+            console.log(err,values)
+            let api, params, msg;
+
+            if(!err) {
+                values.catalogueId = [...values.catalogueId].pop();
+
+                if (editData.id) {
+                    api = TCApi.updateTagBaseInfo;
+                    params = {...values, id: editData.id};
+                    msg = '更新成功';
+                } else {
+                    api = TCApi.addRegisterTag;
+                    params = values;
+                    msg = '新增成功';
+                }
+
+                api(params).then((res) => {
+                    if (res.code === 1) {
+                        message.success(msg);
+                        this.closeModal();
+                        this.setState({ editData: {} });
+                        
+                        form.resetFields();
+                        this.getRegisteredTagData(queryParams);
+                    }
+                });
+            }
+        });
+    }
+
+    // 数据源下拉框
+    renderUserSource = (data) => {
+        return data.map((source) => {
+            let title = `${source.dataName}（${source.sourceTypeValue}）`;
+            return (
+                <Option 
+                    key={source.id} 
+                    value={source.id.toString()}
+                    title={title}>
+                    {title}
+                </Option>
+            )
+        });
+    }
+
+    // 数据表下拉框
+    renderSourceTable = (data) => {
+        return data.map((tableName) => {
+            return <Option 
+                key={tableName} 
+                value={tableName}>
+                {tableName}
+            </Option>
+        });
+    }
+
+    // 数据列下拉框
+    renderTableColumn = (data) => {
+        return data.map((item) => {
+            return <Option 
+                key={item.key} 
+                value={item.key}>
+                {item.key}
+            </Option>
+        });
+    }
+
+    // 识别列类型下拉框
+    renderIdentifyColumn = (data) => {
+        return data.map((item) => {
+            return (
+                <Option 
+                    key={item.id} 
+                    value={item.id.toString()}
+                    title={item.name}>
+                    {item.name}
+                </Option>
+            )
+        });
+    }
+
+    onSourceChange = (id) => {
+        console.log(id)
+        this.props.resetDataSourcesTable();
+        this.props.getDataSourcesTable({ sourceId: id });
+    }
+
+    onSourceTableChange = (name) => {
+        console.log(name)
+        const { form } = this.props;
+        this.props.getDataSourcesColumn({ 
+            sourceId: form.getFieldValue("dataSourceId"), 
+            tableName: name
+        });
+    }
+
+    // TagName
+    onTagNameSearch = (name) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            name: name ? name : undefined
+        };
+
+        this.getRegisteredTagData(queryParams);
+        this.setState({ queryParams });
+    }
+
+    // 一级分类
+    onFirstCatalogueChange = (id) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            pid: id ? id : undefined
+        };
+
+        if (id) {
+            this.getSecondCatalogue(id)
+        } else {
+            this.setState({ catalogue2Data: [] });
+        }
+
+        this.getRegisteredTagData(queryParams);
+        this.setState({ queryParams });
+    }
+
+    // 二级分类
+    onSecondCatalogueChange = (id) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: 1,
+            cid: id ? id : undefined
+        };
+
+        this.getRegisteredTagData(queryParams);
+        this.setState({ queryParams });
+    }
+    
+    // 类目下拉框数据初始化
+    initCatagoryOption = (data) => {
+        if (data.some(item => item.api === true)) {
+            return [];
+        } else {
+            return data.map((item) => {
+                return {
+                    value: item.id,
+                    label: item.catalogueName,
+                    children: this.initCatagoryOption(item.childCatalogue)
+                }
+            });
+        }
+    }
+
+    // 获取已选取的类目array
+    getCatalogueArray = (value) => {
+        const { apiCatalogue } = this.props.apiMarket;
+        let arr = [];
+
+        const flat = (data) => {
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].api) {
+                    return
+                }
+                // 匹配节点
+                if (data[i].id === value) {
+                    arr.push(data[i].id);
+                    return data[i].id;
+                }
+                // 若子节点含有对应的值，父节点入队
+                if (flat(data[i].childCatalogue)) {
+                    arr.push(data[i].id);
+                    return data[i].id;
+                }
+            }
+        }
+
+        flat(apiCatalogue);
+        return arr.reverse();
+    }
+
+    // 获取二级分类数据
+    getSecondCatalogue = (id) => {
+        const { apiCatalogue } = this.props.apiMarket;
+
+        let child = apiCatalogue.filter(item => item.id == id)[0].childCatalogue;
+        child = child.some(item => item.api) ? [] : child;
+
+        this.setState({ catalogue2Data: child });
     }
 
     render() {
-        const { visible, selectedIds } = this.state;
-        const { getFieldDecorator } = this.props.form;
+        const { form, dataSource, tagConfig, apiMarket } = this.props;
+        const { getFieldDecorator } = form;
+        const { apiCatalogue } = apiMarket;
+        const { identifyColumn } = tagConfig;
+        const { sourceList, sourceTable, sourceColumn } = dataSource;
+        const { queryParams, visible, selectedIds, loading, tagList, editData, catalogue2Data } = this.state;
 
         const cardTitle = (
             <div className="flex font-12">
                 <Search
                     placeholder="标签名称"
-                    onSearch={this.onTagSearch}
+                    onSearch={this.onTagNameSearch}
                     style={{ width: 200, margin: '10px 0' }}
                 />
 
@@ -163,10 +423,19 @@ export default class RegisteredTagPane extends Component {
                         allowClear
                         showSearch
                         style={{ width: 150 }}
-                        // placeholder="选择数据源类型"
-                        onChange={this.onSourceChange}>
-                        <Option key={"1"} value={"1"}>标签1</Option>
-                        <Option key={"2"} value={"2"}>标签2</Option>
+                        placeholder="选择标签分类"
+                        optionFilterProp="title"
+                        onChange={this.onFirstCatalogueChange}>
+                        {
+                            apiCatalogue.map(item => {
+                                return <Option 
+                                    key={item.id} 
+                                    value={item.id.toString()}
+                                    title={item.catalogueName}>
+                                    {item.catalogueName}
+                                </Option>
+                            })
+                        }
                     </Select>
                 </div>
 
@@ -176,11 +445,19 @@ export default class RegisteredTagPane extends Component {
                         allowClear 
                         showSearch
                         style={{ width: 150 }}
-                        // optionFilterProp="title"
-                        // placeholder="选择数据源"
-                        onChange={this.onUserSourceChange}>
-                        <Option key={"1"} value={"1"}>标签1</Option>
-                        <Option key={"2"} value={"2"}>标签2</Option>
+                        optionFilterProp="title"
+                        placeholder="选择二级分类"
+                        onChange={this.onSecondCatalogueChange}>
+                        {
+                            catalogue2Data.map(item => {
+                                return <Option 
+                                    key={item.id} 
+                                    value={item.id.toString()}
+                                    title={item.catalogueName}>
+                                    {item.catalogueName}
+                                </Option>
+                            })
+                        }
                     </Select>
                 </div>
             </div>
@@ -188,10 +465,24 @@ export default class RegisteredTagPane extends Component {
 
         const cardExtra = (
             <div>
-                <Button type="primary" style={{ margin: 10 }}><Link to="dl/tagConfig/identify">识别列配置</Link></Button>
-                <Button type="primary" onClick={this.openModal}>注册标签</Button>
+                <Button 
+                    type="primary" 
+                    style={{ margin: 10 }}>
+                    <Link to="dl/tagConfig/identify">识别列配置</Link>
+                </Button>
+                <Button 
+                    type="primary" 
+                    onClick={this.openModal}>
+                    注册标签
+                </Button>
             </div>
         )
+
+        const pagination = {
+            current: queryParams.currentPage,
+            pageSize: queryParams.pageSize,
+            total: tagList.totalCount
+        }
 
         const rowSelection = {
             selectedRowKeys: selectedIds,
@@ -211,10 +502,10 @@ export default class RegisteredTagPane extends Component {
                     rowKey="id"
                     className="m-table"
                     columns={this.initColumns()} 
-                    // loading={loading}
+                    loading={loading}
                     rowSelection={rowSelection}
-                    pagination={false}
-                    dataSource={[]}
+                    pagination={pagination}
+                    dataSource={tagList.data}
                     onChange={this.onTableChange}
                 />
 
@@ -226,8 +517,8 @@ export default class RegisteredTagPane extends Component {
                     maskClosable={false}
                     okText="保存"
                     cancelText="取消"
-                    onOk={this.saveTag}
-                    onCancel={this.closeModal}
+                    onOk={this.saveRegisterTag}
+                    onCancel={this.cancel}
                 >
                     <Form>
                         <FormItem {...formItemLayout} label="标签名称">
@@ -237,7 +528,7 @@ export default class RegisteredTagPane extends Component {
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: name
+                                    initialValue: editData.name
                                 })(
                                     <Input />
                                 )
@@ -245,9 +536,9 @@ export default class RegisteredTagPane extends Component {
                         </FormItem>
                         <FormItem {...formItemLayout} label="标签描述">
                             {
-                                getFieldDecorator('des', {
+                                getFieldDecorator('tagDesc', {
                                     rules: [], 
-                                    // initialValue: des
+                                    initialValue: editData.tagDesc
                                 })(
                                     <TextArea 
                                         placeholder="标签描述" 
@@ -260,33 +551,30 @@ export default class RegisteredTagPane extends Component {
                         </FormItem>
                         <FormItem {...formItemLayout} label="标签类目">
                             {
-                                getFieldDecorator('type', {
+                                getFieldDecorator('catalogueId', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签类目不可为空' 
                                     }], 
-                                    // initialValue: type
+                                    initialValue: editData.catalogueId
                                 })(
-                                    <Select
-                                        showSearch
-                                        // style={{ width: 150 }}
-                                        // optionFilterProp="title"
-                                        // placeholder="选择数据源"
-                                        onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
-                                    </Select>
+                                    <Cascader 
+                                        showSearch 
+                                        popupClassName="noheight" 
+                                        options={this.initCatagoryOption(apiCatalogue)} 
+                                        placeholder="请选择分组" 
+                                    />
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="值域">
                             {
-                                getFieldDecorator('range', {
+                                getFieldDecorator('tagRange', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: range
+                                    initialValue: editData.tagRange
                                 })(
                                     <TextArea 
                                         placeholder="值域" 
@@ -299,75 +587,78 @@ export default class RegisteredTagPane extends Component {
                         </FormItem>
                         <FormItem {...formItemLayout} label="目标数据库">
                             {
-                                getFieldDecorator('db', {
+                                getFieldDecorator('dataSourceId', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: db
+                                    initialValue: editData.dataSourceId ? editData.dataSourceId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
                                         // style={{ width: 150 }}
                                         // optionFilterProp="title"
                                         placeholder="选择目标数据库"
-                                        onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        onChange={this.onSourceChange}>
+                                        {
+                                            this.renderUserSource(sourceList)
+                                        }
                                     </Select>
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="来源表">
                             {
-                                getFieldDecorator('table', {
+                                getFieldDecorator('originTable', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: table
+                                    initialValue: editData.originTable
                                 })(
                                     <Select
                                         showSearch
                                         // style={{ width: 150 }}
                                         // optionFilterProp="title"
                                         placeholder="选择来源表"
-                                        onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        onChange={this.onSourceTableChange}>
+                                        {
+                                            this.renderSourceTable(sourceTable)
+                                        }
                                     </Select>
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="标签所在列">
+                        <FormItem {...formItemLayout} label="来源列">
                             {
-                                getFieldDecorator('column', {
+                                getFieldDecorator('originColumn', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '不可为空' 
                                     }], 
-                                    // initialValue: column
+                                    initialValue: editData.originColumn
                                 })(
                                     <Select
                                         showSearch
                                         // style={{ width: 150 }}
                                         // optionFilterProp="title"
-                                        placeholder="选择标签所在列"
+                                        placeholder="选择来源列"
                                         onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        {
+                                            this.renderTableColumn(sourceColumn)
+                                        }
                                     </Select>
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="识别列ID">
                             {
-                                getFieldDecorator('configureID', {
+                                getFieldDecorator('identityColumn', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: configureID
+                                    initialValue: editData.identityColumn
                                 })(
                                     <Select
                                         showSearch
@@ -375,20 +666,21 @@ export default class RegisteredTagPane extends Component {
                                         // optionFilterProp="title"
                                         placeholder="选择识别列ID"
                                         onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        {
+                                            this.renderTableColumn(sourceColumn)
+                                        }
                                     </Select>
                                 )
                             }
                         </FormItem>
                         <FormItem {...formItemLayout} label="识别列类型">
                             {
-                                getFieldDecorator('configureType', {
+                                getFieldDecorator('identityId', {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
                                     }], 
-                                    // initialValue: configureType
+                                    initialValue: editData.identityId ? editData.identityId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
@@ -396,8 +688,9 @@ export default class RegisteredTagPane extends Component {
                                         // optionFilterProp="title"
                                         placeholder="选择识别列类型"
                                         onChange={this.onUserSourceChange}>
-                                        <Option key={"1"} value={"1"}>标签1</Option>
-                                        <Option key={"2"} value={"2"}>标签2</Option>
+                                        {
+                                            this.renderIdentifyColumn(identifyColumn)
+                                        }
                                     </Select>
                                 )
                             }

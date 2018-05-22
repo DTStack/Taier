@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import  { Card, Input, Table, Select, Modal, Form, Button,message } from "antd";
+import { Card, Input, Table, Select, Modal, Form, Button, message } from "antd";
 import { connect } from "react-redux";
 import utils from "utils";
 import { formItemLayout, EXCHANGE_APPLY_STATUS } from "../../consts"
@@ -37,44 +37,45 @@ class APIApproval extends Component {
         data: [],
         sorter: {},
         filter: {
-            status:null
+            status: null
         },
         userName: "",
         applyContent: "",
         replyContent: "",
-        apiName:"",
-        spApplyMsg:{},
+        apiName: undefined,
+        spApplyMsg: {},
         total: 0,
-        
     }
-    componentWillMount(){
+
+    componentWillMount() {
     }
+
     componentDidMount() {
-        const status=this.props.router.location.query&&this.props.router.location.query.status
-        let arr=[];
-        if(status){
+        const status = this.props.router.location.query && this.props.router.location.query.status
+        let arr = [];
+        if (status) {
             arr.push(status.toString())
         }
-        
+
         this.setState({
-            filter:{
-                status:(arr&&arr.length>0)?arr:null
+            filter: {
+                status: (arr && arr.length > 0) ? arr : null
             }
-        },()=>{
+        }, () => {
             this.getApprovalList();
         })
-        
+
     }
     getApprovalList() {
 
         this.props.approvalList({
             userName: this.state.userName,
-            status: this.state.filter.status&&this.state.filter.status[0],
+            status: this.state.filter.status && this.state.filter.status[0],
             currentPage: this.state.pageIndex,
             pageSize: 20,
-            sort:orderType[this.state.sorter.order],
-            orderBy:sortType[this.state.sorter.columnKey],
-            apiName:this.state.apiName
+            sort: orderType[this.state.sorter.order],
+            orderBy: sortType[this.state.sorter.columnKey],
+            tagName: this.state.apiName
         })
         .then(
             (res) => {
@@ -86,23 +87,25 @@ class APIApproval extends Component {
             }
         );
     }
+
     handleSearch(key) {
         this.setState({
             userName: key,
-            pageIndex:1
+            pageIndex: 1
         },
-        () => {
-            this.getApprovalList();
-        })
+            () => {
+                this.getApprovalList();
+            })
     }
+
     handleApiSearch(key) {
         this.setState({
             apiName: key,
-            pageIndex:1
+            pageIndex: 1
         },
-        () => {
-            this.getApprovalList();
-        })
+            () => {
+                this.getApprovalList();
+            })
     }
 
     onSourceChange() {
@@ -122,9 +125,9 @@ class APIApproval extends Component {
             sorter: sorter
 
         },
-        () => {
-            this.getApprovalList();
-        });
+            () => {
+                this.getApprovalList();
+            });
     }
     getPagination() {
         return {
@@ -214,28 +217,27 @@ class APIApproval extends Component {
                 {
                     text: '停用',
                     value: '3'
-                },{
+                }, {
                     text: '取消授权',
                     value: '4'
                 }
             ],
-            filteredValue:this.state.filter.status||null
+            filteredValue: this.state.filter.status || null
         }, {
             title: '申请标签',
-            dataIndex: 'apiName',
-            key: 'apiName'
-
+            dataIndex: 'tagName',
+            key: 'tagName'
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
-            width:"250px"
+            width: "250px"
         }, {
             title: '申请时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
             sorter: true,
-            render(text){
+            render(text) {
                 return utils.formatDateTime(text);
             }
         }, {
@@ -261,7 +263,7 @@ class APIApproval extends Component {
 
                 <Search
                     placeholder="输入标签名称搜索"
-                    style={{ width: 150, margin: '10px 0px' ,marginLeft:"30px"}}
+                    style={{ width: 150, margin: '10px 0px', marginLeft: "30px" }}
                     onSearch={this.handleApiSearch.bind(this)}
                 />
             </div>
@@ -272,25 +274,25 @@ class APIApproval extends Component {
         this.props.form.validateFields(
             (err, values) => {
                 if (!err) {
-                    const applyId=this.state.spApplyMsg.id;
-                    const approvalContent=values.APIGroup;
+                    const applyId = this.state.spApplyMsg.id;
+                    const approvalContent = values.APIGroup;
                     this.props.handleApply({
-                        applyId:applyId,
-                        isPassed:isPass,
-                        approvalContent:approvalContent
+                        applyId: applyId,
+                        isPassed: isPass,
+                        approvalContent: approvalContent
                     })
-                    .then(
-                        (res)=>{
-                            this.setState({
-                                spVisible: false
-                            })
-                            if(res){
-                                message.success("审批成功");
-                                this.getApprovalList();
+                        .then(
+                            (res) => {
+                                this.setState({
+                                    spVisible: false
+                                })
+                                if (res) {
+                                    message.success("审批成功");
+                                    this.getApprovalList();
+                                }
                             }
-                        }
-                    )
-                    
+                        )
+
                 }
             }
         )
@@ -299,10 +301,10 @@ class APIApproval extends Component {
         this.props.form.resetFields();
         this.setState({
             spVisible: true,
-            spApplyMsg:record
+            spApplyMsg: record
         })
     }
-    
+
     lookDetail(record) {
         this.setState({
             msgVisible: true,
@@ -317,7 +319,6 @@ class APIApproval extends Component {
                 <h1 className="box-title">审批授权</h1>
                 <div className="margin-0-20 m-card">
                     <Card
-
                         noHovering
                         title={this.getCardTitle()}
                         className="shadow"
@@ -330,24 +331,23 @@ class APIApproval extends Component {
                             pagination={this.getPagination()}
                             dataSource={this.getSource()}
                             onChange={this.onTableChange}
-                            
+
                         />
                     </Card>
                 </div>
                 <Modal
                     title="审批授权"
                     visible={this.state.spVisible}
-                    
                     onCancel={this.handleCancel.bind(this)}
                     footer={
-                    (
-                        <div>
-                            <Button type="danger" onClick={this.sp.bind(this,false)}>拒绝</Button>
-                            <Button type="primary" onClick={this.sp.bind(this,true)}>同意</Button>
-                        </div>
-                    )
+                        (
+                            <div>
+                                <Button type="danger" onClick={this.sp.bind(this, false)}>拒绝</Button>
+                                <Button type="primary" onClick={this.sp.bind(this, true)}>同意</Button>
+                            </div>
+                        )
                     }
-                    >
+                >
                     <Form>
                         <FormItem
                             {...formItemLayout}
@@ -363,11 +363,11 @@ class APIApproval extends Component {
                             {getFieldDecorator('APIGroup', {
                                 rules: [
                                     { required: true, message: '请填写审批说明' },
-                                    {max:200,message:"最大字数不能超过200"}
+                                    { max: 200, message: "最大字数不能超过200" }
                                 ],
 
                             })(
-                                <TextArea  />
+                                <TextArea />
                             )
                             }
                         </FormItem>
@@ -388,7 +388,6 @@ class APIApproval extends Component {
                         <FormItem
                             {...formItemLayout}
                             label="审批说明"
-
                         >
                             <TextArea disabled value={this.state.replyContent} />
                         </FormItem>

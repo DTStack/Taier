@@ -3,10 +3,6 @@ import { DL_BASE_URL } from 'config/base';
 
 export default {
 
-    // ===== common ===== //
-    DL_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
-    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,       //获取所有功能菜单
-
     // ===== 系统管理 ===== //
     DL_ROLE_QUERY: `${DL_BASE_URL}/role/pageQuery`,
     DL_ROLE_UPDATE: `${DL_BASE_URL}/role/addOrUpdateRole`,
@@ -15,7 +11,7 @@ export default {
     DL_ROLE_PERMISSION: `${DL_BASE_URL}/permission/getPermissionIdsByRoleId`,
 
     // ===== 用户相关 ===== //
-    DL_GET_USER_BY_ID: `${DL_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
+    DL_GET_USER_BY_ID: `${DL_BASE_URL}/user/getUserById`,
     DL_GET_USER_PAGES: `${DL_BASE_URL}/user/pageQuery`,
     DL_GET_USER_NOT_IN_PROJECT: `${DL_BASE_URL}/user/listNotIn`,
     DL_USER_ROLE_ADD: `${DL_BASE_URL}/roleUser/addRoleUser`,
@@ -29,22 +25,39 @@ export default {
     MASSAGE_MARK_AS_ALL_READ: `${DL_BASE_URL}/notify/allRead`,
     MASSAGE_DELETE: `${DL_BASE_URL}/notify/delete`,
 
-    // ===== 总览 ===== //
+    // ===== common ===== //
+    DL_GET_USER_LIST: `${DL_BASE_URL}/user/list`,                     // 获取所有用户
+    GET_ALL_MENU_LIST:`${DL_BASE_URL}/user/showMenuList`,             //获取所有功能菜单
+    GET_PERIOD_TYPE: `${DL_BASE_URL}/tag/listPeriodType`,             // 获取调度类型
+    GET_NOTIFY_TYPE: `${DL_BASE_URL}/tag/listNotifyType`,             // 获取通知类型
 
     // ===== 标签注册 ===== //
     QUERY_REGISTERED_TAG: `${DL_BASE_URL}/tag/registerQuery`,         // 查询注册标签
     ADD_REGISTER_TAG: `${DL_BASE_URL}/tag/registerAdd`,               // 新增注册标签
-    UPDATE_TAG: `${DL_BASE_URL}/tag/update`,                          // 更新标签
-    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
 
-    // ===== 标签生成 ===== //
-    QUERY_RULE_TAG: `${DL_BASE_URL}/tag/customQuery`,                 // 查询生成标签
-    ADD_RULE_TAG: `${DL_BASE_URL}/tag/customAdd`,                     // 新增标签生成
-    UPDATE_TAG: `${DL_BASE_URL}/tag/update`,                          // 更新标签
-    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
-    GET_RULE_TAG_RETAIL: `${DL_BASE_URL}/tag/getOne`,                 // 标签生成详情
+    // ===== 规则标签 ===== //
+    QUERY_RULE_TAG: `${DL_BASE_URL}/tag/customQuery`,                 // 查询规则标签
+    ADD_RULE_TAG: `${DL_BASE_URL}/tag/customAdd`,                     // 新增规则标签
+    UPDATE_TAG_SQL_INFO: `${DL_BASE_URL}/tag/computeInfoUpdate`,      // 更新标签计算信息
+    GET_TAG_CONDITION: `${DL_BASE_URL}/tag/listCustomCondition`,      // 获取过滤条件
     EDIT_TAG_CONDITION: `${DL_BASE_URL}/tag/editCustomCondition`,     // 编辑过滤条件
     DELETE_TAG_CONDITION: `${DL_BASE_URL}/tag/deleteCustomCondition`, // 删除过滤条件
+    
+    // ===== 标签 ===== //
+    UPDATE_TAG_BASE_INFO: `${DL_BASE_URL}/tag/baseInfoUpdate`,        // 更新标签基本信息
+    DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                       // 删除标签
+    GET_RULE_TAG_RETAIL: `${DL_BASE_URL}/tag/getOne`,                 // 获取标签详情
+    QUERY_TAG_LOG: `${DL_BASE_URL}/tag/logPageQuery`,                 // 查询标签更新日志
+    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,                     // 标签发布
+
+    
+    // ===== 识别列 ===== //
+    QUERY_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/pageQuery`,       // 查询识别列
+    GET_ALL_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/identities`,    // 获取所有识别列
+    ADD_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/add`,               // 新增识别列
+    UPDATE_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/update`,         // 更新识别列
+    DELETE_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/delete`,         // 删除识别列
+
 
     // ===== 数据源管理 ===== //
     GET_DATA_SOURCES: `${DL_BASE_URL}/dataSource/pageQuery`,          // 查询数据源
@@ -58,14 +71,25 @@ export default {
     GET_DATA_SOURCES_TYPE: `${DL_BASE_URL}/dataSource/getTypes`,      // 查询所有数据源类型
     GET_DATA_SOURCES_TABLE: `${DL_BASE_URL}/dataSource/tablelist`,    // 查询数据源下的表
     GET_DATA_SOURCES_COLUMN: `${DL_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
+    GET_COMPUTE_SOURCE: `${DL_BASE_URL}/dataSource/listComputeSource`,// 获取计算资源
     GET_DATA_SOURCES_PREVIEW: `${DL_BASE_URL}/dataSource/preview`,    // 预览数据源下的数据
+ 
+    // ===== 概览 =====//
+    GET_API_FAIL_RANK:`${DL_BASE_URL}/apis/listApiCallFailRateTopNForNormal`,//用户获取API调用失败率排行
+    GET_API_FAIL_RANK_ADMIN:`${DL_BASE_URL}/apis/listApiCallFailRateTopNForManager`,//管理员获取API调用失败率排行
+    GET_API_CALL_INFO:`${DL_BASE_URL}/apis/getApiCallInfoForNormal`,//获取API调用情况
+    GET_USER_API_CALL_RANK:`${DL_BASE_URL}/apis/listApiCallNumTopN`,//获取用户个人API调用次数排行
+    GET_USER_API_SUB_INFO:`${DL_BASE_URL}/apply/getApiSubscribe`,//获取用户个人API订购与审核情况
+    GET_MARKET_API_CALL_RANK:`${DL_BASE_URL}/apis/listUserCallTopN`,//获取市场API调用次数用户排行
+    GET_API_CALL_ERROR_INFO_ADMIN:`${DL_BASE_URL}/log/getApiCallErrorInfoForManager`,//获取市场API错误分布
+    GET_MARKET_API_APPLY_INFO:`${DL_BASE_URL}/apply/getApplyCount`,//获取API申请记录信息
 
     // ===== api授权审批 ====//
     HANDLE_APPLY: `${DL_BASE_URL}/apply/handleApply`,//审批
     GET_ALL_APPLY_LIST: `${DL_BASE_URL}/apply/allApplyList`,//获取审批列表
 
     // ===== api管理 ===== //
-    GET_ALL_API_LIST: `${DL_BASE_URL}/tag/customQuery`,//获取所有的api
+    GET_ALL_API_LIST: `${DL_BASE_URL}/tag/manageQuery`,//获取所有管理的api
     GET_DATASOURCE_BASE_INFO: `${DL_BASE_URL}/dataSource/listDataSourceBaseInfo`,//根据数据类型获取数据源
     DELETE_API: `${DL_BASE_URL}/apis/deleteApi`,//删除api
     UPDATE_API: `${DL_BASE_URL}/apis/updateApiStatus`,//更新api状态
@@ -95,10 +119,10 @@ export default {
 
     // ===== 市场信息 =====//
     GET_CATALOGUE: `${DL_BASE_URL}/catalogue/getCatalogue`,//获取市场分类信息
-    GET_API_MARKET_LIST: `${DL_BASE_URL}/tag/pageQuery`,//获取市场api列表
+    GET_API_MARKET_LIST: `${DL_BASE_URL}/tag/marketQuery`,//获取市场api列表
     GET_MARKET_API_DETAIL: `${DL_BASE_URL}/apis/getApiDetail`,//获取市场api详情
     GET_API_EXT_INFO: `${DL_BASE_URL}/apis/getApiExtInfoForNormal`,//用户获取api详情调用情况等
-    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/tag/getApiExtInfoForManager`,//管理员获取api详情调用情况等
+    GET_API_EXT_INFO_ADMIN: `${DL_BASE_URL}/apis/getApiExtInfoForManager`,//管理员获取api详情调用情况等
     APPLY_API: `${DL_BASE_URL}/apply/tagApply`,//申请API
     GET_MARKET_TOP_CALL_FUNC: `${DL_BASE_URL}/apis/listApiCallNumTopNForManager`,//管理员获取api调用次数topN
 

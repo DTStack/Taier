@@ -37,9 +37,9 @@ class APIMarket extends Component {
         loading: true,
         applyBox: false,
         apply:{
-            tagId:"",
-            apiName:"",
-            desc:""
+            tagId: "",
+            tagName: "",
+            tagDesc: ""
         },
         type1: undefined,
         type2: undefined,
@@ -61,7 +61,7 @@ class APIMarket extends Component {
         }
         
         this.props.getApiMarketList({
-            apiName: this.state.searchValue,
+            name: this.state.searchValue,
             pid: this.state.type1 || -1,
             cid: this.state.type2 || -1,
             currentPage: this.state.pageIndex,
@@ -166,14 +166,12 @@ class APIMarket extends Component {
 
     }
     handleSearch(value) {
-        
         this.setState({
             searchValue: value,
             pageIndex:1
         }, () => {
             this.getMarketApi();
-        }
-        )
+        })
     }
     getDealType(type) {
         const dic = {
@@ -183,31 +181,19 @@ class APIMarket extends Component {
         }
         return dic[type || 'nothing']
     }
-    deal(record) {
-        const method = this['deal' + record.deal]
-        if (method) {
-            method.call(this, record);
-        }
-    }
-    dealcomplete(record) {
-        this.props.router.push("/dl/mine/approved?tagId="+record.key);    
-        console.log("dealcomplete", record);
-    }
-    dealnothing(record) {
+
+    doApply(record) {
         this.setState({
             applyBox: true,
-            apply:{
-                tagId:record.key,
-                apiName:record.apiName,
-                desc:record.description
+            apply: {
+                tagId: record.id,
+                name: record.name,
+                tagDesc: record.tagDesc
             }
         })
         console.log("dealnothing", record);
     }
-    dealapplying(record) {
-        this.props.router.push("/dl/mine?tagId="+record.key);
-        console.log("dealapplying", record);
-    }
+
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         this.setState({
@@ -218,80 +204,67 @@ class APIMarket extends Component {
             this.getMarketApi();
         });
     }
+
     openDetail(text) {
         return function () {
             window.open(`${location.origin + location.pathname}#/dl/market/detail/${text}?isHideBack=true`)
         }
-
     }
-    initColumns() {
 
+    initColumns() {
         return [{
-            title: 'API名称',
-            dataIndex: 'apiName',
-            key: 'apiName',
+            title: '标签名称',
+            dataIndex: 'name',
+            key: 'name',
             render: (text, record) => {
-                return <a onClick={this.openDetail(record.key)} >{text}</a>
+                return <a onClick={this.openDetail(record.id)} >{text}</a>
             }
         }, {
             title: '值域',
-            dataIndex: 'valueRange',
-            key: 'valueRange',
+            dataIndex: 'tagRange',
+            key: 'tagRange',
             width: 100
         }, {
             title: '覆盖数',
-            dataIndex: 'overCount',
-            key: 'overCount',
+            dataIndex: 'overlayNum',
+            key: 'overlayNum',
             width: 100
         }, {
             title: '昨日调用次数',
-            dataIndex: 'callCount',
-            key: 'callCount',
+            dataIndex: 'invokeTotal',
+            key: 'invokeTotal',
         }, {
             title: '更新时间',
-            dataIndex: 'updateTime',
-            key: 'updateTime',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render(time){
                 return utils.formatDateTime(time);
             },
             sorter:true
         }, {
-            width: 80,
-            title: '预览',
-            dataIndex: 'id',
-            key: 'id',
-        }, {
-            width: 80,
+            width: 120,
             title: '操作',
-            dataIndex: 'deal',
-            render: (text, record) => {
-                return <a onClick={this.deal.bind(this, record)}>{this.getDealType(record.deal)}</a>
+            dataIndex: 'applyStatus',
+            render: (status, record) => {
+                switch(status) {
+                    case 0: {
+                        return <Link to={`/dl/mine?tagId=${record.id}`}>查看审批进度</Link>;;
+                    }
+                    case 1: 
+                    case 3:
+                    case 4: {
+                        return <Link to={`/dl/mine/approved?tagId=${record.id}`}>查看使用情况</Link>;
+                    }
+                    case -1:
+                    case 2: {
+                        return <a onClick={this.doApply.bind(this, record)}>申请</a>;
+                    }
+                    default: return '';
+                }
             }
         }]
     }
-    getSource() {
-        const errorDic = {
-            4: "complete",
-            3: "complete",
-            2: "nothing",
-            1: "complete",
-            0: "applying",
-            "-1":"nothing",
-        }
-        const apiList = this.props.apiMarket.apiList;
-        let arr = [];
-        for (let i = 0; i < apiList.length; i++) {
-            arr.push({
-                key: apiList[i].id,
-                apiName: apiList[i].name,
-                description: apiList[i].apiDesc,
-                callCount: apiList[i].invokeTotal,
-                updateTime: apiList[i].gmtModified,
-                deal: errorDic[apiList[i].applyStatus]
-            })
-        }
-        return arr;
-    }
+
     getPagination() {
         return {
             current: this.state.pageIndex,
@@ -299,18 +272,23 @@ class APIMarket extends Component {
             total: this.state.total,
         }
     }
-    getCardTitle() {
 
+    getCardTitle() {
         return (
             <div className="flex font-12">
                 <Search
-                    placeholder="输入API名称搜索"
+                    placeholder="输入标签名称搜索"
                     style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch.bind(this)}
                 />
                 <div className="m-l-8">
-                    API分类：
-                    <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
+                    标签分类：
+                    <Select 
+                        placeholder="选择标签分类"
+                        value={this.state.type1} 
+                        allowClear
+                        onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}
+                    >
                         {
                             this.renderSourceType(0, true)
                         }
@@ -318,7 +296,13 @@ class APIMarket extends Component {
                 </div>
                 <div className="m-l-8">
                     二级分类：
-                    <Select value={this.state.type2} allowClear onChange={this.onUserSourceChange.bind(this)} style={{ width: 150 }}>
+                    <Select
+                        placeholder="选择二级分类"
+                        value={this.state.type2} 
+                        allowClear 
+                        onChange={this.onUserSourceChange.bind(this)} 
+                        style={{ width: 150 }}
+                    >
                         {
                             this.renderSourceType(this.state.type1, false)
                         }
@@ -330,14 +314,14 @@ class APIMarket extends Component {
    
     jumpToMine() {
         modal.destroy();
-        this.props.router.push("/api/mine");
-
+        this.props.router.push("/dl/mine");
     }
+
     showApplySuccessModal() {
         modal = Modal.success({
             title: '申请提交成功',
             content: (
-                <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的API</a> 中查看审批进度</span>
+                <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的标签</a> 中查看审批进度</span>
             ),
             okText: "确定"
         });
@@ -356,7 +340,7 @@ class APIMarket extends Component {
     }
 
     render() {
-        const { children } = this.props
+        const { children, apiMarket } = this.props;
         return (
             <div className="api-market">
                 <ApplyBox show={this.state.applyBox}
@@ -377,7 +361,7 @@ class APIMarket extends Component {
                             columns={this.initColumns()}
                             loading={this.state.loading}
                             pagination={this.getPagination()}
-                            dataSource={this.getSource()}
+                            dataSource={apiMarket.apiList || []}
                             onChange={this.onTableChange}
                         />
                     </Card>
