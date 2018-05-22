@@ -140,7 +140,7 @@ export default class RuleTagPane extends Component {
                 const menu = (
                     <Menu>
                         {
-                            record.status != 2
+                            TAG_STATUS[record.status] != '更新中'
                             &&
                             <Menu.Item key="edit">
                                 <a onClick={this.editBaseInfo.bind(this, record)}>
@@ -149,7 +149,7 @@ export default class RuleTagPane extends Component {
                             </Menu.Item>
                         }
                         {
-                            record.status != 2
+                            TAG_STATUS[record.status] != '更新中'
                             &&
                             <Menu.Item key="edit2">
                                 <Link to={`/dl/tagConfig/ruleTagEdit/${record.id}`}>
@@ -163,7 +163,7 @@ export default class RuleTagPane extends Component {
                             </Link>
                         </Menu.Item>
                         {
-                            record.status == 3
+                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] != '已发布')
                             &&
                             <Menu.Item key="pub">
                                 <Link to={`/dl/manage/newApi/${record.id}`}>
@@ -362,6 +362,17 @@ export default class RuleTagPane extends Component {
         return arr.reverse();
     }
 
+    // 表格换页/排序
+    onTableChange = (page, filter, sorter) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: page.current,
+        };
+
+        this.getRuleTagData(queryParams);
+        this.setState({ queryParams });
+    }
+
     render() {
         const { form, tagConfig, dataSource, apiMarket } = this.props;
         const { getFieldDecorator } = form;
@@ -480,6 +491,12 @@ export default class RuleTagPane extends Component {
                                     rules: [{ 
                                         required: true, 
                                         message: '标签名称不可为空' 
+                                    }, { 
+                                        max: 20,
+                                        message: "最大字数不能超过20" 
+                                    }, { 
+                                        pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
+                                        message: '名称只能以字母，数字，下划线组成' 
                                     }], 
                                     initialValue: editData.name
                                 })(

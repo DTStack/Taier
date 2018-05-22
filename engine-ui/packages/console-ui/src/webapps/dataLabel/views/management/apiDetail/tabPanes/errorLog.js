@@ -29,13 +29,13 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getApiCallErrorInfo(id,date) {
         return dispatch(apiManageActions.getApiCallErrorInfo({
-            tagId: id,
+            apiId: id,
             time:date
         }));
     },
     queryApiCallLog(id, currentPage, bizType) {
         return dispatch(mineActions.queryApiCallLog({
-            tagId: id,
+            apiId: id,
             currentPage: currentPage,
             bizType: bizType,
             useAdmin: true
@@ -61,14 +61,14 @@ class ManageErrorLog extends Component {
         this.getErrorInfo();
 
     }
-    getErrorInfo(tagId) {
-        tagId = tagId || this.props.tagId;
-        if (!tagId) {
+    getErrorInfo(apiId) {
+        apiId = apiId || this.props.apiId;
+        if (!apiId) {
             return;
 
         }
 
-        this.props.getApiCallErrorInfo(tagId,this.props.dateType)
+        this.props.getApiCallErrorInfo(apiId,this.props.dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -90,7 +90,7 @@ class ManageErrorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(tagId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0])
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -106,10 +106,10 @@ class ManageErrorLog extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (
-            (this.props.tagId !== nextProps.tagId)
+            (this.props.apiId !== nextProps.apiId)
         ) {
 
-            this.getErrorInfo(nextProps.tagId);
+            this.getErrorInfo(nextProps.apiId);
 
         }
     }

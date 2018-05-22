@@ -32,6 +32,12 @@ export const TAG_PUBLISH_STATUS = {
     1: '已发布'
 };
 
+// Api启用状态
+export const API_OPEN_STATUS = {
+    0: '启用',
+    1: '禁用'
+};
+
 export const API_STATUS = {
     "-1":'NO_APPLY',
     "0":'IN_HAND',

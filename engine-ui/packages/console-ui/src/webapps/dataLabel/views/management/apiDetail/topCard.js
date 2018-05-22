@@ -11,7 +11,7 @@ class ManageTopCard extends Component {
                 return (
                     <div>
                         <Button onClick={this.props.openApi} style={{ marginRight: "5px" }} >开启</Button>
-                        <Button onClick={this.editApi.bind(this,this.props.tagId)} style={{ marginRight: "5px" }} type="primary">编辑</Button>
+                        <Button onClick={this.editApi.bind(this,this.props.apiId)} style={{ marginRight: "5px" }} type="primary">编辑</Button>
                         <Button onClick={this.props.deleteApi} type="danger">删除</Button>
                     </div>
                 )
@@ -31,12 +31,10 @@ class ManageTopCard extends Component {
         this.props.router.goBack();
     }
     openApiDetail() {
-
-        window.open(`${location.origin + location.pathname}#/api/market/detail/${this.props.tagId}?isHideBack=true`)
-
+        window.open(`${location.origin + location.pathname}#/dl/market/detail/${this.props.apiId}?isHideBack=true`)
     }
     getValue(key) {
-        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.tagId];
+        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.apiId];
         if (api) {
             return api[key]
         } else {
