@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import utils from 'utils'
+
 import Header from '../layout/header'
 import Footer from '../layout/footer';
+import { getInitUser } from '../../actions/user'
 
 import { MY_APPS } from '../../consts';
 import '../../styles/views/portal.scss';
@@ -14,7 +17,21 @@ import '../../styles/views/portal.scss';
 })
 class Dashboard extends Component {
 
-    componentDidMount() { }
+    componentDidMount() { 
+        this._userLoaded = false;
+        this.listenUserStatus();
+    }
+
+    listenUserStatus = () => {
+        const { dispatch } = this.props;
+        setInterval(() => {
+            const id = utils.getCookie('dt_user_id');
+            if (!this._userLoaded && id && id !== 0) {
+                this._userLoaded = true;
+                dispatch(getInitUser())
+            }
+        }, 1000);
+    }
 
     renderApps = () => {
         const { apps } = this.props;
@@ -38,7 +55,7 @@ class Dashboard extends Component {
                         <div className="middle">
                             <div className="left txt">
                                 <h1>袋鼠云·数栈</h1>
-                                <span>数据中台-让数据产生价值</span>
+                                <span>企业级一站式数据中台-让数据产生价值</span>
                             </div>
                             <div className="left img">
                                 <img src="/public/main/img/pic_banner.png"/>

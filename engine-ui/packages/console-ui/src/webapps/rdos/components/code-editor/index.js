@@ -13,6 +13,7 @@ require('codemirror/mode/sql/sql')
 require('codemirror/mode/python/python')
 require('codemirror/mode/javascript/javascript')
 require('codemirror/mode/properties/properties')
+require('codemirror/addon/display/placeholder')
 
 // require('codemirror/addon/lint/lint')
 // require('../../assets/js/sql-lint')
@@ -61,14 +62,18 @@ class CodeEditor extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { value, sync, cursor } = nextProps
+        const { value, sync, cursor,placeholder,cursorAlwaysInEnd } = nextProps
         if (this.props.value !== value) {
             if (cursor) this.self.doc.setCursor(cursor)
             if (sync) {
                 if (!value) this.self.setValue('')
                 else this.self.setValue(value)
+                if(cursorAlwaysInEnd){
+                    this.self.doc.setCursor(this.self.doc.lineCount(),null);
+                }
             }
         }
+        
     }
 
     getCodeMirrorIns() {
@@ -82,6 +87,7 @@ class CodeEditor extends Component {
             `${renderClass} ${className}` : renderClass
         let renderStyle = {
             position: 'relative',
+            minHeight:"400px"
         }
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle
         
@@ -92,6 +98,7 @@ class CodeEditor extends Component {
                 <textarea
                   ref={(e) => { this.Editor = e }}
                   name="code" 
+                  placeholder={this.props.placeholder||''}
                   defaultValue={this.props.value || ''} 
                 />
             </div>

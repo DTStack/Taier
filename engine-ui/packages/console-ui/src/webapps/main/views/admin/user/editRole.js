@@ -24,6 +24,7 @@ const isDisabled = (app, value) => {
             value === RDOS_PROJECT_ROLE.TENANT_OWVER ||
             value === RDOS_PROJECT_ROLE.VISITOR
         }
+        case MY_APPS.API: 
         case MY_APPS.DATA_QUALITY: {
             return value === DQ_PROJECT_ROLE.ADMIN ||
             value === DQ_PROJECT_ROLE.VISITOR
@@ -37,12 +38,25 @@ const isDisabled = (app, value) => {
 
 class EditRoleForm extends Component {
 
-    render() {
-        const { roles, form, user, app } = this.props;
-        const getFieldDecorator = form.getFieldDecorator;
+    componentDidMount() {
+        this.setFields(this.props.user)
+    }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.user !== nextProps.user) {
+            this.setFields(nextProps.user)
+        }
+    }
+
+    setFields = (user) => {
         const selectedRoles = user && user.roles 
         ? user.roles.map(role => role.id) : [];
+        this.props.form.setFieldsValue({ roleIds: selectedRoles });
+    }
+
+    render() {
+        const { roles, form, app } = this.props;
+        const getFieldDecorator = form.getFieldDecorator;
 
         let roleOptions = [];
         if (roles) {
@@ -55,12 +69,12 @@ class EditRoleForm extends Component {
         return (
             <Form>
                 <FormItem
-                {...formItemLayout}
-                label="请选择用户角色"
+                    {...formItemLayout}
+                    label="请选择用户角色"
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: selectedRoles,
+                        initialValue: [],
                     })(
                         <CheckboxGroup options={roleOptions} />,
                     )}

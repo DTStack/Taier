@@ -162,7 +162,7 @@ export default class TableViewer extends React.Component{
                                 <tbody>
                                     <tr>
                                         <th>所属项目</th>
-                                        <td>{ tableData.table.project }</td>
+                                        <td>{ tableData.table.projectAlias }</td>
                                     </tr>
                                     <tr>
                                         <th>创建者：</th>
@@ -255,7 +255,8 @@ export default class TableViewer extends React.Component{
                                             columns={ this.previewCols.map((str,i) => ({
                                                 title: str,
                                                 dataIndex: str,
-                                                key: str + i
+                                                key: str + i,
+                                                width:"200px"
                                             })) }
                                             className="m-table"
                                             dataSource={ previewData }

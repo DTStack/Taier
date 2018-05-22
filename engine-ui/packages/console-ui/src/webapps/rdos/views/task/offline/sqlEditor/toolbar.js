@@ -16,8 +16,11 @@ import { matchTaskParams } from '../../../../comm'
 import { updateUser } from '../../../../store/modules/user';
 
 import { 
-    output, outputRes, setOutput, setSelectionContent
+    output, outputRes, setOutput, setSelectionContent,addLoadingTab,removeLoadingTab,removeAllLoadingTab
 } from '../../../../store/modules/offlineTask/sqlEditor'
+import { 
+    execSql,stopSql
+} from '../../../../store/modules/offlineTask/sqlEditorAction'
 
 import {
     workbenchAction
@@ -28,10 +31,7 @@ const confirm = Modal.confirm;
 export default class Toolbar extends Component {
 
     state = {
-        currentSql: '',
         confirmCode: '',
-        running: false,
-        disabledStopJob: true,
         execConfirmVisible: false,
     }
 
@@ -79,64 +79,22 @@ export default class Toolbar extends Component {
         if (sqls && sqls.length > 0) {
             let i = 0;
             dispatch(setOutput(currentTab, ` 正在提交... \n waiting...`))
+            dispatch(addLoadingTab(currentTab))
             this.reqExecSQL(currentTabData, params, sqls, i)
         }
     }
 
     reqExecSQL = (task, params, sqls, index) => {
-
-        const ctx = this
-        const key = this.getUniqueKey(task.id)
         const { dispatch, currentTab } = this.props
-        params.sql = `${sqls[index]}`
-        params.uniqueKey = key
-        this.setState({ currentSql: key, disabledStopJob: false, running: true })
 
-        const succCall = (res) => {
-            ctx.setState({ disabledStopJob: true, running: false }) // 控制
-            if (res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
-            if (res.code === 1) {
-                dispatch(outputRes(currentTab, res.data))
-                dispatch(output(currentTab, '执行成功!'))
-                if (index < sqls.length - 1) {
-                    ctx.reqExecSQL(task, params, sqls, index+1)
-                }
-            }
-        }
-
-        if (utils.checkExist(task.taskType)) {// 任务执行
-            params.taskId = task.id, 
-            API.execSQLImmediately(params).then(succCall)
-        } else if (utils.checkExist(task.type)) { // 脚本执行
-            params.scriptId = task.id, 
-            API.execScript(params).then(succCall)
-        }
+        dispatch(execSql(currentTab, task, params, sqls))
+     
     }
 
     stopSQL = () => {
-        const { currentTabData } = this.props
-        const uniqueKey = this.state.currentSql
-        if (!uniqueKey) return
-
-        const succCall = res => {
-            if (res.code === 1) {
-                message.success('停止执行成功！')
-            } else {
-                message.success('停止执行失败！')
-            }
-        }
-
-        if (utils.checkExist(currentTabData.taskType)) {// 任务执行
-            API.stopSQLImmediately({ 
-                taskId: currentTabData.id,
-                uniqueKey: uniqueKey,
-            }).then(succCall)
-        } else if (utils.checkExist(currentTabData.type)) { // 脚本执行
-            API.stopScript({
-                scriptId: currentTabData.id,
-                uniqueKey: uniqueKey,
-            }).then(succCall)
-        }
+        const { currentTabData,dispatch, currentTab  } = this.props
+        
+        dispatch(stopSql(currentTab,currentTabData))
     }
 
     // 执行确认
@@ -191,13 +149,16 @@ export default class Toolbar extends Component {
     }
 
     render() {
-        const { disabledStopJob, running, execConfirmVisible, confirmCode } = this.state
+        const {  running, execConfirmVisible, confirmCode } = this.state
+        const {currentTab,sqlEditor} =this.props;
+        const isRunning=sqlEditor.running.indexOf(currentTab)>-1?true:false
+        const disabledStopJob=!isRunning;
         const { currentTabData } = this.props;
         return (
             <div className="ide-toolbar toolbar">
                 <Button
                     onClick={this.execConfirm}
-                    loading={running}
+                    loading={!disabledStopJob}
                     disabled={!disabledStopJob}
                     title="立即运行"
                     icon="play-circle-o"
@@ -226,7 +187,7 @@ export default class Toolbar extends Component {
                     onCancel={() => {this.setState({ execConfirmVisible: false })}}
                     footer={
                         <div>
-                            <Checkbox onChange={this.onNeverWarning}>不在提示</Checkbox>
+                            <Checkbox onChange={this.onNeverWarning}>不再提示</Checkbox>
                             <Button onClick={() => {this.setState({ execConfirmVisible: false })}}>取消</Button>
                             <Button type="primary" onClick={this.execSQL}>执行</Button>
                         </div>

@@ -23,14 +23,14 @@ const mapDispatchToProps = dispatch => ({
     },
     getDataSourceList(type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
-    },
+    },   
     deleteApi(apiId){
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
     openApi(apiId){
         return dispatch(apiManageActions.openApi(apiId));   
     },
-    closeApi(apiId){
+    closeApi(apiId){ 
         return dispatch(apiManageActions.closeApi(apiId));
     },
     getDataSourcesType(){
@@ -384,8 +384,8 @@ class APIMana extends Component {
                             this.setState({
                                 loading:false
                             })
-                            message.success("删除成功")
                             if (res) {
+                                message.success("删除成功")
                                 this.getAllApi();
                             }
                         }
