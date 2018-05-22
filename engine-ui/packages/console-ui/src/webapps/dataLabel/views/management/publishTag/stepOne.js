@@ -380,21 +380,6 @@ export default class StepOne extends Component {
                                         initialValue: basicInfo.originTable
                                     })(
                                         <Input disabled style={{ width: '85%' }} />
-                                        // <Select 
-                                        //     showSearch
-                                        //     placeholder="请选择表"
-                                        //     style={{ width: '85%' }}
-                                        //     onChange={this.onSourceTableChange}>
-                                        //     {
-                                        //         sourceTable.map((tableName) => {
-                                        //             return <Option 
-                                        //                 key={tableName} 
-                                        //                 value={tableName}>
-                                        //                 {tableName}
-                                        //             </Option>
-                                        //         })
-                                        //     }
-                                        // </Select>
                                     )
                                 }
                             </FormItem>
@@ -412,22 +397,6 @@ export default class StepOne extends Component {
                                         initialValue: basicInfo.originColumn
                                     })(
                                         <Input disabled style={{ width: '85%' }} />
-                                        // <Select
-                                        //     showSearch
-                                        //     // style={{ width: 150 }}
-                                        //     // optionFilterProp="title"
-                                        //     style={{ width: '85%' }}
-                                        //     placeholder="选择来源列">
-                                        //     {
-                                        //         sourceColumn.map(item => {
-                                        //             return <Option 
-                                        //                 key={item.key} 
-                                        //                 value={item.key}>
-                                        //                 {item.key}
-                                        //             </Option>
-                                        //         })
-                                        //     }
-                                        // </Select>
                                     )
                                 }
                             </FormItem>

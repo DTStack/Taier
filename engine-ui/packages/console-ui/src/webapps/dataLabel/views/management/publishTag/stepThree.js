@@ -2,7 +2,7 @@ import React,{ Component } from 'react';
 import { Icon, Button } from 'antd';
 import { Link, browserHistory, hashHistory } from 'react-router';
 
-// let timeClock;
+let timeClock;
 class ManageComplete extends Component{
 
     state={
@@ -10,29 +10,27 @@ class ManageComplete extends Component{
     }
 
     countDown = (time) => {
-        for (let i = time; i > -1; --i) {
-            setTimeout(() => {
-                if (i == 0) {
-                    const { url, history } = this.props;
+        timeClock = setInterval(() => {
+            time = time - 1;
+            this.setState({ time });
 
-                    if (url) {
-                        if (history) 
-                            browserHistory.push(url)
-                        else
-                            hashHistory.push(url)
-                    } else {
-                        browserHistory.go(-1)
-                    }
-                }
-                this.setState({ time: i });
-            }, (time - i + 1) * 1000);
-        }
+            if (time === 0) {
+                hashHistory.push('/dl/manage');
+            }
+        }, 1000);
     } 
 
     componentDidMount() {
         this.countDown(this.state.time);
     }
 
+    componentWillUnmount() {
+        clearInterval(timeClock);
+    }
+
+    back = () => {
+        hashHistory.push('/dl/manage');
+    }
 
     render() {
         return (
@@ -50,7 +48,7 @@ class ManageComplete extends Component{
                 </div>
                 <div className="txt-center" style={{ padding: "20px 0" }}>
                     {/*<Button size="large" type="primary" onClick={this.props.reDo}>继续创建</Button>*/}
-                    <Button size="large" style={{marginLeft:"8px"}}><Link to="/dl/tagConfig">返回</Link></Button>
+                    <Button size="large" style={{marginLeft:"8px"}}><a onClick={this.back}>返回</a></Button>
                 </div>
             </div>
         )
