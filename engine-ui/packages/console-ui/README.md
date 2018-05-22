@@ -16,13 +16,9 @@ yarn
 yarn add package.name
 ```
 
-# 版本号规则：
-- 修订版本号：日常 bugfix 更新。（如果有紧急的 bugfix，则任何时候都可发布）
-- 次版本号：带有新特性的向下兼容的版本。
-- 主版本号：含有破坏性更新和新特性。
-
 
 # 其他文档
+- [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
 ](http://git.dtstack.cn/ziv/data-stack-web/wikis/Development)
 - [RedmineAPI文档地址](http://redmine.prod.dtstack.cn/projects/rdos)

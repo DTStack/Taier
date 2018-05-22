@@ -229,7 +229,7 @@ class SourceForm extends React.Component {
                     <Select
                         showSearch
                         onChange={ this.changeSource.bind(this) }
-                        disabled={ !isCurrentTabNew }
+                        disabled={ !isCurrentTabNew || src.type === DATA_SOURCE.ES}
                         optionFilterProp="name"
                     >
                         {dataSourceList.map(src => {
@@ -329,7 +329,7 @@ class SourceForm extends React.Component {
         switch(sourceMap.type.type) {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.SQLSERVER: {
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -396,7 +396,9 @@ class SourceForm extends React.Component {
                     </FormItem>
                 ];
                 break;
-            case DATA_SOURCE.HIVE: // Relational DB
+            }
+            case DATA_SOURCE.MAXCOMPUTE: 
+            case DATA_SOURCE.HIVE: {// Relational DB
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -442,7 +444,7 @@ class SourceForm extends React.Component {
                     </FormItem>
                 ];
                 break;
-
+            }
             case DATA_SOURCE.HDFS: // HDFS
                 formItem = [
                     <FormItem
@@ -678,6 +680,24 @@ class SourceForm extends React.Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
+                        style={{display: fileType === 'text' ? 'block': 'none'}}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                    {getFieldDecorator('fieldDelimiter', {
+                        rules: [{
+                            required: true,
+                            message: '分隔符不可为空！',
+                        }],
+                        initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
+                    })(
+                        <Input
+                            placeholder="\001"
+                            onChange={ this.submitForm.bind(this) } />
+                    )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
                         label="编码"
                         key="encoding"
                         style={{display: fileType === 'text' ? 'block': 'none'}}
@@ -694,24 +714,6 @@ class SourceForm extends React.Component {
                                 <Option value="gbk">gbk</Option>
                             </Select>
                         )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        style={{display: fileType === 'text' ? 'block': 'none'}}
-                        label="分隔符"
-                        key="fieldDelimiter"
-                    >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [{
-                            required: true,
-                            message: '分隔符不可为空！',
-                        }],
-                        initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
-                    })(
-                        <Input
-                            placeholder="\001"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
                     </FormItem>,
                 ]
                 break;
