@@ -22,6 +22,7 @@ const orderType = {
     "descend": 'desc'
 }
 class ApprovedCard extends Component {
+
     state = {
         pageIndex: 1,
         slidePaneShowNoApproved: false,
@@ -31,44 +32,44 @@ class ApprovedCard extends Component {
         sortedInfo: {},
         filterInfo: {},
         showRecord: {},
-        apiName:""
-
+        apiName: undefined,
     }
+
     getAppliedList() {
         this.setState({
             loading: true
         })
+        const { filterInfo, sortedInfo, pageIndex, apiName } = this.state;
+
         this.props.getAppliedList(
-            this.state.pageIndex,
-            sortType[this.state.sortedInfo.columnKey],
-            orderType[this.state.sortedInfo.order],
-            this.state.filterInfo.status,
-            this.state.apiName
+            pageIndex,
+            sortType[sortedInfo.columnKey],
+            orderType[sortedInfo.order],
+            filterInfo.status,
+            apiName,
         )
+        .then(
+            (res) => {
 
-            .then(
-                (res) => {
-
-                    if (this.props.tagId) {
-                        if (res) {
-                            for (let i in res.data.data) {
-                                let item = res.data.data[i];
-                                if (this.props.tagId == item.tagId) {
-                                    this.apiClick(item);
-                                    break;
-                                }
+                if (this.props.tagId) {
+                    if (res) {
+                        for (let i in res.data.data) {
+                            let item = res.data.data[i];
+                            if (this.props.tagId == item.tagId) {
+                                this.apiClick(item);
+                                break;
                             }
                         }
                     }
-                    this.setState({
-                        loading: false
-                    })
                 }
-            );
+                this.setState({
+                    loading: false
+                })
+            }
+        );
     }
     componentDidMount() {
         this.getAppliedList();
-
     }
     componentWillReceiveProps(nextProps) {
         if (this.props.tagId != nextProps.tagId && nextProps.tagId) {
@@ -88,7 +89,6 @@ class ApprovedCard extends Component {
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
-        console.log(filter);
         this.setState({
             pageIndex: page.current,
             sortedInfo: sorter,
@@ -112,7 +112,6 @@ class ApprovedCard extends Component {
         if (method) {
             method.call(this, record);
         }
-
     }
     statesuccess(record) {
 
@@ -124,6 +123,7 @@ class ApprovedCard extends Component {
 
         })
     }
+
     statenotPass(record) {
         this.setState({
             slidePaneShowSuccess: false,
@@ -203,8 +203,8 @@ class ApprovedCard extends Component {
 
         return [{
             title: '标签名称',
-            dataIndex: 'apiName',
-            key: 'apiName',
+            dataIndex: 'tagName',
+            key: 'tagName',
             render: (text, record) => {
                 const isDelete = record.apiStatus == 1 ? true : false;
                 const deleteText = isDelete ? '(全平台禁用)' : ''
@@ -215,7 +215,6 @@ class ApprovedCard extends Component {
             dataIndex: 'status',
             key: 'status',
             render(text) {
-
                 const dic = {
                     success: "已通过",
                     disabled: "取消授权",
@@ -229,19 +228,16 @@ class ApprovedCard extends Component {
                 { text: '已拒绝', value: '2' },
                 { text: '停用', value: '3' },
                 { text: '取消授权', value: '4' },
-
             ]
         }, {
             title: '描述',
-            dataIndex: 'apiDesc',
-            key: 'apiDesc',
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
             width: 300
         }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
             key: 'recentCallNum',
-
-
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
@@ -249,7 +245,6 @@ class ApprovedCard extends Component {
             render(text) {
                 return text + "%"
             }
-
         },
         {
             title: '累计调用',
@@ -339,8 +334,8 @@ class ApprovedCard extends Component {
                     </SlidePaneDetail>
                     <div className="flex font-12">
                         <Search
-                            placeholder="输入API名称搜索"
-                            style={{ width: 150, margin: '10px 0px',marginLeft:"10px" }}
+                            placeholder="输入标签名称搜索"
+                            style={{ width: 150, margin: '10px 0px', marginLeft:"10px" }}
                             onSearch={this.handleApiSearch.bind(this)}
                         />
                     </div>

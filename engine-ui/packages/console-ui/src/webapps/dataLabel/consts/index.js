@@ -10,14 +10,31 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+// 标签类型
+export const TAG_TYPE = {
+    REGISTER: 1,
+    CUSTOM: 2,
+}
+
+// 标签状态
+export const TAG_STATUS = {
+    0: '新建',
+    1: "等待运行",
+    2: "更新中", 
+    3: "更新完成", 
+    4: "更新失败",
+    5: "禁用",
+};
+
 export const API_STATUS = {
     "-1":'NO_APPLY',
     "0":'IN_HAND',
     "1":'PASS',
     "2":'REJECT',
     "3":'STOPPED',
-    "4":'DISABLE'
+    "4":'DISABLE',
 }
+
 export const EXCHANGE_API_STATUS= {
     '-1':"nothing",
     0: 'inhand',
@@ -26,6 +43,7 @@ export const EXCHANGE_API_STATUS= {
     3: 'stop',
     4: 'disabled'
 }
+
 export const EXCHANGE_APPLY_STATUS= {
     0: 'notApproved',
     1: 'pass',
@@ -78,7 +96,18 @@ export const tailFormItemLayout = { // 表单末尾布局
             offset: 6,
         },
     },
-}
+};
+
+export const halfFormItemLayout = { // 表单中间布局
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 10 },
+    },
+};
 
 // 不显示label
 export const rowFormItemLayout = { 

@@ -173,9 +173,8 @@ class ApprovedCard extends Component {
                 console.log('Cancel');
             },
         });
-
-
     }
+
     dealstop(record) {
         confirm({
             title: '确认开启',
@@ -196,9 +195,11 @@ class ApprovedCard extends Component {
             },
         });
     }
+
     dealnotPass(record) {
         this.props.router.push("/api/market")
     }
+
     initColumns() {
 
         return [{
@@ -285,12 +286,15 @@ class ApprovedCard extends Component {
             }
         }]
     }
+
     getSource() {
         return this.props.mine.apiList.appliedList.data || [];
     }
+
     getTotal() {
         return (this.props.mine.apiList.appliedList && this.props.mine.apiList.appliedList.totalCount) || 0
     }
+
     getPagination() {
         return {
             current: this.state.pageIndex,
@@ -298,6 +302,7 @@ class ApprovedCard extends Component {
             total: this.getTotal(),
         }
     }
+
     handleApiSearch(key) {
         this.setState({
             apiName: key,
@@ -307,6 +312,7 @@ class ApprovedCard extends Component {
                 this.getAppliedList();
             })
     }
+
     render() {
 
         return (

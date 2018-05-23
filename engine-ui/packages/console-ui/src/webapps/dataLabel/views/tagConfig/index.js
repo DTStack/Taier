@@ -12,11 +12,9 @@ const TabPane = Tabs.TabPane;
 export default class TagConfig extends Component {
 
     state = {
-
     }
 
     componentDidMount() {
-
     }
 
     showInfo = () => {
@@ -28,7 +26,6 @@ export default class TagConfig extends Component {
                 <div>
                     <p>注册标签：您已有计算好的标签结果，不需要配置标签计算逻辑，注册标签后即可提供标签服务</p>
                     <p>使用流程：点击“注册标签”->配置标签服务的信息->发布</p>
-
                     <p style={{ marginTop: 10 }}>新建标签：您只有原始数据，需要通过加工原始数据来形成标签</p>
                     <p>使用流程：点击“新建标签”->配置标签计算逻辑->配置标签服务信息->发布</p>
                 </div>

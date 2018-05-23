@@ -7,6 +7,20 @@ export const TASK_STATUS = {
     UNPASS: 4,
 }
 
+
+// 数据源类型
+export const DATA_SOURCE = {
+    MYSQL: 1,
+    ORACLE: 2,
+    SQLSERVER: 3,
+    HDFS: 6,
+    HIVE: 7,
+    HBASE: 8,
+    FTP: 9,
+    MAXCOMPUTE: 10,
+}
+
+
 /**
  * 校验状态
  */
@@ -45,18 +59,6 @@ export const CHECK_STATUS_CN = [{
     text: '校验结果失效',
     value: '6',
 }]
-
-// 数据源类型
-export const DATA_SOURCE = {
-    MYSQL: 1,
-    ORACLE: 2,
-    SQLSERVER: 3,
-    HDFS: 6,
-    HIVE: 7,
-    HBASE: 8,
-    FTP: 9,
-    MAXCOMPUTE: 10,
-}
 
 export const dataSourceTypes = [ // 数据源类型
     '未知类型', 

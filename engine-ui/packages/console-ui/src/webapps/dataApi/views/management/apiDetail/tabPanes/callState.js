@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Col, Row, Table } from 'antd';
+
 import Resize from 'widgets/resize';
 import { connect } from "react-redux";
 import { doubleLineAreaChartOptions } from '../../../../consts';
