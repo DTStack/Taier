@@ -225,15 +225,17 @@ class APIMarket extends Component {
             dataIndex: 'tagRange',
             key: 'tagRange',
             width: '15%',
-        }, {
-            title: '覆盖数',
-            dataIndex: 'overlayNum',
-            key: 'overlayNum',
-            width: '15%',
-        }, {
+        }, 
+        // {
+        //     title: '覆盖数',
+        //     dataIndex: 'overlayNum',
+        //     key: 'overlayNum',
+        //     width: '15%',
+        // }, 
+        {
             title: '昨日调用次数',
-            dataIndex: 'invokeTotal',
-            key: 'invokeTotal',
+            dataIndex: 'totalYd',
+            key: 'totalYd',
             width: '15%',
         }, {
             title: '更新时间',
