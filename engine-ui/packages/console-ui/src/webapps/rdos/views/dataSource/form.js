@@ -353,7 +353,6 @@ class DataSourceForm extends Component {
                 }
                 return formItems
             }
-
             case DATA_SOURCE.HBASE: {
                 return [
                     <FormItem
@@ -550,7 +549,7 @@ class DataSourceForm extends Component {
                       key="Address"
                       hasFeedback
                     >
-                        {getFieldDecorator('address', {
+                        {getFieldDecorator('dataJson.address', {
                             rules: [{
                                 required: true, message: 'Address不可为空！',
                             }],
