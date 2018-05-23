@@ -49,6 +49,10 @@ export default class PublishTag extends Component {
                 });
             }
         });
+        
+        if (this.props.route.path.indexOf('editApi') > -1) {
+            this.setState({ editStatus: 'edit'});
+        }
     }
 
     navToStep = (value) => {
