@@ -68,8 +68,8 @@ export default class RuleTagEdit extends Component {
     state = {
         tagId: this.props.routeParams.id,
         currentData: {},
-        conditionList: [],
         curCondition: {},
+        conditionList: [],
         computeList: [],
         scheduleConfObj: initialSchedule,
         notifyVO: {
@@ -114,17 +114,6 @@ export default class RuleTagEdit extends Component {
             if (res.code === 1) {
                 this.setState({
                     computeList: res.data
-                });
-            }
-        });
-    }
-
-    // 获取Tag资源数据
-    getTagCondition = (params) => {
-        TCApi.getTagCondition(params).then((res) => {
-            if (res.code === 1) {
-                this.setState({
-                    conditionList: res.data
                 });
             }
         });
@@ -279,11 +268,11 @@ export default class RuleTagEdit extends Component {
 
     // 已有数据
     renderTD = (text, record, type) => {
-        // return text;
         switch (type) {
             case 'dataSourceId': {
                 return `${record.dataSourceName}（${record.sourceTypeValue}）`
             }
+
             default:
                 return text;
         }
@@ -317,7 +306,8 @@ export default class RuleTagEdit extends Component {
 
         if (target) {
             target.editable = true;
-            target.editStatus = "edit";
+            target.editStatus = 'edit';
+            this.props.resetDataSourcesTable();
             this.props.getDataSourcesTable({ sourceId: target.dataSourceId });
 
             this.setState({ 
@@ -349,37 +339,42 @@ export default class RuleTagEdit extends Component {
 
     // 删除规则
     deleteCondition(id) {
-        const { tagId } = this.state;
-        
-        TCApi.deleteTagCondition({
-            conditionId: id
-        }).then((res) => {
-            if (res.code === 1) {
-                message.success('删除成功');
+        let newData = [...this.state.conditionList],
+            target = newData.filter(item => id === item.id)[0],
+            index = newData.indexOf(target);
 
-                this.getTagCondition({ tagId });
-            }
-        });
+        if (target) {
+            newData.splice(index, 1);
+            this.setState({ conditionList: newData });
+        }
     }
 
     // 保存condition
     saveCondition(id) {
-        const { form } = this.props;
-        const { tagId } = this.state;
+        const { form, dataSource } = this.props;
+        const { sourceList } = dataSource;
+        const { tagId, curCondition, conditionList } = this.state;
+
+        let newData = [...conditionList],
+            target = newData.filter(item => id === item.id)[0],
+            index = newData.indexOf(target);
 
         form.validateFields(['dataSourceId', 'tableName', 'sqlCondition'], (err, values) => {
             if(!err) {
-                TCApi.editTagCondition({
-                    ...values, 
-                    id: id > 0 ? id : undefined, 
-                    tagId: tagId
-                }).then((res) => {
-                    if (res.code === 1) {
-                        message.success('保存成功');
+                delete curCondition.editable;
 
-                        this.setState({ curCondition: {} });
-                        this.getTagCondition({ tagId });
-                    }
+                let source = [...sourceList].filter(item => item.id == values.dataSourceId)[0];
+
+                newData[index] = {
+                    ...curCondition,
+                    ...values,
+                    dataSourceName: source.dataName,
+                    sourceTypeValue: source.sourceTypeValue
+                };
+
+                this.setState({ 
+                    curCondition: {},
+                    conditionList: newData
                 });
             }
         });
@@ -399,12 +394,11 @@ export default class RuleTagEdit extends Component {
             } else {
                 newData.shift();
                 form.resetFields();
-                this.setState({ curCondition: {} });
             }
         }
 
         let target = {
-            id: 0,
+            id: newData[0] ? newData[0].id + 1 : 1,
             editStatus: 'new',
             editable: true,
             tagId: tagId,
@@ -871,6 +865,13 @@ export default class RuleTagEdit extends Component {
             }
             
             if (!err) {
+                // 新增的condition不需要id
+                conditionList.forEach((element, index) => {
+                    if (element.editStatus === 'new') {
+                        delete element.id
+                    }
+                });
+
                 TCApi.updateTagSqlInfo({
                     id: tagId,
                     conditions: conditionList,

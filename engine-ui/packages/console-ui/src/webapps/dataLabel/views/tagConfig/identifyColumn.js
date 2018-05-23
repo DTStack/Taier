@@ -149,7 +149,7 @@ export default class IdentifyColumn extends Component {
             currentPage: page.current,
         };
 
-        this.getRuleTagData(queryParams);
+        this.getColumnData(queryParams);
         this.setState({ queryParams });
     }
     

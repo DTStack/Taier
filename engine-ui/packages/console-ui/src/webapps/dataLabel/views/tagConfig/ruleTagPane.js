@@ -27,8 +27,8 @@ const mapDispatchToProps = dispatch => ({
     getAllIdentifyColumn(params) {
         dispatch(tagConfigActions.getAllIdentifyColumn(params));
     },
-    getDataSourcesList(params) {
-        dispatch(dataSourceActions.getDataSourcesList(params));
+    getTagDataSourcesList(params) {
+        dispatch(dataSourceActions.getTagDataSourcesList(params));
     },
     getCatalogue(pid) {
         dispatch(apiMarketActions.getCatalogue(pid));
@@ -51,7 +51,7 @@ export default class RuleTagPane extends Component {
     }
 
     componentDidMount() {
-        this.props.getDataSourcesList();
+        this.props.getTagDataSourcesList();
         this.props.getAllIdentifyColumn();
         this.props.getCatalogue(0);
 
@@ -98,7 +98,12 @@ export default class RuleTagPane extends Component {
             title: '目标数据库',
             dataIndex: 'dataSourceName',
             key: 'dataSourceName',
-            width: '10%'
+            width: '8%'
+        }, {
+            title: '来源表',
+            dataIndex: 'originTable',
+            key: 'originTable',
+            width: '8%'
         }, {
             title: '识别列ID',
             dataIndex: 'identityColumn',
@@ -376,7 +381,7 @@ export default class RuleTagPane extends Component {
     render() {
         const { form, tagConfig, dataSource, apiMarket } = this.props;
         const { getFieldDecorator } = form;
-        const { sourceList } = dataSource;
+        const { tagSourceList } = dataSource;
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
         const { queryParams, visible, loading, tagList, editData, catalogue2Data } = this.state;
@@ -568,7 +573,7 @@ export default class RuleTagPane extends Component {
                                         disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
                                         onChange={this.onSourceChange}>
                                         {
-                                            sourceList.map((source) => {
+                                            tagSourceList.map((source) => {
                                                 let title = `${source.dataName}（${source.sourceTypeValue}）`;
                                                 return <Option 
                                                     key={source.id} 
