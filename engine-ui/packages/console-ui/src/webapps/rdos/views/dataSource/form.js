@@ -461,11 +461,11 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '连接模式不可为空！',
                             }],
-                            initialValue: config.connectMode || 1,
+                            initialValue: config.connectMode || "1",
                         })(
                             <RadioGroup>
-                                <Radio value={1}>Port (主动)</Radio>
-                                <Radio value={2}>Pasv（被动）</Radio>
+                                <Radio value="1">Port (主动)</Radio>
+                                <Radio value="2">Pasv（被动）</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
@@ -479,11 +479,11 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '协议不可为空！',
                             }],
-                            initialValue: config.protocol || 1,
+                            initialValue: config.protocol || "1",
                         })(
                             <RadioGroup>
-                                <Radio value={1}>Standard</Radio>
-                                <Radio value={2}>SFTP</Radio>
+                                <Radio value="1">Standard</Radio>
+                                <Radio value="2">SFTP</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
