@@ -17,6 +17,8 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import { matchTaskParams } from '../../../../comm';
+import { DatabaseType } from '../../../../components/status';
+
 import {
     formItemLayout,
     dataSourceTypes,
@@ -229,8 +231,8 @@ class SourceForm extends React.Component {
                         <Select
                             showSearch
                             onChange={this.changeSource.bind(this)}
-
                             optionFilterProp="name"
+                            disabled={ !isCurrentTabNew }
                         >
                             {dataSourceList.map(src => {
                                 return (
@@ -238,9 +240,12 @@ class SourceForm extends React.Component {
                                         key={src.id}
                                         name={src.dataName}
                                         value={`${src.id}`}
-                                        disabled={!isCurrentTabNew || src.type === DATA_SOURCE.ES}
+                                        disabled={
+                                            src.type === DATA_SOURCE.ES || 
+                                            src.type === DATA_SOURCE.MAXCOMPUTE
+                                        }
                                     >
-                                        {src.dataName}( {dataSourceTypes[src.type]} )
+                                        {src.dataName}( <DatabaseType value={src.type} /> )
                                     </Option>
                                 )
                             })}
