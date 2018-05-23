@@ -46,7 +46,8 @@ class TableList extends Component {
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
             this.setState({ current: 1 }, () => {
-                this.search()
+                this.search();
+                this.loadCatalogue();
             })
         }
     }

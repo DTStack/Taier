@@ -22,6 +22,7 @@ const orderType = {
     "descend": 'desc'
 }
 class ApprovedCard extends Component {
+
     state = {
         pageIndex: 1,
         slidePaneShowNoApproved: false,
@@ -32,8 +33,8 @@ class ApprovedCard extends Component {
         filterInfo: {},
         showRecord: {},
         apiName: undefined,
-
     }
+
     getAppliedList() {
         this.setState({
             loading: true

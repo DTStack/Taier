@@ -1355,9 +1355,9 @@ class Keymap extends React.Component{
      * @param {*} isReader 
      */
     doEditKeyRow = (formData) => {
-        const { 
-            editSourceKeyRow, 
-            editTargetKeyRow, 
+        const {
+            editSourceKeyRow,
+            editTargetKeyRow,
             editKeyMapTarget,
         } = this.props;
         const { keyModal } = this.state;
@@ -1405,7 +1405,7 @@ const mapState = state => {
         sourceCol: dataSync.sourceMap.column || [],
         sourceSrcType: dataSync.sourceMap.type && dataSync.sourceMap.type.type, // 源头数据源类型
         sourceFileType: dataSync.sourceMap.type && dataSync.sourceMap.type.fileType,
-        keymap: dataSync.keymap
+        keymap: dataSync.keymap,
     };
 };
 
