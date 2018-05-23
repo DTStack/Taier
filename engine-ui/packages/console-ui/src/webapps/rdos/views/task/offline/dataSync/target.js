@@ -185,11 +185,11 @@ class TargetForm extends React.Component {
                     <Select
                         showSearch
                         onChange={ this.changeSource.bind(this) }
-                        disabled={ !isCurrentTabNew || src.type === DATA_SOURCE.FTP }
                         optionFilterProp="name"
                     >
                         {dataSourceList.map(src => {
                             return <Option key={ src.id } 
+                                disabled={ !isCurrentTabNew || src.type === DATA_SOURCE.FTP }
                                 name={src.dataName}
                                 value={ `${src.id}` }>
                                 { src.dataName }( { dataSourceTypes[src.type] } )
