@@ -233,13 +233,16 @@ class SourceForm extends React.Component {
                             optionFilterProp="name"
                         >
                             {dataSourceList.map(src => {
-                                return <Option
-                                    key={src.id}
-                                    name={src.dataName}
-                                    value={`${src.id}`}
-                                    disabled={!isCurrentTabNew || src.type === DATA_SOURCE.ES}>
-                                    {src.dataName}( {dataSourceTypes[src.type]} )
-                            </Option>
+                                return (
+                                    <Option
+                                        key={src.id}
+                                        name={src.dataName}
+                                        value={`${src.id}`}
+                                        disabled={!isCurrentTabNew || src.type === DATA_SOURCE.ES}
+                                    >
+                                        {src.dataName}( {dataSourceTypes[src.type]} )
+                                    </Option>
+                                )
                             })}
                         </Select>
                     )}
