@@ -162,7 +162,7 @@ class ImportTemplateForm extends Component {
                         )}
                     </FormItem>
                     <FormItem
-                        style={{ marginBottom: "8px" }}
+                        style={{ marginBottom: "35px" }}
                         {...formItemLayout}
                         label="数据源"
                         hasFeedback
@@ -178,7 +178,6 @@ class ImportTemplateForm extends Component {
                                 {this.getSourceList()}
                             </Select>
                         )}
-                        <a onClick={this.newSource.bind(this)}>新增数据源</a>
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
@@ -199,7 +198,6 @@ class ImportTemplateForm extends Component {
                         )}
                     </FormItem>
                     <FormItem
-                        style={{ marginBottom: "8px" }}
                         {...formItemLayout}
                         label="数据源"
                         hasFeedback
@@ -215,7 +213,6 @@ class ImportTemplateForm extends Component {
                                 {this.getTargetList()}
                             </Select>
                         )}
-                        <a onClick={this.newSource.bind(this)}>新增数据源</a>
                     </FormItem>
                 </Form>
             </Modal>
