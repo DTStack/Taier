@@ -384,8 +384,8 @@ class APIMana extends Component {
                             this.setState({
                                 loading:false
                             })
-                            message.success("删除成功")
                             if (res) {
+                                message.success("删除成功")
                                 this.getAllApi();
                             }
                         }

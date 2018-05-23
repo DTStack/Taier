@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
 import {
     Row, Col, Table,
     Button, Form, Select,
     Input, TreeSelect, Icon,
-    message, Checkbox
+    message, Checkbox, Modal
 } from 'antd';
 
 import TableCell from 'widgets/tableCell';
@@ -14,6 +14,7 @@ import TableCell from 'widgets/tableCell';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { dataSourceTypes, formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
+import RCApi from "../../../api/ruleConfig";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -22,7 +23,7 @@ const TreeNode = TreeSelect.TreeNode;
 const mapStateToProps = state => {
     const { dataSource } = state;
     return { dataSource }
-}
+} 
 
 const mapDispatchToProps = dispatch => ({
     getDataSourcesList(params) {
@@ -48,7 +49,8 @@ export default class StepOne extends Component {
         super(props);
         this.state = {
             showPreview: false,
-            sourcePreview: {}
+            sourcePreview: {},
+            loading: false
         }
     }
 
@@ -122,6 +124,39 @@ export default class StepOne extends Component {
                 this.props.changeHavePart(item.type === 7 || item.type === 10);
             }
         });
+    }
+
+    /**
+     * 查看是否存在相同规则
+     * 
+     */
+    checkMonitor() {
+        const { editParams } = this.props;
+        const params = {
+            tableName: editParams.tableName,
+            dataSourceId: editParams.dataSourceId,
+            partition: editParams.partition,
+        }
+
+        this.setState({
+            loading: true
+        })
+
+        return RCApi.checkMonitor(params)
+            .then(
+                (res) => {
+                    this.setState({
+                        loading: false
+                    })
+
+                    if (res && res.data) {
+                        return res.data;
+                    } else {
+                        return null;
+                    }
+                }
+            )
+
     }
 
     // 数据源变化回调
@@ -250,12 +285,42 @@ export default class StepOne extends Component {
         )
     }
 
+    jumpToEditRule(data,modal) {
+        this.modal&&this.modal.destroy();
+        hashHistory.push({
+            pathname: "/dq/rule",
+            query: {
+                tableName: data.tableName,
+                tableId: data.tableId
+            }
+        })
+    }
+
     next = () => {
         const { currentStep, navToStep, form } = this.props;
 
         form.validateFields({ force: true }, (err, values) => {
             if (!err) {
-                navToStep(currentStep + 1);
+                this.checkMonitor()
+                    .then(
+                        (data) => {
+                            if (!data) {
+                                navToStep(currentStep + 1);
+                                return;
+                            } else {
+                                const modal = Modal.warning({
+                                    title: "该规则配置已存在",
+                                    content: (
+                                        <span>
+                                            该规则配置已存在，您可以直接前往
+                                    <a onClick={this.jumpToEditRule.bind(this, data)} > 编辑</a>
+                                        </span>
+                                    )
+                                })
+                                this.modal=modal;
+                            }
+                        }
+                    )
             }
         })
     }
@@ -359,7 +424,7 @@ export default class StepOne extends Component {
         const { getFieldDecorator } = form;
         const { dataSourceId, tableName } = editParams;
         const { sourceList, sourceTable, tableLoading } = dataSource;
-        const { showPreview, sourcePreview } = this.state;
+        const { showPreview, sourcePreview, loading } = this.state;
 
         return (
             <div>
@@ -411,7 +476,7 @@ export default class StepOne extends Component {
                             {
                                 tableName
                                 &&
-                                <Checkbox onChange={this.onSubscribeChange}>订阅</Checkbox>
+                                <Checkbox checked={true} onChange={this.onSubscribeChange}>订阅</Checkbox>
                             }
                         </FormItem>
 
@@ -444,7 +509,7 @@ export default class StepOne extends Component {
                     <Button>
                         <Link to="/dq/rule">取消</Link>
                     </Button>
-                    <Button className="m-l-8" type="primary" onClick={this.next}>
+                    <Button loading={loading} className="m-l-8" type="primary" onClick={this.next}>
                         下一步
                     </Button>
                 </div>

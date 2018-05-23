@@ -8,16 +8,17 @@ export const ruleConfigActions = {
 			dispatch({
 				type: ruleConfigActionType.CHANGE_LOADING
 			});
-			API.getMonitorLists(params).then((res) => {
+			return API.getMonitorLists(params).then((res) => {
+				dispatch({
+					type: ruleConfigActionType.CHANGE_LOADING
+				});
 				if (res.code === 1) {
 					dispatch({
 						type: ruleConfigActionType.GET_MONITOR_LIST,
 						payload: res.data
 					});
+					return res;
 				} 
-				dispatch({
-					type: ruleConfigActionType.CHANGE_LOADING
-				});
 			});
 		}
 	},
