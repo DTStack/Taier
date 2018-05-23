@@ -240,7 +240,7 @@ class TargetForm extends React.Component{
                                 return <Option 
                                     key={ `rdb-target-${table}` } 
                                     value={ table }>
-                              main/consts      { table }
+                                    { table }
                                 </Option>
                             })}
                         </Select>
