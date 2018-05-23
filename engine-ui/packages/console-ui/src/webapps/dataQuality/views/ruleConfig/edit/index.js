@@ -67,7 +67,7 @@ export default class RuleConfigEdit extends Component {
                 />
             },
             {
-                title: '监控执行', content: <StepThree
+                title: '调度属性', content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
                     editParams={editParams}

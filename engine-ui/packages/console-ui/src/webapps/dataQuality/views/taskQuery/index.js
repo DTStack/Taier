@@ -44,8 +44,8 @@ export default class TaskQuery extends Component {
             dataSourceId: undefined,
             dataSourceType: utils.getParameterByName('source') || undefined,
             subscribe: undefined,
-            executeStartTime: null,
-            executeEndTime: null,
+            executeStartTime: utils.getParameterByName('startTime') || undefined,
+            executeEndTime: utils.getParameterByName('endTime') || undefined,
             bizTime: 0,
 
         },
@@ -55,28 +55,9 @@ export default class TaskQuery extends Component {
         visibleList: [],
     }
 
-    componentWillMount() {
-        const query = this.props.router.location.query;
-
-        if (query) {
-            const { startTime, endTime } = query;
-
-            this.setState({
-                params: {
-                    ...this.state.params,
-                    executeStartTime: startTime,
-                    executeEndTime: endTime
-                }
-            })
-        }
-    }
-
     componentDidMount() {
-        const query = this.props.router.location.query;
-
         this.props.getTaskList(this.state.params);
         this.props.getDataSourcesList();
-
     }
 
     // table设置
