@@ -7,8 +7,8 @@ export const DATA_SOURCE = {
     HDFS: 6,
     HIVE: 7,
     HBASE: 8,
-    MAXCOMPUTE: 9,
-    FTP: 10,
+    FTP: 9,
+    MAXCOMPUTE: 10,
     ES: 11,
 }
 
@@ -293,31 +293,31 @@ export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
 
 export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
     text: 'MySQL',
-    value: 1,
+    value: DATA_SOURCE.MYSQL,
 }, {
     text: 'Oracle',
-    value: 2,
+    value: DATA_SOURCE.ORACLE,
 }, {
     text: 'SQLServer',
-    value: 3,
+    value: DATA_SOURCE.SQLSERVER,
 }, {
     text: 'HDFS',
-    value: 6,
+    value: DATA_SOURCE.HDFS,
 }, {
     text: 'Hive',
-    value: 7,
+    value: DATA_SOURCE.HIVE,
 }, {
     text: 'HBase',
-    value: 8,
+    value: DATA_SOURCE.HBASE,
 }, {
     text: 'MaxCompute',
-    value: 9,
+    value: DATA_SOURCE.MAXCOMPUTE,
 }, {
     text: 'FTP',
-    value: 10,
+    value: DATA_SOURCE.FTP,
 }, {
     text: 'ElasticSearch',
-    value: 11,
+    value: DATA_SOURCE.ES,
 }]
 
 export const propEditorOptions = { // 编辑器选项

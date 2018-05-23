@@ -3,19 +3,19 @@ import React, { Component } from 'react'
 import {
     Table, Input, Button, Row, Col,
     Select, Form, message, Checkbox,
-    Radio, Modal, Popconfirm,Tooltip,
+    Radio, Modal, Popconfirm, Tooltip,
     Icon
 } from 'antd'
 
 import utils from 'utils';
 
-import { 
-    formItemLayout, 
-    tailFormItemLayout, 
+import {
+    formItemLayout,
+    tailFormItemLayout,
     DataSourceTypeFilter,
     DATA_SOURCE,
 } from '../../comm/const';
-import { 
+import {
     jdbcUrlExample
 } from '../../comm/JDBCCommon';
 
@@ -27,21 +27,21 @@ const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 
-const defaultConf = 
-`{
+const defaultConf =
+    `{
 "jdbcUrl": "", 
 "username": "", 
 "password": ""
 }`
-const hdfsConf = 
-`{
+const hdfsConf =
+    `{
 "dfs.nameservices": "defaultDfs", 
 "dfs.ha.namenodes.defaultDfs": "namenode1", 
 "dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
-const hBaseConf = 
-`{
+const hBaseConf =
+    `{
 "zookeeper.cluster": "ip1:port,ip2:port/子目录",
 "hbase.rootdir": "hdfs: //ip:9000/hbase",
 "hbase.cluster.distributed": "true",
@@ -49,7 +49,7 @@ const hBaseConf =
 }`
 
 function getConnectionConfig(sourceType) {
-    switch(sourceType) {
+    switch (sourceType) {
         case DATA_SOURCE.HDFS:
             return hdfsConf
         case DATA_SOURCE.HBASE:
@@ -75,9 +75,9 @@ class DataSourceForm extends Component {
     }
 
     componentDidMount() {
-       this.setState({
-        sourceType: this.props.sourceData&&this.props.sourceData.type || 1
-       })
+        this.setState({
+            sourceType: this.props.sourceData && this.props.sourceData.type || 1
+        })
         this.loadSourceTypes()
     }
 
@@ -85,9 +85,9 @@ class DataSourceForm extends Component {
         const newData = nextProps.sourceData
         if (newData && newData.id !== this.props.sourceData.id) {
             if (newData.dataJson && newData.dataJson.hadoopConfig) {
-                this.setState({sourceType: newData.type || 1, hasHdfsConfig: true})
+                this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true })
             } else {
-                this.setState({sourceType: newData.type || 1 })
+                this.setState({ sourceType: newData.type || 1 })
             }
         }
     }
@@ -106,7 +106,7 @@ class DataSourceForm extends Component {
         const { handOk, form } = this.props
         const source = form.getFieldsValue()
         const { sourceType } = this.state
-        
+
         if (source.dataJson.jdbcUrl) {
             source.dataJson.jdbcUrl = utils.trim(source.dataJson.jdbcUrl)
         }
@@ -116,12 +116,12 @@ class DataSourceForm extends Component {
 
         form.validateFields((err) => {
             if (!err) {
-                handOk(source, form,()=>{
-                        ctx.setState({
-                            sourceType: '',
-                        })
+                handOk(source, form, () => {
+                    ctx.setState({
+                        sourceType: '',
+                    })
                 })
-                
+
             }
         });
     }
@@ -158,8 +158,8 @@ class DataSourceForm extends Component {
         if (hasHdfsConfig && value) {
             const reg = new RegExp(`${hadoopConfig}`, 'g')
             const newStr = hadoopConfigStr.replace(reg, value)
-            this.setState({ 
-                hadoopConfig: value, 
+            this.setState({
+                hadoopConfig: value,
                 hadoopConfigStr: newStr
             })
             this.props.form.setFieldsValue({
@@ -175,7 +175,7 @@ class DataSourceForm extends Component {
     }
 
     getHelpDoc(type) {
-        switch(type) {
+        switch (type) {
             case DATA_SOURCE.HDFS:
                 return 'hdfsConfig'
             case DATA_SOURCE.HBASE:
@@ -190,8 +190,8 @@ class DataSourceForm extends Component {
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-        console.log("\r\n***** "+sourceType+"********\r\n")
-        switch(sourceType) {
+        console.log("\r\n***** " + sourceType + "********\r\n")
+        switch (sourceType) {
             case DATA_SOURCE.HDFS: {
                 const formItems = [
                     <FormItem
@@ -206,7 +206,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: config.defaultFS || '',
                         })(
-                            <Input placeholder="hdfs://host:port"/>,
+                            <Input placeholder="hdfs://host:port" />,
                         )}
                     </FormItem>,
                     <FormItem
@@ -216,7 +216,7 @@ class DataSourceForm extends Component {
                         {getFieldDecorator('hasHdfsConfig', {
                             initialValue: false,
                         })(
-                            <Checkbox 
+                            <Checkbox
                                 checked={hasHdfsConfig}
                                 onChange={this.enableHdfsConfig}>
                                 高可用配置
@@ -231,7 +231,7 @@ class DataSourceForm extends Component {
                             label="高可用配置"
                             key="hadoopConfig"
                             hasFeedback
-                            style={{display: hasHdfsConfig ? 'block' : 'none'}}
+                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
                         >
                             {getFieldDecorator('dataJson.hadoopConfig', {
                                 rules: [{
@@ -239,11 +239,11 @@ class DataSourceForm extends Component {
                                 }],
                                 initialValue: config.hadoopConfig || ''
                             })(
-                                <Input 
-                                    rows={5} 
+                                <Input
+                                    rows={5}
                                     className="no-scroll-bar"
-                                    type="textarea" 
-                                    placeholder={hdfsConf} 
+                                    type="textarea"
+                                    placeholder={hdfsConf}
                                 />,
                             )}
                             <HelpDoc doc="hdfsConfig" />
@@ -268,8 +268,8 @@ class DataSourceForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
-                        <Tooltip title={'示例：'+jdbcUrlExample[sourceType]}>
-                            <Icon className="help-doc"  type="question-circle-o" />
+                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>
                     </FormItem>,
                     <FormItem
@@ -277,54 +277,54 @@ class DataSourceForm extends Component {
                         label="用户名"
                         key="username"
                     >
-                      {getFieldDecorator('dataJson.username', {
-                          rules: [],
-                          initialValue: config.username || '',
-                      })(
-                          <Input autoComplete="off" />,
-                      )}
-                  </FormItem>,
-                  <FormItem
-                      key="password"
-                      {...formItemLayout}
-                      label="密码"
-                  >
-                      {getFieldDecorator('dataJson.password', {
-                          rules: [],
-                          initialValue: '',
-                      })(
-                          <Input type="password"/>,
-                      )}
-                  </FormItem>,
-                  <FormItem
-                      {...formItemLayout}
-                      label="defaultFS"
-                      key="defaultFS"
-                      hasFeedback
-                  >
-                      {getFieldDecorator('dataJson.defaultFS', {
-                          rules: [{
-                              required: true, message: 'defaultFS不可为空！',
-                          }],
-                          initialValue: config.defaultFS || '',
-                      })(
-                          <Input placeholder="hdfs://host:port"/>,
-                      )}
-                  </FormItem>,
-                  <FormItem
-                      key="hasHdfsConfig"
-                      {...tailFormItemLayout}
-                  >
-                      {getFieldDecorator('hasHdfsConfig', {
-                          initialValue: false,
-                      })(
-                          <Checkbox 
-                              checked={hasHdfsConfig}
-                              onChange={this.enableHdfsConfig}>
-                              高可用配置
+                        {getFieldDecorator('dataJson.username', {
+                            rules: [],
+                            initialValue: config.username || '',
+                        })(
+                            <Input autoComplete="off" />,
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="password"
+                        {...formItemLayout}
+                        label="密码"
+                    >
+                        {getFieldDecorator('dataJson.password', {
+                            rules: [],
+                            initialValue: '',
+                        })(
+                            <Input type="password" />,
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="defaultFS"
+                        key="defaultFS"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.defaultFS', {
+                            rules: [{
+                                required: true, message: 'defaultFS不可为空！',
+                            }],
+                            initialValue: config.defaultFS || '',
+                        })(
+                            <Input placeholder="hdfs://host:port" />,
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="hasHdfsConfig"
+                        {...tailFormItemLayout}
+                    >
+                        {getFieldDecorator('hasHdfsConfig', {
+                            initialValue: false,
+                        })(
+                            <Checkbox
+                                checked={hasHdfsConfig}
+                                onChange={this.enableHdfsConfig}>
+                                高可用配置
                           </Checkbox>,
-                      )}
-                  </FormItem>,
+                        )}
+                    </FormItem>,
                 ]
                 if (hasHdfsConfig) {
                     formItems.push(
@@ -333,7 +333,7 @@ class DataSourceForm extends Component {
                             label="高可用配置"
                             key="hadoopConfig"
                             hasFeedback
-                            style={{display: hasHdfsConfig ? 'block' : 'none'}}
+                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
                         >
                             {getFieldDecorator('dataJson.hadoopConfig', {
                                 rules: [{
@@ -341,10 +341,10 @@ class DataSourceForm extends Component {
                                 }],
                                 initialValue: config.hadoopConfig || ''
                             })(
-                                <Input 
+                                <Input
                                     className="no-scroll-bar"
-                                    type="textarea" rows={5} 
-                                    placeholder={hdfsConf} 
+                                    type="textarea" rows={5}
+                                    placeholder={hdfsConf}
                                 />,
                             )}
                             <HelpDoc doc="hdfsConfig" />
@@ -353,7 +353,6 @@ class DataSourceForm extends Component {
                 }
                 return formItems
             }
-
             case DATA_SOURCE.HBASE: {
                 return [
                     <FormItem
@@ -368,9 +367,9 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: config.hbase_quorum || ''
                         })(
-                            <Input 
-                                type="textarea" 
-                                rows={5} 
+                            <Input
+                                type="textarea"
+                                rows={5}
                                 placeholder="Zookeeper集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
                             />,
                         )}
@@ -385,7 +384,7 @@ class DataSourceForm extends Component {
                             rules: [],
                             initialValue: config.hbase_other || ''
                         })(
-                            <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`}/>,
+                            <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`} />,
                         )}
                     </FormItem>
                 ]
@@ -434,7 +433,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input autoComplete="off"/>,
+                            <Input autoComplete="off" />,
                         )}
                     </FormItem>,
                     <FormItem
@@ -449,7 +448,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input type="password" autoComplete="off"/>,
+                            <Input type="password" autoComplete="off" />,
                         )}
                     </FormItem>,
                     <FormItem
@@ -480,7 +479,7 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '协议不可为空！',
                             }],
-                            initialValue: config.protocol || '',
+                            initialValue: config.protocol || 1,
                         })(
                             <RadioGroup>
                                 <Radio value={1}>Standard</Radio>
@@ -531,9 +530,7 @@ class DataSourceForm extends Component {
                     <FormItem {...formItemLayout} label="End Point" key="endPoint" hasFeedback>
                         {
                             getFieldDecorator('dataJson.endPoint', {
-                                rules: [{
-                                    required: true, message: 'End Point不可为空！',
-                                }],
+                                rules: [],
                                 initialValue: config.endPoint || '',
                             })(
                                 <Input autoComplete="off" />,
@@ -545,19 +542,19 @@ class DataSourceForm extends Component {
             case DATA_SOURCE.ES: {
                 return [
                     <FormItem
-                      {...formItemLayout}
-                      label="Address"
-                      key="Address"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="Address"
+                        key="Address"
+                        hasFeedback
                     >
-                        {getFieldDecorator('address', {
+                        {getFieldDecorator('dataJson.address', {
                             rules: [{
                                 required: true, message: 'Address不可为空！',
                             }],
                             initialValue: config.address || '',
                         })(
-                            <Input 
-                                type="textarea" rows={4} 
+                            <Input
+                                type="textarea" rows={4}
                                 placeholder="Elasticsearch地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
                             />,
                         )}
@@ -570,11 +567,11 @@ class DataSourceForm extends Component {
             default: {
                 return [
                     <FormItem
-                      {...formItemLayout}
-                      label="JDBC URL"
-                      hasFeedback
-                      key="jdbcUrl"
-                      
+                        {...formItemLayout}
+                        label="JDBC URL"
+                        hasFeedback
+                        key="jdbcUrl"
+
                     >
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
@@ -584,8 +581,8 @@ class DataSourceForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
-                        <Tooltip overlayClassName="big-tooltip" title={'示例：'+jdbcUrlExample[sourceType]}>
-                            <Icon className="help-doc"  type="question-circle-o" />
+                        <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>
                     </FormItem>,
                     <FormItem
@@ -615,7 +612,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input type="password"/>,
+                            <Input type="password" />,
                         )}
                     </FormItem>
                 ]
@@ -637,7 +634,7 @@ class DataSourceForm extends Component {
                 </Option>
             )
         )
-        const sourceType = this.state.sourceType||types[0] && types[0].value
+        const sourceType = this.state.sourceType || types[0] && types[0].value
         const connectionConf = getConnectionConfig(sourceType)
         return (
             <Modal
@@ -649,9 +646,9 @@ class DataSourceForm extends Component {
             >
                 <Form>
                     <FormItem
-                      {...formItemLayout}
-                      label="数据源类型"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="数据源类型"
+                        hasFeedback
                     >
                         {getFieldDecorator('type', {
                             rules: [{
@@ -659,17 +656,17 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: sourceData.type || sourceType,
                         })(
-                            <Select 
-                                onChange={this.sourceChange} 
+                            <Select
+                                onChange={this.sourceChange}
                                 disabled={status === 'edit'}>
-                                { sourceTypeList }
+                                {sourceTypeList}
                             </Select>,
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="数据源名称"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="数据源名称"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataName', {
                             rules: [{
@@ -687,9 +684,9 @@ class DataSourceForm extends Component {
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="数据源描述"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="数据源描述"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataDesc', {
                             rules: [{
@@ -703,19 +700,19 @@ class DataSourceForm extends Component {
                     </FormItem>
                     {this.renderDynamic()}
                     <FormItem
-                      {...tailFormItemLayout}
-                      label=""
+                        {...tailFormItemLayout}
+                        label=""
                     >
                         <Button
                             icon="sync"
                             type="primary"
                             data-target="test"
                             onClick={this.testConnection}
-                            style={{marginRight: '10px'}}>测试连通性
+                            style={{ marginRight: '10px' }}>测试连通性
                         </Button>
                         <Button
                             type="primary"
-                            style={{marginRight: '10px'}}
+                            style={{ marginRight: '10px' }}
                             onClick={this.submit}>确定
                         </Button>
                         <Button onClick={this.cancle}>取消</Button>
