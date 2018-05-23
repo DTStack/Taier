@@ -1,8 +1,7 @@
 import React from 'react'
 import { Tag, Badge, Tooltip } from 'antd'
-import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE } from '../../comm/const'
+import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../comm/const'
 import { Circle } from 'widgets/circle' 
-import { DATA_SOURCE } from '../../../dataLabel/consts';
 
 export function ProjectStatus(props) {
     const value = props.value

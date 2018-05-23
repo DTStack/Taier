@@ -17,7 +17,6 @@ import { setSelectionContent } from '../../../../../store/modules/offlineTask/sq
     return {
         project: state.project,
         user: state.user,
-        
     }
 }, dispatch => {
     return {
