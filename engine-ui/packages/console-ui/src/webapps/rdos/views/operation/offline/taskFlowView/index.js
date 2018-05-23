@@ -191,7 +191,7 @@ class TaskFlowView extends Component {
                 const dataStr = cell.getAttribute('data')
                 if (!dataStr) return null
                 const itemData = JSON.parse(dataStr)
-                return itemData.taskId === data.taskId
+                return itemData.id === data.id
             })
 
             let newVertex = exist;

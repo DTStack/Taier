@@ -33,7 +33,7 @@ class PatchDataList extends Component {
         
         // 参数
         jobName: '',
-        runDay: '',
+        runDay: moment(),
         bizDay: '',
         dutyUserId: undefined,
         checkVals: [],
