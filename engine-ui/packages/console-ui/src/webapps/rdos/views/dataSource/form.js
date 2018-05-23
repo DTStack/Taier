@@ -7,6 +7,8 @@ import {
     Icon
 } from 'antd'
 
+import { isEmpty } from 'lodash';
+
 import utils from 'utils';
 
 import {
@@ -63,41 +65,24 @@ function getConnectionConfig(sourceType) {
     }
 }
 
-
-class DataSourceForm extends Component {
+class BaseForm extends Component {
 
     state = {
-        sourceType: '',
-        types: [],
+        sourceType: 1,
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
     }
 
     componentDidMount() {
-        this.setState({
-            sourceType: this.props.sourceData && this.props.sourceData.type || 1
-        })
-        this.loadSourceTypes()
-    }
-
-    componentWillReceiveProps(nextProps) {
-        const newData = nextProps.sourceData
-        if (newData && newData.id !== this.props.sourceData.id) {
-            if (newData.dataJson && newData.dataJson.hadoopConfig) {
-                this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true })
+        const sourceData = this.props.sourceData;
+        if (!isEmpty(sourceData)) {
+            if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
+                this.setState({ sourceType: sourceData.type, hasHdfsConfig: true })
             } else {
-                this.setState({ sourceType: newData.type || 1 })
+                this.setState({ sourceType: sourceData.type })
             }
-        }
-    }
-
-    loadSourceTypes = () => {
-        Api.getDataSourceTypes().then(res => {
-            this.setState({
-                types: res.data || [],
-            })
-        })
+        } 
     }
 
     submit = (e) => {
@@ -114,6 +99,11 @@ class DataSourceForm extends Component {
             source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
         }
 
+        // 端口转为整型
+        if (source.dataJson.port) {
+            source.dataJson.port = parseInt(source.dataJson.port, 10)
+        }
+
         form.validateFields((err) => {
             if (!err) {
                 handOk(source, form, () => {
@@ -121,14 +111,13 @@ class DataSourceForm extends Component {
                         sourceType: '',
                     })
                 })
-
             }
         });
     }
 
     testConnection = (e) => {
         const { testConnection, form } = this.props
-        this.props.form.validateFields((err, source) => {
+        form.validateFields((err, source) => {
             if (!err) {
                 testConnection(source)
             }
@@ -168,26 +157,9 @@ class DataSourceForm extends Component {
         }
     }
 
-    setHadoopConf = (value) => {
-        const editor = this.editor.self
-        const doc = editor.doc
-        doc.setValue(value)
-    }
-
-    getHelpDoc(type) {
-        switch (type) {
-            case DATA_SOURCE.HDFS:
-                return 'hdfsConfig'
-            case DATA_SOURCE.HBASE:
-                return 'hBaseConfig'
-            default:
-                return 'rdbConfig'
-        }
-    }
-
     renderDynamic() {
-        const { hasHdfsConfig, sourceType } = this.state
-        const { form, sourceData } = this.props;
+        const { form, sourceData,  } = this.props;
+        const { hasHdfsConfig, sourceType } = this.state;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
         console.log("\r\n***** " + sourceType + "********\r\n")
@@ -418,7 +390,7 @@ class DataSourceForm extends Component {
                             }],
                             initialValue: config.port || '',
                         })(
-                            <Input placeholder="FTP默认21，SFTP默认22" autoComplete="off" />,
+                            <Input type="number" placeholder="FTP默认21，SFTP默认22" autoComplete="off" />,
                         )}
                     </FormItem>,
                     <FormItem
@@ -461,11 +433,11 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '连接模式不可为空！',
                             }],
-                            initialValue: config.connectMode || "1",
+                            initialValue: config.connectMode || "port",
                         })(
                             <RadioGroup>
-                                <Radio value="1">Port (主动)</Radio>
-                                <Radio value="2">Pasv（被动）</Radio>
+                                <Radio value="port">Port (主动)</Radio>
+                                <Radio value="pasv">Pasv（被动）</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
@@ -479,11 +451,11 @@ class DataSourceForm extends Component {
                             rules: [{
                                 required: true, message: '协议不可为空！',
                             }],
-                            initialValue: config.protocol || "1",
+                            initialValue: config.protocol || "ftp",
                         })(
                             <RadioGroup>
-                                <Radio value="1">Standard</Radio>
-                                <Radio value="2">SFTP</Radio>
+                                <Radio value="ftp">Standard</Radio>
+                                <Radio value="sftp">SFTP</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
@@ -563,8 +535,7 @@ class DataSourceForm extends Component {
             }
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER:
-            default: {
+            case DATA_SOURCE.SQLSERVER: {
                 return [
                     <FormItem
                         {...formItemLayout}
@@ -617,13 +588,17 @@ class DataSourceForm extends Component {
                     </FormItem>
                 ]
             }
+            default: return []
         }
     }
 
     render() {
-        const { visible, form, title, sourceData, status } = this.props
-        const { hasHdfsConfig, types } = this.state
+        
+        const { hasHdfsConfig } = this.state;
+
+        const { form, sourceData, status, types } = this.props;
         const { getFieldDecorator } = form;
+
         const sourceTypeList = types.map(
             item => (
                 <Option
@@ -635,7 +610,117 @@ class DataSourceForm extends Component {
             )
         )
         const sourceType = this.state.sourceType || types[0] && types[0].value
-        const connectionConf = getConnectionConfig(sourceType)
+
+        return (
+            <Form>
+                <FormItem
+                    {...formItemLayout}
+                    label="数据源类型"
+                    hasFeedback
+                >
+                    {getFieldDecorator('type', {
+                        rules: [{
+                            required: true, message: '数据源类型不可为空！',
+                        }],
+                        initialValue: sourceData.type || sourceType,
+                    })(
+                        <Select
+                            onChange={this.sourceChange}
+                            disabled={status === 'edit'}>
+                            {sourceTypeList}
+                        </Select>,
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="数据源名称"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataName', {
+                        rules: [{
+                            required: true, message: '数据源名称不可为空！',
+                        }, {
+                            max: 128,
+                            message: '数据源名称不得超过128个字符！',
+                        }, {
+                            pattern: /^[A-Za-z0-9_]+$/,
+                            message: '名称只能由字母与数字、下划线组成',
+                        }],
+                        initialValue: sourceData.dataName || '',
+                    })(
+                        <Input autoComplete="off" disabled={status === 'edit'} />,
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="数据源描述"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataDesc', {
+                        rules: [{
+                            max: 200,
+                            message: '描述请控制在200个字符以内！',
+                        }],
+                        initialValue: sourceData.dataDesc || '',
+                    })(
+                        <Input type="textarea" rows={4} />,
+                    )}
+                </FormItem>
+                {this.renderDynamic()}
+                <FormItem
+                    {...tailFormItemLayout}
+                    label=""
+                >
+                    <Button
+                        icon="sync"
+                        type="primary"
+                        data-target="test"
+                        onClick={this.testConnection}
+                        style={{ marginRight: '10px' }}>测试连通性
+                    </Button>
+                    <Button
+                        type="primary"
+                        style={{ marginRight: '10px' }}
+                        onClick={this.submit}>确定
+                    </Button>
+                    <Button onClick={this.cancle}>取消</Button>
+                </FormItem>
+            </Form>
+        )
+    }
+
+}
+
+
+class DataSourceForm extends Component {
+
+    state = {
+        types: [],
+    }
+
+    componentDidMount() {
+        this.loadSourceTypes()
+    }
+
+    loadSourceTypes = () => {
+        Api.getDataSourceTypes().then(res => {
+            this.setState({
+                types: res.data || [],
+            })
+        })
+    }
+
+    cancle = () => {
+        const { handCancel } = this.props
+        this.myFrom.resetFields()
+        handCancel()
+    }
+
+    render() {
+        const { visible, form, title, status } = this.props
+       
+        const FormWrapper = Form.create()(BaseForm)
+
         return (
             <Modal
                 title={title}
@@ -644,85 +729,14 @@ class DataSourceForm extends Component {
                 onCancel={this.cancle}
                 footer={false}
             >
-                <Form>
-                    <FormItem
-                        {...formItemLayout}
-                        label="数据源类型"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('type', {
-                            rules: [{
-                                required: true, message: '数据源类型不可为空！',
-                            }],
-                            initialValue: sourceData.type || sourceType,
-                        })(
-                            <Select
-                                onChange={this.sourceChange}
-                                disabled={status === 'edit'}>
-                                {sourceTypeList}
-                            </Select>,
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="数据源名称"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataName', {
-                            rules: [{
-                                required: true, message: '数据源名称不可为空！',
-                            }, {
-                                max: 128,
-                                message: '数据源名称不得超过128个字符！',
-                            }, {
-                                pattern: /^[A-Za-z0-9_]+$/,
-                                message: '名称只能由字母与数字、下划线组成',
-                            }],
-                            initialValue: sourceData.dataName || '',
-                        })(
-                            <Input autoComplete="off" disabled={status === 'edit'} />,
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="数据源描述"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataDesc', {
-                            rules: [{
-                                max: 200,
-                                message: '描述请控制在200个字符以内！',
-                            }],
-                            initialValue: sourceData.dataDesc || '',
-                        })(
-                            <Input type="textarea" rows={4} />,
-                        )}
-                    </FormItem>
-                    {this.renderDynamic()}
-                    <FormItem
-                        {...tailFormItemLayout}
-                        label=""
-                    >
-                        <Button
-                            icon="sync"
-                            type="primary"
-                            data-target="test"
-                            onClick={this.testConnection}
-                            style={{ marginRight: '10px' }}>测试连通性
-                        </Button>
-                        <Button
-                            type="primary"
-                            style={{ marginRight: '10px' }}
-                            onClick={this.submit}>确定
-                        </Button>
-                        <Button onClick={this.cancle}>取消</Button>
-                    </FormItem>
-                </Form>
+                <FormWrapper 
+                    types={this.state.types} 
+                    ref={el => this.myFrom = el} 
+                    {...this.props} 
+                />
             </Modal>
         )
     }
 }
 
-const FormWrapper = Form.create()(DataSourceForm)
-
-export default FormWrapper
+export default DataSourceForm
