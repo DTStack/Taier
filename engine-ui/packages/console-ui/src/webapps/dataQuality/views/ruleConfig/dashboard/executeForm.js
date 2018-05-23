@@ -605,7 +605,7 @@ export default class ExecuteForm extends Component {
 
         return (
             <Modal
-                title="编辑执行信息"
+                title="编辑调度属性"
                 wrapClassName="editExecuteModal"
                 maskClosable={false}
                 visible={visible}
@@ -683,12 +683,12 @@ export default class ExecuteForm extends Component {
                         this.renderDynamic()
                     }
                     
-                    <FormItem {...formItemLayout} label="通知方式">
+                    <FormItem {...formItemLayout} label="告警方式">
                         {
                             getFieldDecorator('sendTypes', {
                                 rules: [{
                                     required: notifyUser.length,
-                                    message: '选择通知方式',
+                                    message: '选择告警方式',
                                 }], 
                                 initialValue: sendTypes.map(item => item.toString())
                             })(
@@ -701,12 +701,12 @@ export default class ExecuteForm extends Component {
                         }
                     </FormItem>
                     
-                    <FormItem {...formItemLayout} label="通知接收人">
+                    <FormItem {...formItemLayout} label="告警接收人">
                         {
                             getFieldDecorator('notifyUser', {
                                 rules: [{
                                     required: sendTypes.length,
-                                    message: '选择通知接收人',
+                                    message: '选择告警接收人',
                                 }],
                                 initialValue: notifyUser.map(item => item.toString())
                             })(

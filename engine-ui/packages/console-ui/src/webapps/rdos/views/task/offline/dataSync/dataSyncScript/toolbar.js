@@ -10,6 +10,7 @@ import {
 import utils from 'utils'
 
 import API from '../../../../../api'
+import { DatabaseType } from '../../../../../components/status';
 import { formItemLayout, DATA_SOURCE, HELP_DOC_URL, dataSourceTypes } from '../../../../../comm/const'
 
 import {
@@ -69,7 +70,7 @@ class ImportTemplateForm extends Component {
             })
             .map(src => {
                 return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}( {dataSourceTypes[src.type]} )
+                    {src.dataName}( <DatabaseType value={src.type} />  )
                 </Option>
             })
     }
@@ -84,7 +85,7 @@ class ImportTemplateForm extends Component {
             })
             .map(src => {
                 return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}( {dataSourceTypes[src.type]} )
+                    {src.dataName}( <DatabaseType value={src.type} /> )
                 </Option>
             })
 
@@ -130,7 +131,8 @@ class ImportTemplateForm extends Component {
 
         const sourceTypeOptions = Object.keys(DATA_SOURCE).map(
             (key) => {
-                return <Option key={DATA_SOURCE[key]} value={DATA_SOURCE[key].toString()}>{dataSourceTypes[DATA_SOURCE[key]]}</Option>
+                const val = DATA_SOURCE[key];
+                return <Option key={val} value={val.toString()}><DatabaseType value={val} /></Option>
             }
         )
 

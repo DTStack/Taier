@@ -133,7 +133,7 @@ export default class DataSource extends Component {
             filterMultiple: false,
             width: '10%',
             render(text,record){
-                return dataSourceTypes[text]||record.sourceTypeValue;
+                return record.sourceTypeValue;
             }
         }, {
             title: '描述信息',

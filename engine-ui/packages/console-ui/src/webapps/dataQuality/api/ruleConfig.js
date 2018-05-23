@@ -55,5 +55,8 @@ export default {
     delRemoteTrigger(params) {
         return http.post(req.DEL_REMOTE_TRIGGER, params);
     },
+    checkMonitor(params){
+        return http.post(req.CHECK_MONITOR, params);
+    }
     
 }
