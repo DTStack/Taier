@@ -91,6 +91,7 @@ class NoApprovedCard extends Component {
             title: '标签名称',
             dataIndex: 'apiName',
             key: 'apiName',
+            width: '20%',
             render: (text, record) => {
                 return <a onClick={this.openApprovedState.bind(this, record)} >{text}</a>
             }
@@ -98,16 +99,17 @@ class NoApprovedCard extends Component {
             title: '描述',
             dataIndex: 'apiDesc',
             key: 'apiDesc',
+            width: '30%'
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
-            width: "250px"
-
+            width: '30%'
         }, {
             title: '申请时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
+            width: '20%',
             sorter: true,
             render(text) {
                 return utils.formatDateTime(text);
