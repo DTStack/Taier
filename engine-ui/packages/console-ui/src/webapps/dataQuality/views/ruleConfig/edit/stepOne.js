@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
 import {
     Row, Col, Table,
@@ -23,7 +23,7 @@ const TreeNode = TreeSelect.TreeNode;
 const mapStateToProps = state => {
     const { dataSource } = state;
     return { dataSource }
-}
+} 
 
 const mapDispatchToProps = dispatch => ({
     getDataSourcesList(params) {
@@ -50,7 +50,7 @@ export default class StepOne extends Component {
         this.state = {
             showPreview: false,
             sourcePreview: {},
-            loading:false
+            loading: false
         }
     }
 
@@ -139,18 +139,18 @@ export default class StepOne extends Component {
         }
 
         this.setState({
-            loading:true
+            loading: true
         })
 
         return RCApi.checkMonitor(params)
             .then(
                 (res) => {
                     this.setState({
-                        loading:false
+                        loading: false
                     })
 
-                    if (res && res.data && res.data.id) {
-                        return id;
+                    if (res && res.data) {
+                        return res.data;
                     } else {
                         return null;
                     }
@@ -285,25 +285,42 @@ export default class StepOne extends Component {
         )
     }
 
+    jumpToEditRule(data,modal) {
+        this.modal&&this.modal.destroy();
+        hashHistory.push({
+            pathname: "/dq/rule",
+            query: {
+                tableName: data.tableName,
+                tableId: data.tableId
+            }
+        })
+    }
+
     next = () => {
         const { currentStep, navToStep, form } = this.props;
 
         form.validateFields({ force: true }, (err, values) => {
             if (!err) {
                 this.checkMonitor()
-                .then(
-                    (id)=>{
-                        if(!id){
-                            navToStep(currentStep + 1);
-                            return;
-                        }else{
-                            Modal.warning({
-                                title:"该规则配置已存在",
-                                content:(<a href={`/dq/rule?id=${id}`} >前往编辑</a>)
-                            })
+                    .then(
+                        (data) => {
+                            if (!data) {
+                                navToStep(currentStep + 1);
+                                return;
+                            } else {
+                                const modal = Modal.warning({
+                                    title: "该规则配置已存在",
+                                    content: (
+                                        <span>
+                                            该规则配置已存在，您可以直接前往
+                                    <a onClick={this.jumpToEditRule.bind(this, data)} > 编辑</a>
+                                        </span>
+                                    )
+                                })
+                                this.modal=modal;
+                            }
                         }
-                    }
-                )
+                    )
             }
         })
     }

@@ -287,13 +287,14 @@ export default class RuleEditPane extends Component {
                                 (<Input 
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
-                                    disabled={record.editStatus === 'edit'} 
+                                    
                                 />)
                             )
                         }
                     </FormItem>
                 } else {
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    getFieldDecorator('columnName', { initialValue: "" });
+                    return <FormItem {...rowFormItemLayout}  className="rule-edit-td">
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
@@ -302,10 +303,10 @@ export default class RuleEditPane extends Component {
                                 }],
                                 initialValue: record.columnName
                             })(
-                                <Select 
+                                <Select
                                     showSearch
                                     onChange={this.onColumnNameChange} 
-                                    disabled={record.isTable || record.editStatus === 'edit'}>
+                                    disabled={record.isTable||record.level==1}>
                                     {
                                         tableColumn.map((item) => {
                                             return <Option 
@@ -334,7 +335,7 @@ export default class RuleEditPane extends Component {
                         })(
                             <Select
                                 onChange={this.onFunctionChange}
-                                disabled={record.editStatus === 'edit'}>
+                                >
                                 {
                                     functionList.map((item) => {
                                         return <Option 
@@ -360,7 +361,6 @@ export default class RuleEditPane extends Component {
                             <Input 
                                 placeholder={`"and"开头的条件语句，如and col = "val"`}
                                 onChange={this.changeRuleParams.bind(this, 'filter')} 
-                                disabled={record.editStatus === 'edit'} 
                             />
                         )
                     }
@@ -379,7 +379,7 @@ export default class RuleEditPane extends Component {
                         })(
                             <Select 
                                 onChange={this.onVerifyTypeChange}
-                                disabled={record.editStatus === 'edit' || currentRule.operator === 'in'}>
+                                >
                                 {
                                     verifyType.map((item) => {
                                         return <Option 
@@ -493,6 +493,9 @@ export default class RuleEditPane extends Component {
     // 编辑规则
     edit(id) {
         const { currentRule, rules } = this.state;
+        const { ruleConfig } = this.props;
+        const { monitorFunction, tableColumn } = ruleConfig;
+        let functionList = [];
 
         let newData = [...rules],
             target  = newData.filter(item => id === item.id)[0];
@@ -509,10 +512,19 @@ export default class RuleEditPane extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
-
+            
+            if(!target.isCustomizeSql){
+                if (target.isTable||target.level==1) {
+                    functionList = monitorFunction.all.filter(item => item.level === 1);
+                } else {
+                    let columnType = tableColumn.filter(item => item.key === target.columnName)[0].type;
+                    functionList = monitorFunction[columnType];
+                }
+            }
             this.setState({ 
                 currentRule: target,
-                rules: newData
+                rules: newData,
+                functionList:functionList
             });
         }
     }
@@ -784,7 +796,7 @@ export default class RuleEditPane extends Component {
                             className="m-l-8" 
                             type="primary" 
                             onClick={this.openExecuteModal}>
-                            编辑执行信息
+                            编辑调度属性
                         </Button>
                         <Button 
                             className="m-l-8" 

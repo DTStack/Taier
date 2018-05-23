@@ -65,7 +65,7 @@ export default {
     GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,              // 告警信息详情
     RULE_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/remoteTrigger`,      // 远程触发
     EXECUTE_MONITOR: `${DQ_BASE_URL}/monitor/immediatelyExecuted`,    // 立即执行
-    CHECK_MONITOR:`${DQ_BASE_URL}/service/monitor/checkMonitor`,      // 检测监控对象是否已存在
+    CHECK_MONITOR:`${DQ_BASE_URL}/monitor/checkMonitor`,      // 检测监控对象是否已存在
 
     GET_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/getRemoteTrigger`,    // 获取配置的远程触发
     ADD_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/addRemoteTriger`,     // 新增和更新远程触发
