@@ -10,6 +10,8 @@ export default {
     // ===== 用户模块 ===== //
     LOGOUT: `${UIC_BASE_URL}/v2/logout`,
 
+    //===== 数据质量 ====//
+
 
     //===== 数据api ====//
     //**消息**//

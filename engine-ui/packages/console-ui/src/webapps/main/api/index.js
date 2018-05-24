@@ -179,12 +179,18 @@ export default {
         }
     },
 
+    /**
+     * 获取待添加到项目中的用户列表
+     */
     loadUsersNotInProject(app, params) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.getNotProjectUsers(params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getUsersNotInProject(params);
+            case MY_APPS.LABEL:
+            case MY_APPS.API:
+                return RdosApi.getNotProjectUsers(params);
             default: return;
         }
     },

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { debounce } from 'lodash'
 
 import {
     Input, Button, Card, Radio,
@@ -18,9 +19,8 @@ const CheckboxGroup = Checkbox.Group;
 
 class MemberForm extends Component {
 
-    roleChange = (value) => {
-        console.log('roleChange:', value)
-    }
+
+    debounceSearch = debounce(this.props.onSearchUsers, 500, { 'maxWait': 2000 })
 
     render() {
         const { roles, form, notProjectUsers } = this.props;
@@ -31,6 +31,8 @@ class MemberForm extends Component {
             <Option 
                 key={item.id}
                 value={`${item.id}`}
+                name={item.userName}
+                optionFilterProp="name"
             >
                 {item.userName}
             </Option>
@@ -54,6 +56,7 @@ class MemberForm extends Component {
             })
         }
 
+
         return (
             <Form>
                 <FormItem
@@ -69,7 +72,9 @@ class MemberForm extends Component {
                         <Select
                             mode="multiple"
                             style={{ width: '100%' }}
+                            notFoundContent=""
                             placeholder="请选择用户"
+                            onSearch={this.debounceSearch}
                         >
                             {userOptions}
                         </Select>,
@@ -92,7 +97,6 @@ class MemberForm extends Component {
             </Form>
         )
     }
-
 }
 
 const FormWrapper = Form.create()(MemberForm)

@@ -108,9 +108,11 @@ class AdminUser extends Component {
         })
     }
 
-    loadUsersNotInProject = () => {
+    loadUsersNotInProject = (userName) => {
         const { active, selectedProject } = this.state;
-        const params = {}
+        const params = {
+            userName,
+        }
         if (hasProject(active)) {
             params.projectId = selectedProject
         }
@@ -229,7 +231,7 @@ class AdminUser extends Component {
 
     initAddMember = () => {
         const { params } = this.props
-        this.loadUsersNotInProject();
+        // this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
 
@@ -336,12 +338,12 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = active === MY_APPS.RDOS && (
+        const extra = (
             <Button
                 style={{ marginTop: '10px' }}
                 type="primary"
                 onClick={this.initAddMember}>
-                添加项目成员
+                添加用户
             </Button>
         )
 
@@ -393,7 +395,7 @@ class AdminUser extends Component {
                     />
                 </div>
                 <Modal
-                    title="添加项目成员"
+                    title="添加用户"
                     wrapClassName="vertical-center-modal"
                     visible={visible}
                     onOk={this.addMember}
@@ -402,6 +404,7 @@ class AdminUser extends Component {
                     <MemberForm
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
+                        onSearchUsers={this.loadUsersNotInProject}
                         notProjectUsers={notProjectUsers}
                     />
                 </Modal>
