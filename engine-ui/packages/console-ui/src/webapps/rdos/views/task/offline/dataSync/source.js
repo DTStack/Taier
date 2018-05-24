@@ -216,6 +216,11 @@ class SourceForm extends React.Component {
             navtoStep, isCurrentTabNew,
         } = this.props;
 
+        const disablePreview = isEmpty(sourceMap) ||
+              sourceMap.type.type === DATA_SOURCE.HDFS ||
+              sourceMap.type.type === DATA_SOURCE.HBASE ||
+              sourceMap.type.type === DATA_SOURCE.FTP;
+
         return <div className="g-step1">
             <Form>
                 <FormItem
@@ -260,13 +265,12 @@ class SourceForm extends React.Component {
                 overflow: 'auto'
             }}>
                 <p style={{ cursor: 'pointer', marginBottom: 10 }} >
-                    <a href="javascript:void(0)" onClick={this.loadPreview.bind(this)}
-                        disabled={
-                            isEmpty(sourceMap) ||
-                            sourceMap.type.type === DATA_SOURCE.HDFS ||
-                            sourceMap.type.type === DATA_SOURCE.HBASE
-                        }
-                    >数据预览{this.state.showPreview ? <Icon type="up" /> : <Icon type="down" />}
+                    <a 
+                        disabled={ disablePreview }
+                        href="javascript:void(0)" 
+                        onClick={this.loadPreview.bind(this)}
+                    >
+                        数据预览{this.state.showPreview ? <Icon type="up" /> : <Icon type="down" />}
                     </a>
                 </p>
                 {this.state.showPreview ?
@@ -704,7 +708,7 @@ class SourceForm extends React.Component {
                             initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
                         })(
                             <Input
-                                placeholder="\001"
+                                placeholder="默认值为,"
                                 onChange={this.submitForm.bind(this)} />
                         )}
                     </FormItem>,
