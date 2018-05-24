@@ -185,7 +185,7 @@ class Header extends Component {
                           className="my-menu-item"
                           key="data-manage"
                           style={{ display }}>
-                            <a href={`${basePath}/data-manage/table`}>数据管理</a>
+                            <a href={`${basePath}/data-manage/table`}>数据地图</a>
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
