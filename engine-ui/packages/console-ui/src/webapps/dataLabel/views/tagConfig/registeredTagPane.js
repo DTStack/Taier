@@ -402,7 +402,7 @@ export default class RegisteredTagPane extends Component {
         const { getFieldDecorator } = form;
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
-        const { sourceList, sourceTable, sourceColumn } = dataSource;
+        const { tagSourceList, sourceTable, sourceColumn } = dataSource;
         const { queryParams, visible, selectedIds, loading, tagList, editData, catalogue2Data } = this.state;
 
         const cardTitle = (
@@ -591,7 +591,7 @@ export default class RegisteredTagPane extends Component {
                                         disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
                                         onChange={this.onSourceChange}>
                                         {
-                                            sourceList.map((source) => {
+                                            tagSourceList.map((source) => {
                                                 let title = `${source.dataName}（${source.sourceTypeValue}）`;
                                                 return <Option 
                                                     key={source.id} 

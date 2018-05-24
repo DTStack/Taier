@@ -44,6 +44,18 @@ export const dataSourceActions = {
 			});
 		}
 	},
+	getTagDataSourcesList(params) {
+		return dispatch => {
+			API.getTagDataSourcesList(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: dataSourceActionType.GET_TAG_DATA_SOURCES_LIST,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 	getDataSourcesTable(params) {
 		return dispatch => {
 			API.getDataSourcesTable(params).then((res) => {

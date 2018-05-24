@@ -204,7 +204,7 @@ export default class StepOne extends Component {
     }
 
     render() {
-        const { form, type, tagConfig, apiMarket, dataSource, basicInfo } = this.props;
+        const { form, type, tagConfig, apiMarket, dataSource, basicInfo, editStatus } = this.props;
         const { getFieldDecorator } = form;
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
@@ -249,7 +249,10 @@ export default class StepOne extends Component {
                                     }],
                                     initialValue: basicInfo.name
                                 })(
-                                    <Input style={{ width: '85%' }} />
+                                    <Input 
+                                        style={{ width: '85%' }} 
+                                        disabled={editStatus === 'edit'}
+                                    />
                                 )
                             }
                         </FormItem>
