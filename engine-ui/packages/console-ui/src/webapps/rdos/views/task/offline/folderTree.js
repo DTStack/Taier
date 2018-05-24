@@ -71,7 +71,6 @@ class FolderTree extends React.Component {
     onLoadData(type, treeNode) {
         const { loadTreeNode } = this.props;
         const { data } = treeNode.props;
-
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
                 const cataType = type || data.catalogueType

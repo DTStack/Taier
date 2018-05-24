@@ -434,8 +434,8 @@ class Keymap extends React.Component{
         const { w, h, W, H, padding } = this.state;
 
         const { 
-            targetCol, sourceCol, keymap, 
-            sourceSrcType, sourceFileType, 
+            targetCol, sourceCol, keymap,
+            sourceSrcType, sourceFileType,
             removeSourceKeyRow, readonly,
         } = this.props;
 
@@ -882,11 +882,11 @@ class Keymap extends React.Component{
     }
 
     render() {
-        const { 
+        const {
             w, h, W, padding, visibleConst,
         } = this.state;
 
-        const { 
+        const {
             targetCol, sourceCol, keymap, 
             sourceSrcType, sourceFileType, 
             navtoStep, targetSrcType, 
