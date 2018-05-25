@@ -7,7 +7,7 @@ import { tagConfigActions } from '../../../actions/tagConfig';
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { dataSourceActions } from '../../../actions/dataSource';
 import TableCell from 'widgets/tableCell';
-import { formItemLayout } from "../../../consts";
+import { halfFormItemLayout, TAG_TYPE } from "../../../consts";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -21,15 +21,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getDataSourcesList(params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
-    },
-    getDataSourcesTable(params) {
-        dispatch(dataSourceActions.getDataSourcesTable(params));
-    },
-    resetDataSourcesTable() {
-        dispatch(dataSourceActions.resetDataSourcesTable());
-    },
-    getDataSourcesColumn(params) {
-        dispatch(dataSourceActions.getDataSourcesColumn(params));
     },
     getDataSourcesPreview(params) {
         dispatch(dataSourceActions.getDataSourcesPreview(params));
@@ -45,40 +36,13 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 export default class StepOne extends Component {
     state = {
-        showPreview: false,
-        showTable: false,
+        showPreview: false
     }
 
     componentDidMount() {
         this.props.getCatalogue(0);
         this.props.getDataSourcesList();
         this.props.getAllIdentifyColumn();
-    }
-
-    // 数据源变化
-    onDataSourceChange = (id) => {
-        const { form } = this.props;
-
-        form.setFieldsValue({ originTable: undefined });
-        
-        this.props.resetDataSourcesTable();
-        this.props.getDataSourcesTable({ sourceId: id });
-        
-        this.setState({ showPreview: false });
-    }
-
-    // 数据表变化
-    onSourceTableChange = (name) => {
-        const { form } = this.props;
-
-        form.setFieldsValue({ originColumn: undefined });
-
-        this.props.getDataSourcesColumn({ 
-            sourceId: form.getFieldValue('dataSourceId'), 
-            tableName: name
-        });
-
-        this.setState({ showPreview: false });
     }
 
     // 类目下拉框数据初始化
@@ -170,8 +134,8 @@ export default class StepOne extends Component {
     getScroll = (width) => {
        const { sourcePreview } = this.props.dataSource;
 
-       if (sourcePreview.dataList) {
-           return width * sourcePreview.dataList.length;
+       if (sourcePreview.columnList) {
+           return width * sourcePreview.columnList.length;
        } else {
            return 0;
        }
@@ -204,7 +168,7 @@ export default class StepOne extends Component {
     }
 
     render() {
-        const { form, type, tagConfig, apiMarket, dataSource, basicInfo, editStatus } = this.props;
+        const { form, tagType, tagConfig, apiMarket, dataSource, basicInfo, editStatus } = this.props;
         const { getFieldDecorator } = form;
         const { apiCatalogue } = apiMarket;
         const { identifyColumn } = tagConfig;
@@ -215,7 +179,7 @@ export default class StepOne extends Component {
             <div>
                 <div className="steps-content">
                     <Form>
-                        <FormItem {...formItemLayout} label="所属分组">
+                        <FormItem {...halfFormItemLayout} label="所属分组">
                             {
                                 getFieldDecorator('catalogueId', {
                                     rules: [{ 
@@ -227,14 +191,13 @@ export default class StepOne extends Component {
                                     <Cascader 
                                         showSearch 
                                         popupClassName="noheight" 
-                                        style={{ width: '85%' }}
                                         options={this.initCatagoryOption(apiCatalogue)}
                                         placeholder="请选择分组" 
                                     />
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="标签名称">
+                        <FormItem {...halfFormItemLayout} label="标签名称">
                             {
                                 getFieldDecorator('name', {
                                     rules: [{ 
@@ -249,14 +212,11 @@ export default class StepOne extends Component {
                                     }],
                                     initialValue: basicInfo.name
                                 })(
-                                    <Input 
-                                        style={{ width: '85%' }} 
-                                        disabled={editStatus === 'edit'}
-                                    />
+                                    <Input disabled={editStatus === 'edit'} />
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="标签描述">
+                        <FormItem {...halfFormItemLayout} label="标签描述">
                             {
                                 getFieldDecorator('tagDesc', {
                                     rules: [{
@@ -267,57 +227,56 @@ export default class StepOne extends Component {
                                 })(
                                     <TextArea 
                                         placeholder="标签描述" 
-                                        style={{ width: '85%' }}
                                         autosize={{ minRows: 2, maxRows: 6 }} 
                                     />
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="值域">
+                        <FormItem {...halfFormItemLayout} label="值域">
                             {
                                 getFieldDecorator('tagRange', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '值域不可为空' 
                                     }], 
                                     initialValue: basicInfo.tagRange
                                 })(
                                     <TextArea 
                                         placeholder="值域" 
-                                        style={{ width: '85%' }}
                                         autosize={{ minRows: 2, maxRows: 6 }} 
                                     />
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="调用限制">
+                        <FormItem {...halfFormItemLayout} label="调用限制">
                             {
                                 getFieldDecorator('reqLimit', {
-                                rules: [{ 
-                                    required: true, 
-                                    message: '请输入调用次数限制' 
-                                }, {
-                                        validator:function(rule, value, callback){
-                                        if(value&&(value>1000||value<1)){
-                                            callback("请输入不大于1000的正整数")
-                                            return;
+                                    rules: [{ 
+                                        required: true, 
+                                        message: '请输入调用次数限制' 
+                                    }, {
+                                            validator:function(rule, value, callback){
+                                            if(value&&(value>1000||value<1)){
+                                                callback("请输入不大于1000的正整数")
+                                                return;
+                                            }
+                                            callback();
                                         }
-                                        callback();
-                                    }
-                                }],
-                                initialValue: basicInfo.reqLimit
-                            })(
-                                <InputNumber
-                                    min={1}
-                                    step={1}
-                                    max={1000}
-                                    precision={0}
-                                    style={{ width: '85%' }}
-                                    placeholder="单用户每秒最高调用次数"
-                                />
-                            )}
+                                    }],
+                                    initialValue: basicInfo.reqLimit
+                                })(
+                                    <InputNumber
+                                        min={1}
+                                        step={1}
+                                        max={1000}
+                                        precision={0}
+                                        style={{ width: '100%' }}
+                                        placeholder="单用户每秒最高调用次数"
+                                    />
+                                )
+                            }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="返回条数限制">
+                        <FormItem {...halfFormItemLayout} label="返回条数限制">
                             {
                                 getFieldDecorator('respLimit', {
                                     rules: [{ 
@@ -331,13 +290,13 @@ export default class StepOne extends Component {
                                         step={1}
                                         max={2000}
                                         precision={0}
-                                        style={{ width: '85%' }}
+                                        style={{ width: '100%' }}
                                         placeholder="单次最大返回数据条数 (最高支持2000条)" 
                                     />
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="目标数据库">
+                        <FormItem {...halfFormItemLayout} label="目标数据库">
                             {
                                 getFieldDecorator('dataSourceId', {
                                     rules: [{ 
@@ -349,9 +308,7 @@ export default class StepOne extends Component {
                                     <Select 
                                         showSearch
                                         disabled
-                                        placeholder="请选择数据源"
-                                        style={{ width: '85%', marginRight: 15 }}
-                                        onChange={this.onDataSourceChange}>
+                                        placeholder="请选择数据源">
                                         {
                                             sourceList.map((source) => {
                                                 let title = `${source.dataName}（${source.sourceTypeValue}）`;
@@ -368,12 +325,11 @@ export default class StepOne extends Component {
                                     </Select>
                                 )
                             }
-                            <Link to="/dl/dataSource">添加数据源</Link>
                         </FormItem>
                         {
-                            type == 1
+                            TAG_TYPE[tagType] == '注册标签'
                             &&
-                            <FormItem {...formItemLayout} label="来源表">
+                            <FormItem {...halfFormItemLayout} label="来源表">
                                 {
                                     getFieldDecorator('originTable', {
                                         rules: [{ 
@@ -382,15 +338,15 @@ export default class StepOne extends Component {
                                         }],
                                         initialValue: basicInfo.originTable
                                     })(
-                                        <Input disabled style={{ width: '85%' }} />
+                                        <Input disabled />
                                     )
                                 }
                             </FormItem>
                         }
                         {
-                            type == 1
+                            TAG_TYPE[tagType] == '注册标签'
                             &&
-                            <FormItem {...formItemLayout} label="来源列">
+                            <FormItem {...halfFormItemLayout} label="来源列">
                                 {
                                     getFieldDecorator('originColumn', {
                                         rules: [{ 
@@ -399,36 +355,36 @@ export default class StepOne extends Component {
                                         }], 
                                         initialValue: basicInfo.originColumn
                                     })(
-                                        <Input disabled style={{ width: '85%' }} />
+                                        <Input disabled />
                                     )
                                 }
                             </FormItem>
                         }
-                        <FormItem {...formItemLayout} label="识别列ID">
+                        <FormItem {...halfFormItemLayout} label="识别列ID">
                             {
                                 getFieldDecorator('identityColumn', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '识别列ID不可为空' 
                                     }], 
                                     initialValue: basicInfo.identityColumn
                                 })(
-                                    <Input style={{ width: '85%' }} />
+                                    <Input disabled />
                                 )
                             }
                         </FormItem>
-                        <FormItem {...formItemLayout} label="识别列类型">
+                        <FormItem {...halfFormItemLayout} label="识别列类型">
                             {
                                 getFieldDecorator('identityId', {
                                     rules: [{ 
                                         required: true, 
-                                        message: '标签名称不可为空' 
+                                        message: '识别列类型不可为空' 
                                     }], 
                                     initialValue: basicInfo.identityId ? basicInfo.identityId.toString() : undefined
                                 })(
                                     <Select
                                         showSearch
-                                        style={{ width: '85%' }}
+                                        disabled
                                         optionFilterProp="title"
                                         placeholder="选择识别列类型">
                                         {
@@ -449,7 +405,7 @@ export default class StepOne extends Component {
                         <div className="txt-center font-14">
                             <a onClick={this.onSourcePreview.bind(this)}>
                                 数据预览
-                                <Icon type={this.state.showTable ? 'up' : 'down'} style={{ marginLeft: 5 }} />
+                                <Icon type={showPreview ? 'up' : 'down'} style={{ marginLeft: 5 }} />
                             </a>
                         </div>
 
@@ -473,6 +429,7 @@ export default class StepOne extends Component {
                         }
                     </Form>
                 </div>
+
                 <div className="steps-action">
                     <Button 
                         className="m-r-8"

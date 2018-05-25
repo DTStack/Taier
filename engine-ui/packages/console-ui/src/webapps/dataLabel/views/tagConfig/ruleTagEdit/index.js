@@ -11,9 +11,9 @@ import {
 import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
-import { dataSourceActions } from '../../actions/dataSource';
-import { rowFormItemLayout } from '../../consts';
-import TCApi from '../../api/tagConfig';
+import { dataSourceActions } from '../../../actions/dataSource';
+import { rowFormItemLayout } from '../../../consts';
+import TCApi from '../../../api/tagConfig';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
