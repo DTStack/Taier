@@ -485,6 +485,7 @@ class Keymap extends React.Component{
                         </div>
                     </div>
                 }
+                case DATA_SOURCE.MAXCOMPUTE:
                 case DATA_SOURCE.HIVE: {
                     const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
                     return <div>
@@ -533,6 +534,7 @@ class Keymap extends React.Component{
                         +添加常量
                     </span>
                 switch(sourceType) {
+                    case DATA_SOURCE.MAXCOMPUTE:
                     case DATA_SOURCE.HIVE:
                         footerContent = <div>
                             { btnAddConst }
