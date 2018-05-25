@@ -24,6 +24,7 @@ import {
 
 import Api from '../../api';
 import HelpDoc from '../helpDoc';
+import CopyIcon from "main/components/copy-icon";
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -219,6 +220,10 @@ class BaseForm extends Component {
                                 />,
                             )}
                             <HelpDoc doc="hdfsConfig" />
+                            <CopyIcon 
+                                style={{position:"absolute",right:"-20px",bottom:"0px"}} 
+                                copyText={hdfsConf} 
+                            />
                         </FormItem>
                     )
                 }
@@ -320,6 +325,10 @@ class BaseForm extends Component {
                                 />,
                             )}
                             <HelpDoc doc="hdfsConfig" />
+                            <CopyIcon 
+                                style={{position:"absolute",right:"-20px",bottom:"0px"}} 
+                                copyText={hdfsConf} 
+                            />
                         </FormItem>
                     )
                 }

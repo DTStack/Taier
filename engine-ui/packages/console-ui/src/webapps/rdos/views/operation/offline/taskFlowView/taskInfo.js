@@ -21,7 +21,7 @@ export function TaskInfo(props) {
                     </tr>
                     <tr>
                         <td>调度周期：</td><td><TaskTimeType value={task.taskPeriodId}/></td>
-                        <td>定时时间：</td><td>{task.cycTime}</td>
+                        <td>计划时间：</td><td>{task.cycTime}</td>
                     </tr>
                     <tr>
                         <td>开始时间：</td>

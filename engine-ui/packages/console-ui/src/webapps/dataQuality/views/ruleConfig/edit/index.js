@@ -16,7 +16,7 @@ export default class RuleConfigEdit extends Component {
             dataSourceId: undefined,
             tableName: undefined,
             partition: undefined,
-            isSubscribe: 0,
+            isSubscribe: 1,
             scheduleConf: '',
             sendTypes: [],
             notifyUser: [],
@@ -67,7 +67,7 @@ export default class RuleConfigEdit extends Component {
                 />
             },
             {
-                title: '监控执行', content: <StepThree
+                title: '调度属性', content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
                     editParams={editParams}

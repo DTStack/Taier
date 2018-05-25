@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Table, Button, Input, Select, message, Card, Checkbox, Tabs } from 'antd';
 import moment from 'moment';
+import utils from "utils";
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
@@ -24,7 +25,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     getMonitorLists(params) {
-        dispatch(ruleConfigActions.getMonitorLists(params));
+        return dispatch(ruleConfigActions.getMonitorLists(params));
     },
     getDataSourcesList(params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
@@ -38,7 +39,7 @@ export default class RuleConfig extends Component {
         params: {
             pageIndex: 1,
             pageSize: 20,
-            tableName: undefined,
+            tableName: utils.getParameterByName('tableName') || undefined,
             modifyUserId: undefined,
             sourceType: undefined,
             dataSourceId: undefined,
@@ -52,7 +53,24 @@ export default class RuleConfig extends Component {
 
     componentDidMount() {
         this.props.getDataSourcesList();
-        this.props.getMonitorLists(this.state.params);
+        this.props.getMonitorLists(this.state.params)
+        .then(
+            (res)=>{
+                if(res&&res.data&&res.data.data){
+
+                    const record=res.data.data.filter(
+                        (item)=>{
+                            return item.tableId==utils.getParameterByName('tableId')
+                        }
+                    );
+
+                    if(record&&record.length>0){
+                        this.openSlidePane(record[0]);
+                    }
+                }
+                this.props.router.replace("/dq/rule")
+            }
+        );
     }
 
     // table设置
@@ -324,6 +342,7 @@ export default class RuleConfig extends Component {
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.handleSearch}
+                    defaultValue={params.tableName}
                     style={{ width: 200, margin: '10px 0' }}
                 />
 

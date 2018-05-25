@@ -72,10 +72,9 @@ class FolderTree extends React.Component {
         const { loadTreeNode } = this.props;
         const { data } = treeNode.props;
         return new Promise((resolve) => {
-            if (!data.children || data.children.length === 0) {
-                const cataType = type || data.catalogueType
-                loadTreeNode(data.id, cataType);
-            }
+            const cataType = type || data.catalogueType
+            
+            loadTreeNode(data.id, cataType);
             resolve();
         });
     }
@@ -451,6 +450,7 @@ class FolderTree extends React.Component {
             if (isFilepicker && type === 'file' && acceptRes !== undefined ) {
                 if (acceptRes !== resourceType) return null;
             }
+            
 
             // 目录选择过滤掉具体文件
             if (ispicker && !isFilepicker && data.children !== null) {

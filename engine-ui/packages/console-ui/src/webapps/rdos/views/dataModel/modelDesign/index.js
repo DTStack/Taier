@@ -10,6 +10,8 @@ import {
 import { Link } from 'react-router';
 
 import Editor from '../../../components/code-editor';
+import CopyIcon from "main/components/copy-icon";
+import {DDL_placeholder} from "../../../comm/DDLCommon"
 
 import ajax from '../../../api/dataModel';
 
@@ -309,12 +311,16 @@ class TableList extends Component {
                         />
                         <Modal className="m-codemodal"
                             width={750}
-                            title="DDL建表"
+                            title={(
+                                <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
+                            )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}
                         >
                             <Editor
+                                style={{height:"400px"}}
+                                placeholder={DDL_placeholder}
                                 onChange={ this.handleDdlChange.bind(this) } 
                                 value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
                             />
