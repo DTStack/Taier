@@ -44,10 +44,11 @@ import {
     }
 
     onCheck = (checkedKeys) => {
+        console.log('onCheck:', checkedKeys)
         this.setState({ checkedKeys }, () => {
             // 只需要叶子节点即可
-            const arr = this.getLeafNodes(checkedKeys)
-            this.props.form.setFieldsValue({ permissionIds: arr })
+            // const arr = this.getLeafNodes(checkedKeys)
+            this.props.form.setFieldsValue({ permissionIds: checkedKeys })
         });
     }
 
@@ -82,10 +83,19 @@ import {
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
+            
+            const checkedItem = this.state.checkedKeys.find(checked => checked === key)
+            const checked = checkedItem ? true : false;
+            
+            if (checkedItem) {
+                console.log('checkedItem', key, role.name)
+            }
+            
             if (item.children && item.children.length > 0) {
                 return (
-                    <TreeNode 
+                    <TreeNode
                         key={key}
+                        checked={checked}
                         dataRef={role}
                         title={role.display} 
                     >
@@ -93,7 +103,7 @@ import {
                     </TreeNode>
                 )
             }
-            return <TreeNode key={key} title={role.display}/>;
+            return <TreeNode key={key} checked={checked} dataRef={role} title={role.display}/>;
         })
     }
 
@@ -101,6 +111,9 @@ import {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
+
+        console.log('checked:', checkedKeys)
+
         return (
             <Form>
                 <FormItem
@@ -138,14 +151,14 @@ import {
                             required: true,
                             message: '请选择相应的角色权限！',
                         }],
-                        initialValue: roleInfo && roleInfo.roleDesc || '',
+                        initialValue: [],
                     })(
                         <Tree
                             style={{ marginTop: '-10px' }}
                             checkable
                             defaultExpandAll
                             onCheck={this.onCheck}
-                            checkedKeys={checkedKeys}
+                            // checkedKeys={checkedKeys}
                         >
                             {this.renderTreeNodes(roleTree)}
                         </Tree>,

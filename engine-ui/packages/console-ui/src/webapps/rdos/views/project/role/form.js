@@ -32,6 +32,10 @@ import {
         })
     }
 
+    componentWillMount () {
+        this.props.form.resetFields()
+    }
+    
     componentWillReceiveProps(nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && nextProps.roleInfo.permissionIds || []
@@ -98,6 +102,7 @@ import {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
+        console.log('checkedKeys', roleInfo.permissionIds)
         return (
             <Form>
                 <FormItem
@@ -135,7 +140,7 @@ import {
                             required: true,
                             message: '请选择相应的角色权限！',
                         }],
-                        initialValue: roleInfo && roleInfo.roleDesc || '',
+                        initialValue: roleInfo && roleInfo.permissionIds || '',
                     })(
                         <Tree
                             style={{ marginTop: '-10px' }}
