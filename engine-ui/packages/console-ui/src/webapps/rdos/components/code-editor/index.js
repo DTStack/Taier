@@ -14,6 +14,7 @@ require('codemirror/mode/python/python')
 require('codemirror/mode/javascript/javascript')
 require('codemirror/mode/properties/properties')
 require('codemirror/addon/display/placeholder')
+require("codemirror/addon/edit/matchbrackets")
 
 // require('codemirror/addon/lint/lint')
 // require('../../assets/js/sql-lint')

@@ -53,7 +53,6 @@ class OfflineTabPane extends Component {
         const newData = nextProps.project
         if (newData && (!old || (old.id !== 0 && old.id !== newData.id))) {
             this.getCatelogue();
-            this.props.closeAll();
         }
     }
 
@@ -432,9 +431,6 @@ dispatch => {
             actions.loadTaskParams();
         },
 
-        closeAll: () => dispatch({
-            type: workbenchAction.CLOSE_ALL_TABS
-        }),
         dispatch
     }
 })(OfflineTabPane);

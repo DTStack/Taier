@@ -190,7 +190,7 @@ export function DatabaseType(props) {
     case 7:
         return <span>Hive</span>
     case 8:
-        return <span>HBASE</span>
+        return <span>HBase</span>
     case 9:
         return <span>FTP</span>
     default:

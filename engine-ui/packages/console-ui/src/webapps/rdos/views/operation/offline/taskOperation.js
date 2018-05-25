@@ -26,7 +26,7 @@ import {
 } from '../../../comm/const'
 
 import { 
-    OfflineTaskStatus, TaskTimeType, TaskType, 
+    OfflineTaskStatus, TaskTimeType, TaskType,
 } from '../../../components/status'
 
 
@@ -42,6 +42,7 @@ const warning = Modal.warning
 const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
+const yesterDay = moment().subtract(1, 'days');
 
 class OfflineTaskList extends Component {
 
@@ -55,7 +56,7 @@ class OfflineTaskList extends Component {
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: '',
-        bussinessDate: '',
+        bussinessDate: yesterDay,
         selectedRowKeys: [],
         checkAll: false,
         execTime: '', // 执行时间
@@ -305,10 +306,6 @@ class OfflineTaskList extends Component {
         })
     }
 
-    disabledDate = (current) => {
-        return current && current.valueOf() > new Date().getTime();
-    }
-
     showTask = (task) => {
         this.setState({
             visibleSlidePane: true,
@@ -414,6 +411,10 @@ class OfflineTaskList extends Component {
             visibleSlidePane: false,
             selectedTask:null
         })
+    }
+
+    disabledDate = (current) => {
+        return current && current.valueOf() > moment().subtract(1, 'days').valueOf();
     }
 
     tableFooter = (currentPageData) => {
@@ -552,6 +553,9 @@ class OfflineTaskList extends Component {
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="业务日期"
+                                        showToday={false}
+                                        ranges={{ '昨天': [yesterDay, yesterDay] }}
+                                        disabledDate={this.disabledDate}
                                         value={bussinessDate||null}
                                         onChange={this.changeBussinessDate}
                                     />

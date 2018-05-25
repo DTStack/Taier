@@ -20,8 +20,23 @@ import RoleEdit from 'main/views/admin/role/edit'
 
 // 标签工厂
 import Container from './views'
-import Dashboard from './views/dashboard'
+import TagMarket from './views/market'
+import MyAPI from './views/myApi'
+import TagManagement from './views/management'
+import TagApproval from './views/approval'
+
+import TagConfig from './views/tagConfig'
+import RuleTagEdit from './views/tagConfig/ruleTagEdit'
+import TagLog from './views/tagConfig/tagLog'
+import PublishTag from './views/management/publishTag'
+import IdentifyColumn from './views/tagConfig/identifyColumn'
+
 import DataSourceIndex from './views/dataSource'
+import APIDetail from './views/market/detail'
+import APIManageDetail from './views/management/apiDetail'
+import ApiType from './views/management/apiType'
+// import NewApi from './views/management/newApi'
+// import EditAPI from './views/management/editApi'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -43,8 +58,21 @@ export default (
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/dl" component={ Container }>
-            <IndexRoute component={ Dashboard } />
-            <Route path="overview" component={ Dashboard }></Route>
+            <IndexRoute component={ TagMarket } />
+            <Route path="market" component={ TagMarket }></Route>
+            <Route path="market/detail/:api" component={ APIDetail }></Route>
+            <Route path="mine" component={ MyAPI }></Route>
+            <Route path="mine/:view" component={ MyAPI }></Route>
+            <Route path="approval" component={ TagApproval }></Route>
+            <Route path="manage" component={ TagManagement }></Route>
+            <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
+            <Route path="manage/apiType" component={ ApiType }></Route>
+            <Route path="manage/newApi/:tagId" component={ PublishTag }></Route>
+            <Route path="manage/editApi/:tagId" component={ PublishTag }></Route>
+            <Route path="tagConfig" component={ TagConfig }></Route>
+            <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
+            <Route path="tagConfig/ruleTagEdit/:id" component={ RuleTagEdit }></Route>
+            <Route path="tagConfig/tagLog/:id" component={ TagLog }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
     </Route>

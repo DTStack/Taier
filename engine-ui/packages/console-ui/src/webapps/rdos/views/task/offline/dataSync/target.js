@@ -25,7 +25,8 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
-class TargetForm extends React.Component{
+class TargetForm extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -52,7 +53,7 @@ class TargetForm extends React.Component{
                 targetMap.type.type === DATA_SOURCE.FTP )
             ) {
             return true;
-        } 
+        }
 
         ctx.setState({
             tableList: []
@@ -184,11 +185,11 @@ class TargetForm extends React.Component{
                     <Select
                         showSearch
                         onChange={ this.changeSource.bind(this) }
-                        disabled={ !isCurrentTabNew }
                         optionFilterProp="name"
                     >
                         {dataSourceList.map(src => {
                             return <Option key={ src.id } 
+                                disabled={ !isCurrentTabNew || src.type === DATA_SOURCE.FTP }
                                 name={src.dataName}
                                 value={ `${src.id}` }>
                                 { src.dataName }( { dataSourceTypes[src.type] } )
@@ -217,7 +218,7 @@ class TargetForm extends React.Component{
         switch(targetMap.type.type) {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.SQLSERVER: {
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -302,7 +303,9 @@ class TargetForm extends React.Component{
                     </FormItem>
                 ];
                 break;
+            }
             case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -369,7 +372,8 @@ class TargetForm extends React.Component{
                     </FormItem>
                 ];
                 break;
-            case DATA_SOURCE.HDFS:
+            }
+            case DATA_SOURCE.HDFS: {
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -473,6 +477,7 @@ class TargetForm extends React.Component{
                     </FormItem>
                 ];
                 break;
+            }
             case DATA_SOURCE.HBASE: {
                 formItem = [
                     <FormItem

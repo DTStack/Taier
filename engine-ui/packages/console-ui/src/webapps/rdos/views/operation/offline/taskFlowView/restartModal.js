@@ -43,6 +43,7 @@ class RestartModal extends Component {
     componentWillReceiveProps(nextProps) {
         const node = nextProps.restartNode
         const visible = nextProps.visible
+        
         if (visible && node ) {
             this.setState({
                 currentNode: node,
@@ -50,14 +51,14 @@ class RestartModal extends Component {
                 checkedKeys: [`${node.id}`]
             }, () => {
                 this.loadTaskTree({
-                    jobId: node.id,
+                    taskId: node.batchTask.id,
                     jobKey: node.jobKey,
                     isOnlyNextChild: false
                 })
             })
         }
     }
-    
+
     restartChildNodes = () => {
         const { onCancel, router, restartNode } = this.props
         const checked = this.state.checkedKeys
@@ -85,7 +86,7 @@ class RestartModal extends Component {
     loadTaskTree = (params) => {
         const ctx = this
         const parent = this.state.currentNode
-        Api.queryJobSubNodes(params).then(res => {
+        Api.getRestartJobs(params).then(res => {
             if (res.code === 1) {
                 const children = res.data || []
                 if (children.length > 0) {
@@ -140,7 +141,7 @@ class RestartModal extends Component {
         return new Promise((resolve) => {
             if (!node.children || node.children.length === 0) {
                 ctx.loadTaskTree({
-                    jobId: node.id,
+                    taskId: node.batchTask.id,
                     jobKey: node.jobKey,
                     isOnlyNextChild: true
                 })
@@ -152,13 +153,17 @@ class RestartModal extends Component {
     getTreeNodes = (data, currentNode) => {
         if (data && data.length > 0) {
             const nodes = data.map((item) => {
-                const disabed = item.id === currentNode.id
-                const id = `${item.id}`
-                const name = (item.batchTask && item.batchTask.name) || item.jobName
-                const taskType = item.batchTask && item.batchTask.taskType
+
+                const disabed = item.id === currentNode.id;
+                const id = `${item.batchTask ? item.id : item.jobId}`;
+
+                const name = item.taskName || (item.batchTask && item.batchTask.name);
+                const status = item.jobStatus || item.status;
+                const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
+
                 const content = <Row>
-                    <Col span="8" className="ellipsis" title={item.name}>{name}</Col>
-                    <Col span="8"><TaskStatus value={item.status} /></Col>
+                    <Col span="8" className="ellipsis" title={name}>{name}</Col>
+                    <Col span="8"><TaskStatus value={status} /></Col>
                     <Col span="8"><TaskType value={taskType} /></Col>
                 </Row>
 
@@ -190,6 +195,7 @@ class RestartModal extends Component {
         const { visible, onCancel, restartNode } = this.props
         const { treeData } = this.state
         const treeNodes = this.getTreeNodes(treeData, restartNode)
+
         return (
             <Modal
                 title="重跑下游并恢复调度"

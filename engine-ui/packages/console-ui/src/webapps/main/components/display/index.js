@@ -82,6 +82,27 @@ export function MsgTypeDesc(app, type) {
                 default: return '-';
             }
         }
+        case MY_APPS.LABEL: {
+            switch (type) {
+                case 0:
+                    return '通知管理员处理'
+                case 1:
+                    return '申请标签'
+                case 2:
+                    return '申请通过'
+                case 3:
+                    return '停用申请'
+                case 4:
+                    return '创建标签'
+                case 5:
+                    return '禁用标签'
+                case 6:
+                    return '启用标签'
+                case 7:
+                    return '标签出错'
+                default: return '-';
+            }
+        }
         default: return '';
     }
 }

@@ -34,7 +34,7 @@ class TableList extends Component {
             },
 
             table: { data: [] },
-            subjectFields: [], 
+            subjectFields: [],
             modelLevels: []
         }
     }

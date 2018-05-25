@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Icon, Tooltip, message } from 'antd'
+import "./style.css"
 
 export default class CopyIcon extends Component {
 
@@ -88,7 +89,7 @@ export default class CopyIcon extends Component {
 
         return (
             <Tooltip   placement="right" title="复制">
-                <Icon onClick={this.copy.bind(this,copyText)} style={style} {...otherProps} type="copy" />
+                <Icon className="copy-hover" onClick={this.copy.bind(this,copyText)} style={style} {...otherProps} type="copy" />
             </Tooltip>
         )
     }
