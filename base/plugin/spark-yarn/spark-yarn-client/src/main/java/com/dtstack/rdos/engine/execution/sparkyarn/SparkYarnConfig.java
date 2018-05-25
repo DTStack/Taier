@@ -17,6 +17,8 @@ public class SparkYarnConfig {
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
 
+    private static final String HDFS_FLAG = "hdfs";
+
     private String typeName;
 
     private String sparkYarnArchive;
@@ -53,6 +55,11 @@ public class SparkYarnConfig {
             return String.format(DEFAULT_SPARK_YARN_ARCHIVE, defaultFS);
         }
 
+        if(!sparkYarnArchive.trim().startsWith(HDFS_FLAG)){
+            sparkYarnArchive = sparkYarnArchive.trim();
+            sparkYarnArchive = defaultFS + sparkYarnArchive;
+        }
+
         return sparkYarnArchive;
     }
 
@@ -63,6 +70,11 @@ public class SparkYarnConfig {
     public String getSparkSqlProxyPath() {
         if(Strings.isNullOrEmpty(sparkSqlProxyPath)){
             return String.format(DEFAULT_SPARK_SQL_PROXY_JAR_PATH, defaultFS);
+        }
+
+        if(!sparkSqlProxyPath.trim().startsWith(HDFS_FLAG)){
+            sparkSqlProxyPath = sparkSqlProxyPath.trim();
+            sparkSqlProxyPath = defaultFS + sparkSqlProxyPath;
         }
 
         return sparkSqlProxyPath;
@@ -88,6 +100,11 @@ public class SparkYarnConfig {
     public String getSparkPythonExtLibPath() {
         if(Strings.isNullOrEmpty(sparkPythonExtLibPath)){
             return String.format(DEFAULT_SPARK_PYTHON_EXTLIBPATH, defaultFS);
+        }
+
+        if(!sparkPythonExtLibPath.startsWith(HDFS_FLAG)){
+            sparkPythonExtLibPath = sparkPythonExtLibPath.trim();
+            sparkPythonExtLibPath = defaultFS + sparkPythonExtLibPath;
         }
 
         return sparkPythonExtLibPath;

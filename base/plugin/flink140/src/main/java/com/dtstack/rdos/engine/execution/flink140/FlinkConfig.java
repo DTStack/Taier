@@ -19,7 +19,9 @@ public class FlinkConfig {
 
 	private static final String DEFAULT_JAR_TMP_DIR = "../tmp140";
 
-	private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "hdfs://%s/flink140/ha";
+	private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink140/ha";
+
+	private static final String HDFS_FLAG = "hdfs";
 
     private String typeName;
 
@@ -105,10 +107,23 @@ public class FlinkConfig {
 		this.flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir;
 	}
 
-    public void setDefaultFlinkHighAvailabilityStorageDir(String nameServices) {
-        String defaultVal = String.format(DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR, nameServices);
+    public void setDefaultFlinkHighAvailabilityStorageDir(String defaultFS) {
+        String defaultVal = String.format(DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR, defaultFS);
         this.flinkHighAvailabilityStorageDir = defaultVal;
     }
+
+    public void updateFlinkHighAvailabilityStorageDir(String defaultFS){
+		if(Strings.isNullOrEmpty(flinkHighAvailabilityStorageDir)){
+			return;
+		}
+
+		if(flinkHighAvailabilityStorageDir.trim().startsWith(HDFS_FLAG)){
+			return;
+		}
+
+		flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir.trim();
+		flinkHighAvailabilityStorageDir = defaultFS + flinkHighAvailabilityStorageDir;
+	}
 
 	public String getTypeName() {
 		return typeName;

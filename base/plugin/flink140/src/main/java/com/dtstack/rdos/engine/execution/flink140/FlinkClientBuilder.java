@@ -64,11 +64,13 @@ public class FlinkClientBuilder {
             clusterMode = Deploy.standalone.name();
         }
 
+        String defaultFS = hadoopConf.get(HadoopConfTool.FS_DEFAULTFS);
         if(Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())){
             //设置默认值
-            String nameServices = hadoopConf.get(HadoopConfTool.DFS_NAME_SERVICES);
-            flinkConfig.setDefaultFlinkHighAvailabilityStorageDir(nameServices);
+            flinkConfig.setDefaultFlinkHighAvailabilityStorageDir(defaultFS);
         }
+
+        flinkConfig.updateFlinkHighAvailabilityStorageDir(defaultFS);
 
         if(clusterMode.equals( Deploy.standalone.name())) {
             return createStandalone(flinkConfig);

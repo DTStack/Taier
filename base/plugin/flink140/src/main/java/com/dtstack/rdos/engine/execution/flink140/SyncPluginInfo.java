@@ -139,7 +139,7 @@ public class SyncPluginInfo {
             urlList.addAll(findJarsInDir(writerDir));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("", e);
         } finally {
             return urlList;
         }
