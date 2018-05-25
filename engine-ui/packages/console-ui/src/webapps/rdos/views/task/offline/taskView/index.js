@@ -46,10 +46,7 @@ const VertexSize = { // vertex大小
 }
 
 const getVertexNode = (obj) => {
-    return {
-        id: obj.id,
-        name: obj.name
-    }
+    return obj;
 }
 
 export default class TaskView extends Component {
