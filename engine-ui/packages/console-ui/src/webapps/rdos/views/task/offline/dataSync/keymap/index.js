@@ -434,8 +434,8 @@ class Keymap extends React.Component{
         const { w, h, W, H, padding } = this.state;
 
         const { 
-            targetCol, sourceCol, keymap, 
-            sourceSrcType, sourceFileType, 
+            targetCol, sourceCol, keymap,
+            sourceSrcType, sourceFileType,
             removeSourceKeyRow, readonly,
         } = this.props;
 
@@ -485,6 +485,7 @@ class Keymap extends React.Component{
                         </div>
                     </div>
                 }
+                case DATA_SOURCE.MAXCOMPUTE:
                 case DATA_SOURCE.HIVE: {
                     const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
                     return <div>
@@ -533,6 +534,7 @@ class Keymap extends React.Component{
                         +添加常量
                     </span>
                 switch(sourceType) {
+                    case DATA_SOURCE.MAXCOMPUTE:
                     case DATA_SOURCE.HIVE:
                         footerContent = <div>
                             { btnAddConst }
@@ -882,11 +884,11 @@ class Keymap extends React.Component{
     }
 
     render() {
-        const { 
+        const {
             w, h, W, padding, visibleConst,
         } = this.state;
 
-        const { 
+        const {
             targetCol, sourceCol, keymap, 
             sourceSrcType, sourceFileType, 
             navtoStep, targetSrcType, 

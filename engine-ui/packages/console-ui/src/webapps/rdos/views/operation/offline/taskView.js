@@ -74,6 +74,7 @@ export default class TaskView extends Component {
         this.loadTaskChidren({
             taskId: id,
             level: 6,
+            
         })
     }
 
@@ -91,6 +92,9 @@ export default class TaskView extends Component {
 
     loadTaskChidren = (params) => {
         const ctx = this
+
+        params.type=2;
+
         this.setState({ loading: 'loading' })
         Api.getTaskChildren(params).then(res => {
             if (res.code === 1) {
@@ -99,6 +103,22 @@ export default class TaskView extends Component {
                 ctx.doInsertVertex(data)
             }
             ctx.setState({ loading: 'success' })
+        })
+    }
+
+    loadTaskParent = (params) => {
+        const ctx = this
+
+        params.type=1;
+
+        this.setState({ loading: 'loading' })
+        Api.getTaskChildren(params).then(res => {
+            if (res.code === 1) {
+                const data = res.data
+                ctx.setState({ data, selectedJob: data })
+                ctx.doInsertVertex(res.data)
+            }
+            ctx.setState({ loading: 'success'})
         })
     }
 
@@ -137,7 +157,7 @@ export default class TaskView extends Component {
                 graph.insertEdge(parent, null, '', parent, newVertex)
                 graph.view.refresh(newVertex)
             }, () => {
-                graph.scrollCellToVisible(newVertex);
+                // graph.scrollCellToVisible(newVertex,true);
             })
             // 缓存节点
             this._vertexCells.push(newVertex)
@@ -335,6 +355,19 @@ export default class TaskView extends Component {
             if (!cell) return
 
             const currentNode = JSON.parse(cell.getAttribute('data'))
+
+            menu.addItem('展开上游（6层）', null, function() {
+                ctx.loadTaskParent({
+                    taskId: currentNode.id,
+                    level: 6,
+                })
+            })
+            menu.addItem('展开下游（6层）', null, function() {
+                ctx.loadTaskChidren({
+                    taskId: currentNode.id,
+                    level: 6,
+                })
+            })
             menu.addItem('补数据', null, function() {
                 clickPatchData(currentNode)
             })
@@ -465,8 +498,8 @@ export default class TaskView extends Component {
                     </Tooltip>
                 </div>
                 <div className="box-title graph-info">
-                    <span>{task.name || '-'}</span>&nbsp;
-                    <span>{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
+                    <span>{task.name || '-'}</span>
+                    <span style={{marginLeft:"18px"}} >{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>

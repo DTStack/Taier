@@ -158,7 +158,7 @@ export default class FieldCheck extends Component {
                         >
                             <FormItem>
                                 <Input.Search
-                                    placeholder="按表名搜索"
+                                    placeholder="按字段名搜索"
                                     style={{ width: 200 }}
                                     size="default"
                                     onChange={ this.onTableNameChange }

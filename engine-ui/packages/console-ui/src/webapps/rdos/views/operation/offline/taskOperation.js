@@ -380,10 +380,15 @@ class OfflineTaskList extends Component {
             key: 'cycTime'
         }, {
             width: 120,
-            title: '开始时间',
+            title: '计划时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
         }, {
+            width: 120,
+            title: '结束时间',
+            dataIndex: 'execEndDate',
+            key: 'execEndDate',
+        },{
             title: '运行时长',
             width: 100,
             dataIndex: 'execTime',
@@ -593,7 +598,7 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '400px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}

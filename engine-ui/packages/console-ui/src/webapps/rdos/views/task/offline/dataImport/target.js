@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
-
 import { isObject, debounce } from 'lodash'
-
 import {
     Modal, Button, Form, Radio, message,
     Icon, Input, Select, Row, Table,
 } from 'antd';
-
 import utils from 'utils'
+
+
 import API from '../../../../api'
 import Editor from '../../../../components/code-editor'
+import CopyIcon from "main/components/copy-icon";
+
 import { formItemLayout } from '../../../../comm/const'
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
 
@@ -341,7 +342,9 @@ export default class ImportTarget extends Component {
                     />
                 </Row>
                 <Modal className="m-codemodal"
-                    title="建表语句"
+                    title={(
+                        <span>建表语句<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_ide_placeholder}/></span>
+                    )}
                     style={{ height: 424 }}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}

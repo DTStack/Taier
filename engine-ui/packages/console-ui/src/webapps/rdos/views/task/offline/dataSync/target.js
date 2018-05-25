@@ -194,8 +194,7 @@ class TargetForm extends React.Component {
                                 name={ src.dataName }
                                 value={ `${src.id}` }
                                 disabled={
-                                    src.type === DATA_SOURCE.ES || 
-                                    src.type === DATA_SOURCE.MAXCOMPUTE
+                                    src.type === DATA_SOURCE.ES
                                 }
                             >
                                 { src.dataName }( <DatabaseType value={src.type} /> )
