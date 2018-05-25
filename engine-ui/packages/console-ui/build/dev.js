@@ -2,6 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const cssLoader=require("./loader/css-loader.js").dev;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const MY_PATH = require('./consts');
 
@@ -14,17 +16,13 @@ baseConf.output={
             sourceMapFilename: '[name].map',
             publicPath: '/'
 }
+baseConf.mode="development"
 baseConf.plugins.push(
-    new webpack.DefinePlugin({
-        'process.env': {
-            'NODE_ENV': JSON.stringify('development')
-        }
-    }),
+    new BundleAnalyzerPlugin(),
     new webpack.SourceMapDevToolPlugin({
         filename: '[file].map'
     }),
     new webpack.HotModuleReplacementPlugin(), // 开启全局的模块热替换(HMR)
-    new webpack.NamedModulesPlugin(), // 当模块热替换(HMR)时在浏览器控制台输出对用户更友好的模块名字信息
 )
 
 
@@ -40,7 +38,7 @@ function loadHtmlPlugs() {
                     filename: app.filename,
                     template: tmp,
                     inject: 'body',
-                    chunks: ['vendor', app.id, 'manifest'],
+                    chunks: ['vendor',app.id, 'manifest'],
                     showErrors: true,
                     hash: true,
                 })
@@ -56,6 +54,7 @@ const devServer = Object.assign({
             host: '0.0.0.0',
             port: 8080,
             historyApiFallback: true,
+            disableHostCheck:true,
             stats: {
                 colors: true,
                 'errors-only': true,
@@ -69,7 +68,12 @@ const merged = function(env) {
     return webpackMerge(baseConf, {
         devtool: 'cheap-module-eval-source-map', //
         devServer: devServer,
-        plugins: htmlPlugs
+        plugins: htmlPlugs,
+        module:{
+            rules:[
+                ...cssLoader
+            ]
+        }
         
     })
 }
