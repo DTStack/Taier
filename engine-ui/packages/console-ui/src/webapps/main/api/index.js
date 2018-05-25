@@ -185,12 +185,13 @@ export default {
     loadUsersNotInProject(app, params) {
         switch (app) {
             case MY_APPS.RDOS:
-                return RdosApi.getNotProjectUsers(params);
+                return http.post(req.RDOS_SEARCH_UIC_USERS, params)
             case MY_APPS.DATA_QUALITY:
-                return DqSysApi.getUsersNotInProject(params);
+                return http.post(req.DQ_SEARCH_UIC_USERS, params)
             case MY_APPS.LABEL:
+                return http.post(req.DL_SEARCH_UIC_USERS, params)
             case MY_APPS.API:
-                return RdosApi.getNotProjectUsers(params);
+                return http.post(req.DATAAPI_SEARCH_UIC_USERS, params)
             default: return;
         }
     },
