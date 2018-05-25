@@ -355,9 +355,7 @@ class RealTimeTabPane extends Component {
         const treeType = treeNode.props.treeType
         const node = treeNode.props.data
         return new Promise((resolve) => {
-            if (!node.children || node.children.length === 0) {
-                dispatch(TreeAction.getRealtimeTree(node))
-            }
+            dispatch(TreeAction.getRealtimeTree(node))
             resolve();
         })
     }

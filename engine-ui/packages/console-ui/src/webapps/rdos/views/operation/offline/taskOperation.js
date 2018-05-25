@@ -383,10 +383,15 @@ class OfflineTaskList extends Component {
             key: 'cycTime'
         }, {
             width: 120,
-            title: '开始时间',
+            title: '计划时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
         }, {
+            width: 120,
+            title: '结束时间',
+            dataIndex: 'execEndDate',
+            key: 'execEndDate',
+        },{
             title: '运行时长',
             width: 100,
             dataIndex: 'execTime',

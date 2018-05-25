@@ -173,8 +173,8 @@ class OfflineStatistics extends Component {
             dataIndex: 'taskName',
             key: 'taskName',
             render: (text, record) => {
-                const content = record.isDeleted === 1 ? `${text} (已删除)` :
-                <a onClick={this.props.goToTaskDev.bind(this, record.taskId)}>{text}</a>
+                const content = record.isDeleted === 1 ? `${text} (已删除)` :text
+                
                 return content;
             },
         }, {

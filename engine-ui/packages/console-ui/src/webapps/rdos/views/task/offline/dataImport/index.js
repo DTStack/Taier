@@ -205,6 +205,9 @@ export default class ImportLocalData extends Component {
         const { step } = this.state
         return (
             <div>
+                <Button onClick={() => {
+                    this.setState({ visible: false })
+                }}>取消</Button>
                 <Button
                     style={{
                         display: step === 'source'
@@ -232,9 +235,6 @@ export default class ImportLocalData extends Component {
                     type="primary">
                     导入
                 </Button>
-                <Button onClick={() => {
-                    this.setState({ visible: false })
-                }}>取消</Button>
             </div>
         )
     }

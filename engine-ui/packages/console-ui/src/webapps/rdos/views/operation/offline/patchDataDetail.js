@@ -342,7 +342,7 @@ class PatchDataDetail extends Component {
             key: 'bizDay'
         }, {
             width: 120,
-            title: '定时时间',
+            title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
         }, {

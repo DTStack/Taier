@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import {isEmpty} from "lodash"
 import {
     Table, message, Modal, 
     Input, Card, Popconfirm, 
@@ -29,6 +30,7 @@ class RealTimeTaskList extends Component {
         tasks: {
             data: [],
         },
+        filter:isEmpty(utils.getParameterByName("status"))?[]:[utils.getParameterByName("status")],
         loading: false,
         continue: false,
         logVisible: false,
@@ -72,6 +74,7 @@ class RealTimeTaskList extends Component {
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
+            status:this.state.filter[0]
         }, params)
         Api.getTasks(reqParams).then((res) => {
             if (res.code === 1) {
@@ -134,7 +137,7 @@ class RealTimeTaskList extends Component {
             params.status = filters.status[0]
         }
         params.currentPage = pagination.current
-        this.setState({ current: pagination.current })
+        this.setState({ current: pagination.current,filter:filters.status })
         this.loadTaskList(params)
     }
 
@@ -178,6 +181,7 @@ class RealTimeTaskList extends Component {
                 return <TaskStatus value={text} />
             },
             filters: taskStatusFilter,
+            filteredValue:this.state.filter,
             filterMultiple: false,
         }, {
             title: '责任人',
