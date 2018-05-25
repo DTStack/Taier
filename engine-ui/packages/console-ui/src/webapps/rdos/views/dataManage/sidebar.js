@@ -24,7 +24,7 @@ export default class Sidebar extends Component {
         if (routes.length > 3) {
             let current = routes[3].path;
 
-            if(current) {
+            if (current) {
                 current = current.split('/')[0];
             }
             this.setState({ current: current || 'table' })
@@ -43,11 +43,11 @@ export default class Sidebar extends Component {
         return (
             <div className="sidebar m-ant-menu">
                 <Menu
-                  onClick={this.handleClick}
-                  style={{ width: 200, height: '100%' }}
-                  selectedKeys={[this.state.current]}
-                  defaultSelectedKeys={[this.state.current]}
-                  mode="inline"
+                    onClick={this.handleClick}
+                    style={{ width: 200, height: '100%' }}
+                    selectedKeys={[this.state.current]}
+                    defaultSelectedKeys={[this.state.current]}
+                    mode="inline"
                 >
                     <Menu.Item key="search">
                         <Link to={`${base}/table`}>
@@ -59,14 +59,9 @@ export default class Sidebar extends Component {
                             <Icon type="database" />数据表管理
                         </Link>
                     </Menu.Item>
-                    <Menu.Item key="log">
-                        <Link to={`${base}/log`}>
-                            <Icon type="solution" />操作记录
-                        </Link>
-                    </Menu.Item>
-                    <Menu.Item key="dirty-data">
-                        <Link to={`${base}/dirty-data`}>
-                            <Icon type="book" />脏数据管理
+                    <Menu.Item key="permission">
+                        <Link to={`${base}/catalogue`}>
+                            <Icon type="book" />权限管理
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="catalogue">
