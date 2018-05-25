@@ -18,7 +18,7 @@ class ApprovedSlidePane extends Component {
 
 
             <SlidePane visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '300px' }}
+                style={{ right: '-20px', width: '80%', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <h1 className="box-title approved-card-pane-title">审批情况</h1>
                 <div style={{ paddingLeft: 30,marginBottom:30 }}>
