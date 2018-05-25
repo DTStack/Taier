@@ -206,9 +206,10 @@ class ApprovedCard extends Component {
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
-                const isDelete = record.apiStatus == 1 ? true : false;
-                const deleteText = isDelete ? '(全平台禁用)' : ''
-                return <a className={isDelete?'disable-all':''} onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
+                const apiStatus = record.apiStatus == 1 ? '全平台禁用' : '';
+                const apiDeleted = record.apiDeleted == 1 ? "已删除" : '';
+                const deleteText = apiDeleted&&apiStatus ? `(${apiDeleted}+${apiStatus})` : `(${apiDeleted}${apiStatus})`
+                return <a className={apiStatus||apiDeleted?'disable-all':''} onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
             }
         }, {
             title: '授权状态',
