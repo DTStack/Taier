@@ -3,8 +3,8 @@ import { Table, Card, Modal, Select, DatePicker, Tooltip } from 'antd';
 import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
-import { TAG_STATUS } from '../../consts';
-import TCApi from '../../api/tagConfig';
+import { TAG_STATUS } from '../../../consts';
+import TCApi from '../../../api/tagConfig';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;

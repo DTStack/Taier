@@ -1,42 +1,36 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Card, Modal, Form, Icon,
-    Button, Input, Select, Menu, message,
-    Dropdown, Popconfirm, Cascader
+import { Table, Card, Icon, Button, 
+    Input, Select, Menu, message,
+    Dropdown, Popconfirm
 } from 'antd';
-import moment from 'moment';
 
-import { tagConfigActions } from '../../actions/tagConfig';
-import { apiMarketActions } from '../../actions/apiMarket';
-import { dataSourceActions } from '../../actions/dataSource';
-import { formItemLayout, TAG_STATUS, TAG_PUBLISH_STATUS } from '../../consts';
-import TCApi from '../../api/tagConfig';
+import utils from 'utils';
+import EditTagModal from './editTagModal';
+import { dataSourceActions } from '../../../actions/dataSource';
+import { TAG_STATUS, TAG_PUBLISH_STATUS } from '../../../consts';
+import TCApi from '../../../api/tagConfig';
 
 const Search = Input.Search;
 const Option = Select.Option;
-const FormItem = Form.Item;
-const TextArea = Input.TextArea;
 
 const mapStateToProps = state => {
-    const { tagConfig, dataSource, apiMarket } = state;
-    return { tagConfig, dataSource, apiMarket }
+    const { apiMarket } = state;
+    return { apiMarket }
 }
 
 const mapDispatchToProps = dispatch => ({
-    getAllIdentifyColumn(params) {
-        dispatch(tagConfigActions.getAllIdentifyColumn(params));
+    getDataSourcesTable(params) {
+        dispatch(dataSourceActions.getDataSourcesTable(params));
     },
-    getTagDataSourcesList(params) {
-        dispatch(dataSourceActions.getTagDataSourcesList(params));
-    },
-    getCatalogue(pid) {
-        dispatch(apiMarketActions.getCatalogue(pid));
+    getDataSourcesColumn(params) {
+        dispatch(dataSourceActions.getDataSourcesColumn(params));
     },
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class RuleTagPane extends Component {
+export default class TagPane extends Component {
 
     state = {
         visible: false,
@@ -51,18 +45,16 @@ export default class RuleTagPane extends Component {
     }
 
     componentDidMount() {
-        this.props.getTagDataSourcesList();
-        this.props.getAllIdentifyColumn();
-        this.props.getCatalogue(0);
-
-        this.getRuleTagData(this.state.queryParams);
+        this.getTagListData(this.state.queryParams);
     }
 
     // 获取标签列表数据
-    getRuleTagData = (params) => {
+    getTagListData = (params) => {
         this.setState({ loading: true });
 
-        TCApi.queryRuleTag(params).then((res) => {
+        let api = this.props.tagType === 'rule' ? TCApi.queryRuleTag : TCApi.queryRegisteredTag;
+
+        api(params).then((res) => {
             if (res.code === 1) {
                 this.setState({ 
                     loading: false,
@@ -72,8 +64,8 @@ export default class RuleTagPane extends Component {
         });
     }
 
-    // table设置
-    initColumns = () => {
+    // 规则标签表格设置
+    initRuleTagTable = () => {
         return [{
             title: '标签名称',
             dataIndex: 'name',
@@ -119,8 +111,8 @@ export default class RuleTagPane extends Component {
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             width: '10%',
-            render: (text) => {
-                return text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : '--';
+            render: (time) => {
+                return time ? utils.formatDateTime(time) : '--';
             }
         }, {
             title: '状态',
@@ -154,7 +146,7 @@ export default class RuleTagPane extends Component {
                             </Menu.Item>
                         }
                         {
-                            TAG_STATUS[record.status] != '更新中'
+                            (TAG_STATUS[record.status] != '更新中' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布')
                             &&
                             <Menu.Item key="edit2">
                                 <Link to={`/dl/tagConfig/ruleTagEdit/${record.id}`}>
@@ -168,7 +160,7 @@ export default class RuleTagPane extends Component {
                             </Link>
                         </Menu.Item>
                         {
-                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] != '已发布')
+                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布')
                             &&
                             <Menu.Item key="pub">
                                 <Link to={`/dl/manage/newApi/${record.id}`}>
@@ -196,10 +188,125 @@ export default class RuleTagPane extends Component {
         }];
     }
 
+    // 注册标签表格设置
+    initRegisterTagTable = () => {
+        return [{
+            title: '标签名称',
+            dataIndex: 'name',
+            key: 'name',
+            width: '10%'
+        }, {
+            title: '标签描述',
+            dataIndex: 'tagDesc',
+            key: 'tagDesc',
+            width: '10%'
+        }, {
+            title: '标签类目',
+            dataIndex: 'catalogueName',
+            key: 'catalogueName',
+            width: '8%',
+        }, {
+            title: '值域',
+            dataIndex: 'tagRange',
+            key: 'tagRange',
+            width: 120
+        }, {
+            title: '目标数据库',
+            dataIndex: 'dataSourceName',
+            key: 'dataSourceName',
+            width: '8%'
+        }, {
+            title: '识别列ID',
+            dataIndex: 'identityColumn',
+            key: 'identityColumn',
+            width: '8%'
+        }, {
+            title: '识别列类型',
+            dataIndex: 'identityName',
+            key: 'identityName',
+            width: '8%'
+        }, {
+            title: '来源表',
+            dataIndex: 'originTable',
+            key: 'originTable',
+            width: '8%'
+        }, {
+            title: '来源列',
+            dataIndex: 'originColumn',
+            key: 'originColumn',
+            width: '8%'
+        }, {
+            title: '状态',
+            dataIndex: 'status',
+            key: 'status',
+            width: 100,
+            render: (text) => {
+                return TAG_STATUS[text];
+            }
+        }, {
+            title: '发布状态',
+            dataIndex: 'publishStatus',
+            key: 'publishStatus',
+            width: 90,
+            render: (text) => {
+                return TAG_PUBLISH_STATUS[text];
+            }
+        }, {
+            title: '操作',
+            width: 110,
+            render: (text, record) => {
+                const menu = (
+                    <Menu>
+                        {
+                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] != '已发布')
+                            &&
+                            <Menu.Item key="1">
+                                <Link to={`/dl/manage/newApi/${record.id}`}>
+                                    发布
+                                </Link>
+                            </Menu.Item>
+                        }
+                        <Menu.Item key="2">
+                            <Popconfirm
+                                title="确定删除此标签？"
+                                okText="确定" cancelText="取消"
+                                onConfirm={this.removeTag.bind(this, record.id)}
+                            >
+                                <a>删除</a>
+                            </Popconfirm>
+                        </Menu.Item>
+                    </Menu>
+                )
+
+                return (
+                    <div>
+                        <a onClick={() => {this.editBaseInfo(record)}}>
+                            编辑
+                        </a>
+                        <span className="ant-divider" />
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <a className="ant-dropdown-link">
+                                更多 <Icon type="down" />
+                            </a>
+                        </Dropdown>
+                    </div>
+                )
+            }
+        }]
+    }
+
+    // 新增标签
+    addTag = (id) => {
+        this.openModal();
+        this.setState({ 
+            editData: { 
+                type: this.props.tagType === 'rule' ? 2 : 1 
+            } 
+        });
+    }
+
     // 编辑标签基本信息
     editBaseInfo = (record) => {
-        const { apiCatalogue } = this.props.apiMarket;
-
         let editData = {
             ...record, 
             catalogueId: this.getCatalogueArray(record.catalogueId)
@@ -207,6 +314,18 @@ export default class RuleTagPane extends Component {
 
         this.openModal();
         this.setState({ editData });
+
+        if (this.props.tagType === 'register') {
+            if (TAG_PUBLISH_STATUS[editData.publishStatus] === '未发布') {
+                this.props.getDataSourcesTable({ 
+                    sourceId: editData.dataSourceId 
+                });
+                this.props.getDataSourcesColumn({ 
+                    sourceId: editData.dataSourceId, 
+                    tableName: editData.originTable 
+                });
+            }
+        }
     }
 
     // 删除标签
@@ -217,17 +336,16 @@ export default class RuleTagPane extends Component {
             TCApi.deleteTag({ tagId: id }).then((res) => {
                 if (res.code === 1) {
                     message.success('删除成功！');
-                    this.getRuleTagData(queryParams);
+                    this.getTagListData(queryParams);
                 }
             });
         }
     }
 
     // 取消编辑
-    cancel = () => {
+    cancel = (form) => {
         this.closeModal();
-        this.setState({ editData: {} });
-        this.props.form.resetFields();
+        form.resetFields();
     }
 
     openModal = () => {
@@ -239,14 +357,14 @@ export default class RuleTagPane extends Component {
     }
 
     // 保存标签基本信息
-    saveRuleTag = () => {
-        const { form } = this.props;
+    saveTag = (form) => {
         const { queryParams, editData } = this.state;
 
         form.validateFields((err, values) => {
             console.log(err,values)
             let api, params, msg;
             if(!err) {
+                // 取子节点的id
                 values.catalogueId = [...values.catalogueId].pop();
 
                 if (editData.id) {
@@ -254,7 +372,7 @@ export default class RuleTagPane extends Component {
                     params = {...values, id: editData.id};
                     msg = '更新成功';
                 } else {
-                    api = TCApi.addRuleTag;
+                    api = this.props.tagType === 'rule' ? TCApi.addRuleTag : TCApi.addRegisterTag;
                     params = values;
                     msg = '新增成功';
                 }
@@ -262,11 +380,11 @@ export default class RuleTagPane extends Component {
                 api(params).then((res) => {
                     if (res.code === 1) {
                         message.success(msg);
+
                         this.closeModal();
-                        this.setState({ editData: {} });
-                        
                         form.resetFields();
-                        this.getRuleTagData(queryParams);
+                        this.getTagListData(queryParams);
+                        this.setState({ editData: {} });
                     }
                 });
             }
@@ -287,7 +405,7 @@ export default class RuleTagPane extends Component {
             this.setState({ catalogue2Data: [] });
         }
 
-        this.getRuleTagData(queryParams);
+        this.getTagListData(queryParams);
         this.setState({ queryParams });
     }
 
@@ -309,7 +427,7 @@ export default class RuleTagPane extends Component {
             cid: id ? id : undefined
         };
 
-        this.getRuleTagData(queryParams);
+        this.getTagListData(queryParams);
         this.setState({ queryParams });
     }
 
@@ -321,23 +439,8 @@ export default class RuleTagPane extends Component {
             name: name ? name : undefined
         };
 
-        this.getRuleTagData(queryParams);
+        this.getTagListData(queryParams);
         this.setState({ queryParams });
-    }
-
-    // 类目下拉框数据初始化
-    initCatagoryOption = (data) => {
-        if (data.some(item => item.api === true)) {
-            return [];
-        } else {
-            return data.map((item) => {
-                return {
-                    value: item.id,
-                    label: item.catalogueName,
-                    children: this.initCatagoryOption(item.childCatalogue)
-                }
-            });
-        }
     }
 
     // 获取已选取的类目array
@@ -374,17 +477,15 @@ export default class RuleTagPane extends Component {
             currentPage: page.current,
         };
 
-        this.getRuleTagData(queryParams);
+        this.getTagListData(queryParams);
         this.setState({ queryParams });
     }
 
     render() {
-        const { form, tagConfig, dataSource, apiMarket } = this.props;
-        const { getFieldDecorator } = form;
-        const { tagSourceList } = dataSource;
-        const { apiCatalogue } = apiMarket;
-        const { identifyColumn } = tagConfig;
+        const { apiCatalogue } = this.props.apiMarket;
         const { queryParams, visible, loading, tagList, editData, catalogue2Data } = this.state;
+
+        let initColumns = this.props.tagType === 'rule' ? this.initRuleTagTable : this.initRegisterTagTable;
 
         const cardTitle = (
             <div className="flex font-12">
@@ -449,7 +550,7 @@ export default class RuleTagPane extends Component {
                 </Button>
                 <Button 
                     type="primary" 
-                    onClick={this.openModal}>
+                    onClick={this.addTag}>
                     新建标签
                 </Button>
             </div>
@@ -471,180 +572,20 @@ export default class RuleTagPane extends Component {
                 <Table 
                     rowKey="id"
                     className="m-table"
-                    columns={this.initColumns()} 
+                    columns={initColumns()} 
                     loading={loading}
                     pagination={pagination}
                     dataSource={tagList.data}
                     onChange={this.onTableChange}
                 />
 
-                <Modal
-                    title="新建标签"
-                    wrapClassName="ruleTagModal"
-                    width={'50%'}
+                <EditTagModal
                     visible={visible}
-                    maskClosable={false}
-                    okText="保存"
-                    cancelText="取消"
-                    onOk={this.saveRuleTag}
-                    onCancel={this.cancel}
-                >
-                    <Form>
-                        <FormItem {...formItemLayout} label="标签名称">
-                            {
-                                getFieldDecorator('name', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '标签名称不可为空' 
-                                    }, { 
-                                        max: 20,
-                                        message: "最大字数不能超过20" 
-                                    }, { 
-                                        pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
-                                        message: '名称只能以字母，数字，下划线组成' 
-                                    }], 
-                                    initialValue: editData.name
-                                })(
-                                    <Input />
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="标签描述">
-                            {
-                                getFieldDecorator('tagDesc', {
-                                    rules: [], 
-                                    initialValue: editData.tagDesc
-                                })(
-                                    <TextArea 
-                                        placeholder="标签描述" 
-                                        autosize={{ minRows: 2, maxRows: 6 }} 
-                                    />
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="标签类目">
-                            {
-                                getFieldDecorator('catalogueId', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '标签类目不可为空' 
-                                    }], 
-                                    initialValue: editData.catalogueId
-                                })(
-                                    <Cascader 
-                                        showSearch 
-                                        popupClassName="noheight" 
-                                        options={this.initCatagoryOption(apiCatalogue)} 
-                                        placeholder="请选择分组" 
-                                        onChange={this.onCatagoryIdChange}
-                                    />
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="值域">
-                            {
-                                getFieldDecorator('tagRange', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '值域不可为空' 
-                                    }], 
-                                    initialValue: editData.tagRange
-                                })(
-                                    <TextArea 
-                                        placeholder="值域" 
-                                        autosize={{ minRows: 2, maxRows: 6 }} 
-                                    />
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="目标数据库">
-                            {
-                                getFieldDecorator('dataSourceId', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '目标数据库不可为空' 
-                                    }], 
-                                    initialValue: editData.dataSourceId ? editData.dataSourceId.toString() : undefined
-                                })(
-                                    <Select
-                                        showSearch
-                                        optionFilterProp="title"
-                                        placeholder="选择目标数据库"
-                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}
-                                        onChange={this.onSourceChange}>
-                                        {
-                                            tagSourceList.map((source) => {
-                                                let title = `${source.dataName}（${source.sourceTypeValue}）`;
-                                                return <Option 
-                                                    key={source.id} 
-                                                    value={source.id.toString()}
-                                                    title={title}>
-                                                    {title}
-                                                </Option>
-                                            })
-                                        }
-                                    </Select>
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="来源表">
-                            {
-                                getFieldDecorator('originTable', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '来源表不可为空' 
-                                    }], 
-                                    initialValue: editData.originTable
-                                })(
-                                    <Input disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'} />
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="识别列ID">
-                            {
-                                getFieldDecorator('identityColumn', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '识别列ID不可为空' 
-                                    }], 
-                                    initialValue: editData.identityColumn
-                                })(
-                                    <Input disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'} />
-                                )
-                            }
-                        </FormItem>
-                        <FormItem {...formItemLayout} label="识别列类型">
-                            {
-                                getFieldDecorator('identityId', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '识别列类型不可为空' 
-                                    }], 
-                                    initialValue: editData.identityId ? editData.identityId.toString() : undefined
-                                })(
-                                    <Select
-                                        showSearch
-                                        optionFilterProp="title"
-                                        placeholder="选择识别列类型"
-                                        disabled={TAG_PUBLISH_STATUS[editData.publishStatus] === '已发布'}>
-                                        {
-                                            identifyColumn.map((item) => {
-                                                return <Option 
-                                                    key={item.id} 
-                                                    value={item.id.toString()}
-                                                    title={item.name}>
-                                                    {item.name}
-                                                </Option>
-                                            })
-                                        }
-                                    </Select>
-                                )
-                            }
-                        </FormItem>
-                    </Form>
-                </Modal>
+                    editData={editData}
+                    saveTag={this.saveTag}
+                    cancel={this.cancel}
+                />
             </Card>
         )
     }
 }
-RuleTagPane = Form.create()(RuleTagPane);
