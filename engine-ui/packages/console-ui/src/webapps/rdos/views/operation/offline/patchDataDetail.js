@@ -136,6 +136,18 @@ class PatchDataDetail extends Component {
         })
     }
 
+    //杀死所有实例
+    killAllJobs = () => {
+        Api.stopFillDataJobs({
+            fillDataJobName: this.state.fillJobName,
+        }).then(res => {
+            if (res.code === 1) {
+                this.search();
+                message.success('已成功杀死所有实例！')
+            }
+        })
+    }
+
     batchKillJobs = () => { // 批量重跑
         const ctx = this
         const selected = this.state.selectedRowKeys
@@ -544,13 +556,16 @@ class PatchDataDetail extends Component {
                             </div>
                         }
                         extra={
-                            <Icon type="reload" onClick={this.search} 
-                                style={{
-                                    cursor: 'pointer',
-                                    marginTop: '16px',
-                                    color: '#94A8C6'
-                                }}
-                            />
+                            <div>
+                                <Icon type="reload" onClick={this.search} 
+                                    style={{
+                                        cursor: 'pointer',
+                                        marginTop: '16px',
+                                        color: '#94A8C6'
+                                    }}
+                                />
+                                <a onClick={this.killAllJobs} style={{marginLeft:"8px"}}>杀死所有实例</a>
+                            </div>
                         }
                     > 
                          <Table

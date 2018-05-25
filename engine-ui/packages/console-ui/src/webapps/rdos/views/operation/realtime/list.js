@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import {
-    Table, message, Modal, 
-    Input, Card, Popconfirm, 
+    Table, message, Modal,
+    Input, Card, Popconfirm,
     DatePicker, TimePicker,
     Select, Form,
- } from 'antd'
+} from 'antd'
 
- import utils from 'utils'
+import utils from 'utils'
 
 import Api from '../../../api'
 import { taskStatusFilter } from '../../../comm/const'
@@ -91,7 +91,7 @@ class RealTimeTaskList extends Component {
         if (startArr.indexOf(status) > -1) {
             if (mode !== 'normal' && (status === 7 || status === 8)) { // 续跑
                 this.setState({ goOnTask: task.id })
-            } else { 
+            } else {
                 Api.startTask({
                     id: task.id,
                     isRestoration: isRestore,
@@ -161,7 +161,7 @@ class RealTimeTaskList extends Component {
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
-                return <a onClick={() => { this.chooseTask(record) }}>{text}</a>
+                return <a onClick={() => { this.logInfo(record) }}>{text}</a>
             },
         }, {
             title: '任务类型',
@@ -203,51 +203,51 @@ class RealTimeTaskList extends Component {
                 let goOn = ''
                 let popTxt = '确定执行当前操作吗?'
                 switch (record.status) {
-                case 0:
-                    normal = '提交'
-                    break;
-                case 5:
-                    recover = <a>重跑</a>
-                    popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
-                    break;
-                case 7:
-                    goOn = '续跑'
-                    popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
-                    recover = <a>重跑</a>
-                    break;
-                case 8:
-                    goOn = '续跑'
-                    normal = '重试'
-                    break;
-                case 9:
-                    normal = '重试'
-                    break;
-                case 4:
-                case 16:
-                case 17:
-                case 10:
-                case 11:
-                    normal = '停止'
-                    break;
-                default:
-                    break;
+                    case 0:
+                        normal = '提交'
+                        break;
+                    case 5:
+                        recover = <a>重跑</a>
+                        popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
+                        break;
+                    case 7:
+                        goOn = '续跑'
+                        popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
+                        recover = <a>重跑</a>
+                        break;
+                    case 8:
+                        goOn = '续跑'
+                        normal = '重试'
+                        break;
+                    case 9:
+                        normal = '重试'
+                        break;
+                    case 4:
+                    case 16:
+                    case 17:
+                    case 10:
+                    case 11:
+                        normal = '停止'
+                        break;
+                    default:
+                        break;
                 }
 
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.logInfo(record) }}>日志</a>
-                        { goOn ? <span className="ant-divider" /> : '' }
-                        <a onClick={() => { this.updateTaskStatus(record) }}>{ goOn }</a>
-                        { normal ? <span className="ant-divider" /> : '' }
-                        <a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{ normal }</a>
-                        { recover ? <span className="ant-divider" /> : '' }
-                        <Popconfirm 
+                        <a onClick={() => { this.chooseTask(record) }}>修改</a>
+                        {goOn ? <span className="ant-divider" /> : ''}
+                        <a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>
+                        {normal ? <span className="ant-divider" /> : ''}
+                        <a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>
+                        {recover ? <span className="ant-divider" /> : ''}
+                        <Popconfirm
                             okText="确定"
                             cancelText="取消"
                             onConfirm={() => { this.recoverTask(record) }}
                             title={popTxt}
                         >
-                            { recover }
+                            {recover}
                         </Popconfirm>
                     </div>
                 )
@@ -269,10 +269,10 @@ class RealTimeTaskList extends Component {
         };
         return (
             <div className="box-1 m-card">
-                <Card 
+                <Card
                     noHovering
                     bordered={false}
-                    loading={false} 
+                    loading={false}
                     title={
                         <Search
                             placeholder="按任务名称搜索"
@@ -292,7 +292,7 @@ class RealTimeTaskList extends Component {
                         dataSource={tasks.data || []}
                         onChange={this.handleTableChange}
                     />
-                    <GoOnTask 
+                    <GoOnTask
                         visible={this.state.goOnTask ? true : false}
                         taskId={this.state.goOnTask}
                         onOk={this.hideGoOnTask}
@@ -303,11 +303,11 @@ class RealTimeTaskList extends Component {
                     width="60%"
                     title={`日志-${logInfo.taskId}`}
                     wrapClassName="vertical-center-modal modal-body-nopadding m-log-modal"
-                    visible={ this.state.logVisible }
+                    visible={this.state.logVisible}
                     onCancel={() => { this.setState({ logVisible: false }) }}
                     footer={null}
                 >
-                    <LogInfo log={logInfo} height="520px"/>
+                    <LogInfo log={logInfo} height="520px" />
                 </Modal>
             </div>
         )
