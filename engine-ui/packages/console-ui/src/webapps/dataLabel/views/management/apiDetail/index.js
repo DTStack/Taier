@@ -59,8 +59,7 @@ class APIManageDetail extends Component {
     deleteApi() {
         let apiId = this.state.apiId;
         confirm({
-            title: '确认删除?',
-            content: '确认删除api',
+            title: '确认删除该标签？',
             onOk: () => {
 
                 this.props.deleteApi(apiId)
@@ -83,8 +82,7 @@ class APIManageDetail extends Component {
     openApi() {
         let apiId = this.state.apiId;
         confirm({
-            title: '确认开启?',
-            content: '确认开启api',
+            title: '确认开启该标签？',
             onOk: () => {
 
                 this.props.openApi(apiId)
@@ -107,8 +105,7 @@ class APIManageDetail extends Component {
     closeApi() {
         let apiId = this.state.apiId;
         confirm({
-            title: '确认禁用?',
-            content: '确认禁用api',
+            title: '确认禁用该标签？',
             onOk: () => {
 
                 this.props.closeApi(apiId)
