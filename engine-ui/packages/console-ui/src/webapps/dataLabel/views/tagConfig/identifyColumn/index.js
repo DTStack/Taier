@@ -235,7 +235,10 @@ export default class IdentifyColumn extends Component {
                             <FormItem {...formItemLayout} label="描述">
                                 {
                                     getFieldDecorator('identityDesc', {
-                                        rules: [], 
+                                        rules: [{
+                                            max: 200,
+                                            message: "描述字符不能超过200"
+                                        }],
                                         initialValue: currentData.identityDesc
                                     })(
                                         <TextArea 

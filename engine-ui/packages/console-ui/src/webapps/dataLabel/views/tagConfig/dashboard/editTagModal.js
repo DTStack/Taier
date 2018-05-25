@@ -137,7 +137,10 @@ export default class EditTagModal extends Component {
 	                <FormItem {...formItemLayout} label="标签描述">
 	                    {
 	                        getFieldDecorator('tagDesc', {
-	                            rules: [], 
+	                            rules: [{
+                                    max: 200,
+                                    message: "描述字符不能超过200"
+                                }], 
 	                            initialValue: editData.tagDesc
 	                        })(
 	                            <TextArea 
@@ -212,7 +215,7 @@ export default class EditTagModal extends Component {
 	                    }
 	                </FormItem>
 	                {
-	                	editData.type === 1 ?
+	                	TAG_TYPE[editData.type] === '注册标签' ?
 	                	<div>
 			                <FormItem {...formItemLayout} label="来源表">
 		                        {
@@ -253,8 +256,7 @@ export default class EditTagModal extends Component {
 		                                <Select
 		                                    showSearch
 		                                    disabled={publishStatus}
-		                                    placeholder="选择来源列"
-		                                    onChange={this.onUserSourceChange}>
+		                                    placeholder="选择来源列">
 		                                    {
 		                                        sourceColumn.map((item) => {
 		                                            return <Option 
@@ -279,8 +281,8 @@ export default class EditTagModal extends Component {
 		                            })(
 		                                <Select
 		                                    showSearch
-		                                    placeholder="选择识别列ID"
-		                                    disabled={publishStatus}>
+		                                    disabled={publishStatus}
+		                                    placeholder="选择识别列ID">
 		                                    {
 		                                        sourceColumn.map((item) => {
 		                                            return <Option 

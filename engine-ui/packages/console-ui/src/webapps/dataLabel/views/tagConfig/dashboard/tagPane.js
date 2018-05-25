@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { Table, Card, Icon, Button, 
     Input, Select, Menu, message,
     Dropdown, Popconfirm
@@ -163,17 +163,16 @@ export default class TagPane extends Component {
                             (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布')
                             &&
                             <Menu.Item key="pub">
-                                <Link to={`/dl/manage/newApi/${record.id}`}>
+                                <a onClick={this.checkPublish.bind(this, record.id)}>
                                     发布
-                                </Link>
+                                </a>
                             </Menu.Item>
                         }
                         <Menu.Item key="del">
                             <Popconfirm
                                 title="确定删除此标签？"
                                 okText="确定" cancelText="取消"
-                                onConfirm={this.removeTag.bind(this, record.id)}
-                            >
+                                onConfirm={this.removeTag.bind(this, record.id)}>
                                 <a>删除</a>
                             </Popconfirm>
                         </Menu.Item>
@@ -257,21 +256,16 @@ export default class TagPane extends Component {
             render: (text, record) => {
                 const menu = (
                     <Menu>
-                        {
-                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] != '已发布')
-                            &&
-                            <Menu.Item key="1">
-                                <Link to={`/dl/manage/newApi/${record.id}`}>
-                                    发布
-                                </Link>
-                            </Menu.Item>
-                        }
+                        <Menu.Item key="1">
+                            <Link to={`/dl/manage/newApi/${record.id}`}>
+                                发布
+                            </Link>
+                        </Menu.Item>
                         <Menu.Item key="2">
                             <Popconfirm
                                 title="确定删除此标签？"
                                 okText="确定" cancelText="取消"
-                                onConfirm={this.removeTag.bind(this, record.id)}
-                            >
+                                onConfirm={this.removeTag.bind(this, record.id)}>
                                 <a>删除</a>
                             </Popconfirm>
                         </Menu.Item>
@@ -284,15 +278,34 @@ export default class TagPane extends Component {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Dropdown overlay={menu} trigger={['click']}>
-                            <a className="ant-dropdown-link">
-                                更多 <Icon type="down" />
-                            </a>
-                        </Dropdown>
+                        {
+                            TAG_PUBLISH_STATUS[record.publishStatus] == '已发布' ?
+                            <Popconfirm
+                                title="确定删除此标签？"
+                                okText="确定" cancelText="取消"
+                                onConfirm={this.removeTag.bind(this, record.id)}>
+                                <a>删除</a>
+                            </Popconfirm>
+                            :
+                            <Dropdown overlay={menu} trigger={['click']}>
+                                <a className="ant-dropdown-link">
+                                    更多 <Icon type="down" />
+                                </a>
+                            </Dropdown>
+                        }
                     </div>
                 )
             }
         }]
+    }
+
+    // 检查是否可发布
+    checkPublish = (id) => {
+        TCApi.checkPublish({ tagId: id }).then((res) => {
+            if (res.code === 1 && res.data) {
+                hashHistory.push(`/dl/manage/newApi/${id}`);
+            }
+        })
     }
 
     // 新增标签

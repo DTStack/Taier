@@ -16,7 +16,7 @@ export default class PublishTag extends Component {
         basicInfo: {},
         paramsConfig: {},
         tagId: this.props.routeParams.tagId,
-        type: 1
+        tagType: 1
     }
 
     componentDidMount() {
@@ -45,7 +45,7 @@ export default class PublishTag extends Component {
                         inputParams: data.inputParam,
                         outputParams: data.outputParam
                     },
-                    type: data.type 
+                    tagType: data.type 
                 });
             }
         });
@@ -70,11 +70,11 @@ export default class PublishTag extends Component {
     }
 
     render() {
-        const { tagId, type, current, basicInfo, paramsConfig, editStatus } = this.state;
+        const { tagId, tagType, current, basicInfo, paramsConfig, editStatus } = this.state;
         const steps = [
             {
                 title: '基本属性', content: <StepOne
-                    type={type}
+                    tagType={tagType}
                     currentStep={current}
                     navToStep={this.navToStep}
                     basicInfo={basicInfo}

@@ -48,7 +48,8 @@ export default {
     DELETE_TAG: `${DL_BASE_URL}/tag/deleteTag`,                              // 删除标签
     GET_RULE_TAG_RETAIL: `${DL_BASE_URL}/tag/getOne`,                        // 获取标签详情
     QUERY_TAG_LOG: `${DL_BASE_URL}/tag/logPageQuery`,                        // 查询标签更新日志
-    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,                            // 标签发布
+    PUBLISH_CHECK: `${DL_BASE_URL}/tag/publishCheck`,                        // 标签是否可发布
+    PUBLISH_TAG: `${DL_BASE_URL}/tag/publishTag`,                            // 发布标签
 
     // ===== 识别列 ===== //
     QUERY_IDENTIFY_COLUMN: `${DL_BASE_URL}/identify/pageQuery`,              // 查询识别列
