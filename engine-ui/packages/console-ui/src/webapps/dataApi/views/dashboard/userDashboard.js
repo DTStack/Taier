@@ -73,16 +73,16 @@ class UserDashboard extends Component {
                                 defaultActiveKey={this.state.nowView}
                                 onChange={this.topViewChange.bind(this)}
                                 className="shadow"
-                                
+
                             >
                                 <Tabs.TabPane tab="调用量Top10" key="callTop">
                                     <TopCallFunc router={this.props.router} data={userOverview.callCountTop}></TopCallFunc>
                                 </Tabs.TabPane>
-                                <Tabs.TabPane tab="错误率Top10" key="failTop">
+                                <Tabs.TabPane tab="失败率Top10" key="failTop">
                                     <TopFail router={this.props.router} cardHeight="363" noTitle data={userOverview.callFailTop}></TopFail>
                                 </Tabs.TabPane>
                             </Tabs>
-                            
+
                         </Col>
                     </Row>
                     <Row className="m-card-small margin-t20" gutter={20}>
