@@ -503,7 +503,7 @@ export default class TaskView extends Component {
                 </div>
                 <div className="box-title graph-info">
                     <span>{task.name || '-'}</span>
-                    <span style={{marginLeft:"5px"}} >{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
+                    <span style={{marginLeft:"18px"}} >{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
