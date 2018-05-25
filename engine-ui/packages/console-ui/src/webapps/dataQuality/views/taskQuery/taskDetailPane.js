@@ -135,7 +135,7 @@ export default class TaskDetailPane extends Component {
             title: '操作',
             width: '8%',
             render: (text, record) => {
-                return <a onClick={this.onCheckReport.bind(this, record)}>查看报告</a>
+                return <a onClick={this.onCheckReport.bind(this, record)}>查看趋势</a>
             }
         }]
     }

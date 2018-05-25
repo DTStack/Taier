@@ -155,7 +155,7 @@ export default class Toolbar extends Component {
         const disabledStopJob=!isRunning;
         const { currentTabData } = this.props;
         return (
-            <div className="ide-toolbar toolbar">
+            <div className="ide-toolbar toolbar clear-offset">
                 <Button
                     onClick={this.execConfirm}
                     loading={!disabledStopJob}

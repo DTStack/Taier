@@ -60,7 +60,7 @@ export const TASK_TYPE = { // 任务类型
     SYNC: 2,
     PYTHON: 3,
     R: 4,
-    VIRTUAL_NODE: 5,
+    VIRTUAL_NODE: -1,
 }
 
 export const DATA_SYNC_TYPE = { //数据同步配置模式
@@ -174,12 +174,21 @@ export const taskStatusFilter = [{
     text: '运行中',
     value: 4,
 }, {
-    text: '停止',
+    text: '取消',
     value: 7,
 }, {
     text: '失败',
     value: 8,
 }]
+
+export const taskStatus={
+    "ALL":null,
+    "UNSUBMIT":0,
+    "WAITING_RUN":16,
+    "RUNNING":4,
+    "CANCELED":7,
+    "FAILED":8,
+}
 
 // 离线任务状态过滤选项
 // UNSUBMIT 0;
@@ -223,6 +232,7 @@ export const offlineTaskStatusFilter = [{
     text: '冻结',
     value: 18,
 }]
+
 
 export const offlineTaskTypeFilter = [{
     id: 1,
@@ -433,10 +443,11 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         }
     ],
     yAxis : [
-        {
+        {   
+            name:"数量(个)",
             type : 'value',
             axisLabel: {
-                formatter: '{value} 个',
+                formatter: '{value}',
                 textStyle: {
                     color: '#666666',
                     baseline: 'bottom',

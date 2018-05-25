@@ -352,7 +352,7 @@ export default class StepThree extends Component {
             }
 
             case '2': {
-                return <FormItem {...halfFormItemLayout} label="起调周期">
+                return <FormItem {...halfFormItemLayout} label="起调时间">
                     {
                         getFieldDecorator('hour', {
                             rules: [{
@@ -398,7 +398,7 @@ export default class StepThree extends Component {
                         }
                     </FormItem>
 
-                    <FormItem {...halfFormItemLayout} label="起调周期">
+                    <FormItem {...halfFormItemLayout} label="起调时间">
                         {
                             getFieldDecorator('hour1', {
                                 rules: [{
@@ -446,7 +446,7 @@ export default class StepThree extends Component {
                         }
                     </FormItem>
 
-                    <FormItem {...halfFormItemLayout} label="起调周期">
+                    <FormItem {...halfFormItemLayout} label="起调时间">
                         {
                             getFieldDecorator('hour2', {
                                 rules: [{
@@ -647,12 +647,12 @@ export default class StepThree extends Component {
                             this.renderDynamic()
                         }
                         
-                        <FormItem {...halfFormItemLayout} label="通知方式">
+                        <FormItem {...halfFormItemLayout} label="告警方式">
                             {
                                 getFieldDecorator('sendTypes', {
                                     rules: [{
                                         required: notifyUser.length,
-                                        message: '选择通知方式',
+                                        message: '选择告警方式',
                                     }],
                                     initialValue: sendTypes.map(item => item.toString())
                                 })(
@@ -665,12 +665,12 @@ export default class StepThree extends Component {
                             }
                         </FormItem>
                         
-                        <FormItem {...halfFormItemLayout} label="通知接收人">
+                        <FormItem {...halfFormItemLayout} label="告警接收人">
                             {
                                 getFieldDecorator('notifyUser', {
                                     rules: [{
                                         required: sendTypes.length,
-                                        message: '选择通知接收人',
+                                        message: '选择告警接收人',
                                     }],
                                     initialValue: notifyUser.map(item => item.toString())
                                 })(

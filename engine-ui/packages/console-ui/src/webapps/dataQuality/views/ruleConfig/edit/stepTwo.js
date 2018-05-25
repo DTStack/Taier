@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { isEmpty,cloneDeep } from 'lodash';
+import { isEmpty, cloneDeep } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -9,6 +9,7 @@ import { rowFormItemLayout, operatorSelect, operatorSelect1 } from '../../../con
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const TextArea = Input.TextArea;
 
 const mapStateToProps = state => {
     const { ruleConfig, common } = state;
@@ -66,9 +67,9 @@ export default class StepTwo extends Component {
 
         if (editParams.rules.length) {
             if (!isEmpty(currentRule)) {
-                this.save(currentRule.id,()=>{
+                this.save(currentRule.id, () => {
                     navToStep(currentStep + 1);
-                });                
+                });
                 // message.error('监控规则未保存');
             } else {
                 navToStep(currentStep + 1);
@@ -271,14 +272,25 @@ export default class StepTwo extends Component {
                                     message: '自定义SQL不可为空'
                                 }],
                                 initialValue: record.customizeSql
-                            })(
-                                <Input
+                            })(record.isCustomizeSql ?
+                                (<TextArea
+                                    style={{ resize: "vertical" }}
+                                    autosize={{ minRows: 3, maxRows: 8 }}
                                     placeholder="查询结果为一个数值类型"
-                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')} />
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')}
+
+                                />)
+                                :
+                                (<Input
+                                    placeholder="查询结果为一个数值类型"
+                                    onChange={this.changeRuleParams.bind(this, 'customizeSql')}
+                                    disabled={record.editStatus === 'edit'}
+                                />)
                             )
                         }
                     </FormItem>
                 } else {
+                    getFieldDecorator('columnName', { initialValue: "" });
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
                             getFieldDecorator('columnName', {
@@ -476,6 +488,9 @@ export default class StepTwo extends Component {
     // 编辑规则
     edit(id) {
         const { currentRule } = this.state;
+        const { ruleConfig } = this.props;
+        const { monitorFunction, tableColumn } = ruleConfig;
+        let functionList = [];
 
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0];
@@ -492,8 +507,15 @@ export default class StepTwo extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
-
-            this.setState({ currentRule: target });
+            if(!target.isCustomizeSql){
+                if (target.isTable) {
+                    functionList = monitorFunction.all.filter(item => item.level === 1);
+                } else {
+                    let columnType = tableColumn.filter(item => item.key === target.columnName)[0].type;
+                    functionList = monitorFunction[columnType];
+                }
+            }
+            this.setState({ currentRule: target, functionList: functionList });
             this.props.changeParams({ rules: newData });
         }
     }
@@ -503,7 +525,7 @@ export default class StepTwo extends Component {
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0],
             index = newData.indexOf(target);
-            
+
 
         if (target.editStatus === 'edit') {
             delete target.editable;
@@ -529,7 +551,7 @@ export default class StepTwo extends Component {
     }
 
     // 保存规则
-    save(id,callback) {
+    save(id, callback) {
         const { currentRule, enumFields, SQLFields, columnFields } = this.state;
 
         let newData = [...this.props.editParams.rules],
@@ -547,23 +569,25 @@ export default class StepTwo extends Component {
                 delete currentRule.editStatus;
                 delete currentRule.editable;
                 newData[index] = currentRule;
-                this.setState({ currentRule: {}},()=>{
-                    callback();
+                this.setState({ currentRule: {} }, () => {
+                    if (callback) {
+                        callback();
+                    }
                 });
                 this.props.changeParams({ rules: newData });
             }
         });
     }
-    addNewRuleWrap=(type)=>{
+    addNewRuleWrap = (type) => {
         const { currentRule } = this.state;
         if (!isEmpty(currentRule)) {
-            this.save(currentRule.id,()=>{
+            this.save(currentRule.id, () => {
                 this.addNewRule(type);
             });
-        }else{
+        } else {
             this.addNewRule(type);
         }
-        
+
     }
     // 新增规则
     addNewRule = (type) => {

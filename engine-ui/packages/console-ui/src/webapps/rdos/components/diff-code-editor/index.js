@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 
 import { defaultEditorOptions } from '../../comm/const'
 import 'codemirror/addon/merge/merge.css'
+import "./style.css";
 
 const codemirror = require('codemirror')
 
@@ -84,11 +85,13 @@ class DiffEditor extends Component {
 
     render() {
         const { className, style } = this.props
-        let renderClass = 'code-editor'
+        let renderClass = 'code-editor merge-text'
         renderClass = className ?
             `${renderClass} ${className}` : renderClass
         let renderStyle = {
             position: 'relative',
+            borderTop:"1px solid #e9e9e9",
+            marginTop:"20px"
         }
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle
         

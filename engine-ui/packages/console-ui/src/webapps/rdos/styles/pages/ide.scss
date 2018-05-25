@@ -73,7 +73,10 @@
         }
 
         .ant-tabs-content {
-            height: 90%;
+            position: absolute;
+            top: 32px;
+            bottom: 0px;
+            height: auto;
             overflow: auto;
         }
 
