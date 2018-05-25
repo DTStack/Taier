@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router'
+import { Link ,hashHistory} from 'react-router'
 import { connect } from 'react-redux'
 import moment from 'moment'
 
@@ -8,6 +8,7 @@ import {
  } from 'antd'
 
 import Api from '../../../api'
+import {taskStatus} from '../../../comm/const'
 
 class RealtimeCount extends Component {
 
@@ -59,6 +60,15 @@ class RealtimeCount extends Component {
         }]
     }
 
+    jumpToRealList(status){
+        hashHistory.push({
+            pathname:"/operation/realtime",
+            query:{
+                status:status||undefined
+            }
+        })
+    }
+
     render() {
         const { data } = this.state
         return (
@@ -80,31 +90,31 @@ class RealtimeCount extends Component {
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">全部</span>
-                                    <span className="m-count-content font-black">{data.ALL || 0}</span>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.ALL)} className="m-count-content font-black">{data.ALL || 0}</a>
                                 </section>
                             </Col>
                             <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
-                                    <span className="m-count-content font-red">{data.FAILED || 0}</span>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.FAILED)} className="m-count-content font-red">{data.FAILED || 0}</a>
                                 </section>
                             </Col>
                             <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">运行</span>
-                                    <span className="m-count-content font-organge">{data.RUNNING || 0}</span>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
                                 </section>
                             </Col>
                             <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">未提交</span>
-                                    <span className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</span>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.UNSUBMIT)} className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</a>
                                 </section>
                             </Col>
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">取消</span>
-                                    <span className="m-count-content font-green">{data.CANCELED || 0}</span>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.CANCELED)} className="m-count-content font-green">{data.CANCELED || 0}</a>
                                 </section>
                             </Col>
                         </Row>

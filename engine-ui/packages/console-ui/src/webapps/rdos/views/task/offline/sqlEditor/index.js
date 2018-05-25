@@ -93,7 +93,7 @@ import {
                         <SplitPane
                             split="horizontal"
                             minSize={100}
-                            maxSize="80%"
+                            maxSize={-77}
                             style={{ paddingBottom: '40px' }}
                             defaultSize="60%"
                             primary="first"
