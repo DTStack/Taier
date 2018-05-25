@@ -502,8 +502,8 @@ export default class TaskView extends Component {
                     </Tooltip>
                 </div>
                 <div className="box-title graph-info">
-                    <span>{task.name || '-'}</span>&nbsp;
-                    <span>{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
+                    <span>{task.name || '-'}</span>
+                    <span style={{marginLeft:"5px"}} >{ (task.createUser && task.createUser.userName) || '-' }</span>&nbsp;
                     发布于&nbsp;
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
