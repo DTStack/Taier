@@ -148,7 +148,7 @@ export default class MainBench extends React.Component {
                         key={ tabData.id } 
                         value={tabData.sqlText}
                         currentTab={ tabData.id }
-                        currentTabData={ tabData } />;
+                        currentTabData={ tabData } />; 
                 default:
                     return <p className="txt-center" style={{lineHeight: '60px'}}>
                         未知任务类型
