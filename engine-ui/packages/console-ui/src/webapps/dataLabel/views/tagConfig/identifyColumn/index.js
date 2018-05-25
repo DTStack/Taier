@@ -4,8 +4,8 @@ import { Link } from 'react-router';
 import { Table, Card, Modal, Form, Button, Input, Popconfirm, message } from 'antd';
 
 import GoBack from 'main/components/go-back';
-import { formItemLayout } from '../../consts';
-import TCApi from '../../api/tagConfig';
+import { formItemLayout } from '../../../consts';
+import TCApi from '../../../api/tagConfig';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -27,6 +27,7 @@ export default class IdentifyColumn extends Component {
         this.getColumnData(this.state.queryParams);
     }
 
+    // 获取识别列数据
     getColumnData = (params) => {
         this.setState({ loading: true });
 
@@ -38,14 +39,6 @@ export default class IdentifyColumn extends Component {
                 });
             }
         });
-    }
-
-    openModal = () => {
-        this.setState({ visible: true });
-    }
-
-    closeModal = () => {
-        this.setState({ visible: false });
     }
 
     // table设置
@@ -80,6 +73,12 @@ export default class IdentifyColumn extends Component {
                 )
             }
         }]
+    }
+
+    // 新增识别列
+    addColumn = () => {
+        this.openModal();
+        this.setState({ currentData: {} });
     }
 
     // 保存识别列
@@ -138,8 +137,15 @@ export default class IdentifyColumn extends Component {
     // 取消编辑
     cancel = () => {
         this.closeModal();
-        this.setState({ currentData: {} });
         this.props.form.resetFields();
+    }
+
+    openModal = () => {
+        this.setState({ visible: true });
+    }
+
+    closeModal = () => {
+        this.setState({ visible: false });
     }
 
     // 表格换页/排序
@@ -197,8 +203,7 @@ export default class IdentifyColumn extends Component {
                     />
 
                     <Modal
-                        title={currentData.id ? "编辑识别列": "新建识别列"}
-                        wrapClassName="identifyColumnModal"
+                        title={currentData.id ? '编辑识别列': '新建识别列'}
                         width={'50%'}
                         visible={visible}
                         maskClosable={false}
@@ -230,7 +235,10 @@ export default class IdentifyColumn extends Component {
                             <FormItem {...formItemLayout} label="描述">
                                 {
                                     getFieldDecorator('identityDesc', {
-                                        rules: [], 
+                                        rules: [{
+                                            max: 200,
+                                            message: "描述字符不能超过200"
+                                        }],
                                         initialValue: currentData.identityDesc
                                     })(
                                         <TextArea 

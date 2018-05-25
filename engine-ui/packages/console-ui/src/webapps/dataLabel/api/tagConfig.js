@@ -47,6 +47,9 @@ export default {
     deleteTag(params) {
         return http.post(req.DELETE_TAG, params);
     },
+    checkPublish(params) {
+        return http.post(req.PUBLISH_CHECK, params);
+    },
     publishTag(params) {
     	return http.post(req.PUBLISH_TAG, params);
     },
