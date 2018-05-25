@@ -124,15 +124,45 @@ class Header extends Component {
         )
     }
 
+    renderProjectSelect = () => {
+        const {  project, projects } = this.props
+
+        return (
+            <SubMenu
+                defaultSelectedKeys={
+                projects && projects[0] ? projects[0].id : ''
+                }
+                title={
+                    <span className="my-menu-item">
+                    {
+                        project && project.projectName ? 
+                        <span className="menu-text-ellipsis">
+                            { (project.projectAlias || project.projectName) }
+                        </span> 
+                        : 
+                        <span className="menu-text-ellipsis">项目选择</span>
+                    } <Icon type="caret-down" /></span>
+                }
+            >
+                { this.getProjectItems() }
+            </SubMenu>
+        )
+    }
+
     render() {
-        const { user, project, projects, settingMenus, apps, app } = this.props
-        const { current, devPath } = this.state
-        const menuItems = this.getProjectItems()
+        const { user, project, settingMenus, apps, app, router } = this.props
+        const { current, devPath } = this.state;
+
+        let pathname = router.location.pathname;
+
         const userMenu = this.initUserDropMenu()
-        const display = current !== 'overview' ? 'inline-block' : 'none'
+        const display = current !== 'overview' ? 'inline-block' : 'none';
         const pid = project && project.id ? project.id : ''
         
         const basePath = app.link;
+
+        // 如果是数据地图模块，隐藏项目下拉选择菜单
+        const showProjectSelect = pathname.indexOf('/data-manage/table') > -1 ? false : true;
 
         return (
             <div className="header">
@@ -149,20 +179,9 @@ class Header extends Component {
                       selectedKeys={[this.state.current]}
                       mode="horizontal"
                     >
-                        <SubMenu
-                            defaultSelectedKeys={
-                              projects && projects[0] ? projects[0].id : ''
-                            }
-                            title={
-                                <span className="my-menu-item">
-                                {
-                                    project && project.projectName ? 
-                                    <span className="menu-text-ellipsis">{(project.projectAlias || project.projectName)}</span> : <span className="menu-text-ellipsis">项目选择</span>
-                                } <Icon type="caret-down" /></span>
-                            }
-                        >
-                            {menuItems}
-                        </SubMenu>
+                        {
+                            showProjectSelect && this.renderProjectSelect()
+                        }
                         <Menu.Item
                           className="my-menu-item"
                           key="database"
@@ -211,14 +230,6 @@ class Header extends Component {
                     showHelpSite={true}
                     helpUrl="/public/rdos/helpSite/index.html"
                 /> 
-                {/* <div className="user-info right">
-                    <Dropdown overlay={userMenu} trigger={['click']}>
-                        <a className="ant-dropdown-link">
-                            {user.userName || '未登录'}
-                            <Icon type="down" />
-                        </a>
-                    </Dropdown>
-                </div> */}
             </div>
         )
     }

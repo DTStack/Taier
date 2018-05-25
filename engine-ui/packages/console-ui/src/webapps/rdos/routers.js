@@ -154,6 +154,8 @@ export default (
                 <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
                 <Route path="alarm-record" component={OpeAlarm} />
                 <Route path="alarm-config" component={OpeAlarmConfig} />
+                <Route path="dirty-data" component={DirtyData} />
+                <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
             </Route>
             <Route path="/database" component={DataSourceIndex}>
                 <IndexRoute component={DataSourceIndex} />
@@ -168,8 +170,7 @@ export default (
                 <Route path="log" component={Log} />
                 <Route path="log/:tableId/:tableName" component={Log}></Route>
                 <Route path="catalogue" component={DataCatalogue} />
-                <Route path="dirty-data" component={DirtyData} />
-                <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
+            
             </Route>
             <Route path="/data-model" component={DataModelContainer}>
                 <IndexRoute component={DataModelOverview} />
