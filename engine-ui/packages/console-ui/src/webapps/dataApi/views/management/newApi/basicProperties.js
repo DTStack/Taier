@@ -263,13 +263,11 @@ class ManageBasicProperties extends Component {
                             })(
                                 <Select placeholder="请选择数据源"
                                     showSearch
-                                    style={{ width: '85%', marginRight: 15 }}
                                     onChange={this.dataSourceChange.bind(this)} >
                                     {this.getDataSourceOptionView()}
                                 </Select>
 
                             )}
-                            <Link to="/api/dataSource">添加数据源</Link>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
