@@ -10,11 +10,12 @@ export default {
     APP_LOGOUT: `${RDOS_BASE_URL}/login/out`,
     UPDATE_USER_ROLE: `${RDOS_BASE_URL}/common/roleUser/updateUserRole`, // 更新用户角色
     GET_USER_BY_ID: `${RDOS_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
+    SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,
 
     // ===== 项目模块 ===== //
     CREATE_PROJECT: `${RDOS_BASE_URL}/common/project/createProject`, // 创建项目
     REMOVE_USER_FROM_PROJECT: `${RDOS_BASE_URL}/common/roleUser/removeRoleUserFromProject`, // 删除项目用户接口
-    ADD_PROJECT_USER: `${RDOS_BASE_URL}/common/roleUser/addRoleUser`, // 添加项目用户接口
+    ADD_PROJECT_USER: `${RDOS_BASE_URL}/common/roleUser/addRoleUserNew`, // 添加项目用户接口
     QUERY_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/queryProjects`, // 查询项目列表
     GET_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getProjects`, // 获取项目列表
     GET_USRE_PROJECTS: `${RDOS_BASE_URL}/common/project/getProjectUserIn`, // 获取用户所在的所有项目

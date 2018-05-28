@@ -25,6 +25,7 @@ const isDisabled = (app, value) => {
             value === RDOS_PROJECT_ROLE.VISITOR
         }
         case MY_APPS.API: 
+        case MY_APPS.LABEL:
         case MY_APPS.DATA_QUALITY: {
             return value === DQ_PROJECT_ROLE.ADMIN ||
             value === DQ_PROJECT_ROLE.VISITOR
