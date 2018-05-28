@@ -757,6 +757,12 @@ export default class RuleEditPane extends Component {
         const { periodType, notifyType } = common.allDict;
         const { rules, monitorId, havePart, showExecuteModal } = this.state;
 
+        const filterRules=rules.filter(
+            (item)=>{
+                return item.isSnapshot==0;
+            }
+        )
+
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
 
         return (
@@ -856,7 +862,7 @@ export default class RuleEditPane extends Component {
                     className="m-table rule-edit-table"
                     style={{ padding: '20px 0' }}
                     pagination={false}
-                    dataSource={rules}
+                    dataSource={filterRules}
                     columns={this.initColumns()}
                     scroll={{y:361}}
                 />
