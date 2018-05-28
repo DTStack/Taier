@@ -57,7 +57,7 @@ class AdminRole extends Component {
             this.loadRoles(app, params)
         }
     }
-    
+ 
     loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
             this.setState({

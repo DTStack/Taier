@@ -8,7 +8,7 @@ class TopCard extends Component {
     state = {
         applyBox: false,
         apply: {
-            tagId: "",
+            apiId: "",
             apiName: "",
             desc: ""
         }
@@ -28,8 +28,8 @@ class TopCard extends Component {
         this.setState({
             applyBox: true,
             apply: {
-                tagId: this.props.tagId,
-                apiName: this.getApiValue('apiName'),
+                apiId: this.props.apiId,
+                name: this.getApiValue('name'),
                 desc: this.getApiValue('desc')
             }
         })
@@ -38,7 +38,7 @@ class TopCard extends Component {
         this.props.router.replace("/dl/market");
     }
     getValue(key) {
-        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.tagId];
+        const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.apiId];
         if (api) {
             return api[key]
         } else {
@@ -46,7 +46,7 @@ class TopCard extends Component {
         }
     }
     getApiValue(key) {
-        const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.tagId];
+        const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.apiId];
         if (api) {
             return api[key]
         } else {
@@ -72,7 +72,7 @@ class TopCard extends Component {
     }
 
     jumpToMineApproved() {
-        this.props.router.push("/dl/mine/approved?tagId=" + this.props.tagId);
+        this.props.router.push("/dl/mine/approved?apiId=" + this.props.apiId);
     }
 
     handleOk() {
@@ -96,15 +96,15 @@ class TopCard extends Component {
                 <ApplyBox show={this.state.applyBox}
                     successCallBack={this.handleOk.bind(this)}
                     cancelCallback={this.handleCancel.bind(this)}
-                    tagId={this.state.apply.tagId}
-                    apiName={this.state.apply.apiName}
+                    apiId={this.state.apply.apiId}
+                    name={this.state.apply.name}
                     desc={this.state.apply.desc}
                 ></ApplyBox>
                 <Row className="m-count" style={{ height: "auto" }}>
                     {back}
                     <Col span={12}>
                         <Row className="header-title">
-                            {this.getApiValue('apiName')}
+                            {this.getApiValue('name')}
                         </Row>
                         <Row className="header-content">
                             {this.getApiValue('desc')}

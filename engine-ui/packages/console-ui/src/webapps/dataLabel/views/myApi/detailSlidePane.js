@@ -85,7 +85,7 @@ class detailSlidePane extends Component {
 
     render() {
         
-        const callMethodView = this.props.showRecord.status == 3 ? null : (
+        const callMethodView = this.props.showRecord.status == 3 || this.props.showRecord.apiStatus == 1 ? null : (
             <Tabs.TabPane tab="调用方式" key="callMethod">
                 <ApiCallMethod {...this.props} ></ApiCallMethod>
             </Tabs.TabPane>

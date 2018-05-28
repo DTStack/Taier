@@ -17,7 +17,7 @@ const mapDispatchToProps = dispatch => ({
             pageSize: 20,
             orderBy: orderBy,
             sort: sort,
-            tagName: apiName
+            apiName: apiName
         }));
     },
     getAppliedList(currentPage, orderBy, sort, status, apiName) {
@@ -27,7 +27,7 @@ const mapDispatchToProps = dispatch => ({
             orderBy: orderBy,
             sort: sort,
             status: status,
-            tagName: apiName
+            apiName: apiName
         }));
     },
     updateApplyStatus(id, status) {
@@ -39,32 +39,32 @@ const mapDispatchToProps = dispatch => ({
 
     getApiCallInfo(id, time) {
         return dispatch(mineActions.getApiCallInfo({
-            tagId: id,
+            apiId: id,
             time: time
         }));
     },
 
     getApiCallErrorInfo(id) {
         return dispatch(mineActions.getApiCallErrorInfo({
-            tagId: id
+            apiId: id
         }));
     },
     getApiCallUrl(id) {
         return dispatch(mineActions.getApiCallUrl({
-            tagId: id
+            apiId: id
         }));
     },
     queryApiCallLog(id, currentPage, bizType) {
         return dispatch(mineActions.queryApiCallLog({
-            tagId: id,
+            apiId: id,
             currentPage: currentPage,
             bizType: bizType,
             pageSize: 5
         }));
     },
-    getApiCreatorInfo(tagId) {
+    getApiCreatorInfo(apiId) {
         return dispatch(mineActions.getApiCreatorInfo({
-            tagId: tagId
+            apiId: apiId
         }));
     }
 });
@@ -106,25 +106,22 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className="api-mine nobackground m-card height-auto m-tabs">
-                <Card
-                    className="box-1"
-                    bordered={false}
-                    noHovering>
+            <div style={{ height: '100%', overflowX: 'hidden' }}>
+                <div className="box-1 m-card shadow m-tabs">
                     <Tabs
+                        animated={false}
                         defaultActiveKey={this.state.nowView}
                         onChange={this.handleClick.bind(this)}
+                        style={{ height: 'auto', overflow: 'inherit' }}
                     >
                         <Tabs.TabPane tab="未审批" key="notApproved">
-                            <NoApprovedCard tagId={this.props.location.query && this.props.location.query.tagId} {...this.props}></NoApprovedCard>
+                            <NoApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="已审批" key="approved">
-                            <ApprovedCard tagId={this.props.location.query && this.props.location.query.tagId} {...this.props}></ApprovedCard>
+                            <ApprovedCard apiId={this.props.location.query && this.props.location.query.apiId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>
-                </Card>
-
-
+                </div>
             </div>
         )
     }

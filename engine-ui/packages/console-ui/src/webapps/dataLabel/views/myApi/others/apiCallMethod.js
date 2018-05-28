@@ -5,10 +5,10 @@ class ApiCallMethod extends Component{
     state={
         callUrl:""
     }
-    getApiCallUrl(tagId){
+    getApiCallUrl(apiId){
       
-        tagId=tagId||this.props.showRecord.tagId;
-        this.props.getApiCallUrl(tagId)
+        apiId=apiId||this.props.showRecord.apiId;
+        this.props.getApiCallUrl(apiId)
         .then(
             (res)=>{
                 if(res){
@@ -23,19 +23,19 @@ class ApiCallMethod extends Component{
         this.getApiCallUrl();
     }
     componentWillReceiveProps(nextProps){
-        if(nextProps.showRecord&&this.props.showRecord.tagId!=nextProps.showRecord.tagId){
+        if(nextProps.showRecord&&this.props.showRecord.apiId!=nextProps.showRecord.apiId){
             if(nextProps.slidePaneShow){
-                this.getApiCallUrl(nextProps.showRecord.tagId);
+                this.getApiCallUrl(nextProps.showRecord.apiId);
             }
             
         }
     }
     render(){
-        const url="/dl/market/detail/"+this.props.showRecord.tagId;
+        const url="/dl/market/detail/"+this.props.showRecord.apiId;
         return (
             <div style={{paddingLeft:30}}>
                 <p style={{lineHeight:"30px"}}>调用URL：{this.state.callUrl}</p>
-                <Link to={url}>在Api市场中查看</Link>
+                <Link to={url}>在标签市场中查看</Link>
             </div>
         )
     }

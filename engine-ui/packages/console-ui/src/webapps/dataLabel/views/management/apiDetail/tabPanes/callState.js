@@ -24,18 +24,18 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiCallUserRankList(tagId, time) {
+    getApiCallUserRankList(apiId, time) {
         return dispatch(
             apiManageActions.getApiCallUserRankList({
-                tagId: tagId,
+                apiId: apiId,
                 time: time
             })
         )
     },
-    getApiCallInfo(tagId, time) {
+    getApiCallInfo(apiId, time) {
         return dispatch(
             mineActions.getApiCallInfo({
-                tagId: tagId,
+                apiId: apiId,
                 time: time,
                 useAdmin: true
             })
@@ -51,13 +51,13 @@ class ApiManageCallState extends Component {
         callCount: "",
         callList: [],
         topCallList: [],
-        tagId: "",
+        apiId: "",
         dateType: ""
     }
     componentDidMount() {
 
         this.setState({
-            tagId: this.props.tagId,
+            apiId: this.props.apiId,
             dateType: this.props.dateType,
 
         },
@@ -71,9 +71,9 @@ class ApiManageCallState extends Component {
     }
     componentWillReceiveProps(nextProps) {
         console.log(nextProps, this.state)
-        if (this.state.tagId != nextProps.tagId || this.state.dateType != nextProps.dateType) {
+        if (this.state.apiId != nextProps.apiId || this.state.dateType != nextProps.dateType) {
             this.setState({
-                tagId: nextProps.tagId,
+                apiId: nextProps.apiId,
                 dateType: nextProps.dateType,
 
             },
@@ -85,13 +85,13 @@ class ApiManageCallState extends Component {
         }
     }
     getApiCallInfoList() {
-        let tagId = this.state.tagId;
+        let apiId = this.state.apiId;
         let time = this.state.dateType;
 
-        if (!tagId || !time) {
+        if (!apiId || !time) {
             return;
         }
-        this.props.getApiCallInfo(tagId, time)
+        this.props.getApiCallInfo(apiId, time)
             .then(
                 (res) => {
                     if (res) {
@@ -110,13 +110,13 @@ class ApiManageCallState extends Component {
     }
     getApiCallUserRankList() {
 
-        let tagId = this.state.tagId;
+        let apiId = this.state.apiId;
         let time = this.state.dateType;
 
-        if (!tagId || !time) {
+        if (!apiId || !time) {
             return;
         }
-        this.props.getApiCallUserRankList(tagId, time)
+        this.props.getApiCallUserRankList(apiId, time)
             .then(
                 (res) => {
                     if (res) {

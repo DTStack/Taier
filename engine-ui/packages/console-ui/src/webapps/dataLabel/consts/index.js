@@ -19,11 +19,23 @@ export const TAG_TYPE = {
 // 标签状态
 export const TAG_STATUS = {
     0: '新建',
-    1: "等待运行",
-    2: "更新中", 
-    3: "更新完成", 
-    4: "更新失败",
-    5: "禁用",
+    1: '等待运行',
+    2: '更新中', 
+    3: '更新完成', 
+    4: '更新失败',
+    5: '禁用'
+};
+
+// 标签状态
+export const TAG_PUBLISH_STATUS = {
+    0: '未发布',
+    1: '已发布'
+};
+
+// Api启用状态
+export const API_OPEN_STATUS = {
+    0: '启用',
+    1: '禁用'
 };
 
 export const API_STATUS = {

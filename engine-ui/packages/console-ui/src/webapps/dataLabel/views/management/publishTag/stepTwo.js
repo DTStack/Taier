@@ -38,7 +38,7 @@ export default class StepTwo extends Component {
     }
 
     componentDidMount() {
-        const { type, basicInfo, paramsConfig } = this.props;
+        const { basicInfo, paramsConfig } = this.props;
 
         if (!isEmpty(paramsConfig)) {
             this.setState({

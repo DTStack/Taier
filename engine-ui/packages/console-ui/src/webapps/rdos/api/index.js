@@ -55,6 +55,10 @@ export default {
         return http.post(req.GET_NOT_PROJECT_USERS, params)
     },
 
+    searchUICUsers(params) {
+        return http.post(req.SEARCH_UIC_USERS, params)
+    },
+
     // ========== Project ========== //
     queryProjects(params) {
         return http.post(req.QUERY_PROJECT_LIST, params)
