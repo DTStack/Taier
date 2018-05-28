@@ -107,7 +107,7 @@ export default class TagPane extends Component {
             key: 'identityName',
             width: '8%'
         }, {
-            title: '数据更新日期',
+            title: '更新日期',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             width: '10%',
@@ -154,11 +154,6 @@ export default class TagPane extends Component {
                                 </Link>
                             </Menu.Item>
                         }
-                        <Menu.Item key="log">
-                            <Link to={`/dl/tagConfig/tagLog/${record.id}`}>
-                                查看更新历史
-                            </Link>
-                        </Menu.Item>
                         {
                             (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布')
                             &&
@@ -168,6 +163,11 @@ export default class TagPane extends Component {
                                 </a>
                             </Menu.Item>
                         }
+                        <Menu.Item key="log">
+                            <Link to={`/dl/tagConfig/tagLog/${record.id}`}>
+                                查看更新历史
+                            </Link>
+                        </Menu.Item>
                         <Menu.Item key="del">
                             <Popconfirm
                                 title="确定删除此标签？"
@@ -556,11 +556,13 @@ export default class TagPane extends Component {
 
         const cardExtra = (
             <div>
-                <Button 
-                    type="primary" 
-                    style={{ margin: 10 }}>
-                    <Link to="dl/tagConfig/identify">识别列配置</Link>
-                </Button>
+                <Link to="dl/tagConfig/identify">
+                    <Button 
+                        type="primary" 
+                        style={{ margin: 10 }}>
+                    识别列配置
+                    </Button>
+                </Link>
                 <Button 
                     type="primary" 
                     onClick={this.addTag}>
