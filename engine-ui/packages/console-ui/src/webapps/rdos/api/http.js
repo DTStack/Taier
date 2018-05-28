@@ -12,6 +12,15 @@ class Http {
         })
     }
 
+    download(url, body){// POST请求
+        let options = { method: 'POST' }
+        if (body) options.body = JSON.stringify(body)
+        options.header={
+            'Content-Type':"application/x-www-form-urlencoded"
+        }
+        return this.request(url, options)
+    }
+
     post(url, body) { // POST请求
         let options = { method: 'POST' }
         if (body) options.body = JSON.stringify(body)

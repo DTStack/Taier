@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { isEqual } from 'lodash'
 import { Table, Tabs, Icon, Tooltip, Button, Affix } from 'antd'
 
+import Api from '../../../../api';
+
 import CodeEditor from '../../../../components/code-editor'
 import {
     removeRes, resetConsole
@@ -172,6 +174,12 @@ class Console extends Component {
         }
     }
 
+    downloadResult(jobId){
+        Api.downloadSqlExeResult({
+            jobId:jobId
+        });
+    }
+
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
@@ -184,13 +192,13 @@ class Console extends Component {
                         tab={title}
                         key={`${index}`}
                     >
-                        <Result data={tab} />
-                        <Button
+                        <Result data={tab.data} />
+                        {tab.jobId?<Button
                             style={exportStyle}
-                            onClick={this.exportCsv}
+                            onClick={this.downloadResult.bind(this,tab.jobId)}
                         >
                             下载
-                        </Button>
+                        </Button>:null}
                     </TabPane>
                 );
             });
