@@ -26,6 +26,7 @@ class DataSync extends React.Component{
 
     state = {
         currentStep: 0,
+        loading:true,
     }
 
     componentDidMount() {
@@ -33,7 +34,21 @@ class DataSync extends React.Component{
             getDataSource, getJobData, id, currentTab, 
         } = this.props;
         getDataSource();
-        getJobData({taskId: id});
+        getJobData({taskId: id})
+        .then(
+            (data)=>{
+                if(data){
+                    this.setState({
+                        currentStep:4,
+                        loading:false
+                    })
+                }else{
+                    this.setState({
+                        loading:false
+                    })
+                }
+            }
+        );
     }
 
     next() {
@@ -127,7 +142,7 @@ class DataSync extends React.Component{
     }
 
     render() {
-        const { currentStep } = this.state;
+        const { currentStep, loading } = this.state;
         const steps = [
             {title: '数据来源', content: <DataSyncSource
                     currentStep={currentStep}
@@ -157,7 +172,7 @@ class DataSync extends React.Component{
             },
         ];
 
-        return <div className="m-datasync">
+        return loading?null:<div className="m-datasync">
             <Steps current={currentStep}>
                 { steps.map(item => <Step key={item.title} title={item.title} />) }
             </Steps>
@@ -193,7 +208,7 @@ const mapDispatch = dispatch => {
                 });
         },
         getJobData: (params) => {
-            ajax.getOfflineJobData(params)
+            return ajax.getOfflineJobData(params)
                 .then(res => {
                     dispatch({
                         type: dataSyncAction.INIT_JOBDATA,
@@ -208,6 +223,7 @@ const mapDispatch = dispatch => {
                         dispatch({
                             type: workbenchAction.SET_CURRENT_TAB_SAVED
                         });
+                        return res.data;
                     }
                 })
         },
