@@ -269,6 +269,9 @@ export default {
     getSyncTemplate(params){
         return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
     },
+    downloadSqlExeResult(params){
+        return http.download(offlineReq.DOWNLOAD_SQL_RESULT,params)
+    },
 
     // =========== 脚本模块 ==================//
     saveScript(params) {
