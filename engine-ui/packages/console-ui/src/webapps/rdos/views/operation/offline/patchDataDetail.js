@@ -395,6 +395,7 @@ class PatchDataDetail extends Component {
                 <td>
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.killAllJobs}>杀死所有实例</Button>&nbsp;
                 </td>
             </tr>
         )
@@ -556,16 +557,13 @@ class PatchDataDetail extends Component {
                             </div>
                         }
                         extra={
-                            <div>
-                                <Icon type="reload" onClick={this.search}
-                                    style={{
-                                        cursor: 'pointer',
-                                        marginTop: '16px',
-                                        color: '#94A8C6'
-                                    }}
-                                />
-                                <a onClick={this.killAllJobs} style={{ marginLeft: "8px" }}>杀死所有实例</a>
-                            </div>
+                            <Icon type="reload" onClick={this.search}
+                                style={{
+                                    cursor: 'pointer',
+                                    marginTop: '16px',
+                                    color: '#94A8C6'
+                                }}
+                            />
                         }
                     >
                         <Table
