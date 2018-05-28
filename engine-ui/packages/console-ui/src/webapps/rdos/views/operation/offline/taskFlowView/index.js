@@ -560,8 +560,8 @@ class TaskFlowView extends Component {
                         bottom: 0
                     }}
                 >
-                    <span>{taskJob && taskJob.batchTask && taskJob.batchTask.name || '-'}</span>&nbsp;
-                    <span>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
+                    <span>{taskJob && taskJob.batchTask && taskJob.batchTask.name || '-'}</span>
+                    <span style={{marginLeft:"15px"}}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
                     发布于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(taskJob && taskJob.batchTask.id) }}>查看代码</a>
