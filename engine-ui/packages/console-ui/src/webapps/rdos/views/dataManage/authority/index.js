@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 
-class SearchTable extends Component {
+class AuthMana extends Component {
     render () {
         return (
             <div>
-                SearchTable
+                AuthMana
             </div>
         )
     }
 }
 
-export default SearchTable
+export default AuthMana
