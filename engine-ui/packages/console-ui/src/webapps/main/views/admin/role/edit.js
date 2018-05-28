@@ -58,7 +58,7 @@ export default class RoleEdit extends Component {
     }
 
     render() {
-        const app = this.state.app
+        const { app, roleInfo } = this.state;
 
         return (
             <div className="box-1">
@@ -67,8 +67,7 @@ export default class RoleEdit extends Component {
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <article className="section">
                             <RoleForm 
-                                key="edit-role"
-                                roleInfo={this.state.roleInfo} 
+                                roleInfo={roleInfo}
                                 ref={(e) => this.form = e} 
                             />
                             <Row>

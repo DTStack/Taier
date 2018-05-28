@@ -25,14 +25,14 @@ export default {
     getDataSourcesList(params) {
         return http.post(req.GET_DATA_SOURCES_LIST, params);
     },
+    getTagDataSourcesList(params) {
+        return http.post(req.GET_TAG_DATA_SOURCES_LIST, params);
+    },
     getDataSourcesTable(params) {
     	return http.post(req.GET_DATA_SOURCES_TABLE, params);
     },
     getDataSourcesColumn(params) {
     	return http.post(req.GET_DATA_SOURCES_COLUMN, params);
-    },
-    getDataSourcesPart(params) {
-        return http.post(req.GET_DATA_SOURCES_PART, params);
     },
     getDataSourcesPreview(params) {
     	return http.post(req.GET_DATA_SOURCES_PREVIEW, params);

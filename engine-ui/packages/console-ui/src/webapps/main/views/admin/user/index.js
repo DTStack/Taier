@@ -108,9 +108,11 @@ class AdminUser extends Component {
         })
     }
 
-    loadUsersNotInProject = () => {
+    loadUsersNotInProject = (userName) => {
         const { active, selectedProject } = this.state;
-        const params = {}
+        const params = {
+            userName,
+        }
         if (hasProject(active)) {
             params.projectId = selectedProject
         }
@@ -123,9 +125,21 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject } = this.state
+        const { active, selectedProject, notProjectUsers } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+
+        // 塞入要添加的用户列表
+        const targetUsers = [];
+        const uids = projectRole.targetUserIds;
+        for (let i = 0; i < uids.length; i++) {
+            const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+            if (user) {
+                targetUsers.push(user);
+            }
+        }
+        projectRole.targetUsers = targetUsers;
+
         form.validateFields((err) => {
             if (!err) {
                 if (hasProject(active)) {
@@ -137,7 +151,7 @@ class AdminUser extends Component {
                             form.resetFields()
                         })
                         ctx.loadData()
-                        message.success('添加项目成员成功!')
+                        message.success('添加成员成功!')
                     }
                 })
             }
@@ -217,6 +231,7 @@ class AdminUser extends Component {
             active: key,
             currentPage: 1,
             roleIds: [],
+            notProjectUsers: [],
         }, this.loadData)
     }
 
@@ -229,7 +244,6 @@ class AdminUser extends Component {
 
     initAddMember = () => {
         const { params } = this.props
-        this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
 
@@ -336,12 +350,12 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = active === MY_APPS.RDOS && (
+        const extra = (
             <Button
                 style={{ marginTop: '10px' }}
                 type="primary"
                 onClick={this.initAddMember}>
-                添加项目成员
+                添加用户
             </Button>
         )
 
@@ -393,7 +407,7 @@ class AdminUser extends Component {
                     />
                 </div>
                 <Modal
-                    title="添加项目成员"
+                    title="添加用户"
                     wrapClassName="vertical-center-modal"
                     visible={visible}
                     onOk={this.addMember}
@@ -402,6 +416,7 @@ class AdminUser extends Component {
                     <MemberForm
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
+                        onSearchUsers={this.loadUsersNotInProject}
                         notProjectUsers={notProjectUsers}
                     />
                 </Modal>

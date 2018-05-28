@@ -142,6 +142,17 @@ export default class IdentifyColumn extends Component {
         this.props.form.resetFields();
     }
 
+    // 表格换页/排序
+    onTableChange = (page, filter, sorter) => {
+        let queryParams = {
+            ...this.state.queryParams, 
+            currentPage: page.current,
+        };
+
+        this.getColumnData(queryParams);
+        this.setState({ queryParams });
+    }
+    
     render() {
         const { getFieldDecorator } = this.props.form;
         const { visible, queryParams, loading, columnData, currentData } = this.state;
@@ -203,6 +214,12 @@ export default class IdentifyColumn extends Component {
                                         rules: [{ 
                                             required: true, 
                                             message: '类型名称不可为空' 
+                                        }, { 
+                                            max: 20,
+                                            message: "最大字数不能超过20" 
+                                        }, { 
+                                            pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
+                                            message: '名称只能以字母，数字，下划线组成' 
                                         }], 
                                         initialValue: currentData.name
                                     })(

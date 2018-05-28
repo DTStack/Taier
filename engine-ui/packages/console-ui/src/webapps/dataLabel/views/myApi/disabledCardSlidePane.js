@@ -17,21 +17,21 @@ class DisabledCardSlidePane extends Component {
     }
     componentWillReceiveProps(nextProps) {
         if (
-            (this.props.showRecord && this.props.showRecord.tagId !== nextProps.showRecord.tagId)
+            (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
         ) {
             if (nextProps.slidePaneShow) {
-                this.getApiCreatorInfo(nextProps.showRecord.tagId);
+                this.getApiCreatorInfo(nextProps.showRecord.apiId);
             }
 
 
         }
     }
-    getApiCreatorInfo(tagId) {
-        tagId = tagId || this.props.showRecord.tagId;
-        if (!tagId) {
+    getApiCreatorInfo(apiId) {
+        apiId = apiId || this.props.showRecord.apiId;
+        if (!apiId) {
             return;
         }
-        this.props.getApiCreatorInfo(tagId)
+        this.props.getApiCreatorInfo(apiId)
             .then(
                 (res) => {
                     if (res) {

@@ -1,49 +1,55 @@
-import React,{Component} from "react"
-import {Row,Icon,Button} from "antd";
+import React,{ Component } from 'react';
+import { Icon, Button } from 'antd';
+import { Link, browserHistory, hashHistory } from 'react-router';
+
 let timeClock;
 class ManageComplete extends Component{
+
     state={
-        time:5
+        time: 3
     }
+
+    countDown = (time) => {
+        timeClock = setInterval(() => {
+            time = time - 1;
+            this.setState({ time });
+
+            if (time === 0) {
+                hashHistory.push('/dl/manage');
+            }
+        }, 1000);
+    } 
+
     componentDidMount() {
-        function djs(){
-            timeClock=setTimeout(
-                ()=>{
-                    const time=this.state.time-1;
-                    
-                    if(time>-1){
-                        this.setState({
-                            time:time
-                        })
-                        djs.call(this);
-                    }else{
-                        history.back();
-                    }
-                },1000
-            )
-        }
-        
-        djs.call(this);
+        this.countDown(this.state.time);
     }
-    componentWillUnmount(){
-        clearTimeout(timeClock)
+
+    componentWillUnmount() {
+        clearInterval(timeClock);
     }
-    render(){
+
+    back = () => {
+        hashHistory.push('/dl/manage');
+    }
+
+    render() {
         return (
             <div>
-                <Row type="flex" justify="center" style={{textAlign:"center"}}>
+                <div className="txt-center">
                     <div style={{fontSize:"30px",marginTop:"40px"}}>
-                    <Icon type="check-circle" style={{fontSize:"60px",color:"#00CD00"}} /><br/>
-                    操作成功 <br/>
+                    <Icon type="check-circle" style={{fontSize:"60px",color:"#00CD00"}} />
+                    <br/>
+                    操作成功 
+                    <br/>
                     </div>
-                </Row>
-                <Row type="flex" justify="center" style={{textAlign:"center",fontSize:"14px",marginTop:"30px"}}>
-                    {this.state.time||'0'}秒后自动返回
-                </Row>
-                <Row type="flex" justify="center" style={{marginTop:"20px"}}>
-                    <Button size="large" type="primary" onClick={this.props.reDo}>继续创建</Button>
-                    <Button size="large" style={{marginLeft:"8px"}} onClick={this.props.cancel}>返回</Button>
-                </Row>
+                </div>
+                <div className="txt-center" style={{ fontSize: "14px", marginTop: "30px" }}>
+                    {this.state.time}秒后自动返回
+                </div>
+                <div className="txt-center" style={{ padding: "20px 0" }}>
+                    {/*<Button size="large" type="primary" onClick={this.props.reDo}>继续创建</Button>*/}
+                    <Button size="large" style={{marginLeft:"8px"}}><a onClick={this.back}>返回</a></Button>
+                </div>
             </div>
         )
     }

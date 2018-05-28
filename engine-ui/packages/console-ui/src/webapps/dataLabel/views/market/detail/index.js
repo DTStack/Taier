@@ -11,17 +11,17 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiDetail(tagId) {
+    getApiDetail(apiId) {
         dispatch(
             apiMarketActions.getApiDetail({
-                tagId: tagId
+                apiId: apiId
             })
         )
     },
-    getApiExtInfo(tagId) {
+    getApiExtInfo(apiId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
-                tagId: tagId
+                apiId: apiId
             })
         )
     }
@@ -30,16 +30,16 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class APIDetail extends Component {
     state = {
-        tagId: ''
+        apiId: ''
     }
     componentDidMount() {
-        const tagId = this.props.router.params && this.props.router.params.api;
-        if (tagId) {
+        const apiId = this.props.router.params && this.props.router.params.api;
+        if (apiId) {
             this.setState({
-                tagId: tagId
+                apiId: apiId
             },()=>{
-                this.props.getApiDetail(tagId);
-                this.props.getApiExtInfo(tagId);
+                this.props.getApiDetail(apiId);
+                this.props.getApiExtInfo(apiId);
             })
         }
 
@@ -105,7 +105,7 @@ class APIDetail extends Component {
         }];
     }
     getValue(key){
-        const api=this.props.apiMarket&&this.props.apiMarket.api&&this.props.apiMarket.api[this.state.tagId];
+        const api=this.props.apiMarket&&this.props.apiMarket.api&&this.props.apiMarket.api[this.state.apiId];
         if(api){
             return api[key]
         }else{
@@ -118,33 +118,33 @@ class APIDetail extends Component {
             <div>
                 <TopCard {...this.state} {...this.props} ></TopCard>
                 <Card className="box-1" noHovering>
-                    <section>
+                    <div>
                         <h1 className="title-border-l-blue">基本信息</h1>
-                        <div style={{ marginTop: 10 }}>
+                        <div style={{ marginTop: 15 }}>
                             <p data-title="支持格式：" className="pseudo-title p-line">{this.getValue('supportType')}</p>
                             <p data-title="请求协议：" className="pseudo-title p-line">{this.getValue('reqProtocol')}</p>
                             <p data-title="请求方式：" className="pseudo-title p-line">{this.getValue('reqMethod')}</p>
                         </div>
-                    </section>
-                    <Row gutter={30} style={{ marginTop: 19.3 }}>
-                        <Col span={11}>
+                    </div>
+                    <Row gutter={30} style={{ marginTop: 20 }}>
+                        <Col span={12}>
                             <section>
                                 <h1 className="title-border-l-blue">请求参数</h1>
                                 <Table
                                     rowKey="paramName"
-                                    style={{ marginTop: 18 }}
+                                    style={{ marginTop: 15 }}
                                     className="m-table border-table"
                                     pagination={false}
                                     dataSource={this.getRequestDataSource()}
                                     columns={this.getRequestColumns()} />
                             </section>
                         </Col>
-                        <Col span={11}>
+                        <Col span={12}>
                             <section>
                                 <h1 className="title-border-l-blue">返回参数</h1>
                                 <Table
                                     rowKey="paramName"
-                                    style={{ marginTop: 18 }}
+                                    style={{ marginTop: 15 }}
                                     className="m-table border-table"
                                     pagination={false}
                                     dataSource={this.getResponseDataSource()}
@@ -152,9 +152,9 @@ class APIDetail extends Component {
                             </section>
                         </Col>
                     </Row>
-                    <section style={{ marginTop: 18 }}>
+                    <div style={{ marginTop: 20 }}>
                         <h1 className="title-border-l-blue">JSON样例</h1>
-                        <div style={{ marginTop: 18 }}>
+                        <div style={{ marginTop: 15 }}>
                         <pre>
                         {JSON.stringify({
                                 "inFields":{
@@ -165,7 +165,7 @@ class APIDetail extends Component {
                             },null,"    \r")}
                         </pre>
                         </div>
-                    </section>
+                    </div>
                 </Card>
             </div>
         )
