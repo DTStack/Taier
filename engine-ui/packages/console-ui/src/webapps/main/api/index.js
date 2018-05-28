@@ -201,7 +201,11 @@ export default {
             case MY_APPS.RDOS:
                 return RdosApi.addRoleUser(params);
             case MY_APPS.DATA_QUALITY:
-                return DqSysApi.addUser(params);
+                return http.post(req.DQ_ADD_USER, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_ADD_USER, params)
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_ADD_USER, params)
             default: return;
         }
     },

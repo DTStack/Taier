@@ -4,9 +4,9 @@ import { debounce } from 'lodash'
 import {
     Input, Button, Card, Radio,
     Select, Form, Checkbox,
- } from 'antd'
- 
-import { 
+} from 'antd'
+
+import {
     formItemLayout,
     RDOS_PROJECT_ROLE,
     DQ_PROJECT_ROLE,
@@ -17,8 +17,7 @@ const Option = Select.Option
 const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group;
 
-class MemberForm extends Component {
-
+class UserRoleForm extends Component {
 
     debounceSearch = debounce(this.props.onSearchUsers, 500, { 'maxWait': 2000 })
 
@@ -27,42 +26,40 @@ class MemberForm extends Component {
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
-        .map(item => 
-            <Option 
-                key={item.id}
-                value={`${item.id}`}
-                name={item.userName}
-                optionFilterProp="name"
-            >
-                {item.userName}
-            </Option>
-        )
+            .map(item =>
+                <Option
+                    key={item.userId}
+                    value={`${item.userId}`}
+                    name={item.userName}
+                    optionFilterProp="name"
+                >
+                    {item.userName}
+                </Option>
+            )
 
         let roleOptions = [], defaultRoles = [];
         if (roles) {
             roles.forEach(role => {
-                // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-                if (role.roleValue !== RDOS_PROJECT_ROLE.PROJECT_OWNER &&
-                    role.roleValue !== RDOS_PROJECT_ROLE.TENANT_OWVER) {
+                // 过滤项目所有者，租户所有者无效的授权对象，禁用访客默认授权角色
+                // TODO 由于现在后端项目角色值每个应用对应的不一致，暂时用中文做对比
+                if (role.roleName !== '租户所有者' &&
+                role.roleName !== '项目所有者') {
                     const option = { label: role.roleName, value: role.id }
-
-                    if (role.roleValue === RDOS_PROJECT_ROLE.VISITOR) {
+                    if (role.roleName === '访客') {
                         defaultRoles.push(role.id)
                         option.disabled = true;
                     }
-
                     roleOptions.push(option)
                 }
             })
         }
 
-
         return (
             <Form>
                 <FormItem
-                {...formItemLayout}
-                label="请选择用户"
-                hasFeedback
+                    {...formItemLayout}
+                    label="请选择用户"
+                    hasFeedback
                 >
                     {getFieldDecorator('targetUserIds', {
                         rules: [{
@@ -81,14 +78,14 @@ class MemberForm extends Component {
                     )}
                 </FormItem>
                 <FormItem
-                {...formItemLayout}
-                label="角色设置"
+                    {...formItemLayout}
+                    label="角色设置"
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
                         initialValue: defaultRoles,
                     })(
-                        <CheckboxGroup 
+                        <CheckboxGroup
                             options={roleOptions}
                             onChange={this.roleChange}
                         />,
@@ -99,6 +96,6 @@ class MemberForm extends Component {
     }
 }
 
-const FormWrapper = Form.create()(MemberForm)
+const FormWrapper = Form.create()(UserRoleForm)
 
 export default FormWrapper

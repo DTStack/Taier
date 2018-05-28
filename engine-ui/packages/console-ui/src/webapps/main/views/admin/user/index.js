@@ -125,9 +125,21 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject } = this.state
+        const { active, selectedProject, notProjectUsers } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+
+        // 塞入要添加的用户列表
+        const targetUsers = [];
+        const uids = projectRole.targetUserIds;
+        for (let i = 0; i < uids.length; i++) {
+            const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+            if (user) {
+                targetUsers.push(user);
+            }
+        }
+        projectRole.targetUsers = targetUsers;
+
         form.validateFields((err) => {
             if (!err) {
                 if (hasProject(active)) {
@@ -139,7 +151,7 @@ class AdminUser extends Component {
                             form.resetFields()
                         })
                         ctx.loadData()
-                        message.success('添加项目成员成功!')
+                        message.success('添加成员成功!')
                     }
                 })
             }
@@ -402,6 +414,7 @@ class AdminUser extends Component {
                     onCancel={this.onCancel}
                 >
                     <MemberForm
+                        key={`member-${visible}`}
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
                         onSearchUsers={this.loadUsersNotInProject}
