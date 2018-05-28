@@ -164,14 +164,14 @@ export default class TaskLog extends Component {
         option.xAxis[0].data = data.xAxis;
 
         option.yAxis[0].name = '执行时长（秒）'
-        option.yAxis[0].axisLabel.formatter = '{value} 秒'
+        option.yAxis[0].axisLabel.formatter = '{value}'
         
         option.yAxis[1] = cloneDeep(option.yAxis[0])
         option.yAxis[1].name = '数据量（条）'
         option.yAxis[1].axisLine.show = false
         option.yAxis[1].splitLine.show = false
         option.yAxis[1].minInterval = 1// 刻度为整数
-        option.yAxis[1].axisLabel.formatter = '{value} 条'
+        option.yAxis[1].axisLabel.formatter = '{value}'
 
         option.series = data.series;
         // 绘制图表
