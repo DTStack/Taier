@@ -173,7 +173,7 @@ export default class IdentifyColumn extends Component {
             <Button 
                 type="primary" 
                 style={{ margin: 10 }} 
-                onClick={this.openModal}>
+                onClick={this.addColumn}>
                 新建识别列
             </Button>
         )
