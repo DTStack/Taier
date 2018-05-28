@@ -118,7 +118,7 @@ class ProjectMember extends Component {
         projectRole.projectId = project.id
         form.validateFields((err) => {
             if (!err) {
-                Api.addRoleUser(projectRole).then((res) => {
+                Api.addProjectUser(projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
                             form.resetFields()
