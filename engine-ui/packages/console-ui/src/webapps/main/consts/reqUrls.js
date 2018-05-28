@@ -14,7 +14,7 @@ export default {
 
     //===== 开发套件 ====//
     RDOS_SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,
-    RDOS_ADD_USER: `${DQ_BASE_URL}/common/roleUser/addRoleUserNew`,
+    RDOS_ADD_USER: `${RDOS_BASE_URL}/common/roleUser/addRoleUserNew`,
 
     //===== 数据质量 ====//
     DQ_SEARCH_UIC_USERS: `${DQ_BASE_URL}/user/getUicUsersNotInProject`,
