@@ -231,6 +231,7 @@ class AdminUser extends Component {
             active: key,
             currentPage: 1,
             roleIds: [],
+            notProjectUsers: [],
         }, this.loadData)
     }
 
@@ -243,7 +244,6 @@ class AdminUser extends Component {
 
     initAddMember = () => {
         const { params } = this.props
-        // this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
 
@@ -414,7 +414,6 @@ class AdminUser extends Component {
                     onCancel={this.onCancel}
                 >
                     <MemberForm
-                        key={`member-${visible}`}
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
                         onSearchUsers={this.loadUsersNotInProject}

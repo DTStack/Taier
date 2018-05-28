@@ -14,11 +14,11 @@ export default {
 
     //===== 开发套件 ====//
     RDOS_SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,
+    RDOS_ADD_USER: `${DQ_BASE_URL}/common/roleUser/addRoleUserNew`,
 
     //===== 数据质量 ====//
     DQ_SEARCH_UIC_USERS: `${DQ_BASE_URL}/user/getUicUsersNotInProject`,
     DQ_ADD_USER: `${DQ_BASE_URL}/roleUser/addRoleUserNew`,
-
 
     //===== 数据api ====//
     //**消息**//
@@ -59,6 +59,6 @@ export default {
     DL_ROLE_PERMISSION:`${DL_BASE_URL}/permission/getPermissionIdsByRoleId`,//获取角色的权限
     DL_ROLE_PERMISSION_ADD_OR_EDIT:`${DL_BASE_URL}/role/addOrUpdateRole`,//更新或添加角色权限
     DL_REMOVE_ROLE:`${DL_BASE_URL}/role/deleteRole`,//删除角色
-    DL_SEARCH_UIC_USERS: `${DL_BASE_URL}/common/project/getUicUsersNotInProject`, // 获取UIC
+    DL_SEARCH_UIC_USERS: `${DL_BASE_URL}/user/getUicUsersNotInProject`, // 获取UIC
 }
 

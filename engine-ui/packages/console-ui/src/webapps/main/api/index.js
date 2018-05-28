@@ -199,7 +199,7 @@ export default {
     addRoleUser(app, params) {
         switch (app) {
             case MY_APPS.RDOS:
-                return RdosApi.addRoleUser(params);
+                return http.post(req.RDOS_ADD_USER, params)
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_ADD_USER, params)
             case MY_APPS.LABEL:
