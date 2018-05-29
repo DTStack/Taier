@@ -12,8 +12,8 @@ export default class SelectSearch extends Component {
         const { children } = this.props;
         
         if (children && children.length > 0) {
-            for (let i in children) {
-                if (children[i].props.title == searchValue) {
+            for (let i=0;i<children.length;i++) {
+                if(children[i].props.title?children[i].props.title == searchValue:children[i].props.value == searchValue){
                     return null;
                 }
             }
