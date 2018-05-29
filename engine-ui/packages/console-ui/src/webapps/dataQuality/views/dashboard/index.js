@@ -10,7 +10,7 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 import Resize from 'widgets/resize';
 
-import { lineAreaChartOptions, alarmDateFilter } from '../../consts';
+import { lineAreaChartOptions, alarmDateFilter, TASK_STATUS } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
 
@@ -75,6 +75,7 @@ export default class DashBoard extends Component {
             query:{
                 startTime:startTime.valueOf(),
                 endTime:endTime.valueOf(),
+                statusFilter:[TASK_STATUS.FAIL,TASK_STATUS.UNPASS].join(",")
             }
         })
     }
