@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { isEqual } from 'lodash'
 import { Table, Tabs, Icon, Tooltip, Button, Affix } from 'antd'
 
-import Api from '../../../../api';
+import reqOffline from '../../../../api/reqOffline';
 
 import CodeEditor from '../../../../components/code-editor'
 import {
@@ -174,12 +174,6 @@ class Console extends Component {
         }
     }
 
-    downloadResult(jobId){
-        Api.downloadSqlExeResult({
-            jobId:jobId
-        });
-    }
-
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
@@ -193,12 +187,11 @@ class Console extends Component {
                         key={`${index}`}
                     >
                         <Result data={tab.data} />
-                        {tab.jobId?<Button
+                        {tab.jobId?<a href={`${reqOffline.DOWNLOAD_SQL_RESULT}?jobId=${tab.jobId}`} download><Button
                             style={exportStyle}
-                            onClick={this.downloadResult.bind(this,tab.jobId)}
                         >
                             下载
-                        </Button>:null}
+                        </Button></a>:null}
                     </TabPane>
                 );
             });
