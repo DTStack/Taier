@@ -51,7 +51,7 @@ export default class Sidebar extends Component {
                 >
                     <Menu.Item key="search">
                         <Link to={`${base}/search`}>
-                            <Icon type="database" />查找数据
+                            <Icon type="search" />查找数据
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="table">
@@ -61,7 +61,7 @@ export default class Sidebar extends Component {
                     </Menu.Item>
                     <Menu.Item key="auth">
                         <Link to={`${base}/auth`}>
-                            <Icon type="book" />权限管理
+                            <Icon type="user" />权限管理
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="catalogue">
