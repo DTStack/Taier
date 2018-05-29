@@ -445,8 +445,8 @@ class BaseForm extends Component {
                             initialValue: config.connectMode || "port",
                         })(
                             <RadioGroup>
-                                <Radio value="port">Port (主动)</Radio>
-                                <Radio value="pasv">Pasv（被动）</Radio>
+                                <Radio value="PORT">Port (主动)</Radio>
+                                <Radio value="PASV">Pasv（被动）</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
