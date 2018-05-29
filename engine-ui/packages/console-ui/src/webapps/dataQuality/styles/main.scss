@@ -2,7 +2,10 @@
 /**
 ** CSS 主引入口
 **/
-
+body{
+    overflow: unset;
+    background: #f2f7fa;
+}
 .m-8 {
     margin: 0 8px;
 }
@@ -93,4 +96,12 @@
 }
 table{
     font-size:12px;
+}
+.header-fixed .header{
+    position: fixed;
+    z-index: 2001;
+}
+.container-relative .container{
+    position: relative;
+
 }
