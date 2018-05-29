@@ -92,17 +92,7 @@ class BaseForm extends Component {
         const source = form.getFieldsValue()
         const { sourceType } = this.state
 
-        if (source.dataJson.jdbcUrl) {
-            source.dataJson.jdbcUrl = utils.trim(source.dataJson.jdbcUrl)
-        }
-        if (source.dataJson.defaultFS) {
-            source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
-        }
-
-        // 端口转为整型
-        if (source.dataJson.port) {
-            source.dataJson.port = parseInt(source.dataJson.port, 10)
-        }
+        this.preHandFormValues(source);
 
         form.validateFields((err) => {
             if (!err) {
@@ -119,9 +109,24 @@ class BaseForm extends Component {
         const { testConnection, form } = this.props
         form.validateFields((err, source) => {
             if (!err) {
+                this.preHandFormValues(source);
                 testConnection(source)
             }
         });
+    }
+
+    preHandFormValues(source) {
+        if (source.dataJson.jdbcUrl) {
+            source.dataJson.jdbcUrl = utils.trim(source.dataJson.jdbcUrl)
+        }
+        if (source.dataJson.defaultFS) {
+            source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
+        }
+
+        // 端口转为整型
+        if (source.dataJson.port) {
+            source.dataJson.port = parseInt(source.dataJson.port, 10)
+        }
     }
 
     cancle = () => {
@@ -162,7 +167,7 @@ class BaseForm extends Component {
         const { hasHdfsConfig, sourceType } = this.state;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-        console.log("\r\n***** " + sourceType + "********\r\n")
+
         switch (sourceType) {
             case DATA_SOURCE.HDFS: {
                 const formItems = [
