@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { Table, Icon, Card, Row, Col } from 'antd';
 import moment from 'moment';
 
@@ -70,7 +70,7 @@ export default class DashBoard extends Component {
         const endTime=new moment();
         const startTime=moment(moment(endTime).subtract(date,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
 
-        this.props.router.push({
+        hashHistory.push({
             pathname:"/dq/taskQuery",
             query:{
                 startTime:startTime.valueOf(),
