@@ -294,14 +294,14 @@ class TargetForm extends React.Component {
                         rules: [{
                             required: true
                         }],
-                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
+                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
                     })(
                         <RadioGroup onChange={ this.submitForm.bind(this) }>
-                            <Radio value="replace" style={{float: 'left'}}>
-                                替换原有数据（Replace Into）
-                            </Radio>
                             <Radio value="insert" style={{float: 'left'}}>
                                 视为脏数据，保留原有数据（Insert Into）
+                            </Radio>
+                            <Radio value="replace" style={{float: 'left'}}>
+                                替换原有数据（Replace Into）
                             </Radio>
                         </RadioGroup>
                     )}
