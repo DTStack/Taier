@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { assign } from 'lodash';
+import { connect } from 'react-redux';
 import {
     Select, Table, Card,
     Button, Tabs, Modal,
@@ -21,6 +22,11 @@ import EditMemberRoleForm from './editRole'
 const Option = Select.Option
 const TabPane = Tabs.TabPane
 
+@connect(state => {
+    return {
+        user: state.user,
+    }
+})
 class AdminUser extends Component {
 
     state = {
@@ -249,7 +255,7 @@ class AdminUser extends Component {
 
     initColums = () => {
         const ctx = this;
-
+        const hideDel = this.state.active !== MY_APPS.RDOS;
         return [{
             title: '账号',
             dataIndex: 'user.userName',
@@ -302,14 +308,18 @@ class AdminUser extends Component {
                             editTarget: record
                         })
                     }}>编辑</a>
-                    <span className="ant-divider" />
-                    <Popconfirm
-                        title="确认将该成员从项目中移除？"
-                        okText="确定" cancelText="取消"
-                        onConfirm={() => { ctx.removeUserFromProject(record) }}
-                    >
-                        <a>删除</a>
-                    </Popconfirm>
+                    {
+                        hideDel ? '' : <span>
+                            <span className="ant-divider" />
+                            <Popconfirm
+                                title="确认将该成员从项目中移除？"
+                                okText="确定" cancelText="取消"
+                                onConfirm={() => { ctx.removeUserFromProject(record) }}
+                            >
+                                <a>删除</a>
+                            </Popconfirm>
+                        </span>
+                    }
                 </span>
             }
         }]
@@ -320,7 +330,7 @@ class AdminUser extends Component {
         const { projects, active, selectedProject } = this.state;
 
         const projectOpts = projects && projects.map(project =>
-            <Option value={project.id} key={project.id}>
+            <Option value={`${project.id}`} key={project.id}>
                 {project.projectAlias}
             </Option>
         )
@@ -332,7 +342,7 @@ class AdminUser extends Component {
                 选择项目：
                 <Select
                     showSearch
-                    value={selectedProject}
+                    value={`${selectedProject}`}
                     style={{ width: 200 }}
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
@@ -386,7 +396,7 @@ class AdminUser extends Component {
     }
 
     render() {
-        const { apps } = this.props
+        const { apps, user } = this.props
 
         const {
             visible, roles, notProjectUsers,
@@ -416,6 +426,8 @@ class AdminUser extends Component {
                     <MemberForm
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
+                        app={active}
+                        user={user}
                         onSearchUsers={this.loadUsersNotInProject}
                         notProjectUsers={notProjectUsers}
                     />
@@ -431,6 +443,7 @@ class AdminUser extends Component {
                         user={editTarget}
                         app={active}
                         roles={roles}
+                        loginUser={user}
                         wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
                     />
                 </Modal>
