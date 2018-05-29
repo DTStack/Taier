@@ -118,7 +118,9 @@ class SourceForm extends React.Component {
     }
 
     changeTable(value) {
-        this.getTableColumn(value);
+        if(value){
+            this.getTableColumn(value);
+        }
         this.submitForm();
         this.setState({
             showPreview: false
@@ -344,8 +346,10 @@ class SourceForm extends React.Component {
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                         })(
                             <Select
+                                mode="combobox"
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                showArrow={true}
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

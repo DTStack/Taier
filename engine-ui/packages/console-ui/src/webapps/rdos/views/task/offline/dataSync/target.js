@@ -105,7 +105,9 @@ class TargetForm extends React.Component{
     }
 
     changeTable(value) {
-        this.getTableColumn(value);
+        if(value){
+            this.getTableColumn(value);
+        }
         this.submitForm();
     }
 
@@ -231,8 +233,9 @@ class TargetForm extends React.Component{
                         initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                     })(
                         <Select
+                            mode="combobox"
                             showSearch
-                            onChange={ this.changeTable.bind(this) }
+                            onBlur={this.changeTable.bind(this)}
                             disabled={ !isCurrentTabNew }
                             optionFilterProp="value"
                         >
