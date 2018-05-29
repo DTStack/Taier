@@ -6,23 +6,55 @@ import {
     Select, Form, Checkbox,
 } from 'antd'
 
+
 import {
+    MY_APPS,
+    RDOS_ROLE,
+    APP_ROLE,
     formItemLayout,
-    RDOS_PROJECT_ROLE,
-    DQ_PROJECT_ROLE,
-} from 'main/consts'
+} from '../../../consts';
 
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group;
 
+
+// 过滤项目所有者，租户所有者，访客三种无效的授权对象
+export const isDisabledRole = (app, value, loginUser) => {
+    switch(app) {
+        case MY_APPS.RDOS: {
+            if (loginUser.isTenantAdmin) {
+                return value === RDOS_ROLE.TENANT_OWVER 
+            } else {
+                return value === RDOS_ROLE.PROJECT_OWNER ||
+                value === RDOS_ROLE.TENANT_OWVER ||
+                value === RDOS_ROLE.VISITOR
+            }
+        }
+        case MY_APPS.API: 
+        case MY_APPS.LABEL:
+        case MY_APPS.DATA_QUALITY: {
+            if (loginUser.isTenantAdmin) {
+                return value === RDOS_ROLE.TENANT_OWVER 
+            } else {
+                return value === APP_ROLE.ADMIN ||
+                value === APP_ROLE.TENANT_OWVER ||
+                value === APP_ROLE.VISITOR
+            }
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
 class UserRoleForm extends Component {
 
     debounceSearch = debounce(this.props.onSearchUsers, 300, { 'maxWait': 2000 })
 
     render() {
-        const { roles, form, notProjectUsers } = this.props;
+        const { roles, form, notProjectUsers, app, user } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
@@ -37,20 +69,11 @@ class UserRoleForm extends Component {
                 </Option>
             )
 
-        let roleOptions = [], defaultRoles = [];
+        let roleOptions = [];
         if (roles) {
             roles.forEach(role => {
-                // 过滤项目所有者，租户所有者无效的授权对象，禁用访客默认授权角色
-                // TODO 由于现在后端项目角色值每个应用对应的不一致，暂时用中文做对比
-                if (role.roleName !== '租户所有者' &&
-                role.roleName !== '项目所有者') {
-                    const option = { label: role.roleName, value: role.id }
-                    if (role.roleName === '访客') {
-                        defaultRoles.push(role.id)
-                        option.disabled = true;
-                    }
-                    roleOptions.push(option)
-                }
+                const disabled = isDisabledRole(app, role.roleValue, user)
+                roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
 
@@ -84,7 +107,7 @@ class UserRoleForm extends Component {
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: defaultRoles,
+                        initialValue: [],
                     })(
                         <CheckboxGroup
                             options={roleOptions}
