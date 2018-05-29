@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { isEqual } from 'lodash'
 import { Table, Tabs, Icon, Tooltip, Button, Affix } from 'antd'
 
+import reqOffline from '../../../../api/reqOffline';
+
 import CodeEditor from '../../../../components/code-editor'
 import {
     removeRes, resetConsole
@@ -184,13 +186,12 @@ class Console extends Component {
                         tab={title}
                         key={`${index}`}
                     >
-                        <Result data={tab} />
-                        <Button
+                        <Result data={tab.data} />
+                        {tab.jobId?<a href={`${reqOffline.DOWNLOAD_SQL_RESULT}?jobId=${tab.jobId}`} download><Button
                             style={exportStyle}
-                            onClick={this.exportCsv}
                         >
                             下载
-                        </Button>
+                        </Button></a>:null}
                     </TabPane>
                 );
             });
