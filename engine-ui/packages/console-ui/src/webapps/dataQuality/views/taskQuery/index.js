@@ -47,6 +47,7 @@ export default class TaskQuery extends Component {
             executeStartTime: utils.getParameterByName('startTime') || undefined,
             executeEndTime: utils.getParameterByName('endTime') || undefined,
             bizTime: 0,
+            statusFilter:utils.getParameterByName('statusFilter')||""
 
         },
         tabKey: '1',
@@ -62,7 +63,7 @@ export default class TaskQuery extends Component {
 
     // table设置
     initColumns = () => {
-        const { visibleList } = this.state;
+        const { visibleList, params } = this.state;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -107,6 +108,7 @@ export default class TaskQuery extends Component {
                 </div>
             },
             filters: taskStatusFilter,
+            filteredValue:params.statusFilter?params.statusFilter.split(","):[]
         }, {
             title: '规则异常数',
             dataIndex: 'alarmSum',
@@ -389,7 +391,7 @@ export default class TaskQuery extends Component {
                         defaultValue={defaultRangeValue}
                         format="YYYY-MM-DD"
                         placeholder={["开始日期", "结束日期"]}
-                        style={{ width: 200, "verticalAlign": "middle" }}
+                        style={{ width: 200, "verticalAlign": "middle", "marginTop":"-1px" }}
                         disabledDate={this.disabledDate}
                         onChange={this.onExecuteTimeChange}
                     />
@@ -417,7 +419,7 @@ export default class TaskQuery extends Component {
         )
 
         return (
-            <div className="task-dashboard" style={{ height: '100%', overflowX: 'hidden' }}>
+            <div className="task-dashboard" style={{  overflowX: 'hidden' }}>
                 <h1 className="box-title">
                     任务查询 <span style={{ fontSize: "12px", color: "rgb(153, 153, 153)" }}>
                         告警总数: {

@@ -60,7 +60,7 @@ import {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i]
                 
-                // 有子节点的需要移除
+                // 有子节点的需要移除, 只需要添加权限子节点ID
                 if (item.children && item.children.length > 0) {
 
                     const index = arr.indexOf(`${item.nodeId}`)
@@ -79,15 +79,17 @@ import {
     }
 
     renderTreeNodes = (data) => {
+
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
+
             if (item.children && item.children.length > 0) {
                 return (
-                    <TreeNode 
+                    <TreeNode
                         key={key}
                         dataRef={role}
-                        title={role.display} 
+                        title={role.display}
                     >
                         {this.renderTreeNodes(item.children)}
                     </TreeNode>
@@ -101,6 +103,7 @@ import {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
+
         return (
             <Form>
                 <FormItem
@@ -138,7 +141,7 @@ import {
                             required: true,
                             message: '请选择相应的角色权限！',
                         }],
-                        initialValue: roleInfo && roleInfo.roleDesc || '',
+                        initialValue: [],
                     })(
                         <Tree
                             style={{ marginTop: '-10px' }}

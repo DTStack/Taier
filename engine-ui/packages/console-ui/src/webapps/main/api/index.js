@@ -179,12 +179,19 @@ export default {
         }
     },
 
+    /**
+     * 获取待添加到项目中的用户列表
+     */
     loadUsersNotInProject(app, params) {
         switch (app) {
             case MY_APPS.RDOS:
-                return RdosApi.getNotProjectUsers(params);
+                return http.post(req.RDOS_SEARCH_UIC_USERS, params)
             case MY_APPS.DATA_QUALITY:
-                return DqSysApi.getUsersNotInProject(params);
+                return http.post(req.DQ_SEARCH_UIC_USERS, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_SEARCH_UIC_USERS, params)
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_SEARCH_UIC_USERS, params)
             default: return;
         }
     },
@@ -192,9 +199,13 @@ export default {
     addRoleUser(app, params) {
         switch (app) {
             case MY_APPS.RDOS:
-                return RdosApi.addRoleUser(params);
+                return http.post(req.RDOS_ADD_USER, params)
             case MY_APPS.DATA_QUALITY:
-                return DqSysApi.addUser(params);
+                return http.post(req.DQ_ADD_USER, params)
+            case MY_APPS.LABEL:
+                return http.post(req.DL_ADD_USER, params)
+            case MY_APPS.API:
+                return http.post(req.DATAAPI_ADD_USER, params)
             default: return;
         }
     },

@@ -23,6 +23,7 @@ class ProjectMember extends Component {
             data: [],
         },
         roles: [],
+        notProjectUsers: [],
         editTarget: '',
         loading: false,
         visible: false,
@@ -46,7 +47,6 @@ class ProjectMember extends Component {
 
     initAddMember = () => {
         const { dispatch, params } = this.props
-        dispatch(UserAction.getNotProjectUsers({ projectId: params.pid }))
         this.setState({ visible: true })
     }
 
@@ -99,13 +99,26 @@ class ProjectMember extends Component {
 
     addMember = () => {
         const ctx = this
+        const { notProjectUsers } = this.state;
         const { project } = this.props
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+
+        // 塞入要添加的用户列表
+        const targetUsers = [];
+        const uids = projectRole.targetUserIds;
+        for (let i = 0; i < uids.length; i++) {
+            const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+            if (user) {
+                targetUsers.push(user);
+            }
+        }
+        projectRole.targetUsers = targetUsers;
+
         projectRole.projectId = project.id
         form.validateFields((err) => {
             if (!err) {
-                Api.addRoleUser(projectRole).then((res) => {
+                Api.addProjectUser(projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
                             form.resetFields()
@@ -133,6 +146,20 @@ class ProjectMember extends Component {
                 message.success('设置成功！')
                 ctx.setState({ visibleEditRole: false })
                 ctx.search()
+            }
+        })
+    }
+
+    loadUsersNotInProject = (userName) => {
+
+        const params = {
+            userName,
+            projectId: this.props.project.id,
+        }
+
+        Api.searchUICUsers(params).then((res) => {
+            if (res.code === 1) {
+                this.setState({ notProjectUsers: res.data })
             }
         })
     }
@@ -234,10 +261,11 @@ class ProjectMember extends Component {
 
     render() {
         const { 
-            visible, users, roles, 
-            visibleEditRole, editTarget 
-        } = this.state
-        const { project, notProjectUsers } = this.props
+            visible, users, roles,
+            notProjectUsers, visibleEditRole, editTarget 
+        } = this.state;
+
+        const { project } = this.props
 
         const pagination = {
             total: users.totalCount,
@@ -297,6 +325,7 @@ class ProjectMember extends Component {
                     <MemberForm
                       wrappedComponentRef={(e) => { this.memberForm = e }}
                       roles={roles}
+                      onSearchUsers={this.loadUsersNotInProject}
                       notProjectUsers={notProjectUsers}
                     />
                 </Modal>
@@ -319,7 +348,6 @@ class ProjectMember extends Component {
 }
 export default connect((state) => {
     return {
-        notProjectUsers: state.notProjectUsers,
         user: state.user,
         project: state.project,
     }
