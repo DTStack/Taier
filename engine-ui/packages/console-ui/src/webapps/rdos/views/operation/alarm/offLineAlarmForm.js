@@ -53,10 +53,15 @@ class AlarmForm extends Component {
             const min = runMin ? runMin * 60 : 0
             alarm.uncompleteTime = hour + min
         }
+
+        if(alarm.senderTypes.indexOf(4)>-1){
+            fields.push("webhook")
+        }
+
         alarm.receiveUsers = alarm.receiveUsers.join(',')
         form.validateFields(fields, (err) => {
             if (!err) {
-                ctx.setState({ myTrigger: 0 })
+                ctx.setState({ myTrigger: 0,senderTypes:[] })
                 setTimeout(() => form.resetFields(), 300)
                 onOk(alarm)
             }
@@ -125,7 +130,7 @@ class AlarmForm extends Component {
         const display = myTrigger === 2 ? 'block' : 'none'
 
         let showDD=false;
-        if(senderTypes.indexOf(3)>-1){
+        if(senderTypes.indexOf(4)>-1){
             showDD=true;
         }
         console.log('myTrigger:', myTrigger)
@@ -190,7 +195,7 @@ class AlarmForm extends Component {
                             <CheckboxGroup onChange={this.senderTypesChange.bind(this)}>
                                 <Checkbox value={1}>邮件</Checkbox>
                                 <Checkbox value={2}>短信</Checkbox>
-                                <Checkbox value={3}>钉钉</Checkbox>
+                                <Checkbox value={4}>钉钉</Checkbox>
                             </CheckboxGroup>,
                         )}
                     </FormItem>
