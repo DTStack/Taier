@@ -168,7 +168,6 @@ class BaseForm extends Component {
         const { hasHdfsConfig, sourceType } = this.state;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-
         switch (sourceType) {
             case DATA_SOURCE.HDFS: {
                 const formItems = [
