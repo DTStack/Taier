@@ -162,7 +162,7 @@ class Header extends Component {
         const basePath = app.link;
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
-        const showProjectSelect = pathname.indexOf('/data-manage/table') > -1 ? false : true;
+        const showProjectSelect = pathname.indexOf('/data-manage') > -1 ? false : true;
 
         return (
             <div className="header">

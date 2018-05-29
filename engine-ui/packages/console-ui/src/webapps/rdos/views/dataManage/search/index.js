@@ -1,27 +1,32 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
-import { 
+import {
     Input, Button, Table, Form,
-    Pagination, Modal, message, 
-    Tag, Icon, Card
+    Pagination, Modal, message,
+    Tag, Icon, Card, Select
 } from 'antd';
 
 import { Link } from 'react-router';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 
-import Editor from '../../components/code-editor';
-import {DDL_placeholder} from "../../comm/DDLCommon"
+import utils from 'utils';
 
-import actions from '../../store/modules/dataManage/actionCreator';
-import CatalogueTree from './catalogTree';
-import ajax from '../../api';
+import CatalogueTree from '../catalogTree';
+import TableApplyModal from './tableApply';
+import ajax from '../../../api';
 
 const FormItem = Form.Item
+const Option = Select.Option
 
-const ROUTER_BASE = '/data-manage/table';
+const ROUTER_BASE = '/data-manage/search';
 
+@connect(state => {
+    return {
+        projects: state.projects,
+    }
+})
 class SearchTable extends Component {
 
     constructor(props) {
@@ -29,13 +34,14 @@ class SearchTable extends Component {
         this.state = {
             visible: false,
             table: [],
+            editRecord: {},
 
-            queryParams : {
-                current: 1,
-                catalogue: '',
-                authStatus: '',
-                project: '',
-                tableName: '',
+            queryParams: {
+                currentPage: 1,
+                catalogueId: undefined,
+                permissionStatus: undefined,
+                projectId: undefined,
+                tableName: undefined,
             },
         }
     }
@@ -50,8 +56,22 @@ class SearchTable extends Component {
     }
 
     search = () => {
-        const params = this.getReqParams();
-        this.props.searchTable(params);
+        const params = this.state.queryParams;
+        ajax.searchTable(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    table: res.data,
+                })
+            }
+        })
+    }
+
+    apply = (applyData) => {
+        ajax.applyTable(params).then(res => {
+            if (res.code === 1) {
+                message.success('申请成功！')
+            }
+        })
     }
 
     changeParams = (field, value) => {
@@ -68,39 +88,38 @@ class SearchTable extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-                current: 1,
+                currentPage: 1,
             })
         })
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        const params = Object.assign(this.state.params, { 
-            currentPage: pagination.current 
+        const queryParams = Object.assign(this.state.queryParams, {
+            currentPage: pagination.current
         })
-        this.setState(params, this.search)
+        this.setState({
+            queryParams,
+        }, this.search)
     }
 
     onTableNameChange = (e) => {
         this.setState({
-            tableName: e.target.value,
-            current: 1,
+            queryParams: Object.assign(this.state.queryParams, {
+                tableName: e.target.value,
+                currentPage: 1,
+            }),
         })
     }
 
-    catalogueChange = (value) => {
+    showModal = (editRecord) => {
         this.setState({
-            catalogue: value,
-        }, this.search)
-    }
-
-    showModal() {
-        this.setState({
-            visible: true
+            visible: true,
+            editRecord,
         });
     }
 
     initialColumns = () => {
-
+        const ctx = this;
         return [
             {
                 title: '表名',
@@ -108,7 +127,7 @@ class SearchTable extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{ text }</Link>
+                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{text}</Link>
                 }
             },
             {
@@ -120,7 +139,12 @@ class SearchTable extends Component {
                 },
             },
             {
-                title: '创建者',
+                title: '项目',
+                key: 'projectAlias',
+                dataIndex: 'projectAlias',
+            },
+            {
+                title: '负责人',
                 key: 'userName',
                 dataIndex: 'userName',
                 render(text, record) {
@@ -137,37 +161,36 @@ class SearchTable extends Component {
                 }
             },
             {
-                title: '最近更新时间',
+                title: '创建时间',
+                key: 'createTime',
+                dataIndex: 'createTime',
+                render(text, record) {
+                    return utils.formatDateTime(text)
+                }
+            },
+            {
+                title: 'DDL最后变更时间',
+                key: 'lastDDLTime',
+                dataIndex: 'lastDDLTime',
+                render(text) {
+                    return utils.formatDateTime(text)
+                },
+            },
+            {
+                title: '数据最后变更时间',
                 key: 'lastDataChangeTime',
                 dataIndex: 'lastDataChangeTime',
-                sorter: true,
-                render(text, record) {
-                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
-                }
-            },
-            {
-                title: '占用存储',
-                key: 'storeSize',
-                width: 90,
-                dataIndex: 'storeSize',
-                sorter: true
-            },
-            {
-                title: '生命周期',
-                key: 'lifeDay',
-                dataIndex: 'lifeDay',
                 render(text) {
-                    return text ? <span>{text}天</span> : ''
-                }
+                    return utils.formatDateTime(text)
+                },
             },
             {
                 title: '操作',
-                key: 'action',
+                key: 'id',
+                width: 100,
                 render(text, record) {
                     return <span>
-                        <Link to={`${ROUTER_BASE}/edit/${record.tableId}`}>编辑</Link>
-                        <span className="ant-divider"></span>
-                        <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
+                        <a onClick={() => ctx.showModal(record)}>申请授权</a>
                     </span>
                 }
             }
@@ -175,51 +198,69 @@ class SearchTable extends Component {
     }
 
     render() {
-        const { table, current } = this.state;
-        const { totalCount, currentPage, listData } = tableList;
+        const { table, queryParams, visible, editRecord } = this.state;
+        const { projects } = this.props;
 
-        const marginTop10 = { marginTop: '8px' }
+        const marginTop10 = { marginTop: '8px' };
+
+        const projectOptions = projects.map(proj => <Option
+            title={proj.projectAlias}
+            key={proj.id}
+            name={proj.projectAlias}
+            value={`${proj.id}`}
+        >
+            {proj.projectAlias}
+        </Option>)
 
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
-                <FormItem>
-                    <span style={{ width: '200px', display: 'inline-block'}}>
+                <FormItem label="类目">
+                    <span style={{ width: 120, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={this.state.catalogue}
+                            value={queryParams.catalogue}
                             placeholder="按数据类目查询"
-                            onChange={this.catalogueChange}
+                            onChange={(value) => this.changeParams('catalogueId', value)}
                             treeData={this.state.dataCatalogue}
                         />
                     </span>
+                </FormItem>
+                <FormItem label="授权状态">
+                    <Select
+                        allowClear
+                        style={{ width: 120 }}
+                        placeholder="选择指标类型"
+                        onChange={(value) => this.changeParams('permissionStatus', value)}
+                    >
+                        <Option value="1">全部表</Option>
+                        <Option value="2">授权成功</Option>
+                        <Option value="3">需要授权</Option>
+                    </Select>
+                </FormItem>
+                <FormItem label="项目">
+                    <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="name"
+                        style={{ width: 120 }}
+                        placeholder="选择项目"
+                        onChange={(value) => this.changeParams('projectId', value)}
+                    >
+                        {projectOptions}
+                    </Select>
                 </FormItem>
                 <FormItem>
                     <Input.Search
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
-                        onChange={ this.onTableNameChange }
-                        onSearch={ this.search }
-                        ref={ el => this.searchInput = el }
+                        onChange={this.onTableNameChange}
+                        onSearch={this.search}
                     />
                 </FormItem>
             </Form>
-        )
-
-        const extra = (
-            <div style={marginTop10}>
-                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`${ROUTER_BASE}/create`}>新建表</Link>
-                </Button>
-                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`/data-model/table/design`}>根据模型建表</Link>
-                </Button>
-                <Button type="primary" style={{ float: 'right' }}
-                    onClick={ this.showModal.bind(this) }
-                >DDL建表</Button>
-            </div>
         )
 
         const pagination = {
@@ -228,20 +269,25 @@ class SearchTable extends Component {
         };
 
         return <div className="m-tablelist">
-            <h1 className="box-title"> 表管理 </h1>
-            <div className="box-2 m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                <Card noHovering bordered={false} title={title} extra={extra}>
+            <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
+                <Card noHovering bordered={false} title={title}>
                     <div style={{ marginTop: '1px' }}>
                         <Table
                             rowKey="id"
                             className="m-table"
-                            columns={ this.initialColumns() }
-                            dataSource={ table.data }
-                            pagination={ pagination }
-                            onChange={ this.handleTableChange.bind(this) }
+                            columns={this.initialColumns()}
+                            dataSource={table.data}
+                            pagination={pagination}
+                            onChange={this.handleTableChange.bind(this)}
                         />
                     </div>
                 </Card>
+                <TableApplyModal 
+                    visible={visible}
+                    table={editRecord}
+                    onOk={this.apply}
+                    onCancel={() => {this.setState({visible: false, editRecord: {} })}}
+                />
             </div>
         </div>
     }
