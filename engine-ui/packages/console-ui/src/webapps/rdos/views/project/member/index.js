@@ -71,7 +71,7 @@ class ProjectMember extends Component {
             projectId: projectId || project.id,
             pageSize: 10,
             currentPage: current || 1,
-            userName:name||undefined
+            name:name||undefined
         };
         this.loadUsers(params)
     }
