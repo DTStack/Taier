@@ -247,7 +247,7 @@ class TaskForm extends React.Component {
                         initialValue: isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid
                     })(
                         <FolderPicker
-                            type={MENU_TYPE.TASK}
+                            type={MENU_TYPE.TASK_DEV}
                             ispicker
                             treeData={this.props.treeData}
                             onChange={this.handleSelectTreeChange.bind(this)}
