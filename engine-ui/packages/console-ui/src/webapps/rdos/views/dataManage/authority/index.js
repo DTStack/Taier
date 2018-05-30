@@ -13,12 +13,30 @@ import { isEmpty } from 'lodash';
 import utils from 'utils';
 
 import ajax from '../../../api';
+import ApprovalModal from './approvalModal';
 
 const FormItem = Form.Item
 const Option = Select.Option
 const TabPane = Tabs.TabPane
 
 const ROUTER_BASE = '/data-manage/table';
+
+const applyStatus = (status) => {
+    if (status === 0) {
+        return <span>待审批</span>
+    } else if (status === 1) {
+        return <span>通过</span>
+    }
+}
+
+const revokeStatus = (status) => {
+    if (status === 0) {
+        return <span>否</span>
+    } else if (status === 1) {
+        return <span>已回收</span>
+    }
+}
+
 
 @connect(state => {
     return {
@@ -34,9 +52,10 @@ class AuthMana extends Component {
             editRecord: {},
             checkAll: false,
             selectedRowKeys: [],
+            agreeApply: undefined,
 
             queryParams: {
-                listType: 0,
+                listType: "1",
                 currentPage: 1,
                 pageSize: 10,
                 catalogueId: undefined,
@@ -76,7 +95,15 @@ class AuthMana extends Component {
     approveApply = (applyData) => {
         ajax.approveApply(params).then(res => {
             if (res.code === 1) {
-                message.success('取消成功！')
+                message.success('操作成功！')
+            }
+        })
+    }
+
+    revoke = (applyData) => {
+        ajax.revoke(params).then(res => {
+            if (res.code === 1) {
+                message.success('操作成功！')
             }
         })
     }
@@ -143,27 +170,55 @@ class AuthMana extends Component {
     }
 
     tableFooter = (currentPageData) => {
-        return (
-            <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 30px',display:"inline-block" }}>
-                    <Checkbox
-                        checked={ this.state.checkAll }
-                        onChange={this.onCheckAllChange}
-                    >
-                    </Checkbox>
-                </div>
-                <div style={{display:"inline-block", marginLeft: '15px'}}>
-                    <Button type="primary" size="small" onClick={this.approveApply}>批量通过</Button>&nbsp;
-                    <Button type="primary" size="small" onClick={this.approveApply}>批量驳回</Button>&nbsp;
-                </div>
-            </div>
-        )
+        const { queryParams } = this.state;
+
+        let operation = '';
+        switch (queryParams.listType) {
+            case '1': { // 待审批
+                return (
+                    <div className="ant-table-row  ant-table-row-level-0">
+                        <div style={{ padding: '15px 10px 10px 30px', display:"inline-block" }}>
+                            <Checkbox
+                                checked={ this.state.checkAll }
+                                onChange={ this.onCheckAllChange }
+                            >
+                            </Checkbox>
+                        </div>
+                        <div style={{display:"inline-block", marginLeft: '15px'}}>
+                            <Button type="primary" size="small" onClick={this.approveApply}>批量通过</Button>&nbsp;
+                            <Button type="primary" size="small" onClick={this.approveApply}>批量驳回</Button>&nbsp;
+                        </div>
+                    </div>
+                )
+            }
+            case '4': { // 权限回收
+                return (
+                    <div className="ant-table-row  ant-table-row-level-0">
+                        <div style={{ padding: '15px 10px 10px 30px', display:"inline-block" }}>
+                            <Checkbox
+                                checked={ this.state.checkAll }
+                                onChange={ this.onCheckAllChange }
+                            >
+                            </Checkbox>
+                        </div>
+                        <div style={{display:"inline-block", marginLeft: '15px'}}>
+                            <Button type="primary" size="small" onClick={this.approveApply}>批量回收</Button>&nbsp;
+                        </div>
+                    </div>
+                )
+            }
+            case '2': // 申请记录
+            case '3':  // 已处理
+            default:
+                return null;
+        }
+
     }
 
     initialColumns = () => {
         const ctx = this;
-        const { queryParams } = this.state
-        return [
+        const { queryParams } = this.state;
+        const baseCols = [
             {
                 title: '表名',
                 width: 120,
@@ -206,48 +261,197 @@ class AuthMana extends Component {
                 }
             },
             {
-                title: '申请时间',
-                key: 'applyTime',
-                dataIndex: 'applyTime',
-                render(text, record) {
-                    return utils.formatDateTime(text)
-                }
+                title: '申请人',
+                key: 'applyPerson',
+                dataIndex: 'applyPerson'
             },
-            {
-                title: '申请原因',
-                key: 'applyReason',
-                dataIndex: 'applyReason',
-            },
-            {
-                title: '操作',
-                key: 'id',
-                width: 120,
-                render(text, record) {
-                    switch (queryParams.listType) {
-                        case '1':
-                        case '2':
-                        case '3':
-                            return <span>
-                                <Link to={`${ROUTER_BASE}/edit/${record.tableId}`}>通过</Link>
-                                <span className="ant-divider"></span>
-                                <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>驳回</Link>
-                            </span>
-                        case '5':
-                        return <span>
-                                <a onClick={() => this.cancleMark(record)}>取消收藏</a>
-                            </span>
-                        case '4':
-                        default: 
-                            return '--';
-                    }
-                }
-            }
         ];
+
+        switch (queryParams.listType) {
+            case '1': { // 待审批
+                return baseCols.concat(
+                    [
+                        {
+                            title: '申请时间',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
+                            render(text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '申请原因',
+                            key: 'applyReason',
+                            dataIndex: 'applyReason',
+                        },
+                        {
+                            title: '操作',
+                            key: 'id',
+                            width: 120,
+                            render(text, record) {
+                                return <span>
+                                    <a onClick={() => {
+                                        ctx.setState({
+                                            visible: true,
+                                            agreeApply: true,
+                                            editRecord: record,
+                                        })
+                                    }}>通过</a>
+                                    <span className="ant-divider"></span>
+                                    <a onClick={() => {
+                                        ctx.setState({
+                                            visible: true,
+                                            agreeApply: false,
+                                            editRecord: record,
+                                        })
+                                    }}>驳回</a>
+                                </span>
+                            }
+                        }
+                    ]
+                )
+            }
+
+            case '2': {  // 申请记录 
+                return baseCols.concat(
+                    [
+                        {
+                            title: '申请时间',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
+                            render(text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '有效时间',
+                            key: 'day',
+                            dataIndex: 'day',
+                        },
+                        {
+                            title: '审批状态',
+                            key: 'applyStatus',
+                            dataIndex: 'applyStatus',
+                            render(status) {
+                                return applyStatus(status);
+                            }
+                        },
+                        {
+                            title: '收回状态',
+                            key: 'isRevoke',
+                            dataIndex: 'isRevoke',
+                            render(status) {
+                                return revokeStatus(status);
+                            }
+                        },
+                        {
+                            title: '申请详情',
+                            key: 'applyReason',
+                            dataIndex: 'applyReason',
+                        },
+                        {
+                            title: '操作',
+                            key: 'id',
+                            width: 120,
+                            render(text, record) {
+                                return <span>
+                                    <a>撤销</a>
+                                </span>
+                            }
+                        }
+                    ]
+                )
+            }
+            case '3': {  // 已处理 
+                return baseCols.concat(
+                    [
+                        {
+                            title: '申请时间',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
+                            render(text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '有效时间',
+                            key: 'day',
+                            dataIndex: 'day',
+                        },
+                        {
+                            title: '审批状态',
+                            key: 'applyStatus',
+                            dataIndex: 'applyStatus',
+                            render(status) {
+                                return applyStatus(status);
+                            }
+                        },
+                        {
+                            title: '收回状态',
+                            key: 'isRevoke',
+                            dataIndex: 'isRevoke',
+                            render(status) {
+                                return revokeStatus(status);
+                            }
+                        },
+                        {
+                            title: '审批人',
+                            key: 'approvalPerson',
+                            dataIndex: 'approvalPerson',
+                        },
+                        {
+                            title: '审批意见',
+                            key: 'reply',
+                            dataIndex: 'reply',
+                        }
+                    ]
+                )
+            }
+            case '4': {  // 权限回收 
+                return baseCols.concat(
+                    [
+                        {
+                            title: '审批结果',
+                            key: 'applyStatus',
+                            dataIndex: 'applyStatus',
+                            render(status) {
+                                return applyStatus(status);
+                            }
+                        },
+                        {
+                            title: '审批意见',
+                            key: 'reply',
+                            dataIndex: 'reply',
+                        },
+                        {
+                            title: '处理时间',
+                            key: 'handTime',
+                            dataIndex: 'handTime',
+                            render(text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '操作',
+                            key: 'id',
+                            width: 120,
+                            render(text, record) {
+                                return <span>
+                                    <a onClick={ctx.revoke}>收回</a>
+                                </span>
+                            }
+                        }
+                    ]
+                )
+            }
+            default: 
+                return [];
+        }
     }
 
-
     renderPane = () => {
-        const { table, queryParams, editRecord, selectedRowKeys } = this.state;
+        const { table, selectedRowKeys, } = this.state;
+
         const { projects } = this.props;
 
         const projectOptions = projects.map(proj => <Option
@@ -293,9 +497,6 @@ class AuthMana extends Component {
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange,
-            // getCheckboxProps: record => ({
-            //     disabled: ,
-            // })
         };
 
         return <div className="m-tablelist">
@@ -303,7 +504,7 @@ class AuthMana extends Component {
                 <Card noHovering bordered={false} title={title}>
                     <div style={{ marginTop: '1px' }}>
                         <Table
-                            rowKey="applyId"
+                            rowKey="id"
                             className="m-table"
                             rowSelection={rowSelection}
                             columns={this.initialColumns()}
@@ -319,8 +520,7 @@ class AuthMana extends Component {
     }
 
     render() {
-
-
+        const { editRecord, visible, agreeApply, } = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs 
@@ -330,6 +530,19 @@ class AuthMana extends Component {
                 >
                     <TabPane tab="待我审批" key="1">
                         {this.renderPane()}
+                        <ApprovalModal 
+                            visible={visible}
+                            agreeApply={agreeApply}
+                            table={editRecord}
+                            onOk={this.approveApply}
+                            onCancel={() => {
+                                this.setState({
+                                    visible: false,
+                                    agreeApply: undefined,
+                                    editRecord: '',
+                                })
+                            }}
+                        />
                     </TabPane>
                     <TabPane tab="申请记录" key="2">
                         {this.renderPane()}
