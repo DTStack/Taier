@@ -131,11 +131,11 @@ export default class StepOne extends Component {
      * 
      */
     checkMonitor() {
-        const { editParams } = this.props;
+        const { editParams, havePart } = this.props;
         const params = {
             tableName: editParams.tableName,
             dataSourceId: editParams.dataSourceId,
-            partition: editParams.partition,
+            partition: havePart?editParams.partition:undefined,
         }
 
         this.setState({
@@ -152,8 +152,16 @@ export default class StepOne extends Component {
                     if (res && res.data) {
                         return res.data;
                     } else {
+                        if(res.code!=1){
+                            throw new Error(res.message)
+                        }
                         return null;
                     }
+                }
+            )
+            .catch(
+                (e)=>{
+                    console.log(e)
                 }
             )
 
@@ -451,7 +459,6 @@ export default class StepOne extends Component {
                                     </Select>
                                 )
                             }
-                            <Link to="/dq/dataSource">添加数据源</Link>
                         </FormItem>
 
                         <FormItem {...formItemLayout} label="选择数据表">
