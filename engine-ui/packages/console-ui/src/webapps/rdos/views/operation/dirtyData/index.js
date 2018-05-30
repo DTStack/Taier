@@ -14,7 +14,6 @@ import Resize from 'widgets/resize'
 
 import Api from '../../../api'
 import { lineAreaChartOptions } from '../../../comm/const'
-import taskOperation from '../../operation/offline/taskOperation'
 
 import {
     workbenchActions
