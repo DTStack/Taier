@@ -27,8 +27,7 @@ class AlarmForm extends Component {
 
     componentWillReceiveProps(nextProps) {
         const { alarmInfo , visible } = nextProps;
-        if (visible && !isEmpty(alarmInfo)&&alarmInfo!=this.props.alarmInfo) {
-            
+        if (visible&&this.props.visible!=visible) {
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
                 senderTypes:alarmInfo.senderTypes,
