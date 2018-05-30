@@ -25,13 +25,10 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private AtomicBoolean run = new AtomicBoolean(true);
 
-    private ClusterClient client;
-
     private FlinkClient flinkClient;
 
-    public YarnAppStatusMonitor(ClusterClient client, FlinkClient flinkClient){
+    public YarnAppStatusMonitor(FlinkClient flinkClient){
         this.flinkClient = flinkClient;
-        this.client = client;
     }
 
     @Override
@@ -41,6 +38,7 @@ public class YarnAppStatusMonitor implements Runnable{
         while (run.get()){
             if(flinkClient.isClientOn()){
                 try{
+                    ClusterClient client = flinkClient.getClient();
                     Field pollingRunnerField = ((YarnClusterClient) client).getClass().getDeclaredField("pollingRunner");
                     pollingRunnerField.setAccessible(true);
                     Object pollingThread = pollingRunnerField.get(client);

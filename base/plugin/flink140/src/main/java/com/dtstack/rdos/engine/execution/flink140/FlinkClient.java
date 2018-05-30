@@ -143,7 +143,7 @@ public class FlinkClient extends AbsClient {
         initClient();
         if(flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
             //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(client, this));
+            yarnMonitorES.submit(new YarnAppStatusMonitor(this));
         }
     }
 
@@ -679,5 +679,9 @@ public class FlinkClient extends AbsClient {
 
     public boolean isClientOn(){
         return isClientOn.get();
+    }
+
+    public ClusterClient getClient() {
+        return client;
     }
 }
