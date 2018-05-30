@@ -264,7 +264,7 @@ export default class StepTwo extends Component {
         switch (type) {
             case 'columnName': {
                 if (record.isCustomizeSql) {
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
@@ -291,7 +291,7 @@ export default class StepTwo extends Component {
                     </FormItem>
                 } else {
                     getFieldDecorator('columnName', { initialValue: "" });
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
@@ -321,7 +321,7 @@ export default class StepTwo extends Component {
             }
 
             case 'functionId': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
@@ -348,7 +348,7 @@ export default class StepTwo extends Component {
             }
 
             case 'filter': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('filter', {
                             rules: [],
@@ -363,7 +363,7 @@ export default class StepTwo extends Component {
             }
 
             case 'verifyType': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
@@ -392,7 +392,7 @@ export default class StepTwo extends Component {
 
             case 'threshold': {
                 if (currentRule.operator === 'in') {
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('thresholdEnum', {
                                 rules: [{
@@ -410,8 +410,8 @@ export default class StepTwo extends Component {
                     </FormItem>
                 } else {
                     return (
-                        <div>
-                            <FormItem>
+                        <div className="cell-center-box">
+                            <FormItem className="cell-multiple-center">
                                 {
                                     getFieldDecorator('operator', {
                                         rules: [{
@@ -436,7 +436,7 @@ export default class StepTwo extends Component {
                                     )
                                 }
                             </FormItem>
-                            <FormItem>
+                            <FormItem className="cell-multiple-center">
                                 {
                                     getFieldDecorator('threshold', {
                                         rules: [{
