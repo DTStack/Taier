@@ -12,6 +12,19 @@ const CheckboxGroup = Checkbox.Group
 
 class AlarmForm extends Component {
 
+    state = {
+        senderTypes:[],
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { alarmInfo , visible } = nextProps;
+        if (visible && !isEmpty(alarmInfo)&&alarmInfo!=this.props.alarmInfo) {
+            this.setState({
+                senderTypes:alarmInfo.senderTypes,
+            })
+        }
+    }
+
     submit = (e) => {
         e.preventDefault()
         const ctx = this
@@ -36,12 +49,20 @@ class AlarmForm extends Component {
         onCancel()
     }
 
+    senderTypesChange(values){
+        this.setState({
+            senderTypes:values
+        });
+    }
+
     render() {
         const {
             form, title, projectUsers,
             visible, alarmInfo, taskList, user,
         } = this.props
         const { getFieldDecorator } = form
+
+        const { senderTypes } = this.state;
         
         const taskItems = taskList && taskList.length > 0 ?
         taskList.map((item) => {
@@ -59,6 +80,11 @@ class AlarmForm extends Component {
 
         const receivers = alarmInfo.receiveUsers ?
         alarmInfo.receiveUsers.map(item => item.userId) : []
+
+        let showDD=false;
+        if(senderTypes.indexOf(4)>-1){
+            showDD=true;
+        }
         return (
             <Modal
               title={title}
@@ -116,12 +142,26 @@ class AlarmForm extends Component {
                             }],
                             initialValue: alarmInfo.senderTypes || [1], // 1-邮件， 2-短信
                         })(
-                            <CheckboxGroup>
+                            <CheckboxGroup onChange={this.senderTypesChange.bind(this)}>
                                 <Checkbox value={1}>邮件</Checkbox>
                                 <Checkbox value={2}>短信</Checkbox>
+                                <Checkbox value={4}>钉钉</Checkbox>
                             </CheckboxGroup>
                         )}
                     </FormItem>
+                    {showDD&&<FormItem
+                      {...formItemLayout}
+                      label="webhook"
+                    >
+                        {getFieldDecorator('webhook', {
+                            rules: [{
+                                required: true, message: 'webhook不能为空',
+                            }],
+                            initialValue: alarmInfo.webhook || '', 
+                        })(
+                            <Input />,
+                        )}
+                    </FormItem>}
                     <FormItem
                       {...formItemLayout}
                       label="触发方式"
