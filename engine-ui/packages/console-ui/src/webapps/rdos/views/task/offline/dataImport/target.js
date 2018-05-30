@@ -345,6 +345,7 @@ export default class ImportTarget extends Component {
                     title={(
                         <span>建表语句<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_ide_placeholder}/></span>
                     )}
+                    maskClosable={false}
                     style={{ height: 424 }}
                     visible={this.state.visible}
                     onCancel={this.handleCancel}

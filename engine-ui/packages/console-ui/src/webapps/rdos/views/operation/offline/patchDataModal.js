@@ -212,6 +212,20 @@ class PatchData extends Component {
         return []
     }
 
+    expandChange(expandedKeys,expand){
+        if(!expand.expanded){
+            const key = expand.node.props.data.key;
+            expandedKeys=expandedKeys.filter(
+                (item)=>{
+                    return item.indexOf(key)!=0
+                }
+            )
+        }
+        this.setState({
+            expandedKeys:expandedKeys
+        })
+    }
+
     render() {
 
         const { visible, handCancel, task } = this.props;
@@ -270,11 +284,14 @@ class PatchData extends Component {
                         <Col span="12">任务类型</Col>
                     </Row>
                     <Tree
+                        autoExpandParent={false}
                         checkable
                         checkStrictly
+                        expandedKeys={this.state.expandedKeys}
                         onCheck={this.onCheck}
                         checkedKeys={this.state.checkedKeys}
                         loadData={this.asyncTree}
+                        onExpand={this.expandChange.bind(this)}
                     >
                         {treeNodes}
                     </Tree>
