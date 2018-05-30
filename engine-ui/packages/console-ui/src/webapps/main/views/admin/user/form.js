@@ -92,7 +92,7 @@ class UserRoleForm extends Component {
                         <Select
                             mode="multiple"
                             style={{ width: '100%' }}
-                            notFoundContent=""
+                            notFoundContent="当前用户不存在"
                             placeholder="请选择用户"
                             optionFilterProp="name"
                             onSearch={this.debounceSearch}
