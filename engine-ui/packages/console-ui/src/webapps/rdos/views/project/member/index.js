@@ -71,6 +71,7 @@ class ProjectMember extends Component {
             projectId: projectId || project.id,
             pageSize: 10,
             currentPage: current || 1,
+            userName:name||undefined
         };
         this.loadUsers(params)
     }
@@ -247,7 +248,7 @@ class ProjectMember extends Component {
         const title = (
             <div >
                 <Search
-                    placeholder="搜索姓名"
+                    placeholder="搜索账号"
                     style={{ width: 200 }}
                     onSearch={this.searchUser}
                 />&nbsp;&nbsp;
