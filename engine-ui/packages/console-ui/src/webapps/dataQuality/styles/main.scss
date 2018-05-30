@@ -105,3 +105,16 @@ table{
     position: relative;
     overflow-y: unset;
 }
+.ant-form-inline .ant-form-item-with-help.cell-center{
+    margin-bottom: 0px;
+    padding: 10px 0px;
+}
+.cell-center-box{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.ant-form-inline .ant-form-item-with-help.cell-multiple-center{
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
