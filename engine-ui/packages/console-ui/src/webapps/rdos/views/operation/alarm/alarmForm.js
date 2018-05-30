@@ -21,7 +21,7 @@ class AlarmForm extends Component {
         const { alarmInfo , visible } = nextProps;
         if (visible&&this.props.visible!=visible) {
             this.setState({
-                senderTypes:alarmInfo.senderTypes,
+                senderTypes:alarmInfo.senderTypes||[],
             })
         }
     }

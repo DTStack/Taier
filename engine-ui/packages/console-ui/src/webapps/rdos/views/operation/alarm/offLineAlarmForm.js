@@ -30,7 +30,7 @@ class AlarmForm extends Component {
         if (visible&&this.props.visible!=visible) {
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
-                senderTypes:alarmInfo.senderTypes,
+                senderTypes:alarmInfo.senderTypes||[],
             })
         }
     }
