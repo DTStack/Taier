@@ -58,6 +58,8 @@ import TableViewer from './views/dataManage/tableViewer';
 import TableEditor from './views/dataManage/tableEditor';
 import Log from './views/dataManage/log';
 import DataCatalogue from './views/dataManage/dataCatalogue';
+import AuthMana from './views/dataManage/authority';
+import SearchTable from './views/dataManage/search';
 
 // ======= 数据模型 =======
 import DataModelOverview from './views/dataModel/overview';
@@ -169,7 +171,9 @@ export default (
                 <Route path="log" component={Log} />
                 <Route path="log/:tableId/:tableName" component={Log}></Route>
                 <Route path="catalogue" component={DataCatalogue} />
-            
+                <Route path="auth" component={AuthMana} />
+                <Route path="search" component={SearchTable} />
+
             </Route>
             <Route path="/data-model" component={DataModelContainer}>
                 <IndexRoute component={DataModelOverview} />
