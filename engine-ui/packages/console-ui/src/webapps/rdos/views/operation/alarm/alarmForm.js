@@ -3,6 +3,7 @@ import {
     Form, Input,
     Select, Modal, Checkbox,
  } from 'antd'
+import { isEmpty } from "lodash";
 
 import { formItemLayout } from '../../../comm/const'
 
@@ -18,7 +19,7 @@ class AlarmForm extends Component {
 
     componentWillReceiveProps(nextProps) {
         const { alarmInfo , visible } = nextProps;
-        if (visible && !isEmpty(alarmInfo)&&alarmInfo!=this.props.alarmInfo) {
+        if (visible&&this.props.visible!=visible) {
             this.setState({
                 senderTypes:alarmInfo.senderTypes,
             })
