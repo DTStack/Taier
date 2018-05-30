@@ -91,13 +91,13 @@ class TaskForm extends React.Component {
         const syncTaskHelp = (
             <div>
                 功能释义：
-                <br/>
+                <br />
                 向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
-                <br/>
+                <br />
                 脚本模式：全能 高效，可深度调优，支持全部数据源
-                <br/>
+                <br />
                 <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">查看支持的数据源</a>
-            </div> 
+            </div>
         )
 
         const isMrTask = value === TASK_TYPE.MR
@@ -212,29 +212,29 @@ class TaskForm extends React.Component {
                 }
                 {
                     isSyncTast &&
-                        <FormItem
-                            {...formItemLayout}
-                            label="配置模式"
-                        >
-                            {getFieldDecorator('createModel', {
-                                rules: [{
-                                    required: true, message: '请选择配置模式',
-                                }],
-                                initialValue: this.isEditExist ? defaultData.createModel : DATA_SYNC_TYPE.GUIDE
-                            })(
-                                <RadioGroup
-                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
-                                >
-                                    <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-                                    <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+                    <FormItem
+                        {...formItemLayout}
+                        label="配置模式"
+                    >
+                        {getFieldDecorator('createModel', {
+                            rules: [{
+                                required: true, message: '请选择配置模式',
+                            }],
+                            initialValue: this.isEditExist ? defaultData.createModel : DATA_SYNC_TYPE.GUIDE
+                        })(
+                            <RadioGroup
+                                disabled={isCreateNormal ? false : !isCreateFromMenu}
+                            >
+                                <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+                                <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
 
-                                </RadioGroup>
-                                
-                            )}
-                            <Tooltip  placement="right" title={syncTaskHelp}>
-                                <Icon type="question-circle-o" />
-                            </Tooltip>
-                        </FormItem>
+                            </RadioGroup>
+
+                        )}
+                        <Tooltip placement="right" title={syncTaskHelp}>
+                            <Icon type="question-circle-o" />
+                        </Tooltip>
+                    </FormItem>
                 }
                 <FormItem
                     {...formItemLayout}
@@ -377,11 +377,18 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
 
-                this.closeModal();
-                addOfflineTask(values, isEditExist, defaultData);
-                setTimeout(() => {
-                    form.resetFields();
-                }, 500);
+
+                addOfflineTask(values, isEditExist, defaultData)
+                    .then(
+                        (isSuccess) => {
+                            if (isSuccess) {
+                                this.closeModal();
+                                setTimeout(() => {
+                                    form.resetFields();
+                                }, 500);
+                            }
+                        }
+                    );
             }
         })
     }
@@ -462,7 +469,7 @@ export default connect(state => {
              * @param {any} 修改前的数据
              */
             addOfflineTask: function (params, isEditExist, defaultData) {
-                ajax.addOfflineTask(params)
+                return ajax.addOfflineTask(params)
                     .then(res => {
                         if (res.code === 1) {
                             if (!isEditExist) {
@@ -492,6 +499,7 @@ export default connect(state => {
                                     }
                                 });
                             }
+                            return true;
                         }
                     });
             },
