@@ -759,7 +759,7 @@ export default class RuleEditPane extends Component {
 
         const filterRules=rules.filter(
             (item)=>{
-                return item.isSnapshot==0;
+                return item.isSnapshot==0||item.editStatus=="new";
             }
         )
 
