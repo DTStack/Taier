@@ -163,7 +163,7 @@ class PatchData extends Component {
         const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
-            if (!node.subTaskVOS || node.subTaskVOS.length === 0) {
+            
                  Api.getTaskChildren({
                     taskId: node.id,
                     level: 2,
@@ -177,7 +177,7 @@ class PatchData extends Component {
                         ctx.setState({ treeData: arr })
                     }
                 })
-            }
+            
             resolve();
         })
     }
