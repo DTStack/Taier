@@ -41,7 +41,7 @@ class PatchData extends Component {
 
     componentWillReceiveProps(nextProps) {
         const task = nextProps.task
-        if (nextProps.visible && task) {
+        if (this.props.visible!=nextProps.visible&&nextProps.visible && task) {
             this.loadTaskTree({
                 taskId: task.id,
                 level: 2,
