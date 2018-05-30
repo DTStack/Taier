@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
-    Pagination, Modal, message,
+    Pagination, Modal, message, Checkbox,
     Tag, Icon, Card, Select, Tabs
 } from 'antd';
 
@@ -32,6 +32,8 @@ class AuthMana extends Component {
         this.state = {
             table: [],
             editRecord: {},
+            checkAll: false,
+            selectedRowKeys: [],
 
             queryParams: {
                 listType: 0,
@@ -50,7 +52,6 @@ class AuthMana extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-
     }
 
     search = () => {
@@ -66,6 +67,14 @@ class AuthMana extends Component {
 
     cancleMark = (applyData) => {
         ajax.cancleMark(params).then(res => {
+            if (res.code === 1) {
+                message.success('取消成功！')
+            }
+        })
+    }
+
+    approveApply = (applyData) => {
+        ajax.approveApply(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
             }
@@ -114,6 +123,41 @@ class AuthMana extends Component {
             visible: true,
             editRecord,
         });
+    }
+
+    onSelectChange = (selectedRowKeys) => {
+        this.setState({ selectedRowKeys });
+    }
+
+    onCheckAllChange = (e) => {
+        let selectedRowKeys = []
+
+        if (e.target.checked) {
+            selectedRowKeys = this.state.table.data.map(item => item.id )
+        }
+
+        this.setState({
+            checkAll: e.target.checked,
+            selectedRowKeys
+        })
+    }
+
+    tableFooter = (currentPageData) => {
+        return (
+            <div className="ant-table-row  ant-table-row-level-0">
+                <div style={{ padding: '15px 10px 10px 30px',display:"inline-block" }}>
+                    <Checkbox
+                        checked={ this.state.checkAll }
+                        onChange={this.onCheckAllChange}
+                    >
+                    </Checkbox>
+                </div>
+                <div style={{display:"inline-block", marginLeft: '15px'}}>
+                    <Button type="primary" size="small" onClick={this.approveApply}>批量通过</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.approveApply}>批量驳回</Button>&nbsp;
+                </div>
+            </div>
+        )
     }
 
     initialColumns = () => {
@@ -203,7 +247,7 @@ class AuthMana extends Component {
 
 
     renderPane = () => {
-        const { table, queryParams, editRecord } = this.state;
+        const { table, queryParams, editRecord, selectedRowKeys } = this.state;
         const { projects } = this.props;
 
         const projectOptions = projects.map(proj => <Option
@@ -246,6 +290,14 @@ class AuthMana extends Component {
             defaultPageSize: 10,
         };
 
+        const rowSelection = {
+            selectedRowKeys,
+            onChange: this.onSelectChange,
+            // getCheckboxProps: record => ({
+            //     disabled: ,
+            // })
+        };
+
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>
@@ -253,10 +305,12 @@ class AuthMana extends Component {
                         <Table
                             rowKey="applyId"
                             className="m-table"
+                            rowSelection={rowSelection}
                             columns={this.initialColumns()}
                             dataSource={table.data}
                             pagination={pagination}
                             onChange={this.handleTableChange}
+                            footer={this.tableFooter}
                         />
                     </div>
                 </Card>
