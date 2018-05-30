@@ -25,7 +25,7 @@ export default class FieldCheck extends Component {
         params: {
             pageIndex: 1,
             pageSize: 10,
-            tableName: '',
+            columnName: '',
             ignore: 0, // 1 忽略，0 不忽略
             type: '2',
         },
@@ -78,7 +78,7 @@ export default class FieldCheck extends Component {
     onTableNameChange = (e) => {
         this.setState({
             params: Object.assign(this.state.params, {
-                tableName: e.target.value
+                columnName: e.target.value
             })
         })
     }

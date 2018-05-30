@@ -22,6 +22,7 @@ class AlarmForm extends Component {
         triggerTimeType: 0, // 触发时间类型
         runHour: '',
         runMin: '',
+        senderTypes:[],
     }
 
     componentWillReceiveProps(nextProps) {
@@ -30,6 +31,7 @@ class AlarmForm extends Component {
             
             this.setState({
                 myTrigger: alarmInfo.myTrigger || 0,
+                senderTypes:alarmInfo.senderTypes,
             })
         }
     }
@@ -51,10 +53,15 @@ class AlarmForm extends Component {
             const min = runMin ? runMin * 60 : 0
             alarm.uncompleteTime = hour + min
         }
+
+        if(alarm.senderTypes.indexOf(4)>-1){
+            fields.push("webhook")
+        }
+
         alarm.receiveUsers = alarm.receiveUsers.join(',')
         form.validateFields(fields, (err) => {
             if (!err) {
-                ctx.setState({ myTrigger: 0 })
+                ctx.setState({ myTrigger: 0,senderTypes:[] })
                 setTimeout(() => form.resetFields(), 300)
                 onOk(alarm)
             }
@@ -88,6 +95,12 @@ class AlarmForm extends Component {
         this.setState({ runMin: value })
     }
 
+    senderTypesChange(values){
+        this.setState({
+            senderTypes:values
+        });
+    }
+
     render() {
         const {
             form, title, projectUsers,
@@ -113,9 +126,13 @@ class AlarmForm extends Component {
         const receivers = alarmInfo.receiveUsers ?
         alarmInfo.receiveUsers.map(item => item.userId) : []
 
-        const { myTrigger, triggerTimeType } = this.state
+        const { myTrigger, triggerTimeType, senderTypes } = this.state;
         const display = myTrigger === 2 ? 'block' : 'none'
 
+        let showDD=false;
+        if(senderTypes.indexOf(4)>-1){
+            showDD=true;
+        }
         console.log('myTrigger:', myTrigger)
         
         return (
@@ -173,14 +190,28 @@ class AlarmForm extends Component {
                             rules: [{
                                 required: true, message: '请您选择告警通知的方式！',
                             }],
-                            initialValue: alarmInfo.senderTypes || [1], // 1：邮件、2：短信
+                            initialValue: alarmInfo.senderTypes || [1], // 1：邮件、2：短信、3：钉钉
                         })(
-                            <CheckboxGroup>
+                            <CheckboxGroup onChange={this.senderTypesChange.bind(this)}>
                                 <Checkbox value={1}>邮件</Checkbox>
                                 <Checkbox value={2}>短信</Checkbox>
+                                <Checkbox value={4}>钉钉</Checkbox>
                             </CheckboxGroup>,
                         )}
                     </FormItem>
+                    {showDD&&<FormItem
+                      {...formItemLayout}
+                      label="webhook"
+                    >
+                        {getFieldDecorator('webhook', {
+                            rules: [{
+                                required: true, message: 'webhook不能为空',
+                            }],
+                            initialValue: alarmInfo.webhook || '', 
+                        })(
+                            <Input />,
+                        )}
+                    </FormItem>}
                     <FormItem
                       {...formItemLayout}
                       label="触发方式"
