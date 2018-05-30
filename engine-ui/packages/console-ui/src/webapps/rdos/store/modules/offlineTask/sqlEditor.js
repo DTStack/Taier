@@ -1,12 +1,13 @@
 import { combineReducers } from 'redux';
 import { cloneDeep } from 'lodash';
+import moment from "moment";
 import { editorAction } from './actionType'
 
 // Actions
 export function output(tab, log) {
     return {
         type: editorAction.APPEND_CONSOLE_LOG,
-        data: log,
+        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
         key: tab,
     }
 }
@@ -14,7 +15,7 @@ export function output(tab, log) {
 export function setOutput(tab, log) {
     return {
         type: editorAction.SET_CONSOLE_LOG,
-        data: log,
+        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
         key: tab,
     }
 }
@@ -89,7 +90,7 @@ const console = (state = {}, action) => {
     case editorAction.APPEND_CONSOLE_LOG: {// 追加日志
         const { key, data } = action
         const newLog = cloneDeep(state)
-        newLog[key].log = newLog[key] ? `${newLog[key].log} \n ${data}` : ` ${data}`
+        newLog[key].log = newLog[key] ? `${newLog[key].log} \n${data}` : `${data}`
         return newLog
     }
     case editorAction.SET_CONSOLE_LOG: {
