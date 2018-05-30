@@ -50,7 +50,8 @@ class KeyForm extends React.Component{
                         {getFieldDecorator('index', {
                             rules: [{
                                 required: true,
-                                type: 'integer'
+                                type: 'integer',
+                                message: '请按要求填写索引值！',
                             }],
                             initialValue: (editField && editField.index) || ''
                         })(
