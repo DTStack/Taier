@@ -2,9 +2,12 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.yarn.YarnClusterClient;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -38,7 +41,18 @@ public class YarnAppStatusMonitor implements Runnable{
         while (run.get()){
             if(flinkClient.isClientOn()){
                 try{
-                    ((YarnClusterClient) client).getJobManagerAddress();
+                    Field pollingRunnerField = ((YarnClusterClient) client).getClass().getDeclaredField("pollingRunner");
+                    pollingRunnerField.setAccessible(true);
+                    Object pollingThread = pollingRunnerField.get(client);
+                    Field reportField = pollingThread.getClass().getDeclaredField("lastReport");
+                    reportField.setAccessible(true);
+                    ApplicationReport lastReport = (ApplicationReport) reportField.get(pollingThread);
+                    if(!YarnApplicationState.RUNNING.equals(lastReport.getYarnApplicationState())){
+                        LOG.error("-------Flink session is down----");
+                        //限制任务提交---直到恢复
+                        flinkClient.setClientOn(false);
+                    }
+
                 }catch (Exception e){
                     LOG.error("-------Flink session is down----");
                     //限制任务提交---直到恢复
