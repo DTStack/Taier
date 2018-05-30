@@ -375,12 +375,12 @@ class OfflineTaskList extends Component {
             key: 'businessDate'
         }, {
             width: 120,
-            title: '定时时间',
+            title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime'
         }, {
             width: 120,
-            title: '计划时间',
+            title: '开始时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
         }, {
