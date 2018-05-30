@@ -187,9 +187,10 @@ export default class ImportLocalData extends Component {
     }
 
     changeStatus = (items) => {
-        const { sourceFile } = this.state
+        const { sourceFile, file } = this.state
         this.setState(items, () => {
-            this.parseFile(sourceFile)
+            // this.parseFile(sourceFile)
+            this.readFile(file)
         })
     }
 
