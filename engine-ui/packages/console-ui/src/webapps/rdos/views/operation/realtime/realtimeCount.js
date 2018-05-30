@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Link ,hashHistory} from 'react-router'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import { isEmpty } from "lodash"
 
 import {
     Card, Button, Row, Col
@@ -64,7 +65,7 @@ class RealtimeCount extends Component {
         hashHistory.push({
             pathname:"/operation/realtime",
             query:{
-                status:status||undefined
+                status:(status||status==0)?status:undefined
             }
         })
     }

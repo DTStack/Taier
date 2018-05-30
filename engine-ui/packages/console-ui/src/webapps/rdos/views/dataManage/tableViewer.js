@@ -284,6 +284,7 @@ export default class TableViewer extends React.Component{
                 title="建表语句"
                 width="750"
                 visible={this.state.visible}
+                maskClosable={false}
                 closable
                 onCancel={this.handleCancel.bind(this)}
                 footer={[
