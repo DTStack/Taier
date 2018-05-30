@@ -421,7 +421,7 @@ export default class StepTwo extends Component {
                                         initialValue: record.operator
                                     })(
                                         <Select
-                                            style={{ width: 70 }}
+                                            style={{ width: 80 }}
                                             onChange={this.changeRuleParams.bind(this, 'operator')}>
                                             {
                                                 operatorMap.map((item) => {
@@ -446,7 +446,7 @@ export default class StepTwo extends Component {
                                         initialValue: record.threshold
                                     })(
                                         <InputNumber
-                                            style={{ width: 70, marginRight: 10 }}
+                                            style={{ width: 80, marginRight: 10 }}
                                             onChange={this.changeRuleParams.bind(this, 'threshold')}
                                         />
                                     )
