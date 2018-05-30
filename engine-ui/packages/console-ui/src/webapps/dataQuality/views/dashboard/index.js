@@ -68,7 +68,7 @@ export default class DashBoard extends Component {
 
     jumpToTaskQuery(date){
         const endTime=new moment();
-        const startTime=moment(moment(endTime).subtract(date,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
+        const startTime=moment(moment(endTime).subtract(date-1,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
 
         hashHistory.push({
             pathname:"/dq/taskQuery",
