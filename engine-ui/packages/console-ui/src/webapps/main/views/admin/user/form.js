@@ -91,9 +91,11 @@ class UserRoleForm extends Component {
                     })(
                         <Select
                             mode="multiple"
+                            showSearch
+                            showArrow={true}
                             style={{ width: '100%' }}
                             notFoundContent="当前用户不存在"
-                            placeholder="请选择用户"
+                            placeholder="请搜索并选择用户"
                             optionFilterProp="name"
                             onSearch={this.debounceSearch}
                         >
