@@ -86,18 +86,14 @@ class AdminUser extends Component {
         const ctx = this
         this.setState({ loading: true })
         Api.queryUser(app, params).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ users: res.data, loading: false })
-            }
+            ctx.setState({ users: res.data, loading: false })
         })
     }
 
     loadRoles = (app, params) => {
         const ctx = this;
         Api.queryRole(app, params).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ roles: res.data && res.data.data })
-            }
+            ctx.setState({ roles: res.data && res.data.data })
         })
     }
 
