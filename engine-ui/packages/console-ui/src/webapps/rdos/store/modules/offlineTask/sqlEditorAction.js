@@ -27,9 +27,9 @@ function getUniqueKey(id) {
     return `${id}_${moment().valueOf()}`
 }
 
-function getDataOver(dispatch, currentTab, res) {
+function getDataOver(dispatch, currentTab, res, jobId) {
     if(res.data.result){
-        dispatch(outputRes(currentTab, res.data.result))
+        dispatch(outputRes(currentTab, res.data.result,jobId))
     }
     dispatch(output(currentTab, '执行成功!'))
 }
@@ -47,7 +47,7 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                     switch (EXCHANGE_STATUS[res.data.status]) {
                         case "success": {
                             //成功
-                            getDataOver(dispatch, currentTab, res)
+                            getDataOver(dispatch, currentTab, res, jobId)
                             resolve(true);
                             return;
                         }

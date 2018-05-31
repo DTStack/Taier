@@ -162,9 +162,10 @@ class RestartModal extends Component {
                 const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
 
                 const content = <Row>
-                    <Col span="8" className="ellipsis" title={name}>{name}</Col>
-                    <Col span="8"><TaskStatus value={status} /></Col>
-                    <Col span="8"><TaskType value={taskType} /></Col>
+                    <Col span="6" className="ellipsis" title={name}>{name}</Col>
+                    <Col span="8">{item.cycTime}</Col>
+                    <Col span="4"><TaskStatus value={status} /></Col>
+                    <Col span="6"><TaskType value={taskType} /></Col>
                 </Row>
 
                 if (item.children) {
@@ -211,8 +212,9 @@ class RestartModal extends Component {
                 <Row className="section patch-data">
                     <Row className="patch-header">
                         <Col span="8">任务名称</Col>
-                        <Col span="8">任务状态</Col>
-                        <Col span="8">任务类型</Col>
+                        <Col span="6">执行时间</Col>
+                        <Col span="4">任务状态</Col>
+                        <Col span="6">任务类型</Col>
                     </Row>
                     <Tree
                         checkable

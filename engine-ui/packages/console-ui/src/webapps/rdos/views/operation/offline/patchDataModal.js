@@ -150,6 +150,7 @@ class PatchData extends Component {
         this.setState({
             selected: [],
         })
+        this.props.form.resetFields()
         this.props.handCancel()
     }
 

@@ -64,6 +64,7 @@ export default {
     STOP_FILL_DATA_JOBS: `${RDOS_BASE_URL}/batch/batchJob/stopFillDataJobs`, // 停止补数据任务
     GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/batch/batchTask/getJsonTemplate`,//获取数据同步脚本模式的模版
     GET_RESTART_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRestartChildJob`, // 获取restart job列表
+    DOWNLOAD_SQL_RESULT:`${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`,//下载运行结果
     
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATELOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计

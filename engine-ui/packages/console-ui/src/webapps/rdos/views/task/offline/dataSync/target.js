@@ -20,6 +20,7 @@ import {
 import HelpDoc from '../../../helpDoc';
 
 import { matchTaskParams } from '../../../../comm';
+import { DatabaseType } from '../../../../components/status';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -186,13 +187,17 @@ class TargetForm extends React.Component {
                         showSearch
                         onChange={ this.changeSource.bind(this) }
                         optionFilterProp="name"
+                        disabled={ !isCurrentTabNew }
                     >
                         {dataSourceList.map(src => {
                             return <Option key={ src.id } 
-                                disabled={ !isCurrentTabNew || src.type === DATA_SOURCE.FTP }
-                                name={src.dataName}
-                                value={ `${src.id}` }>
-                                { src.dataName }( { dataSourceTypes[src.type] } )
+                                name={ src.dataName }
+                                value={ `${src.id}` }
+                                disabled={
+                                    src.type === DATA_SOURCE.ES
+                                }
+                            >
+                                { src.dataName }( <DatabaseType value={src.type} /> )
                             </Option>
                         })}
                     </Select>
@@ -241,7 +246,7 @@ class TargetForm extends React.Component {
                                 return <Option 
                                     key={ `rdb-target-${table}` } 
                                     value={ table }>
-                              main/consts      { table }
+                                    { table }
                                 </Option>
                             })}
                         </Select>
@@ -325,7 +330,10 @@ class TargetForm extends React.Component {
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
-                                    return <Option key={`rdb-target-${table}`} value={table}>
+                                    return <Option 
+                                            key={`rdb-target-${table}`} 
+                                            value={table}
+                                        >
                                         {table}
                                     </Option>
                                 })}

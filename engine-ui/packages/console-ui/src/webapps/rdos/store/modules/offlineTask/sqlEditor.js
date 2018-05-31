@@ -20,10 +20,10 @@ export function setOutput(tab, log) {
     }
 }
 
-export function outputRes(tab, item) {
+export function outputRes(tab, item, jobId) {
     return {
         type: editorAction.UPDATE_RESULTS,
-        data: item,
+        data: {jobId:jobId,data:item},
         key: tab,
     }
 }
@@ -102,6 +102,7 @@ const console = (state = {}, action) => {
     }
     case editorAction.UPDATE_RESULTS: {// 更新结果
         const updatedKey = action.key
+        const jobId = action.jobId;
         let updated = cloneDeep(state);
         const update_arr = [...updated[updatedKey].results]
         if (updated[updatedKey] && action.data) {
@@ -111,6 +112,7 @@ const console = (state = {}, action) => {
         } else {
             updated[updatedKey].showRes = false
         }
+        
         return updated;
     }
     case editorAction.DELETE_RESULT: {// 删除结果
