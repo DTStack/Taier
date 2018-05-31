@@ -27,9 +27,10 @@ function getUniqueKey(id) {
     return `${id}_${moment().valueOf()}`
 }
 
-function getDataOver(dispatch, currentTab, res, jobId) {
-    
-    dispatch(outputRes(currentTab, res.data.result,jobId))
+function getDataOver(dispatch, currentTab, res) {
+    if(res.data.result){
+        dispatch(outputRes(currentTab, res.data.result))
+    }
     dispatch(output(currentTab, '执行成功!'))
 }
 
