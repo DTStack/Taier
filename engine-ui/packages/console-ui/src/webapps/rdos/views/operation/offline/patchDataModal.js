@@ -41,7 +41,7 @@ class PatchData extends Component {
 
     componentWillReceiveProps(nextProps) {
         const task = nextProps.task
-        if (nextProps.visible && task) {
+        if (this.props.visible!=nextProps.visible&&nextProps.visible && task) {
             this.loadTaskTree({
                 taskId: task.id,
                 level: 2,
@@ -144,6 +144,7 @@ class PatchData extends Component {
         this.setState({
             selected: [],
         })
+        this.props.form.resetFields()
         this.props.handCancel()
     }
 
@@ -163,7 +164,7 @@ class PatchData extends Component {
         const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
-            if (!node.subTaskVOS || node.subTaskVOS.length === 0) {
+            
                  Api.getTaskChildren({
                     taskId: node.id,
                     level: 2,
@@ -177,7 +178,7 @@ class PatchData extends Component {
                         ctx.setState({ treeData: arr })
                     }
                 })
-            }
+            
             resolve();
         })
     }
@@ -212,11 +213,27 @@ class PatchData extends Component {
         return []
     }
 
+    expandChange(expandedKeys,expand){
+        if(!expand.expanded){
+            const key = expand.node.props.data.key;
+            expandedKeys=expandedKeys.filter(
+                (item)=>{
+                    return item.indexOf(key)!=0
+                }
+            )
+        }
+        this.setState({
+            expandedKeys:expandedKeys
+        })
+    }
+
     render() {
-        const { visible, handCancel, task } = this.props
+
+        const { visible, handCancel, task } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const { treeData } = this.state
-        const treeNodes = this.getTreeNodes(treeData)
+        const { treeData } = this.state;
+        const treeNodes = this.getTreeNodes(treeData);
+
         return (
             <Modal
               title="补数据"
@@ -268,11 +285,14 @@ class PatchData extends Component {
                         <Col span="12">任务类型</Col>
                     </Row>
                     <Tree
+                        autoExpandParent={false}
                         checkable
                         checkStrictly
+                        expandedKeys={this.state.expandedKeys}
                         onCheck={this.onCheck}
                         checkedKeys={this.state.checkedKeys}
                         loadData={this.asyncTree}
+                        onExpand={this.expandChange.bind(this)}
                     >
                         {treeNodes}
                     </Tree>

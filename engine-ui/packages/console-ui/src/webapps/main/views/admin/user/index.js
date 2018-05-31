@@ -1,5 +1,7 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { assign } from 'lodash';
+import { connect } from 'react-redux';
 import {
     Select, Table, Card,
     Button, Tabs, Modal,
@@ -20,6 +22,11 @@ import EditMemberRoleForm from './editRole'
 const Option = Select.Option
 const TabPane = Tabs.TabPane
 
+@connect(state => {
+    return {
+        user: state.user,
+    }
+})
 class AdminUser extends Component {
 
     state = {
@@ -49,7 +56,9 @@ class AdminUser extends Component {
             const defaultApp = apps.find(app => app.default);
             const appKey = initialApp || defaultApp.id;
 
-            this.setState({ active: appKey }, this.loadData)
+            this.setState({ active: appKey }, () => {
+                this.loadData();
+            })
         }
     }
 
@@ -60,14 +69,16 @@ class AdminUser extends Component {
             currentPage: currentPage,
         }
         if (!selectedProject && hasProject(active)) {
-            this.getProjects(active)
+            this.getProjects(active);
         } else if (!selectedProject && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, params);
         } else {
-            params.projectId = selectedProject
+            params.projectId = selectedProject;
             this.loadUsers(active, params);
-            this.loadRoles(active, params);
+            this.loadRoles(active, assign(params, {
+                currentPage: 1,
+            }));
         }
     }
 
@@ -82,7 +93,7 @@ class AdminUser extends Component {
     }
 
     loadRoles = (app, params) => {
-        const ctx = this
+        const ctx = this;
         Api.queryRole(app, params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ roles: res.data && res.data.data })
@@ -103,9 +114,11 @@ class AdminUser extends Component {
         })
     }
 
-    loadUsersNotInProject = () => {
+    loadUsersNotInProject = (userName) => {
         const { active, selectedProject } = this.state;
-        const params = {}
+        const params = {
+            userName,
+        }
         if (hasProject(active)) {
             params.projectId = selectedProject
         }
@@ -118,9 +131,21 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject } = this.state
+        const { active, selectedProject, notProjectUsers } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+
+        // 塞入要添加的用户列表
+        const targetUsers = [];
+        const uids = projectRole.targetUserIds;
+        for (let i = 0; i < uids.length; i++) {
+            const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+            if (user) {
+                targetUsers.push(user);
+            }
+        }
+        projectRole.targetUsers = targetUsers;
+
         form.validateFields((err) => {
             if (!err) {
                 if (hasProject(active)) {
@@ -132,7 +157,7 @@ class AdminUser extends Component {
                             form.resetFields()
                         })
                         ctx.loadData()
-                        message.success('添加项目成员成功!')
+                        message.success('添加成员成功!')
                     }
                 })
             }
@@ -158,7 +183,8 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject } = this.state
+        const { editTarget, active, selectedProject } = this.state;
+
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
         const params = {
@@ -179,10 +205,17 @@ class AdminUser extends Component {
         })
     }
 
+    onRoleIdsChange = (roleIds) => {
+        this.setState({
+            roleIds,
+        })
+    }
+
     onCancel = () => {
         this.setState({
             visible: false,
             visibleEditRole: false,
+            editTarget: '',
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
@@ -203,6 +236,8 @@ class AdminUser extends Component {
         this.setState({
             active: key,
             currentPage: 1,
+            roleIds: [],
+            notProjectUsers: [],
         }, this.loadData)
     }
 
@@ -215,13 +250,12 @@ class AdminUser extends Component {
 
     initAddMember = () => {
         const { params } = this.props
-        this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
 
     initColums = () => {
         const ctx = this;
-
+        const hideDel = this.state.active !== MY_APPS.RDOS;
         return [{
             title: '账号',
             dataIndex: 'user.userName',
@@ -274,14 +308,18 @@ class AdminUser extends Component {
                             editTarget: record
                         })
                     }}>编辑</a>
-                    <span className="ant-divider" />
-                    <Popconfirm
-                        title="确认将该成员从项目中移除？"
-                        okText="确定" cancelText="取消"
-                        onConfirm={() => { ctx.removeUserFromProject(record) }}
-                    >
-                        <a>删除</a>
-                    </Popconfirm>
+                    {
+                        hideDel ? '' : <span>
+                            <span className="ant-divider" />
+                            <Popconfirm
+                                title="确认将该成员从项目中移除？"
+                                okText="确定" cancelText="取消"
+                                onConfirm={() => { ctx.removeUserFromProject(record) }}
+                            >
+                                <a>删除</a>
+                            </Popconfirm>
+                        </span>
+                    }
                 </span>
             }
         }]
@@ -292,7 +330,7 @@ class AdminUser extends Component {
         const { projects, active, selectedProject } = this.state;
 
         const projectOpts = projects && projects.map(project =>
-            <Option value={project.id} key={project.id}>
+            <Option value={`${project.id}`} key={project.id}>
                 {project.projectAlias}
             </Option>
         )
@@ -304,7 +342,7 @@ class AdminUser extends Component {
                 选择项目：
                 <Select
                     showSearch
-                    value={selectedProject}
+                    value={`${selectedProject}`}
                     style={{ width: 200 }}
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
@@ -322,12 +360,12 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = active === MY_APPS.RDOS && (
+        const extra = (
             <Button
                 style={{ marginTop: '10px' }}
                 type="primary"
                 onClick={this.initAddMember}>
-                添加项目成员
+                添加用户
             </Button>
         )
 
@@ -358,7 +396,7 @@ class AdminUser extends Component {
     }
 
     render() {
-        const { apps } = this.props
+        const { apps, user } = this.props
 
         const {
             visible, roles, notProjectUsers,
@@ -379,7 +417,7 @@ class AdminUser extends Component {
                     />
                 </div>
                 <Modal
-                    title="添加项目成员"
+                    title="添加用户"
                     wrapClassName="vertical-center-modal"
                     visible={visible}
                     onOk={this.addMember}
@@ -388,6 +426,9 @@ class AdminUser extends Component {
                     <MemberForm
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
+                        app={active}
+                        user={user}
+                        onSearchUsers={this.loadUsersNotInProject}
                         notProjectUsers={notProjectUsers}
                     />
                 </Modal>
@@ -402,6 +443,7 @@ class AdminUser extends Component {
                         user={editTarget}
                         app={active}
                         roles={roles}
+                        loginUser={user}
                         wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
                     />
                 </Modal>

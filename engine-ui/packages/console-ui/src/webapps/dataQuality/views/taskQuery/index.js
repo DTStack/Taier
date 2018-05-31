@@ -16,6 +16,7 @@ import { dataSourceActions } from '../../actions/dataSource';
 const Search = Input.Search;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
+const RangePicker = DatePicker.RangePicker;
 
 const mapStateToProps = state => {
     const { taskQuery, dataSource, common } = state;
@@ -43,8 +44,10 @@ export default class TaskQuery extends Component {
             dataSourceId: undefined,
             dataSourceType: utils.getParameterByName('source') || undefined,
             subscribe: undefined,
-            executeTime: 0,
+            executeStartTime: utils.getParameterByName('startTime') || undefined,
+            executeEndTime: utils.getParameterByName('endTime') || undefined,
             bizTime: 0,
+            statusFilter:utils.getParameterByName('statusFilter')||""
 
         },
         tabKey: '1',
@@ -54,13 +57,13 @@ export default class TaskQuery extends Component {
     }
 
     componentDidMount() {
-        this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
+        this.props.getDataSourcesList();
     }
 
     // table设置
     initColumns = () => {
-        const { visibleList } = this.state;
+        const { visibleList, params } = this.state;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -105,6 +108,7 @@ export default class TaskQuery extends Component {
                 </div>
             },
             filters: taskStatusFilter,
+            filteredValue:params.statusFilter?params.statusFilter.split(","):[]
         }, {
             title: '规则异常数',
             dataIndex: 'alarmSum',
@@ -112,7 +116,7 @@ export default class TaskQuery extends Component {
             width: '8%',
             // sorter: true
         }, {
-            title: '类型',
+            title: '数据源',
             dataIndex: 'sourceTypeValue',
             key: 'sourceTypeValue',
             render: (text, record) => {
@@ -241,7 +245,8 @@ export default class TaskQuery extends Component {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            executeTime: date ? date.valueOf() : 0
+            executeStartTime: date && date[0] ? date[0].valueOf() : null,
+            executeEndTime: date && date[1] ? date[1].valueOf() : null
         };
 
         this.props.getTaskList(params);
@@ -328,12 +333,18 @@ export default class TaskQuery extends Component {
         const { userList } = common;
         const { loading, taskList } = taskQuery;
         const { params, showSlidePane, tabKey, currentTask } = this.state;
-
+        const { executeStartTime, executeEndTime } = params;
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
             total: taskList.totalCount,
         };
+
+        let defaultRangeValue;
+
+        if (executeStartTime && executeEndTime) {
+            defaultRangeValue = [moment(parseInt(executeStartTime)), moment(parseInt(executeEndTime))]
+        }
 
         const cardTitle = (
             <div className="flex font-12">
@@ -376,10 +387,11 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8">
                     执行时间：
-                    <DatePicker
+                    <RangePicker
+                        defaultValue={defaultRangeValue}
                         format="YYYY-MM-DD"
-                        placeholder="选择日期"
-                        style={{ width: 150 }}
+                        placeholder={["开始日期", "结束日期"]}
+                        style={{ width: 200, "verticalAlign": "middle", "marginTop":"-1px" }}
                         disabledDate={this.disabledDate}
                         onChange={this.onExecuteTimeChange}
                     />
@@ -407,7 +419,7 @@ export default class TaskQuery extends Component {
         )
 
         return (
-            <div className="task-dashboard" style={{ height: '100%', overflowX: 'hidden' }}>
+            <div className="task-dashboard" style={{  overflowX: 'hidden' }}>
                 <h1 className="box-title">
                     任务查询 <span style={{ fontSize: "12px", color: "rgb(153, 153, 153)" }}>
                         告警总数: {
@@ -423,7 +435,7 @@ export default class TaskQuery extends Component {
                         noHovering
                         bordered={false}
                     >
-                        <Table 
+                        <Table
                             rowClassName={
                                 (record, index) => {
                                     if (currentTask && currentTask.id == record.id) {
@@ -453,7 +465,7 @@ export default class TaskQuery extends Component {
                                     activeKey={tabKey}
                                     onChange={this.onTabChange}
                                 >
-                                    <TabPane tab="详细报告" key="1">
+                                    <TabPane tab="监控报告" key="1">
                                         <TaskDetailPane data={currentTask} />
                                     </TabPane>
                                     <TabPane tab="表级报告" key="2">

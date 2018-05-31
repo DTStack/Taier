@@ -16,16 +16,9 @@ import { showSeach } from '../../store/modules/comm';
 
 import { openPage } from '../../store/modules//realtimeTask/browser';
 import { MENU_TYPE } from '../../comm/const';
+import { inOffline, inRealtime } from '../../comm';
 
 const Option = Select.Option;
-
-function inOffline() {
-    return location.href.indexOf('offline') > -1;
-}
-
-function inRealtime() {
-    return location.href.indexOf('realtime') > -1;
-}
 
 @pureRender
 class SearchTaskModal extends React.Component {

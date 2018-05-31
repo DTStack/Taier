@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { isEmpty, cloneDeep } from 'lodash';
-import { Table, Card } from 'antd';
+import { Table, Card, Checkbox } from 'antd';
 import moment from 'moment';
 
 import Resize from 'widgets/resize';
@@ -22,7 +22,8 @@ export default class TaskDetailPane extends Component {
             lineChart: '',
             visible: false,
             taskDetail: [],
-            currentRecord: {}
+            currentRecord: {},
+            showSnapshot:false
         };
     }
 
@@ -33,7 +34,7 @@ export default class TaskDetailPane extends Component {
         if (!isEmpty(newData) && oldData !== newData) {
             TQApi.getTaskDetail({
                 recordId: newData.id,
-                monitorId: newData.monitorId
+                monitorId: newData.monitorId,
             }).then((res) => {
                 if (res.code === 1) {
                     this.setState({
@@ -43,6 +44,12 @@ export default class TaskDetailPane extends Component {
                 }
             });
         }
+    }
+
+    isSnapshotChange(e) {
+        this.setState({
+            showSnapshot: e.target.checked
+        });
     }
 
     resize = () => {
@@ -55,8 +62,9 @@ export default class TaskDetailPane extends Component {
             dataIndex: 'columnName',
             key: 'columnName',
             render: (text, record) => {
+                const snapshotText = record.isSnapshot?" (已删除)":"";
                 let obj = {
-                    children: record.isCustomizeSql ? record.customizeSql : text,
+                    children: (record.isCustomizeSql ? record.customizeSql : text) + snapshotText,
                     props: {
                         colSpan: record.isCustomizeSql ? 3 : 1
                     },
@@ -135,7 +143,7 @@ export default class TaskDetailPane extends Component {
             title: '操作',
             width: '8%',
             render: (text, record) => {
-                return <a onClick={this.onCheckReport.bind(this, record)}>查看报告</a>
+                return <a onClick={this.onCheckReport.bind(this, record)}>查看趋势</a>
             }
         }]
     }
@@ -210,7 +218,17 @@ export default class TaskDetailPane extends Component {
     }
 
     render() {
-        const { visible, currentRecord, taskDetail } = this.state;
+        const { visible, currentRecord, taskDetail, showSnapshot } = this.state;
+
+        const filterTaskDetail = taskDetail.filter(
+            (item)=>{
+                if(showSnapshot){
+                    return true;
+                }
+                return item.isSnapshot==0?true:false;
+            }
+        )
+
 
         let cardTitle = (
             !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
@@ -221,15 +239,16 @@ export default class TaskDetailPane extends Component {
         }
 
         return (
-            <div style={{ padding: 20 }}>
+            <div style={{ padding: 10 }}>
+                <Checkbox value={showSnapshot} style={{ marginBottom: "10px" }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
                 <Table
                     rowKey="id"
                     className="m-table"
                     columns={this.initRulesColumns()}
                     pagination={false}
-                    dataSource={taskDetail}
+                    dataSource={filterTaskDetail}
                     style={{ marginBottom: 15 }}
-                    scroll={{ y: 300 }}
+                    scroll={{ y: 250 }}
                 />
 
                 {

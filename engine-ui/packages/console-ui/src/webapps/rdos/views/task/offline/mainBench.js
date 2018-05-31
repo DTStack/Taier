@@ -7,10 +7,11 @@ import utils from 'utils'
 import Api from '../../../api'
 import { 
     defaultEditorOptions, 
-    TASK_TYPE, SCRIPT_TYPE, LOCK_TYPE,
+    TASK_TYPE, SCRIPT_TYPE, LOCK_TYPE, DATA_SYNC_TYPE,
 } from '../../../comm/const'
 
 import DataSync from './dataSync';
+import DataSyncScript from "./dataSync/dataSyncScript"
 import NormalTaskForm from './normalTask';
 import SQLEditor from './sqlEditor';
 
@@ -136,6 +137,9 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.VIRTUAL_NODE:
                     return <NormalTaskForm key={ tabData.id } {...tabData} />
                 case TASK_TYPE.SYNC: // 数据同步
+                    if(tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT){
+                        return <DataSyncScript key={ tabData.id } { ...tabData }  />
+                    }
                     return <DataSync key={ tabData.id } { ...tabData }/>
                 case TASK_TYPE.SQL: // SQL
                     return <SQLEditor 
@@ -144,7 +148,7 @@ export default class MainBench extends React.Component {
                         key={ tabData.id } 
                         value={tabData.sqlText}
                         currentTab={ tabData.id }
-                        currentTabData={ tabData } />;
+                        currentTabData={ tabData } />; 
                 default:
                     return <p className="txt-center" style={{lineHeight: '60px'}}>
                         未知任务类型

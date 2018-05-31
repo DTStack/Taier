@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import { isEqual } from 'lodash'
-import { Table, Tabs, Icon, Tooltip, Button } from 'antd'
+import { Table, Tabs, Icon, Tooltip, Button, Affix } from 'antd'
+
+import reqOffline from '../../../../api/reqOffline';
 
 import CodeEditor from '../../../../components/code-editor'
-import { 
-    removeRes, resetConsole 
+import {
+    removeRes, resetConsole
 } from '../../../../store/modules/offlineTask/sqlEditor'
 
 // import { isEqual } from 'utils/pureRender'
@@ -21,7 +23,7 @@ const editorOptions = {
 }
 
 const exportStyle = {
-    position: 'fixed',
+    position: 'absolute',
     bottom: '0px',
     height: '30px',
 }
@@ -46,7 +48,7 @@ class Result extends Component {
                 title: '序号',
                 key: 't-id',
                 render: (text, item, index) => {
-                    return (currentPage - 1) * 10 + (index +1)
+                    return (currentPage - 1) * 10 + (index + 1)
                 },
             }]
             data.forEach((item, index) => {
@@ -70,10 +72,10 @@ class Result extends Component {
         return (
             <Table
                 rowKey="id"
-                scroll={{ x: true }} 
+                scroll={{ x: true }}
                 className="console-table"
-                bordered 
-                dataSource={showData} 
+                bordered
+                dataSource={showData}
                 onChange={this.onChange}
                 columns={columns}
             />
@@ -91,9 +93,9 @@ class Console extends Component {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
         if (
-             newConsole.showRes && 
-             newConsole.results.length > 0 &&
-             !isEqual(newConsole.results, oldConsole.results)
+            newConsole.showRes &&
+            newConsole.results.length > 0 &&
+            !isEqual(newConsole.results, oldConsole.results)
         ) { // 如果成功获取结果，tab切换到结果界面
             this.setState({ activeKey: `${newConsole.results.length - 1}` })
         } else if (
@@ -101,7 +103,7 @@ class Console extends Component {
                 !newConsole.showRes &&
                 newConsole.log !== oldConsole.log
             ) ||
-             newConsole.results.length === 0) 
+                newConsole.results.length === 0)
         ) {
             this.setState({ activeKey: `console-log` }, this.focusEditor)
         }
@@ -112,7 +114,7 @@ class Console extends Component {
     }
 
     onChange = (activeKey) => {
-        this.setState({activeKey}, () => {
+        this.setState({ activeKey }, () => {
             if (activeKey === 'console-log') {
                 this.focusEditor();
             }
@@ -150,21 +152,22 @@ class Console extends Component {
         const index = parseInt(this.state.activeKey, 10)
         const currentData = results[index]
         let csvContent = "";
+        let downloadName = `结果${parseInt(index) + 1}.csv`;
+
         currentData.forEach((row, i) => {
             const dataStr = row.join(',')
-            csvContent += i < currentData.length ? 
-            dataStr + '\n' : dataStr;
+            csvContent += i < currentData.length ?
+                dataStr + '\n' : dataStr;
         })
         // var encodedUri = encodeURI(csvContent);
         // window.open(encodedUri);
         var blob = new Blob([csvContent]);
         if (window.navigator.msSaveOrOpenBlob)  // IE hack; see http://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
-            window.navigator.msSaveBlob(blob, "下载.csv");
-        else
-        {
+            window.navigator.msSaveBlob(blob, downloadName);
+        else {
             var a = window.document.createElement("a");
-            a.href = window.URL.createObjectURL(blob, {type: "text/plain"});
-            a.download = "下载.csv";
+            a.href = window.URL.createObjectURL(blob, { type: "text/plain" });
+            a.download = downloadName;
             document.body.appendChild(a);
             a.click();  // IE: "Access is denied"; see: https://connect.microsoft.com/IE/feedback/details/797361/ie-10-treats-blob-url-as-cross-origin-and-denies-access
             document.body.removeChild(a);
@@ -175,21 +178,20 @@ class Console extends Component {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
                 const title = (<span>
-                    结果{index+1}
+                    结果{index + 1}
                 </span>);
                 return (
                     <TabPane
-                      style={{ height: '0px' }}
-                      tab={title}
-                      key={`${index}`}
+                        style={{ minHeight: '100%',"position":"relative" }}
+                        tab={title}
+                        key={`${index}`}
                     >
-                        <Result data={tab} />
-                        <Button 
-                            style={exportStyle} 
-                            onClick={this.exportCsv}
+                        <Result data={tab.data} />
+                        {tab.jobId?<a href={`${reqOffline.DOWNLOAD_SQL_RESULT}?jobId=${tab.jobId}`} download><Button
+                            style={exportStyle}
                         >
                             下载
-                        </Button>
+                        </Button></a>:null}
                     </TabPane>
                 );
             });
@@ -210,25 +212,25 @@ class Console extends Component {
                 >
                     <TabPane tab="日志" key="console-log">
                         <div style={{ position: 'relative' }}>
-                            <CodeEditor 
+                            <CodeEditor
                                 cursorAlwaysInEnd
-                                style={{minHeight:"auto"}}
+                                style={{ minHeight: "auto" }}
                                 ref={(e) => { this.editor = e }}
-                                options={editorOptions} 
-                                key="output-log" 
+                                options={editorOptions}
+                                key="output-log"
                                 sync={true}
                                 value={data.log}
                             />
                         </div>
                     </TabPane>
-                    { this.renderTabs(data.results) }
+                    {this.renderTabs(data.results)}
                 </Tabs>
-                <Tooltip 
-                    placement="top" 
+                <Tooltip
+                    placement="top"
                     title="关闭控制台"
                 >
-                    <Icon 
-                        className="close-console" 
+                    <Icon
+                        className="close-console"
                         type="close"
                         onClick={this.closeConsole}
                     />

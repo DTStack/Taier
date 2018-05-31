@@ -57,7 +57,7 @@ class AdminRole extends Component {
             this.loadRoles(app, params)
         }
     }
-    
+ 
     loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
             this.setState({
@@ -144,8 +144,7 @@ class AdminRole extends Component {
             render(text) {
                 return text || '-'
             }
-        }, 
-        {
+        }, {
             title: '操作',
             dataIndex: 'id',
             key: 'id',

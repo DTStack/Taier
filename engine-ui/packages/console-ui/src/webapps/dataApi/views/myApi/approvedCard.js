@@ -173,9 +173,8 @@ class ApprovedCard extends Component {
                 console.log('Cancel');
             },
         });
-
-
     }
+
     dealstop(record) {
         confirm({
             title: '确认开启',
@@ -196,9 +195,11 @@ class ApprovedCard extends Component {
             },
         });
     }
+
     dealnotPass(record) {
         this.props.router.push("/api/market")
     }
+
     initColumns() {
 
         return [{
@@ -206,9 +207,10 @@ class ApprovedCard extends Component {
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
-                const isDelete = record.apiStatus == 1 ? true : false;
-                const deleteText = isDelete ? '(全平台禁用)' : ''
-                return <a className={isDelete?'disable-all':''} onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
+                const apiStatus = record.apiStatus == 1 ? '全平台禁用' : '';
+                const apiDeleted = record.apiDeleted == 1 ? "已删除" : '';
+                const deleteText = apiDeleted&&apiStatus ? `(${apiDeleted}+${apiStatus})` : `(${apiDeleted}${apiStatus})`
+                return <a className={apiStatus||apiDeleted?'disable-all':''} onClick={this.apiClick.bind(this, record)} >{text + deleteText}</a>
             }
         }, {
             title: '授权状态',
@@ -285,12 +287,15 @@ class ApprovedCard extends Component {
             }
         }]
     }
+
     getSource() {
         return this.props.mine.apiList.appliedList.data || [];
     }
+
     getTotal() {
         return (this.props.mine.apiList.appliedList && this.props.mine.apiList.appliedList.totalCount) || 0
     }
+
     getPagination() {
         return {
             current: this.state.pageIndex,
@@ -298,6 +303,7 @@ class ApprovedCard extends Component {
             total: this.getTotal(),
         }
     }
+
     handleApiSearch(key) {
         this.setState({
             apiName: key,
@@ -307,6 +313,7 @@ class ApprovedCard extends Component {
                 this.getAppliedList();
             })
     }
+
     render() {
 
         return (

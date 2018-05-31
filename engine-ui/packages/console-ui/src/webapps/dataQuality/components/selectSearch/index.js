@@ -10,10 +10,10 @@ export default class SelectSearch extends Component {
     wrapOption() {
         const searchValue = this.state.searchValue;
         const { children } = this.props;
-
+        
         if (children && children.length > 0) {
             for (let i in children) {
-                if (children[i].props.value == searchValue) {
+                if (children[i].props.title == searchValue) {
                     return null;
                 }
             }
@@ -22,7 +22,8 @@ export default class SelectSearch extends Component {
         return searchValue ? (
             <Option
                 key={searchValue}
-                value={searchValue}>
+                value={searchValue}
+                title={searchValue}>
                 {searchValue}
             </Option>
         ) : null
@@ -36,6 +37,7 @@ export default class SelectSearch extends Component {
 
     render() {
         const { children, ...otherProps } = this.props;
+        const wrapOption=this.wrapOption();
 
         return (
             <Select
@@ -44,7 +46,7 @@ export default class SelectSearch extends Component {
                 onSearch={this.onSearch.bind(this)}
                 {...otherProps}
             >
-                {this.wrapOption()}
+                {wrapOption}
                 {children}
             </Select>
         )

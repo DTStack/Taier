@@ -7,14 +7,15 @@ module.exports = {
             "/api/dq": {
                 target: "http://172.16.8.104:8089",
                 // target: "http://172.16.6.135:8089", // tmp server
+                // target: "http://172.16.0.79:8089",
                 // ignorePath: true, 
                 changeOrigin: true,
                 secure: false,
             },
             "/api/rdos": {
                 target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.8.106:9020", // tmp test server
-                // target:"htpp://172.16.0.58:9020",
+                // target: "http://172.16.0.9:9020", // tmp test server
+                // target:"htpp://172.16.1.74:9020",
                 // ignorePath: true, 
                 changeOrigin: true,
                 secure: false,

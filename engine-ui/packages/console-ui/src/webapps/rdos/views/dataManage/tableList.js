@@ -12,6 +12,7 @@ import moment from 'moment';
 import { isEmpty } from 'lodash';
 
 import Editor from '../../components/code-editor';
+import CopyIcon from "main/components/copy-icon";
 import {DDL_placeholder} from "../../comm/DDLCommon"
 
 import actions from '../../store/modules/dataManage/actionCreator';
@@ -46,7 +47,8 @@ class TableList extends Component {
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
             this.setState({ current: 1 }, () => {
-                this.search()
+                this.search();
+                this.loadCatalogue();
             })
         }
     }
@@ -269,7 +271,9 @@ class TableList extends Component {
                         </div>
                         <Modal className="m-codemodal"
                             width="750"
-                            title="DDL建表"
+                            title={(
+                                <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
+                            )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}

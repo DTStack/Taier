@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import utils from 'utils'
+
 import Header from '../layout/header'
 import Footer from '../layout/footer';
+import { getInitUser } from '../../actions/user'
 
 import { MY_APPS } from '../../consts';
 import '../../styles/views/portal.scss';
@@ -14,7 +17,21 @@ import '../../styles/views/portal.scss';
 })
 class Dashboard extends Component {
 
-    componentDidMount() { }
+    componentDidMount() { 
+        this._userLoaded = false;
+        this.listenUserStatus();
+    }
+
+    listenUserStatus = () => {
+        const { dispatch } = this.props;
+        setInterval(() => {
+            const id = utils.getCookie('dt_user_id');
+            if (!this._userLoaded && id && id !== 0) {
+                this._userLoaded = true;
+                dispatch(getInitUser())
+            }
+        }, 1000);
+    }
 
     renderApps = () => {
         const { apps } = this.props;

@@ -4,6 +4,7 @@ import { Modal, Input, Button,  Select, Form, Checkbox, message } from 'antd';
 
 import utils from 'utils'
 
+import CopyIcon from "main/components/copy-icon"
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -38,20 +39,20 @@ const mapDispatchToProps = dispatch => ({
 class DataSourceModal extends Component {
 
     state = {
-        sourceType: 1,
+        sourceType: undefined,
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
     }
 
     componentDidMount() {
-        this.props.getDataSourcesType();
+        // this.props.getDataSourcesType();
     }
 
     componentWillReceiveProps(nextProps) {
         const oldData = this.props.sourceData;
         const newData = nextProps.sourceData;
 
-        if (newData && newData.id !== oldData.id) {
+        if (newData && newData !== oldData) {
             if (newData.type === 7) {
                 this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true });
             } else {
@@ -62,30 +63,24 @@ class DataSourceModal extends Component {
 
     onOk = (e) => {
         const { editDataSource, form } = this.props;
-        const source = form.getFieldsValue()
 
-        if (source.dataJson.jdbcUrl) {
-            source.dataJson.jdbcUrl = utils.trim(source.dataJson.jdbcUrl)
-        }
-        if (source.dataJson.defaultFS) {
-            source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
-        }
-
-        form.validateFields((err) => {
+        form.validateFields((err, values) => {
+            console.log(err,values)
             if (!err) {
-                editDataSource(source, form)
-                setTimeout(() => {
-                    this.setState({
-                        sourceType: '',
-                    })
-                }, 200)
+                if (values.dataJson.jdbcUrl) {
+                    values.dataJson.jdbcUrl = utils.trim(values.dataJson.jdbcUrl)
+                }
+                if (values.dataJson.defaultFS) {
+                    values.dataJson.defaultFS = utils.trim(values.dataJson.defaultFS)
+                }
+                editDataSource(values, form);
             }
         });
     }
 
-    testConnection = (e) => {
+    testConnection = () => {
         const { sourceType } = this.state;
-        const { testConnection, form } = this.props;
+        const { form } = this.props;
 
         let field = undefined;
 
@@ -97,10 +92,8 @@ class DataSourceModal extends Component {
                 'dataJson.endPoint', 
                 'dataJson.accessKey', 
                 'dataJson.accessId'
-            ]
+            ];
         }
-
-        console.log('values:', form.getFieldsValue())
 
         form.validateFields(field, (err, values) => {
             if (!err) {
@@ -110,7 +103,7 @@ class DataSourceModal extends Component {
                     } else {
                         message.error('数据库连接失败！');
                     }
-                })
+                });
             }
         });
 
@@ -118,12 +111,12 @@ class DataSourceModal extends Component {
 
     cancel = () => {
         const { form, handCancel } = this.props;
-        form.resetFields()
-        handCancel()
+        form.resetFields();
+        handCancel();
     }
 
     sourceChange = (value) => {
-        this.setState({ sourceType: parseInt(value) })
+        this.setState({ sourceType: parseInt(value) });
         this.props.form.resetFields();
     }
 
@@ -141,8 +134,8 @@ class DataSourceModal extends Component {
 
         switch(sourceType) {
             case DATA_SOURCE.HIVE: {
-                return [
-                    <FormItem {...formItemLayout} label="JDBC URL" key="jdbcUrl" hasFeedback>
+                return <div>
+                    <FormItem {...formItemLayout} label="JDBC URL" hasFeedback>
                         {
                             getFieldDecorator('dataJson.jdbcUrl', {
                                 rules: [{
@@ -153,8 +146,8 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="用户名" key="username">
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="用户名">
                         {
                             getFieldDecorator('dataJson.username', {
                                 rules: [],
@@ -163,8 +156,8 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="密码" key="password">
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="密码">
                         {
                                 getFieldDecorator('dataJson.password', {
                                 rules: [],
@@ -173,8 +166,8 @@ class DataSourceModal extends Component {
                                 <Input type="password"/>,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="defaultFS" key="defaultFS" hasFeedback>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="defaultFS" hasFeedback>
                         {
                             getFieldDecorator('dataJson.defaultFS', {
                                 rules: [{
@@ -185,8 +178,8 @@ class DataSourceModal extends Component {
                                 <Input placeholder="hdfs://host:port"/>,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
+                    </FormItem>
+                    <FormItem {...tailFormItemLayout}>
                         {
                             getFieldDecorator('hasHdfsConfig', {
                                 initialValue: false,
@@ -196,8 +189,8 @@ class DataSourceModal extends Component {
                                 </Checkbox>,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="高可用配置" key="hadoopConfig" style={{display: hasHdfsConfig ? 'block' : 'none'}}>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="高可用配置" style={{display: hasHdfsConfig ? 'block' : 'none'}}>
                         {
                             getFieldDecorator('dataJson.hadoopConfig', {
                                 rules: [],
@@ -207,13 +200,17 @@ class DataSourceModal extends Component {
                             )
                         }
                         <HelpDoc doc="hdfsConfig" />
+                        <CopyIcon 
+                            style={{position:"absolute",right:"-20px",bottom:"0px"}} 
+                            copyText={hdfsConf} 
+                        />
                     </FormItem>
-                ]
+                </div>
             }
 
             case DATA_SOURCE.MAXCOMPUTE: {
-                return [
-                    <FormItem {...formItemLayout} label="AccessId" key="accessId" hasFeedback>
+                return <div>
+                    <FormItem {...formItemLayout} label="AccessId" hasFeedback>
                         {
                             getFieldDecorator('dataJson.accessId', {
                                 rules: [{
@@ -224,8 +221,8 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="AccessKey" key="accessKey" hasFeedback>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="AccessKey" hasFeedback>
                         {
                             getFieldDecorator('dataJson.accessKey', {
                                 rules: [{
@@ -236,8 +233,8 @@ class DataSourceModal extends Component {
                                 <Input type="password" autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="Project Name" key="project" hasFeedback>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="Project Name" hasFeedback>
                         {
                             getFieldDecorator('dataJson.project', {
                                 rules: [{
@@ -248,8 +245,8 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="End Point" key="endPoint" hasFeedback>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="End Point" hasFeedback>
                         {
                             getFieldDecorator('dataJson.endPoint', {
                                 rules: [{
@@ -261,14 +258,14 @@ class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>
-                ]
+                </div>
             }
+
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER:
-            default: {
-                return [
-                    <FormItem {...formItemLayout} label="JDBC URL" key="jdbcUrl" hasFeedback>
+            case DATA_SOURCE.SQLSERVER: {
+                return <div>
+                    <FormItem {...formItemLayout} label="JDBC URL" hasFeedback>
                         {
                             getFieldDecorator('dataJson.jdbcUrl', {
                                 rules: [{
@@ -279,8 +276,8 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="用户名" key="username" hasFeedback>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="用户名" hasFeedback>
                         {
                             getFieldDecorator('dataJson.username', {
                                 rules: [{
@@ -291,8 +288,8 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="密码" key="password" hasFeedback>
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="密码" hasFeedback>
                         {
                             getFieldDecorator('dataJson.password', {
                                 rules: [{
@@ -304,8 +301,11 @@ class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>
-                ]
+                </div>
             }
+
+            default: 
+                break;
         }
     }
 
@@ -322,10 +322,9 @@ class DataSourceModal extends Component {
     }
 
     render() {
-        const { visible, form, title, sourceData, status, dataSource } = this.props
-        const { hasHdfsConfig } = this.state
+        const { visible, form, title, sourceData, status, dataSource } = this.props;
+        const { hasHdfsConfig } = this.state;
         const { getFieldDecorator } = form;
-        const sourceType = dataSource.sourceType[0] && dataSource.sourceType[0].value.toString();
 
         return (
             <Modal
@@ -343,7 +342,7 @@ class DataSourceModal extends Component {
                                 rules: [{
                                     required: true, message: '数据源类型不可为空！',
                                 }],
-                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType,
+                                initialValue: sourceData.type ? sourceData.type.toString() : '1',
                         })(
                             <Select 
                                 onChange={this.sourceChange} 
@@ -351,7 +350,7 @@ class DataSourceModal extends Component {
                                 {
                                     this.renderSourceType(dataSource.sourceType)
                                 }
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
 
@@ -390,7 +389,7 @@ class DataSourceModal extends Component {
                         this.renderDynamic()
                     }
 
-                    <FormItem {...tailFormItemLayout} label="">
+                    <FormItem {...tailFormItemLayout}>
                         <Button
                             icon="sync"
                             type="primary"

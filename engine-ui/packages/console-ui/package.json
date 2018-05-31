@@ -76,12 +76,14 @@
     "mock": "cup config",
     "test": "test",
     "release": "./scripts/build.sh",
-    "ssh": "./scripts/ssh_server.sh"
+    "ssh": "./scripts/ssh_server.sh",
+    "hotfix": "./scripts/hotfix.sh --b"
   },
   "keywords": [
     "generator",
     "react"
   ],
+  "engines" : { "node" : ">=8.9.4" },
   "author": "Ziv",
   "license": "MIT"
 }

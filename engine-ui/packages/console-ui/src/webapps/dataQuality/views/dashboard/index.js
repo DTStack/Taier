@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { Table, Icon, Card, Row, Col } from 'antd';
 import moment from 'moment';
 
@@ -10,7 +10,7 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 import Resize from 'widgets/resize';
 
-import { lineAreaChartOptions, alarmDateFilter } from '../../consts';
+import { lineAreaChartOptions, alarmDateFilter, TASK_STATUS } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
 
@@ -64,6 +64,20 @@ export default class DashBoard extends Component {
             default:
                 return '最近7天';
         }
+    }
+
+    jumpToTaskQuery(date){
+        const endTime=new moment();
+        const startTime=moment(moment(endTime).subtract(date-1,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
+
+        hashHistory.push({
+            pathname:"/dq/taskQuery",
+            query:{
+                startTime:startTime.valueOf(),
+                endTime:endTime.valueOf(),
+                statusFilter:[TASK_STATUS.FAIL,TASK_STATUS.UNPASS].join(",")
+            }
+        })
     }
 
     // table设置
@@ -165,21 +179,21 @@ export default class DashBoard extends Component {
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">今日告警数</span>
-                                        <span className="m-count-content font-red">{alarmSum.countToday}</span>
+                                        <a onClick={this.jumpToTaskQuery.bind(this,1)} className="m-count-content font-red">{alarmSum.countToday}</a>
                                     </section>
                                 </Col>
 
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">最近7天告警数</span>
-                                        <span className="m-count-content font-red">{alarmSum.countWeek}</span>
+                                        <a onClick={this.jumpToTaskQuery.bind(this,7)} className="m-count-content font-red">{alarmSum.countWeek}</a>
                                     </section>
                                 </Col>
 
                                 <Col span={8}>
                                     <section className="m-count-section" style={{ width: 100 }}>
                                         <span className="m-count-title">最近30天告警数</span>
-                                        <span className="m-count-content font-red">{alarmSum.countMonth}</span>
+                                        <a onClick={this.jumpToTaskQuery.bind(this,30)} className="m-count-content font-red">{alarmSum.countMonth}</a>
                                     </section>
                                 </Col>
                             </Row>

@@ -11,7 +11,7 @@ require('echarts/lib/chart/pie');
 require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
-
+ 
 const errorDic = [
     {
         code: "disable",

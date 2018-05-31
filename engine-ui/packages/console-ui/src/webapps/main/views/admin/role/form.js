@@ -61,7 +61,7 @@ import {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i]
                 
-                // 有子节点的需要移除
+                // 有子节点的需要移除, 只需要添加权限子节点ID
                 if (item.children && item.children.length > 0) {
 
                     const index = arr.indexOf(`${item.nodeId}`)
@@ -80,24 +80,17 @@ import {
     }
 
     renderTreeNodes = (data) => {
+
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
-            
-            const checkedItem = this.state.checkedKeys.find(checked => checked === key)
-            const checked = checkedItem ? true : false;
-            
-            if (checkedItem) {
-                console.log('checkedItem', key, role.name)
-            }
-            
             if (item.children && item.children.length > 0) {
                 return (
                     <TreeNode
                         key={key}
                         checked={checked}
                         dataRef={role}
-                        title={role.display} 
+                        title={role.display}
                     >
                         {this.renderTreeNodes(item.children)}
                     </TreeNode>
@@ -111,8 +104,6 @@ import {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
-
-        console.log('checked:', checkedKeys)
 
         return (
             <Form>

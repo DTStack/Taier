@@ -96,7 +96,7 @@ class detailSlidePane extends Component {
             <SlidePane
                 className="m-tabs tabs-filter-show"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '350px' }}
+                style={{ right: '-20px', width: '80%', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
                     activeKey={this.state.nowView}

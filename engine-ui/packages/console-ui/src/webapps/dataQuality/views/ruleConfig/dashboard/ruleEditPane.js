@@ -267,7 +267,7 @@ export default class RuleEditPane extends Component {
         switch(type) {
             case 'columnName': {
                 if (record.isCustomizeSql) {
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
@@ -277,6 +277,7 @@ export default class RuleEditPane extends Component {
                                 initialValue: record.customizeSql
                             })( record.isCustomizeSql?
                                 (<TextArea 
+                                    style={{resize: "vertical"}}
                                     autosize={{ minRows: 3,maxRows:8}}
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
@@ -286,13 +287,14 @@ export default class RuleEditPane extends Component {
                                 (<Input 
                                     placeholder="查询结果为一个数值类型"
                                     onChange={this.changeRuleParams.bind(this, 'customizeSql')} 
-                                    disabled={record.editStatus === 'edit'} 
+                                    
                                 />)
                             )
                         }
                     </FormItem>
                 } else {
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    getFieldDecorator('columnName', { initialValue: "" });
+                    return <FormItem {...rowFormItemLayout}  className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
@@ -301,10 +303,10 @@ export default class RuleEditPane extends Component {
                                 }],
                                 initialValue: record.columnName
                             })(
-                                <Select 
+                                <Select
                                     showSearch
                                     onChange={this.onColumnNameChange} 
-                                    disabled={record.isTable || record.editStatus === 'edit'}>
+                                    disabled={record.isTable||record.level==1}>
                                     {
                                         tableColumn.map((item) => {
                                             return <Option 
@@ -322,7 +324,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'functionId': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
@@ -333,7 +335,7 @@ export default class RuleEditPane extends Component {
                         })(
                             <Select
                                 onChange={this.onFunctionChange}
-                                disabled={record.editStatus === 'edit'}>
+                                >
                                 {
                                     functionList.map((item) => {
                                         return <Option 
@@ -350,7 +352,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'filter': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('filter', {
                             rules: [],
@@ -359,7 +361,6 @@ export default class RuleEditPane extends Component {
                             <Input 
                                 placeholder={`"and"开头的条件语句，如and col = "val"`}
                                 onChange={this.changeRuleParams.bind(this, 'filter')} 
-                                disabled={record.editStatus === 'edit'} 
                             />
                         )
                     }
@@ -367,7 +368,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'verifyType': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
@@ -378,7 +379,7 @@ export default class RuleEditPane extends Component {
                         })(
                             <Select 
                                 onChange={this.onVerifyTypeChange}
-                                disabled={record.editStatus === 'edit' || currentRule.operator === 'in'}>
+                                >
                                 {
                                     verifyType.map((item) => {
                                         return <Option 
@@ -414,8 +415,8 @@ export default class RuleEditPane extends Component {
                     </FormItem>
                 } else {
                     return (
-                        <div>
-                            <FormItem>
+                        <div className="cell-center-box">
+                            <FormItem className="cell-multiple-center">  
                                 {
                                     getFieldDecorator('operator', {
                                         rules: [{
@@ -440,7 +441,7 @@ export default class RuleEditPane extends Component {
                                     )
                                 }
                             </FormItem>
-                            <FormItem>
+                            <FormItem className="cell-multiple-center">
                                 {
                                     getFieldDecorator('threshold', {
                                         rules: [{
@@ -492,6 +493,9 @@ export default class RuleEditPane extends Component {
     // 编辑规则
     edit(id) {
         const { currentRule, rules } = this.state;
+        const { ruleConfig } = this.props;
+        const { monitorFunction, tableColumn } = ruleConfig;
+        let functionList = [];
 
         let newData = [...rules],
             target  = newData.filter(item => id === item.id)[0];
@@ -508,10 +512,19 @@ export default class RuleEditPane extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
-
+            
+            if(!target.isCustomizeSql){
+                if (target.isTable||target.level==1) {
+                    functionList = monitorFunction.all.filter(item => item.level === 1);
+                } else {
+                    let columnType = tableColumn.filter(item => item.key === target.columnName)[0].type;
+                    functionList = monitorFunction[columnType];
+                }
+            }
             this.setState({ 
                 currentRule: target,
-                rules: newData
+                rules: newData,
+                functionList:functionList
             });
         }
     }
@@ -612,7 +625,7 @@ export default class RuleEditPane extends Component {
         const { form, data, ruleConfig } = this.props;
         const { currentRule, rules } = this.state;
 
-        let newData = [...rules];
+        let newData = rules?[...rules]:[];
 
         if (!isEmpty(currentRule)) {
             if (currentRule.editStatus === "edit") {
@@ -744,6 +757,12 @@ export default class RuleEditPane extends Component {
         const { periodType, notifyType } = common.allDict;
         const { rules, monitorId, havePart, showExecuteModal } = this.state;
 
+        const filterRules=rules?rules.filter(
+            (item)=>{
+                return item.isSnapshot==0||item.editStatus=="new";
+            }
+        ):[];
+
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
 
         return (
@@ -783,7 +802,7 @@ export default class RuleEditPane extends Component {
                             className="m-l-8" 
                             type="primary" 
                             onClick={this.openExecuteModal}>
-                            编辑执行信息
+                            编辑调度属性
                         </Button>
                         <Button 
                             className="m-l-8" 
@@ -840,12 +859,12 @@ export default class RuleEditPane extends Component {
 
                 <Table 
                     rowKey="id"
-                    className="m-table rule-edit-table"
+                    className="m-table rule-edit-table" 
                     style={{ padding: '20px 0' }}
                     pagination={false}
-                    dataSource={rules}
+                    dataSource={filterRules}
                     columns={this.initColumns()}
-                    scroll={{y:350}}
+                    scroll={{y:361}}
                 />
                 
                 <ExecuteForm 

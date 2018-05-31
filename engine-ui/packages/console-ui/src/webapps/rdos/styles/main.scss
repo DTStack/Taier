@@ -73,6 +73,11 @@ table {
     border: none !important;
 }
 
+.CodeMirror-matchingbracket{
+    color: #219ed4 !important;
+    font-weight: 900;
+}
+
 .mini-card {
     padding: 0 8px;
     display: inline-block;
