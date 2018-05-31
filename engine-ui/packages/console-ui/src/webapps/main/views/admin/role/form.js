@@ -88,7 +88,6 @@ import {
                 return (
                     <TreeNode
                         key={key}
-                        checked={checked}
                         dataRef={role}
                         title={role.display}
                     >
@@ -96,7 +95,7 @@ import {
                     </TreeNode>
                 )
             }
-            return <TreeNode key={key} checked={checked} dataRef={role} title={role.display}/>;
+            return <TreeNode key={key} dataRef={role} title={role.display}/>;
         })
     }
 
@@ -149,7 +148,7 @@ import {
                             checkable
                             defaultExpandAll
                             onCheck={this.onCheck}
-                            // checkedKeys={checkedKeys}
+                            checkedKeys={checkedKeys}
                         >
                             {this.renderTreeNodes(roleTree)}
                         </Tree>,
