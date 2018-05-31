@@ -233,11 +233,11 @@ class TargetForm extends React.Component{
                         initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                     })(
                         <Select
-                            mode="combobox"
                             showSearch
-                            onBlur={this.changeTable.bind(this)}
+                            mode="combobox"
                             disabled={ !isCurrentTabNew }
                             optionFilterProp="value"
+                            onBlur={this.changeTable.bind(this)}
                         >
                             {this.state.tableList.map(table => {
                                 return <Option 
