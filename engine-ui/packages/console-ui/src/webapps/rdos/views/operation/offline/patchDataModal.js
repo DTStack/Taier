@@ -17,15 +17,15 @@ const TreeNode = Tree.TreeNode
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
-function replaceTreeNode(treeNode, replace) {
-    if (treeNode.id === parseInt(replace.id, 10)) {
+function replaceTreeNode(treeNode, replace, replaceKey) {
+    if (treeNode.key === replaceKey) {
         treeNode = Object.assign(treeNode, replace);
         return;
     }
     if (treeNode.subTaskVOS) {
         const children = treeNode.subTaskVOS
         for (let i = 0; i < children.length; i += 1) {
-            replaceTreeNode(children[i], replace)
+            replaceTreeNode(children[i], replace, replaceKey)
         }
     }
 }
@@ -42,6 +42,12 @@ class PatchData extends Component {
     componentWillReceiveProps(nextProps) {
         const task = nextProps.task
         if (this.props.visible!=nextProps.visible&&nextProps.visible && task) {
+            this.setState({
+                checkedKeys:['0'],
+                expandedKeys:[],
+                treeData:[],
+                selected:[]
+            })
             this.loadTaskTree({
                 taskId: task.id,
                 level: 2,
@@ -147,10 +153,50 @@ class PatchData extends Component {
         this.props.handCancel()
     }
 
-    onCheck = (checkedKeys, info) => {
-        const checked = checkedKeys.checked
-        if (checked && checked.length > 0) {
-            this.setState({ checkedKeys: checked })
+    onCheck = (checkedKeys, checkedNodes) => {
+        const checked=checkedKeys.checked;
+        let checkedSet=new Set(checked);
+        const node=checkedNodes.node;
+        const treeData = this.state.treeData;
+
+        function addParents(key,tree,result){
+            if(!tree){
+                return;
+            }
+            for(let i=0;i<tree.length;i++){
+                let node=tree[i];
+                let nodeKey=node.key;
+                if(key.indexOf(nodeKey)==0){
+                    result.add(nodeKey);
+                }
+                addParents(key,node.subTaskVOS,result);
+            }
+            return;
+        }
+
+        function removeChildren(key,tree,result){
+            if(!tree){
+                return;
+            }
+            for(let i=0;i<tree.length;i++){
+                let node=tree[i];
+                let nodeKey=node.key;
+                if(nodeKey.indexOf(key)==0){
+                    result.delete(nodeKey);
+                }
+                removeChildren(key,node.subTaskVOS,result);
+            }
+            return;
+        }
+
+        if(checkedNodes.checked){
+            addParents(node.props.eventKey,treeData,checkedSet);
+        }else{
+            removeChildren(node.props.eventKey,treeData,checkedSet)
+        }   
+
+        if (checkedSet && checkedSet.size > 0) {
+            this.setState({ checkedKeys: [...checkedSet] })
         }
     }
 
@@ -171,7 +217,7 @@ class PatchData extends Component {
                  }).then(res => {
                     if (res.code === 1) {
                         const updated = ctx.state.treeData[0]
-                        replaceTreeNode(updated, res.data)
+                        replaceTreeNode(updated, res.data, node.key)
                         const arr = [updated]
                         ctx.wrapTableTree(arr)
                         ctx.setState({ treeData: arr })
@@ -286,6 +332,7 @@ class PatchData extends Component {
                     <Tree
                         autoExpandParent={false}
                         checkable
+                        multiple
                         checkStrictly
                         expandedKeys={this.state.expandedKeys}
                         onCheck={this.onCheck}

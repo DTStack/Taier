@@ -28,7 +28,9 @@ function getUniqueKey(id) {
 }
 
 function getDataOver(dispatch, currentTab, res) {
-    dispatch(outputRes(currentTab, res.data.result))
+    if(res.data.result){
+        dispatch(outputRes(currentTab, res.data.result))
+    }
     dispatch(output(currentTab, '执行成功!'))
 }
 
