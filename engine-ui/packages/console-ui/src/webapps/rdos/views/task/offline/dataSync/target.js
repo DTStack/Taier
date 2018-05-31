@@ -326,8 +326,10 @@ class TargetForm extends React.Component {
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                         })(
                             <Select
+                                mode="combobox"
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                showArrow={true}
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
