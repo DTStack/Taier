@@ -123,9 +123,7 @@ class AdminUser extends Component {
             params.projectId = selectedProject
         }
         Api.loadUsersNotInProject(active, params).then((res) => {
-            if (res.code === 1) {
-                this.setState({ notProjectUsers: res.data })
-            }
+            this.setState({ notProjectUsers: res.data })
         })
     }
 
@@ -216,6 +214,7 @@ class AdminUser extends Component {
             visible: false,
             visibleEditRole: false,
             editTarget: '',
+            notProjectUsers: [],
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
