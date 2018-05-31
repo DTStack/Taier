@@ -43,9 +43,9 @@ export const apiManageActions = {
         }
     },
     //开启api
-    openApi(tagId) {
+    openApi(apiId) {
         return (dispatch) => {
-            return API.updateApiStatus({ tagId: tagId, tagStatus: 3 }).then((res) => {
+            return API.updateApiStatus({ apiId: apiId, apiStatus: 0 }).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
@@ -54,9 +54,9 @@ export const apiManageActions = {
         }
     },
     //关闭api
-    closeApi(tagId) {
+    closeApi(apiId) {
         return (dispatch) => {
-            return API.updateApiStatus({ tagId: tagId, tagStatus: 5 }).then((res) => {
+            return API.updateApiStatus({ apiId: apiId, apiStatus: 1 }).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }

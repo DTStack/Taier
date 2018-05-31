@@ -8,7 +8,7 @@ import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
 
 import { 
-    dataSourceTypes, TAG_TYPE, TAG_STATUS,
+    dataSourceTypes, TAG_TYPE, TAG_STATUS, API_OPEN_STATUS,
     EXCHANGE_ADMIN_API_STATUS
 } from "../../consts";
 
@@ -33,14 +33,14 @@ const mapDispatchToProps = dispatch => ({
     getDataSourceList(type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
     },
-    deleteApi(tagId) {
-        return dispatch(apiManageActions.deleteApi({ tagIds: [tagId] }));
+    deleteApi(apiId) {
+        return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
-    openApi(tagId) {
-        return dispatch(apiManageActions.openApi(tagId));
+    openApi(apiId) {
+        return dispatch(apiManageActions.openApi(apiId));
     },
-    closeApi(tagId) {
-        return dispatch(apiManageActions.closeApi(tagId));
+    closeApi(apiId) {
+        return dispatch(apiManageActions.closeApi(apiId));
     },
     getDataSourcesType() {
         return dispatch(dataSourceActions.getDataSourcesType());
@@ -202,7 +202,7 @@ class APIMana extends Component {
     }
     handleSearch(value) {
         this.setState({
-            searchName: value,
+            searchName: value ? value : undefined,
             pageIndex: 1
         }, () => {
             this.getAllApi();
@@ -231,20 +231,12 @@ class APIMana extends Component {
     }
     initColumns() {
         return [{
-            width: 100,
+            width: '10%',
             title: '标签名称',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
-                return <a onClick={this.openDetail.bind(this, record.id)} >{text}</a>
-            }
-        }, {
-            width: 100,
-            title: '状态',
-            dataIndex: 'status',
-            key: 'status',
-            render: (text, record) => {
-                return TAG_STATUS[text];
+                return <a onClick={this.openDetail.bind(this, record.apiId)} >{text}</a>
             }
         }, {
             width: 100,
@@ -252,11 +244,7 @@ class APIMana extends Component {
             dataIndex: 'type',
             key: 'type',
             render: (tagType, record) => {
-                if (tagType === TAG_TYPE.REGISTER) {
-                    return '注册标签';
-                } else {
-                    return '自定义标签';
-                }
+                return TAG_TYPE[tagType];
             }
         }, {
             width: '10%',
@@ -276,20 +264,17 @@ class APIMana extends Component {
             title: '最近24小时调用',
             dataIndex: 'total1d',
             key: "total1d"
-        },
-        {
+        }, {
             width: '8%',
             title: '累计调用',
             dataIndex: 'invokeTotal',
             key: "invokeTotal"
-        },
-        {
+        }, {
             width: '10%',
             title: '最近修改人',
             dataIndex: 'modifyUser',
             key: "modifyUser"
-        },
-        {
+        }, {
             width: '10%',
             title: '最近修改时间',
             dataIndex: 'gmtModified',
@@ -298,31 +283,36 @@ class APIMana extends Component {
             render(text) {
                 return utils.formatDateTime(text);
             }
-        },
-        {
+        }, {
             width: '10%',
             title: '创建人',
             dataIndex: 'createUser',
             key: "createUser"
-        },
-        {
-            width: '10%',
+        }, {
+            width: 100,
+            title: '启用状态',
+            dataIndex: 'apiStatus',
+            key: 'apiStatus',
+            render: (text, record) => {
+                return API_OPEN_STATUS[text];
+            }
+        }, {
+            width: 120,
             title: '操作',
             dataIndex: 'deal',
             key: "deal",
             render: (text, record) => {
-                // 更新完成3才可禁用
-                if (record.status == 3) {
-                    return <a onClick={this.closeApi.bind(this, record.id)}>禁用</a>
+                if (record.apiStatus == 0) {
+                    return <a onClick={this.closeApi.bind(this, record.apiId)}>禁用</a>
                 }
              
                 return (
                     <div>
-                        <a onClick={this.openApi.bind(this, record.id)}>开启</a>
+                        <a onClick={this.openApi.bind(this, record.apiId)}>开启</a>
                         <span className="ant-divider" ></span>
                         <a onClick={this.editApi.bind(this, record.id)}>编辑</a>
                         <span className="ant-divider"></span>
-                        <a onClick={this.deleteApi.bind(this, record.id)}>删除</a>
+                        <a onClick={this.deleteApi.bind(this, record.apiId)}>删除</a>
                     </div>
                 );
             }
@@ -335,7 +325,7 @@ class APIMana extends Component {
     editApi(id) {
         this.props.router.push("/dl/manage/editApi/" + id);
     }
-    openApi(tagId) {
+    openApi(apiId) {
         confirm({
             title: '确认开启?',
             content: '确认开启标签',
@@ -343,7 +333,7 @@ class APIMana extends Component {
                 this.setState({
                     loading: true
                 })
-                this.props.openApi(tagId)
+                this.props.openApi(apiId)
                     .then(
                         (res) => {
                             this.setState({
@@ -361,7 +351,7 @@ class APIMana extends Component {
             },
         });
     }
-    closeApi(tagId) {
+    closeApi(apiId) {
         confirm({
             title: '确认禁用?',
             content: '确认禁用标签',
@@ -369,9 +359,10 @@ class APIMana extends Component {
                 this.setState({
                     loading: true
                 })
-                this.props.closeApi(tagId)
+                this.props.closeApi(apiId)
                     .then(
                         (res) => {
+                            if (true) {}
                             this.setState({
                                 loading: false
                             })
@@ -388,7 +379,7 @@ class APIMana extends Component {
         });
     }
     //删除api
-    deleteApi(tagId) {
+    deleteApi(apiId) {
         confirm({
             title: '确认删除?',
             content: '确认删除标签',
@@ -396,14 +387,14 @@ class APIMana extends Component {
                 this.setState({
                     loading: true
                 })
-                this.props.deleteApi(tagId)
+                this.props.deleteApi(apiId)
                     .then(
                         (res) => {
                             this.setState({
                                 loading: false
                             })
-                            message.success("删除成功")
-                            if (res) {
+                            if (res.code === 1) {
+                                message.success("删除成功");
                                 this.getAllApi();
                             }
                         }

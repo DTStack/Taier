@@ -75,7 +75,7 @@ class APIApproval extends Component {
             pageSize: 20,
             sort: orderType[this.state.sorter.order],
             orderBy: sortType[this.state.sorter.columnKey],
-            tagName: this.state.apiName
+            apiName: this.state.apiName
         })
         .then(
             (res) => {
@@ -225,8 +225,8 @@ class APIApproval extends Component {
             filteredValue: this.state.filter.status || null
         }, {
             title: '申请标签',
-            dataIndex: 'tagName',
-            key: 'tagName'
+            dataIndex: 'apiName',
+            key: 'apiName'
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',

@@ -6,6 +6,7 @@ const initialState = {
     sourceQuery: [],
     sourceType: [],
     sourceList: [],
+    tagSourceList: [],
     sourceTable: [],
     sourceColumn: [],
     sourcePart: [],
@@ -41,6 +42,13 @@ export default function dataSource(state = initialState, action) {
             const clone = cloneDeep(state);
             const { sourceList } = clone;
             clone.sourceList = payload;
+            return clone;
+        }
+
+        case dataSourceActionType.GET_TAG_DATA_SOURCES_LIST: {
+            const clone = cloneDeep(state);
+            const { tagSourceList } = clone;
+            clone.tagSourceList = payload;
             return clone;
         }
 

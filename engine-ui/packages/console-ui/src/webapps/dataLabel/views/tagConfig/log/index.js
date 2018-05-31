@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Table, Card, Select, DatePicker, Tooltip } from 'antd';
+import { Table, Card, Modal, Select, DatePicker, Tooltip } from 'antd';
 import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
-import { TAG_STATUS } from '../../consts';
-import TCApi from '../../api/tagConfig';
+import { TAG_STATUS } from '../../../consts';
+import TCApi from '../../../api/tagConfig';
 
 const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
@@ -63,13 +63,34 @@ export default class TagLog extends Component {
             title: '日志内容',
             dataIndex: 'log',
             key: 'log',
-            width: '55%',
+            width: '45%',
             render: (text) => {
                 return <Tooltip overlayClassName="m-tooltip" placement="bottom" title={text} arrowPointAtCenter>
                     <div className="ellipsis-td">{text}</div>
                 </Tooltip>
             }
+        }, {
+            title: '操作',
+            key: 'operation',
+            render: (text, record) => {
+                return <a onClick={this.showInfo.bind(this, record)}>
+                    查看详情
+                </a>
+            }
         }];
+    }
+
+    showInfo = (record) => {
+        Modal.info({
+            title: `${record.tagName} 日志内容`,
+            maskClosable: true,
+            width: '40%',
+            content: (
+                <div style={{ maxHeight: 400, overflowY: 'auto', whiteSpace: 'pre-line' }}>
+                    {record.log}
+                </div>
+            )
+        });
     }
 
     // 更新时间筛选
@@ -124,7 +145,7 @@ export default class TagLog extends Component {
                         style={{ width: 150 }}
                         placeholder="选择状态"
                         onChange={this.onStatueChange}>
-                        <Option key="3">更新成功</Option>
+                        <Option key="3">更新完成</Option>
                         <Option key="4">更新失败</Option>
                     </Select>
                 </div>

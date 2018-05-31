@@ -12,8 +12,8 @@ export const DATA_SOURCE = {
 
 // 标签类型
 export const TAG_TYPE = {
-    REGISTER: 1,
-    CUSTOM: 2,
+    1: '注册标签',
+    2: '规则标签'
 }
 
 // 标签状态
@@ -30,6 +30,12 @@ export const TAG_STATUS = {
 export const TAG_PUBLISH_STATUS = {
     0: '未发布',
     1: '已发布'
+};
+
+// Api启用状态
+export const API_OPEN_STATUS = {
+    0: '启用',
+    1: '禁用'
 };
 
 export const API_STATUS = {
