@@ -259,8 +259,8 @@ public class FlinkUtil {
         String parallelismStr = properties.getProperty(ConfigConstrant.SQL_ENV_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
     }
-    
-    
+
+
     /**
      * 最大并发度
      * @param properties
@@ -270,7 +270,7 @@ public class FlinkUtil {
         String parallelismStr = properties.getProperty(ConfigConstrant.SQL_MAX_ENV_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):0;
     }
-    
+
     /**
      * 针对MR类型整个job的并发度设置
      * @param properties
@@ -280,9 +280,9 @@ public class FlinkUtil {
         String parallelismStr = properties.getProperty(ConfigConstrant.MR_JOB_PARALLELISM);
         return StringUtils.isNotBlank(parallelismStr)?Integer.parseInt(parallelismStr):1;
     }
-    
+
     /**
-     * 
+     *
      * @param properties
      * @return
      */
