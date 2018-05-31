@@ -1,8 +1,11 @@
 # DATA-STACK
 
-# 更新日志 版本：DTinsight v2.0.1
+# 更新日志
 
 DTinsight Tag v1.0.0 发布！
+
+ > 版本：DTinsight v2.0.1 <br>
+ > 日期：2018-05-31
 
 ##  
 
@@ -41,7 +44,7 @@ DTinsight Tag v1.0.0 发布！
 ## 其他
 - bug 修复
 - 细节优化
-- 更多更新记录请看[Redmin](http://redmine.prod.dtstack.cn/projects/dtinsight200/issues)
+- 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsight200/issues)
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
