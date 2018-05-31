@@ -69,6 +69,7 @@ export default class RuleConfigEdit extends Component {
             {
                 title: '调度属性', content: <StepThree
                     currentStep={current}
+                    havePart={havePart}
                     navToStep={this.navToStep}
                     editParams={editParams}
                     changeParams={this.changeParams}
