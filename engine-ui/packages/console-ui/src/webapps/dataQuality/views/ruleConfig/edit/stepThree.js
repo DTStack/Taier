@@ -552,7 +552,7 @@ export default class StepThree extends Component {
                     delete rule.functionName;
                     delete rule.verifyTypeValue;
                 });
-                if(!editParams.havePart){
+                if(!havePart){
                     editParams.partition=undefined;
                 }
                 this.props.addMonitor({...editParams});
