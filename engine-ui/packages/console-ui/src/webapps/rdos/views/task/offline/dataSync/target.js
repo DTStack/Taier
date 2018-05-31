@@ -625,10 +625,10 @@ class TargetForm extends React.Component {
                     >
                         {getFieldDecorator('fieldDelimiter', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
+                            initialValue:  !targetMap.type || !targetMap.type.fieldDelimiter ? ',' : targetMap.type.fieldDelimiter
                         })(
                             <Input
-                                placeholder="若不填写，则默认为\001"
+                                placeholder="若不填写，则默认,"
                                 onChange={this.submitForm.bind(this)} />
                         )}
                     </FormItem>,
