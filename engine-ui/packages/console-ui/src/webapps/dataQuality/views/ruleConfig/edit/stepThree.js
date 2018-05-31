@@ -537,7 +537,7 @@ export default class StepThree extends Component {
     }
 
     save = () => {
-        const { form, editParams } = this.props;
+        const { form, editParams, havePart } = this.props;
         form.validateFields((err, values) => {
             console.log(err,values)
             if (err && err.endDate) {
@@ -552,7 +552,9 @@ export default class StepThree extends Component {
                     delete rule.functionName;
                     delete rule.verifyTypeValue;
                 });
-
+                if(!editParams.havePart){
+                    editParams.partition=undefined;
+                }
                 this.props.addMonitor({...editParams});
                 setTimeout(
                     ()=>{
