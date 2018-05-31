@@ -163,7 +163,7 @@ class errorLog extends Component {
       
         
         return (
-            <div style={{ paddingLeft: 20 }}>
+            <div>
                 <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
                     <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
                     <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
@@ -175,7 +175,6 @@ class errorLog extends Component {
                 <Table
                     rowKey="id"
                     className="m-table monitor-table"
-                    
                     columns={this.initColumns()}
                     loading={this.state.loading}
                     pagination={this.getPagination()}

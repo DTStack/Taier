@@ -96,6 +96,7 @@ class Content extends Component {
                                 className="m-table border-table"
                                 pagination={false}
                                 dataSource={this.getRequestDataSource()}
+                                scroll={{ y: 245 }}
                                 columns={this.getRequestColumns()} />
                         </section>
                     </Col>
@@ -108,6 +109,7 @@ class Content extends Component {
                                 className="m-table border-table"
                                 pagination={false}
                                 dataSource={this.getResponseDataSource()}
+                                scroll={{ y: 245 }}
                                 columns={this.getResponseColumns()} />
                         </section>
                     </Col>
