@@ -168,9 +168,9 @@ public class FlinkClientBuilder {
             config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
         }
 
-        if(System.getenv("HADOOP_CONF_DIR") != null) {
-            //config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
-        }
+//        if(System.getenv("HADOOP_CONF_DIR") != null) {
+//            //config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
+//        }
 
         if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
@@ -214,12 +214,11 @@ public class FlinkClientBuilder {
             }
 
             if(StringUtils.isEmpty(applicationId)) {
-                LOG.error("No flink session found on yarn cluster.");
                 throw new RdosException("No flink session found on yarn cluster.");
             }
 
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error("",e);
             throw new RdosException(e.getMessage());
         }
 
