@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.hadoop;
 
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
@@ -9,11 +10,14 @@ import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.hadoop.util.HadoopConf;
+import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
@@ -36,21 +40,27 @@ import java.util.UUID;
 public class HadoopClient extends AbsClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(HadoopClient.class);
-    private static final String YARN_CONF_PATH = "yarnConfPath";
-    private static final String HADOOP_CONF_DIR = "HADOOP_CONF_DIR";
-    private static final String TMP_PATH = "/tmp";
+    private static final String USER_DIR = System.getProperty("user.dir");
+    private static final String TMP_PATH = USER_DIR + "/tmp";
     private static final String HDFS_PREFIX = "hdfs://";
+    private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
     private EngineResourceInfo resourceInfo;
     private Configuration conf = new Configuration();
     private YarnClient yarnDelegate = YarnClient.createYarnClient();
+    private Config config;
 
 
     @Override
     public void init(Properties prop) throws Exception {
         System.out.println("hadoop client init...");
-        resourceInfo = new HadoopResourceInfo();
 
-        conf.clear();
+        String configStr = PublicUtil.objToString(prop);
+        config = PublicUtil.jsonStrToObject(configStr, Config.class);
+        HadoopConf customerConf = new HadoopConf();
+        customerConf.initHadoopConf(config.getHadoopConf());
+        customerConf.initYarnConf(config.getYarnConf());
+        conf = customerConf.getYarnConfiguration();
+
         conf.set("mapreduce.framework.name", "yarn");
         conf.set("yarn.scheduler.maximum-allocation-mb", "1024");
         conf.set("yarn.nodemanager.resource.memory-mb", "1024");
@@ -58,33 +68,8 @@ public class HadoopClient extends AbsClient {
         conf.set("mapreduce.reduce.memory.mb","1024");
         conf.setBoolean("mapreduce.app-submission.cross-platform", true);
 
-        String hadoopConfDir = null;
-        if(System.getenv(HADOOP_CONF_DIR) != null) {
-            hadoopConfDir = System.getenv(HADOOP_CONF_DIR);
-        }
-
-        if(StringUtils.isNotBlank(prop.getProperty(YARN_CONF_PATH))) {
-            hadoopConfDir = prop.getProperty(YARN_CONF_PATH);
-        }
-
-        if(StringUtils.isNotBlank(hadoopConfDir)) {
-            File dir = new File(prop.getProperty(YARN_CONF_PATH));
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                if (file.getPath().endsWith("xml")) {
-                    conf.addResource(file.toURI().toURL());
-                }
-            }
-        }
-
-        prop.remove(YARN_CONF_PATH);
-        prop.remove("type");
-        for(Map.Entry entry : prop.entrySet()) {
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
-            conf.set(key, value);
-        }
-
+        setHadoopUserName(config);
+        resourceInfo = new HadoopResourceInfo();
         yarnDelegate.init(conf);
         yarnDelegate.start();
     }
@@ -183,9 +168,9 @@ public class HadoopClient extends AbsClient {
                 throw new RdosException("only support hdfs protocol for jar path");
             }
 
+            setHadoopUserName(config);
             String localJarPath = TMP_PATH + File.separator + UUID.randomUUID().toString() + ".jar";
             downloadHdfsFile(jarPath, localJarPath);
-
 
             Map<String,String> params = new ObjectMapper().readValue(jobClient.getClassArgs(), Map.class);
             params.put(MapReduceTemplate.JAR, localJarPath);
@@ -196,6 +181,8 @@ public class HadoopClient extends AbsClient {
         } catch (Exception ex) {
             ex.printStackTrace();
             return JobResult.createErrorResult(ex);
+        }finally {
+            //TODO 删除临时文件
         }
 
     }
@@ -221,6 +208,14 @@ public class HadoopClient extends AbsClient {
         }
 
         return null;
+    }
+
+    private void setHadoopUserName(Config config){
+        if(Strings.isNullOrEmpty(config.getHadoopUserName())){
+            return;
+        }
+
+        UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, config.getHadoopUserName());
     }
 
 

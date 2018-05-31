@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink130.source.stream;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.operator.stream.CreateSourceOperator;
-import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.flink130.SqlPluginInfo;
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sources.StreamTableSource;
 
@@ -17,8 +17,7 @@ import java.util.Properties;
  * Reason:
  * Date: 2017/3/10
  * Company: www.dtstack.com
- *
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class StreamSourceFactory {
@@ -34,7 +33,7 @@ public class StreamSourceFactory {
      * @param sourceOperator
      * @return
      */
-    public static StreamTableSource getStreamSource(CreateSourceOperator sourceOperator) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static StreamTableSource getStreamSource(CreateSourceOperator sourceOperator, SqlPluginInfo sqlPluginInfo) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
         String sourceTypeStr = sourceOperator.getType();
         Properties properties = sourceOperator.getProperties();
@@ -47,8 +46,8 @@ public class StreamSourceFactory {
         }
 
         sourceTypeStr += SUFFIX_JAR;
-        String pluginJarPath = PluginSourceUtil.getJarFilePath(sourceTypeStr);
-        String className = PluginSourceUtil.getClassName(sourceTypeStr);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(sourceTypeStr);
+        String className = sqlPluginInfo.getClassName(sourceTypeStr);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

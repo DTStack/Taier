@@ -2,9 +2,12 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.yarn.YarnClusterClient;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,13 +25,10 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private AtomicBoolean run = new AtomicBoolean(true);
 
-    private ClusterClient client;
-
     private FlinkClient flinkClient;
 
-    public YarnAppStatusMonitor(ClusterClient client, FlinkClient flinkClient){
+    public YarnAppStatusMonitor(FlinkClient flinkClient){
         this.flinkClient = flinkClient;
-        this.client = client;
     }
 
     @Override
@@ -38,7 +38,19 @@ public class YarnAppStatusMonitor implements Runnable{
         while (run.get()){
             if(flinkClient.isClientOn()){
                 try{
-                    ((YarnClusterClient) client).getJobManagerAddress();
+                    ClusterClient client = flinkClient.getClient();
+                    Field pollingRunnerField = ((YarnClusterClient) client).getClass().getDeclaredField("pollingRunner");
+                    pollingRunnerField.setAccessible(true);
+                    Object pollingThread = pollingRunnerField.get(client);
+                    Field reportField = pollingThread.getClass().getDeclaredField("lastReport");
+                    reportField.setAccessible(true);
+                    ApplicationReport lastReport = (ApplicationReport) reportField.get(pollingThread);
+                    if(!YarnApplicationState.RUNNING.equals(lastReport.getYarnApplicationState())){
+                        LOG.error("-------Flink session is down----");
+                        //限制任务提交---直到恢复
+                        flinkClient.setClientOn(false);
+                    }
+
                 }catch (Exception e){
                     LOG.error("-------Flink session is down----");
                     //限制任务提交---直到恢复
@@ -63,7 +75,7 @@ public class YarnAppStatusMonitor implements Runnable{
         //重试
         try{
             LOG.warn("--retry flink client with yarn session----");
-            flinkClient.initYarnClusterClient();
+            flinkClient.initClient();
         }catch (Exception e){
             LOG.error("", e);
         }

@@ -19,14 +19,6 @@ public abstract class AbsClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbsClient.class);
 
-    public static final String JOB_JAR_PATH_KEY = "job.jar.path";
-
-    public static final String JOB_MAIN_CLASS_KEY = "job.main.class";
-
-    public static final String JOB_APP_NAME_KEY = "job.name";
-
-    public static final String JOB_EXE_ARGS = "job.class.args";
-
     @Override
 	public JobResult submitJob(JobClient jobClient) {
 

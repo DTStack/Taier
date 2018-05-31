@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink130.sink.stream;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResultOperator;
-import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.flink130.SqlPluginInfo;
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sinks.TableSink;
 
@@ -26,7 +26,7 @@ public class StreamSinkFactory {
     /**jar包后缀*/
     public static String SUFFIX_JAR = "streamsink130";
 
-    public static TableSink getTableSink(StreamCreateResultOperator resultOperator) throws IOException,
+    public static TableSink getTableSink(StreamCreateResultOperator resultOperator, SqlPluginInfo sqlPluginInfo) throws IOException,
             ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -37,8 +37,8 @@ public class StreamSinkFactory {
         String resultType = resultOperator.getType();
         resultType += SUFFIX_JAR;
 
-        String pluginJarPath = PluginSourceUtil.getJarFilePath(resultType);
-        String className = PluginSourceUtil.getClassName(resultType);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(resultType);
+        String className = sqlPluginInfo.getClassName(resultType);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

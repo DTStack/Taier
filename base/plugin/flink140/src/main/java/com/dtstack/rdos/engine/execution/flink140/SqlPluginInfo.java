@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink140.util;
+package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.gson.Gson;
@@ -18,21 +18,46 @@ import java.util.Map;
  * @author xuchao
  */
 
-public class PluginSourceUtil {
+public class SqlPluginInfo {
 
-    private static final Logger logger = LoggerFactory.getLogger(PluginSourceUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(SqlPluginInfo.class);
 
     private static String SINK_GENER_CLASS_KEY = "className";
 
-    private static String sqlRootDir;
+    private static final String sqlPluginDirName = "sqlplugin";
 
-    private static String remoteSqlRootDir;
+    private static String SP = File.separator;
 
-    public static String SP = File.separator;
+    private static Gson gson = new Gson();
 
-    public static Gson gson = new Gson();
+    private String sqlRootDir;
 
-    public static String getJarFilePath(String type){
+    private String remoteSqlRootDir;
+
+    private SqlPluginInfo(){
+
+    }
+
+    public static SqlPluginInfo create(FlinkConfig flinkConfig){
+        SqlPluginInfo pluginInfo = new SqlPluginInfo();
+        pluginInfo.init(flinkConfig);
+        return pluginInfo;
+    }
+
+    private void init(FlinkConfig flinkConfig){
+        String remoteSqlPluginDir = getSqlPluginDir(flinkConfig.getRemotePluginRootDir());
+        String localSqlPluginDir = getSqlPluginDir(flinkConfig.getFlinkPluginRoot());
+
+        File sqlPluginDirFile = new File(localSqlPluginDir);
+        if(!sqlPluginDirFile.exists() || !sqlPluginDirFile.isDirectory()){
+            throw new RdosException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
+        }
+
+        setSourceJarRootDir(localSqlPluginDir);
+        setRemoteSourceJarRootDir(remoteSqlPluginDir);
+    }
+
+    public String getJarFilePath(String type){
         String jarPath = sqlRootDir + SP + type + SP + type + ".jar";
         File jarFile = new File(jarPath);
 
@@ -43,7 +68,7 @@ public class PluginSourceUtil {
         return jarPath;
     }
 
-    public static String getRemoteJarFilePath(String type){
+    public String getRemoteJarFilePath(String type){
         String jarPath = remoteSqlRootDir + SP + type + SP + type + ".jar";
         return jarPath;
     }
@@ -52,7 +77,7 @@ public class PluginSourceUtil {
         return "file://" + filePath;
     }
 
-    public static String getClassName(String sinkType) throws IOException {
+    public String getClassName(String sinkType) throws IOException {
         String jsonPath = sqlRootDir + SP + sinkType + SP + sinkType + ".json";
         File jsonFile = new File(jsonPath);
 
@@ -67,7 +92,7 @@ public class PluginSourceUtil {
         return  map.get(SINK_GENER_CLASS_KEY);
     }
 
-    public synchronized static void setSourceJarRootDir(String rootDir){
+    public void setSourceJarRootDir(String rootDir){
 
         if(sqlRootDir != null){
             return;
@@ -77,7 +102,7 @@ public class PluginSourceUtil {
         logger.info("---------local sql plugin root dir is:" + rootDir);
     }
 
-    public synchronized static void setRemoteSourceJarRootDir(String remoteRootDir){
+    public void setRemoteSourceJarRootDir(String remoteRootDir){
 
         if(remoteSqlRootDir != null){
             return;
@@ -86,4 +111,9 @@ public class PluginSourceUtil {
         remoteSqlRootDir = remoteRootDir;
         logger.info("---------remote sql plugin root dir is:" + remoteSqlRootDir);
     }
+
+    public String getSqlPluginDir(String pluginRoot){
+        return pluginRoot + SP + sqlPluginDirName;
+    }
+
 }

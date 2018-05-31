@@ -7,13 +7,18 @@ import com.dtstack.rdos.engine.execution.base.plugin.log.LogStoreFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.plugin.log.LogStore;
+
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.BlockingQueue;
@@ -142,7 +147,11 @@ public class RdbsExeQueue {
 
         private String jobSqlProc;
 
+        private List<String> sqlList;
+
         private CallableStatement stmt;
+
+        private Statement simpleStmt;
 
         private String procedureName;
 
@@ -150,8 +159,63 @@ public class RdbsExeQueue {
 
         public RdbsExe(String jobName, String sql, String jobId){
             this.jobName = jobName;
-            this.jobSqlProc = createSqlProc(sql, jobName, jobId);
+            if (connFactory.supportProcedure()) {
+                jobSqlProc =  createSqlProc(sql, jobName, jobId);
+            } else {
+                sqlList = connFactory.buildSqlList(sql);
+            }
             this.engineJobId = jobId;
+        }
+
+        private boolean executeSqlList() {
+            Connection conn = null;
+            boolean exeResult = false;
+
+            try {
+                conn = connFactory.getConn();
+
+                if(isCancel.get()){
+                    LOG.info("job:{} is canceled", jobName);
+                    return false;
+                }
+
+                simpleStmt = conn.createStatement();
+                for(String sql : sqlList) {
+                    simpleStmt.execute(sql);
+                    if(isCancel.get()) {
+                        LOG.info("job:{} is canceled", jobName);
+                        return false;
+                    }
+                }
+                exeResult = true;
+            } catch (Exception e) {
+                LOG.error("", e);
+                //错误信息更新到日志里面
+                logStore.updateErrorLog(engineJobId, e.toString());
+            } finally {
+
+                try {
+                    if(conn != null){
+
+                        if(simpleStmt != null && !simpleStmt.isClosed()){
+                            simpleStmt.close();
+                        }
+
+                        conn.close();
+                    }
+
+                } catch (SQLException e) {
+                    LOG.error("", e);
+                }
+
+                LOG.info("job:{} exe end...", jobName, exeResult);
+                //修改指定任务的状态--成功或者失败
+                //TODO 处理cancel job 情况
+                logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
+                jobCache.remove(engineJobId);
+            }
+            return exeResult;
+
         }
 
         /**
@@ -189,16 +253,7 @@ public class RdbsExeQueue {
             }
         }
 
-
-        /**
-         * TODO 是否可以复用statement?
-         */
-        @Override
-        public void run() {
-            if(Strings.isNullOrEmpty(jobSqlProc)){
-                return;
-            }
-
+        private boolean runProc() {
             Connection conn = null;
             boolean exeResult = false;
 
@@ -206,7 +261,7 @@ public class RdbsExeQueue {
                 conn = connFactory.getConn();
                 if(isCancel.get()){
                     LOG.info("job:{} is canceled", jobName);
-                    return;
+                    return false;
                 }
 
                 //创建存储过程
@@ -249,6 +304,20 @@ public class RdbsExeQueue {
                 //TODO 处理cancel job 情况
                 logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 jobCache.remove(engineJobId);
+            }
+            return exeResult;
+        }
+
+
+        /**
+         * TODO 是否可以复用statement?
+         */
+        @Override
+        public void run() {
+            if(StringUtils.isNotBlank(jobSqlProc)) {
+                runProc();
+            } else {
+                executeSqlList();
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink140.util;
+package com.dtstack.rdos.engine.execution.flink130.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.io.Files;
@@ -10,8 +10,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,11 +26,11 @@ import java.util.regex.Pattern;
  * http,hdfs文件下载
  * Date: 2017/2/21
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
-public class FlinkFileUtil {
+public class FileUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(FlinkFileUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     private static final int BUFFER_SIZE = 10240;
 
@@ -44,14 +47,14 @@ public class FlinkFileUtil {
      * @param dstFileName
      * @return
      */
-    public static boolean downLoadFile(String urlStr, String dstFileName){
+    public static boolean downLoadFile(String urlStr, String dstFileName, Configuration hadoopConf) throws IOException, URISyntaxException {
 
         if(urlStr.startsWith(HTTP_PROTOCAL)){
             return downLoadFileFromHttp(urlStr, dstFileName);
         }else if(urlStr.startsWith(HDFS_PROTOCAL)){
 
             try{
-                return downLoadFileFromHdfs(urlStr, dstFileName);
+                return downLoadFileFromHdfs(urlStr, dstFileName, hadoopConf);
             }catch (Exception e){
                 logger.error("", e);
                 throw new RdosException(" get exception download from hdfs, error:" + e.getCause().toString());
@@ -61,7 +64,9 @@ public class FlinkFileUtil {
         return false;
     }
 
-    public static boolean downLoadFileFromHttp(String urlStr, String dstFileName){
+
+
+    public static boolean downLoadFileFromHttp(String urlStr, String dstFileName) throws URISyntaxException, IOException {
         try {
             File outFile = new File(dstFileName);
             //如果当前文件存在则删除,覆盖最新的文件
@@ -96,7 +101,7 @@ public class FlinkFileUtil {
         return true;
     }
 
-    public static boolean downLoadFileFromHdfs(String uriStr, String dstFileName) throws URISyntaxException, IOException {
+    public static boolean downLoadFileFromHdfs(String uriStr, String dstFileName, Configuration hadoopConf) throws URISyntaxException, IOException {
 
         Pair<String, String> pair = parseHdfsUri(uriStr);
         if(pair == null){
@@ -106,9 +111,8 @@ public class FlinkFileUtil {
         String hdfsUri = pair.getLeft();
         String hdfsFilePathStr = pair.getRight();
 
-        Configuration conf = HadoopConf.getConfiguration();
         URI uri = new URI(hdfsUri);
-        FileSystem fs = FileSystem.get(uri, conf);
+        FileSystem fs = FileSystem.get(uri, hadoopConf);
         Path hdfsFilePath = new Path(hdfsFilePathStr);
         if(!fs.exists(hdfsFilePath)){
             return false;

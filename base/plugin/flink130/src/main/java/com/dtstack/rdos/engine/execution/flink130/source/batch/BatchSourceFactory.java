@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink130.source.batch;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.operator.batch.BatchCreateSourceOperator;
-import com.dtstack.rdos.engine.execution.flink130.util.PluginSourceUtil;
+import com.dtstack.rdos.engine.execution.flink130.SqlPluginInfo;
 import com.dtstack.rdos.engine.execution.base.loader.DtClassLoader;
 import org.apache.flink.table.sources.BatchTableSource;
 
@@ -33,7 +33,7 @@ public class BatchSourceFactory {
      * @param sourceOperator
      * @return
      */
-    public static BatchTableSource getBatchSource(BatchCreateSourceOperator sourceOperator) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static BatchTableSource getBatchSource(BatchCreateSourceOperator sourceOperator, SqlPluginInfo sqlPluginInfo) throws IOException, ClassNotFoundException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
         Properties properties = sourceOperator.getProperties();
         String sourceTypeStr = sourceOperator.getType();
@@ -46,8 +46,8 @@ public class BatchSourceFactory {
         }
 
         sourceTypeStr += SUFFIX_JAR;
-        String pluginJarPath = PluginSourceUtil.getJarFilePath(sourceTypeStr);
-        String className = PluginSourceUtil.getClassName(sourceTypeStr);
+        String pluginJarPath = sqlPluginInfo.getJarFilePath(sourceTypeStr);
+        String className = sqlPluginInfo.getClassName(sourceTypeStr);
 
         File pluginFile = new File(pluginJarPath);
         URL pluginJarURL = pluginFile.toURI().toURL();

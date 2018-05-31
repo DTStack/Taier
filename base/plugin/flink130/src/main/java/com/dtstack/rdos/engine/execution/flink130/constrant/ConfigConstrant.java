@@ -28,4 +28,6 @@ public class ConfigConstrant {
     
     public static final String SQL_BUFFER_TIMEOUT_MILLIS = "sql.buffer.timeout.millis";
 
+    public static final String FLINK_TIME_CHARACTERISTIC_KEY = "time.characteristic";
+
 }
