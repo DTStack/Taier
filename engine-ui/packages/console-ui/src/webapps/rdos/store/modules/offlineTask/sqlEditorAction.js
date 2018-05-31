@@ -28,8 +28,9 @@ function getUniqueKey(id) {
 }
 
 function getDataOver(dispatch, currentTab, res, jobId) {
-    
-    dispatch(outputRes(currentTab, res.data.result,jobId))
+    if(res.data.result){
+        dispatch(outputRes(currentTab, res.data.result,jobId))
+    }
     dispatch(output(currentTab, '执行成功!'))
 }
 
