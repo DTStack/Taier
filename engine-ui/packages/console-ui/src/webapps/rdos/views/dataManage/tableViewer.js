@@ -12,7 +12,7 @@ import {
 import GoBack from 'main/components/go-back';
 
 import Editor from '../../components/code-editor';
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import TablePartition from './tablePartition';
 import TableRelation from './tableRelation';

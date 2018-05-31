@@ -5,7 +5,7 @@ import { Steps, Button, message, Form, Input,
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
 
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';

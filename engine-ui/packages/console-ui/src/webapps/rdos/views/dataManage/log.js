@@ -10,8 +10,7 @@ import moment from 'moment';
 
 import SlidePane from 'widgets/slidePane';
 
-import ajax from '../../api';
-// import actions from '../../store/modules/dataManage/actionCreator';
+import ajax from '../../api/dataManage';
 import * as UserAction from '../../store/modules/user'
 
 const Search = Input.Search;

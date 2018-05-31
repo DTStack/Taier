@@ -14,7 +14,7 @@ import { isEmpty } from 'lodash';
 import utils from 'utils';
 
 import CatalogueTree from './catalogTree';
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 
 const FormItem = Form.Item
 const Option = Select.Option

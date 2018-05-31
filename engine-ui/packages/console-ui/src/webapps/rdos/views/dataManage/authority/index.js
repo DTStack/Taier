@@ -12,7 +12,7 @@ import { isEmpty } from 'lodash';
 
 import utils from 'utils';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataManage';
 import ApprovalModal from './approvalModal';
 
 const FormItem = Form.Item
@@ -92,7 +92,7 @@ class AuthMana extends Component {
         })
     }
 
-    approveApply = (applyData) => {
+    approveApply = (params) => {
         ajax.approveApply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
@@ -100,10 +100,18 @@ class AuthMana extends Component {
         })
     }
 
-    revoke = (applyData) => {
+    revoke = (params) => {
         ajax.revoke(params).then(res => {
             if (res.code === 1) {
-                message.success('操作成功！')
+                message.success('回收成功！')
+            }
+        })
+    }
+
+    cancelApply = (params) => {
+        ajax.cancelApply(params).then(res => {
+            if (res.code === 1) {
+                message.success('取消成功！')
             }
         })
     }
@@ -355,7 +363,7 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a>撤销</a>
+                                    <a onClick={ctx.cancelApply}>撤销</a>
                                 </span>
                             }
                         }

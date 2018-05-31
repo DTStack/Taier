@@ -13,7 +13,7 @@ import moment from 'moment';
 import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 import { ColumnsPartition } from './tableCreator';
 import actions from '../../store/modules/dataManage/actionCreator';
 // import { formItemLayout } from '../../comm/const';

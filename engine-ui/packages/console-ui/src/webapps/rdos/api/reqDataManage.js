@@ -16,6 +16,14 @@ export default {
     GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/hiveTablePartition/getPartitions`, // 获取表分区信息 
     UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/hiveDataImport/importData`, // 
     CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/hiveMetaData/checkPartitionExists`, // 检查表分区
+   
+    // ========= 数据类目 =========
+    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
+    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
+    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/deleteCatalogue`, // 删除目录
+    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/updateHiveCatalogue`, // 更新目录
+    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
+    DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
 
     // ========= 血缘关系 =========
     GET_REL_TABLE_TREE: `${RDOS_BASE_URL}/batch/batchBloodRelation/getTree`, // 获取血缘关系树
@@ -33,4 +41,11 @@ export default {
     GET_DIRTY_TABLE_OVERVIEW: `${RDOS_BASE_URL}/batch/batchDirtyData/dataOverview`, // 脏数据概览
     COUNT_DIRTY_DATA: `${RDOS_BASE_URL}/batch/batchDirtyData/countInfo`, // 脏数据统计信息
     GET_DIRTY_DATA_ANALYTICS: `${RDOS_BASE_URL}/batch/batchDirtyData/reason`, // 原因分析
+
+    // ========= 表权限管理 =========
+    APPLY_LIST: `${RDOS_BASE_URL}/batch/batchApply/pageQuery`, // 申请列表
+    APPLY_SOURCE: `${RDOS_BASE_URL}/batch/batchApply/apply`, // 申请资源
+    APPLY_CANCEL: `${RDOS_BASE_URL}/batch/batchApply/cancel`, // 取消申请
+    REVOKE_PERMISSION: `${RDOS_BASE_URL}/batch/batchApply/revoke`, // 撤回权限
+    APPLY_HANDLE: `${RDOS_BASE_URL}/batch/batchApply/getRelateTask`, // 申请处理
 };

@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { Card, message } from 'antd';
 import { hashHistory } from 'react-router'
 
-import API from '../../api';
+import API from '../../api/dataManage';
 import CatalogueTree from './catalogTree';
 
 function appendTreeNode(treeNode, append, target) {
