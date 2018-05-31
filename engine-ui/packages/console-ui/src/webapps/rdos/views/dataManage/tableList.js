@@ -34,6 +34,7 @@ class TableList extends Component {
             catalogue: undefined,
             timeSort: '',
             sizeSort: '',
+            _DDL:undefined
         }
     }
 
@@ -126,6 +127,10 @@ class TableList extends Component {
         this.setState({
             catalogue: value,
         }, this.search)
+    }
+    
+    cursorActivity(){
+        console.log(arguments)
     }
 
     render() {
@@ -271,6 +276,7 @@ class TableList extends Component {
                         </div>
                         <Modal className="m-codemodal"
                             width="750"
+                            maskClosable={false}
                             title={(
                                 <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
                             )}
@@ -282,7 +288,8 @@ class TableList extends Component {
                                 style={{height:"400px"}}
                                 placeholder={DDL_placeholder}
                                 onChange={ this.handleDdlChange.bind(this) } 
-                                value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
+                                cursorActivity={this.cursorActivity.bind(this)}
+                                ref={(e) => { this.DDLEditor = e }}
                             />
                         </Modal>
                     </div>
@@ -298,13 +305,13 @@ class TableList extends Component {
     }
 
     handleOk() {
-        if(this._DDL) {
+        if(this.state._DDL) {
             ajax.createDdlTable({
-                sql: this._DDL
+                sql: this.state._DDL
             }).then(res => {
                 if(res.code === 1) {
                     if(!res.data) {
-                        this._DDL = undefined;
+                        this.state._DDL = undefined;
                         // 设置值
                         this.DDLEditor.self.doc.setValue('');
                         this.setState({
@@ -324,14 +331,17 @@ class TableList extends Component {
         }
     }
     handleCancel() {
-        this._DDL = undefined;
+        this.DDLEditor.self.doc.setValue('');
         this.setState({
-            visible: false
+            visible: false,
+            _DDL:undefined
         })
     }
 
     handleDdlChange(previous, value) {
-        this._DDL = value;
+        this.setState({
+            _DDL:value
+        })
     }
 }
 
