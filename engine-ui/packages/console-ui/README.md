@@ -1,21 +1,47 @@
 # DATA-STACK
 
-# 开发起步
+# 更新日志 版本：DTinsight v2.0.1
 
-基于webpack的开发配置环境，可以使用npm管理项目
+DTinsight Tag v1.0.0 发布！
 
-```
-npm i
-npm run dev
-npm run build
-```
-推荐使用yarn管理依赖
+##  
 
-```
-yarn
-yarn add package.name
-```
+### 公共模块
+- 支持用户从UIC直接搜索添加
+- 取消除IDE以外应用的`用户删除`功能
+- 更新各个应用角色设计（租户所有者， 产品管理员, 应用开发）
 
+
+### 开发套件 ( DTinsight IDE )
+- 增加 `FTP、MacCompute、ES`数据类型
+- 增加数据同步脚本模式
+- 调整任务运维`补数据`功能
+- 运维中心增加 `虚节点` 显示
+- 新增`钉钉告警`功能
+- 新增任务管理`上下游展开`功能
+
+### 数据质量 ( DTinsight Valid )
+- 规则配置，允许修改规则
+- 规则管理，优化列表显示
+- 任务查询，优化报错日志查看
+
+### API管理 ( DTinsight API )
+- 无
+
+### 数据标签 ( DTinsight Tag )
+新增应用：版本：v1.0.0
+##### 核心功能
+- 标签市场
+- 我的标签
+- 标签配置
+- 审批授权
+- 服务管理
+
+
+## 其他
+- bug 修复
+- 细节优化
+- 更多更新记录请看[Redmin](http://redmine.prod.dtstack.cn/projects/dtinsight200/issues)
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
