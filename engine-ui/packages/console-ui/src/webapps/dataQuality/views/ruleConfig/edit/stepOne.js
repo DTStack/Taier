@@ -159,11 +159,6 @@ export default class StepOne extends Component {
                     }
                 }
             )
-            .catch(
-                (e)=>{
-                    console.log(e)
-                }
-            )
 
     }
 
