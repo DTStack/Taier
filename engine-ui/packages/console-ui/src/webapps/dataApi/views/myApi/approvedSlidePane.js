@@ -39,10 +39,7 @@ class ApprovedSlidePane extends Component {
                         </p>
                         </div>
                         ) : null}
-
-
                 </div>
-
             </SlidePane>
 
 
