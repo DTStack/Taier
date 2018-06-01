@@ -514,21 +514,4 @@ export default {
     getDataSourceTypes(params) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
-
-    // =========== 项目统计 ==================//
-    countProjectTable(params) {
-        return http.post(offlineReq.PROJECT_TABLE_COUNT, params)
-    },
-    countProjectStore(params) {
-        return http.post(offlineReq.PROJECT_STORE_COUNT, params)
-    },
-    getProjectStoreTop(params) {
-        return http.post(offlineReq.PROJECT_STORE_TOP, params)
-    },
-    getProjectTableStoreTop(params) {
-        return http.post(offlineReq.PROJECT_TABLE_STORE_TOP, params)
-    },
-    getProjectDataOverview(params) {
-        return http.post(offlineReq.PROJECT_DATA_OVERVIEW, params)
-    },
 }

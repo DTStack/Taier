@@ -58,6 +58,8 @@ export default {
     importLocalData(params) {// 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
     },
+
+    // =========== 血缘关系 ==================//
     getTableRelTree(params) {
         return http.post(dataManageReq.GET_REL_TABLE_TREE, params)
     },
@@ -72,6 +74,12 @@ export default {
     },
     getRelTableTasks(params) {
         return http.post(dataManageReq.GET_REL_TABLE_TASKS, params)
+    },
+    getRelTableColumns(params) {
+        return http.post(dataManageReq.GET_REL_TABLE_COLUMNS, params)
+    },
+    getRelTableUpDownColumns(params) {
+        return http.post(dataManageReq.GET_REL_TABLE_UP_DOWN_COLUMNS, params)
     },
 
     // =========== 类目管理 ==================//
@@ -137,4 +145,21 @@ export default {
         return http.post(dataManageReq.APPLY_HANDLE, params)
     },
 
+
+    // =========== 项目表统计 ==================//
+    countProjectTable(params) {
+        return http.post(dataManageReq.PROJECT_TABLE_COUNT, params)
+    },
+    countProjectStore(params) {
+        return http.post(dataManageReq.PROJECT_STORE_COUNT, params)
+    },
+    getProjectStoreTop(params) {
+        return http.post(dataManageReq.PROJECT_STORE_TOP, params)
+    },
+    getProjectTableStoreTop(params) {
+        return http.post(dataManageReq.PROJECT_TABLE_STORE_TOP, params)
+    },
+    getProjectDataOverview(params) {
+        return http.post(dataManageReq.PROJECT_DATA_OVERVIEW, params)
+    },
 }
