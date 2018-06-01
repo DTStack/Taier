@@ -12,7 +12,6 @@ const baseConf = require('./base.js')();
 
 baseConf.plugins.push(
     new BundleAnalyzerPlugin(),
-    new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 15 }),
     new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 })
 );
 baseConf.mode = "production";

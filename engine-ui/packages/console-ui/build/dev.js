@@ -30,7 +30,7 @@ baseConf.plugins.push(
                 title: "构建出错啦",
                 message: severity + ': ' + error.name,
                 subtitle: filename || '',
-                icon: path.join(__dirname, 'favicon.ico')
+                icon: path.join(__dirname, 'icon.png')
             })
 
         }
