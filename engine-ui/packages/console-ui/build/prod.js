@@ -2,40 +2,20 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const cssLoader = require("./loader/css-loader.js").pro;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const ImageminPlugin = require('imagemin-webpack-plugin').default
 
 const MY_PATH = require('./consts');
 
 const baseConf = require('./base.js')();
 
 baseConf.plugins.push(
-    // new BundleAnalyzerPlugin(),
-    new webpack.DefinePlugin({
-        'process.env': {
-            'NODE_ENV': JSON.stringify('production'),
-        }
-    }),
-    new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
-    new webpack.optimize.MinChunkSizePlugin({minChunkSize: 10000}),
-    new webpack.LoaderOptionsPlugin({
-        minimize: true,
-        debug: false
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-        compress: {
-            warnings: false,
-            drop_console: true,
-            // This feature has been reported as buggy a few times, such as:
-            // https://github.com/mishoo/UglifyJS2/issues/1964
-            // We'll wait with enabling it by default until it is more solid.
-            reduce_vars: false,
-        },
-        output: {
-            comments: false,
-        },
-    })
+    new BundleAnalyzerPlugin(),
+    new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 15 }),
+    new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 })
 );
-
+baseConf.mode = "production";
 
 const htmlPlugs = [];
 function loadHtmlPlugs() {
@@ -55,7 +35,7 @@ function loadHtmlPlugs() {
 
     const appConfs = require(path.resolve(MY_PATH.APP_PATH, 'config/defaultApps'));
 
-    for (var i = 0 ; i < appConfs.length; i++) {
+    for (var i = 0; i < appConfs.length; i++) {
         const app = appConfs[i];
         if (app.enable) {
             const tmp = path.resolve(MY_PATH.WEB_PUBLIC, `${app.id}/index.html`)
@@ -64,7 +44,7 @@ function loadHtmlPlugs() {
                     filename: app.filename,
                     template: tmp,
                     inject: 'body',
-                    chunks: ['vendor', app.id, 'manifest'],
+                    chunks: [app.id, 'manifest'],
                     showErrors: true,
                     hash: true,
                     minify: htmlMinify,
@@ -76,8 +56,13 @@ function loadHtmlPlugs() {
 
 loadHtmlPlugs();
 
-module.exports = function(env) {
+module.exports = function (env) {
     return webpackMerge(baseConf, {
         plugins: htmlPlugs,
+        module: {
+            rules: [
+                ...cssLoader
+            ]
+        }
     })
 }
