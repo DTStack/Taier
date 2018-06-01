@@ -96,7 +96,8 @@ module.exports = function () {
             new HappyPack({
                 id: 'happy-babel-js',
                 loaders: ['babel-loader?cacheDirectory=true'],
-                threadPool: happyThreadPool
+                threadPool: happyThreadPool,
+                cache:true
             }),
             new MiniCssExtractPlugin({ //提取为外部css代码
                 filename: '[name].css?v=[contenthash]'

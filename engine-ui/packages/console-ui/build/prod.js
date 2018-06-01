@@ -5,15 +5,30 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const cssLoader = require("./loader/css-loader.js").pro;
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const ImageminPlugin = require('imagemin-webpack-plugin').default
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const MY_PATH = require('./consts');
 
 const baseConf = require('./base.js')();
 
 baseConf.plugins.push(
-    new BundleAnalyzerPlugin(),
-    new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 })
+    // new BundleAnalyzerPlugin(),
+    new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 }),
+
 );
+baseConf.optimization.minimizer=[
+    new UglifyJsPlugin({
+        parallel:true,
+        cache:true,
+        uglifyOptions:{
+            compress:{
+                drop_console:true,
+                drop_debugger:true,
+                ecma:6
+            }
+        }
+    })
+]
 baseConf.mode = "production";
 
 const htmlPlugs = [];
