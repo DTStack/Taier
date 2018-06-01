@@ -2,7 +2,9 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const cssLoader = require("./loader/css-loader.js").dev;
+const notifier = require('node-notifier')
 
 const MY_PATH = require('./consts');
 
@@ -17,6 +19,22 @@ baseConf.output = {
 }
 baseConf.mode = "development"
 baseConf.plugins.push(
+    new FriendlyErrorsWebpackPlugin({
+        onErrors: function (severity, errors) {
+            if (severity !== 'error') return
+
+            const error = errors[0]
+            const filename = error.file && error.file.split('!').pop()
+
+            notifier.notify({
+                title: "构建出错啦",
+                message: severity + ': ' + error.name,
+                subtitle: filename || '',
+                icon: path.join(__dirname, 'favicon.ico')
+            })
+
+        }
+    }),
     new webpack.SourceMapDevToolPlugin({
         filename: '[file].map',
         columns: false,
@@ -54,6 +72,7 @@ const devServer = Object.assign({
     port: 8080,
     historyApiFallback: true,
     disableHostCheck: true,
+    quiet: true,
     stats: {
         colors: true,
         'errors-only': true,
