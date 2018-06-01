@@ -12,7 +12,7 @@ module.exports={
             {
               loader:"css-loader",
               options:{
-                sourceMap:false
+                sourceMap:true
               }
             }
           ]
@@ -25,14 +25,13 @@ module.exports={
             {
               loader:"css-loader",
               options:{
-                sourceMap:false
+                sourceMap:true
               }
             },
             {
               loader:"sass-loader",
               options:{
-                sourceMap:false,
-                outputStyle:"expanded",
+                sourceMap:true,
                 sourceMapContents:true
               }
             }
@@ -46,13 +45,13 @@ module.exports={
             {
               loader:"css-loader",
               options:{
-                sourceMap:false
+                sourceMap:true
               }
             },
             {
               loader:"less-loader",
               options:{
-                sourceMap:false,
+                sourceMap:true,
                 modifyVars:theme,
                 javascriptEnabled:true
               }
@@ -70,7 +69,7 @@ module.exports={
             {
               loader:"css-loader",
               options:{
-                sourceMap:true
+                sourceMap:false
               }
             }
           ]
@@ -82,15 +81,15 @@ module.exports={
             {
               loader:"css-loader",
               options:{
-                sourceMap:true
+                sourceMap:false
               }
             },
             {
               loader:"sass-loader",
               options:{
-                sourceMap:true,
+                sourceMap:false,
                 outputStyle:"expanded",
-                sourceMapContents:true
+                sourceMapContents:false
               }
             }
           ]
@@ -102,21 +101,19 @@ module.exports={
             {
               loader:"css-loader",
               options:{
-                sourceMap:true
+                sourceMap:false
               }
             },
             {
               loader:"less-loader",
               options:{
-                sourceMap:true,
+                sourceMap:false,
                 modifyVars:theme,
                 javascriptEnabled:true
               }
             }
           ]
         }
-
-          
         ],
 }
 

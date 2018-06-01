@@ -28,16 +28,7 @@ module.exports = function() {
         },
         optimization:{
           splitChunks:{
-            chunks:"async",
-            cacheGroups: {
-                vendor: {
-                    test:/(react|react-dom|react-router|prop-types|react-redux|redux|react-router-redux|redux-thunk|moment|lodash|mirror-creator|object-assign|antd)/,
-                    name: "vendor",
-                    chunks: "all",
-                    minChunks: 1,
-                    minSize: 0
-                }
-            }
+            chunks:"all"
           },
           "runtimeChunk": {
             "name": "manifest"
