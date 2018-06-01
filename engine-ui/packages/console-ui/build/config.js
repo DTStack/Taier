@@ -13,9 +13,8 @@ module.exports = {
                 secure: false,
             },
             "/api/rdos": {
-                target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.0.9:9020", // tmp test server
-                // target:"htpp://172.16.1.74:9020",
+                // target: "http://172.16.8.104:9020", // formal test ser
+                target: "172.16.1.101:9020", // tmp test server
                 // ignorePath: true, 
                 changeOrigin: true,
                 secure: false,
