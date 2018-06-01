@@ -7,10 +7,11 @@ const os = require('os')
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
 
 const MY_PATH = require('./consts');
+const splitChunksConfig = require("./splitChunksConfig");
 const VERSION = JSON.stringify(require('../package.json').version); // app version.
 const theme = require('../src/theme')();
 
-module.exports = function() {
+module.exports = function () {
     return {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
@@ -26,13 +27,25 @@ module.exports = function() {
             sourceMapFilename: '[name].map',
             publicPath: '/'
         },
-        optimization:{
-          splitChunks:{
-            chunks:"all"
-          },
-          "runtimeChunk": {
-            "name": "manifest"
-          }
+        optimization: {
+            splitChunks: {
+                chunks: "all",
+                minSize: 30000,
+                minChunks: 1,
+                maxAsyncRequests: 5,
+                maxInitialRequests: 8,
+                automaticNameDelimiter: '~',
+                name: true,
+                cacheGroups: {
+                    baseCommon: {
+                        test: splitChunksConfig.baseCommonRegExp,
+                        priority: 1
+                    }
+                }
+            },
+            "runtimeChunk": {
+                "name": "manifest"
+            }
         },
         module: {
             rules: [
@@ -45,7 +58,7 @@ module.exports = function() {
                         path.resolve(MY_PATH.WEB_PUBLIC),
                     ],
                     // loader: ['babel-loader?cacheDirectory']
-                    loader:['happypack/loader?id=happy-babel-js'],
+                    loader: ['happypack/loader?id=happy-babel-js'],
                 }, {
                     test: /\.(jpg|png|gif)$/,
                     loader: ['file-loader', "url-loader?limit=100000"]
@@ -81,17 +94,17 @@ module.exports = function() {
         },
         plugins: [
             new HappyPack({
-              id: 'happy-babel-js',
-              loaders: ['babel-loader?cacheDirectory=true'],
-              threadPool: happyThreadPool
+                id: 'happy-babel-js',
+                loaders: ['babel-loader?cacheDirectory=true'],
+                threadPool: happyThreadPool
             }),
             new MiniCssExtractPlugin({ //提取为外部css代码
-                filename:'[name].css?v=[contenthash]'
+                filename: '[name].css?v=[contenthash]'
             }),
             new CopyWebpackPlugin([{
                 from: path.resolve(MY_PATH.WEB_PUBLIC),
-                to: path.resolve(MY_PATH.BUILD_PATH, 'public'), 
-                ignore: ['**/**/index.html']
+                to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
+                ignore: ['*/index.html']
             }]),
             new webpack.DefinePlugin({
                 'VERSION': VERSION,
