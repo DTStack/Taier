@@ -20,6 +20,7 @@ baseConf.output = {
 baseConf.mode = "development"
 baseConf.plugins.push(
     new FriendlyErrorsWebpackPlugin({
+        clearConsole:true,
         onErrors: function (severity, errors) {
             if (severity !== 'error') return
 
