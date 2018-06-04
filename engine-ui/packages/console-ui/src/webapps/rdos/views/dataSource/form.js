@@ -73,6 +73,7 @@ class BaseForm extends Component {
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
+        ftpProtocal: 'ftp',
     }
 
     componentDidMount() {
@@ -147,6 +148,12 @@ class BaseForm extends Component {
         })
     }
 
+    ftpProtocalChange = (e) => {
+        this.setState({
+            ftpProtocal: e.target.value,
+        })
+    }
+
     hadoopConfigChange = (e) => {
         const { hadoopConfig, hasHdfsConfig, hadoopConfigStr } = this.state
         const value = e.target.value.split('//')[1]
@@ -165,7 +172,7 @@ class BaseForm extends Component {
 
     renderDynamic() {
         const { form, sourceData,  } = this.props;
-        const { hasHdfsConfig, sourceType } = this.state;
+        const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
         switch (sourceType) {
@@ -375,7 +382,7 @@ class BaseForm extends Component {
                 ]
             }
             case DATA_SOURCE.FTP: {
-                return [
+                const ftpFormItems = [
                     <FormItem
                         {...formItemLayout}
                         label="主机名/IP"
@@ -437,24 +444,6 @@ class BaseForm extends Component {
                         )}
                     </FormItem>,
                     <FormItem
-                        key="connectMode"
-                        {...formItemLayout}
-                        label="连接模式"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.connectMode', {
-                            rules: [{
-                                required: true, message: '连接模式不可为空！',
-                            }],
-                            initialValue: config.connectMode || "port",
-                        })(
-                            <RadioGroup>
-                                <Radio value="PORT">Port (主动)</Radio>
-                                <Radio value="PASV">Pasv（被动）</Radio>
-                            </RadioGroup>
-                        )}
-                    </FormItem>,
-                    <FormItem
                         key="protocol"
                         {...formItemLayout}
                         label="协议"
@@ -466,13 +455,38 @@ class BaseForm extends Component {
                             }],
                             initialValue: config.protocol || "ftp",
                         })(
-                            <RadioGroup>
+                            <RadioGroup onChange={this.ftpProtocalChange}>
                                 <Radio value="ftp">Standard</Radio>
                                 <Radio value="sftp">SFTP</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
-                ]
+                ];
+
+                if (ftpProtocal === 'ftp') {
+                    ftpFormItems.push(
+                        <FormItem
+                            key="connectMode"
+                            {...formItemLayout}
+                            label="连接模式"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.connectMode', {
+                                rules: [{
+                                    required: true, message: '连接模式不可为空！',
+                                }],
+                                initialValue: config.connectMode || "PORT",
+                            })(
+                                <RadioGroup>
+                                    <Radio value="PORT">Port (主动)</Radio>
+                                    <Radio value="PASV">Pasv（被动）</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
+                }
+
+                return ftpFormItems;
             }
             case DATA_SOURCE.MAXCOMPUTE: {
                 return [

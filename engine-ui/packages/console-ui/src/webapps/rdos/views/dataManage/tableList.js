@@ -117,6 +117,10 @@ class TableList extends Component {
             editRecord,
         });
     }
+    
+    cursorActivity(){
+        console.log(arguments)
+    }
 
     initialColumns = () => {
         const ctx = this;

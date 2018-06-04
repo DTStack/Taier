@@ -36,8 +36,8 @@ class Main extends Component {
     render() {
         const { children } = this.props
         return (
-            <div className="main">
-                <Header />
+            <div className="main header-fixed container-relative">
+                <Header/>
                 <div className="container">
                     { children || <Dashboard /> }
                 </div>

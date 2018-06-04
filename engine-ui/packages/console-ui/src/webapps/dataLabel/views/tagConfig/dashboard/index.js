@@ -3,18 +3,19 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Modal, Tabs } from 'antd';
 
-import RuleTagPane from './ruleTagPane';
-import RegisteredTagPane from './registeredTagPane';
-import '../../styles/views/tagConfig.scss';
+import TagPane from './tagPane';
+import { apiMarketActions } from '../../../actions/apiMarket';
+import '../../../styles/views/tagConfig.scss';
 
 const TabPane = Tabs.TabPane;
 
-export default class TagConfig extends Component {
+@connect()
+export default class TagConfigIndex extends Component {
 
-    state = {
-    }
+    state = {}
 
     componentDidMount() {
+        this.props.dispatch(apiMarketActions.getCatalogue(0));
     }
 
     showInfo = () => {
@@ -43,10 +44,10 @@ export default class TagConfig extends Component {
                     style={{ height: 'auto' }}
                 >
                     <TabPane tab="规则标签" key="1">
-                        <RuleTagPane />
+                        <TagPane tagType="rule" />
                     </TabPane>
                     <TabPane tab="注册标签" key="2">
-                        <RegisteredTagPane />
+                        <TagPane tagType="register" />
                     </TabPane>
                 </Tabs>
                 <div className="diff-tooltip">

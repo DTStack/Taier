@@ -28,8 +28,9 @@ function getUniqueKey(id) {
 }
 
 function getDataOver(dispatch, currentTab, res, jobId) {
-    
-    dispatch(outputRes(currentTab, res.data.result,jobId))
+    if(res.data.result){
+        dispatch(outputRes(currentTab, res.data.result,jobId))
+    }
     dispatch(output(currentTab, '执行成功!'))
 }
 
@@ -102,7 +103,6 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
 
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
-    runningSql[currentTab] = key;
     dispatch(output(currentTab, `第${index + 1}条SQL开始执行`))
     function execContinue() {
         if (stopSign[currentTab]) {
@@ -126,6 +126,7 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
         }
         if (res.code === 1) {
             if (res.data.jobId) {
+                runningSql[currentTab]=res.data.jobId;
                 selectData(dispatch, res.data.jobId, currentTab)
                     .then(
                         (isSuccess) => {
@@ -185,8 +186,8 @@ export function stopSql(currentTab, currentTabData, isSilent) {
             }
             return;
         }
-        const uniqueKey = runningSql[currentTab]
-        if (!uniqueKey) return
+        const jobId = runningSql[currentTab]
+        if (!jobId) return
         const succCall = res => {
             if (res.code === 1) {
                 dispatch(output(currentTab, "执行停止"))
@@ -206,12 +207,12 @@ export function stopSql(currentTab, currentTabData, isSilent) {
         if (utils.checkExist(currentTabData.taskType)) {// 任务执行
             API.stopSQLImmediately({
                 taskId: currentTabData.id,
-                uniqueKey: uniqueKey,
+                jobId: jobId,
             }).then(succCall)
         } else if (utils.checkExist(currentTabData.type)) { // 脚本执行
             API.stopScript({
                 scriptId: currentTabData.id,
-                uniqueKey: uniqueKey,
+                jobId: jobId,
             }).then(succCall)
         }
     }

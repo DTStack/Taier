@@ -227,6 +227,15 @@ class TableList extends Component {
                 dataIndex: 'subject',
             },
             {
+                title: '生命周期',
+                key: 'lifeDay',
+                width: 90,
+                dataIndex: 'lifeDay',
+                render(text, record) {
+                    return `${text}天`;
+                }
+            },,
+            {
                 title: '创建者',
                 key: 'userName',
                 dataIndex: 'userName',

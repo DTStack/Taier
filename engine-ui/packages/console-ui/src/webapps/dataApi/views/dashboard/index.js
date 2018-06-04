@@ -66,7 +66,7 @@ class Dashboard extends Component {
     state = {
         dashBoardView: ""
     }
-    
+
 
 
 
@@ -85,7 +85,7 @@ class Dashboard extends Component {
         }else{
             return false
         }
-        
+
     }
     getNowView() {
         const isAdmin = this.isAdmin();

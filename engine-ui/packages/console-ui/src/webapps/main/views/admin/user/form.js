@@ -25,7 +25,8 @@ export const isDisabledRole = (app, value, loginUser) => {
     switch(app) {
         case MY_APPS.RDOS: {
             if (loginUser.isTenantAdmin) {
-                return value === RDOS_ROLE.TENANT_OWVER 
+                return (value === RDOS_ROLE.PROJECT_OWNER ||
+                value === RDOS_ROLE.TENANT_OWVER)
             } else {
                 return value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
@@ -91,9 +92,11 @@ class UserRoleForm extends Component {
                     })(
                         <Select
                             mode="multiple"
+                            showSearch
+                            showArrow={true}
                             style={{ width: '100%' }}
-                            notFoundContent=""
-                            placeholder="请选择用户"
+                            notFoundContent="当前用户不存在"
+                            placeholder="请搜索并选择用户"
                             optionFilterProp="name"
                             onSearch={this.debounceSearch}
                         >

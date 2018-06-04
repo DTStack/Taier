@@ -34,12 +34,12 @@ class AdminDashboard extends Component {
     }
 
 
-
     render() {
         const approval_alert = this.props.dashBoard.approvedMsgCount > 0 ? (
             <Alert
                 message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
                 type="warning"
+                closable
             />
         ) : null
         const marketOverview = this.props.dashBoard.marketOverview[this.getDateChoose()];
@@ -63,13 +63,11 @@ class AdminDashboard extends Component {
                 </div>
                 <div className="box-card m-card">
                     <Row gutter={20}>
-                        <Col span={24}>
+                        <Col span={16}>
                             <OverView date={this.props.dashBoard.adminDate} chartData={marketOverview.callInfo.infoList} callCount={marketOverview.callInfo.callCount} apiNum={marketOverview.callInfo.apiNum} failPercent={marketOverview.callInfo.failPercent} ></OverView>
                         </Col>
-                    </Row>
-                    <Row className="m-card-small margin-t20" gutter={20}>
                         <Col span={8} className="m-card-small m-tabs noheight">
-                            
+
                                 <Tabs
                                     defaultActiveKey={this.state.nowView}
                                     onChange={this.topViewChange.bind(this)}
@@ -83,16 +81,16 @@ class AdminDashboard extends Component {
                                         <TopCallFunc idAdmin={true} router={this.props.router} data={marketOverview.topCallFunc}></TopCallFunc>
                                     </Tabs.TabPane>
                                 </Tabs>
-                            
+
                         </Col>
-                        <Col span={8}>
+                    </Row>
+                    <Row className="m-card-small margin-t20" gutter={20}>
+                        <Col span={16}>
                             <ErrorDistributed chartData={marketOverview.failInfoList}></ErrorDistributed>
                         </Col>
                         <Col span={8}>
                             <TopFail router={this.props.router} data={marketOverview.callFailTop}></TopFail>
                         </Col>
-
-
                     </Row>
 
 

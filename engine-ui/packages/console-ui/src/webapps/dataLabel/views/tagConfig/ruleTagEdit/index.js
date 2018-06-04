@@ -11,9 +11,9 @@ import {
 import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
-import { dataSourceActions } from '../../actions/dataSource';
-import { rowFormItemLayout } from '../../consts';
-import TCApi from '../../api/tagConfig';
+import { dataSourceActions } from '../../../actions/dataSource';
+import { rowFormItemLayout } from '../../../consts';
+import TCApi from '../../../api/tagConfig';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -1123,11 +1123,13 @@ export default class RuleTagEdit extends Component {
                     </div>
 
                     <div className="tag-edit-step txt-right">
-                        <Button 
-                            type="primary" 
-                            className="m-r-8">
-                            <Link to="/dl/tagConfig">取消</Link>
-                        </Button>
+                        <Link to="/dl/tagConfig">
+                            <Button 
+                                type="primary" 
+                                className="m-r-8">
+                                取消
+                            </Button>
+                        </Link>
                         <Button 
                             type="primary" 
                             onClick={this.saveRuleTag}>

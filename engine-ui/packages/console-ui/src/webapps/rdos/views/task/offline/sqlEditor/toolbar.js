@@ -78,7 +78,7 @@ export default class Toolbar extends Component {
 
         if (sqls && sqls.length > 0) {
             let i = 0;
-            dispatch(setOutput(currentTab, ` 正在提交... \n waiting...`))
+            dispatch(setOutput(currentTab, `正在提交...`))
             dispatch(addLoadingTab(currentTab))
             this.reqExecSQL(currentTabData, params, sqls, i)
         }
