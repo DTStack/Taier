@@ -48,6 +48,11 @@ DTinsight Tag v1.0.0 发布！
 - 细节优化
 - 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsight200/issues)
 
+## v2.0.3 (2018-06-04)
+- 修复数据模型表名验证错误
+- 修复生命周期自定义时, 会自动切换默认选项，隐藏自定义输入框的行为
+
+
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
