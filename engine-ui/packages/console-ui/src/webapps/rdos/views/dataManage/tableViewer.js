@@ -19,7 +19,8 @@ import TableRelation from './tableRelation';
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group
+const RadioGroup = Radio.Group;
+
 
 export default class TableViewer extends React.Component{
     constructor(props) {
@@ -106,6 +107,7 @@ export default class TableViewer extends React.Component{
             visible: false
         });
     }
+
     handleOk() {
         message.info('复制成功，代码窗口即将关闭');
         setTimeout(() => {
@@ -120,23 +122,23 @@ export default class TableViewer extends React.Component{
 
         const columns = [{
             title: '序号',
-            dataIndex: 'index',
-            key: 'index',
+            dataIndex: 'columnIndex',
+            key: 'columnIndex',
             render(index) {
                 return ++index
             }
         },{
             title: '字段名称',
-            dataIndex: 'name',
-            key: 'name'
+            dataIndex: 'columnName',
+            key: 'columnName'
         },{
             title: '类型',
-            dataIndex: 'type',
-            key: 'type'
+            dataIndex: 'columnType',
+            key: 'columnType'
         },{
             title: '注释',
-            dataIndex: 'comment',
-            key: 'comment',
+            dataIndex: 'columnDesc',
+            key: 'columnDesc',
             render(text) {
                 return text
             }
@@ -272,7 +274,7 @@ export default class TableViewer extends React.Component{
                                     </div>
                                 </TabPane>
                                 <TabPane tab="血缘信息" key="4">
-                                    <TableRelation tableData={tableData && tableData.table}/>
+                                    <TableRelation  tableData={tableData && tableData.table}/>
                                 </TabPane>
                             </Tabs>
                         </div>

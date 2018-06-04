@@ -6,7 +6,7 @@ import { Row, Col, Table, Pagination, Modal } from 'antd'
 import utils from 'utils'
 import scrollText from 'widgets/scrollText';
 
-import Api from '../../../api'
+import Api from '../../../api/dataManage'
 import Editor from '../../../components/code-editor'
 import { TaskType, ScriptType } from '../../../components/status'
 import { TASK_TYPE } from '../../../comm/const'
@@ -124,6 +124,7 @@ class RelationDetail extends React.Component {
                 <header style={{ padding: '5px' }} className="bd-bottom overflow ellipsis">
                     <span style={{ fontSize: '12px' }}>{data.catalogue}/</span>
                     <span title={data.tableName}><b>{data.tableName}</b></span>
+                    <a onClick={this.props.onShowColumn}>字段血缘关系</a>
                 </header>
                 <Row>
                     <Col span={12} 
