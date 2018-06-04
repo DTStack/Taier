@@ -16,7 +16,7 @@ DTinsight Tag v1.0.0 发布！
 
 
 ### 开发套件 ( DTinsight IDE )
-- 增加 `FTP、MacCompute、ES`数据类型
+- 增加 `FTP、MaxCompute、ES`数据类型
 - 增加数据同步脚本模式
 - 调整任务运维`补数据`功能
 - 运维中心增加 `虚节点` 显示
