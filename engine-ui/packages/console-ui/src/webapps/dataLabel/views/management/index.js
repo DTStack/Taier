@@ -244,11 +244,7 @@ class APIMana extends Component {
             dataIndex: 'type',
             key: 'type',
             render: (tagType, record) => {
-                if (tagType === TAG_TYPE.REGISTER) {
-                    return '注册标签';
-                } else {
-                    return '自定义标签';
-                }
+                return TAG_TYPE[tagType];
             }
         }, {
             width: '10%',

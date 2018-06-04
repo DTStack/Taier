@@ -75,7 +75,7 @@ class APIApproval extends Component {
             pageSize: 20,
             sort: orderType[this.state.sorter.order],
             orderBy: sortType[this.state.sorter.columnKey],
-            tagName: this.state.apiName
+            apiName: this.state.apiName
         })
         .then(
             (res) => {

@@ -267,7 +267,7 @@ export default class RuleEditPane extends Component {
         switch(type) {
             case 'columnName': {
                 if (record.isCustomizeSql) {
-                    return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('customizeSql', {
                                 rules: [{
@@ -294,7 +294,7 @@ export default class RuleEditPane extends Component {
                     </FormItem>
                 } else {
                     getFieldDecorator('columnName', { initialValue: "" });
-                    return <FormItem {...rowFormItemLayout}  className="rule-edit-td">
+                    return <FormItem {...rowFormItemLayout}  className="rule-edit-td cell-center">
                         {
                             getFieldDecorator('columnName', {
                                 rules: [{
@@ -324,7 +324,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'functionId': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('functionId', {
                             rules: [{
@@ -352,7 +352,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'filter': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('filter', {
                             rules: [],
@@ -368,7 +368,7 @@ export default class RuleEditPane extends Component {
             }
 
             case 'verifyType': {
-                return <FormItem {...rowFormItemLayout} className="rule-edit-td">
+                return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
                         getFieldDecorator('verifyType', {
                             rules: [{
@@ -415,8 +415,8 @@ export default class RuleEditPane extends Component {
                     </FormItem>
                 } else {
                     return (
-                        <div>
-                            <FormItem>
+                        <div className="cell-center-box">
+                            <FormItem className="cell-multiple-center">  
                                 {
                                     getFieldDecorator('operator', {
                                         rules: [{
@@ -441,7 +441,7 @@ export default class RuleEditPane extends Component {
                                     )
                                 }
                             </FormItem>
-                            <FormItem>
+                            <FormItem className="cell-multiple-center">
                                 {
                                     getFieldDecorator('threshold', {
                                         rules: [{
@@ -625,7 +625,7 @@ export default class RuleEditPane extends Component {
         const { form, data, ruleConfig } = this.props;
         const { currentRule, rules } = this.state;
 
-        let newData = [...rules];
+        let newData = rules?[...rules]:[];
 
         if (!isEmpty(currentRule)) {
             if (currentRule.editStatus === "edit") {
@@ -757,6 +757,12 @@ export default class RuleEditPane extends Component {
         const { periodType, notifyType } = common.allDict;
         const { rules, monitorId, havePart, showExecuteModal } = this.state;
 
+        const filterRules=rules?rules.filter(
+            (item)=>{
+                return item.isSnapshot==0||item.editStatus=="new";
+            }
+        ):[];
+
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
 
         return (
@@ -853,10 +859,10 @@ export default class RuleEditPane extends Component {
 
                 <Table 
                     rowKey="id"
-                    className="m-table rule-edit-table"
+                    className="m-table rule-edit-table" 
                     style={{ padding: '20px 0' }}
                     pagination={false}
-                    dataSource={rules}
+                    dataSource={filterRules}
                     columns={this.initColumns()}
                     scroll={{y:361}}
                 />

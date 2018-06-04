@@ -44,10 +44,11 @@ import {
     }
 
     onCheck = (checkedKeys) => {
+        console.log('onCheck:', checkedKeys)
         this.setState({ checkedKeys }, () => {
             // 只需要叶子节点即可
-            const arr = this.getLeafNodes(checkedKeys)
-            this.props.form.setFieldsValue({ permissionIds: arr })
+            // const arr = this.getLeafNodes(checkedKeys)
+            this.props.form.setFieldsValue({ permissionIds: checkedKeys })
         });
     }
 
@@ -83,7 +84,6 @@ import {
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
-
             if (item.children && item.children.length > 0) {
                 return (
                     <TreeNode
@@ -95,7 +95,7 @@ import {
                     </TreeNode>
                 )
             }
-            return <TreeNode key={key} title={role.display}/>;
+            return <TreeNode key={key} dataRef={role} title={role.display}/>;
         })
     }
 
