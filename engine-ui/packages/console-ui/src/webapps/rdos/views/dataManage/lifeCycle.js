@@ -40,26 +40,25 @@ class LifeCycle extends React.Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        const value = nextProps.value
+        if (value && this.state.value !== value && !this.state.showCustom) {
+            this.initState(value)
+        }
+    }
+
     initState = (value) => {
-        const res = options.find(opt => opt.value === value)
-        if (res) {
-            this.setState({
-                value: value,
-                showCustom: false,
-            })
-        } else { // 自定义
+        const res = options.find(opt => opt.value == value)
+        if (!res) {// 自定义
             this.setState({
                 value: -1,
                 showCustom: true,
             })
+        } else {
+            this.setState({
+                value,
+            })
         }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        // const value = nextProps.value
-        // if (value && this.state.value !== value) {
-        //     this.initState(value)
-        // }
     }
 
     onSelect = (value) => {
@@ -79,10 +78,7 @@ class LifeCycle extends React.Component {
 
     customChange = (e) => {
         const value = e.target.value
-        if (this.state.showCustom) {
-            // 不可小于0
-            this.props.onChange(value < 0 ? 1 : value)
-        }
+        this.props.onChange(value < 0 ? 1 : value)
     }
 
     renderOptions = () => {

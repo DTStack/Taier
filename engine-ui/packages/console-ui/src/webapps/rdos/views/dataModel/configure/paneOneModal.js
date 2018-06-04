@@ -41,8 +41,8 @@ class ModelLevelModal extends Component {
     cancle = () => {
         const { handCancel, form } = this.props
         this.setState({ }, () => {
-            handCancel()
             form.resetFields()
+            handCancel()
         })
     }
 

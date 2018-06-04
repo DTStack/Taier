@@ -130,6 +130,7 @@ export default class ModelLevel extends BasePane {
                         />
                 </Card>
                 <ModelLevelModal 
+                    key={`modelLevel-${modalData.id}`}
                     data={ modalData }
                     handOk={ this.update }
                     handCancel={ () => this.setState({ modalVisible: false })}
