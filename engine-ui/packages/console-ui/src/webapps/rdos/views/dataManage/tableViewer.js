@@ -174,8 +174,12 @@ export default class TableViewer extends React.Component{
             <div className="box-card">
                 <main>
                     <div >
-                        <h1 className="card-title f-fl"><GoBack /> 查看表：{ tableData && tableData.table.tableName }</h1>
-                        <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button><Button className="button-top" type="primary">申请授权</Button>
+                        <h1 className="card-title">
+                            <GoBack /> 查看表：{ tableData && tableData.table.tableName }
+                            <span className="right">
+                                <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button><Button className="button-top" type="primary">申请授权</Button>
+                            </span>
+                        </h1>
                     </div>
                     <Row className="box-card m-tablebasic">
                         <Col span={12} className="col-sep">

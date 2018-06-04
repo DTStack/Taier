@@ -113,6 +113,7 @@ export default {
     cancelMark(params){
         return http.post(dataManageReq.CANCEL_MARK, params)        
     },
+    
     // =========== 脏数据 ==================//
     getDirtyDataTrend(params) {
         return http.post(dataManageReq.GET_DIRTY_DATA_TREND, params)
