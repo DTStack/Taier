@@ -31,6 +31,14 @@ export const SCHEDULE_STATUS = {
     STOPPED: 2,
 }
 
+//
+export const APPLY_RESOURCE_TYPE = {
+    TABLE: 0,
+    FUNCTION: 1,
+    SOURCE:2,
+}
+
+
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',

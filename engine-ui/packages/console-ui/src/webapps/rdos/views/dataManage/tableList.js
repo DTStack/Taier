@@ -37,10 +37,10 @@ class TableList extends Component {
 
             queryParams: {
                 listType: 0,
-                currentPage: 1,
+                pageIndex: 1,
                 pageSize: 10,
                 catalogueId: undefined,
-                projectId: undefined,
+                pId: undefined,
                 tableName: undefined,
             },
         }
@@ -57,7 +57,7 @@ class TableList extends Component {
 
     search = () => {
         const params = this.state.queryParams;
-        ajax.searchTable(params).then(res => {
+        ajax.newSearchTable(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
@@ -121,6 +121,8 @@ class TableList extends Component {
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state
+        console.log('initialColumns',queryParams);
+        
         return [
             {
                 title: '表名',
@@ -128,7 +130,7 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{text}</Link>
+                    return <Link to={`${ROUTER_BASE}/view/${record.id}`}>{text}</Link>
                 }
             },
             {
@@ -177,9 +179,9 @@ class TableList extends Component {
                         case '2':
                         case '3':
                             return <span>
-                                <Link to={`${ROUTER_BASE}/edit/${record.tableId}`}>编辑</Link>
+                                <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
                                 <span className="ant-divider"></span>
-                                <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
+                                <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link>
                             </span>
                         case '5':
                         return <span>
@@ -198,7 +200,6 @@ class TableList extends Component {
     renderPane = () => {
         const { table, queryParams, editRecord } = this.state;
         const { projects } = this.props;
-
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
@@ -216,7 +217,7 @@ class TableList extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogue}
+                            value={queryParams.catalogueId}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
                             treeData={this.state.dataCatalogue}
@@ -230,7 +231,7 @@ class TableList extends Component {
                         optionFilterProp="name"
                         style={{ width: 120 }}
                         placeholder="选择项目"
-                        onChange={(value) => this.changeParams('projectId', value)}
+                        onChange={(value) => this.changeParams('pId', value)}
                     >
                         {projectOptions}
                     </Select>

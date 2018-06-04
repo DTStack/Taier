@@ -12,7 +12,7 @@ import moment from 'moment';
 import { isEmpty } from 'lodash';
 
 import utils from 'utils';
-
+import { APPLY_RESOURCE_TYPE } from "../../../comm/const"
 import CatalogueTree from '../catalogTree';
 import TableApplyModal from './tableApply';
 import ajax from '../../../api/dataManage';
@@ -20,7 +20,7 @@ import ajax from '../../../api/dataManage';
 const FormItem = Form.Item
 const Option = Select.Option
 
-const ROUTER_BASE = '/data-manage/search';
+const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
@@ -57,7 +57,7 @@ class SearchTable extends Component {
 
     search = () => {
         const params = this.state.queryParams;
-        ajax.searchTable(params).then(res => {
+        ajax.newSearchTable(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
@@ -67,9 +67,17 @@ class SearchTable extends Component {
     }
 
     apply = (applyData) => {
+        const { editRecord } = this.state;
+        const params = {...applyData};
+        params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
+        params.resourceId = editRecord.id;
+        
+        console.log(params);
+        
         ajax.applyTable(params).then(res => {
             if (res.code === 1) {
                 message.success('申请成功！')
+                this.setState({visible:false})
             }
         })
     }
@@ -127,7 +135,7 @@ class SearchTable extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{text}</Link>
+                    return <Link to={`${ROUTER_BASE}/view/${record.id}`}>{text}</Link>
                 }
             },
             {
@@ -140,13 +148,13 @@ class SearchTable extends Component {
             },
             {
                 title: '项目',
-                key: 'projectAlias',
-                dataIndex: 'projectAlias',
+                key: 'project',
+                dataIndex: 'project',
             },
             {
                 title: '负责人',
-                key: 'userName',
-                dataIndex: 'userName',
+                key: 'chargeUser',
+                dataIndex: 'chargeUser',
                 render(text, record) {
                     return text
                 }
@@ -162,24 +170,24 @@ class SearchTable extends Component {
             },
             {
                 title: '创建时间',
-                key: 'createTime',
-                dataIndex: 'createTime',
+                key: 'gmtCreate',
+                dataIndex: 'gmtCreate',
                 render(text, record) {
                     return utils.formatDateTime(text)
                 }
             },
             {
                 title: 'DDL最后变更时间',
-                key: 'lastDDLTime',
-                dataIndex: 'lastDDLTime',
+                key: 'lastDdlTime',
+                dataIndex: 'lastDdlTime',
                 render(text) {
                     return utils.formatDateTime(text)
                 },
             },
             {
                 title: '数据最后变更时间',
-                key: 'lastDataChangeTime',
-                dataIndex: 'lastDataChangeTime',
+                key: 'lastDmlTime',
+                dataIndex: 'lastDmlTime',
                 render(text) {
                     return utils.formatDateTime(text)
                 },
@@ -220,7 +228,7 @@ class SearchTable extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogue}
+                            value={queryParams.catalogueId}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
                             treeData={this.state.dataCatalogue}
@@ -267,7 +275,6 @@ class SearchTable extends Component {
             total: table.totalCount,
             defaultPageSize: 10,
         };
-
         return <div className="m-tablelist">
             <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>

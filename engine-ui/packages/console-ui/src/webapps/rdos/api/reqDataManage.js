@@ -16,6 +16,8 @@ export default {
     GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/hiveTablePartition/getPartitions`, // 获取表分区信息 
     UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/hiveDataImport/importData`, // 
     CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/checkPartitionExists`, // 检查表分区
+    NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/pageQuery`,//新的查询表的详细信息
+    
 
     // ========= 数据类目 =========
     GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/getHiveCatalogue`, // 获取表目录
@@ -24,7 +26,8 @@ export default {
     UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/updateHiveCatalogue`, // 更新目录
     ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
     DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
-
+    APPLY_TABLE: `${RDOS_BASE_URL}/batch/batchApply/apply`, // 申请资源
+    
     // ========= 血缘关系 =========
     GET_REL_TABLE_TREE: `${RDOS_BASE_URL}/batch/batchTableBlood/getTree`, // 获取血缘关系树
     GET_REL_TABLE_INFO: `${RDOS_BASE_URL}/batch/batchTableBlood/getTableInfo`, // 获取关系表详情
@@ -50,6 +53,9 @@ export default {
     APPLY_CANCEL: `${RDOS_BASE_URL}/batch/batchApply/cancel`, // 取消申请
     REVOKE_PERMISSION: `${RDOS_BASE_URL}/batch/batchApply/revoke`, // 撤回权限
     APPLY_HANDLE: `${RDOS_BASE_URL}/batch/batchApply/getRelateTask`, // 申请处理
+    ADD_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/collect`, // 取消收藏
+    CANCEL_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/cancelCollect`, // 取消收藏
+    
 
     // ===== 项目表数据统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableCount`, // 表总量

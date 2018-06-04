@@ -267,7 +267,8 @@ class CatalogueTree extends Component {
             onSelect, onChange, treeData, id, value, showSearch, multiple,
             loadData, isPicker, placeholder, defaultValue, treeCheckable,
         } = this.props;
-
+        console.log(id,value);
+        
         if (isPicker) treeContent = (
             <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
                 <TreeSelect
