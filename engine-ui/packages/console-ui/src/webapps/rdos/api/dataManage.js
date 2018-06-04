@@ -13,6 +13,9 @@ export default {
     searchTable(params) {
         return http.post(dataManageReq.SEARCH_TABLE, params)
     },
+    newSearchTable(params) {
+        return http.post(dataManageReq.NEW_SEARCH_TABLE, params)
+    },
     getTable(params) {
         return http.post(dataManageReq.GET_TABLE, params)
     },
@@ -58,6 +61,9 @@ export default {
     importLocalData(params) {// 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
     },
+    applyTable(params) {
+        return http.post(dataManageReq.APPLY_TABLE, params)
+    },
 
     // =========== 血缘关系 ==================//
     getTableRelTree(params) {
@@ -101,7 +107,12 @@ export default {
     delTableInCatalogue(params) {
         return http.post(dataManageReq.DEL_TABLE_IN_CATALOGUE, params)
     },
-
+    addMark(params){
+        return http.post(dataManageReq.ADD_MARK, params)        
+    },
+    cancelMark(params){
+        return http.post(dataManageReq.CANCEL_MARK, params)        
+    },
     // =========== 脏数据 ==================//
     getDirtyDataTrend(params) {
         return http.post(dataManageReq.GET_DIRTY_DATA_TREND, params)

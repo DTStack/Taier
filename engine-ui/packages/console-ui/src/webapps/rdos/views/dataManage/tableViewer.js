@@ -26,10 +26,12 @@ export default class TableViewer extends React.Component{
     constructor(props) {
         super(props);
         this.tableId = this.props.routeParams.tableId;
+        this.queryParams = { tableId : this.tableId };
         this.state = {
             showType: 0, // 0/1 (非)字段
             visible: false,
-            code: ''
+            code: '',
+            isMark: false,
         };
     }
 
@@ -37,8 +39,34 @@ export default class TableViewer extends React.Component{
         this.getTable();
     }
 
+    changeMark(){
+        const {isMark} = this.state;
+        console.log(isMark);
+        
+        if(isMark){
+            ajax.cancelMark(this.queryParams).then(res=>{
+                if (res.code === 1) {
+                    this.setState({
+                        isMark: !isMark
+                    })
+                }
+            })
+        }else{
+            ajax.addMark(this.queryParams).then(res=>{
+                if (res.code === 1) {
+                    this.setState({
+                        isMark: !isMark
+                    })
+                }
+            })
+        }
+        
+    }
+
     getTable() {
-        ajax.getTable({tableId: this.tableId}).then(res => {
+        ajax.getTable(this.queryParams).then(res => {
+            console.log('gettable',res);
+            
             if(res.code === 1) {
                 this.setState({
                     tableData: res.data
@@ -59,7 +87,7 @@ export default class TableViewer extends React.Component{
         const { previewData } = this.state;
         if(previewData) return;
         if(+key === 2 || +key === 3) {
-            ajax.previewTable({tableId: this.tableId}).then(res => {
+            ajax.previewTable(this.queryParams).then(res => {
                 if(res.code === 1 && res.data) {
                     this.setState({
                         previewData: this.formatPreviewData(res.data)
@@ -83,9 +111,7 @@ export default class TableViewer extends React.Component{
     }
 
     getCreateCode() {
-        !this.state.code ? ajax.getCreateTableCode({
-            tableId: this.tableId
-        }).then(res => {
+        !this.state.code ? ajax.getCreateTableCode(this.queryParams).then(res => {
             if(res.code === 1 && res.data) {
                 this.setState({
                     visible: true,
@@ -118,7 +144,7 @@ export default class TableViewer extends React.Component{
     }
 
     render() {
-        const { showType, tableData, previewData } = this.state;
+        const { showType, tableData, previewData,isMark } = this.state;
 
         const columns = [{
             title: '序号',
@@ -147,7 +173,10 @@ export default class TableViewer extends React.Component{
         return <div className="g-tableviewer box-1">
             <div className="box-card">
                 <main>
-                    <h1 className="card-title"><GoBack /> 查看表：{ tableData && tableData.table.tableName }</h1>
+                    <div >
+                        <h1 className="card-title f-fl"><GoBack /> 查看表：{ tableData && tableData.table.tableName }</h1>
+                        <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button><Button className="button-top" type="primary">申请授权</Button>
+                    </div>
                     <Row className="box-card m-tablebasic">
                         <Col span={12} className="col-sep">
                             <h3>
@@ -167,7 +196,7 @@ export default class TableViewer extends React.Component{
                                         <td>{ tableData.table.projectAlias }</td>
                                     </tr>
                                     <tr>
-                                        <th>创建者：</th>
+                                        <th>负责人</th>
                                         <td>{ tableData.table.userName }</td>
                                     </tr>
                                     <tr>
