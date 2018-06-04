@@ -101,7 +101,6 @@ class ModelDefineRule extends Component {
 
     isDisabled = (rule) => {
         const tbNameRules = this.state.tbNameRules;
-        console.log('')
         return rule.value !== TABLE_MODEL_RULE.CUSTOM && tbNameRules.find(item => item.value === rule.value)
     }
 
