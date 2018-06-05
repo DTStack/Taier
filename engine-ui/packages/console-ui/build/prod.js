@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const VERSION = JSON.stringify(require('../package.json').version); // app version.
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const MY_PATH = require('./consts');
@@ -12,7 +13,8 @@ baseConf.plugins.push(
     // new BundleAnalyzerPlugin(),
     new webpack.DefinePlugin({
         'process.env': {
-            'NODE_ENV': JSON.stringify('production')
+            'NODE_ENV': JSON.stringify('production'),
+            'VERSION': VERSION,
         }
     }),
     new webpack.optimize.LimitChunkCountPlugin({maxChunks: 15}),
