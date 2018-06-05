@@ -35,3 +35,5 @@ Main.propTypes = propType
 Main.defaultProps = defaultPro
 
 export default Main
+
+console.log('current app version', APP.VERSION);

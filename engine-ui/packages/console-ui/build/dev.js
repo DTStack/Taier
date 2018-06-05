@@ -4,7 +4,6 @@ const webpackMerge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const MY_PATH = require('./consts');
-const VERSION = JSON.stringify(require('../package.json').version); // app version.
 
 const baseConf = require('./base.js')();
 var config = require('./config');
@@ -21,7 +20,6 @@ baseConf.plugins.push(
     new webpack.DefinePlugin({
         'process.env': {
             'NODE_ENV': JSON.stringify('development'),
-            'VERSION': VERSION,
         }
     }),
     new webpack.SourceMapDevToolPlugin({
