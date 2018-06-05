@@ -160,6 +160,10 @@ export default {
     getCheckPoints(params) {
         return http.post(req.GET_CHECK_POINTS, params)
     },
+    publishRealtimeTask(params){
+        return http.post(req.PUBLISH_REALTIME_TASK, params)
+    },
+
 
     // ========== CATALOGUE ========== //
     getCatalogues(params) {

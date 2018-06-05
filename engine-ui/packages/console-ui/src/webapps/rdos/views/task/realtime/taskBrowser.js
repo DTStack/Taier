@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Row, Tabs, Modal, Alert, message } from 'antd'
+import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
 import SplitPane from 'react-split-pane'
 
 import utils from 'utils'
@@ -14,6 +14,7 @@ import { updateRealtimeTreeNode } from '../../../store/modules/realtimeTask/tree
 
 import EditorContainer from './editorContainer'
 import TaskDetail from './taskDetail'
+import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
@@ -37,23 +38,23 @@ export default class TaskBrowser extends Component {
     onEdit = (targetKey, action) => {
         const { pages, currentPage, dispatch } = this.props
         switch (action) {
-        case 'remove': {
-            if (currentPage.notSynced) {
-                confirm({
-                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                    content: '强制关闭将丢弃这些修改数据',
-                    onOk() {
-                        dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
-                    },
-                    onCancel() {}
-                });
-            } else {
-                dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
+            case 'remove': {
+                if (currentPage.notSynced) {
+                    confirm({
+                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                        content: '强制关闭将丢弃这些修改数据',
+                        onOk() {
+                            dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
+                        },
+                        onCancel() { }
+                    });
+                } else {
+                    dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
+                }
+                break;
             }
-            break;
-        }
-        default :
-            break
+            default:
+                break
         }
     }
 
@@ -61,14 +62,14 @@ export default class TaskBrowser extends Component {
         if (panes && panes.length > 0) {
             return panes.map((pane) => {
                 const title = (<span>
-                    <SyncBadge notSynced={ pane.notSynced } />
+                    <SyncBadge notSynced={pane.notSynced} />
                     {pane.name}
                 </span>)
                 return (
                     <TabPane
-                      style={{ height: '0px' }}
-                      tab={title}
-                      key={pane.id}
+                        style={{ height: '0px' }}
+                        tab={title}
+                        key={pane.id}
                     />
                 )
             })
@@ -83,7 +84,7 @@ export default class TaskBrowser extends Component {
             this.SideBench.style.width = '30px'
         } else if (activeKey !== selected) {
             this.SideBench.style.width = '500px'
-            this.setState({ selected: activeKey,  expanded: true });
+            this.setState({ selected: activeKey, expanded: true });
         }
     }
 
@@ -101,8 +102,8 @@ export default class TaskBrowser extends Component {
             okType: 'danger', // warning
             cancelText: '取消',
             onOk() {
-                const params = { 
-                    fileId: currentPage.id, 
+                const params = {
+                    fileId: currentPage.id,
                     type: LOCK_TYPE.STREAM_TASK,
                     lockVersion: lockInfo.version,
                 };
@@ -127,7 +128,7 @@ export default class TaskBrowser extends Component {
                                 const taskInfo = res.data
                                 taskInfo.merged = true;
                                 const updated = {
-                                    id: currentPage.id, 
+                                    id: currentPage.id,
                                     readWriteLockVO: taskInfo.readWriteLockVO
                                 }
                                 dispatch(BrowserAction.setCurrentPage(taskInfo))
@@ -140,14 +141,14 @@ export default class TaskBrowser extends Component {
             onCancel() { console.log('Cancel'); },
         });
     }
-    
+
     renderLock(tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         let top = '10px';
         return isLocked ? (
             <div className="lock-layer">
                 <Alert
-                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999'}}
+                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"
@@ -160,6 +161,61 @@ export default class TaskBrowser extends Component {
         const { currentPage, dispatch } = this.props;
         const updatePage = Object.assign(currentPage, params);
         dispatch(BrowserAction.setCurrentPage(updatePage))
+    }
+
+    /**
+    * @description 关闭所有/其他tab
+    * @param {any} item
+    * @memberof Workbench
+    */
+    closeAllorOthers(item) {
+        const { key } = item;
+        const { pages, currentPage, dispatch } = this.props;
+
+        if (key === 'ALL') {
+            let allClean = true;
+
+            for (let tab of pages) {
+                if (tab.notSynced) allClean = false;
+                break;
+            }
+
+            if (allClean) {
+                dispatch(BrowserAction.clearPages());
+            }
+            else {
+                confirm({
+                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                    content: '强制关闭将丢弃所有修改数据',
+                    onOk() {
+                        dispatch(BrowserAction.clearPages());
+                    },
+                    onCancel() { }
+                });
+            } 
+        }
+        else {
+            let allClean = true;
+
+            for (let tab of pages) {
+                if (tab.notSynced && tab.id !== currentPage.id) allClean = false;
+                break;
+            }
+
+            if (allClean) {
+                dispatch(BrowserAction.closeOtherPages(currentPage));
+            }
+            else {
+                confirm({
+                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                    content: '强制关闭将丢弃这些修改数据',
+                    onOk() {
+                        dispatch(BrowserAction.closeOtherPages(currentPage));
+                    },
+                    onCancel() { }
+                });
+            }
+        }
     }
 
     render() {
@@ -180,6 +236,16 @@ export default class TaskBrowser extends Component {
                         type="editable-card"
                         className="browser-tabs"
                         onEdit={this.onEdit}
+                        tabBarExtraContent={<Dropdown overlay={
+                            <Menu style={{ marginRight: 2 }}
+                                onClick={this.closeAllorOthers.bind(this)}
+                            >
+                                <Menu.Item key="OHTERS">关闭其他</Menu.Item>
+                                <Menu.Item key="ALL">关闭所有</Menu.Item>
+                            </Menu>
+                        }>
+                            <Icon type="bars" style={{ margin: '10 0 0 0' }} />
+                        </Dropdown>}
                     >
                         {panels}
                     </Tabs>
