@@ -177,14 +177,8 @@ export default class TableViewer extends React.Component{
                         <h1 className="card-title">
                             <GoBack /> 查看表：{ tableData && tableData.table.tableName }
                             <span className="right">
-                                <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button><Button className="button-top" type="primary">申请授权</Button>
-                            </span>
-                        </h1>
-                    </div>
-                    <Row className="box-card m-tablebasic">
-                        <Col span={12} className="col-sep">
-                            <h3>
-                                基本信息
+                                <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
+                                <Button className="button-top" type="primary">申请授权</Button>
                                 <Button 
                                     type="primary" 
                                     className="right"
@@ -192,7 +186,12 @@ export default class TableViewer extends React.Component{
                                 >
                                     生成建表语句
                                 </Button>
-                            </h3>
+                            </span>
+                        </h1>
+                    </div>
+                    <Row className="m-tablebasic">
+                        <Col span={12} className="col-sep" style={{paddingLeft: 0}}>
+                            <h3> 基本信息 </h3>
                             { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tbody>
                                     <tr>
@@ -220,7 +219,7 @@ export default class TableViewer extends React.Component{
                                 </tbody>
                             </table> }
                         </Col>
-                        <Col span={12} className="col-sep">
+                        <Col span={12} className="col-sep" style={{paddingRight: 0}}>
                             <h3>存储信息</h3>
                             { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tbody>
@@ -248,7 +247,7 @@ export default class TableViewer extends React.Component{
                             </table> }
                         </Col>
                     </Row>
-                    <Row style={{ padding: '0 30px' }}>
+                    <Row>
                         <div className="m-tabs m-card bd" style={{height: '700px'}}>
                             <Tabs 
                                 animated={false}

@@ -72,7 +72,9 @@ export default class TableRelation extends React.Component {
         this.listenOnClick();
         if (tableData) {
             const params = {
-                tableId: tableData.tableId,
+                tableId: tableData.id,
+                belongProjectId: tableData.belongProjectId,
+                dataSourceId: tableData.dataSourceId,
             }
             this.loadTableTree(params)
             this.loadVertexData(params)
@@ -432,7 +434,7 @@ export default class TableRelation extends React.Component {
         const { tableInfo, relationTasks } = this.state
         return (
             <div className="graph-editor" 
-                style = {{ position: 'relative', height: '650px' }}
+                style={{ position: 'relative', height: '650px', background: '#FAFAFA' }}
             >
                 <Spin
                     tip="Loading..."
