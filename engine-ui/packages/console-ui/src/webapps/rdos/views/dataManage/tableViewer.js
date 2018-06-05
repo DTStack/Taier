@@ -179,7 +179,7 @@ export default class TableViewer extends React.Component{
                                 <Button className="button-top" type="primary">申请授权</Button>
                                 <Button 
                                     type="primary" 
-                                    className="right"
+                                    className="button-top"
                                     onClick={ this.getCreateCode.bind(this) }
                                 >
                                     生成建表语句

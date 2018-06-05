@@ -483,7 +483,7 @@ export default class TableRelation extends React.Component {
 
     getDefaultEdgeStyle() {
         let style = [];
-        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE; //SHAPE_CONNECTOR;
+        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
