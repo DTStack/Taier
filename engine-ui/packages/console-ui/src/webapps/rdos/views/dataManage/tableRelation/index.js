@@ -22,9 +22,7 @@ export default class TableRelationContainer extends React.Component {
     render() {
         const { showTableRelation } = this.state;
         return (
-            <div className="table-ralation" 
-                style = {{ position: 'relative', height: '650px' }}
-            >
+            <div className="table-ralation">
                 { showTableRelation ? 
                     <TableRelation 
                         onShowColumn={() => this.onShow(false) }

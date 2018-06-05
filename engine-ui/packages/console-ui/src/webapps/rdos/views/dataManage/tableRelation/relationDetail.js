@@ -120,15 +120,9 @@ class RelationDetail extends React.Component {
             width: '100px',
         }
         return (
-            <div className="task-floating-window rel-table-info ant-table bd"
-                style={{ width: '90%'}}>
-                {/* <header style={{ padding: '5px' }} className="bd-bottom overflow ellipsis">
-                    <span style={{ fontSize: '12px' }}>{data.catalogue}/</span>
-                    <span title={data.tableName}><b>{data.tableName}</b></span>
-                    <a className="right" onClick={this.props.onShowColumn}>字段血缘关系</a>
-                </header> */}
+            <div className="task-floating-window rel-table-info ant-table">
                 <div>
-                    <Row>
+                    <Row className="tb-wrapper">
                         <table>
                             <tbody className="ant-table-tbody" >
                                 <tr>
@@ -166,7 +160,7 @@ class RelationDetail extends React.Component {
                             </tbody>
                         </table>
                     </Row>
-                    <Row style={{marginTop: '20px'}}>
+                    <Row className="tb-wrapper" style={{marginTop: '20px' }}>
                         <span className="bd-bottom" style={titleStyle}>
                             <b>相关任务与脚本</b>
                         </span>
@@ -177,15 +171,14 @@ class RelationDetail extends React.Component {
                             showHeader={false}
                             dataSource={(relationTasks && relationTasks.data) || []}
                         />
-                        <Pagination
-                            className="txt-right"
-                            size="small"
-                            style={{ margin: '0 5px 5px'}}
-                            pageSize={this.state.pageSize}
-                            onChange={this.pageChange}
-                            current={this.state.current}
-                            total={relationTasks.totalCount} />
                     </Row>
+                    <Pagination
+                        className="txt-right"
+                        style={{ margin: '20px 5px 5px'}}
+                        pageSize={this.state.pageSize}
+                        onChange={this.pageChange}
+                        current={this.state.current}
+                        total={relationTasks.totalCount} />
                 </div>
                 <Modal
                     width="600px"

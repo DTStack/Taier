@@ -65,8 +65,6 @@ export default class TableViewer extends React.Component{
 
     getTable() {
         ajax.getTable(this.queryParams).then(res => {
-            console.log('gettable',res);
-            
             if(res.code === 1) {
                 this.setState({
                     tableData: res.data
@@ -248,7 +246,7 @@ export default class TableViewer extends React.Component{
                         </Col>
                     </Row>
                     <Row>
-                        <div className="m-tabs m-card bd" style={{height: '700px'}}>
+                        <div className="m-tabs m-card bd">
                             <Tabs 
                                 animated={false}
                                 onChange={ this.getPreview.bind(this) }

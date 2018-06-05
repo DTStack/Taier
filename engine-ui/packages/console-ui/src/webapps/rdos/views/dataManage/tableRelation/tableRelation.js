@@ -38,7 +38,7 @@ const {
 } = Mx
 
 const VertexSize = { // vertex大小
-    width: 100,
+    width: 30,
     height: 30,
 }
 
@@ -325,7 +325,7 @@ export default class TableRelation extends React.Component {
     }
 
     getStyles = (data) => {
-        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
+        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
     }
 
     formatTooltip = (cell) => {
@@ -434,7 +434,7 @@ export default class TableRelation extends React.Component {
         const { tableInfo, relationTasks } = this.state
         return (
             <div className="graph-editor" 
-                style={{ position: 'relative', height: '650px', background: '#FAFAFA' }}
+                style={{ position: 'relative', background: '#FAFAFA' }}
             >
                 <Spin
                     tip="Loading..."
@@ -467,8 +467,8 @@ export default class TableRelation extends React.Component {
 
     getDefaultVertexStyle() {
         let style = [];
-        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
-        style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
+        style[mxConstants.STYLE_PERIMETER] = mxPerimeter.EllipsePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
         // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
         style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
@@ -483,7 +483,7 @@ export default class TableRelation extends React.Component {
 
     getDefaultEdgeStyle() {
         let style = [];
-        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
+        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE; //SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
