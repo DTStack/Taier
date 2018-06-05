@@ -493,12 +493,8 @@ class PatchDataDetail extends Component {
                                     }}
                                 >
                                     <GoBack
-                                        type="left-circle-o"
+                                        type="textButton"
                                         url="/operation/task-patch-data"
-                                        style={{
-                                            fontSize: '18px',
-                                            color: '9EABB2'
-                                        }}
                                     />
                                     <span style={{
                                         fontSize: '14px',

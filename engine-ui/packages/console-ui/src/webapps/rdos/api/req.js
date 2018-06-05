@@ -48,6 +48,7 @@ export default {
     GET_TASK_LOG: `${RDOS_BASE_URL}/stream/streamServerLog/getLogsByTaskId`, // 获取任务告警日志
     GLOBAL_SEARCH_TASK: `${RDOS_BASE_URL}/stream/streamTask/globalSearch`, // 全局搜索任务
     GET_TASK_TYPES: `${RDOS_BASE_URL}/stream/streamTask/getSupportJobTypes`, // 获取任务类型
+    PUBLISH_REALTIME_TASK:`${RDOS_BASE_URL}/stream/streamTask/publishStreamTask`,//发布任务
 
     GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
     UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录

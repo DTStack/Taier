@@ -60,6 +60,12 @@
                     height: 22px;
                     display: block;
                 }
+                .tabs-icon{
+                    height:16px;
+                    margin-top: 50%;
+                    margin-left: 50%;
+                    transform: translate(-50%,-50%);
+                }
             }
 
             .ant-tabs-tab-active {
@@ -147,6 +153,11 @@
                 background-image: url(/public/rdos/img/sql.svg);
             }
         }
+        .s-jaricon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/ja.png);
+            }
+        }
         .s-mricon {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/mr.svg)
@@ -160,6 +171,11 @@
         .s-pythonicon {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/python.svg)
+            }
+        }
+        .s-pythonicon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/py.png)
             }
         }
         .s-virtualicon {
@@ -315,7 +331,16 @@
 
         .browser-tabs {
             .ant-tabs-bar .ant-tabs-tab-active {
-                background: #ecf6fd;
+                background: #fff;
+                &:after{
+                    content:"";
+                    position: absolute;
+                    top:0px;
+                    left:0px;
+                    right: 0px;
+                    height: 1px;
+                    background: #2491F7;
+                }
             }
         }
     }

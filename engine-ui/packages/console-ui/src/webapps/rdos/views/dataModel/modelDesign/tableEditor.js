@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import SplitPane from 'react-split-pane';
-import { 
-    Input, Button, message, 
+import {
+    Input, Button, message,
     Modal, Form, Row, Col,
- } from 'antd';
+} from 'antd';
 
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -63,7 +63,7 @@ class TableEditor extends Component {
         const { tableData, modifyDesc } = this.props;
         const { getFieldDecorator } = this.props.form;
 
-        const { 
+        const {
             tableName, project, createTime,
             desc, userName, lifeDay, catalogueId,
         } = tableData;
@@ -76,18 +76,18 @@ class TableEditor extends Component {
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
-                    <h1 className="card-title"><GoBack /> { tableData && <span>编辑表：{ tableName }</span> }</h1>
+                    <h1 className="card-title flex-middle"><GoBack type="textButton" /> {tableData && <span>编辑表：{tableName}</span>}</h1>
                     <Row className="box-card m-tablebasic">
                         <h3>基本信息</h3>
                         <table width="100%" cellPadding="0" cellSpacing="0">
                             <tbody>
                                 <tr>
                                     <th>表名</th>
-                                    <td>{ tableName }</td>
+                                    <td>{tableName}</td>
                                 </tr>
                                 <tr>
                                     <th>所属项目</th>
-                                    <td>{ project }</td>
+                                    <td>{project}</td>
                                 </tr>
                                 <tr>
                                     <th>创建者</th>
@@ -95,7 +95,7 @@ class TableEditor extends Component {
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
-                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    <td>{moment(createTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -111,7 +111,7 @@ class TableEditor extends Component {
                                     isFolderPicker
                                     treeData={this.state.dataCatalogue}
                                     onChange={(val) => {
-                                        modifyDesc({name: 'catalogueId', value: val})
+                                        modifyDesc({ name: 'catalogueId', value: val })
                                     }}
                                 />
                             </FormItem>
@@ -139,10 +139,10 @@ class TableEditor extends Component {
                                     }],
                                     initialValue: desc
                                 })(
-                                    <Input 
+                                    <Input
                                         name="tableDesc"
                                         onChange={this.changeTable.bind(this)}
-                                        type="textarea" placeholder="描述信息" 
+                                        type="textarea" placeholder="描述信息"
                                     />
                                 )}
                             </FormItem>
@@ -150,27 +150,28 @@ class TableEditor extends Component {
                     </Row>
                     <Row className="box-card">
                         {!isEmpty(tableData) && <ColumnsPartition
-                            {...tableData }
-                            addRow={ this.addRow.bind(this) }
-                            delRow={ this.delRow.bind(this) }
-                            columnFileds={ this.state.columnFileds }
-                            replaceRow={ this.replaceRow.bind(this) }
-                            moveRow={ this.moveRow.bind(this) }
+                            {...tableData}
+                            addRow={this.addRow.bind(this)}
+                            delRow={this.delRow.bind(this)}
+                            columnFileds={this.state.columnFileds}
+                            replaceRow={this.replaceRow.bind(this)}
+                            moveRow={this.moveRow.bind(this)}
                             isEdit
                         />}
                     </Row>
-                    <Row className="box-card txt-center">
+                    <Row className="box-card txt-right">
                         <Button 
-                            type="primary"
+                            type="danger"
                             style={{ marginRight: '20px' }}
-                            onClick={ this.saveTable.bind(this) }
-                        >
-                            保存
-                        </Button>
-                        <Button type="danger" 
-                            onClick={ this.delTable.bind(this) }
+                            onClick={this.delTable.bind(this)}
                         >
                             删除表
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={this.saveTable.bind(this)}
+                        >
+                            保存
                         </Button>
                     </Row>
                 </main>
@@ -231,7 +232,7 @@ class TableEditor extends Component {
         const { name, value } = evt.target;
         this.props.modifyDesc({ name, value });
     }
-    
+
     delTable() {
         const the = this;
         confirm({
@@ -241,7 +242,7 @@ class TableEditor extends Component {
                 dateModelAPI.deleteTable({
                     tableId: the.tableId
                 }).then(res => {
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         message.info('删除成功, 即将返回列表页');
                         setTimeout(() => {
                             the.props.router.replace('/data-model/table');
@@ -249,7 +250,7 @@ class TableEditor extends Component {
                     }
                 })
             },
-            onCancel() {},
+            onCancel() { },
         });
     }
 
