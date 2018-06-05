@@ -213,7 +213,7 @@ class ManageBasicProperties extends Component {
             return arr;
         }
 
-        return exchangeTree(tree);
+        return exchangeTree(tree)||[];
 
 
     }
