@@ -104,6 +104,12 @@ module.exports = function() {
                 ignore: ['*/index.html']
             }]),
 
+            new webpack.DefinePlugin({
+                'APP': {
+                    'VERSION': VERSION,
+                }
+            }),
+
             new webpack.optimize.CommonsChunkPlugin({
                 names: ['vendor', 'manifest'],    // 指定公共 bundle 的名字。
                 minChunks: Infinity
