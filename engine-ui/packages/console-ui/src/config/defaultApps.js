@@ -44,7 +44,7 @@ module.exports = [
         description: '易上手、低成本、稳定的数据开放共享服务',
     }, {
         id: 'dataLabel',
-        name: '标签管理',
+        name: '标签工厂',
         link: 'dataLabel.html#/',
         filename: 'dataLabel.html',
         target: '_blank',
