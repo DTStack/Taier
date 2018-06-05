@@ -233,6 +233,7 @@ class ApiTypeTree extends Component {
     addNode(id) {
         const tree = cloneDeep(this.props.tree);
         const tmpId = Math.random();
+        const {expandedKeys} = this.state;
         function addTreeNode(data, id) {
             if (id == 0) {
                 data.push({
@@ -261,6 +262,11 @@ class ApiTypeTree extends Component {
             return;
         }
         addTreeNode(tree, id)
+        if(expandedKeys){
+            if(expandedKeys.indexOf(id)==-1){
+                this.onExpands(expandedKeys.concat(id+''));
+            }
+        }
         this.setState({
             editNode: tmpId,
             mode: "add",
