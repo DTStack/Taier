@@ -34,14 +34,14 @@ class Sidebar extends Component {
                     >
                         <TabPane tab={
                             <Tooltip placement="bottom" title="离线任务">
-                                <Icon type="usb" />
+                                <img className="tabs-icon" src="/public/rdos/img/icon/offline.png" />
                             </Tooltip>
                         } key="offline">
                             <OfflineTabPanel/>
                         </TabPane>
                         <TabPane tab={
                             <Tooltip placement="bottom" title="实时任务">
-                                <Icon type="link"/>
+                                <img className="tabs-icon" src="/public/rdos/img/icon/realtime.png" />
                             </Tooltip>
                         } key="realtime" style={{marginRight: 10}}>
                             <RealTimeTabPanel />

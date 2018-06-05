@@ -57,7 +57,7 @@ export default class RoleEdit extends Component {
         return (
             <div className="box-1">
                 <div className="box-card">
-                    <h1 className="card-title"><GoBack /> 查看角色</h1>
+                    <h1 className="card-title flex-middle"><GoBack type="textButton" /> 查看角色</h1>
                     <article title="查看角色">
                         <Spin tip="Loading..." spinning={this.state.loading}>
                             <article className="section">

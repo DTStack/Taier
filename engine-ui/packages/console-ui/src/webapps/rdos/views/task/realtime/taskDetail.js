@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
 import {
     Row, Col, Modal, Tag,
-    message, Select,
+    message, Select, Collapse
 } from 'antd'
 
 import utils from 'utils'
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
+import TaskVersion from '../offline/taskVersion';
 
 const Option = Select.Option;
+const Panel = Collapse.Panel;
 
 export default class TaskDetail extends Component {
 
@@ -22,7 +24,7 @@ export default class TaskDetail extends Component {
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
             const resVal = currentPage.resourceList.length > 0 ?
-            currentPage.resourceList.map(item => item.id) : []
+                currentPage.resourceList.map(item => item.id) : []
             this.setState({
                 resList: resVal,
             })
@@ -79,61 +81,73 @@ export default class TaskDetail extends Component {
             </Option>
         ))
         return (
-            <Row className="task-info">
-                <Row>
-                    <Col span="10" className="txt-right">任务名称：</Col>
-                    <Col span="14">
-                        {currentPage.name}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span="10" className="txt-right">任务类型：</Col>
-                    <Col span="14">{currentPage.taskType === 0 ? 'SQL任务' : 'MR任务'}</Col>
-                </Row>
-                <Row>
-                    <Col span="10" className="txt-right">资源：</Col>
-                    <Col span="14" style={{marginTop: '10px'}}>{taskRes}
-                        {/* <a onClick={() => { this.setState({ visibleAlterRes: true }) }}>修改</a>*/}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span="10" className="txt-right">创建人员：</Col>
-                    <Col span="14">{currentPage.createUserName}</Col>
-                </Row>
-                <Row>
-                    <Col span="10" className="txt-right">创建时间：</Col>
-                    <Col span="14">
-                        {utils.formatDateTime(currentPage.gmtCreate)}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span="10" className="txt-right">最近修改时间：</Col>
-                    <Col span="14">{utils.formatDateTime(currentPage.gmtModified)}</Col>
-                </Row>
-                <Row>
-                    <Col span="10" className="txt-right">描述：</Col>
-                    <Col span="14">{currentPage.taskDesc}</Col>
-                </Row>
-                <Modal
-                  title="修改任务资源"
-                  wrapClassName="vertical-center-modal"
-                  visible={visibleAlterRes}
-                  onCancel={() => { this.setState({ visibleAlterRes: false }) }}
-                  onOk={this.alterRes}
-                >
-                    <Select
-                      mode={currentPage.taskType === 0 ? 'multiple' : ''}
-                      style={{ width: '100%' }}
-                      showSearch
-                      value={resList}
-                      placeholder="请选择资源"
-                      optionFilterProp="name"
-                      onChange={this.handleChange}
-                    >
-                    {resOptions}
-                    </Select>
-                </Modal>
-            </Row>
+            <div className="m-taksdetail">
+                <Collapse bordered={false} defaultActiveKey={['1', '2']}>
+                    <Panel key="1" header="任务属性">
+                        <Row className="task-info">
+                            <Row>
+                                <Col span="10" className="txt-right">任务名称：</Col>
+                                <Col span="14">
+                                    {currentPage.name}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span="10" className="txt-right">任务类型：</Col>
+                                <Col span="14">{currentPage.taskType === 0 ? 'SQL任务' : 'MR任务'}</Col>
+                            </Row>
+                            <Row>
+                                <Col span="10" className="txt-right">资源：</Col>
+                                <Col span="14" style={{ marginTop: '10px' }}>{taskRes}
+                                    {/* <a onClick={() => { this.setState({ visibleAlterRes: true }) }}>修改</a>*/}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span="10" className="txt-right">创建人员：</Col>
+                                <Col span="14">{currentPage.createUserName}</Col>
+                            </Row>
+                            <Row>
+                                <Col span="10" className="txt-right">创建时间：</Col>
+                                <Col span="14">
+                                    {utils.formatDateTime(currentPage.gmtCreate)}
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col span="10" className="txt-right">最近修改时间：</Col>
+                                <Col span="14">{utils.formatDateTime(currentPage.gmtModified)}</Col>
+                            </Row>
+                            <Row>
+                                <Col span="10" className="txt-right">描述：</Col>
+                                <Col span="14">{currentPage.taskDesc}</Col>
+                            </Row>
+                            <Modal
+                                title="修改任务资源"
+                                wrapClassName="vertical-center-modal"
+                                visible={visibleAlterRes}
+                                onCancel={() => { this.setState({ visibleAlterRes: false }) }}
+                                onOk={this.alterRes}
+                            >
+                                <Select
+                                    mode={currentPage.taskType === 0 ? 'multiple' : ''}
+                                    style={{ width: '100%' }}
+                                    showSearch
+                                    value={resList}
+                                    placeholder="请选择资源"
+                                    optionFilterProp="name"
+                                    onChange={this.handleChange}
+                                >
+                                    {resOptions}
+                                </Select>
+                            </Modal>
+                        </Row>
+                    </Panel>
+                    <Panel key="2" header="历史发布版本">
+                        <TaskVersion
+                            taskInfo={currentPage}
+                            changeSql={this.props.setSqlText}
+                        />
+                    </Panel>
+                </Collapse>
+            </div>
         )
     }
 }
