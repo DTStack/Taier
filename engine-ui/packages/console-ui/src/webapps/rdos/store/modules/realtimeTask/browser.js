@@ -19,7 +19,7 @@ export function publishTask(params){
             return res
         }
     }
-    return Api.publishOfflineTask(params)
+    return Api.publishRealtimeTask(params)
             .then(succCallback);
 }
 

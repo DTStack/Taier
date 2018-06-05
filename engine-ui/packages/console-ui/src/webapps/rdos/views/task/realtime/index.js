@@ -113,8 +113,15 @@ class TaskIndex extends Component {
     }
 
     editorChange = (old, newVal) => {
-        const { currentPage, dispatch } = this.props
+        let { currentPage, dispatch } = this.props;
+        currentPage=cloneDeep(currentPage);
         if (old !== newVal) {
+            //这里兼容离线任务的版本控制
+            if(typeof old=="boolean"){
+                currentPage.merged=true;
+            }else{
+                currentPage.merged=false;
+            }
             currentPage.sqlText = newVal;
             currentPage.notSynced = true;// 添加未保存标记
             dispatch(BrowserAction.setCurrentPage(currentPage))
@@ -177,7 +184,7 @@ class TaskIndex extends Component {
 
     submitTab() {
         const {
-            currentPage,
+            currentPage, dispatch
         } = this.props;
 
         const { publishDesc } = this.state
@@ -218,6 +225,14 @@ class TaskIndex extends Component {
                 this.closePublish();
                 if(result){
                     message.success('发布成功！');
+                    Api.getTask({id:currentPage.id}).then(res => {
+                        if (res.code === 1) {
+                            const taskInfo = res.data
+                            taskInfo.merged = true;
+                            taskInfo.notSynced = false;// 添加已保存标记
+                            dispatch(BrowserAction.setCurrentPage(taskInfo))
+                        }
+                    })
                 }
             }
         );
