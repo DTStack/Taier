@@ -58,15 +58,16 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.BatchTableSource;
 import org.apache.flink.util.Preconditions;
+import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.conn.HttpHostConnectException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -104,6 +105,11 @@ public class FlinkClient extends AbsClient {
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
     private String tmpFileDirPath = "./tmp";
+
+    //http://${addr}/proxy/${applicationId}/
+    private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/";
+
+    private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
 
     private FlinkConfig flinkConfig;
 
@@ -565,7 +571,37 @@ public class FlinkClient extends AbsClient {
      * @return
      */
     public String getReqUrl(){
-        String url = client.getWebInterfaceURL();
+        String url = "";
+        try{
+            Field yarnClientField = ((YarnClusterClient) client).getClass().getDeclaredField("yarnClient");
+            yarnClientField.setAccessible(true);
+            Object yarnClientObj = yarnClientField.get(client);
+
+            Field rmClientField = yarnClientObj.getClass().getDeclaredField("rmClient");
+            rmClientField.setAccessible(true);
+            Object rmClient = rmClientField.get(yarnClientObj);
+
+            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
+            hField.setAccessible(true);
+            //获取指定对象中此字段的值
+            Object h = hField.get(rmClient);
+
+            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
+            currentProxyField.setAccessible(true);
+            Object currentProxy = currentProxyField.get(h);
+
+            Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
+            proxyInfoField.setAccessible(true);
+            String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
+
+            String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
+            String addr = hadoopConf.get(key);
+            String appId = ((YarnClusterClient) client).getApplicationId().toString();
+            url = String.format(FLINK_URL_FORMAT, addr, appId);
+        }catch (Exception e){
+            url = client.getWebInterfaceURL();
+        }
+
         logger.info("get req url=" + url);
         return url;
     }
