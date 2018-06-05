@@ -133,7 +133,6 @@ class RelationDetail extends React.Component {
                                     <td><span>创建者：{data.createUser}</span></td>
                                     <td><a className="right" onClick={this.props.onShowColumn}>字段血缘关系</a></td>
                                 </tr>
-
                             </tbody>
                         </table>
 

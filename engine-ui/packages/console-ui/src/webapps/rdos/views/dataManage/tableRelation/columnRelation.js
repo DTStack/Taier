@@ -73,6 +73,8 @@ export default class TableRelation extends React.Component {
         if (tableData) {
             const params = {
                 tableId: tableData.tableId,
+                belongProjectId: tableData.belongProjectId,
+                dataSourceId: tableData.dataSourceId,
             }
             this.loadTableTree(params)
             this.loadVertexData(params)
