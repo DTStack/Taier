@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
-    Tag, Icon, Card, Select
+    Tag, Icon, Card, Select,Spin
 } from 'antd';
 
 import { Link } from 'react-router';
@@ -35,9 +35,9 @@ class SearchTable extends Component {
             visible: false,
             table: [],
             editRecord: {},
-
+            cardLoading:false,
             queryParams: {
-                currentPage: 1,
+                pageIndex: 1,
                 catalogueId: undefined,
                 permissionStatus: undefined,
                 projectId: undefined,
@@ -56,11 +56,16 @@ class SearchTable extends Component {
     }
 
     search = () => {
-        const params = this.state.queryParams;
-        ajax.newSearchTable(params).then(res => {
+        const { cardLoading } = this.state;
+        this.setState({
+            cardLoading: true
+        })
+        const { queryParams } = this.state;
+        ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
+                    cardLoading: false,
                 })
             }
         })
@@ -71,9 +76,6 @@ class SearchTable extends Component {
         const params = {...applyData};
         params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
         params.resourceId = editRecord.id;
-        
-        console.log(params);
-        
         ajax.applyTable(params).then(res => {
             if (res.code === 1) {
                 message.success('申请成功！')
@@ -85,7 +87,7 @@ class SearchTable extends Component {
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
         if (field) {
-            queryParams[field] = value;
+            queryParams[field] = value === "all" ? "" : value;
         }
         this.setState({
             queryParams,
@@ -96,14 +98,14 @@ class SearchTable extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-                currentPage: 1,
+                pageIndex: 1,
             })
         })
     }
 
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
-            currentPage: pagination.current
+            pageIndex: pagination.current
         })
         this.setState({
             queryParams,
@@ -114,7 +116,7 @@ class SearchTable extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 tableName: e.target.value,
-                currentPage: 1,
+                pageIndex: 1,
             }),
         })
     }
@@ -195,10 +197,13 @@ class SearchTable extends Component {
             {
                 title: '操作',
                 key: 'id',
+                dataIndex: 'permissionStatus',
                 width: 100,
                 render(text, record) {
                     return <span>
-                        <a onClick={() => ctx.showModal(record)}>申请授权</a>
+                        { 
+                            text == 1 ?  <a onClick={() => ctx.showModal(record)}>申请授权</a> : "已授权"
+                        }
                     </span>
                 }
             }
@@ -206,7 +211,7 @@ class SearchTable extends Component {
     }
 
     render() {
-        const { table, queryParams, visible, editRecord } = this.state;
+        const { table, queryParams, visible, editRecord,cardLoading } = this.state;
         const { projects } = this.props;
 
         const marginTop10 = { marginTop: '8px' };
@@ -242,9 +247,9 @@ class SearchTable extends Component {
                         placeholder="选择指标类型"
                         onChange={(value) => this.changeParams('permissionStatus', value)}
                     >
-                        <Option value="1">全部表</Option>
-                        <Option value="2">授权成功</Option>
-                        <Option value="3">需要授权</Option>
+                        <Option value="all">全部表</Option>
+                        <Option value="0">授权成功</Option>
+                        <Option value="1">需要授权</Option>
                     </Select>
                 </FormItem>
                 <FormItem label="项目">
@@ -254,7 +259,7 @@ class SearchTable extends Component {
                         optionFilterProp="name"
                         style={{ width: 120 }}
                         placeholder="选择项目"
-                        onChange={(value) => this.changeParams('projectId', value)}
+                        onChange={(value) => this.changeParams('pId', value)}
                     >
                         {projectOptions}
                     </Select>
@@ -277,17 +282,19 @@ class SearchTable extends Component {
         };
         return <div className="m-tablelist">
             <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                <Card noHovering bordered={false} title={title}>
-                    <div style={{ marginTop: '1px' }}>
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            columns={this.initialColumns()}
-                            dataSource={table.data}
-                            pagination={pagination}
-                            onChange={this.handleTableChange.bind(this)}
-                        />
-                    </div>
+                <Card noHovering bordered={false} title={title} >
+                    <Spin tip="Loading..." spinning={cardLoading}>
+                        <div style={{ marginTop: '1px' }}>
+                            <Table
+                                rowKey="id"
+                                className="m-table"
+                                columns={this.initialColumns()}
+                                dataSource={table.data}
+                                pagination={pagination}
+                                onChange={this.handleTableChange.bind(this)}
+                            />
+                        </div>
+                    </Spin>
                 </Card>
                 <TableApplyModal 
                     visible={visible}

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message, Checkbox,
-    Tag, Icon, Card, Select, Tabs
+    Tag, Icon, Card, Select, Tabs,DatePicker
 } from 'antd';
 
 import { Link } from 'react-router';
@@ -18,6 +18,8 @@ import ApprovalModal from './approvalModal';
 const FormItem = Form.Item
 const Option = Select.Option
 const TabPane = Tabs.TabPane
+const { RangePicker } = DatePicker;
+
 
 const ROUTER_BASE = '/data-manage/table';
 
@@ -49,18 +51,19 @@ class AuthMana extends Component {
         super(props);
         this.state = {
             table: [],
-            editRecord: {},
+            editRecord: [],
             checkAll: false,
             selectedRowKeys: [],
             agreeApply: undefined,
-
+            visible:false,
             queryParams: {
-                listType: "1",
-                currentPage: 1,
+                listType: "0",
+                pageIndex: 1,
                 pageSize: 10,
-                catalogueId: undefined,
-                projectId: undefined,
-                tableName: undefined,
+                resourceName: undefined,
+                startTime: undefined,
+                endTime: undefined,
+                belongProjectId: undefined,
             },
         }
     }
@@ -74,8 +77,10 @@ class AuthMana extends Component {
     }
 
     search = () => {
+        const { table } = this.state;
+        this.setState({table:[]})
         const params = this.state.queryParams;
-        ajax.searchTable(params).then(res => {
+        ajax.getApplyList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
@@ -93,14 +98,35 @@ class AuthMana extends Component {
     }
 
     approveApply = (params) => {
-        ajax.approveApply(params).then(res => {
+        delete params.tableName ;
+        const { visible } = this.state;
+        ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
+                this.setState({visible: false})                
             }
         })
     }
 
-    revoke = (params) => {
+    revoke = (ids=[]) => {
+        let params;
+        if(ids.length > 0){
+            params = {ids};
+        }else{
+            const { selectedRowKeys,table } = this.state;
+            console.log('ids',ids);
+            
+            
+            selectedRowKeys.map(v=>{
+                table.data.map(item=>{
+                    if(item.applyId === v){
+                        ids.push(item.resourceId)
+                    }
+                })
+            })
+        }
+        console.log(params);
+        
         ajax.revoke(params).then(res => {
             if (res.code === 1) {
                 message.success('回收成功！')
@@ -108,7 +134,8 @@ class AuthMana extends Component {
         })
     }
 
-    cancelApply = (params) => {
+    cancelApply = (id) => {
+        const params = {id}
         ajax.cancelApply(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
@@ -123,6 +150,7 @@ class AuthMana extends Component {
         }
         this.setState({
             queryParams,
+            checkAll: false,
         }, this.search)
     }
 
@@ -147,17 +175,10 @@ class AuthMana extends Component {
     onTableNameChange = (e) => {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
-                tableName: e.target.value,
+                resourceName: e.target.value,
                 currentPage: 1,
             }),
         })
-    }
-
-    showModal = (editRecord) => {
-        this.setState({
-            visible: true,
-            editRecord,
-        });
     }
 
     onSelectChange = (selectedRowKeys) => {
@@ -166,14 +187,30 @@ class AuthMana extends Component {
 
     onCheckAllChange = (e) => {
         let selectedRowKeys = []
-
         if (e.target.checked) {
-            selectedRowKeys = this.state.table.data.map(item => item.id )
+            selectedRowKeys = this.state.table.data.map(item => item.applyId )
         }
-
         this.setState({
             checkAll: e.target.checked,
             selectedRowKeys
+        })
+    }
+
+    batchApply(agreeApply){
+        const { selectedRowKeys,table } = this.state;
+        const editRecord = [];
+        selectedRowKeys.map(item=>{
+            table.data.map(v=>{
+               if(v.applyId === item ){
+                editRecord.push(v)
+               }
+            })
+        })
+        
+        this.setState({
+            agreeApply,
+            visible: true,
+            editRecord,
         })
     }
 
@@ -182,7 +219,7 @@ class AuthMana extends Component {
 
         let operation = '';
         switch (queryParams.listType) {
-            case '1': { // 待审批
+            case "0": { // 待审批
                 return (
                     <div className="ant-table-row  ant-table-row-level-0">
                         <div style={{ padding: '15px 10px 10px 30px', display:"inline-block" }}>
@@ -193,13 +230,13 @@ class AuthMana extends Component {
                             </Checkbox>
                         </div>
                         <div style={{display:"inline-block", marginLeft: '15px'}}>
-                            <Button type="primary" size="small" onClick={this.approveApply}>批量通过</Button>&nbsp;
-                            <Button type="primary" size="small" onClick={this.approveApply}>批量驳回</Button>&nbsp;
+                            <Button type="primary" size="small" onClick={this.batchApply.bind(this,true)}>批量通过</Button>&nbsp;
+                            <Button type="primary" size="small" onClick={this.batchApply.bind(this,false)}>批量驳回</Button>&nbsp;
                         </div>
                     </div>
                 )
             }
-            case '4': { // 权限回收
+            case "3": { // 权限回收
                 return (
                     <div className="ant-table-row  ant-table-row-level-0">
                         <div style={{ padding: '15px 10px 10px 30px', display:"inline-block" }}>
@@ -210,13 +247,13 @@ class AuthMana extends Component {
                             </Checkbox>
                         </div>
                         <div style={{display:"inline-block", marginLeft: '15px'}}>
-                            <Button type="primary" size="small" onClick={this.approveApply}>批量回收</Button>&nbsp;
+                            <Button type="primary" size="small" onClick={()=>{this.revoke()}}>批量回收</Button>&nbsp;
                         </div>
                     </div>
                 )
             }
-            case '2': // 申请记录
-            case '3':  // 已处理
+            case "1": // 申请记录
+            case "2":  // 已处理
             default:
                 return null;
         }
@@ -226,28 +263,21 @@ class AuthMana extends Component {
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state;
+        
         const baseCols = [
             {
                 title: '表名',
                 width: 120,
-                key: 'tableName',
-                dataIndex: 'tableName',
+                key: 'resourceName',
+                dataIndex: 'resourceName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{text}</Link>
+                    return <Link to={`${ROUTER_BASE}/view/${record.resourceId}`}>{text}</Link>
                 }
             },
             {
-                title: '类目',
-                key: 'catalogue',
-                dataIndex: 'catalogue',
-                render(text, record) {
-                    return text
-                },
-            },
-            {
                 title: 'project',
-                key: 'project',
-                dataIndex: 'project',
+                key: 'projectName',
+                dataIndex: 'projectName',
             },
             {
                 title: '项目名',
@@ -270,13 +300,13 @@ class AuthMana extends Component {
             },
             {
                 title: '申请人',
-                key: 'applyPerson',
-                dataIndex: 'applyPerson'
+                key: 'applyUser',
+                dataIndex: 'applyUser'
             },
         ];
 
         switch (queryParams.listType) {
-            case '1': { // 待审批
+            case "0": { // 待审批
                 return baseCols.concat(
                     [
                         {
@@ -302,7 +332,7 @@ class AuthMana extends Component {
                                         ctx.setState({
                                             visible: true,
                                             agreeApply: true,
-                                            editRecord: record,
+                                            editRecord: [record],
                                         })
                                     }}>通过</a>
                                     <span className="ant-divider"></span>
@@ -310,7 +340,7 @@ class AuthMana extends Component {
                                         ctx.setState({
                                             visible: true,
                                             agreeApply: false,
-                                            editRecord: record,
+                                            editRecord: [record],
                                         })
                                     }}>驳回</a>
                                 </span>
@@ -320,7 +350,7 @@ class AuthMana extends Component {
                 )
             }
 
-            case '2': {  // 申请记录 
+            case "1": {  // 申请记录 
                 return baseCols.concat(
                     [
                         {
@@ -363,14 +393,14 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a onClick={ctx.cancelApply}>撤销</a>
+                                    <a onClick={()=>{ctx.cancelApply(record.resourceId)}}>撤销</a>
                                 </span>
                             }
                         }
                     ]
                 )
             }
-            case '3': {  // 已处理 
+            case "2": {  // 已处理 
                 return baseCols.concat(
                     [
                         {
@@ -415,7 +445,7 @@ class AuthMana extends Component {
                     ]
                 )
             }
-            case '4': {  // 权限回收 
+            case "3": {  // 权限回收 
                 return baseCols.concat(
                     [
                         {
@@ -445,7 +475,7 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a onClick={ctx.revoke}>收回</a>
+                                    <a onClick={()=>{ ctx.revoke([record.resourceId]) }}>收回</a>
                                 </span>
                             }
                         }
@@ -457,8 +487,17 @@ class AuthMana extends Component {
         }
     }
 
-    renderPane = () => {
-        const { table, selectedRowKeys, } = this.state;
+    onChangeTime = (date, dateString)=> {
+        const { queryParams } = this.state;
+        const startTime = Date.parse(dateString[0]);
+        const endTime =  Date.parse(dateString[1]);
+        queryParams.startTime = startTime;
+        queryParams.endTime = endTime;
+        this.setState(queryParams,this.search);
+    };
+      
+    renderPane = (isShowRowSelection=false) => {
+        const { table, selectedRowKeys,queryParams } = this.state;
 
         const { projects } = this.props;
 
@@ -480,7 +519,8 @@ class AuthMana extends Component {
                         optionFilterProp="name"
                         style={{ width: 120 }}
                         placeholder="选择项目"
-                        onChange={(value) => this.changeParams('projectId', value)}
+                        value={queryParams.belongProjectId}
+                        onChange={(value) => this.changeParams('belongProjectId', value)}
                     >
                         {projectOptions}
                     </Select>
@@ -494,6 +534,9 @@ class AuthMana extends Component {
                         onSearch={this.search}
                     />
                 </FormItem>
+                <FormItem label="时间选择">
+                    <RangePicker onChange={this.onChangeTime} format="YYYY-MM-DD HH:mm:ss"/>
+                </FormItem>
             </Form>
         )
 
@@ -501,18 +544,18 @@ class AuthMana extends Component {
             total: table.totalCount,
             defaultPageSize: 10,
         };
-
-        const rowSelection = {
+        
+        const rowSelection = isShowRowSelection ? {
             selectedRowKeys,
             onChange: this.onSelectChange,
-        };
+        }: null;
 
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>
                     <div style={{ marginTop: '1px' }}>
                         <Table
-                            rowKey="id"
+                            rowKey="applyId"
                             className="m-table"
                             rowSelection={rowSelection}
                             columns={this.initialColumns()}
@@ -536,8 +579,8 @@ class AuthMana extends Component {
                     style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}
                 >
-                    <TabPane tab="待我审批" key="1">
-                        {this.renderPane()}
+                    <TabPane tab="待我审批" key={0}>
+                        {this.renderPane(true)}
                         <ApprovalModal 
                             visible={visible}
                             agreeApply={agreeApply}
@@ -547,19 +590,19 @@ class AuthMana extends Component {
                                 this.setState({
                                     visible: false,
                                     agreeApply: undefined,
-                                    editRecord: '',
+                                    editRecord: [],
                                 })
                             }}
                         />
                     </TabPane>
-                    <TabPane tab="申请记录" key="2">
+                    <TabPane tab="申请记录" key={1}>
                         {this.renderPane()}
                     </TabPane>
-                    <TabPane tab="已处理" key="3">
+                    <TabPane tab="已处理" key={2}>
                         {this.renderPane()}
                     </TabPane>
-                    <TabPane tab="权限回收" key="4">
-                        {this.renderPane()}
+                    <TabPane tab="权限回收" key={3}>
+                        {this.renderPane(true)}
                     </TabPane>
                 </Tabs>
             </div>

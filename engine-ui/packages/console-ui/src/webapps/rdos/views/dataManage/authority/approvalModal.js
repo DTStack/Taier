@@ -25,10 +25,27 @@ class ApprovelModal extends Component {
         form.resetFields()
     }
 
+    handleResource(type){
+        const { table } = this.props;
+        let data;
+        if(type === "resourceName"){
+            const resourceName =  table.map(v=>{
+                return v.resourceName
+            })
+            data = resourceName.join(" 、")
+        }else{
+            data =  table.map(v=>{
+                return v.resourceId
+            })
+        }
+        return data
+    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { visible, table, agreeApply } = this.props;
+        const { visible, agreeApply } = this.props;
         const title = agreeApply ? '通过申请' : '驳回申请';
+        
         return (
             <Modal
                 title={title}
@@ -44,9 +61,9 @@ class ApprovelModal extends Component {
                     >
                         {getFieldDecorator('tableName', {
                             rules: [],
-                            initialValue: table && table.tableName || '',
                         })(
-                            <Input type="text" placeholder="请输入申请时长（天）" />,
+                            <span>{ this.handleResource('resourceName') }</span>
+                           
                         )}
                     </FormItem>
                     <FormItem
@@ -54,7 +71,17 @@ class ApprovelModal extends Component {
                     >
                         {getFieldDecorator('ids', {
                             rules: [],
-                            initialValue: table && [table.id] || [],
+                            initialValue: this.handleResource('ids')
+                        })(
+                            <Input type="hidden" />,
+                        )}
+                    </FormItem>
+                    <FormItem
+                        style={{display: 'none'}}
+                    >
+                        {getFieldDecorator('status', {
+                            rules: [],
+                            initialValue: agreeApply ? 1 : 2
                         })(
                             <Input type="hidden" />,
                         )}
