@@ -86,18 +86,14 @@ class AdminUser extends Component {
         const ctx = this
         this.setState({ loading: true })
         Api.queryUser(app, params).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ users: res.data, loading: false })
-            }
+            ctx.setState({ users: res.data, loading: false })
         })
     }
 
     loadRoles = (app, params) => {
         const ctx = this;
         Api.queryRole(app, params).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ roles: res.data && res.data.data })
-            }
+            ctx.setState({ roles: res.data && res.data.data })
         })
     }
 
@@ -123,9 +119,7 @@ class AdminUser extends Component {
             params.projectId = selectedProject
         }
         Api.loadUsersNotInProject(active, params).then((res) => {
-            if (res.code === 1) {
-                this.setState({ notProjectUsers: res.data })
-            }
+            this.setState({ notProjectUsers: res.data })
         })
     }
 
@@ -216,6 +210,7 @@ class AdminUser extends Component {
             visible: false,
             visibleEditRole: false,
             editTarget: '',
+            notProjectUsers: [],
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()

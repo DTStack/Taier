@@ -178,10 +178,17 @@ export default class TagPane extends Component {
                         </Menu.Item>
                     </Menu>
                 )
-                return (
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <Button>操作<Icon type="down" /></Button>
-                    </Dropdown>
+                return (<span id={`tag_${record.id}`}>
+                        <Dropdown
+                            getPopupContainer={
+                                () => document.getElementById(`tag_${record.id}`)
+                            }
+                            overlay={menu} 
+                            trigger={['click']}
+                        >
+                            <Button>操作<Icon type="down" /></Button>
+                        </Dropdown>
+                    </span>
                 )
             }
         }];
@@ -272,12 +279,13 @@ export default class TagPane extends Component {
                     </Menu>
                 )
 
+                const eleId = `tag_${record.id}`
                 return (
                     <div>
                         <a onClick={() => {this.editBaseInfo(record)}}>
                             编辑
                         </a>
-                        <span className="ant-divider" />
+                        <span className="ant-divider" id={eleId}/>
                         {
                             TAG_PUBLISH_STATUS[record.publishStatus] == '已发布' ?
                             <Popconfirm
@@ -287,7 +295,13 @@ export default class TagPane extends Component {
                                 <a>删除</a>
                             </Popconfirm>
                             :
-                            <Dropdown overlay={menu} trigger={['click']}>
+                            <Dropdown
+                                getPopupContainer={
+                                    () => document.getElementById(eleId)
+                                }
+                                overlay={menu} 
+                                trigger={['click']}
+                            >
                                 <a className="ant-dropdown-link">
                                     更多 <Icon type="down" />
                                 </a>
