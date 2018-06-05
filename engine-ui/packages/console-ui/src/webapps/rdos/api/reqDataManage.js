@@ -55,7 +55,7 @@ export default {
     APPLY_HANDLE: `${RDOS_BASE_URL}/batch/batchApply/getRelateTask`, // 申请处理
     ADD_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/collect`, // 取消收藏
     CANCEL_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/cancelCollect`, // 取消收藏
-    
+    ApplY_REPLY:`${RDOS_BASE_URL}/batch/batchApply/reply`,//申请处理
 
     // ===== 项目表数据统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableCount`, // 表总量

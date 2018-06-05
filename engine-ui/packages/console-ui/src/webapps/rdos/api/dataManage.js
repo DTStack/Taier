@@ -64,7 +64,6 @@ export default {
     applyTable(params) {
         return http.post(dataManageReq.APPLY_TABLE, params)
     },
-
     // =========== 血缘关系 ==================//
     getTableRelTree(params) {
         return http.post(dataManageReq.GET_REL_TABLE_TREE, params)
@@ -152,8 +151,8 @@ export default {
     cancelApply(params) {
         return http.post(dataManageReq.APPLY_CANCEL, params)
     },
-    approveApply(params) {
-        return http.post(dataManageReq.APPLY_HANDLE, params)
+    applyReply(params) {
+        return http.post(dataManageReq.ApplY_REPLY, params)
     },
 
 
