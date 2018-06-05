@@ -129,10 +129,6 @@ class TableList extends Component {
         }, this.search)
     }
     
-    cursorActivity(){
-        console.log(arguments)
-    }
-
     render() {
         const ROUTER_BASE = '/data-manage/table';
         const { tableList } = this.props;
@@ -288,7 +284,6 @@ class TableList extends Component {
                                 style={{height:"400px"}}
                                 placeholder={DDL_placeholder}
                                 onChange={ this.handleDdlChange.bind(this) } 
-                                cursorActivity={this.cursorActivity.bind(this)}
                                 ref={(e) => { this.DDLEditor = e }}
                             />
                         </Modal>
@@ -310,19 +305,16 @@ class TableList extends Component {
                 sql: this.state._DDL
             }).then(res => {
                 if(res.code === 1) {
-                    if(!res.data) {
-                        this.state._DDL = undefined;
-                        // 设置值
-                        this.DDLEditor.self.doc.setValue('');
-                        this.setState({
-                            visible: false
-                        });
-                        message.info('建表成功');
-                        this.props.searchTable();
-                    }
-                    else {
-                        message.error(res.data.message)
-                    }
+                    this.state._DDL = undefined;
+                    // 设置值
+                    this.DDLEditor.self.doc.setValue('');
+                    this.setState({
+                        visible: false
+                    });
+                    message.info('建表成功');
+                    this.props.searchTable();
+                } else {
+                    message.error(res.data.message)
                 }
             })
         }
