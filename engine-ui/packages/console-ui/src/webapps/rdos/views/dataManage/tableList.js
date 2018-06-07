@@ -165,8 +165,8 @@ class TableList extends Component {
             },
             {
                 title: '创建时间',
-                key: 'createTime',
-                dataIndex: 'createTime',
+                key: 'gmtCreate',
+                dataIndex: 'gmtCreate',
                 render(text, record) {
                     return utils.formatDateTime(text)
                 }
