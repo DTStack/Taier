@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
-    Tag, Icon, Card, Select, Tabs
+    Tag, Icon, Card, Select, Tabs,
+    Spin,
 } from 'antd';
 
 import { Link } from 'react-router';
@@ -34,9 +35,9 @@ class TableList extends Component {
         this.state = {
             table: [],
             editRecord: {},
-
+            loading:false,
             queryParams: {
-                listType: 0,
+                listType: "1",
                 pageIndex: 1,
                 pageSize: 10,
                 catalogueId: undefined,
@@ -56,20 +57,28 @@ class TableList extends Component {
     }
 
     search = () => {
-        const params = this.state.queryParams;
-        ajax.newSearchTable(params).then(res => {
+        const { queryParams } = this.state;
+        this.setState({table:[],loading: true})
+        ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
+                    loading: false,
+                })
+            }else{
+                this.setState({
+                    loading: false,
                 })
             }
         })
     }
 
-    cancleMark = (applyData) => {
-        ajax.cancleMark(params).then(res => {
+    cancleMark = (tableId) => {
+        const params = {tableId};
+        ajax.cancelMark(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
+                this.search()
             }
         })
     }
@@ -78,6 +87,7 @@ class TableList extends Component {
         let queryParams = Object.assign(this.state.queryParams);
         if (field) {
             queryParams[field] = value;
+            queryParams.pageIndex = 1 ;
         }
         this.setState({
             queryParams,
@@ -88,14 +98,13 @@ class TableList extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-                currentPage: 1,
             })
         })
     }
 
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
-            currentPage: pagination.current
+            pageIndex: pagination.current
         })
         this.setState({
             queryParams,
@@ -106,7 +115,7 @@ class TableList extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 tableName: e.target.value,
-                currentPage: 1,
+                pageIndex: 1,
             }),
         })
     }
@@ -126,7 +135,6 @@ class TableList extends Component {
         const ctx = this;
         const { queryParams } = this.state
         console.log('initialColumns',queryParams);
-        
         return [
             {
                 title: '表名',
@@ -157,8 +165,8 @@ class TableList extends Component {
             },
             {
                 title: '创建时间',
-                key: 'createTime',
-                dataIndex: 'createTime',
+                key: 'gmtCreate',
+                dataIndex: 'gmtCreate',
                 render(text, record) {
                     return utils.formatDateTime(text)
                 }
@@ -189,7 +197,7 @@ class TableList extends Component {
                             </span>
                         case '5':
                         return <span>
-                                <a onClick={() => this.cancleMark(record)}>取消收藏</a>
+                                <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
                             </span>
                         case '4':
                         default: 
@@ -202,7 +210,7 @@ class TableList extends Component {
 
 
     renderPane = () => {
-        const { table, queryParams, editRecord } = this.state;
+        const { table, queryParams, editRecord,loading } = this.state;
         const { projects } = this.props;
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
@@ -235,6 +243,7 @@ class TableList extends Component {
                         optionFilterProp="name"
                         style={{ width: 120 }}
                         placeholder="选择项目"
+                        value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
                     >
                         {projectOptions}
@@ -245,6 +254,7 @@ class TableList extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
+                        value={queryParams.tableName}
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
                     />
@@ -259,18 +269,20 @@ class TableList extends Component {
 
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                <Card noHovering bordered={false} title={title}>
-                    <div style={{ marginTop: '1px' }}>
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            columns={this.initialColumns()}
-                            dataSource={table.data}
-                            pagination={pagination}
-                            onChange={this.handleTableChange}
-                        />
-                    </div>
-                </Card>
+                <Spin spinning={loading} tip="正在加载数据...">
+                    <Card noHovering bordered={false} title={title}>
+                        <div style={{ marginTop: '1px' }}>
+                            <Table
+                                rowKey="id"
+                                className="m-table"
+                                columns={this.initialColumns()}
+                                dataSource={table.data}
+                                pagination={pagination}
+                                onChange={this.handleTableChange}
+                            />
+                        </div>
+                    </Card>
+                </Spin>
             </div>
         </div>
     }

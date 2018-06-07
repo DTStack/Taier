@@ -6,7 +6,7 @@ export default {
     GET_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTable`,
     PREVIEW_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getData`,
     SAVE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/alterTable`,
-    SEARCH_LOG: `${RDOS_BASE_URL}/batch/hiveActionRecord/getRecords`,
+    SEARCH_LOG: `${RDOS_BASE_URL}/batch/batchHiveActionRecord/getRecords`,
     GET_CREATE_CODE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createSql`,
     DROP_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/dropTable`,
     DDL_CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/ddlCreateTable`,

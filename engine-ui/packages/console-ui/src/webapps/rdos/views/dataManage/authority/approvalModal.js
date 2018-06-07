@@ -35,7 +35,7 @@ class ApprovelModal extends Component {
             data = resourceName.join(" 、")
         }else{
             data =  table.map(v=>{
-                return v.resourceId
+                return v.applyId
             })
         }
         return data
