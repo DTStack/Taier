@@ -291,7 +291,7 @@ class TableList extends Component {
             </Form>
         )
 
-        const extra = (
+        const extra = ( 
             <div style={marginTop10}>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
                     <Link to={`${ROUTER_BASE}/design`}>新建表</Link>
