@@ -13,13 +13,19 @@
 
 .task-floating-window {
     position: absolute !important;
-    right: 10px;
-    bottom: 10px;
-    width: 300px;
-    background: #fbfbfb;
+    right: 20px;
+    left: 20px;
+    bottom: 60px;
+    background: #FAFAFA;
     z-index: 2;
     table tr td {
         padding: 5px;
+    }
+
+    .tb-wrapper {
+        border: 1px solid #e9e9e9;
+        border-bottom: 0;
+        background: #ffffff;
     }
 }
 

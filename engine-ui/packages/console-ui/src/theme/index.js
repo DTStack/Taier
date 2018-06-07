@@ -3,7 +3,7 @@
  */
 module.exports = () => {
     return {
-      'icon-url': '/public/iconfont/iconfont',
+      'icon-url': '"/public/iconfont/iconfont"',
       'primary-color': '#2491F7',
       'link-color': '#2491F7',
       'border-radius-base': '2px',

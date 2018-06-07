@@ -1,40 +1,49 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
-import { 
+import {
     Input, Button, Table, Form,
-    Pagination, Modal, message, 
-    Tag, Icon, Card
+    Pagination, Modal, message,
+    Tag, Icon, Card, Select, Tabs,
+    Spin,
 } from 'antd';
 
 import { Link } from 'react-router';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 
-import Editor from '../../components/code-editor';
-import CopyIcon from "main/components/copy-icon";
-import {DDL_placeholder} from "../../comm/DDLCommon"
+import utils from 'utils';
 
-import actions from '../../store/modules/dataManage/actionCreator';
 import CatalogueTree from './catalogTree';
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 
 const FormItem = Form.Item
+const Option = Select.Option
+const TabPane = Tabs.TabPane
 
+const ROUTER_BASE = '/data-manage/table';
+
+@connect(state => {
+    return {
+        projects: state.projects,
+    }
+})
 class TableList extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            visible: false,
-            current: 1,
-            tableName: '',
-            filterDropdownVisible: false,
-            dataCatalogue: [],
-            catalogue: undefined,
-            timeSort: '',
-            sizeSort: '',
-            _DDL:undefined
+            table: [],
+            editRecord: {},
+            loading:false,
+            queryParams: {
+                listType: "1",
+                pageIndex: 1,
+                pageSize: 10,
+                catalogueId: undefined,
+                pId: undefined,
+                tableName: undefined,
+            },
         }
     }
 
@@ -44,107 +53,96 @@ class TableList extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const project = nextProps.project
-        const oldProj = this.props.project
-        if (oldProj && project && oldProj.id !== project.id) {
-            this.setState({ current: 1 }, () => {
-                this.search();
-                this.loadCatalogue();
-            })
-        }
+
     }
 
     search = () => {
-        const params = this.getReqParams();
-        this.props.searchTable(params);
+        const { queryParams } = this.state;
+        this.setState({table:[],loading: true})
+        ajax.newSearchTable(queryParams).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    table: res.data,
+                    loading: false,
+                })
+            }else{
+                this.setState({
+                    loading: false,
+                })
+            }
+        })
     }
 
-    getReqParams = () => {
-        const { tableName, current, catalogue, timeSort, sizeSort } = this.state;
-        const params = {
-            pageIndex: current || 1,
-            tableName: tableName || '',
-        }
-        if (catalogue) {
-            params.catalogueId = catalogue
-        }
-        if (timeSort) {
-            params.timeSort = timeSort
-        }
-        if (sizeSort) {
-            params.sizeSort = sizeSort
-        }
-        return params;
+    cancleMark = (tableId) => {
+        const params = {tableId};
+        ajax.cancelMark(params).then(res => {
+            if (res.code === 1) {
+                message.success('取消成功！')
+                this.search()
+            }
+        })
     }
 
-    showPage(page, pageSize) {
+    changeParams = (field, value) => {
+        let queryParams = Object.assign(this.state.queryParams);
+        if (field) {
+            queryParams[field] = value;
+            queryParams.pageIndex = 1 ;
+        }
         this.setState({
-            current: page,
+            queryParams,
         }, this.search)
-    }
-
-    cleanSearch() {
-        const $input = findDOMNode(this.searchInput).querySelector('input');
-
-        if($input.value.trim() === '') return;
-
-        $input.value = '';
-        this.search();
     }
 
     loadCatalogue = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-                current: 1,
             })
         })
     }
 
-    handleTableChange(pagination, filters, sorter) {
-        const params = {
-            current: pagination.current,
-            timeSort: '',
-            sizeSort: '',
-        };
-        if (sorter) {
-            let { field, order } = sorter;
-            params[
-                field === 'lastDataChangeTime' ? 'timeSort' : 'sizeSort'
-            ] = order === 'descend' ? 'desc' : 'asc'
-        }
-        this.setState(params, this.search)
+    handleTableChange = (pagination, filters, sorter) => {
+        const queryParams = Object.assign(this.state.queryParams, {
+            pageIndex: pagination.current
+        })
+        this.setState({
+            queryParams,
+        }, this.search)
     }
 
     onTableNameChange = (e) => {
         this.setState({
-            tableName: e.target.value,
-            current: 1,
+            queryParams: Object.assign(this.state.queryParams, {
+                tableName: e.target.value,
+                pageIndex: 1,
+            }),
         })
     }
 
-    catalogueChange = (value) => {
+    showModal = (editRecord) => {
         this.setState({
-            catalogue: value,
-        }, this.search)
+            visible: true,
+            editRecord,
+        });
     }
     
     cursorActivity(){
         console.log(arguments)
     }
 
-    render() {
-        const ROUTER_BASE = '/data-manage/table';
-        const { tableList } = this.props;
-        const { totalCount, currentPage, listData } = tableList;
-        const columns = [
+    initialColumns = () => {
+        const ctx = this;
+        const { queryParams } = this.state
+        console.log('initialColumns',queryParams);
+        return [
             {
                 title: '表名',
                 width: 120,
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/view/${record.tableId}`}>{ text }</Link>
+                    return <Link to={`${ROUTER_BASE}/view/${record.id}`}>{text}</Link>
                 }
             },
             {
@@ -156,207 +154,168 @@ class TableList extends Component {
                 },
             },
             {
-                title: '创建者',
-                key: 'userName',
-                dataIndex: 'userName',
-                render(text, record) {
-                    return text
-                }
+                title: 'project',
+                key: 'project',
+                dataIndex: 'project',
             },
             {
-                title: '描述',
-                width: 150,
-                key: 'tableDesc',
-                dataIndex: 'tableDesc',
-                render(text, record) {
-                    return text
-                }
+                title: '项目名',
+                key: 'projectAlias',
+                dataIndex: 'projectAlias',
             },
             {
-                title: '最近更新时间',
-                key: 'lastDataChangeTime',
-                dataIndex: 'lastDataChangeTime',
-                sorter: true,
+                title: '创建时间',
+                key: 'gmtCreate',
+                dataIndex: 'gmtCreate',
                 render(text, record) {
-                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
+                    return utils.formatDateTime(text)
                 }
             },
             {
                 title: '占用存储',
-                key: 'storeSize',
-                width: 90,
-                dataIndex: 'storeSize',
-                sorter: true
+                key: 'tableSize',
+                dataIndex: 'tableSize',
             },
             {
                 title: '生命周期',
                 key: 'lifeDay',
                 dataIndex: 'lifeDay',
-                render(text) {
-                    return text ? <span>{text}天</span> : ''
-                }
             },
             {
                 title: '操作',
-                key: 'action',
+                key: 'id',
+                width: 120,
                 render(text, record) {
-                    return <span>
-                        <Link to={`${ROUTER_BASE}/edit/${record.tableId}`}>编辑</Link>
-                        <span className="ant-divider"></span>
-                        <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
-                    </span>
+                    switch (queryParams.listType) {
+                        case '1':
+                        case '2':
+                        case '3':
+                            return <span>
+                                <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
+                                <span className="ant-divider"></span>
+                                <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link>
+                            </span>
+                        case '5':
+                        return <span>
+                                <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
+                            </span>
+                        case '4':
+                        default: 
+                            return '--';
+                    }
                 }
             }
         ];
+    }
 
-        const marginTop10 = { marginTop: '8px' }
+
+    renderPane = () => {
+        const { table, queryParams, editRecord,loading } = this.state;
+        const { projects } = this.props;
+        const projectOptions = projects.map(proj => <Option
+            title={proj.projectAlias}
+            key={proj.id}
+            name={proj.projectAlias}
+            value={`${proj.id}`}
+        >
+            {proj.projectAlias}
+        </Option>)
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={marginTop10}>
-                <FormItem>
-                    <span style={{ width: '200px', display: 'inline-block'}}>
+            <Form className="m-form-inline" layout="inline" style={{marginTop: '10px'}}>
+                <FormItem label="类目">
+                    <span style={{ width: 120, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={this.state.catalogue}
+                            value={queryParams.catalogueId}
                             placeholder="按数据类目查询"
-                            onChange={this.catalogueChange}
+                            onChange={(value) => this.changeParams('catalogueId', value)}
                             treeData={this.state.dataCatalogue}
                         />
                     </span>
+                </FormItem>
+                <FormItem label="项目">
+                    <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="name"
+                        style={{ width: 120 }}
+                        placeholder="选择项目"
+                        value={queryParams.pId}
+                        onChange={(value) => this.changeParams('pId', value)}
+                    >
+                        {projectOptions}
+                    </Select>
                 </FormItem>
                 <FormItem>
                     <Input.Search
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
-                        onChange={ this.onTableNameChange }
-                        onSearch={ this.search }
-                        ref={ el => this.searchInput = el }
+                        value={queryParams.tableName}
+                        onChange={this.onTableNameChange}
+                        onSearch={this.search}
                     />
                 </FormItem>
             </Form>
         )
 
-        const extra = (
-            <div style={marginTop10}>
-                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`${ROUTER_BASE}/create`}>新建表</Link>
-                </Button>
-                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`/data-model/table/design`}>根据模型建表</Link>
-                </Button>
-                <Button type="primary" style={{ float: 'right' }}
-                    onClick={ this.showModal.bind(this) }
-                >DDL建表</Button>
-            </div>
-        )
+        const pagination = {
+            total: table.totalCount,
+            defaultPageSize: 10,
+        };
 
         return <div className="m-tablelist">
-            <h1 className="box-title"> 表管理 </h1>
-            <div className="box-2 m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                <Card noHovering bordered={false} title={title} extra={extra}>
-                    <div style={{ marginTop: '1px' }}>
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            columns={ columns }
-                            dataSource={ listData }
-                            pagination={ false }
-                            onChange={ this.handleTableChange.bind(this) }
-                        />
-                        <div className="pager" style={{ float: 'right', margin: '16px 20px 0 0' }}>
-                            <Pagination
-                                pageSize={ 10 }
-                                current={ currentPage }
-                                total={ totalCount }
-                                onChange={ this.showPage.bind(this) }
+            <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
+                <Spin spinning={loading} tip="正在加载数据...">
+                    <Card noHovering bordered={false} title={title}>
+                        <div style={{ marginTop: '1px' }}>
+                            <Table
+                                rowKey="id"
+                                className="m-table"
+                                columns={this.initialColumns()}
+                                dataSource={table.data}
+                                pagination={pagination}
+                                onChange={this.handleTableChange}
                             />
                         </div>
-                        <Modal className="m-codemodal"
-                            width="750"
-                            maskClosable={false}
-                            title={(
-                                <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
-                            )}
-                            visible={this.state.visible}
-                            onOk={this.handleOk.bind(this)}
-                            onCancel={this.handleCancel.bind(this)}
-                        >
-                            <Editor
-                                style={{height:"400px"}}
-                                placeholder={DDL_placeholder}
-                                onChange={ this.handleDdlChange.bind(this) } 
-                                cursorActivity={this.cursorActivity.bind(this)}
-                                ref={(e) => { this.DDLEditor = e }}
-                            />
-                        </Modal>
-                    </div>
-                </Card>
+                    </Card>
+                </Spin>
             </div>
         </div>
     }
 
-    showModal() {
-        this.setState({
-            visible: true
-        });
-    }
+    render() {
 
-    handleOk() {
-        if(this.state._DDL) {
-            ajax.createDdlTable({
-                sql: this.state._DDL
-            }).then(res => {
-                if(res.code === 1) {
-                    if(!res.data) {
-                        this.state._DDL = undefined;
-                        // 设置值
-                        this.DDLEditor.self.doc.setValue('');
-                        this.setState({
-                            visible: false
-                        });
-                        message.info('建表成功');
-                        this.props.searchTable();
-                    }
-                    else {
-                        message.error(res.data.message)
-                    }
-                }
-            })
-        }
-        else {
-            message.error('请输入建表语句!');
-        }
-    }
-    handleCancel() {
-        this.DDLEditor.self.doc.setValue('');
-        this.setState({
-            visible: false,
-            _DDL:undefined
-        })
-    }
 
-    handleDdlChange(previous, value) {
-        this.setState({
-            _DDL:value
-        })
+        return (
+            <div className="box-1 m-tabs">
+                <Tabs 
+                    animated={false} 
+                    style={{height: 'auto'}} 
+                    onChange={value => this.changeParams('listType', value)}
+                >
+                    <TabPane tab="我近期操作的表" key="1">
+                        {this.renderPane()}
+                    </TabPane>
+                    <TabPane tab="个人账号的表" key="2">
+                        {this.renderPane()}
+                    </TabPane>
+                    <TabPane tab="我管理的表" key="3">
+                        {this.renderPane()}
+                    </TabPane>
+                    <TabPane tab="被授权的表" key="4">
+                        {this.renderPane()}
+                    </TabPane>
+                    <TabPane tab="我收藏的表" key="5">
+                        {this.renderPane()}
+                    </TabPane>
+                </Tabs>
+            </div>
+        )
     }
 }
 
-const mapDispatch = dispatch => ({
-    searchTable(params) {
-        const paData = params || {}
-        paData.isDeleted = 0 // 添加删除标记
-        paData.isDirtyDataTable = 0 // 非脏数据标记
-        dispatch(actions.searchTable(paData));
-    }
-});
-
-export default connect((state) => {
-    return {
-        project: state.project,
-        tableList: state.dataManage.tableManage.tableList
-    }
-}, mapDispatch)(TableList);
+export default TableList;

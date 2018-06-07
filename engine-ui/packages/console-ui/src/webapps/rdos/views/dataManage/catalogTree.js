@@ -216,20 +216,30 @@ class CatalogueTree extends Component {
                                     !isTable &&
                                     <Tooltip title="编辑目录">
                                         &nbsp;
-                                        <Icon type="edit"
-                                            onLoad={(e) => { this.onLoadEditable(e, data) }}
-                                            onClick={this.onEdit} />
+                                        {
+                                            disabledAdd ? 
+                                            <Icon type="edit" style={{color: '#bfbfbf'}}/>
+                                            :
+                                            <Icon type="edit"
+                                                onLoad={(e) => { this.onLoadEditable(e, data) }}
+                                                onClick={this.onEdit} />
+                                        }
                                     </Tooltip>
                                 }
                                 {
                                     isLeaf && !isTable &&
                                     <Tooltip title="删除表">
-                                        <Popconfirm title="您确认删除当前目录及下面的表吗？"
-                                            onConfirm={onTreeNodeEdit.bind(this, data, 'delete')}
-                                            okText="确定" cancelText="取消">
-                                            &nbsp;
-                                            <Icon type="minus-square-o" />
-                                        </Popconfirm>
+                                        &nbsp;
+                                        {
+                                            disabledAdd ? 
+                                            <Icon type="minus-square-o" style={{color: '#bfbfbf'}}/>
+                                            :
+                                            <Popconfirm title="您确认删除当前目录及下面的表吗？"
+                                                onConfirm={onTreeNodeEdit.bind(this, data, 'delete')}
+                                                okText="确定" cancelText="取消">
+                                                <Icon type="minus-square-o" />
+                                            </Popconfirm>
+                                        }
                                     </Tooltip>
                                 }
                             </span>
@@ -267,7 +277,8 @@ class CatalogueTree extends Component {
             onSelect, onChange, treeData, id, value, showSearch, multiple,
             loadData, isPicker, placeholder, defaultValue, treeCheckable,
         } = this.props;
-
+        console.log(id,value);
+        
         if (isPicker) treeContent = (
             <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
                 <TreeSelect

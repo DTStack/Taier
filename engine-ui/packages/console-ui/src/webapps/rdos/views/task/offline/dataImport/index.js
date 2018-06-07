@@ -8,7 +8,7 @@ import {
 
 import DataSource from './source'
 import DataTarget from './target'
-import API from '../../../../api'
+import API from '../../../../api/dataManage'
 
 const defaultState = {
     file: '',

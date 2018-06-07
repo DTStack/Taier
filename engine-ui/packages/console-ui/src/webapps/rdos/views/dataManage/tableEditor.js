@@ -13,7 +13,7 @@ import moment from 'moment';
 import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 import { ColumnsPartition } from './tableCreator';
 import actions from '../../store/modules/dataManage/actionCreator';
 // import { formItemLayout } from '../../comm/const';
@@ -56,7 +56,7 @@ class TableEditor extends Component {
 
         const { 
             tableName, project, createTime,
-            desc, userName, lifeDay, catalogueId,
+            desc, chargeUser, lifeDay, catalogueId,
         } = tableData;
 
         const formItemLayout = {
@@ -81,8 +81,8 @@ class TableEditor extends Component {
                                     <td>{ project }</td>
                                 </tr>
                                 <tr>
-                                    <th>创建者</th>
-                                    <td>{userName}</td>
+                                    <th>负责人</th>
+                                    <td>{chargeUser}</td>
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
@@ -223,6 +223,7 @@ class TableEditor extends Component {
     
     delTable() {
         const the = this;
+
         confirm({
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',
@@ -245,12 +246,26 @@ class TableEditor extends Component {
     saveTable() {
         const { tableData, form } = this.props;
         const ctx = this;
+        console.log(tableData);
+        //组装参数
+        const queryParams = {};
+        queryParams.tableId = tableData.id;
+        queryParams.tableName = tableData.tableName;
+        queryParams.desc = tableData.tableDesc;
+        // queryParams.delim = tableData.id;
+        queryParams.lifeDay = tableData.lifeDay;
+        // queryParams.storedType = tableData.id;
+        queryParams.catalogueId = tableData.catalogueId;
+        queryParams.columns = tableData.columns;
+        queryParams.partition_keys = tableData.partition_keys;
+            
+
         if (this.checkColumnsIsNull(tableData.columns)) {
             message.error('新建字段名称不可为空！')
         } else {
             form.validateFields((err) => {
                 if (!err) {
-                    ctx.props.saveTable(tableData);
+                    ctx.props.saveTable(queryParams);
                 }
             });
         }
