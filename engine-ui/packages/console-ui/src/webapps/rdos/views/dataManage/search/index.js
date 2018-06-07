@@ -290,7 +290,7 @@ class SearchTable extends Component {
         return <div className="m-tablelist">
             <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title} >
-                    <Spin tip="Loading..." spinning={cardLoading}>
+                    <Spin tip="正在加载中..." spinning={cardLoading}>
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="id"
