@@ -119,20 +119,19 @@ class AuthMana extends Component {
             params = {ids};
         }else{
             const { selectedRowKeys,table } = this.state;
-            selectedRowKeys.map(v=>{
-                table.data.map(item=>{
-                    if(item.applyId === v){
-                        ids.push(item.applyId)
-                    }
-                })
-            })
+            params = {ids:selectedRowKeys}
         }
-        ajax.revoke(params).then(res => {
-            if (res.code === 1) {
-                message.success('回收成功！')
-                this.search()
-            }
-        })
+        if(params.ids.length > 0){
+            ajax.revoke(params).then(res => {
+                if (res.code === 1) {
+                    message.success('回收成功！')
+                    this.search()
+                }
+            })
+        }else{
+            message.warning('请勾选要操作的列表')
+        }
+        
     }
 
     cancelApply = (id) => {
@@ -149,10 +148,12 @@ class AuthMana extends Component {
         let queryParams = Object.assign(this.state.queryParams);
         if (field) {
             queryParams[field] = value;
+            queryParams.pageIndex = 1;
         }
         this.setState({
             queryParams,
             checkAll: false,
+            selectedRowKeys: [],
         }, this.search)
     }
 
@@ -160,15 +161,17 @@ class AuthMana extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-                currentPage: 1,
             })
         })
     }
 
     handleTableChange = (pagination, filters, sorter) => {
+        console.log(pagination);
+        
         const queryParams = Object.assign(this.state.queryParams, {
-            currentPage: pagination.current
+            pageIndex: pagination.current
         })
+        console.log(queryParams);
         this.setState({
             queryParams,
             selectedRowKeys: [],
@@ -179,13 +182,15 @@ class AuthMana extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 resourceName: e.target.value,
-                currentPage: 1,
+                pageIndex: 1,
             }),
         })
     }
 
     onSelectChange = (selectedRowKeys) => {
-        this.setState({ selectedRowKeys });
+        console.log(selectedRowKeys,this.state.table);
+        const checkAll = selectedRowKeys.length === this.state.table.data.length;
+        this.setState({ selectedRowKeys,checkAll });
     }
 
     onCheckAllChange = (e) => {
@@ -202,19 +207,22 @@ class AuthMana extends Component {
     batchApply(agreeApply){
         const { selectedRowKeys,table } = this.state;
         const editRecord = [];
-        selectedRowKeys.map(item=>{
-            table.data.map(v=>{
-               if(v.applyId === item ){
-                editRecord.push(v)
-               }
+        if(selectedRowKeys.length > 0){
+            selectedRowKeys.map(item=>{
+                table.data.map(v=>{
+                   if(v.applyId === item ){
+                    editRecord.push(v)
+                   }
+                })
             })
-        })
-        
-        this.setState({
-            agreeApply,
-            visible: true,
-            editRecord,
-        })
+            this.setState({
+                agreeApply,
+                visible: true,
+                editRecord,
+            })
+        }else{
+            message.warning('请勾选要操作的列表')
+        }  
     }
 
     tableFooter = (currentPageData) => {
@@ -250,7 +258,7 @@ class AuthMana extends Component {
                             </Checkbox>
                         </div>
                         <div style={{display:"inline-block", marginLeft: '15px'}}>
-                            <Button type="primary" size="small" onClick={()=>{this.revoke()}}>批量回收</Button>&nbsp;
+                            <Button type="primary" size="small"  onClick={()=>{this.revoke()}}>批量回收</Button>&nbsp;
                         </div>
                     </div>
                 )

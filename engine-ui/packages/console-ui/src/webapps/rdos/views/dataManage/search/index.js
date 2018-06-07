@@ -58,7 +58,8 @@ class SearchTable extends Component {
     search = () => {
         const { cardLoading } = this.state;
         this.setState({
-            cardLoading: true
+            cardLoading: true,
+            table: [],
         })
         const { queryParams } = this.state;
         ajax.newSearchTable(queryParams).then(res => {
@@ -83,13 +84,14 @@ class SearchTable extends Component {
         ajax.applyTable(params).then(res => {
             if (res.code === 1) {
                 message.success('申请成功！')
-                this.setState({visible:false})
+                this.setState({visible:false},this.search)
             }
         })
     }
 
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
+        queryParams.pageIndex = 1;
         if (field) {
             queryParams[field] = value === "all" ? "" : value;
         }
@@ -206,7 +208,7 @@ class SearchTable extends Component {
                 render(text, record) {
                     return <span>
                         { 
-                            text == 1 ?  <a onClick={() => ctx.showModal(record)}>申请授权</a> : "已授权"
+                            text == 1 ?  <a onClick={() => ctx.showModal(record)}>申请授权</a> :   text == 2 ? "等待授权" : "已授权"
                         }
                     </span>
                 }
@@ -253,7 +255,8 @@ class SearchTable extends Component {
                     >
                         <Option value="all">全部表</Option>
                         <Option value="0">授权成功</Option>
-                        <Option value="1">需要授权</Option>
+                        <Option value="1">申请授权</Option>
+                        <Option value="2">等待授权</Option>
                     </Select>
                 </FormItem>
                 <FormItem label="项目">

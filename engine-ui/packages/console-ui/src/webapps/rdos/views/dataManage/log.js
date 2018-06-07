@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import SplitPane from 'react-split-pane';
 import {
     Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon, Card, Tabs,
+    Form, DatePicker, Select, Icon, Card, Tabs,Spin
 } from 'antd';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -145,7 +145,7 @@ class TableLog extends React.Component {
                     <Pagination
                         pageSize={10}
                         style={{ float: 'right', margin: '30px' }}
-                        current={logs.currentPage}
+                        current={logs.pageIndex}
                         total={logs.totalCount}
                         onChange={this.showPage.bind(this)}
                     />
@@ -201,6 +201,7 @@ class Log extends React.Component {
             visibleSlidePane: false,
             tableName: '',
             isDeleted: '',
+            loading: false,
         }
     }
 
@@ -213,7 +214,9 @@ class Log extends React.Component {
     }
 
     searchTable(args) {
-        const { isDeleted, tableName } = this.state
+        let { isDeleted, tableName, loading, tableList } = this.state
+        tableList = [];
+        this.setState({loading: true,tableList})
         const params = Object.assign({
             timeSort: 'desc',
             pageSize: 20,
@@ -223,10 +226,12 @@ class Log extends React.Component {
 
         ajax.newSearchTable(params).then(res => {
             if (res.code === 1) {
-                this.setState({
-                    tableList: res.data
-                })
+                tableList = res.data;
             }
+            this.setState({
+                tableList,
+                loading: false,
+            })
         });
     }
 
@@ -295,14 +300,14 @@ class Log extends React.Component {
             filterMultiple: false,
         }, {
             title: '最近变更时间',
-            dataIndex: 'lastDataChangeTime',
-            key: 'lastDataChangeTime',
+            dataIndex: 'lastDmlTime',
+            key: 'lastDmlTime',
             render(text, record) {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }];
-        const { tableList, tableLog, visibleSlidePane, isDeleted } = this.state;
-        const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
+        const { tableList, tableLog, visibleSlidePane, isDeleted,loading } = this.state;
+        const { data, pageIndex, pageSize, totalPage, totalCount } = tableList;
         const { projectUsers, params } = this.props;
 
         const title = (
@@ -313,7 +318,6 @@ class Log extends React.Component {
                 onSearch={value => { this.searchTable({ tableName: value, isDeleted }) }}
             />
         )
-
         return <div className="g-tablelogs">
             <h1 className="box-title">操作记录</h1>
             <div className="box-2 m-card" style={{ padding: '0 20px 20px 0' }}>
@@ -323,30 +327,32 @@ class Log extends React.Component {
                     loading={false}
                     title={title}
                 >
-                    {data && <Table columns={columns}
-                        rowClassName={
-                            (record, index) => {
-                                if (this.state.tableLog && this.state.tableLog.tableId == record.tableId) {
-                                    return "row-select"
-                                } else {
-                                    return "";
+                    <Spin spinning={loading}>
+                        {data && <Table columns={columns}
+                            rowClassName={
+                                (record, index) => {
+                                    if (this.state.tableLog && this.state.tableLog.tableId == record.tableId) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
                                 }
                             }
-                        }
-                        dataSource={data}
-                        className="m-table"
-                        rowKey="id"
-                        pagination={false}
-                        onChange={this.handleTableChange}
-                        bordered
-                    />}
-                    <Pagination
-                        pageSize={20}
-                        style={{ float: 'right', marginTop: '16px' }}
-                        current={currentPage || 0}
-                        total={totalCount || 0}
-                        onChange={this.showTableListPage.bind(this)}
-                    />
+                            dataSource={data}
+                            className="m-table"
+                            rowKey="id"
+                            pagination={false}
+                            onChange={this.handleTableChange}
+                            bordered
+                        />}
+                        <Pagination
+                            pageSize={20}
+                            style={{ float: 'right', marginTop: '16px' }}
+                            current={pageIndex || 0}
+                            total={totalCount || 0}
+                            onChange={this.showTableListPage.bind(this)}
+                        />
+                    </Spin>
                     <SlidePane
                         onClose={this.closeSlidePane}
                         visible={visibleSlidePane}

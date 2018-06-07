@@ -87,6 +87,7 @@ class TableList extends Component {
         let queryParams = Object.assign(this.state.queryParams);
         if (field) {
             queryParams[field] = value;
+            queryParams.pageIndex = 1 ;
         }
         this.setState({
             queryParams,
@@ -97,14 +98,13 @@ class TableList extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-                currentPage: 1,
             })
         })
     }
 
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
-            currentPage: pagination.current
+            pageIndex: pagination.current
         })
         this.setState({
             queryParams,
@@ -115,7 +115,7 @@ class TableList extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 tableName: e.target.value,
-                currentPage: 1,
+                pageIndex: 1,
             }),
         })
     }
