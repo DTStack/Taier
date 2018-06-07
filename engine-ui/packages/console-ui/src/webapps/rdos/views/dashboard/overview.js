@@ -10,6 +10,7 @@ import utils from 'utils'
 import Resize from 'widgets/resize'
 
 import Api from '../../api'
+import TableDataApi from '../../api/dataManage'
 import MyIcon from '../../components/icon'
 import { Normal } from '../../components/font'
 import { lineAreaChartOptions, defaultBarOption } from '../../comm/const'
@@ -83,12 +84,12 @@ export default class ProjectList extends Component {
                 project: res.data,
             })
         })
-        Api.countProjectTable().then((res) => {
+        TableDataApi.countProjectTable().then((res) => {
             ctx.setState({
                 projectTable: res.data,
             })
         })
-        Api.countProjectStore().then((res) => {
+        TableDataApi.countProjectStore().then((res) => {
             ctx.setState({
                 projectStore: res.data,
             })
@@ -106,9 +107,27 @@ export default class ProjectList extends Component {
             params.start = selectedDate[0].unix()
             params.end = selectedDate[1].unix()
         }
-        Api.getProjectDataOverview(params).then((res) => {
+        TableDataApi.getProjectDataOverview(params).then((res) => {
             if (res.code === 1) {
                 ctx.drawOverviewChart(res.data)
+            }
+        })
+    }
+
+    loadProjectStoreTop5() {
+        const ctx = this
+        TableDataApi.getProjectStoreTop({ top: 5 }).then((res) => {
+            if (res.code === 1) {
+                ctx.drawStoreTop5(res.data)
+            }
+        })
+    }
+
+    loadProjectTableTop5() {
+        const ctx = this
+        TableDataApi.getProjectTableStoreTop({ top: 5 }).then((res) => {
+            if (res.code === 1) {
+                ctx.drawTableTop5(res.data)
             }
         })
     }
@@ -190,15 +209,6 @@ export default class ProjectList extends Component {
         this.setState({ chart1: myChart })
     }
 
-    loadProjectStoreTop5() {
-        const ctx = this
-        Api.getProjectStoreTop({ top: 5 }).then((res) => {
-            if (res.code === 1) {
-                ctx.drawStoreTop5(res.data)
-            }
-        })
-    }
-
     drawStoreTop5(chartData) {
         let myChart = echarts.init(document.getElementById('StoreTop5'));
         const option = cloneDeep(defaultBarOption);
@@ -221,15 +231,6 @@ export default class ProjectList extends Component {
         // 绘制图表
         myChart.setOption(option);
         this.setState({ chart2: myChart })
-    }
-
-    loadProjectTableTop5() {
-        const ctx = this
-        Api.getProjectTableStoreTop({ top: 5 }).then((res) => {
-            if (res.code === 1) {
-                ctx.drawTableTop5(res.data)
-            }
-        })
     }
 
     drawTableTop5(chartData) {

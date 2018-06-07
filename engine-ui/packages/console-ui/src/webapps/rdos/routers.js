@@ -45,7 +45,8 @@ import OpeOfflineTaskMana from './views/operation/offline/taskMana'
 import OpeOfflineTaskRunTime from './views/operation/offline/taskRuntime'
 import OperationPatchData from './views/operation/offline/patchDataList'
 import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
-
+import DirtyData from './views/operation/dirtyData/index';
+import DirtyDataTbOverview from './views/operation/dirtyData/table';
 // ======= 运维 =======
 import DataSourceIndex from './views/dataSource'
 
@@ -57,8 +58,8 @@ import TableViewer from './views/dataManage/tableViewer';
 import TableEditor from './views/dataManage/tableEditor';
 import Log from './views/dataManage/log';
 import DataCatalogue from './views/dataManage/dataCatalogue';
-import DirtyData from './views/dataManage/dirtyData/index';
-import DirtyDataTbOverview from './views/dataManage/dirtyData/table';
+import AuthMana from './views/dataManage/authority';
+import SearchTable from './views/dataManage/search';
 
 // ======= 数据模型 =======
 import DataModelOverview from './views/dataModel/overview';
@@ -154,6 +155,8 @@ export default (
                 <Route path="task-patch-data/:fillJobName" component={OperationPatchDataDetail} />
                 <Route path="alarm-record" component={OpeAlarm} />
                 <Route path="alarm-config" component={OpeAlarmConfig} />
+                <Route path="dirty-data" component={DirtyData} />
+                <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
             </Route>
             <Route path="/database" component={DataSourceIndex}>
                 <IndexRoute component={DataSourceIndex} />
@@ -168,8 +171,9 @@ export default (
                 <Route path="log" component={Log} />
                 <Route path="log/:tableId/:tableName" component={Log}></Route>
                 <Route path="catalogue" component={DataCatalogue} />
-                <Route path="dirty-data" component={DirtyData} />
-                <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
+                <Route path="auth" component={AuthMana} />
+                <Route path="search" component={SearchTable} />
+
             </Route>
             <Route path="/data-model" component={DataModelContainer}>
                 <IndexRoute component={DataModelOverview} />

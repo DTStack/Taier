@@ -5,7 +5,7 @@ import { Steps, Button, message, Form, Input,
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
 
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
@@ -257,7 +257,7 @@ export class RowItem extends React.Component {
     handleChange(selectName, evt) {
         const { data, replaceRow } = this.props;
         let iptName, value;
-
+        
         if(isObject(evt)) {
             iptName = evt.target.name;
             value = evt.target.value;
@@ -266,9 +266,10 @@ export class RowItem extends React.Component {
             iptName = selectName;
             value = evt;
         }
-
+        console.log('input-select',iptName, value);
+        
         const newData = assign({}, data, { [iptName]: value });
-        const TYPE = newData.type.toUpperCase();
+        const TYPE = newData.columnType.toUpperCase();
 
         if(TYPE === 'DECIMAL') {
             if(!newData.precision) newData.precision = 10;
@@ -288,12 +289,12 @@ export class RowItem extends React.Component {
 
     checkParams(params) {
         const reg = /^[A-Za-z0-9_]+$/;
-        if (params.name) {
-            if (!reg.test(params.name)) {
+        if (params.columnName) {
+            if (!reg.test(params.columnName)) {
                 message.error('字段名称只能由字母、数字、下划线组成！')
                 return false;
             }
-            if (params.name.length > 20) {
+            if (params.columnName.length > 20) {
                 message.error('字段名称不可超过20个字符！')
                 return false;
             }
@@ -312,8 +313,11 @@ export class RowItem extends React.Component {
     render() {
         const { data } = this.props;
         const { editMode } = this.state;
-        const { isSaved, isPartition, precision, scale } = data;
-        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(data.type.toUpperCase()) !== -1;
+        const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
+        console.log('RowItem',this.props);
+        
+        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
+        //const needExtra = true;
         const TYPES = isPartition ?
             ['STRING', 'BIGINT'] :
             ["TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
@@ -323,29 +327,29 @@ export class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                <Input name="name" defaultValue={ data.name }
+                <Input name="columnName" defaultValue={ columnName }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
                     disabled={ isSaved }
                 />
             </Col>
             <Col span={8} className="cell">
-                <Select name="type" defaultValue={ data.type }
-                    onChange={ this.handleChange.bind(this, 'type') }
+                <Select name="columnType" defaultValue={ columnType }
+                    onChange={ this.handleChange.bind(this, 'columnType') }
                     style={{ width: needExtra ? '40%' : '80%' }}
                     disabled={ isSaved }
                 >
                     {TYPES.map(str => <Option key={str} value={str}>{str}</Option>)}
                 </Select>
-                { needExtra && this.renderExtra(data.type) }
+                { needExtra && this.renderExtra(columnType) }
             </Col>
             <Col span={7} className="cell">
                 <Input 
                     name="comment" 
-                    defaultValue={ data.comment }
+                    defaultValue={ comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved && isPartition }
+                    disabled={ isSaved }
                 />
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
@@ -367,13 +371,13 @@ export class RowItem extends React.Component {
         </Row>
     }
 
-    renderExtra(type) {
+    renderExtra(columnType) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
         let result = '';
 
-        type = type.toUpperCase();
-        switch(type) {
+        columnType = columnType.toUpperCase();
+        switch(columnType) {
             case 'DECIMAL':
                 result = <span className="extra-ipt">
                     <Select name="precision"
@@ -452,10 +456,10 @@ export class ColumnsPartition extends React.Component {
 
     addRow(type) {
         this.props.addRow({
-            name: '',
-            type: 'STRING',
-            desc: '',
-            uuid: Date.now()
+            columnName: '',
+            columnType: 'STRING',
+            columnDesc: '',
+            uuid: Date.now(),
         }, type);
     }
 
@@ -473,7 +477,8 @@ export class ColumnsPartition extends React.Component {
 
     render() {
         const { columns, partition_keys, isEdit } = this.props;
-
+        console.log('ColumnsPartition',this.props);
+        
         return <div className="m-columnspartition">
             <div className="columns box">
                 <h3>字段信息</h3>

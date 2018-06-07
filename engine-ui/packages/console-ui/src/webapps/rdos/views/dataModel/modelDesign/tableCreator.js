@@ -7,7 +7,7 @@ import {
     Form, Row, Col, Icon
 } from 'antd';
 
-import api from '../../../api';
+import api from '../../../api/dataManage';
 import ajax from '../../../api/dataModel';
 
 import { 
