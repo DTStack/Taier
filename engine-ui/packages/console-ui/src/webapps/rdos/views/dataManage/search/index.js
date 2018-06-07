@@ -67,6 +67,10 @@ class SearchTable extends Component {
                     table: res.data,
                     cardLoading: false,
                 })
+            }else{
+                this.setState({
+                    cardLoading: false,
+                })
             }
         })
     }

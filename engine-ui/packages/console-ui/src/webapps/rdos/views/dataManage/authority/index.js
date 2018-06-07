@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message, Checkbox,
-    Tag, Icon, Card, Select, Tabs,DatePicker
+    Tag, Icon, Card, Select, Tabs,DatePicker,
+    Spin
 } from 'antd';
 
 import { Link } from 'react-router';
@@ -56,6 +57,8 @@ class AuthMana extends Component {
             selectedRowKeys: [],
             agreeApply: undefined,
             visible:false,
+            loading:false,
+            rangeTime:[],
             queryParams: {
                 listType: "0",
                 pageIndex: 1,
@@ -77,13 +80,14 @@ class AuthMana extends Component {
     }
 
     search = () => {
-        const { table } = this.state;
-        this.setState({table:[]})
+        const { table,loading } = this.state;
+        this.setState({table:[],loading:true})
         const params = this.state.queryParams;
         ajax.getApplyList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
+                    loading: false,
                 })
             }
         })
@@ -93,6 +97,7 @@ class AuthMana extends Component {
         ajax.cancleMark(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
+                this.search()
             }
         })
     }
@@ -103,7 +108,7 @@ class AuthMana extends Component {
         ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
-                this.setState({visible: false})                
+                this.setState({visible: false},this.search)                
             }
         })
     }
@@ -114,22 +119,18 @@ class AuthMana extends Component {
             params = {ids};
         }else{
             const { selectedRowKeys,table } = this.state;
-            console.log('ids',ids);
-            
-            
             selectedRowKeys.map(v=>{
                 table.data.map(item=>{
                     if(item.applyId === v){
-                        ids.push(item.resourceId)
+                        ids.push(item.applyId)
                     }
                 })
             })
         }
-        console.log(params);
-        
         ajax.revoke(params).then(res => {
             if (res.code === 1) {
                 message.success('回收成功！')
+                this.search()
             }
         })
     }
@@ -139,6 +140,7 @@ class AuthMana extends Component {
         ajax.cancelApply(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
+                this.search()
             }
         })
     }
@@ -169,6 +171,7 @@ class AuthMana extends Component {
         })
         this.setState({
             queryParams,
+            selectedRowKeys: [],
         }, this.search)
     }
 
@@ -389,11 +392,14 @@ class AuthMana extends Component {
                         },
                         {
                             title: '操作',
-                            key: 'id',
+                            key: 'isCancel',
+                            dataIndex: 'isCancel',
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a onClick={()=>{ctx.cancelApply(record.resourceId)}}>撤销</a>
+                                    {
+                                        text == 0 ? <a onClick={()=>{ctx.cancelApply(record.applyId)}}>撤销</a> : "撤销"
+                                    }
                                 </span>
                             }
                         }
@@ -475,7 +481,7 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a onClick={()=>{ ctx.revoke([record.resourceId]) }}>收回</a>
+                                    <a onClick={()=>{ ctx.revoke([record.applyId]) }}>收回</a>
                                 </span>
                             }
                         }
@@ -488,16 +494,19 @@ class AuthMana extends Component {
     }
 
     onChangeTime = (date, dateString)=> {
-        const { queryParams } = this.state;
+        let { queryParams,rangeTime } = this.state;
+        rangeTime = date;
         const startTime = Date.parse(dateString[0]);
         const endTime =  Date.parse(dateString[1]);
         queryParams.startTime = startTime;
         queryParams.endTime = endTime;
-        this.setState(queryParams,this.search);
+        this.setState({
+            queryParams,rangeTime
+        },this.search);
     };
       
     renderPane = (isShowRowSelection=false) => {
-        const { table, selectedRowKeys,queryParams } = this.state;
+        const { table, selectedRowKeys,queryParams,rangeTime,loading } = this.state;
 
         const { projects } = this.props;
 
@@ -530,12 +539,13 @@ class AuthMana extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
+                        value={queryParams.resourceName}
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
                     />
                 </FormItem>
                 <FormItem label="时间选择">
-                    <RangePicker onChange={this.onChangeTime} format="YYYY-MM-DD HH:mm:ss"/>
+                    <RangePicker onChange={this.onChangeTime} format="YYYY-MM-DD HH:mm:ss" value={rangeTime}/>
                 </FormItem>
             </Form>
         )
@@ -553,18 +563,20 @@ class AuthMana extends Component {
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>
-                    <div style={{ marginTop: '1px' }}>
-                        <Table
-                            rowKey="applyId"
-                            className="m-table"
-                            rowSelection={rowSelection}
-                            columns={this.initialColumns()}
-                            dataSource={table.data}
-                            pagination={pagination}
-                            onChange={this.handleTableChange}
-                            footer={this.tableFooter}
-                        />
-                    </div>
+                    <Spin spinning={loading} tip="正在加载中...">
+                        <div style={{ marginTop: '1px' }}>
+                            <Table
+                                rowKey="applyId"
+                                className="m-table"
+                                rowSelection={rowSelection}
+                                columns={this.initialColumns()}
+                                dataSource={table.data}
+                                pagination={pagination}
+                                onChange={this.handleTableChange}
+                                footer={this.tableFooter}
+                            />
+                        </div>
+                    </Spin>
                 </Card>
             </div>
         </div>

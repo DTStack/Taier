@@ -137,6 +137,7 @@ class TableLog extends React.Component {
                 >
                     <Table columns={columns}
                         className="m-table bd"
+                        rowKey="id"
                         style={{ borderBottom: 0 }}
                         dataSource={logs.data}
                         pagination={false}
@@ -220,7 +221,7 @@ class Log extends React.Component {
             isDeleted,
         }, args);
 
-        ajax.searchTable(params).then(res => {
+        ajax.newSearchTable(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     tableList: res.data
@@ -253,9 +254,9 @@ class Log extends React.Component {
     }
 
     showTableLog(table) {
-        const { tableId, tableName } = table;
+        const { id, tableName } = table;
         this.setState({
-            tableLog: { tableId, tableName },
+            tableLog: { tableId:id, tableName },
             visibleSlidePane: true,
         })
     }
@@ -334,6 +335,7 @@ class Log extends React.Component {
                         }
                         dataSource={data}
                         className="m-table"
+                        rowKey="id"
                         pagination={false}
                         onChange={this.handleTableChange}
                         bordered
