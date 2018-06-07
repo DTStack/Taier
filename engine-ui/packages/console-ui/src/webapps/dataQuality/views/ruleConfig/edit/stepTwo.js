@@ -65,6 +65,8 @@ export default class StepTwo extends Component {
         const { currentStep, navToStep, editParams } = this.props;
         const { currentRule } = this.state;
 
+
+
         if (editParams.rules.length) {
             if (!isEmpty(currentRule)) {
                 this.save(currentRule.id, () => {
@@ -507,7 +509,7 @@ export default class StepTwo extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
-            if(!target.isCustomizeSql){
+            if (!target.isCustomizeSql) {
                 if (target.isTable) {
                     functionList = monitorFunction.all.filter(item => item.level === 1);
                 } else {
@@ -550,6 +552,36 @@ export default class StepTwo extends Component {
         }
     }
 
+    checkRepeat() {
+        const { currentRule } = this.state;
+        const newData = [...this.props.editParams.rules];
+        const keys = ['columnName', 'filter', 'functionId', 'verifyType', 'customizeSql', 'operator'];
+        let pass = true;
+
+        for (let i = 0; i < newData.length; i++) {
+            const item = newData[i];
+            let itemPass = false; //当前元素校验是否通过
+                 
+            if (item.id == currentRule.id) {
+                continue;
+            }
+
+            for (let j=0;j<keys.length;j++) {
+                let key = keys[j];
+                if (currentRule[key] != item[key]) {
+                    itemPass = true;//检测到一项不同，通过。
+                    break;
+                }
+            }
+            if (!itemPass) {
+                pass = false;
+                break;
+            }
+
+        }
+        return pass;
+    }
+
     // 保存规则
     save(id, callback) {
         const { currentRule, enumFields, SQLFields, columnFields } = this.state;
@@ -562,7 +594,10 @@ export default class StepTwo extends Component {
         if (currentRule.operator === 'in') {
             fields = enumFields;
         }
-
+        if(!this.checkRepeat()){
+            message.error("规则不能重复！");
+            return;  
+        }
         this.props.form.validateFields(fields, { force: true }, (err, values) => {
             console.log(err, values)
             if (!err) {
