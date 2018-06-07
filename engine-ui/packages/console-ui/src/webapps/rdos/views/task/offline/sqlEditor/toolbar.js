@@ -108,12 +108,15 @@ export default class Toolbar extends Component {
 
         let code = sqlEditor.selection || currentTabData.sqlText || currentTabData.scriptText;
         code = filterComments(code);
+        
+        let filterShowCode=code.replace(/show\s+create/gi,'show');//排除show create;
 
         // 匹配DDL执行语句，如果符合条件，则提醒
         const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;
+        
         const ctx = this;
 
-        if (regex.test(code)) {
+        if (regex.test(filterShowCode)) {
             this.setState({ execConfirmVisible: true, confirmCode: code });
         } else {
             this.execSQL()

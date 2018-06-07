@@ -56,7 +56,8 @@ class OfflineTaskList extends Component {
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: '',
-        bussinessDate: yesterDay,
+        bussinessDate: [yesterDay,yesterDay],
+        cycDate:undefined,
         selectedRowKeys: [],
         checkAll: false,
         execTime: '', // 执行时间
@@ -65,6 +66,10 @@ class OfflineTaskList extends Component {
         statistics: '',
         taskPeriodId: '',
         execTimeSort: '',
+        execStartSort:'',
+        execEndSort:'',
+        bussinessDateSort:'',
+        cycSort:'',
         visibleSlidePane: false,
         selectedTask: '',
     }
@@ -86,9 +91,11 @@ class OfflineTaskList extends Component {
     search = () => {
         const {
             jobName, person, taskStatus,
-            bussinessDate, jobType, current,
+            bussinessDate, businessDateSort, jobType, current,
             execTime, taskType,
             taskPeriodId, execTimeSort,
+            execStartSort, execEndSort,
+            cycSort, cycDate
         } = this.state
         const reqParams = {
             currentPage: current,
@@ -99,8 +106,13 @@ class OfflineTaskList extends Component {
         if (person) {
             reqParams.ownerId = person
         }
-        if (bussinessDate) {
-            reqParams.bizDay = bussinessDate.unix()
+        if (bussinessDate&&bussinessDate.length>1) {
+            reqParams.bizStartDay=bussinessDate[0].unix();
+            reqParams.bizEndDay=bussinessDate[1].unix();
+        }
+        if(cycDate&&cycDate.length>1){
+            reqParams.cycStartDay=cycDate[0].unix();
+            reqParams.cycEndDay=cycDate[1].unix();
         }
        
         if (jobType !== undefined && jobType !== '') {
@@ -115,9 +127,13 @@ class OfflineTaskList extends Component {
         if (taskPeriodId) {
             reqParams.taskPeriodId = taskPeriodId.join(',')
         }
-        if (execTimeSort) {
-            reqParams.execTimeSort = execTimeSort
-        }
+
+        reqParams.execTimeSort = execTimeSort||undefined;
+        reqParams.execStartSort = execStartSort||undefined;
+        reqParams.execEndSort = execEndSort||undefined;
+        reqParams.cycSort = cycSort||undefined;
+        reqParams.businessDateSort = businessDateSort||undefined;
+
         this.loadTaskList(reqParams)
     }
 
@@ -266,13 +282,36 @@ class OfflineTaskList extends Component {
             taskPeriodId: filters.taskPeriodId,
             checkAll: false,
             execTimeSort: '',
+            execStartSort:'',
+            execEndSort:'',
+            businessDateSort:'',
+            cycSort:'',
         }
 
         if (sorter) {
             let { field, order } = sorter;
-            if (field === 'execTime') { // 运行时长排序
-                // 排序
-                params.execTimeSort = order === 'descend' ? 'desc' : 'asc'
+
+            switch(field){
+                case 'execTime':{
+                    params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'execStartDate':{
+                    params.execStartSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'execEndDate':{
+                    params.execEndSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'cycTime':{
+                    params.cycSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'businessDate':{
+                    params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
             }
         }
         this.setState(params, () => {
@@ -302,6 +341,12 @@ class OfflineTaskList extends Component {
 
     changeBussinessDate = (value) => {
         this.setState({ bussinessDate: value, current: 1 }, () => {
+            this.search()
+        })
+    }
+
+    changecycDate = (value) => {
+        this.setState({ cycDate: value, current: 1 }, () => {
             this.search()
         })
     }
@@ -372,22 +417,26 @@ class OfflineTaskList extends Component {
             width: 120,
             title: '业务日期',
             dataIndex: 'businessDate',
-            key: 'businessDate'
+            key: 'businessDate',
+            sorter: true,
         }, {
             width: 120,
             title: '计划时间',
             dataIndex: 'cycTime',
-            key: 'cycTime'
+            key: 'cycTime',
+            sorter: true,
         }, {
             width: 120,
             title: '开始时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
+            sorter: true,
         }, {
             width: 120,
             title: '结束时间',
             dataIndex: 'execEndDate',
             key: 'execEndDate',
+            sorter: true,
         },{
             title: '运行时长',
             width: 100,
@@ -439,7 +488,7 @@ class OfflineTaskList extends Component {
         const { 
             tasks, selectedRowKeys, jobName,
             bussinessDate, current, statistics,
-            selectedTask, visibleSlidePane,
+            selectedTask, visibleSlidePane, cycDate
         } = this.state
 
         const { projectUsers, project } = this.props
@@ -548,16 +597,24 @@ class OfflineTaskList extends Component {
                                 <FormItem
                                     label="业务日期"
                                 >
-                                    <DatePicker
+                                    <RangePicker
                                         size="default"
-                                        style={{ width: 150 }}
+                                        style={{ width: 200 }}
                                         format="YYYY-MM-DD"
-                                        placeholder="业务日期"
-                                        showToday={false}
-                                        ranges={{ '昨天': [yesterDay, yesterDay] }}
                                         disabledDate={this.disabledDate}
                                         value={bussinessDate||null}
                                         onChange={this.changeBussinessDate}
+                                    />
+                                </FormItem>
+                                <FormItem
+                                    label="计划日期"
+                                >
+                                    <RangePicker
+                                        size="default"
+                                        style={{ width: 200 }}
+                                        format="YYYY-MM-DD"
+                                        value={cycDate||null}
+                                        onChange={this.changecycDate}
                                     />
                                 </FormItem>
                             </Form>

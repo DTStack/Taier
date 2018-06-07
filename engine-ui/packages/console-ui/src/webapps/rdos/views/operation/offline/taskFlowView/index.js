@@ -488,7 +488,7 @@ class TaskFlowView extends Component {
     showJobLog = (jobId) => {
         Api.getOfflineTaskLog({ jobId: jobId }).then((res) => {
             if (res.code === 1) {
-                this.setState({ taskLog: res.data, logVisible: true })
+                this.setState({ taskLog: res.data, logVisible: true, taskLogId:jobId })
             }
         })
     }
@@ -561,7 +561,7 @@ class TaskFlowView extends Component {
                     }}
                 >
                     <span>{taskJob && taskJob.batchTask && taskJob.batchTask.name || '-'}</span>
-                    <span style={{marginLeft:"15px"}}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
+                    <span style={{ marginLeft: "15px" }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
                     发布于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(taskJob && taskJob.batchTask.id) }}>查看代码</a>
@@ -578,7 +578,14 @@ class TaskFlowView extends Component {
                 </Modal>
                 <Modal
                     width={600}
-                    title="运行日志"
+                    title={(
+                        <span>
+                            任务日志
+                            <Tooltip placement="right" title="刷新">
+                                <Icon style={{cursor:"pointer",marginLeft:"5px"}} onClick={()=>{this.showJobLog(this.state.taskLogId)}} type="reload" />
+                            </Tooltip>
+                        </span>
+                    )}
                     wrapClassName="vertical-center-modal m-log-modal"
                     visible={this.state.logVisible}
                     onCancel={() => { this.setState({ logVisible: false }) }}
