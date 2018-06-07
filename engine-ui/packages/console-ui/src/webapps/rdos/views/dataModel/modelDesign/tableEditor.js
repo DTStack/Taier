@@ -120,10 +120,11 @@ class TableEditor extends Component {
                                 label="生命周期"
                             >
                                 <LifeCycle
+                                    key={`lifeCycle-${tableData.id}`}
                                     width={80}
                                     value={lifeDay}
                                     onChange={(val) => {
-                                        modifyDesc({ name: 'lifeDay', value: val < 0 ? val : val })
+                                        modifyDesc({name: 'lifeDay', value: val < 0 ? 1 : val })
                                     }}
                                 />
                             </FormItem>

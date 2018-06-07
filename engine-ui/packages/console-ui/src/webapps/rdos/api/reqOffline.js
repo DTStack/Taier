@@ -110,17 +110,4 @@ export default {
     TEST_DATA_SOURCE_CONNECTION: `${RDOS_BASE_URL}/batch/batchDataSource/checkConnection`, // 测试数据源连通性
     GET_DATA_SOURCE_TYPES: `${RDOS_BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${RDOS_BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
-    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
-    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
-    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/deleteCatalogue`, // 删除目录
-    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/updateHiveCatalogue`, // 更新目录
-    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
-    DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
-
-    // ===== 项目统计 ===== //
-    PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/tableCount`, // 表总量
-    PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/totalSize`, // 表总存储量
-    PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/projectSizeTopOrder`, // 项目占用排行
-    PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/tableSizeTopOrder`, // 表占用排行
-    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/hiveTableCount/dataHistory`, // 数据趋势概览
 }

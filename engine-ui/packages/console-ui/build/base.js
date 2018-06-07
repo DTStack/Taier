@@ -103,9 +103,13 @@ module.exports = function() {
                 to: path.resolve(MY_PATH.BUILD_PATH, 'public'), 
                 ignore: ['*/index.html']
             }]),
+
             new webpack.DefinePlugin({
-                'VERSION': VERSION,
+                'APP': {
+                    'VERSION': VERSION,
+                }
             }),
+
             new webpack.optimize.CommonsChunkPlugin({
                 names: ['vendor', 'manifest'],    // 指定公共 bundle 的名字。
                 minChunks: Infinity

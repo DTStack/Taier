@@ -25,11 +25,11 @@ import MyAPI from './views/myApi'
 import TagManagement from './views/management'
 import TagApproval from './views/approval'
 
-import TagConfig from './views/tagConfig'
-import RuleTagEdit from './views/tagConfig/ruleTagEdit'
-import TagLog from './views/tagConfig/tagLog'
+import TagConfigIndex from './views/tagConfig/dashboard/'
+import RuleTagEdit from './views/tagConfig/ruleTagEdit/'
+import IdentifyColumn from './views/tagConfig/identifyColumn/'
+import TagLog from './views/tagConfig/log/'
 import PublishTag from './views/management/publishTag'
-import IdentifyColumn from './views/tagConfig/identifyColumn'
 
 import DataSourceIndex from './views/dataSource'
 import APIDetail from './views/market/detail'
@@ -67,7 +67,7 @@ export default (
             <Route path="manage/apiType" component={ ApiType }></Route>
             <Route path="manage/newApi/:tagId" component={ PublishTag }></Route>
             <Route path="manage/editApi/:tagId" component={ PublishTag }></Route>
-            <Route path="tagConfig" component={ TagConfig }></Route>
+            <Route path="tagConfig" component={ TagConfigIndex }></Route>
             <Route path="tagConfig/identify" component={ IdentifyColumn }></Route>
             <Route path="tagConfig/ruleTagEdit/:id" component={ RuleTagEdit }></Route>
             <Route path="tagConfig/tagLog/:id" component={ TagLog }></Route>

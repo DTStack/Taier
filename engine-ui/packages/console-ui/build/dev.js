@@ -19,7 +19,7 @@ baseConf.output = {
 baseConf.plugins.push(
     new webpack.DefinePlugin({
         'process.env': {
-            'NODE_ENV': JSON.stringify('development')
+            'NODE_ENV': JSON.stringify('development'),
         }
     }),
     new webpack.SourceMapDevToolPlugin({

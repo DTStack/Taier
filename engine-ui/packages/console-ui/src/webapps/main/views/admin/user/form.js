@@ -25,14 +25,15 @@ export const isDisabledRole = (app, value, loginUser) => {
     switch(app) {
         case MY_APPS.RDOS: {
             if (loginUser.isTenantAdmin) {
-                return value === RDOS_ROLE.TENANT_OWVER 
+                return (value === RDOS_ROLE.PROJECT_OWNER ||
+                value === RDOS_ROLE.TENANT_OWVER)
             } else {
                 return value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
                 value === RDOS_ROLE.VISITOR
             }
         }
-        case MY_APPS.API: 
+        case MY_APPS.API:
         case MY_APPS.LABEL:
         case MY_APPS.DATA_QUALITY: {
             if (loginUser.isTenantAdmin) {

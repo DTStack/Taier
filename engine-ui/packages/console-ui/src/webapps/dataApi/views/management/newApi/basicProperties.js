@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, message,InputNumber  } from "antd";
+import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, message, InputNumber } from "antd";
 import { Link } from 'react-router';
 
 import DataSourceTable from "./dataSourceTable"
@@ -22,9 +22,9 @@ class ManageBasicProperties extends Component {
             if (!err) {
                 console.log('Received values of form: ', values);
                 this.props.dataChange({
-                    ...values 
+                    ...values
                 })
-            } 
+            }
 
         });
 
@@ -33,11 +33,11 @@ class ManageBasicProperties extends Component {
     dataSourceChange(key) {
         this.setState({
             showTable: false
-        },)
+        }, )
         this.props.form.setFieldsValue({
-            table:""
+            table: ""
         })
-        
+
         this.props.tablelist(key)
             .then(
                 (res) => {
@@ -58,7 +58,7 @@ class ManageBasicProperties extends Component {
     getTableListView() {
         const data = this.state.tableList;
         return data.map(
-            (item,index) => {
+            (item, index) => {
                 return <Option key={item}>{item}</Option>
             }
         )
@@ -141,16 +141,14 @@ class ManageBasicProperties extends Component {
 
         function exchangeTree(data) {
             let arr = []
-            if (!data||data.length<1) {
+
+            if (!data || data.length < 1) {
                 return null;
             }
-            
-            
             for (let i = 0; i < data.length; i++) {
-            
                 let item = data[i];
-                
-                if(item.api){
+
+                if (item.api) {
                     return null;
                 }
                 arr.push({
@@ -161,14 +159,15 @@ class ManageBasicProperties extends Component {
             }
             return arr;
         }
-        return exchangeTree(tree);
+
+        return exchangeTree(tree) || [];
 
 
     }
     render() {
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
-       
+
         return (
             <div>
                 <div className="steps-content">
@@ -182,7 +181,7 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { required: true, message: '请选择分组' },
                                 ],
-                                initialValue:this.props.APIGroup
+                                initialValue: this.props.APIGroup
                             })(
                                 <Cascader showSearch popupClassName="noheight" options={options} placeholder="请选择分组" />
                             )
@@ -191,11 +190,11 @@ class ManageBasicProperties extends Component {
                         <FormItem
                             {...formItemLayout}
                             label="API名称"
-                            
+
                             hasFeedback >
                             {getFieldDecorator('APIName', {
                                 rules: [{ required: true, message: '请输入API名称' },
-                                {max:16,message:"最大字数不能超过16"},
+                                { max: 16, message: "最大字数不能超过16" },
                                 { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
                             })(
@@ -206,11 +205,11 @@ class ManageBasicProperties extends Component {
                             {...formItemLayout}
                             label="API描述"
                             hasFeedback
-                            
+
                         >
                             {getFieldDecorator('APIdescription', {
                                 rules: [{ required: false, message: '请输入API描述' },
-                            {max:200,message:"最大字符不能超过200"}],
+                                { max: 200, message: "最大字符不能超过200" }],
                                 initialValue: this.props.APIdescription
                             })(
                                 <TextArea />
@@ -223,19 +222,21 @@ class ManageBasicProperties extends Component {
                             {getFieldDecorator('callLimit', {
                                 rules: [
                                     { required: true, message: '请输入调用次数限制' },
-                                    {validator:function(rule, value, callback){
-                                        if(value&&(value>1000||value<1)){
-                                            callback("请输入不大于1000的正整数")
-                                            return;
+                                    {
+                                        validator: function (rule, value, callback) {
+                                            if (value && (value > 1000 || value < 1)) {
+                                                callback("请输入不大于1000的正整数")
+                                                return;
+                                            }
+                                            callback();
                                         }
-                                        callback();
-                                    }}
-                                    
+                                    }
+
                                 ]
                                 ,
                                 initialValue: this.props.callLimit
                             })(
-                                <Input type="number"   placeholder="单用户每秒最高调用次数" />
+                                <Input type="number" placeholder="单用户每秒最高调用次数" />
                             )}
                         </FormItem>
                         <FormItem
@@ -246,10 +247,10 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { required: true, message: '请输入最大返回条数' },
                                     { pattern: new RegExp(/^1[0-9]{0,3}$|^2000$|^[0-9]$|^[1-9][0-9]{1,2}$/), message: '请输入不大于2000的正整数' },
-                            ],
+                                ],
                                 initialValue: this.props.backLimit
                             })(
-                                <Input type="number"  placeholder="单次最大返回数据条数 (最高支持2000条)" />
+                                <Input type="number" placeholder="单次最大返回数据条数 (最高支持2000条)" />
                             )}
                         </FormItem>
 
@@ -263,17 +264,15 @@ class ManageBasicProperties extends Component {
                             })(
                                 <Select placeholder="请选择数据源"
                                     showSearch
-                                    style={{ width: '85%', marginRight: 15 }}
                                     onChange={this.dataSourceChange.bind(this)} >
                                     {this.getDataSourceOptionView()}
                                 </Select>
 
                             )}
-                            <Link to="/api/dataSource">添加数据源</Link>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="请选择表"  
+                            label="请选择表"
                         >
                             {getFieldDecorator('table', {
                                 rules: [{ required: true, message: '请选择表' }],

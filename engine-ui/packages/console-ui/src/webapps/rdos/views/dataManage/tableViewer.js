@@ -12,23 +12,26 @@ import {
 import GoBack from 'main/components/go-back';
 
 import Editor from '../../components/code-editor';
-import ajax from '../../api';
+import ajax from '../../api/dataManage';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import TablePartition from './tablePartition';
 import TableRelation from './tableRelation';
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group
+const RadioGroup = Radio.Group;
+
 
 export default class TableViewer extends React.Component{
     constructor(props) {
         super(props);
         this.tableId = this.props.routeParams.tableId;
+        this.queryParams = { tableId : this.tableId };
         this.state = {
             showType: 0, // 0/1 (非)字段
             visible: false,
-            code: ''
+            code: '',
+            isMark: false,
         };
     }
 
@@ -36,8 +39,32 @@ export default class TableViewer extends React.Component{
         this.getTable();
     }
 
+    changeMark(){
+        const {isMark} = this.state;
+        console.log(isMark);
+        
+        if(isMark){
+            ajax.cancelMark(this.queryParams).then(res=>{
+                if (res.code === 1) {
+                    this.setState({
+                        isMark: !isMark
+                    })
+                }
+            })
+        }else{
+            ajax.addMark(this.queryParams).then(res=>{
+                if (res.code === 1) {
+                    this.setState({
+                        isMark: !isMark
+                    })
+                }
+            })
+        }
+        
+    }
+
     getTable() {
-        ajax.getTable({tableId: this.tableId}).then(res => {
+        ajax.getTable(this.queryParams).then(res => {
             if(res.code === 1) {
                 this.setState({
                     tableData: res.data
@@ -58,7 +85,7 @@ export default class TableViewer extends React.Component{
         const { previewData } = this.state;
         if(previewData) return;
         if(+key === 2 || +key === 3) {
-            ajax.previewTable({tableId: this.tableId}).then(res => {
+            ajax.previewTable(this.queryParams).then(res => {
                 if(res.code === 1 && res.data) {
                     this.setState({
                         previewData: this.formatPreviewData(res.data)
@@ -82,9 +109,7 @@ export default class TableViewer extends React.Component{
     }
 
     getCreateCode() {
-        !this.state.code ? ajax.getCreateTableCode({
-            tableId: this.tableId
-        }).then(res => {
+        !this.state.code ? ajax.getCreateTableCode(this.queryParams).then(res => {
             if(res.code === 1 && res.data) {
                 this.setState({
                     visible: true,
@@ -106,6 +131,7 @@ export default class TableViewer extends React.Component{
             visible: false
         });
     }
+
     handleOk() {
         message.info('复制成功，代码窗口即将关闭');
         setTimeout(() => {
@@ -116,27 +142,27 @@ export default class TableViewer extends React.Component{
     }
 
     render() {
-        const { showType, tableData, previewData } = this.state;
+        const { showType, tableData, previewData,isMark } = this.state;
 
         const columns = [{
             title: '序号',
-            dataIndex: 'index',
-            key: 'index',
+            dataIndex: 'columnIndex',
+            key: 'columnIndex',
             render(index) {
                 return ++index
             }
         },{
             title: '字段名称',
-            dataIndex: 'name',
-            key: 'name'
+            dataIndex: 'columnName',
+            key: 'columnName'
         },{
             title: '类型',
-            dataIndex: 'type',
-            key: 'type'
+            dataIndex: 'columnType',
+            key: 'columnType'
         },{
             title: '注释',
-            dataIndex: 'comment',
-            key: 'comment',
+            dataIndex: 'columnDesc',
+            key: 'columnDesc',
             render(text) {
                 return text
             }
@@ -145,19 +171,25 @@ export default class TableViewer extends React.Component{
         return <div className="g-tableviewer box-1">
             <div className="box-card">
                 <main>
-                    <h1 className="card-title"><GoBack /> 查看表：{ tableData && tableData.table.tableName }</h1>
-                    <Row className="box-card m-tablebasic">
-                        <Col span={12} className="col-sep">
-                            <h3>
-                                基本信息
+                    <div >
+                        <h1 className="card-title">
+                            <GoBack /> 查看表：{ tableData && tableData.table.tableName }
+                            <span className="right">
+                                <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
+                                <Button className="button-top" type="primary">申请授权</Button>
                                 <Button 
                                     type="primary" 
-                                    className="right"
+                                    className="button-top"
                                     onClick={ this.getCreateCode.bind(this) }
                                 >
                                     生成建表语句
                                 </Button>
-                            </h3>
+                            </span>
+                        </h1>
+                    </div>
+                    <Row className="m-tablebasic">
+                        <Col span={12} className="col-sep" style={{paddingLeft: 0}}>
+                            <h3> 基本信息 </h3>
                             { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tbody>
                                     <tr>
@@ -165,7 +197,7 @@ export default class TableViewer extends React.Component{
                                         <td>{ tableData.table.projectAlias }</td>
                                     </tr>
                                     <tr>
-                                        <th>创建者：</th>
+                                        <th>负责人</th>
                                         <td>{ tableData.table.userName }</td>
                                     </tr>
                                     <tr>
@@ -185,7 +217,7 @@ export default class TableViewer extends React.Component{
                                 </tbody>
                             </table> }
                         </Col>
-                        <Col span={12} className="col-sep">
+                        <Col span={12} className="col-sep" style={{paddingRight: 0}}>
                             <h3>存储信息</h3>
                             { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tbody>
@@ -213,8 +245,8 @@ export default class TableViewer extends React.Component{
                             </table> }
                         </Col>
                     </Row>
-                    <Row style={{ padding: '0 30px' }}>
-                        <div className="m-tabs m-card bd" style={{height: '700px'}}>
+                    <Row>
+                        <div className="m-tabs m-card bd">
                             <Tabs 
                                 animated={false}
                                 onChange={ this.getPreview.bind(this) }
@@ -272,7 +304,7 @@ export default class TableViewer extends React.Component{
                                     </div>
                                 </TabPane>
                                 <TabPane tab="血缘信息" key="4">
-                                    <TableRelation tableData={tableData && tableData.table}/>
+                                    <TableRelation  tableData={tableData && tableData.table}/>
                                 </TabPane>
                             </Tabs>
                         </div>

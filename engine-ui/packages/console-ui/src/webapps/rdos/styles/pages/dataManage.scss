@@ -151,7 +151,9 @@
             z-index: 1000;
         }
         .m-tablebasic {
-            padding: 20px;
+
+            margin-top: 30px;
+
             h3 {
                 margin-bottom: 10px;
                 button {
@@ -220,9 +222,6 @@
         }
 
         .rel-table-info {
-            .ant-table {
-                height: 140px;
-            }
             .table-info {
                 table {
                     tr td:nth-child(2) {
@@ -233,6 +232,9 @@
             .ant-table-placeholder {
                 height: 100%;
             }
+        }
+        .button-top {
+            margin: 18px 0 0 20px;
         }
     }
 

@@ -100,6 +100,10 @@ export function MsgTypeDesc(app, type) {
                     return '启用标签'
                 case 7:
                     return '标签出错'
+                case 8:
+                    return '规则标签执行成功'
+                case 9:
+                    return '规则标签执行失败'  
                 default: return '-';
             }
         }

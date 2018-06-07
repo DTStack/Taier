@@ -1,5 +1,6 @@
 import { tableAction, logAction } from './actionType';
 import { message } from 'antd';
+import tableMaApi from '../../../api/dataManage';
 import ajax from '../../../api';
 
 /**
@@ -34,7 +35,7 @@ function formatTableData(resData) {
 export default {
     searchTable(params) {
         return dispatch => {
-            ajax.searchTable(params).then(res => {
+            tableMaApi.searchTable(params).then(res => {
                 if(res.code === 1) {
                     dispatch(this.loadTableList(res.data))
                 }
@@ -44,7 +45,7 @@ export default {
 
     getTableDetail(params) {
         return dispatch => {
-            ajax.getTable(params).then(res => {
+            tableMaApi.getTable(params).then(res => {
                 if(res.code === 1) {
                     let tableData = formatTableData(res.data);
                     dispatch(this.loadTableDetail(tableData));
@@ -103,7 +104,7 @@ export default {
     },
     saveTable(params) {
         return dispatch => {
-            ajax.saveTable(params).then(res => {
+            tableMaApi.saveTable(params).then(res => {
                 if(res.code === 1) {
                     message.success('保存成功')
                 }

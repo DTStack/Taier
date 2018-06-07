@@ -12,8 +12,8 @@ export const DATA_SOURCE = {
 
 // 标签类型
 export const TAG_TYPE = {
-    REGISTER: 1,
-    CUSTOM: 2,
+    1: '注册标签',
+    2: '规则标签'
 }
 
 // 标签状态

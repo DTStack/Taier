@@ -109,7 +109,6 @@ class TopCard extends Component {
                         <Row className="header-content">
                             {this.getApiValue('desc')}
                         </Row>
-
                     </Col>
                     <Col span={3}>
                         <section className="m-count-section " style={{ width: 150, marginTop: 0 }}>

@@ -5,7 +5,7 @@ import {
     Input, Tooltip, Icon,
 } from 'antd';
 
-import Api from '../../../../api'
+import Api from '../../../../api/dataManage'
 import { debounceEventHander } from 'funcs'
 
 import {

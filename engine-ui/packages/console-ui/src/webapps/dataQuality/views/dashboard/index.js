@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { Table, Icon, Card, Row, Col } from 'antd';
 import moment from 'moment';
 
@@ -10,7 +10,7 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 import Resize from 'widgets/resize';
 
-import { lineAreaChartOptions, alarmDateFilter } from '../../consts';
+import { lineAreaChartOptions, alarmDateFilter, TASK_STATUS } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
 
@@ -68,13 +68,14 @@ export default class DashBoard extends Component {
 
     jumpToTaskQuery(date){
         const endTime=new moment();
-        const startTime=moment(moment(endTime).subtract(date,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
+        const startTime=moment(moment(endTime).subtract(date-1,"days").format("YYYY-MM-DD"));//获取n天前的日期，顺便取整
 
-        this.props.router.push({
+        hashHistory.push({
             pathname:"/dq/taskQuery",
             query:{
                 startTime:startTime.valueOf(),
                 endTime:endTime.valueOf(),
+                statusFilter:[TASK_STATUS.FAIL,TASK_STATUS.UNPASS].join(",")
             }
         })
     }

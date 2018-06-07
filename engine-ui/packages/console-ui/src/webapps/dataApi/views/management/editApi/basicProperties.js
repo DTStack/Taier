@@ -213,7 +213,7 @@ class ManageBasicProperties extends Component {
             return arr;
         }
 
-        return exchangeTree(tree);
+        return exchangeTree(tree)||[];
 
 
     }
@@ -309,13 +309,11 @@ class ManageBasicProperties extends Component {
                                 initialValue: this.props.dataSource
                             })(
                                 <Select disabled placeholder="请选择数据源"
-                                    style={{ width: '85%', marginRight: 15 }}
                                     onChange={this.dataSourceChange.bind(this)} >
                                     {this.getDataSourceOptionView()}
                                 </Select>
 
                             )}
-                            <Link to="/api/dataSource">添加数据源</Link>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}

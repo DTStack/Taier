@@ -232,27 +232,28 @@ class TargetForm extends React.Component {
                         label="表名"
                         key="table"
                     >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                        })(
-                            <Select
-                                showSearch
-                                onChange={this.changeTable.bind(this)}
-                                disabled={!isCurrentTabNew}
-                                optionFilterProp="value"
-                            >
-                                {this.state.tableList.map(table => {
-                                    return <Option
-                                        key={`rdb-target-${table}`}
-                                        value={table}>
-                                        {table}
-                                    </Option>
-                                })}
-                            </Select>
-                        )}
+                    {getFieldDecorator('table', {
+                        rules: [{
+                            required: true
+                        }],
+                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                    })(
+                        <Select
+                            showSearch
+                            mode="combobox"
+                            disabled={ !isCurrentTabNew }
+                            optionFilterProp="value"
+                            onBlur={this.changeTable.bind(this)}
+                        >
+                            {this.state.tableList.map(table => {
+                                return <Option 
+                                    key={ `rdb-target-${table}` } 
+                                    value={ table }>
+                                    { table }
+                                </Option>
+                            })}
+                        </Select>
+                    )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -625,10 +626,10 @@ class TargetForm extends React.Component {
                     >
                         {getFieldDecorator('fieldDelimiter', {
                             rules: [],
-                            initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
+                            initialValue:  !targetMap.type || !targetMap.type.fieldDelimiter ? ',' : targetMap.type.fieldDelimiter
                         })(
                             <Input
-                                placeholder="若不填写，则默认为\001"
+                                placeholder="若不填写，则默认,"
                                 onChange={this.submitForm.bind(this)} />
                         )}
                     </FormItem>,

@@ -2,7 +2,7 @@ import React from 'react';
 import { Table } from 'antd';
 import moment from 'moment';
 
-import Api from '../../api';
+import Api from '../../api/dataManage';
 
 export default class TablePartition extends React.Component {
 
@@ -12,7 +12,9 @@ export default class TablePartition extends React.Component {
     }
 
     componentDidMount() {
-        this.loadPartition();
+        if (this.props.table) {
+            this.loadPartition();
+        }
     }
 
     loadPartition = () => {
@@ -20,7 +22,7 @@ export default class TablePartition extends React.Component {
         const current = this.state.current
         const table = this.props.table
         const params = {
-            tableId: table.tableId,
+            tableId: table.id,
             pageIndex: current,
             pageSize: 10,
         }

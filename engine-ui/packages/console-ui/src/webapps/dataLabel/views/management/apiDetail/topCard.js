@@ -25,7 +25,7 @@ class ManageTopCard extends Component {
     }
 
     editApi(id){
-        this.props.router.push("/api/manage/editApi/"+id);
+        this.props.router.push("/dl/manage/editApi/"+id);
     }
     back() {
         this.props.router.goBack();

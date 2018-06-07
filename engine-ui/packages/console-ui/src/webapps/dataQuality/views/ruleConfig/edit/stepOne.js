@@ -131,11 +131,11 @@ export default class StepOne extends Component {
      * 
      */
     checkMonitor() {
-        const { editParams } = this.props;
+        const { editParams, havePart } = this.props;
         const params = {
             tableName: editParams.tableName,
             dataSourceId: editParams.dataSourceId,
-            partition: editParams.partition,
+            partition: havePart?editParams.partition:undefined,
         }
 
         this.setState({
@@ -152,6 +152,9 @@ export default class StepOne extends Component {
                     if (res && res.data) {
                         return res.data;
                     } else {
+                        if(res.code!=1){
+                            throw new Error(res.message)
+                        }
                         return null;
                     }
                 }
@@ -178,7 +181,7 @@ export default class StepOne extends Component {
             this.props.resetDataSourcesPart();
             form.setFieldsValue({
                 partition: undefined,
-                partitionInput: undefined
+                partitionInput: 'column=${sys.recentPart}'
             });
         }
 
@@ -198,7 +201,7 @@ export default class StepOne extends Component {
         let params = {
             tableName: name,
             rules: [],
-            partition: undefined
+            partition: 'column=${sys.recentPart}'
         };
 
         // 重置分区数据
@@ -206,7 +209,7 @@ export default class StepOne extends Component {
             this.props.resetDataSourcesPart();
             form.setFieldsValue({
                 partition: undefined,
-                partitionInput: undefined
+                partitionInput: 'column=${sys.recentPart}'
             });
 
             this.props.getDataSourcesPart({
@@ -280,7 +283,7 @@ export default class StepOne extends Component {
     partHintText = () => {
         return (
             <p className="font-14">
-                {"如果分区还不存在，可以直接手动输入未来会存在的分区名，格式为：分区字段=分区值，如column=${sys.recentPart}"}
+                {"支持填写系统参数，格式为：column=${sys.recentPart}，column为分区字段名，需要您根据情况修改，${sys.recentPart}为系统参数，系统每次执行时会对最新的1个分区的数据做校验"}
             </p>
         )
     }
@@ -396,7 +399,7 @@ export default class StepOne extends Component {
                 {
                     getFieldDecorator('partitionInput', {
                         rules: [],
-                        initialValue: partition
+                        initialValue: partition||'column=${sys.recentPart}'
                         // ? partition : 'column=${sys.recentPart}'
                     })(
                         <Input
@@ -451,7 +454,6 @@ export default class StepOne extends Component {
                                     </Select>
                                 )
                             }
-                            <Link to="/dq/dataSource">添加数据源</Link>
                         </FormItem>
 
                         <FormItem {...formItemLayout} label="选择数据表">
