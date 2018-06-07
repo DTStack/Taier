@@ -109,10 +109,20 @@ export default class MainBench extends React.Component {
 
     renderLock(tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock 
+        const isSyncScript=tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT;
+        const isEditor=(tabData.taskType==TASK_TYPE.SQL)||isSyncScript;
+        
         let top = '0px';
-        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL) top = '10px'
+        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL&&!isSyncScript) top = '10px';
+        let lockClassName='lock-layer';
+
+        if(isEditor){
+            lockClassName='lock-layer-editor';
+        }else if(tabData.taskType==TASK_TYPE.SYNC){
+            lockClassName='lock-layer-sync';
+        }
         return isLocked ? (
-            <div className="lock-layer">
+            <div className={lockClassName}>
                 <Alert
                     style={{ position: 'absolute', top: top, left: '35%', zIndex: '999'}}
                     showIcon

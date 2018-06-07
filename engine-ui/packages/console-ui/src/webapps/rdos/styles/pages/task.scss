@@ -471,6 +471,21 @@
         z-index: 999;
         cursor: not-allowed;
     }
+    .lock-layer-sync {
+        position: absolute;
+        top: 35px;
+        left: 0;
+        width: 100%;
+    }
+    .lock-layer-editor {
+        position: absolute;
+        top: 35px;
+        height: 35px;
+        left: 0;
+        width: 100%;
+        z-index: 999;
+        cursor: not-allowed;
+    }
 }
 
 .task-log-info {
@@ -497,6 +512,15 @@
         min-height: 200px;
         text-align: center;
         padding: 40px 0;
+    }
+    .steps-mask{
+        position: absolute;
+        bottom: 0px;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        cursor: not-allowed;
+        z-index: 999;
     }
     .ant-steps-icon {
         line-height: 23px!important;
