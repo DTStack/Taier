@@ -585,7 +585,6 @@ class OfflineTaskList extends Component {
                                 >
                                     <Select
                                         allowClear
-                                        size="default"
                                         showSearch
                                         style={{ width: 150 }}
                                         placeholder="责任人"
@@ -600,7 +599,7 @@ class OfflineTaskList extends Component {
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 220 }}
+                                        style={{ width: 200 }}
                                         format="YYYY-MM-DD"
                                         disabledDate={this.disabledDate}
                                         value={bussinessDate||null}
@@ -612,7 +611,7 @@ class OfflineTaskList extends Component {
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 220 }}
+                                        style={{ width: 200 }}
                                         format="YYYY-MM-DD"
                                         value={cycDate||null}
                                         onChange={this.changecycDate}

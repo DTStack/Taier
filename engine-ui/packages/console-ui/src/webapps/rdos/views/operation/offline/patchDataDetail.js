@@ -55,7 +55,7 @@ class PatchDataDetail extends Component {
         fillJobName: '',
         jobStatuses: '',
         taskName: '',
-        bizDay: '',
+        bizDay: undefined,
         taskType: '',
 
         table: {
@@ -101,8 +101,9 @@ class PatchDataDetail extends Component {
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId
         }
-        if (bizDay) {
-            reqParams.bizDay = moment(bizDay).unix()
+        if (bizDay&&bizDay.length>1) {
+            reqParams.bizStartDay=bizDay[0].unix();
+            reqParams.bizEndDay=bizDay[1].unix();
         }
         if (jobStatuses && jobStatuses.length > 0) {
             reqParams.jobStatuses = jobStatuses.join(',')
@@ -540,11 +541,11 @@ class PatchDataDetail extends Component {
                                     <FormItem
                                         label="业务日期"
                                     >
-                                        <DatePicker
+                                        <RangePicker
+                                            disabledDate={this.disabledDate}
                                             size="default"
-                                            style={{ width: 120 }}
+                                            style={{ width: 200 }}
                                             format="YYYY-MM-DD"
-                                            placeholder="业务日期"
                                             value={bizDay}
                                             onChange={this.changeBussinessDate}
                                         />
