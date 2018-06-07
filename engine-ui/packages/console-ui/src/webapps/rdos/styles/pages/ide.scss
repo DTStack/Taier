@@ -84,6 +84,18 @@
             cursor: pointer;
         }
 
+        .console-icon{
+            position: absolute;
+            top: 8px;
+            cursor: pointer;
+            &.up{
+                right:47px;
+            }
+            &.down{
+                right: 30px;;
+            }
+        }
+
         .ant-tabs-content {
             position: absolute;
             top: 32px;
