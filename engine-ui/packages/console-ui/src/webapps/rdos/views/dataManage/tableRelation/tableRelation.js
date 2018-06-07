@@ -30,6 +30,7 @@ const {
     mxPerimeter,
     mxUndoManager,
     mxCompactTreeLayout,
+    mxLayoutManager,
     mxMorphing,
     mxUtils,
     mxXmlCanvas2D,
@@ -45,9 +46,12 @@ const VertexSize = { // vertex大小
 const getVertexNode = (obj) => {
     return {
         id: obj.tableId,
-        name: obj.tableName
+        name: obj.tableName,
+        project: obj.project,
     }
 }
+
+const testData = require('./treeTest.json');
 
 export default class TableRelation extends React.Component {
 
@@ -57,6 +61,7 @@ export default class TableRelation extends React.Component {
         tableInfo: {},
         relationTasks: {}, // 关联任务
         loading: 'success',
+        currentPage: 1, 
         visible: false,
     }
 
@@ -72,7 +77,9 @@ export default class TableRelation extends React.Component {
         this.listenOnClick();
         if (tableData) {
             const params = {
-                tableId: tableData.id,
+                tableName: tableData.tableName,
+                pageIndex: 1,
+                pageSize: 6,
                 belongProjectId: tableData.belongProjectId,
                 dataSourceId: tableData.dataSourceId,
             }
@@ -118,12 +125,11 @@ export default class TableRelation extends React.Component {
 
     loadTableChildren = (params) => {
         this.showLoading()
-        const graph = this.graph;
         Api.getChildRelTables(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
                 this.setState({ selectedData: getVertexNode(data), data })
-                this.doInsertVertex(data)
+                this.renderTree(data)
             }
             this.hideLoading();
         })
@@ -131,18 +137,19 @@ export default class TableRelation extends React.Component {
 
     loadTableParent = (params) => {
         this.showLoading()
-        const graph = this.graph;
         Api.getParentRelTable(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
                 this.setState({ data, selectedData: getVertexNode(data) })
-                this.doInsertVertex(data)
+                this.renderTree(data)
             }
             this.hideLoading();
         })
     }
 
-    insertVertex = (parent, data) => {
+    
+
+    insertVertexAndEdges = (parent, data) => {
 
         const graph = this.graph;
         const rootCell = graph.getDefaultParent()
@@ -166,7 +173,7 @@ export default class TableRelation extends React.Component {
             // 创建节点
             const doc = mxUtils.createXmlDocument()
             const tableInfo = doc.createElement('table')
-            tableInfo.setAttribute('id', data.id)
+            tableInfo.setAttribute('id', data.id + Date.now())
             tableInfo.setAttribute('data', JSON.stringify(data))
 
             let newVertex = '';
@@ -186,29 +193,82 @@ export default class TableRelation extends React.Component {
         }
     }
 
-    loopTree = (graph, treeNodeData) => {
+    doInsertVertex = (data) => {
+        const graph = this.graph;
 
-        if (treeNodeData) {
+        const parent = graph.getDefaultParent();
 
+        const layout = new mxCompactTreeLayout(graph)
+        // layout.horizontal = true;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 40;
+        layout.nodeDistance = 60;
+        this.layout = layout;
+
+        this.renderTree(data);
+    }
+
+    renderTree = (treeNodeData) => {
+        const graph = this.graph;
+        const model = graph.getModel();
+
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
+        const cy = (graph.container.clientHeight) / 4;
+        model.beginUpdate();
+
+        try {
             const rootCell = graph.getDefaultParent();
+            const currentNodeData = getVertexNode(treeNodeData);
+            const currentNode = this.insertVertex(rootCell, currentNodeData, cx, cy);
+            console.log('data:', treeNodeData)
+            this.loopTree(currentNode, treeNodeData);
+        } catch (e) {
+            throw e;
+        } finally {
+            model.endUpdate();
+        }
+    }
 
-            const parentNodes = treeNodeData.parentTables;
-            const childNodes = treeNodeData.childTables;
+    insertVertex = (parent, data, cx, cy) => {
+        const graph = this.graph;
+        const rootCell = graph.getDefaultParent()
+        const style = this.getStyles(data)
+        // 创建节点
+        const doc = mxUtils.createXmlDocument()
+        const tableInfo = doc.createElement('table')
+        tableInfo.setAttribute('id', data.id)
+        tableInfo.setAttribute('data', JSON.stringify(data))
 
-            const currentNodeData = getVertexNode(treeNodeData)
-            const currentNode = this.insertVertex(rootCell, currentNodeData)
+        const newVertex = graph.insertVertex(rootCell, null, tableInfo, cx || 0, cy || 0,
+            VertexSize.width, VertexSize.height, style
+        )
+        this.layout.execute(rootCell)
+        graph.view.refresh(newVertex)
+
+        this._vertexCells.push(newVertex)
+        return newVertex;
+    }
+
+    loopTree = (currentNode, treeNodeData) => {
+        
+        if (treeNodeData) {
+            const graph = this.graph;
+            const rootCell = graph.getDefaultParent();
+            const parentNodes = treeNodeData.parentResult && treeNodeData.parentResult.data;
+            const childNodes = treeNodeData.childResult && treeNodeData.childResult.data;
 
             // 处理依赖节点
             if (parentNodes && parentNodes.length > 0) {
                 for (let i = 0; i < parentNodes.length; i++) {
                     const nodeData = getVertexNode(parentNodes[i])
                     // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
+                    const parentNode = this.insertVertex(rootCell, nodeData)
                     // 创建连接线
-                    const newEdge = this.insertVertex(newNode, currentNodeData)
+                    graph.insertEdge(parentNode, null, '', parentNode, currentNode)
 
-                    if (parentNodes[i].parentTables) {
-                        this.loopTree(graph, parentNodes[i])
+                    if (parentNodes[i].parentResult && parentNodes[i].parentResult.data.length > 0) {
+                        this.loopTree(parentNode, parentNodes[i])
                     }
                 }
             }
@@ -218,60 +278,18 @@ export default class TableRelation extends React.Component {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
                     // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
-                    const newEdge = this.insertVertex(currentNode, nodeData)
-                    if (childNodes[i].childTables) {
-                        this.loopTree(graph, childNodes[i])
+                    const childNode = this.insertVertex(rootCell, nodeData)
+                    // 创建连接线
+                    graph.insertEdge(currentNode, null, '', currentNode, childNode)
+
+                    if (childNodes[i].childResult && childNodes[i].childResult.data.length > 0) {
+                        this.loopTree(childNode, childNodes[i])
                     }
                 }
             }
         }
     }
 
-    doInsertVertex = (data) => {
-        const graph = this.graph;
-        let layout = this.layout;
-        const cx = (graph.container.clientWidth - VertexSize.width) / 3
-        const cy = 100
-
-        const model = graph.getModel();
-        const parent = graph.getDefaultParent();
-
-        if (!layout) {
-            layout = new mxCompactTreeLayout(graph)
-            layout.horizontal = true;
-            layout.useBoundingBox = false;
-            // layout.edgeRouting = false;
-            layout.levelDistance = 40;
-            layout.nodeDistance = 60;
-            
-            this.layout = layout
-            this.executeLayout = function(change, post) {
-
-                model.beginUpdate();
-
-                try {
-                    if (change != null) {
-                        change();
-                    }
-                    layout.execute(parent);
-                } catch (e) {
-                    throw e;
-                } finally {
-                    var morph = new mxMorphing(graph);
-                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
-                        graph.getModel().endUpdate();
-                        if (post != null) { post();}
-                    }));
-                    morph.startAnimation();
-                }
-            }
-        }
-
-        this.loopTree(graph, data);
-        this.executeLayout();
-        graph.view.setTranslate(cx, cy);
-    }
 
     loadEditor = (container) => {
         // // Disable context menu
@@ -340,7 +358,7 @@ export default class TableRelation extends React.Component {
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
-                    return `<div class="table-vertex"><span class="table-vertex-content"><img src="/public/rdos/img/table.svg" /> <span class="table-vertex-title">${obj.name || ''}</span></span>
+                    return `<div class="table-vertex"><span class="table-vertex-content"><span class="table-vertex-title">${obj.name || ''}</span></span>
                     </div>`
                 }
             }
