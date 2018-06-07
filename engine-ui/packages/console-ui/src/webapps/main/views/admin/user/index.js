@@ -302,7 +302,7 @@ class AdminUser extends Component {
                             visibleEditRole: true,
                             editTarget: record
                         })
-                    }}>编辑</a>
+                    }}>编辑角色</a>
                     {
                         hideDel ? '' : <span>
                             <span className="ant-divider" />
@@ -311,7 +311,7 @@ class AdminUser extends Component {
                                 okText="确定" cancelText="取消"
                                 onConfirm={() => { ctx.removeUserFromProject(record) }}
                             >
-                                <a>删除</a>
+                                <a>移出项目</a>
                             </Popconfirm>
                         </span>
                     }

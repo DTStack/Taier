@@ -36,7 +36,7 @@ class Dashboard extends Component {
     renderApps = () => {
         const { apps } = this.props;
         const sections = apps.map(app => app.enable && app.id !== MY_APPS.MAIN && (
-            <a href={app.link} className="app-tag" target="_blank" key={app.id}>
+            <a href={app.link} className="app-tag"  key={app.id}>
                 <img className="app-logo" src={app.icon}/>
                 <h1>{app.name}</h1>
                 <p>{app.description}</p>
