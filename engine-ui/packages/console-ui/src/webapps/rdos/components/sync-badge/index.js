@@ -15,26 +15,20 @@ export default class SyncBadge extends React.Component {
             <span
                 style={{
                     display: 'inline-block',
-                    width: 8,
-                    height: 8,
                     marginRight: 8,
                     borderRadius: '50%',
-                    border: '3px solid ',
-                    borderColor: '#EF5350',
-                    opacity: 0.8
+                    border: '4px solid ',
+                    borderColor: '#EF5350'
                 }}
             ></span>
         </Tooltip> :
         <span
             style={{
                 display: 'inline-block',
-                width: 8,
-                height: 8,
                 marginRight: 8,
                 borderRadius: '50%',
-                border: '3px solid ',
-                borderColor: '#00a854',
-                opacity: 0.6
+                border: '4px solid ',
+                borderColor: '#00A755'
             }}
         ></span>
     }

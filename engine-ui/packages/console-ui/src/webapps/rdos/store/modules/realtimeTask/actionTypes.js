@@ -6,6 +6,7 @@ export const browserAction = mc([
     'CLOSE_PAGE',
     'UPDATE_PAGE',
     'CLEAR_PAGES',
+    'CLOSE_OTHERS',
     'SET_CURRENT_PAGE',
     'GET_CURRENT_PAGE',
 ], { prefix: 'realtimeTask/browser/' })

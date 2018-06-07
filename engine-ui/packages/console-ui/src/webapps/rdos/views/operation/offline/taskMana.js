@@ -16,7 +16,7 @@ import {
  import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
-import { taskStatusFilter, offlineTaskTypeFilter, offlineTaskPeriodFilter } from '../../../comm/const'
+import { taskStatusFilter, offlineTaskTypeFilter, offlineTaskPeriodFilter, SCHEDULE_STATUS } from '../../../comm/const'
 
 import { TaskTimeType, TaskType } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
@@ -270,7 +270,7 @@ class OfflineTaskMana extends Component {
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)` :
                 <a onClick={() => { this.showTask(record) }}>
-                    <TaskScheduleStatus value={record.scheduleStatus} />&nbsp; {record.name}
+                   {record.name+(record.scheduleStatus==SCHEDULE_STATUS.STOPPED?' (已冻结)':'')}
                 </a>
                 return content;
             },
