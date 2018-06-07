@@ -73,7 +73,7 @@ class FnForm extends React.Component {
                         rules: [{
                             required: true, message: '类名不能为空',
                         }, {
-                            pattern: /^([a-zA-Z.])+$/g,
+                            pattern: /^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)*$/,
                             message: '请输入有效的类名!',
                         }]
                     })(

@@ -14,6 +14,7 @@ import {
     scriptTreeAction,
     modalAction
 } from '../../../store/modules/offlineTask/actionType';
+import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 import { formItemLayout, MENU_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item;
@@ -223,6 +224,7 @@ export default connect(state => {
     }
 },
 dispatch => {
+    const benchActions = workbenchActions(dispatch)
     return {
         toggleCreateFolder: function() {
             dispatch({
@@ -232,35 +234,36 @@ dispatch => {
         addOfflineCatelogue: function(params, cateType) {
             ajax.addOfflineCatelogue(params)
                 .then(res => {
-                    let {data} = res;
-                    let action;
+                    // let {data} = res;
+                    // let action;
 
-                    switch(cateType) {
-                        case MENU_TYPE.TASK:
-                        case MENU_TYPE.TASK_DEV:
-                            action = taskTreeAction;
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            action = resTreeAction;
-                            break;
-                        case MENU_TYPE.COSTOMFUC:
-                        case MENU_TYPE.FUNCTION:
-                        case MENU_TYPE.SYSFUC:
-                            action = fnTreeAction;
-                            break;
-                        case MENU_TYPE.SCRIPT:
-                            action = scriptTreeAction;
-                            break;
-                        default:
-                            action = taskTreeAction;
-                    }
+                    // switch(cateType) {
+                    //     case MENU_TYPE.TASK:
+                    //     case MENU_TYPE.TASK_DEV:
+                    //         action = taskTreeAction;
+                    //         break;
+                    //     case MENU_TYPE.RESOURCE:
+                    //         action = resTreeAction;
+                    //         break;
+                    //     case MENU_TYPE.COSTOMFUC:
+                    //     case MENU_TYPE.FUNCTION:
+                    //     case MENU_TYPE.SYSFUC:
+                    //         action = fnTreeAction;
+                    //         break;
+                    //     case MENU_TYPE.SCRIPT:
+                    //         action = scriptTreeAction;
+                    //         break;
+                    //     default:
+                    //         action = taskTreeAction;
+                    // }
 
                     if(res.code === 1) {
-                        data.catalogueType = cateType;
-                        dispatch({
-                            type: action.ADD_FOLDER_CHILD,
-                            payload: data
-                        });
+                        // data.catalogueType = cateType;
+                        // dispatch({
+                        //     type: action.ADD_FOLDER_CHILD,
+                        //     payload: data
+                        // });
+                        benchActions.loadTreeNode(params.nodePid,cateType)
                     }
                 });
         },
@@ -296,10 +299,11 @@ dispatch => {
                         newData.originPid = defaultData.parentId;
                         newData.parentId = params.nodePid;
 
-                        dispatch({
-                            type: action.EDIT_FOLDER_CHILD,
-                            payload: newData
-                        });
+                        // dispatch({
+                        //     type: action.EDIT_FOLDER_CHILD,
+                        //     payload: newData
+                        // });
+                        benchActions.loadTreeNode(params.nodePid,MENU_TYPE.TASK_DEV)
                     }
                 })
         },

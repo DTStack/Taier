@@ -179,20 +179,22 @@
 
 // form
 .m-form-inline {
-    .ant-form-item .ant-select .ant-select-search__field__wrap,
-    .ant-form-item .ant-select .ant-select-search__field,
-    .ant-form-item .ant-select .ant-select-selection--multiple,
-    .ant-form-item .ant-select .ant-select-selection--single {
+    .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap,
+    .ant-form-item .ant-select:not(.native) .ant-select-search__field,
+    .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple,
+    .ant-form-item .ant-select:not(.native) .ant-select-selection--single {
         height: 28px;
         line-height: 28px;
     }
-    .ant-form-item .ant-select .ant-select-search__field__wrap .ant-select-selection__rendered,
-    .ant-form-item .ant-select .ant-select-search__field .ant-select-selection__rendered,
-    .ant-form-item .ant-select .ant-select-selection--multiple .ant-select-selection__rendered,
-    .ant-form-item .ant-select .ant-select-selection--single .ant-select-selection__rendered {
+    
+    .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap .ant-select-selection__rendered,
+    .ant-form-item .ant-select:not(.native) .ant-select-search__field .ant-select-selection__rendered,
+    .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple .ant-select-selection__rendered,
+    .ant-form-item .ant-select:not(.native) .ant-select-selection--single .ant-select-selection__rendered {
         height: 28px;
         line-height: 28px;
     }
+
     .ant-form-item-label {
         line-height: 28px;
     }

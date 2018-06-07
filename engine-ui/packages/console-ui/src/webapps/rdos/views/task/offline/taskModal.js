@@ -473,19 +473,20 @@ export default connect(state => {
                     .then(res => {
                         if (res.code === 1) {
                             if (!isEditExist) {
-                                dispatch({
-                                    type: taskTreeAction.ADD_FOLDER_CHILD,
-                                    payload: res.data
-                                });
+                                // dispatch({
+                                //     type: taskTreeAction.ADD_FOLDER_CHILD,
+                                //     payload: res.data
+                                // });
+                                // benchActions.loadTreeNode(params.nodePid,"TaskDevelop")
                                 benchActions.openTaskInDev(res.data.id)
                             }
                             else {
                                 let newData = Object.assign(defaultData, res.data);
                                 newData.originPid = defaultData.nodePid
-                                dispatch({
-                                    type: taskTreeAction.EDIT_FOLDER_CHILD,
-                                    payload: newData
-                                });
+                                // dispatch({
+                                //     type: taskTreeAction.EDIT_FOLDER_CHILD,
+                                //     payload: newData
+                                // });
 
                                 // 更新tabs数据
                                 ajax.getOfflineTaskDetail({
@@ -499,6 +500,7 @@ export default connect(state => {
                                     }
                                 });
                             }
+                            benchActions.loadTreeNode(params.nodePid,MENU_TYPE.TASK_DEV)
                             return true;
                         }
                     });
