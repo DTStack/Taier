@@ -13,7 +13,7 @@ export default {
     CHECK_TABLE_EXIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/isTableExist`,
     GET_TABLES_BY_NAME: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTableList`, // 查询指定名称表信息(支持模糊查询)
     CHECK_HDFSLOC_EXIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/isHdfsDirExist`,
-    GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/hiveTablePartition/getPartitions`, // 获取表分区信息 
+    GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/getPartitions`, // 获取表分区信息 
     UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/hiveDataImport/importData`, // 
     CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/checkPartitionExists`, // 检查表分区
     NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/pageQuery`,//新的查询表的详细信息

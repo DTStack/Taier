@@ -13,7 +13,7 @@ import moment from 'moment';
 import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataManage';
 import dateModelAPI from '../../../api/dataModel';
 import ColumnsPartition from './columnsPartition';
 import actions from '../../../store/modules/dataManage/actionCreator';
@@ -64,15 +64,16 @@ class TableEditor extends Component {
         const { getFieldDecorator } = this.props.form;
 
         const { 
-            tableName, project, createTime,
-            desc, userName, lifeDay, catalogueId,
+            tableName, project, gmtCreate,
+            desc, chargeUser, lifeDay, catalogueId,
         } = tableData;
 
         const formItemLayout = {
             labelCol: { span: 2 },
             wrapperCol: { span: 12 },
         };
-
+        console.log('tableEditor',tableData);
+        
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
@@ -90,12 +91,12 @@ class TableEditor extends Component {
                                     <td>{ project }</td>
                                 </tr>
                                 <tr>
-                                    <th>创建者</th>
-                                    <td>{userName}</td>
+                                    <th>负责人</th>
+                                    <td>{chargeUser}</td>
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
-                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    <td>{ moment(gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                 </tr>
                             </tbody>
                         </table>
