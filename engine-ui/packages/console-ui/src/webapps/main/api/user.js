@@ -25,16 +25,15 @@ export default {
     },
 
     getInitUser() {
-        var user = {};
-        user.userName = utils.getCookie('dt_username') 
-        user.dtuicUserId = utils.getCookie('dt_user_id')
-        return user
+        return this.getLoginedUser();
     },
 
     getLoginedUser() {
         var user = {};
-        user.userName = utils.getCookie('dt_username') 
-        user.dtuicUserId = utils.getCookie('dt_user_id')
+        user.userName = utils.getCookie('dt_username');
+        user.dtuicUserId = utils.getCookie('dt_user_id');
+        user.isTenantAdmin = utils.getCookie('dt_is_tenant_admin') === 'true';
+        user.isTenantCreator = utils.getCookie('dt_is_tenant_creator') === 'true';
         return user
     },
 

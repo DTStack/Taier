@@ -7,6 +7,8 @@ import { approvalActions } from '../../actions/approval';
 const TextArea = Input.TextArea;
 const Search = Input.Search;
 const FormItem = Form.Item;
+const InputGroup = Input.Group;
+const Option = Select.Option;
 const sortType = {
     "applyTime": 'gmt_modified'
 }
@@ -42,9 +44,10 @@ class APIApproval extends Component {
         userName: "",
         applyContent: "",
         replyContent: "",
+        apiName:"",
         spApplyMsg:{},
         total: 0,
-        
+        searchType:'用户名称',
     }
     componentWillMount(){
         
@@ -74,7 +77,8 @@ class APIApproval extends Component {
             currentPage: this.state.pageIndex,
             pageSize: 20,
             sort:orderType[this.state.sorter.order],
-            orderBy:sortType[this.state.sorter.columnKey]
+            orderBy:sortType[this.state.sorter.columnKey],
+            apiName:this.state.apiName
         })
             .then(
                 (res) => {
@@ -85,15 +89,6 @@ class APIApproval extends Component {
                     }
                 }
             );
-    }
-    handleSearch(key) {
-        this.setState({
-            userName: key,
-            pageIndex:1
-        },
-            () => {
-                this.getApprovalList();
-            })
     }
     onSourceChange() {
 
@@ -166,6 +161,11 @@ class APIApproval extends Component {
             dataIndex: 'applyUserName',
             key: 'applyUserName'
         }, {
+            title: '申请API',
+            dataIndex: 'apiName',
+            key: 'apiName'
+
+        }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
@@ -175,7 +175,7 @@ class APIApproval extends Component {
                     "notApproved": "未审批",
                     "pass": "已通过",
                     "rejected": "已拒绝",
-                    "stop": "停用",
+                    "stop": "已停用",
                     "disabled": "取消授权"
                 }
                 return <span className={`state-${EXCHANGE_APPLY_STATUS[text]}`}>{dic[EXCHANGE_APPLY_STATUS[text]]}</span>
@@ -195,7 +195,7 @@ class APIApproval extends Component {
                     value: '2'
                 },
                 {
-                    text: '停用',
+                    text: '已停用',
                     value: '3'
                 },{
                     text: '取消授权',
@@ -203,11 +203,6 @@ class APIApproval extends Component {
                 }
             ],
             filteredValue:this.state.filter.status||null
-        }, {
-            title: '申请API',
-            dataIndex: 'apiName',
-            key: 'apiName'
-
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
@@ -232,17 +227,41 @@ class APIApproval extends Component {
     renderSourceType() {
         return null;
     }
+    searchRequire(v){//搜索条件
+        let { userName, apiName,searchType } = this.state;
+        let value = v.trim();//去掉首位空格
+        if(searchType === '用户名称'){
+            userName = value;
+            apiName = '';
+            
+        }else{
+            userName = '';
+            apiName = value;
+        }
+        this.setState({
+            userName,
+            apiName,
+            pageIndex:1
+        },() => {
+            this.getApprovalList();
+        })
+    };
+    selectSearchType(v){//设置搜索类型
+        this.setState({
+            searchType: v
+        })
+    }
     getCardTitle() {
         const sourceType = "", sourceList = "", userList = "";
         return (
             <div className="flex font-12">
-                <Search
-                    placeholder="输入用户名称搜索"
-                    style={{ width: 150, margin: '10px 0' }}
-                    onSearch={this.handleSearch.bind(this)}
-                />
-
-
+                <InputGroup compact style={{ width: 500, margin: '10px 0px'}} >
+                    <Select defaultValue="用户名称" onChange={this.selectSearchType.bind(this)}>
+                        <Option value="用户名称">用户名称</Option>
+                        <Option value="API名称">API名称</Option>
+                    </Select>
+                    <Input.Search style={{ width: '50%' }} placeholder="请输入搜索条件"  onSearch={this.searchRequire.bind(this)} />
+                </InputGroup>
             </div>
         )
     }
@@ -289,6 +308,8 @@ class APIApproval extends Component {
             replyContent: record.replyContent
         })
     }
+
+
     render() {
         const { getFieldDecorator } = this.props.form
         return (
@@ -299,6 +320,7 @@ class APIApproval extends Component {
 
                         noHovering
                         title={this.getCardTitle()}
+                        className="shadow"
                     >
                         <Table
                             rowKey="id"

@@ -2,6 +2,14 @@
 /**
 ** CSS 主引入口
 **/
+@import './views/apiMarket.scss';
+@import './views/apiMine.scss';
+@import './views/management.scss';
+@import './views/approval.scss';
+
+.m-8 {
+    margin: 0 8px;
+}
 
 .m-l-8 {
 	margin-left: 8px;
@@ -11,11 +19,16 @@
 	margin-right: 8px;
 }
 
-.m-tooltip {
-	word-break: break-word;
+.help-doc {
+    position: absolute;
+    right: -20px;
+    top: 10px;
+}
 
+.m-tooltip {
 	.ant-tooltip-inner {
-		max-width: 400px;
+		max-width: 600px;
+        white-space: pre-line;
 	}
 }
 
@@ -39,7 +52,6 @@
 	    white-space: nowrap;
 	    text-overflow: ellipsis;
     }
-
 }
 
 .txt-center-table {

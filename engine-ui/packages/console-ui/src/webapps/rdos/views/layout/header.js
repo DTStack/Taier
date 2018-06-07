@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
 import { Menu, Dropdown, Icon } from 'antd'
 import { Link } from 'react-router'
+import { connect } from 'react-redux'
+
+import { MenuRight } from 'main/components/nav'
 
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 import { setTaskFlow } from '../../store/modules/operation/taskflow'
 
-
-import { MenuRight } from 'main/components/nav'
+import {
+    workbenchAction,
+} from '../../store/modules/offlineTask/actionType';
+import { clearPages } from '../../store/modules/realtimeTask/browser';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -16,6 +21,16 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
 
 const SubMenu = Menu.SubMenu
 
+@connect(null, dispatch => {
+    return {
+        cleanAllTabData: () => {
+            dispatch(clearPages());
+            dispatch({
+                type: workbenchAction.CLOSE_ALL_TABS
+            });
+        },
+    }
+})
 class Header extends Component {
 
     constructor(props) {
@@ -37,11 +52,13 @@ class Header extends Component {
 
     handleClick = (e) => {
         const props = e.item.props
-        const { router, dispatch } = this.props
+        const { router, dispatch, cleanAllTabData } = this.props
         this.setState({ current: e.key });
         const project = props.data
         if (project) {
-            dispatch(ProjectAction.getProject(project.id))
+            dispatch(ProjectAction.getProject(project.id));
+            // 清理tab数据
+            cleanAllTabData();
             if (this.state.current === 'overview') {
                 router.push('/offline/task')
             }
@@ -115,7 +132,8 @@ class Header extends Component {
         const display = current !== 'overview' ? 'inline-block' : 'none'
         const pid = project && project.id ? project.id : ''
         
-        const basePath = '/rdos.html#'
+        const basePath = app.link;
+
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">
@@ -139,7 +157,7 @@ class Header extends Component {
                                 <span className="my-menu-item">
                                 {
                                     project && project.projectName ? 
-                                        (project.projectAlias || project.projectName) : '项目选择'
+                                    <span className="menu-text-ellipsis">{(project.projectAlias || project.projectName)}</span> : <span className="menu-text-ellipsis">项目选择</span>
                                 } <Icon type="caret-down" /></span>
                             }
                         >
@@ -156,7 +174,6 @@ class Header extends Component {
                           key="realtime"
                           style={{ display }}>
                             <a href={`${basePath}${devPath}`}>数据开发</a>
-                            {/* <Link to={ devPath }>数据开发</Link> */}
                         </Menu.Item>
                         <Menu.Item
                           className="my-menu-item"
@@ -191,6 +208,8 @@ class Header extends Component {
                     app={ app }
                     apps={ apps }
                     onClick={ this.clickUserMenu }
+                    showHelpSite={true}
+                    helpUrl="/public/rdos/helpSite/index.html"
                 /> 
                 {/* <div className="user-info right">
                     <Dropdown overlay={userMenu} trigger={['click']}>

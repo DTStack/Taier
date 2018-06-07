@@ -8,6 +8,8 @@ export const DATA_SOURCE = {
     HIVE: 7,
     HBASE: 8,
     FTP: 9,
+    MAXCOMPUTE: 10,
+    ES: 11,
 }
 
 // 锁类型
@@ -53,12 +55,17 @@ export const DATA_TYPE_ARRAY = [ // sql/oracle/sqlserver
 ]
 
 export const TASK_TYPE = { // 任务类型
+    VIRTUAL_NODE: -1,
     SQL: 0,
     MR: 1,
     SYNC: 2,
     PYTHON: 3,
     R: 4,
-    VIRTUAL_NODE: 5,
+}
+
+export const DATA_SYNC_TYPE = { //数据同步配置模式
+    GUIDE: 0,
+    SCRIPT: 1
 }
 
 export const SCRIPT_TYPE = { // 脚本类型
@@ -73,6 +80,11 @@ export const TASK_TYPE_ARRAY = [ //
     TASK_TYPE.VIRTUAL_NODE,
 ]
 
+export const HELP_DOC_URL = {
+    DATA_SOURCE: "/public/rdos/helpSite/index.html#integration_datasource",
+    DATA_SYNC: "/public/rdos/helpSite/index.html#Integration",
+}
+
 export const TASK_STATUS = { // 任务状态
     WAIT_SUBMIT: 0,
     CREATED: 1,
@@ -82,7 +94,7 @@ export const TASK_STATUS = { // 任务状态
     FINISHED: 5,
     STOPING: 6,
     STOPED: 7,
-    RUN_FAILED: 8,  
+    RUN_FAILED: 8,
     SUBMIT_FAILED: 9,
     SUBMITTING: 10,
     RESTARTING: 11,
@@ -120,13 +132,13 @@ export const hdfsFieldTypes = [ // hdfs 类型
 ]
 
 export const dataSourceTypes = [ // 数据源类型
-    '未知类型', 
-    'MySql', 
-    'Oracle', 
-    'SQLServer', 
-    'PostgreSQL', 
-    'RDBMS', 
-    'HDFS', 
+    '未知类型',
+    'MySql',
+    'Oracle',
+    'SQLServer',
+    'PostgreSQL',
+    'RDBMS',
+    'HDFS',
     'Hive',
     'HBase',
     'FTP',
@@ -162,12 +174,21 @@ export const taskStatusFilter = [{
     text: '运行中',
     value: 4,
 }, {
-    text: '停止',
+    text: '取消',
     value: 7,
 }, {
     text: '失败',
     value: 8,
 }]
+
+export const taskStatus = {
+    "ALL": null,
+    "UNSUBMIT": 0,
+    "WAITING_RUN": 16,
+    "RUNNING": 4,
+    "CANCELED": 7,
+    "FAILED": 8,
+}
 
 // 离线任务状态过滤选项
 // UNSUBMIT 0;
@@ -212,23 +233,29 @@ export const offlineTaskStatusFilter = [{
     value: 18,
 }]
 
-export const offlineTaskTypeFilter = [{
-    id: 1,
-    text: 'SQL',
-    value: TASK_TYPE.SQL,
-}, {
-    id: 2,
-    text: 'MR',
-    value: TASK_TYPE.MR,
-}, {
-    id: 3,
-    text: '数据同步',
-    value: TASK_TYPE.SYNC,
-}, {
-    id: 5,
-    text: 'Python',
-    value: TASK_TYPE.PYTHON,
-}]
+
+export const offlineTaskTypeFilter = [
+    {
+        id: 0,
+        text: '虚节点',
+        value: TASK_TYPE.VIRTUAL_NODE,
+    }, {
+        id: 1,
+        text: 'SQL',
+        value: TASK_TYPE.SQL,
+    }, {
+        id: 2,
+        text: 'MR',
+        value: TASK_TYPE.MR,
+    }, {
+        id: 3,
+        text: '数据同步',
+        value: TASK_TYPE.SYNC,
+    }, {
+        id: 5,
+        text: 'Python',
+        value: TASK_TYPE.PYTHON,
+    }]
 
 export const offlineTaskPeriodFilter = [{
     id: 1,
@@ -281,22 +308,31 @@ export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
 
 export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
     text: 'MySQL',
-    value: 1,
+    value: DATA_SOURCE.MYSQL,
 }, {
     text: 'Oracle',
-    value: 2,
+    value: DATA_SOURCE.ORACLE,
 }, {
     text: 'SQLServer',
-    value: 3,
+    value: DATA_SOURCE.SQLSERVER,
 }, {
     text: 'HDFS',
-    value: 6,
+    value: DATA_SOURCE.HDFS,
 }, {
     text: 'Hive',
-    value: 7,
+    value: DATA_SOURCE.HIVE,
 }, {
     text: 'HBase',
-    value: 8,
+    value: DATA_SOURCE.HBASE,
+}, {
+    text: 'MaxCompute',
+    value: DATA_SOURCE.MAXCOMPUTE,
+}, {
+    text: 'FTP',
+    value: DATA_SOURCE.FTP,
+}, {
+    text: 'ElasticSearch',
+    value: DATA_SOURCE.ES,
 }]
 
 export const propEditorOptions = { // 编辑器选项
@@ -306,6 +342,16 @@ export const propEditorOptions = { // 编辑器选项
     smartIndent: true,
     lineNumbers: true,
     autofocus: false,
+}
+
+export const jsonEditorOptions = { // json编辑器选项
+    mode: 'application/json',
+    lint: true,
+    indentWithTabs: true,
+    smartIndent: true,
+    lineNumbers: true,
+    autofocus: false,
+    matchBrackets: true
 }
 
 export const defaultEditorOptions = { // 编辑器选项
@@ -350,7 +396,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         },
         textAlign: 'left',
     },
-    tooltip : {
+    tooltip: {
         trigger: 'axis',
         axisPointer: {
             label: {
@@ -360,7 +406,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     },
     color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
     legend: {
-        data:['邮件营销','联盟广告','视频广告']
+        data: ['邮件营销', '联盟广告', '视频广告']
     },
     toolbox: {
         feature: {
@@ -375,11 +421,11 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         bottom: '3%',
         containLabel: true
     },
-    xAxis : [
+    xAxis: [
         {
-            type : 'category',
-            boundaryGap : false,
-            data : [],
+            type: 'category',
+            boundaryGap: false,
+            data: [],
             axisTick: {
                 show: true,
             },
@@ -401,11 +447,12 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     ],
-    yAxis : [
+    yAxis: [
         {
-            type : 'value',
+            name: "数量(个)",
+            type: 'value',
             axisLabel: {
-                formatter: '{value} 个',
+                formatter: '{value}',
                 textStyle: {
                     color: '#666666',
                     baseline: 'bottom',
@@ -430,11 +477,11 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     ],
-    series : []
+    series: []
 };
 
-export const pieChartOptions ={
-    title : {
+export const pieChartOptions = {
+    title: {
         text: '某站点用户访问来源',
         subtext: '',
         textAlign: 'left',
@@ -445,7 +492,7 @@ export const pieChartOptions ={
         },
         x: 'left'
     },
-    tooltip : {
+    tooltip: {
         trigger: 'item',
         formatter: "{a} <br/>{b} : {c} ({d}%)"
     },
@@ -456,13 +503,13 @@ export const pieChartOptions ={
         data: []
     },
     color: ['#5d99f2', '#F5A623', '#9EABB2', '#8bc34a'],
-    series : [
-       {
-            name:'访问来源',
-            type:'pie',
+    series: [
+        {
+            name: '访问来源',
+            type: 'pie',
             radius: '50%',
             center: ['50%', '45%'],
-            data:[]
+            data: []
         }
     ]
 };
@@ -500,7 +547,7 @@ export const defaultBarOption = {
     },
     yAxis: {
         type: 'category',
-        data: ['巴西', '美国','印度','中国','世界人口(万)'],
+        data: ['巴西', '美国', '印度', '中国', '世界人口(万)'],
         axisLine: {
             lineStyle: {
                 color: '#dddddd',
@@ -527,7 +574,7 @@ export const defaultBarOption = {
             barCategoryGap: 25,
             barMinHeight: 50,
             cursor: 'initial',
-            center: [-10 , '0%'],
+            center: [-10, '0%'],
             label: {
                 normal: {
                     show: true,

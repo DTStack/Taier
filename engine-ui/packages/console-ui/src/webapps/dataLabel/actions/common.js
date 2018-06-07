@@ -15,12 +15,36 @@ export const commonActions = {
 			});
 		}
 	},
-	getAllDict(params) {
+	getAllMenuList(params) {
 		return dispatch => {
-			API.getAllDict(params).then((res) => {
+			API.getAllMenuList(params).then((res) => {
 				if (res.code === 1) {
 					dispatch({
-						type: commonActionType.GET_ALL_DICT,
+						type: commonActionType.GET_ALL_MENU_LIST,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
+	getPeriodType(params) {
+		return dispatch => {
+			API.getPeriodType(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: commonActionType.GET_PERIOD_TYPE,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
+	getNotifyType(params) {
+		return dispatch => {
+			API.getNotifyType(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: commonActionType.GET_NOTIFY_TYPE,
 						payload: res.data
 					});
 				}

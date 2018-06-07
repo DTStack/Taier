@@ -65,7 +65,7 @@ class DataSourceMana extends Component {
         })
     }
 
-    addOrUpdateDataSource = (sourceFormData, formObj) => {
+    addOrUpdateDataSource = (sourceFormData, formObj,callBack) => {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
@@ -80,6 +80,7 @@ class DataSourceMana extends Component {
                     visible: false,
                 })
                 ctx.loadDataSources()
+                callBack();
             }
         })
     }

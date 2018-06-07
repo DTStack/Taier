@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon } from 'antd';
+import { Card, Checkbox, DatePicker, Input, Select, Table, Tabs, Tooltip, Icon, Modal } from 'antd';
 import moment from 'moment';
 
 import utils from 'utils';
@@ -16,6 +16,7 @@ import { dataSourceActions } from '../../actions/dataSource';
 const Search = Input.Search;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
+const RangePicker = DatePicker.RangePicker;
 
 const mapStateToProps = state => {
     const { taskQuery, dataSource, common } = state;
@@ -23,9 +24,9 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-	getTaskList(params) {
-		dispatch(taskQueryActions.getTaskList(params));
-	},
+    getTaskList(params) {
+        dispatch(taskQueryActions.getTaskList(params));
+    },
     getDataSourcesList(params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
     },
@@ -43,21 +44,26 @@ export default class TaskQuery extends Component {
             dataSourceId: undefined,
             dataSourceType: utils.getParameterByName('source') || undefined,
             subscribe: undefined,
-            executeTime: 0,
-            bizTime: 0
+            executeStartTime: utils.getParameterByName('startTime') || undefined,
+            executeEndTime: utils.getParameterByName('endTime') || undefined,
+            bizTime: 0,
+            statusFilter:utils.getParameterByName('statusFilter')||""
+
         },
         tabKey: '1',
         showSlidePane: false,
         currentTask: {},
+        visibleList: [],
     }
 
     componentDidMount() {
-        this.props.getDataSourcesList();
         this.props.getTaskList(this.state.params);
+        this.props.getDataSourcesList();
     }
 
     // table设置
     initColumns = () => {
+        const { visibleList, params } = this.state;
         return [{
             title: '表',
             dataIndex: 'tableName',
@@ -83,19 +89,26 @@ export default class TaskQuery extends Component {
                 return <div>
                     <TaskStatus style={{ marginRight: 30 }} value={text} />
                     {
-                        text === 2 
+                        text === 2
                         &&
-                        <Tooltip 
-                            placement="right" 
-                            title={record.logInfo}
+                        <Tooltip
+                            placement="right"
+                            visible={visibleList.indexOf(record.id) > -1 ? true : false}
+                            onVisibleChange={this.tooltipChange.bind(this, record.id)}
+                            title={
+                                (
+                                    <a className="tooltip_content_a" onClick={this.showDetailLogInfo.bind(this, record.id, record.tableName, record.logInfo)}>{record.logInfo}</a>
+                                )
+                            }
                             overlayStyle={{ wordBreak: 'break-word' }}
                         >
                             <Icon className="font-14" type="info-circle-o" />
                         </Tooltip>
                     }
-                    </div>
+                </div>
             },
             filters: taskStatusFilter,
+            filteredValue:params.statusFilter?params.statusFilter.split(","):[]
         }, {
             title: '规则异常数',
             dataIndex: 'alarmSum',
@@ -103,7 +116,7 @@ export default class TaskQuery extends Component {
             width: '8%',
             // sorter: true
         }, {
-            title: '类型',
+            title: '数据源',
             dataIndex: 'sourceTypeValue',
             key: 'sourceTypeValue',
             render: (text, record) => {
@@ -115,7 +128,7 @@ export default class TaskQuery extends Component {
             dataIndex: 'configureUserName',
             key: 'configureUserName',
             width: '12%'
-        }, 
+        },
         {
             title: '执行时间',
             dataIndex: 'executeTime',
@@ -153,8 +166,8 @@ export default class TaskQuery extends Component {
     renderSourceType = (data) => {
         return data.map((source) => {
             return (
-                <Option 
-                    key={source.value} 
+                <Option
+                    key={source.value}
                     value={source.value.toString()}>
                     {source.name}
                 </Option>
@@ -165,11 +178,11 @@ export default class TaskQuery extends Component {
     // 数据源类型筛选
     onSourceChange = (type) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             dataSourceType: type ? type : undefined
         };
-        
+
         this.props.getTaskList(params);
         this.setState({ params });
     }
@@ -179,8 +192,8 @@ export default class TaskQuery extends Component {
         return data.map((source) => {
             let title = `${source.dataName}（${source.sourceTypeValue}）`;
             return (
-                <Option 
-                    key={source.id} 
+                <Option
+                    key={source.id}
                     value={source.id.toString()}
                     title={title}>
                     {title}
@@ -192,11 +205,11 @@ export default class TaskQuery extends Component {
     // 数据源筛选
     onUserSourceChange = (id) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             dataSourceId: id ? id : undefined
         };
-        
+
         this.props.getTaskList(params);
         this.setState({ params });
     }
@@ -205,8 +218,8 @@ export default class TaskQuery extends Component {
     renderUserList = (data) => {
         return data.map((item) => {
             return (
-                <Option 
-                    key={item.id} 
+                <Option
+                    key={item.id}
                     value={item.id.toString()}
                     name={item.userName}>
                     {item.userName}
@@ -218,11 +231,11 @@ export default class TaskQuery extends Component {
     // 配置人筛选
     onUserChange = (id) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             configureId: id ? id : undefined
         };
-        
+
         this.props.getTaskList(params);
         this.setState({ params });
     }
@@ -230,11 +243,12 @@ export default class TaskQuery extends Component {
     // 执行时间筛选
     onExecuteTimeChange = (date, dateString) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
-            executeTime: date ? date.valueOf() : 0
+            executeStartTime: date && date[0] ? date[0].valueOf() : null,
+            executeEndTime: date && date[1] ? date[1].valueOf() : null
         };
-        
+
         this.props.getTaskList(params);
         this.setState({ params });
     }
@@ -242,11 +256,11 @@ export default class TaskQuery extends Component {
     // 是否订阅筛选
     onSubscribeChange = (e) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             subscribe: e.target.checked ? true : undefined
         };
-        
+
         this.props.getTaskList(params);
         this.setState({ params });
     }
@@ -254,7 +268,7 @@ export default class TaskQuery extends Component {
     // table搜索
     onTableSearch = (name) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             fuzzyName: name ? name : undefined
         };
@@ -262,7 +276,34 @@ export default class TaskQuery extends Component {
         this.props.getTaskList(params);
         this.setState({ params });
     }
+    showDetailLogInfo(id, tableName, info) {
+        this.tooltipChange(id, false);
+        Modal.error({
+            width: "70%",
+            title: '表: ' + tableName,
+            content: (
+                <pre style={{ wordBreak: "break-word", whiteSpace: "pre-wrap" }}>
+                    {info}
+                </pre>
+            ),
+        });
+    }
+    tooltipChange(id, show) {
 
+        const { visibleList } = this.state;
+        if (show) {
+            this.setState({
+                visibleList: visibleList.concat(id)
+            })
+        } else {
+            this.setState({
+                visibleList: visibleList.filter((itemId) => {
+                    return id != itemId
+                })
+            })
+        }
+
+    }
     openSlidePane = (record) => {
         this.setState({
             showSlidePane: true,
@@ -287,17 +328,23 @@ export default class TaskQuery extends Component {
     }
 
     render() {
-    	const { dataSource, taskQuery, common } = this.props;
+        const { dataSource, taskQuery, common } = this.props;
         const { sourceType, sourceList } = dataSource;
         const { userList } = common;
         const { loading, taskList } = taskQuery;
         const { params, showSlidePane, tabKey, currentTask } = this.state;
-
+        const { executeStartTime, executeEndTime } = params;
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
             total: taskList.totalCount,
         };
+
+        let defaultRangeValue;
+
+        if (executeStartTime && executeEndTime) {
+            defaultRangeValue = [moment(parseInt(executeStartTime)), moment(parseInt(executeEndTime))]
+        }
 
         const cardTitle = (
             <div className="flex font-12">
@@ -310,7 +357,7 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8">
                     类型：
-                    <Select 
+                    <Select
                         allowClear
                         style={{ width: 150 }}
                         value={params.dataSourceType}
@@ -325,10 +372,10 @@ export default class TaskQuery extends Component {
                 <div className="m-l-8">
                     数据源：
                     <Select
-                        allowClear 
+                        allowClear
                         showSearch
                         style={{ width: 150 }}
-                        
+
                         optionFilterProp="title"
                         placeholder="选择数据源"
                         onChange={this.onUserSourceChange}>
@@ -340,10 +387,11 @@ export default class TaskQuery extends Component {
 
                 <div className="m-l-8">
                     执行时间：
-                    <DatePicker
+                    <RangePicker
+                        defaultValue={defaultRangeValue}
                         format="YYYY-MM-DD"
-                        placeholder="选择日期"
-                        style={{ width: 150 }}
+                        placeholder={["开始日期", "结束日期"]}
+                        style={{ width: 200, "verticalAlign": "middle", "marginTop":"-1px" }}
                         disabledDate={this.disabledDate}
                         onChange={this.onExecuteTimeChange}
                     />
@@ -351,8 +399,8 @@ export default class TaskQuery extends Component {
 
                 <div className="m-8">
                     配置人：
-                    <Select 
-                        allowClear 
+                    <Select
+                        allowClear
                         showSearch
                         style={{ width: 150 }}
                         placeholder="选择配置人"
@@ -371,44 +419,53 @@ export default class TaskQuery extends Component {
         )
 
         return (
-            <div className="task-dashboard" style={{ height: '100%', overflowX: 'hidden' }}>
+            <div className="task-dashboard" style={{  overflowX: 'hidden' }}>
                 <h1 className="box-title">
                     任务查询 <span style={{ fontSize: "12px", color: "rgb(153, 153, 153)" }}>
-                    告警总数: {
-                        taskList.data && taskList.data[0] ? 
-                        taskList.data[0].allAlarmSum : 0 
-                    }
+                        告警总数: {
+                            taskList.data && taskList.data[0] ?
+                                taskList.data[0].allAlarmSum : 0
+                        }
                     </span>
                 </h1>
 
                 <div className="box-2 m-card shadow">
-                    <Card 
+                    <Card
                         title={cardTitle}
-                        noHovering 
+                        noHovering
                         bordered={false}
                     >
-                        <Table 
+                        <Table
+                            rowClassName={
+                                (record, index) => {
+                                    if (currentTask && currentTask.id == record.id) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             rowKey="id"
                             className="m-table"
-                            columns={this.initColumns()} 
+                            columns={this.initColumns()}
                             loading={loading}
                             pagination={pagination}
                             dataSource={taskList.data}
                             onChange={this.onTableChange}
                         />
 
-                        <SlidePane 
+                        <SlidePane
                             onClose={this.closeSlidePane}
-                            visible={showSlidePane} 
-                            style={{ right: '0', width: '80%', minHeight: '450px', height: 'auto' }}
+                            visible={showSlidePane}
+                            style={{ right: '0', width: '80%', minHeight: '600px', height: '100%' }}
                         >
                             <div className="m-tabs">
-                                <Tabs 
+                                <Tabs
                                     animated={false}
                                     activeKey={tabKey}
                                     onChange={this.onTabChange}
                                 >
-                                    <TabPane tab="详细报告" key="1">
+                                    <TabPane tab="监控报告" key="1">
                                         <TaskDetailPane data={currentTask} />
                                     </TabPane>
                                     <TabPane tab="表级报告" key="2">

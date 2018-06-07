@@ -7,7 +7,7 @@ import {
 import moment from 'moment';
 
 import DataSourceForm from './editModal';
-import { formItemLayout, dataSourceFilter } from '../../consts';
+import { formItemLayout, dataSourceFilter,dataSourceTypes } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import DSApi from '../../api/dataSource';
 
@@ -46,7 +46,11 @@ export default class DataSource extends Component {
     }
 
     searchDataSources = (name) => {
-        let params = {...this.state.params, name, currentPage: 1};
+        let params = {
+            ...this.state.params, 
+            name: name ? name : undefined, 
+            currentPage: 1
+        };
        
         this.setState({ params });
         this.props.getDataSources(params);
@@ -74,7 +78,7 @@ export default class DataSource extends Component {
         }
 
         formObj.resetFields();
-        this.setState({ visible: false });
+        this.setState({ visible: false, source: {} });
     }
 
     remove = (record) => {
@@ -89,14 +93,6 @@ export default class DataSource extends Component {
                 this.props.getDataSources(this.state.params);
             }
         });
-    }
-
-    testConnection = (params) => { // 测试数据源连通性
-        DSApi.testDSConnection(params).then((res) => {
-            if (res.code === 1) {
-                message.success('数据源连接正常！')
-            }
-        })
     }
 
     handleTableChange = (page, filters) => {
@@ -131,11 +127,14 @@ export default class DataSource extends Component {
             render: (text => <div className="ellipsis-td" title={text}>{text}</div>)
         }, {
             title: '类型',
-            dataIndex: 'sourceTypeValue',
-            key: 'sourceTypeValue',
+            dataIndex: 'type',
+            key: 'type',
             filters: dataSourceFilter,
             filterMultiple: false,
-            width: '10%'
+            width: '10%',
+            render(text,record){
+                return record.sourceTypeValue;
+            }
         }, {
             title: '描述信息',
             dataIndex: 'dataDesc',
@@ -258,8 +257,7 @@ export default class DataSource extends Component {
                     visible={visible}
                     sourceData={source}
                     editDataSource={this.editDataSource}
-                    testConnection={this.testConnection}
-                    handCancel={() => { this.setState({ visible: false }) }}
+                    handCancel={() => { this.setState({ visible: false, source: {} }) }}
                 />
             </div>
         )

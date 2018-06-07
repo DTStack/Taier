@@ -1,6 +1,4 @@
 .rule-dashboard {
-	height: 100%;
-	overflow-x: hidden;
 
 	.rule-manage {
 		padding: 20px;
@@ -65,4 +63,17 @@
 	.rule-edit-td {
 		width: 100%;
 	}
+}
+
+@keyframes shining{
+	0% {
+		background: #fff;
+	}
+	100% {
+		background: rgba(36, 145, 247, 0.5);
+	}
+}
+
+.shining{
+	background-color: rgba(215, 233, 255, 0.58);
 }

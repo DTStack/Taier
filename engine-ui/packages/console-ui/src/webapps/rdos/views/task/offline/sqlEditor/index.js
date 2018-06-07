@@ -93,7 +93,7 @@ import {
                         <SplitPane
                             split="horizontal"
                             minSize={100}
-                            maxSize="80%"
+                            maxSize={-77}
                             style={{ paddingBottom: '40px' }}
                             defaultSize="60%"
                             primary="first"
@@ -106,7 +106,8 @@ import {
                                     value={value}
                                     cursor={cursor}
                                     cursorActivity={ this.debounceSelectionChange }
-                                    onChange={ this.debounceChange }  
+                                    onChange={ this.debounceChange }
+                                   
                                 />
                             </div>
                             <Console
@@ -124,6 +125,7 @@ import {
                                 cursorActivity={ this.debounceSelectionChange }
                                 onChange={ this.debounceChange }  
                                 value={value}
+                                
                             />
                         </div>
                     }
@@ -138,6 +140,7 @@ export default connect(state => {
         sqlEditor: state.sqlEditor,
         project: state.project,
         user: state.user,
+        
     }
 }, dispatch => {
     return {

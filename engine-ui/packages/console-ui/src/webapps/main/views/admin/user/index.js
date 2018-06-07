@@ -1,8 +1,10 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { 
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { assign } from 'lodash';
+import { connect } from 'react-redux';
+import {
     Select, Table, Card,
-    Button, Tabs, Modal, 
+    Button, Tabs, Modal,
     Popconfirm, message
 } from 'antd'
 import { Link } from 'react-router'
@@ -20,6 +22,11 @@ import EditMemberRoleForm from './editRole'
 const Option = Select.Option
 const TabPane = Tabs.TabPane
 
+@connect(state => {
+    return {
+        user: state.user,
+    }
+})
 class AdminUser extends Component {
 
     state = {
@@ -36,37 +43,42 @@ class AdminUser extends Component {
         roles: [],
         editTarget: '',
 
+        currentPage: 1,
         visible: false,
         visibleEditRole: false,
     }
 
     componentDidMount() {
         const { apps } = this.props
-        
-        if (apps && apps.length > 0 ) {
+
+        if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
             const defaultApp = apps.find(app => app.default);
             const appKey = initialApp || defaultApp.id;
-    
-            this.setState({ active: appKey }, this.loadData)
+
+            this.setState({ active: appKey }, () => {
+                this.loadData();
+            })
         }
     }
 
     loadData = () => {
-        const { active, selectedProject } = this.state;
+        const { active, selectedProject, currentPage } = this.state;
         const params = {
             pageSize: 10,
-            currentPage: 1,
+            currentPage: currentPage,
         }
         if (!selectedProject && hasProject(active)) {
-            this.getProjects(active)
+            this.getProjects(active);
         } else if (!selectedProject && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, params);
         } else {
-            params.projectId = selectedProject
+            params.projectId = selectedProject;
             this.loadUsers(active, params);
-            this.loadRoles(active, params);
+            this.loadRoles(active, assign(params, {
+                currentPage: 1,
+            }));
         }
     }
 
@@ -74,18 +86,14 @@ class AdminUser extends Component {
         const ctx = this
         this.setState({ loading: true })
         Api.queryUser(app, params).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ users: res.data, loading: false })
-            }
+            ctx.setState({ users: res.data, loading: false })
         })
     }
 
     loadRoles = (app, params) => {
-        const ctx = this
+        const ctx = this;
         Api.queryRole(app, params).then((res) => {
-            if (res.code === 1) {
-                ctx.setState({ roles: res.data && res.data.data })
-            }
+            ctx.setState({ roles: res.data && res.data.data })
         })
     }
 
@@ -96,30 +104,42 @@ class AdminUser extends Component {
                 ctx.setState({ projects: res.data })
                 const selectedProject = res.data[0].id
                 this.setState({
-                    selectedProject 
+                    selectedProject
                 }, this.loadData)
             }
         })
     }
 
-    loadUsersNotInProject = () => {
+    loadUsersNotInProject = (userName) => {
         const { active, selectedProject } = this.state;
-        const params = {}
+        const params = {
+            userName,
+        }
         if (hasProject(active)) {
             params.projectId = selectedProject
         }
         Api.loadUsersNotInProject(active, params).then((res) => {
-            if (res.code === 1) {
-                this.setState({ notProjectUsers: res.data })
-            }
+            this.setState({ notProjectUsers: res.data })
         })
     }
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject } = this.state
+        const { active, selectedProject, notProjectUsers } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+
+        // 塞入要添加的用户列表
+        const targetUsers = [];
+        const uids = projectRole.targetUserIds;
+        for (let i = 0; i < uids.length; i++) {
+            const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+            if (user) {
+                targetUsers.push(user);
+            }
+        }
+        projectRole.targetUsers = targetUsers;
+
         form.validateFields((err) => {
             if (!err) {
                 if (hasProject(active)) {
@@ -131,7 +151,7 @@ class AdminUser extends Component {
                             form.resetFields()
                         })
                         ctx.loadData()
-                        message.success('添加项目成员成功!')
+                        message.success('添加成员成功!')
                     }
                 })
             }
@@ -157,9 +177,10 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject } = this.state
+        const { editTarget, active, selectedProject } = this.state;
+
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
-        
+
         const params = {
             targetUserId: editTarget.userId,
             roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
@@ -178,10 +199,18 @@ class AdminUser extends Component {
         })
     }
 
+    onRoleIdsChange = (roleIds) => {
+        this.setState({
+            roleIds,
+        })
+    }
+
     onCancel = () => {
         this.setState({
             visible: false,
             visibleEditRole: false,
+            editTarget: '',
+            notProjectUsers: [],
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
@@ -193,37 +222,42 @@ class AdminUser extends Component {
     }
 
     handleTableChange = (pagination) => {
-        this.loadUsers(pagination.current)
+        this.setState({
+            currentPage: pagination.current,
+        }, this.loadData)
     }
 
     onPaneChange = (key) => {
         this.setState({
             active: key,
+            currentPage: 1,
+            roleIds: [],
+            notProjectUsers: [],
         }, this.loadData)
     }
 
     onProjectSelect = (value) => {
         this.setState({
-            selectedProject: value
+            selectedProject: value,
+            currentPage: 1,
         }, this.loadData)
     }
 
     initAddMember = () => {
         const { params } = this.props
-        this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
 
     initColums = () => {
         const ctx = this;
-
+        const hideDel = this.state.active !== MY_APPS.RDOS;
         return [{
             title: '账号',
             dataIndex: 'user.userName',
             key: 'account',
             render(text, record) {
                 return <a onClick={() => {
-                    ctx.setState({ 
+                    ctx.setState({
                         visibleEditRole: true,
                         editTarget: record
                     })
@@ -264,19 +298,23 @@ class AdminUser extends Component {
             render(id, record) {
                 return <span>
                     <a onClick={() => {
-                        ctx.setState({ 
+                        ctx.setState({
                             visibleEditRole: true,
                             editTarget: record
                         })
                     }}>编辑</a>
-                    <span className="ant-divider" />
-                    <Popconfirm
-                        title="确认将该成员从项目中移除？"
-                        okText="确定" cancelText="取消"
-                        onConfirm={() => { ctx.removeUserFromProject(record) }}
-                        >
-                        <a>删除</a>
-                    </Popconfirm>
+                    {
+                        hideDel ? '' : <span>
+                            <span className="ant-divider" />
+                            <Popconfirm
+                                title="确认将该成员从项目中移除？"
+                                okText="确定" cancelText="取消"
+                                onConfirm={() => { ctx.removeUserFromProject(record) }}
+                            >
+                                <a>删除</a>
+                            </Popconfirm>
+                        </span>
+                    }
                 </span>
             }
         }]
@@ -286,9 +324,9 @@ class AdminUser extends Component {
 
         const { projects, active, selectedProject } = this.state;
 
-        const projectOpts = projects && projects.map(project => 
-            <Option value={project.id} key={project.id}>
-                { project.projectAlias }
+        const projectOpts = projects && projects.map(project =>
+            <Option value={`${project.id}`} key={project.id}>
+                {project.projectAlias}
             </Option>
         )
 
@@ -299,13 +337,13 @@ class AdminUser extends Component {
                 选择项目：
                 <Select
                     showSearch
-                    value={ selectedProject }
-                    style={ { width: 200 } }
+                    value={`${selectedProject}`}
+                    style={{ width: 200 }}
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
-                    onSelect={ this.onProjectSelect }
-                >  
-                  { projectOpts }
+                    onSelect={this.onProjectSelect}
+                >
+                    {projectOpts}
                 </Select>
             </span>
         )
@@ -317,38 +355,45 @@ class AdminUser extends Component {
         const { apps } = this.props
         const { users, loading, active } = this.state;
 
-        const extra = active === MY_APPS.RDOS && (
-            <Button 
-                style={{marginTop: '10px'}}
-                type="primary" 
+        const extra = (
+            <Button
+                style={{ marginTop: '10px' }}
+                type="primary"
                 onClick={this.initAddMember}>
-                添加项目成员
+                添加用户
             </Button>
         )
 
+        const pagination = {
+            total: users.totalCount,
+            defaultPageSize: 10,
+            current: users.currentPage,
+        };
+
         return (
-            <Card 
+            <Card
                 bordered={false}
                 noHovering
                 title={this.renderTitle()}
                 extra={extra}
             >
-                <Table 
+                <Table
                     rowKey="userId"
                     className="m-table"
-                    columns={this.initColums()} 
+                    columns={this.initColums()}
                     onChange={this.handleTableChange}
                     loading={loading === 'loading'}
-                    dataSource={ users.data || [] } 
+                    pagination={pagination}
+                    dataSource={users.data || []}
                 />
             </Card>
         )
     }
 
     render() {
-        const { apps } = this.props
+        const { apps, user } = this.props
 
-        const { 
+        const {
             visible, roles, notProjectUsers,
             visibleEditRole, editTarget, active
         } = this.state
@@ -358,39 +403,43 @@ class AdminUser extends Component {
         return (
             <div className="user-admin">
                 <h1 className="box-title">用户管理</h1>
-                <div className="box-2 m-card" style={{height: '785px'}}>
-                    <AppTabs 
-                        apps={apps} 
+                <div className="box-2 m-card" style={{ height: '785px' }}>
+                    <AppTabs
+                        apps={apps}
                         activeKey={active}
                         content={content}
-                        onPaneChange={this.onPaneChange} 
+                        onPaneChange={this.onPaneChange}
                     />
                 </div>
                 <Modal
-                  title="添加项目成员"
-                  wrapClassName="vertical-center-modal"
-                  visible={visible}
-                  onOk={this.addMember}
-                  onCancel={this.onCancel}
+                    title="添加用户"
+                    wrapClassName="vertical-center-modal"
+                    visible={visible}
+                    onOk={this.addMember}
+                    onCancel={this.onCancel}
                 >
                     <MemberForm
-                      wrappedComponentRef={(e) => { this.memberForm = e }}
-                      roles={roles}
-                      notProjectUsers={notProjectUsers}
+                        wrappedComponentRef={(e) => { this.memberForm = e }}
+                        roles={roles}
+                        app={active}
+                        user={user}
+                        onSearchUsers={this.loadUsersNotInProject}
+                        notProjectUsers={notProjectUsers}
                     />
                 </Modal>
                 <Modal
-                  title="设置用户角色"
-                  wrapClassName="vertical-center-modal"
-                  visible={visibleEditRole}
-                  onOk={this.updateMemberRole}
-                  onCancel={this.onCancel}
+                    title="设置用户角色"
+                    wrapClassName="vertical-center-modal"
+                    visible={visibleEditRole}
+                    onOk={this.updateMemberRole}
+                    onCancel={this.onCancel}
                 >
                     <EditMemberRoleForm
-                      user={editTarget}
-                      app={active}
-                      roles={roles}
-                      wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
+                        user={editTarget}
+                        app={active}
+                        roles={roles}
+                        loginUser={user}
+                        wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
                     />
                 </Modal>
             </div>

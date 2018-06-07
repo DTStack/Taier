@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { 
-    Form, Input, Select, 
-    Button, Icon, Table, 
-    message, Radio 
+import {
+    Form, Input, Select,
+    Button, Icon, Table,
+    message, Radio
 } from 'antd';
 import { isEmpty } from 'lodash';
 import assign from 'object-assign';
@@ -17,8 +17,10 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import { matchTaskParams } from '../../../../comm';
-import { 
-    formItemLayout, 
+import { DatabaseType } from '../../../../components/status';
+
+import {
+    formItemLayout,
     dataSourceTypes,
     DATA_SOURCE,
 } from '../../../../comm/const';
@@ -54,14 +56,14 @@ class SourceForm extends React.Component {
     getTableList = (sourceId) => {
         const ctx = this
         const { sourceMap } = this.props
-        if (sourceMap.type && 
+        if (sourceMap.type &&
             (
                 sourceMap.type.type === DATA_SOURCE.HDFS ||
                 sourceMap.type.type === DATA_SOURCE.FTP
             )
         ) {
             return;
-        } 
+        }
 
         this.setState({
             tableList: [],
@@ -71,7 +73,7 @@ class SourceForm extends React.Component {
                 sourceId,
                 isSys: false
             }).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     ctx.setState({
                         tableList: res.data || []
                     });
@@ -84,18 +86,18 @@ class SourceForm extends React.Component {
         const { form, handleTableColumnChange } = this.props;
         const { sourceMap } = this.props
 
-        if (sourceMap.type && 
+        if (sourceMap.type &&
             (sourceMap.type.type === DATA_SOURCE.HBASE)
         ) {
             return;
-        } 
+        }
 
         const sourceId = form.getFieldValue('sourceId');
         ajax.getOfflineTableColumn({
             sourceId,
             tableName
         }).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 handleTableColumnChange(res.data);
             }
         })
@@ -113,12 +115,14 @@ class SourceForm extends React.Component {
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
-        
+
         handleSourceChange(this.getDataObjById(value));
     }
 
     changeTable(value) {
-        this.getTableColumn(value);
+        if(value){
+            this.getTableColumn(value);
+        }
         this.submitForm();
         this.setState({
             showPreview: false
@@ -134,7 +138,7 @@ class SourceForm extends React.Component {
                 sourceId,
                 tableName: value
             }).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     handleTableColumnChange(res.data);
                     callback();
                 }
@@ -146,8 +150,8 @@ class SourceForm extends React.Component {
     }
 
     submitForm() {
-        const { 
-            updateTaskFields, form, 
+        const {
+            updateTaskFields, form,
             handleSourceMapChange, currentTab,
             sourceMap, taskCustomParams,
         } = this.props;
@@ -200,8 +204,8 @@ class SourceForm extends React.Component {
                 validateFields.push('encoding')
             }
         }
-        form.validateFieldsAndScroll(validateFields, {force: true }, (err, values) => {
-            if(!err) {
+        form.validateFieldsAndScroll(validateFields, { force: true }, (err, values) => {
+            if (!err) {
                 cb.call(null, 1);
             }
         })
@@ -209,38 +213,52 @@ class SourceForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { 
-            sourceMap, dataSourceList, 
-            navtoStep, isCurrentTabNew 
+        const {
+            sourceMap, dataSourceList,
+            navtoStep, isCurrentTabNew,
         } = this.props;
 
+        const disablePreview = isEmpty(sourceMap) ||
+              sourceMap.type.type === DATA_SOURCE.HDFS ||
+              sourceMap.type.type === DATA_SOURCE.HBASE ||
+              sourceMap.type.type === DATA_SOURCE.FTP;
+
         return <div className="g-step1">
-                <Form>
+            <Form>
                 <FormItem
                     {...formItemLayout}
                     label="数据源"
                 >
-                {getFieldDecorator('sourceId', {
-                    rules: [{
-                        required: true
-                    }],
-                    initialValue: isEmpty(sourceMap) ? '' : `${sourceMap.sourceId}`
-                })(
-                    <Select
-                        showSearch
-                        onChange={ this.changeSource.bind(this) }
-                        disabled={ !isCurrentTabNew }
-                        optionFilterProp="name"
-                    >
-                        {dataSourceList.map(src => {
-                        return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                                { src.dataName }( { dataSourceTypes[src.type] } )
-                            </Option>
-                        })}
-                    </Select>
-                )}
+                    {getFieldDecorator('sourceId', {
+                        rules: [{
+                            required: true
+                        }],
+                        initialValue: isEmpty(sourceMap) ? '' : `${sourceMap.sourceId}`
+                    })(
+                        <Select
+                            showSearch
+                            onChange={this.changeSource.bind(this)}
+                            optionFilterProp="name"
+                            disabled={ !isCurrentTabNew }
+                        >
+                            {dataSourceList.map(src => {
+                                return (
+                                    <Option
+                                        key={src.id}
+                                        name={src.dataName}
+                                        value={`${src.id}`}
+                                        disabled={
+                                            src.type === DATA_SOURCE.ES
+                                        }
+                                    >
+                                        {src.dataName}( <DatabaseType value={src.type} /> )
+                                    </Option>
+                                )
+                            })}
+                        </Select>
+                    )}
                 </FormItem>
-                { this.renderDynamicForm() }
+                {this.renderDynamicForm()}
             </Form>
             <div className="m-datapreview" style={{
                 width: '90%',
@@ -248,25 +266,24 @@ class SourceForm extends React.Component {
                 overflow: 'auto'
             }}>
                 <p style={{ cursor: 'pointer', marginBottom: 10 }} >
-                    <a href="javascript:void(0)" onClick={ this.loadPreview.bind(this) }
-                        disabled={ 
-                            isEmpty(sourceMap) || 
-                            sourceMap.type.type === DATA_SOURCE.HDFS ||
-                            sourceMap.type.type === DATA_SOURCE.HBASE
-                        }
-                    >数据预览{ this.state.showPreview ? <Icon type="up" /> : <Icon type="down" /> }
+                    <a 
+                        disabled={ disablePreview }
+                        href="javascript:void(0)" 
+                        onClick={this.loadPreview.bind(this)}
+                    >
+                        数据预览{this.state.showPreview ? <Icon type="up" /> : <Icon type="down" />}
                     </a>
                 </p>
-                { this.state.showPreview ?
-                    <Table dataSource={ this.state.dataSource }
-                        columns={ this.state.columns }
+                {this.state.showPreview ?
+                    <Table dataSource={this.state.dataSource}
+                        columns={this.state.columns}
                         scroll={{ x: 200 * this.state.columns.length }}
-                        pagination={ false }
-                        bordered={ false }
+                        pagination={false}
+                        bordered={false}
                     /> : null
                 }
             </div>
-            { !this.props.readonly && <div className="steps-action">
+            {!this.props.readonly && <div className="steps-action">
                 <Button type="primary" onClick={() => this.next(navtoStep)}>下一步</Button>
             </div>}
         </div>
@@ -278,40 +295,40 @@ class SourceForm extends React.Component {
         const sourceId = form.getFieldValue('sourceId');
         const tableName = form.getFieldValue('table');
 
-        if(!sourceId || !tableName) {
+        if (!sourceId || !tableName) {
             message.error('数据源或表名缺失');
             return;
         }
 
-        if(!showPreview) {
+        if (!showPreview) {
             ajax.getDataPreview({
                 sourceId, tableName
             })
-            .then(res => {
-                if(res.code === 1) {
-                    const { columnList, dataList } = res.data;
+                .then(res => {
+                    if (res.code === 1) {
+                        const { columnList, dataList } = res.data;
 
-                    let columns = columnList.map(s => {
-                        return {
-                            title: s,
-                            dataIndex: s,
-                            key: s
-                        }
-                    });
-                    let dataSource = dataList.map((arr, i) => {
-                        let o = {};
-                        for(let j = 0; j < arr.length; j++) {
-                            o.key = i;
-                            o[columnList[j]] = arr[j];
-                        }
-                        return o;
-                    });
+                        let columns = columnList.map(s => {
+                            return {
+                                title: s,
+                                dataIndex: s,
+                                key: s
+                            }
+                        });
+                        let dataSource = dataList.map((arr, i) => {
+                            let o = {};
+                            for (let j = 0; j < arr.length; j++) {
+                                o.key = i;
+                                o[columnList[j]] = arr[j];
+                            }
+                            return o;
+                        });
 
-                    this.setState({
-                        columns, dataSource, showPreview: true
-                    });
-                }
-            })
+                        this.setState({
+                            columns, dataSource, showPreview: true
+                        });
+                    }
+                })
         }
         else {
             this.setState({
@@ -325,11 +342,11 @@ class SourceForm extends React.Component {
         const { sourceMap, dataSourceList, isCurrentTabNew } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         let formItem;
-        if(isEmpty(sourceMap)) return null;
-        switch(sourceMap.type.type) {
+        if (isEmpty(sourceMap)) return null;
+        switch (sourceMap.type.type) {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.SQLSERVER: {
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -344,8 +361,10 @@ class SourceForm extends React.Component {
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                         })(
                             <Select
+                                mode="combobox"
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                showArrow={true}
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -391,37 +410,39 @@ class SourceForm extends React.Component {
                                 placeholder="根据配置的字段进行数据分片，实现并发读取"
                                 onChange={this.submitForm.bind(this)}
                             ></Input>
-                            )}
+                        )}
                         <HelpDoc doc="switchKey" />
                     </FormItem>
                 ];
                 break;
-            case DATA_SOURCE.HIVE: // Relational DB
+            }
+            case DATA_SOURCE.MAXCOMPUTE:
+            case DATA_SOURCE.HIVE: {// Relational DB
                 formItem = [
                     <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
                     >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
-                    })(
-                        <Select
-                            showSearch
-                            onChange={ this.changeTable.bind(this) }
-                            disabled={ !isCurrentTabNew }
-                            optionFilterProp="value"
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option key={ `rdb-${table}` } value={ table }>
-                                    { table }
-                                </Option>
-                            })}
-                        </Select>
-                    )}
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
+                        })(
+                            <Select
+                                showSearch
+                                onChange={this.changeTable.bind(this)}
+                                disabled={!isCurrentTabNew}
+                                optionFilterProp="value"
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option key={`rdb-${table}`} value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -429,20 +450,20 @@ class SourceForm extends React.Component {
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                        rules: [],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.partition
-                    })(
-                        <Input
-                            placeholder="请填写分区"
-                            placeholder="pt=${bdp.system.bizdate};"
-                            onChange={ this.submitForm.bind(this) }
-                        ></Input>,
-                    )}
-                    <HelpDoc doc="partitionDesc" />
+                            rules: [],
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.partition
+                        })(
+                            <Input
+                                placeholder="请填写分区"
+                                placeholder="pt=${bdp.system.bizdate};"
+                                onChange={this.submitForm.bind(this)}
+                            ></Input>,
+                        )}
+                        <HelpDoc doc="partitionDesc" />
                     </FormItem>
                 ];
                 break;
-
+            }
             case DATA_SOURCE.HDFS: // HDFS
                 formItem = [
                     <FormItem
@@ -450,47 +471,47 @@ class SourceForm extends React.Component {
                         label="路径"
                         key="path"
                     >
-                    {getFieldDecorator('path', {
-                        rules: [{
-                            required: true,
-                            message: '路径不得为空！',
-                        },{
-                            max: 200,
-                            message: '路径不得超过200个字符！',
-                        }, {
-                            validator: this.validatePath
-                        }],
-                        validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
-                    })(
-                        <Input
-                            placeholder="例如: /rdos/batch"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
-                    <HelpDoc doc="hdfsPath" />
+                        {getFieldDecorator('path', {
+                            rules: [{
+                                required: true,
+                                message: '路径不得为空！',
+                            }, {
+                                max: 200,
+                                message: '路径不得超过200个字符！',
+                            }, {
+                                validator: this.validatePath
+                            }],
+                            validateTrigger: 'onSubmit',
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /rdos/batch"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                        <HelpDoc doc="hdfsPath" />
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="文件类型"
                         key="fileType"
-                        >
+                    >
                         {getFieldDecorator('fileType', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: !sourceMap.type || !sourceMap.type.fileType ? 'text' : sourceMap.type.fileType
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: !sourceMap.type || !sourceMap.type.fileType ? 'text' : sourceMap.type.fileType
                         })(
-                        <Select onChange={ this.submitForm.bind(this) } >
-                            <Option value="orc">orc</Option>
-                            <Option value="text">text</Option>
-                        </Select>
+                            <Select onChange={this.submitForm.bind(this)} >
+                                <Option value="orc">orc</Option>
+                                <Option value="text">text</Option>
+                            </Select>
                         )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="编码"
                         key="encoding"
-                        style={{display: fileType === 'text' ? 'block': 'none'}}
+                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
                     >
                         {getFieldDecorator('encoding', {
                             rules: [{
@@ -498,7 +519,7 @@ class SourceForm extends React.Component {
                             }],
                             initialValue: !sourceMap.type || !sourceMap.type.encoding ? 'utf-8' : sourceMap.type.encoding
                         })(
-                            <Select onChange={ this.submitForm.bind(this) }>
+                            <Select onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
@@ -506,18 +527,18 @@ class SourceForm extends React.Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        style={{display: fileType === 'text' ? 'block': 'none'}}
+                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
                         label="分隔符"
                         key="fieldDelimiter"
                     >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [],
-                        initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
-                    })(
-                        <Input
-                            placeholder="若不填写，则默认为\001"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [],
+                            initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                placeholder="若不填写，则默认为\001"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
                     </FormItem>,
                 ];
                 break;
@@ -528,42 +549,42 @@ class SourceForm extends React.Component {
                         label="表名"
                         key="table"
                     >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
-                    })(
-                        <Select
-                            showSearch
-                            onChange={ this.changeTable.bind(this) }
-                            disabled={ !isCurrentTabNew }
-                            optionFilterProp="value"
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option key={ `hbase-${table}` } value={ table }>
-                                    { table }
-                                </Option>
-                            })}
-                        </Select>
-                    )}
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
+                        })(
+                            <Select
+                                showSearch
+                                onChange={this.changeTable.bind(this)}
+                                disabled={!isCurrentTabNew}
+                                optionFilterProp="value"
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option key={`hbase-${table}`} value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="编码"
                         key="encoding"
                     >
-                    {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: sourceMap.type && sourceMap.type.encoding ? sourceMap.type.encoding: 'utf-8' 
-                    })(
-                        <Select onChange={ this.submitForm.bind(this) }>
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
+                        {getFieldDecorator('encoding', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: sourceMap.type && sourceMap.type.encoding ? sourceMap.type.encoding : 'utf-8'
+                        })(
+                            <Select onChange={this.submitForm.bind(this)}>
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -571,27 +592,27 @@ class SourceForm extends React.Component {
                         key="startRowkey"
                     >
                         {getFieldDecorator('startRowkey', {
-                        rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.startRowkey ? sourceMap.type.startRowkey : ''
-                    })(
-                        <Input
-                            placeholder="startRowkey"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
+                            rules: [],
+                            initialValue: sourceMap.type && sourceMap.type.startRowkey ? sourceMap.type.startRowkey : ''
+                        })(
+                            <Input
+                                placeholder="startRowkey"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="结束行健"
                         key="endRowkey"
                     >
-                    {getFieldDecorator('endRowkey', {
-                        rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.endRowkey ? sourceMap.type.endRowkey : '' 
-                    })(
-                        <Input
-                            placeholder="endRowkey"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
+                        {getFieldDecorator('endRowkey', {
+                            rules: [],
+                            initialValue: sourceMap.type && sourceMap.type.endRowkey ? sourceMap.type.endRowkey : ''
+                        })(
+                            <Input
+                                placeholder="endRowkey"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -599,55 +620,55 @@ class SourceForm extends React.Component {
                         label="行健二进制转换"
                         key="isBinaryRowkey"
                     >
-                    {getFieldDecorator('isBinaryRowkey', {
-                        rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.isBinaryRowkey ? sourceMap.type.isBinaryRowkey : '0'
-                    })(
-                        <RadioGroup onChange={ this.submitForm.bind(this) }>
-                            <Radio value="0" style={{float: 'left'}}>
-                                FALSE
+                        {getFieldDecorator('isBinaryRowkey', {
+                            rules: [],
+                            initialValue: sourceMap.type && sourceMap.type.isBinaryRowkey ? sourceMap.type.isBinaryRowkey : '0'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="0" style={{ float: 'left' }}>
+                                    FALSE
                             </Radio>
-                            <Radio value="1" style={{float: 'left'}}>
-                                TRUE
+                                <Radio value="1" style={{ float: 'left' }}>
+                                    TRUE
                             </Radio>
-                        </RadioGroup>
-                    )}
+                            </RadioGroup>
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="每次RPC请求获取行数"
                         key="scanCacheSize"
                     >
-                    {getFieldDecorator('scanCacheSize', {
-                        rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.scanCacheSize ? sourceMap.type.scanCacheSize : ''
-                    })(
-                        <Input
-                            onChange={ this.submitForm.bind(this) }
-                            placeholder="请输入大小, 默认为256"
-                            type="number"
-                            min={0}
-                            suffix="行"
-                        ></Input>
-                    )}
+                        {getFieldDecorator('scanCacheSize', {
+                            rules: [],
+                            initialValue: sourceMap.type && sourceMap.type.scanCacheSize ? sourceMap.type.scanCacheSize : ''
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入大小, 默认为256"
+                                type="number"
+                                min={0}
+                                suffix="行"
+                            ></Input>
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="每次RPC请求获取列数"
                         key="scanBatchSize"
                     >
-                    {getFieldDecorator('scanBatchSize', {
-                        rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.scanBatchSize ? sourceMap.type.scanBatchSize : ''
-                    })(
-                        <Input
-                            onChange={ this.submitForm.bind(this) }
-                            placeholder="请输入大小, 默认为100"
-                            type="number"
-                            min={0}
-                            suffix="列"
-                        ></Input>
-                    )}
+                        {getFieldDecorator('scanBatchSize', {
+                            rules: [],
+                            initialValue: sourceMap.type && sourceMap.type.scanBatchSize ? sourceMap.type.scanBatchSize : ''
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入大小, 默认为100"
+                                type="number"
+                                min={0}
+                                suffix="列"
+                            ></Input>
+                        )}
                     </FormItem>
                 ]
                 break;
@@ -658,29 +679,47 @@ class SourceForm extends React.Component {
                         label="路径"
                         key="path"
                     >
-                    {getFieldDecorator('path', {
-                        rules: [{
-                            required: true,
-                            message: '路径不得为空！',
-                        },{
-                            max: 200,
-                            message: '路径不得超过200个字符！',
-                        }, {
-                            validator: this.validatePath
-                        }],
-                        validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
-                    })(
-                        <Input
-                            placeholder="例如: /rdos/batch"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
+                        {getFieldDecorator('path', {
+                            rules: [{
+                                required: true,
+                                message: '路径不得为空！',
+                            }, {
+                                max: 200,
+                                message: '路径不得超过200个字符！',
+                            }, {
+                                validator: this.validatePath
+                            }],
+                            validateTrigger: 'onSubmit',
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /rdos/batch"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [{
+                                required: true,
+                                message: '分隔符不可为空！',
+                            }],
+                            initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                placeholder="默认值为,"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="编码"
                         key="encoding"
-                        style={{display: fileType === 'text' ? 'block': 'none'}}
+                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
                     >
                         {getFieldDecorator('encoding', {
                             rules: [{
@@ -689,29 +728,11 @@ class SourceForm extends React.Component {
                             }],
                             initialValue: !sourceMap.type || !sourceMap.type.encoding ? 'utf-8' : sourceMap.type.encoding
                         })(
-                            <Select onChange={ this.submitForm.bind(this) }>
+                            <Select onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
                         )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        style={{display: fileType === 'text' ? 'block': 'none'}}
-                        label="分隔符"
-                        key="fieldDelimiter"
-                    >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [{
-                            required: true,
-                            message: '分隔符不可为空！',
-                        }],
-                        initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
-                    })(
-                        <Input
-                            placeholder="\001"
-                            onChange={ this.submitForm.bind(this) } />
-                    )}
                     </FormItem>,
                 ]
                 break;
@@ -725,7 +746,7 @@ class SourceForm extends React.Component {
 
 const SourceFormWrap = Form.create()(SourceForm);
 
-class Source extends React.Component{
+class Source extends React.Component {
     constructor(props) {
         super(props);
     }

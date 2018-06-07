@@ -1,12 +1,13 @@
 import { combineReducers } from 'redux';
 import { cloneDeep } from 'lodash';
+import moment from "moment";
 import { editorAction } from './actionType'
 
 // Actions
 export function output(tab, log) {
     return {
         type: editorAction.APPEND_CONSOLE_LOG,
-        data: log,
+        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
         key: tab,
     }
 }
@@ -14,15 +15,15 @@ export function output(tab, log) {
 export function setOutput(tab, log) {
     return {
         type: editorAction.SET_CONSOLE_LOG,
-        data: log,
+        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
         key: tab,
     }
 }
 
-export function outputRes(tab, item) {
+export function outputRes(tab, item, jobId) {
     return {
         type: editorAction.UPDATE_RESULTS,
-        data: item,
+        data: {jobId:jobId,data:item},
         key: tab,
     }
 }
@@ -59,6 +60,7 @@ export function setSelectionContent(data) {
     }
 }
 
+
 // Console Reducers 
 const console = (state = {}, action) => {
     switch (action.type) {
@@ -88,7 +90,7 @@ const console = (state = {}, action) => {
     case editorAction.APPEND_CONSOLE_LOG: {// 追加日志
         const { key, data } = action
         const newLog = cloneDeep(state)
-        newLog[key].log = newLog[key] ? `${newLog[key].log} \n ${data}` : ` ${data}`
+        newLog[key].log = newLog[key] ? `${newLog[key].log} \n${data}` : `${data}`
         return newLog
     }
     case editorAction.SET_CONSOLE_LOG: {
@@ -100,6 +102,7 @@ const console = (state = {}, action) => {
     }
     case editorAction.UPDATE_RESULTS: {// 更新结果
         const updatedKey = action.key
+        const jobId = action.jobId;
         let updated = cloneDeep(state);
         const update_arr = [...updated[updatedKey].results]
         if (updated[updatedKey] && action.data) {
@@ -109,6 +112,7 @@ const console = (state = {}, action) => {
         } else {
             updated[updatedKey].showRes = false
         }
+        
         return updated;
     }
     case editorAction.DELETE_RESULT: {// 删除结果
@@ -138,7 +142,54 @@ export const selection = (state = '', action) => {
     }
 }
 
+/**running**/
+export function addLoadingTab(id) {
+    return {
+        type: editorAction.ADD_LOADING_TAB,
+        data:{
+            id:id
+        }
+    }
+}
+export function removeLoadingTab(id) {
+    return {
+        type: editorAction.REMOVE_LOADING_TAB,
+        data:{
+            id:id
+        }
+    }
+}
+export function removeAllLoadingTab() {
+    return {
+        type: editorAction.REMOVE_ALL_LOAING_TAB
+    }
+}
+//运行中的任务
+export const running = (state = [], action) => {
+    switch(action.type) {
+        case editorAction.ADD_LOADING_TAB: {
+            const list=cloneDeep(state);
+            list.push(action.data.id);
+            return list
+        }
+        case editorAction.REMOVE_LOADING_TAB: {
+            
+            let list=state.filter(function(value){
+                return value!=action.data.id
+            })
+            return list
+        }
+        case editorAction.REMOVE_ALL_LOAING_TAB: {
+            return []
+        }
+    default:
+        return state
+    }
+}
+/**running**/
+
 export const sqlEditor = combineReducers({
     console,
     selection,
+    running
 })

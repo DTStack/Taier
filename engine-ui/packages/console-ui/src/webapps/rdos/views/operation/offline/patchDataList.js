@@ -33,7 +33,7 @@ class PatchDataList extends Component {
         
         // 参数
         jobName: '',
-        runDay: '',
+        runDay: moment(),
         bizDay: '',
         dutyUserId: undefined,
         checkVals: [],
@@ -253,7 +253,7 @@ class PatchDataList extends Component {
                         format="YYYY-MM-DD"
                         placeholder="业务日期"
                         style={{ width: '120px' }}
-                        value={bizDay}
+                        value={bizDay||null}
                         size="default"
                         onChange={this.onBuisTimeChange}
                     />
@@ -264,7 +264,7 @@ class PatchDataList extends Component {
                         placeholder="运行日期"
                         style={{ width: '120px' }}
                         size="default"
-                        value={runDay}
+                        value={runDay||null}
                         disabledDate={this.disabledDate}
                         onChange={this.onRunningTime}
                     />
@@ -300,6 +300,7 @@ class PatchDataList extends Component {
                     loading={false}
                 >
                     <Table 
+                        rowKey="id"
                         columns={ this.initTaskColumns() }
                         className="m-table"
                         style={{ marginTop: 1}}

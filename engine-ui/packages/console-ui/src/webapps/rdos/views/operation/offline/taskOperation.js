@@ -26,7 +26,7 @@ import {
 } from '../../../comm/const'
 
 import { 
-    OfflineTaskStatus, TaskTimeType, TaskType, 
+    OfflineTaskStatus, TaskTimeType, TaskType,
 } from '../../../components/status'
 
 
@@ -42,6 +42,7 @@ const warning = Modal.warning
 const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
+const yesterDay = moment().subtract(1, 'days');
 
 class OfflineTaskList extends Component {
 
@@ -55,7 +56,7 @@ class OfflineTaskList extends Component {
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: '',
-        bussinessDate: '',
+        bussinessDate: yesterDay,
         selectedRowKeys: [],
         checkAll: false,
         execTime: '', // 执行时间
@@ -176,7 +177,7 @@ class OfflineTaskList extends Component {
             warning({
                 title: '提示',
                 content: `
-                    除去“失败”、“取消”、“完成”状态以外的任务才可以进行杀死操作，
+                    除去“失败”、“取消”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
                     请您重新选择!
                 `,
             })
@@ -246,7 +247,8 @@ class OfflineTaskList extends Component {
                 if (res && (
                     res.status === TASK_STATUS.SUBMIT_FAILED || 
                     res.status === TASK_STATUS.STOPED || 
-                    res.status === TASK_STATUS.FINISHED
+                    res.status === TASK_STATUS.FINISHED ||
+                    res.batchTask.isDeleted === 1
                 )) return false
             }
             return true
@@ -304,10 +306,6 @@ class OfflineTaskList extends Component {
         })
     }
 
-    disabledDate = (current) => {
-        return current && current.valueOf() > new Date().getTime();
-    }
-
     showTask = (task) => {
         this.setState({
             visibleSlidePane: true,
@@ -319,7 +317,7 @@ class OfflineTaskList extends Component {
         let selectedRowKeys = []
 
         if (e.target.checked) {
-            selectedRowKeys = this.state.tasks.data.map(item => item.id)
+            selectedRowKeys = this.state.tasks.data.map(item => {if (item.batchTask.isDeleted !== 1) { return item.id }})
         }
 
         this.setState({
@@ -377,7 +375,7 @@ class OfflineTaskList extends Component {
             key: 'businessDate'
         }, {
             width: 120,
-            title: '定时时间',
+            title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime'
         }, {
@@ -386,6 +384,11 @@ class OfflineTaskList extends Component {
             dataIndex: 'execStartDate',
             key: 'execStartDate',
         }, {
+            width: 120,
+            title: '结束时间',
+            dataIndex: 'execEndDate',
+            key: 'execEndDate',
+        },{
             title: '运行时长',
             width: 100,
             dataIndex: 'execTime',
@@ -406,24 +409,29 @@ class OfflineTaskList extends Component {
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
+            selectedTask:null
         })
+    }
+
+    disabledDate = (current) => {
+        return current && current.valueOf() > moment().subtract(1, 'days').valueOf();
     }
 
     tableFooter = (currentPageData) => {
         return (
-            <tr className="ant-table-row  ant-table-row-level-0">
-                <td style={{ padding: '15px 10px 10px 30px' }}>
+            <div className="ant-table-row  ant-table-row-level-0">
+                <div style={{ padding: '15px 10px 10px 30px',display:"inline-block" }}>
                     <Checkbox
                         checked={ this.state.checkAll }
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
-                </td>
-                <td>
+                </div>
+                <div style={{display:"inline-block"}}>
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
-                </td>
-            </tr>
+                </div>
+            </div>
         )
     }
 
@@ -438,7 +446,7 @@ class OfflineTaskList extends Component {
 
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
@@ -453,6 +461,9 @@ class OfflineTaskList extends Component {
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange,
+            getCheckboxProps: record => ({
+                disabled: record.batchTask && record.batchTask.isDeleted === 1
+            })
         };
 
         return (
@@ -542,7 +553,10 @@ class OfflineTaskList extends Component {
                                         style={{ width: 150 }}
                                         format="YYYY-MM-DD"
                                         placeholder="业务日期"
-                                        value={bussinessDate}
+                                        showToday={false}
+                                        ranges={{ '昨天': [yesterDay, yesterDay] }}
+                                        disabledDate={this.disabledDate}
+                                        value={bussinessDate||null}
                                         onChange={this.changeBussinessDate}
                                     />
                                 </FormItem>
@@ -560,6 +574,15 @@ class OfflineTaskList extends Component {
                     > 
                          <Table
                             rowKey="id"
+                            rowClassName={
+                                (record, index) => {
+                                    if (this.state.selectedTask&&this.state.selectedTask.id == record.id) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             style={{marginTop: '1px'}}
                             className="m-table"
                             rowSelection={rowSelection}
@@ -575,7 +598,7 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={ this.closeSlidePane }
                             visible={ visibleSlidePane } 
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '400px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView 
                                 visibleSlidePane={visibleSlidePane}

@@ -7,47 +7,44 @@ import {
 
 import { 
     formItemLayout, 
-    RDOS_PROJECT_ROLE, 
-    DQ_PROJECT_ROLE,
+    RDOS_ROLE, 
+    APP_ROLE,
     MY_APPS,
 } from 'main/consts'
- 
+
+import { isDisabledRole } from './form'
+
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
-// 过滤项目所有者，租户所有者，访客三种无效的授权对象
-const isDisabled = (app, value) => {
-    switch(app) {
-        case MY_APPS.RDOS: {
-            return value === RDOS_PROJECT_ROLE.PROJECT_OWNER ||
-            value === RDOS_PROJECT_ROLE.TENANT_OWVER ||
-            value === RDOS_PROJECT_ROLE.VISITOR
-        }
-        case MY_APPS.DATA_QUALITY: {
-            return value === DQ_PROJECT_ROLE.ADMIN ||
-            value === DQ_PROJECT_ROLE.VISITOR
-        }
-        default: {
-            return false;
-        }
-    }
-
-}
 
 class EditRoleForm extends Component {
 
-    render() {
-        const { roles, form, user, app } = this.props;
-        const getFieldDecorator = form.getFieldDecorator;
+    componentDidMount() {
+        this.setFields(this.props.user)
+    }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.user !== nextProps.user) {
+            this.setFields(nextProps.user)
+        }
+    }
+
+    setFields = (user) => {
         const selectedRoles = user && user.roles 
         ? user.roles.map(role => role.id) : [];
+        this.props.form.setFieldsValue({ roleIds: selectedRoles });
+    }
+
+    render() {
+        const { roles, form, app, loginUser } = this.props;
+        const getFieldDecorator = form.getFieldDecorator;
 
         let roleOptions = [];
         if (roles) {
             roles.forEach(role => {
-                const disabled = isDisabled(app, role.roleValue)
+                const disabled = isDisabledRole(app, role.roleValue, loginUser)
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
@@ -55,12 +52,12 @@ class EditRoleForm extends Component {
         return (
             <Form>
                 <FormItem
-                {...formItemLayout}
-                label="请选择用户角色"
+                    {...formItemLayout}
+                    label="请选择用户角色"
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: selectedRoles,
+                        initialValue: [],
                     })(
                         <CheckboxGroup options={roleOptions} />,
                     )}

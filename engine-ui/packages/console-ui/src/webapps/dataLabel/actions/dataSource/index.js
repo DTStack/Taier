@@ -44,6 +44,18 @@ export const dataSourceActions = {
 			});
 		}
 	},
+	getTagDataSourcesList(params) {
+		return dispatch => {
+			API.getTagDataSourcesList(params).then((res) => {
+				if (res.code === 1) {
+					dispatch({
+						type: dataSourceActionType.GET_TAG_DATA_SOURCES_LIST,
+						payload: res.data
+					});
+				}
+			});
+		}
+	},
 	getDataSourcesTable(params) {
 		return dispatch => {
 			API.getDataSourcesTable(params).then((res) => {
@@ -61,6 +73,13 @@ export const dataSourceActions = {
 			});
 		}
 	},
+	resetDataSourcesTable() {
+		return dispatch => {
+			dispatch({
+				type: dataSourceActionType.RESET_DATA_SOURCES_TABLE
+			});
+		}
+	},
 	getDataSourcesColumn(params) {
 		return dispatch => {
 			API.getDataSourcesColumn(params).then((res) => {
@@ -73,22 +92,10 @@ export const dataSourceActions = {
 			});
 		}
 	},
-	getDataSourcesPart(params) {
-		return dispatch => {
-			API.getDataSourcesPart(params).then((res) => {
-				if (res.code === 1) {
-					dispatch({
-						type: dataSourceActionType.GET_DATA_SOURCES_PART,
-						payload: res.data ? res.data : {}
-					});
-				}
-			});
-		}
-	},
-	resetDataSourcesPart() {
+	resetDataSourcesColumn() {
 		return dispatch => {
 			dispatch({
-				type: dataSourceActionType.RESET_DATA_SOURCES_PART
+				type: dataSourceActionType.RESET_DATA_SOURCES_COLUMN
 			});
 		}
 	},

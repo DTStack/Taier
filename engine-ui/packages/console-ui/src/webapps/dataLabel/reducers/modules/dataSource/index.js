@@ -6,6 +6,7 @@ const initialState = {
     sourceQuery: [],
     sourceType: [],
     sourceList: [],
+    tagSourceList: [],
     sourceTable: [],
     sourceColumn: [],
     sourcePart: [],
@@ -44,10 +45,24 @@ export default function dataSource(state = initialState, action) {
             return clone;
         }
 
+        case dataSourceActionType.GET_TAG_DATA_SOURCES_LIST: {
+            const clone = cloneDeep(state);
+            const { tagSourceList } = clone;
+            clone.tagSourceList = payload;
+            return clone;
+        }
+
         case dataSourceActionType.GET_DATA_SOURCES_TABLE: {
             const clone = cloneDeep(state);
             const { sourceTable } = clone;
             clone.sourceTable = payload;
+            return clone;
+        }
+
+        case dataSourceActionType.RESET_DATA_SOURCES_TABLE: {
+            const clone = cloneDeep(state);
+            const { sourceTable } = clone;
+            clone.sourceTable = [];
             return clone;
         }
 
@@ -58,17 +73,10 @@ export default function dataSource(state = initialState, action) {
             return clone;
         }
 
-        case dataSourceActionType.GET_DATA_SOURCES_PART: {
+        case dataSourceActionType.RESET_DATA_SOURCES_COLUMN: {
             const clone = cloneDeep(state);
-            const { sourcePart } = clone;
-            clone.sourcePart = payload;
-            return clone;
-        }
-
-        case dataSourceActionType.RESET_DATA_SOURCES_PART: {
-            const clone = cloneDeep(state);
-            const { sourcePart } = clone;
-            clone.sourcePart = [];
+            const { sourceColumn } = clone;
+            clone.sourceColumn = [];
             return clone;
         }
 

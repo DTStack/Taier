@@ -13,8 +13,8 @@ module.exports = [
     }, {
         id: 'rdos',
         name: '开发套件',
-        filename: 'rdos.html',
-        link: '/rdos.html#/',
+        filename: 'ide.html',
+        link: '/ide.html#',
         target: '_blank',
         enable: true,
         hasProject: true, // 是否拥有项目选择

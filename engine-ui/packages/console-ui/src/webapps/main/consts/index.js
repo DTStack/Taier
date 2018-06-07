@@ -8,7 +8,7 @@ export const MY_APPS = {
     RDOS: 'rdos',
     DATA_QUALITY: 'dataQuality',
     API: 'dataApi',
-    LABEL: 'label',
+    LABEL: 'dataLabel',
     DATA_MAP: 'map',
     META_DATA: 'metaData',
 }
@@ -37,21 +37,27 @@ export const DATA_SOURCE = {
 }
 
 /**
- * 项目角色
+ * 引用角色
  */
-export const RDOS_PROJECT_ROLE = { // 项目角色
-    PROJECT_OWNER: 2, // 项目所有者
+export const RDOS_ROLE = { // 项目角色
     TENANT_OWVER: 1, // 租户所有者
+    PROJECT_OWNER: 2, // 项目所有者
+    PROJECT_ADMIN: 3, // 项目管理员
     VISITOR: 4, // 访客
+    OPERATION: 5, // 运维
+    DEVELOPER: 6, // 开发者
+    CUSTOM: 7, // 自定义
 }
 
 /**
- * 项目角色
+ * 应用角色
  */
-export const DQ_PROJECT_ROLE = { // 项目角色
-    ADMIN: 1, // 租户所有者
-    DATA_DEVELOPER: 2, // 项目所有者
+export const APP_ROLE = { // 项目角色
+    TENANT_OWVER: 1, // 租户所有者
+    ADMIN: 2, // 应用管理者
     VISITOR: 3, // 访客
+    DEVELOPER: 4, // 开发者
+    CUSTOM: 5, // 自定义
 }
 
 

@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
-import { Row, Col, Table, 
-    Button, Form, Select, 
-    Input, TreeSelect, Icon, 
-    message, Checkbox } from 'antd';
+import {
+    Row, Col, Table,
+    Button, Form, Select,
+    Input, TreeSelect, Icon,
+    message, Checkbox, Modal
+} from 'antd';
 
 import TableCell from 'widgets/tableCell';
 
 import { dataSourceActions } from '../../../actions/dataSource';
 import { dataSourceTypes, formItemLayout } from '../../../consts';
 import DSApi from '../../../api/dataSource';
+import RCApi from "../../../api/ruleConfig";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -20,7 +23,7 @@ const TreeNode = TreeSelect.TreeNode;
 const mapStateToProps = state => {
     const { dataSource } = state;
     return { dataSource }
-}
+} 
 
 const mapDispatchToProps = dispatch => ({
     getDataSourcesList(params) {
@@ -46,10 +49,11 @@ export default class StepOne extends Component {
         super(props);
         this.state = {
             showPreview: false,
-            sourcePreview: {}
+            sourcePreview: {},
+            loading: false
         }
     }
-    
+
     componentDidMount() {
         this.props.getDataSourcesList();
     }
@@ -59,8 +63,8 @@ export default class StepOne extends Component {
         return data.map((source) => {
             let title = `${source.dataName}（${source.sourceTypeValue}）`;
 
-            return <Option 
-                key={source.id} 
+            return <Option
+                key={source.id}
                 value={source.id.toString()}
                 title={title}>
                 {title}
@@ -71,8 +75,8 @@ export default class StepOne extends Component {
     // 数据表下拉框
     renderSourceTable = (data) => {
         return data.map((tableName) => {
-            return <Option 
-                key={tableName} 
+            return <Option
+                key={tableName}
                 value={tableName}>
                 {tableName}
             </Option>
@@ -85,23 +89,23 @@ export default class StepOne extends Component {
             return data.children.map((item) => {
                 let name = item.partName,
                     value = item.partValue,
-                    partTitle = value ?  `分区字段：${name}  分区值：${value}` : name;
+                    partTitle = value ? `分区字段：${name}  分区值：${value}` : name;
 
                 if (item.children.length) {
-                    return <TreeNode 
-                        key={item.nodeId} 
-                        title={partTitle} 
-                        value={item.partColumn} 
+                    return <TreeNode
+                        key={item.nodeId}
+                        title={partTitle}
+                        value={item.partColumn}
                         dataRef={item}>
                         {this.renderTreeSelect(item)}
                     </TreeNode>
                 } else {
-                    return <TreeNode 
-                        key={item.nodeId} 
-                        title={partTitle} 
-                        value={item.partColumn} 
-                        dataRef={item} 
-                        isLeaf={true} 
+                    return <TreeNode
+                        key={item.nodeId}
+                        title={partTitle}
+                        value={item.partColumn}
+                        dataRef={item}
+                        isLeaf={true}
                     />
                 }
             });
@@ -114,42 +118,77 @@ export default class StepOne extends Component {
      */
     havePartition = (id) => {
         const { sourceList } = this.props.dataSource;
-        
+
         sourceList.forEach((item) => {
             if (item.id == id) {
                 this.props.changeHavePart(item.type === 7 || item.type === 10);
             }
         });
-    } 
+    }
+
+    /**
+     * 查看是否存在相同规则
+     * 
+     */
+    checkMonitor() {
+        const { editParams, havePart } = this.props;
+        const params = {
+            tableName: editParams.tableName,
+            dataSourceId: editParams.dataSourceId,
+            partition: havePart?editParams.partition:undefined,
+        }
+
+        this.setState({
+            loading: true
+        })
+
+        return RCApi.checkMonitor(params)
+            .then(
+                (res) => {
+                    this.setState({
+                        loading: false
+                    })
+
+                    if (res && res.data) {
+                        return res.data;
+                    } else {
+                        if(res.code!=1){
+                            throw new Error(res.message)
+                        }
+                        return null;
+                    }
+                }
+            )
+
+    }
 
     // 数据源变化回调
     onSourceTypeChange = (id) => {
-        const { form, editParams } = this.props;
-        let params = { dataSourceId: id };
+        const { form, havePart, editParams } = this.props;
+        let params = {
+            dataSourceId: id,
+            rules: [],
+            partition: undefined
+        };
 
         this.havePartition(id);
+        this.props.resetDataSourcesTable();
         this.props.getDataSourcesTable({ sourceId: id });
         form.setFieldsValue({ sourceTable: undefined });
 
         // 重置分区数据
-        if (editParams.partition) {
+        if (havePart) {
             this.props.resetDataSourcesPart();
-            form.setFieldsValue({ 
+            form.setFieldsValue({
                 partition: undefined,
-                partitionInput: undefined
+                partitionInput: 'column=${sys.recentPart}'
             });
-            params.partition = undefined;
-        }
-
-        // 重置规则
-        if (editParams.rules.length) {
-            params.rules = [];
         }
 
         // 重置预览数据
-        this.setState({ 
+        this.setState({
             showPreview: false,
-            sourcePreview: {} 
+            sourcePreview: {}
         });
 
         this.props.changeParams(params);
@@ -157,45 +196,35 @@ export default class StepOne extends Component {
 
     // 数据表变化回调
     onTableChange = (name) => {
-        const { form, editParams } = this.props;
-        let params = { tableName: name };
-        let sourceId = form.getFieldValue('sourceId');
+        const { form, havePart, editParams } = this.props;
+
+        let params = {
+            tableName: name,
+            rules: [],
+            partition: 'column=${sys.recentPart}'
+        };
 
         // 重置分区数据
-        if (editParams.partition) {
+        if (havePart) {
             this.props.resetDataSourcesPart();
-            form.setFieldsValue({ 
+            form.setFieldsValue({
                 partition: undefined,
-                partitionInput: undefined
+                partitionInput: 'column=${sys.recentPart}'
             });
-            params.partition = undefined;
-        }
 
-        // 重置规则
-        if (editParams.rules.length) {
-            params.rules = [];
+            this.props.getDataSourcesPart({
+                sourceId: editParams.dataSourceId,
+                table: name
+            });
         }
 
         // 重置预览数据
         this.setState({
             showPreview: false,
-            sourcePreview: {} 
+            sourcePreview: {}
         });
 
-        this.getSourcesPart(editParams.dataSourceId, name);
         this.props.changeParams(params);
-    }
-
-    // 获取分区数据
-    getSourcesPart = (id, name) => {
-        const { havePart } = this.props;
-
-        if (id && name && havePart) {
-            this.props.getDataSourcesPart({
-                sourceId: id,
-                table: name
-            });
-        }
     }
 
     // 获取预览数据
@@ -203,7 +232,7 @@ export default class StepOne extends Component {
         const { dataSourceId, tableName, partition } = this.props.editParams;
         const { showPreview } = this.state;
 
-        if(!dataSourceId || !tableName) {
+        if (!dataSourceId || !tableName) {
             message.error('未选择数据源或表');
             return;
         }
@@ -216,7 +245,7 @@ export default class StepOne extends Component {
             }).then((res) => {
                 if (res.code === 1) {
                     let { columnList, dataList } = res.data;
-                    
+
                     res.data.dataList = dataList.map((arr, i) => {
                         let o = {};
                         arr.forEach((item, j) => {
@@ -226,14 +255,14 @@ export default class StepOne extends Component {
                         return o;
                     });
 
-                    this.setState({ 
-                        sourcePreview: res.data 
+                    this.setState({
+                        sourcePreview: res.data
                     });
                 }
             });
         }
 
-        this.setState({ 
+        this.setState({
             showPreview: !showPreview
         });
     }
@@ -254,17 +283,47 @@ export default class StepOne extends Component {
     partHintText = () => {
         return (
             <p className="font-14">
-                {"如果分区还不存在，可以直接手动输入未来会存在的分区名，格式为：分区字段=分区值，如column=${sys.recentPart}"}
+                {"支持填写系统参数，格式为：column=${sys.recentPart}，column为分区字段名，需要您根据情况修改，${sys.recentPart}为系统参数，系统每次执行时会对最新的1个分区的数据做校验"}
             </p>
         )
+    }
+
+    jumpToEditRule(data,modal) {
+        this.modal&&this.modal.destroy();
+        hashHistory.push({
+            pathname: "/dq/rule",
+            query: {
+                tableName: data.tableName,
+                tableId: data.tableId
+            }
+        })
     }
 
     next = () => {
         const { currentStep, navToStep, form } = this.props;
 
         form.validateFields({ force: true }, (err, values) => {
-            if(!err) {
-                navToStep(currentStep + 1);
+            if (!err) {
+                this.checkMonitor()
+                    .then(
+                        (data) => {
+                            if (!data) {
+                                navToStep(currentStep + 1);
+                                return;
+                            } else {
+                                const modal = Modal.warning({
+                                    title: "该规则配置已存在",
+                                    content: (
+                                        <span>
+                                            该规则配置已存在，您可以直接前往
+                                    <a onClick={this.jumpToEditRule.bind(this, data)} > 编辑</a>
+                                        </span>
+                                    )
+                                })
+                                this.modal=modal;
+                            }
+                        }
+                    )
             }
         })
     }
@@ -277,20 +336,29 @@ export default class StepOne extends Component {
                     title: item,
                     key: item,
                     dataIndex: item,
-                    width: 80,
+                    width: (item.length * 8 + 28) + "px",
                     render: (value) => {
-                        return <TableCell 
+                        return <TableCell
                             className="no-scroll-bar"
                             value={value ? value : undefined}
                             readOnly
-                            style={{ minWidth: 80, width: '100%', resize: 'none' }} 
+                            style={{ minWidth: 80, width: '100%', resize: 'none' }}
                         />
                     }
                 }
             });
         }
     }
+    getScroll() {
+        let i = 100;
+        const columnList = this.state.sourcePreview && this.state.sourcePreview.columnList;
 
+        for (let j in columnList) {
+            let item = columnList[j];
+            i = i + item.length * 8 + 28
+        }
+        return i + "px";
+    }
     onSubscribeChange = (e) => {
         let isSubscribe = e.target.checked ? 1 : 0;
         this.props.changeParams({ isSubscribe });
@@ -315,7 +383,7 @@ export default class StepOne extends Component {
                             showSearch
                             placeholder="分区列表"
                             treeNodeLabelProp="value"
-                            style={{ width: '85%', marginRight: 15 }} 
+                            style={{ width: '85%', marginRight: 15 }}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                             onChange={this.handlePartChange}>
                             {
@@ -331,13 +399,13 @@ export default class StepOne extends Component {
                 {
                     getFieldDecorator('partitionInput', {
                         rules: [],
-                        initialValue: partition 
+                        initialValue: partition||'column=${sys.recentPart}'
                         // ? partition : 'column=${sys.recentPart}'
                     })(
                         <Input
-                            style={{ width: '85%', marginRight: 15 }} 
-                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}" 
-                            onChange={this.handleInputPartChange} 
+                            style={{ width: '85%', marginRight: 15 }}
+                            placeholder="手动输入分区的格式为：分区字段=分区值，如column=${sys.recentPart}"
+                            onChange={this.handleInputPartChange}
                         />
                     )
                 }
@@ -355,11 +423,11 @@ export default class StepOne extends Component {
     }
 
     render() {
-        const { editParams, form, dataSource, havePart } = this.props;
+        const { form, editParams, dataSource, havePart } = this.props;
         const { getFieldDecorator } = form;
-        const { dataSourceId, tableName, partition } = editParams;
-        const { sourceList, sourceTable, sourcePart } = dataSource;
-        const { showPreview, sourcePreview } = this.state;
+        const { dataSourceId, tableName } = editParams;
+        const { sourceList, sourceTable, tableLoading } = dataSource;
+        const { showPreview, sourcePreview, loading } = this.state;
 
         return (
             <div>
@@ -368,38 +436,38 @@ export default class StepOne extends Component {
                         <FormItem {...formItemLayout} label="选择数据源">
                             {
                                 getFieldDecorator('sourceId', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '请选择数据源' 
+                                    rules: [{
+                                        required: true,
+                                        message: '请选择数据源'
                                     }],
-                                    initialValue: dataSourceId ? dataSourceId.toString() : ''
+                                    initialValue: dataSourceId ? dataSourceId.toString() : dataSourceId
                                 })(
-                                    <Select 
+                                    <Select
                                         showSearch
                                         optionFilterProp="title"
-                                        style={{ width: '85%', marginRight: 15 }} 
-                                        onChange={this.onSourceTypeChange}>
+                                        style={{ width: '85%', marginRight: 15 }}
+                                        onChange={this.onSourceTypeChange}
+                                        disabled={tableLoading}>
                                         {
                                             this.renderSourceType(sourceList)
                                         }
                                     </Select>
                                 )
                             }
-                            <Link to="/dq/dataSource">添加数据源</Link>
                         </FormItem>
 
                         <FormItem {...formItemLayout} label="选择数据表">
                             {
                                 getFieldDecorator('sourceTable', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '请选择数据表' 
+                                    rules: [{
+                                        required: true,
+                                        message: '请选择数据表'
                                     }],
                                     initialValue: tableName
                                 })(
-                                    <Select 
+                                    <Select
                                         showSearch
-                                        style={{ width: '85%', marginRight: 15 }} 
+                                        style={{ width: '85%', marginRight: 15 }}
                                         onChange={this.onTableChange}>
                                         {
                                             this.renderSourceTable(sourceTable)
@@ -407,11 +475,10 @@ export default class StepOne extends Component {
                                     </Select>
                                 )
                             }
-
                             {
-                                tableName 
+                                tableName
                                 &&
-                                <Checkbox onChange={this.onSubscribeChange}>订阅</Checkbox>
+                                <Checkbox checked={true} onChange={this.onSubscribeChange}>订阅</Checkbox>
                             }
                         </FormItem>
 
@@ -424,17 +491,17 @@ export default class StepOne extends Component {
                         <div className="txt-center font-14">
                             <a onClick={this.onSourcePreview}>数据预览<Icon type="down" style={{ marginLeft: 5 }} /></a>
                         </div>
-                        
+
                         {
                             showPreview
                             &&
-                            <Table 
+                            <Table
                                 rowKey="key"
                                 className="m-table m-cells preview-table"
-                                columns={this.previewTableColumns(sourcePreview.columnList)} 
+                                columns={this.previewTableColumns(sourcePreview.columnList)}
                                 dataSource={sourcePreview.dataList}
                                 pagination={false}
-                                scroll={{ x: 1000 }}
+                                scroll={{ x: this.getScroll() }}
                             />
                         }
                     </Form>
@@ -444,7 +511,7 @@ export default class StepOne extends Component {
                     <Button>
                         <Link to="/dq/rule">取消</Link>
                     </Button>
-                    <Button className="m-l-8" type="primary" onClick={this.next}>
+                    <Button loading={loading} className="m-l-8" type="primary" onClick={this.next}>
                         下一步
                     </Button>
                 </div>

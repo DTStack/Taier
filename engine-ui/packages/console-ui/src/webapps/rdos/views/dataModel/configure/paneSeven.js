@@ -29,41 +29,50 @@ export default class DeriveIndexDefine extends PaneSix {
     initColumns = () => {
         return [{
             title: '衍生指标名称',
+            width: 120,
             dataIndex: 'columnNameZh',
             key: 'columnNameZh',
         }, {
-            width: 80,
             title: '指标命名',
+            width: 120,
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 80,
+            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 80,
             title: '指标口径',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
+            width: 120,
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
+            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
+            width: 80,
             key: 'operation',
             render: (record) => {
                 return (
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.delete(record) }}>删除</a>
+                        <Popconfirm 
+                            title="确定删除此条记录吗?" 
+                            onConfirm={() => { this.delete(record) }}
+                            okText="是" cancelText="否"
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
                     </div>
                 )
             },

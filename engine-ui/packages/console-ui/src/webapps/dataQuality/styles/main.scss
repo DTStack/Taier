@@ -2,7 +2,10 @@
 /**
 ** CSS 主引入口
 **/
-
+body{
+    overflow: unset;
+    background: #f2f7fa;
+}
 .m-8 {
     margin: 0 8px;
 }
@@ -80,4 +83,38 @@
     color: #FFF;
     border-radius: 50%;
     text-align: center;
+}
+.tooltip_content_a{
+    color:#fff;
+}
+.tooltip_content_a:hover{
+    color:rgba(255,255,255,0.8)
+}
+
+.row-select{
+    background: rgba(215,238,242,.58);
+}
+table{
+    font-size:12px;
+}
+.header-fixed .header{
+    position: fixed;
+    z-index: 1009;
+}
+.container-relative .container{
+    position: relative;
+    overflow-y: unset;
+}
+.ant-form-inline .ant-form-item-with-help.cell-center{
+    margin-bottom: 0px;
+    padding: 10px 0px;
+}
+.cell-center-box{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.ant-form-inline .ant-form-item-with-help.cell-multiple-center{
+    margin-top: 15px;
+    margin-bottom: 15px;
 }

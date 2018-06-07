@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { 
-    Input, Button, Popconfirm,
-    Table, message, Card
- } from 'antd';
+import { Input, Button, Card, Popconfirm, Table, message } from 'antd';
 import moment from 'moment';
 
 import DataSourceForm from './editModal';
@@ -43,14 +40,18 @@ export default class DataSource extends Component {
     }
 
     componentDidMount() {
-        // this.props.getDataSources(this.state.params);
+        this.props.getDataSources(this.state.params);
     }
 
     searchDataSources = (name) => {
-        let params = {...this.state.params, name, currentPage: 1};
+        let params = {
+            ...this.state.params, 
+            name: name ? name : undefined, 
+            currentPage: 1
+        };
        
-        this.setState({ params });
         this.props.getDataSources(params);
+        this.setState({ params });
     }
 
     editDataSource = (sourceFormData, formObj) => {
@@ -75,7 +76,7 @@ export default class DataSource extends Component {
         }
 
         formObj.resetFields();
-        this.setState({ visible: false });
+        this.setState({ visible: false, source: {} });
     }
 
     remove = (record) => {
@@ -92,26 +93,19 @@ export default class DataSource extends Component {
         });
     }
 
-    testConnection = (params) => { // 测试数据源连通性
-        DSApi.testDSConnection(params).then((res) => {
-            if (res.code === 1) {
-                message.success('数据源连接正常！')
-            }
-        })
-    }
-
     handleTableChange = (page, filters) => {
         let active = filters.active,
             type   = filters.type;
 
-        let params = {...this.state.params, 
+        let params = {
+            ...this.state.params, 
             currentPage: page.current, 
             active: active ? active[0] : undefined,
             type: type ? type[0] : undefined
         };
        
-        this.setState({ params });
         this.props.getDataSources(params);
+        this.setState({ params });
     }
 
     initEdit = (source) => {
@@ -120,7 +114,7 @@ export default class DataSource extends Component {
             title: '编辑数据源',
             status: 'edit',
             source,
-        })
+        });
     }
 
     initColumns = () => {
@@ -132,11 +126,14 @@ export default class DataSource extends Component {
             render: (text => <div className="ellipsis-td" title={text}>{text}</div>)
         }, {
             title: '类型',
-            dataIndex: 'sourceTypeValue',
-            key: 'sourceTypeValue',
+            dataIndex: 'type',
+            key: 'type',
             filters: dataSourceFilter,
             filterMultiple: false,
-            width: '10%'
+            width: '10%',
+            render(text, record) {
+                return record.sourceTypeValue;
+            },
         }, {
             title: '描述信息',
             dataIndex: 'dataDesc',
@@ -259,8 +256,7 @@ export default class DataSource extends Component {
                     visible={visible}
                     sourceData={source}
                     editDataSource={this.editDataSource}
-                    testConnection={this.testConnection}
-                    handCancel={() => { this.setState({ visible: false }) }}
+                    handCancel={() => { this.setState({ visible: false, source: {} }) }}
                 />
             </div>
         )

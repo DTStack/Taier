@@ -22,6 +22,7 @@ class AdminRole extends Component {
         data: '',
         projects: [],
         selectedProject: '',
+        currentPage: 1,
         loading: 'success',
     }
 
@@ -39,12 +40,12 @@ class AdminRole extends Component {
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject } = this.state
+        const { active, selectedProject, currentPage } = this.state
         const app = active;
 
         const params = {
             pageSize: 10,
-            currentPage: 1,
+            currentPage: currentPage,
         }
 
         if (!selectedProject && hasProject(app)) {
@@ -56,7 +57,7 @@ class AdminRole extends Component {
             this.loadRoles(app, params)
         }
     }
-    
+ 
     loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
             this.setState({
@@ -95,13 +96,24 @@ class AdminRole extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
+            currentPage: 1,
+        }, ()=>{
+            this.props.router.replace("/admin/role?app="+key)
+            this.loadData();
+        })
+    }
+
+    handleTableChange = (pagination, filters) => {
+        this.setState({ 
+            currentPage: pagination.current,
         }, this.loadData)
     }
 
     onProjectSelect = (value) => {
         this.setState({
-            selectedProject: value
-        })
+            selectedProject: value,
+            currentPage: 1,
+        }, this.loadData)
     }
 
     initColums = () => {
@@ -132,8 +144,7 @@ class AdminRole extends Component {
             render(text) {
                 return text || '-'
             }
-        }, 
-        {
+        }, {
             title: '操作',
             dataIndex: 'id',
             key: 'id',
@@ -190,6 +201,12 @@ class AdminRole extends Component {
             </Button>
         )
 
+        const pagination = {
+            total: data && data.totalCount,
+            defaultPageSize: 10,
+            current: data.currentPage,
+        };
+
         return (
             <Card 
                 bordered={false}
@@ -200,9 +217,11 @@ class AdminRole extends Component {
                 <Table 
                     rowKey="id"
                     className="m-table"
-                    columns={this.initColums()} 
+                    columns={this.initColums()}
                     loading={loading === 'loading'}
-                    dataSource={ data ? data.data : [] } 
+                    dataSource={ data ? data.data : [] }
+                    pagination={pagination}
+                    onChange={this.handleTableChange}
                 />
             </Card>
         )

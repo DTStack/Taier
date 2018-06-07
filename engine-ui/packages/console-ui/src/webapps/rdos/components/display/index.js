@@ -16,8 +16,9 @@ export function taskTypeText(type) {
         case TASK_TYPE.R:
             return 'R';
         case TASK_TYPE.SQL:
-        default:
             return 'SQL';
+        default:
+            return '未知';
     }
 }
 

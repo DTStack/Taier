@@ -55,6 +55,10 @@ export default {
         return http.post(req.GET_NOT_PROJECT_USERS, params)
     },
 
+    searchUICUsers(params) {
+        return http.post(req.SEARCH_UIC_USERS, params)
+    },
+
     // ========== Project ========== //
     queryProjects(params) {
         return http.post(req.QUERY_PROJECT_LIST, params)
@@ -266,6 +270,9 @@ export default {
     getCustomParams(params) {
         return http.post(offlineReq.GET_CUSTOM_TASK_PARAMS, params)
     },
+    getSyncTemplate(params){
+        return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
+    },
 
     // =========== 脚本模块 ==================//
     saveScript(params) {
@@ -363,6 +370,9 @@ export default {
     stopSQLImmediately(params) { // 停止执行SQL
         return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
     },
+    selectSQLResultData(params) { // 定时轮询获取sql结果
+        return http.post(offlineReq.SELECT_SQL_RESULT_DATA, params)
+    },
     checkIsLoop(prams) {
         return http.post(offlineReq.CHECK_IS_LOOP, prams)
     },
@@ -384,7 +394,9 @@ export default {
     stopFillDataJobs(params) {
         return http.post(offlineReq.STOP_FILL_DATA_JOBS, params)
     },
-
+    getRestartJobs(params) {
+        return http.post(offlineReq.GET_RESTART_JOBS, params);
+    },
 
     // =========== 离线catalogue目录模块 ==================//
     getOfflineCatelogue(params) {

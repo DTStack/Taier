@@ -40,38 +40,36 @@ class LifeCycle extends React.Component {
         }
     }
 
-    initState = (value) => {
-        const nextValue = parseInt(value, 10)
-        const res = options.find(opt => opt.value === nextValue)
-        if (res) {
-            this.setState({
-                value: nextValue,
-                showCustom: false,
-            })
-        } else { // 自定义
-            this.setState({
-                value: -1,
-                showCustom: true,
-            })
-        }
-    }
-
     componentWillReceiveProps(nextProps) {
         const value = nextProps.value
-        if (value && this.state.value !== value) {
+        if (value && this.state.value !== value && !this.state.showCustom) {
             this.initState(value)
         }
     }
 
-    onSelect = (value) => {
-        if (value === -1) {
+    initState = (value) => {
+        const res = options.find(opt => opt.value == value)
+        if (!res) {// 自定义
             this.setState({
+                value: -1,
                 showCustom: true,
-                value,
             })
         } else {
             this.setState({
                 value,
+            })
+        }
+    }
+
+    onSelect = (value) => {
+        if (value === '-1') {
+            this.setState({
+                showCustom: true,
+                value: -1,
+            })
+        } else {
+            this.setState({
+                value: parseInt(value, 10),
                 showCustom: false,
             })
             this.props.onChange(value)
@@ -80,14 +78,16 @@ class LifeCycle extends React.Component {
 
     customChange = (e) => {
         const value = e.target.value
-        if (this.state.showCustom) {
-            // 不可小于0
-            this.props.onChange(value < 1 ? 1 : value)
-        }
+        this.props.onChange(value < 0 ? 1 : value)
     }
 
     renderOptions = () => {
-        return options.map(option => <Option key={option.value} value={option.value}>{option.name}</Option>)
+        return options.map(option => <Option 
+            key={option.value} 
+            value={`${option.value}`}
+        >
+            {option.name}
+        </Option>)
     }
 
     render() {
@@ -96,7 +96,7 @@ class LifeCycle extends React.Component {
         return (
             <div>
                 <Select
-                    value={this.state.value}
+                    value={`${this.state.value}`}
                     style={{ width: width || 200 }}
                     placeholder="请选择存储生命周期"
                     onSelect={this.onSelect}
@@ -109,7 +109,7 @@ class LifeCycle extends React.Component {
                         value={value}
                         style={{ width: '45%'}}
                         type="number"
-                        min={1}
+                        min={0}
                         onChange={this.customChange}
                     />
                     &nbsp;天

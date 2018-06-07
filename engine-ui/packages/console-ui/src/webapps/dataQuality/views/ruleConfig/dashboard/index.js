@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { Table, Button, Input, Select, message, Card, Checkbox, Tabs } from 'antd';
 import moment from 'moment';
+import utils from "utils";
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
+import SelectSearch from "../../../components/selectSearch";
 import SlidePane from 'widgets/slidePane';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -23,7 +25,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     getMonitorLists(params) {
-        dispatch(ruleConfigActions.getMonitorLists(params));
+        return dispatch(ruleConfigActions.getMonitorLists(params));
     },
     getDataSourcesList(params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
@@ -37,7 +39,7 @@ export default class RuleConfig extends Component {
         params: {
             pageIndex: 1,
             pageSize: 20,
-            tableName: undefined,
+            tableName: utils.getParameterByName('tableName') || undefined,
             modifyUserId: undefined,
             sourceType: undefined,
             dataSourceId: undefined,
@@ -51,7 +53,24 @@ export default class RuleConfig extends Component {
 
     componentDidMount() {
         this.props.getDataSourcesList();
-        this.props.getMonitorLists(this.state.params);
+        this.props.getMonitorLists(this.state.params)
+        .then(
+            (res)=>{
+                if(res&&res.data&&res.data.data){
+
+                    const record=res.data.data.filter(
+                        (item)=>{
+                            return item.tableId==utils.getParameterByName('tableId')
+                        }
+                    );
+
+                    if(record&&record.length>0){
+                        this.openSlidePane(record[0]);
+                    }
+                }
+                this.props.router.replace("/dq/rule")
+            }
+        );
     }
 
     // table设置
@@ -318,9 +337,12 @@ export default class RuleConfig extends Component {
 
         const cardTitle = (
             <div className="flex font-12">
+                
+
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.handleSearch}
+                    defaultValue={params.tableName}
                     style={{ width: 200, margin: '10px 0' }}
                 />
 
@@ -409,6 +431,15 @@ export default class RuleConfig extends Component {
                         bordered={false}
                     >
                         <Table 
+                            rowClassName={
+                                (record, index) => {
+                                    if (currentMonitor && currentMonitor.tableId == record.tableId) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                             rowKey="tableId"
                             className="m-table"
                             columns={this.initColumns()} 
@@ -422,7 +453,7 @@ export default class RuleConfig extends Component {
                             onClose={this.closeSlidePane}
                             visible={showSlidePane}
                             className="slide-pane-box"
-                            style={{ right: '0px', width: '80%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '80%',height:"100%", minHeight: '650px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 

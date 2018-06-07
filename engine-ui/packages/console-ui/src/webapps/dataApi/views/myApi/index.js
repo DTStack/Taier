@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Menu, Card, Table, Tabs } from "antd"
 import { connect } from "react-redux";
 import { mineActions } from '../../actions/mine';
-import NoApprovedCard from "./NoApprovedCard"
-import ApprovedCard from "./ApprovedCard"
+import NoApprovedCard from "./noApprovedCard"
+import ApprovedCard from "./approvedCard"
 
 const mapStateToProps = state => {
     const { user, mine } = state;
@@ -11,21 +11,23 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApplyingList(currentPage, orderBy, sort) {
+    getApplyingList(currentPage, orderBy, sort,apiName) {
         return dispatch(mineActions.getApplyingList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
-            sort: sort
+            sort: sort,
+            apiName:apiName
         }));
     },
-    getAppliedList(currentPage, orderBy, sort, status) {
+    getAppliedList(currentPage, orderBy, sort, status,apiName) {
         return dispatch(mineActions.getAppliedList({
             currentPage: currentPage,
             pageSize: 20,
             orderBy: orderBy,
             sort: sort,
-            status: status
+            status: status,
+            apiName:apiName
         }));
     },
     updateApplyStatus(id,status){
@@ -40,7 +42,7 @@ const mapDispatchToProps = dispatch => ({
             time:time
         }));
     },
-   
+
     getApiCallErrorInfo(id){
         return dispatch(mineActions.getApiCallErrorInfo({
             apiId:id
@@ -63,22 +65,22 @@ const mapDispatchToProps = dispatch => ({
         return dispatch(mineActions.getApiCreatorInfo({
             apiId:apiId
         }));
-    }   
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
 class MyAPI extends Component {
 
     state = {
-        nowView: "notApproved",
+        nowView: "approved",
         pageIndex: 1
     }
     handleClick(e) {
-        
+
         this.setState({
             nowView: e
         })
-      
+
         if(e=="approved"){
             this.props.router.replace("/api/mine/approved")
         }else{
@@ -87,7 +89,7 @@ class MyAPI extends Component {
     }
     componentWillMount() {
         const view=this.props.router.params.view;
-        
+
         if(view){
             this.setState({
                 nowView:view
@@ -103,7 +105,7 @@ class MyAPI extends Component {
     render() {
         const { children } = this.props;
         return (
-            <div className=" api-mine nobackground m-card height-auto m-tabs"> 
+            <div className=" api-mine nobackground m-card height-auto m-tabs">
                 <h1 className="box-title">我的API</h1>
                 <Card
                 style={{marginTop:"0px"}}
@@ -112,18 +114,15 @@ class MyAPI extends Component {
                     <Tabs
                         defaultActiveKey={this.state.nowView}
                         onChange={this.handleClick.bind(this)}
-
                     >
-                        <Tabs.TabPane tab="未审批" key="notApproved">
-                            <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
-                        </Tabs.TabPane>
                         <Tabs.TabPane tab="已审批" key="approved">
                             <ApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
+                        <Tabs.TabPane tab="未审批" key="notApproved">
+                            <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
+                        </Tabs.TabPane>
                     </Tabs>
                 </Card>
-
-
             </div>
         )
     }

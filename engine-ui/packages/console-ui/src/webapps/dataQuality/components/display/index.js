@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { Circle } from 'widgets/circle';
 
-import { TASK_STATUS, CHECK_STATUS } from '../../consts';
+import { 
+    TASK_STATUS, 
+    CHECK_STATUS, 
+} from '../../consts';
 
 /**
  * 字段状态校验

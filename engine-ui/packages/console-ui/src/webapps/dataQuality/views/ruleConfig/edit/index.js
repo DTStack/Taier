@@ -15,8 +15,8 @@ export default class RuleConfigEdit extends Component {
         editParams: {
             dataSourceId: undefined,
             tableName: undefined,
-            partition: undefined,
-            isSubscribe: 0,
+            partition: 'column=${sys.recentPart}',
+            isSubscribe: 1,
             scheduleConf: '',
             sendTypes: [],
             notifyUser: [],
@@ -67,8 +67,9 @@ export default class RuleConfigEdit extends Component {
                 />
             },
             {
-                title: '监控执行', content: <StepThree
+                title: '调度属性', content: <StepThree
                     currentStep={current}
+                    havePart={havePart}
                     navToStep={this.navToStep}
                     editParams={editParams}
                     changeParams={this.changeParams}

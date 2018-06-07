@@ -120,10 +120,11 @@ class TableEditor extends Component {
                                 label="生命周期"
                             >
                                 <LifeCycle
+                                    key={`lifeCycle-${tableData.id}`}
                                     width={80}
                                     value={lifeDay}
                                     onChange={(val) => {
-                                        modifyDesc({name: 'lifeDay', value: val < 0 ? val : val })
+                                        modifyDesc({name: 'lifeDay', value: val < 0 ? 1 : val })
                                     }}
                                 />
                             </FormItem>
@@ -131,7 +132,7 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="描述"
                             >
-                                {getFieldDecorator('desc', {
+                                {getFieldDecorator('tableDesc', {
                                     rules: [{
                                         max: 200,
                                         message: '描述不得超过200个字符！',
@@ -139,6 +140,7 @@ class TableEditor extends Component {
                                     initialValue: desc
                                 })(
                                     <Input 
+                                        name="tableDesc"
                                         onChange={this.changeTable.bind(this)}
                                         type="textarea" placeholder="描述信息" 
                                     />

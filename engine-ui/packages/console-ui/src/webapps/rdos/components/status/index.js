@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tag, Badge, Tooltip } from 'antd'
-import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE } from '../../comm/const'
+import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../comm/const'
 import { Circle } from 'widgets/circle' 
 
 export function ProjectStatus(props) {
@@ -179,20 +179,24 @@ export function TaskTimeType(props) {
 export function DatabaseType(props) {
     const value = props.value
     switch (value) {
-    case 1:
+    case DATA_SOURCE.MYSQL:
         return <span>MySQL</span>
-    case 2:
+    case DATA_SOURCE.ORACLE:
         return <span>Oracle</span>
-    case 3:
+    case DATA_SOURCE.SQLSERVER:
         return <span>SQLServer</span>
-    case 6:
+    case DATA_SOURCE.HDFS:
         return <span>HDFS</span>
-    case 7:
+    case DATA_SOURCE.HIVE:
         return <span>Hive</span>
-    case 8:
-        return <span>HBASE</span>
-    case 9:
+    case DATA_SOURCE.HBASE:
+        return <span>HBase</span>
+    case DATA_SOURCE.FTP:
         return <span>FTP</span>
+    case DATA_SOURCE.MAXCOMPUTE:
+        return <span>MaxCompute</span>
+    case DATA_SOURCE.ES:
+        return <span>ElasticSearch</span>
     default:
         return <span>其他</span>
     }
@@ -267,6 +271,10 @@ export function AlarmTypes(props) {
                 case 2:
                     arr.push('短信')
                     break;
+                case 3:
+                    arr.push('微信')
+                case 4:
+                    arr.push("钉钉")
                 default:
                     break;
             }

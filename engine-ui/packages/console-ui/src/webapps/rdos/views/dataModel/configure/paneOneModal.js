@@ -41,8 +41,8 @@ class ModelLevelModal extends Component {
     cancle = () => {
         const { handCancel, form } = this.props
         this.setState({ }, () => {
-            handCancel()
             form.resetFields()
+            handCancel()
         })
     }
 
@@ -129,9 +129,10 @@ class ModelLevelModal extends Component {
                     >
                         {getFieldDecorator('depend', {
                             rules: [],
-                            initialValue: data && data.depend === 1 ? true : false,
+                            valuePropName: 'checked',
+                            initialValue: (isEdit && data.depend === 0) ? false : true,
                         })(
-                            <Checkbox defaultChecked> </Checkbox>,
+                            <Checkbox>&nbsp;</Checkbox>,
                         )}
                     </FormItem>
                     <FormItem

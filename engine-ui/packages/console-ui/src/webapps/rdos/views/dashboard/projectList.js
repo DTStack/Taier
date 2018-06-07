@@ -13,7 +13,7 @@ const Search = Input.Search
 export default class ProjectList extends Component {
 
     state = {
-        choose: '1',
+        choose: '0',
         current: 1,
         loading: 'success',
         visible: false,
@@ -38,7 +38,7 @@ export default class ProjectList extends Component {
         this.setState({ loading: 'loading' })
         const reqParams = Object.assign({
             projectName: '',
-            isAdmin: true,
+            isAdmin: false,
             currentPage: 1,
             pageSize: 10,
         }, params)
@@ -122,6 +122,7 @@ export default class ProjectList extends Component {
                 const data = record.adminUsers || []
                 return data.map(item => <span>{item.userName} </span>)
             },
+            width:400
         }, {
             title: '状态',
             dataIndex: 'status',
@@ -170,8 +171,8 @@ export default class ProjectList extends Component {
                   onSearch={this.onSearch}
                 />&nbsp;&nbsp;
                 <Radio.Group value={this.state.choose} onChange={this.handleChange}>
-                    <Radio.Button value="1">我管理的</Radio.Button>
                     <Radio.Button value="0">我参与的</Radio.Button>
+                    <Radio.Button value="1">我管理的</Radio.Button>
                 </Radio.Group>
             </div>
         )

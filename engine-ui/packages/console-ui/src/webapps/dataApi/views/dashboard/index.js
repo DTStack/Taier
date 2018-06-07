@@ -5,14 +5,14 @@ import { Alert, Menu } from 'antd';
 import { isEmpty, cloneDeep } from 'lodash';
 
 import Resize from 'widgets/resize';
-import TopCall from "./TopCall";
-import TopFail from "./TopFail";
-import ErrorDistributed from "./ErrorDistributed";
+import TopCall from "./topCall";
+import TopFail from "./topFail";
+import ErrorDistributed from "./errorDistributed";
 
 import { lineAreaChartOptions } from '../../consts';
 import { dashBoardActions } from '../../actions/dashBoard';
-import AdminDashboard from './AdminDashboard';
-import UserDashboard from './UserDashboard';
+import AdminDashboard from './adminDashboard';
+import UserDashboard from './userDashboard';
 
 
 
@@ -55,6 +55,9 @@ const mapDispatchToProps = dispatch => ({
     },
     getApiCallErrorInfo(date){
         dispatch(dashBoardActions.getApiCallErrorInfo(date));
+    },
+    listApiCallNumTopNForManager(date){
+        dispatch(dashBoardActions.listApiCallNumTopNForManager({topn:10,time:date}))
     }
 });
 
@@ -63,7 +66,7 @@ class Dashboard extends Component {
     state = {
         dashBoardView: ""
     }
-    
+
 
 
 
@@ -82,7 +85,7 @@ class Dashboard extends Component {
         }else{
             return false
         }
-        
+
     }
     getNowView() {
         const isAdmin = this.isAdmin();
@@ -125,7 +128,7 @@ class Dashboard extends Component {
                     市场概览
                 </Menu.Item>
                 <Menu.Item key="MyView">
-                    我的Api
+                    我的API
                 </Menu.Item>
             </Menu>);
     }

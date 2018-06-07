@@ -10,6 +10,8 @@ import {
 import { Link } from 'react-router';
 
 import Editor from '../../../components/code-editor';
+import CopyIcon from "main/components/copy-icon";
+import {DDL_placeholder} from "../../../comm/DDLCommon"
 
 import ajax from '../../../api/dataModel';
 
@@ -27,14 +29,14 @@ class TableList extends Component {
             filterDropdownVisible: false,
 
             params: {
-                currentPage: 1,
-                fuzzyName: '',
+                pageIndex: 1,
+                tableName: '',
                 isDeleted: 0, // 添加删除标记
                 isDirtyDataTable: 0, // 非脏数据标记
             },
 
             table: { data: [] },
-            subjectFields: [], 
+            subjectFields: [],
             modelLevels: []
         }
     }
@@ -112,8 +114,8 @@ class TableList extends Component {
     onTableNameChange = (e) => {
         this.setState({
             params: Object.assign(this.state.params, {
-                currentPage: 1,
-                fuzzyName: e.target.value
+                pageIndex: 1,
+                tableName: e.target.value
             })
         })
     }
@@ -164,15 +166,15 @@ class TableList extends Component {
 
     render() {
         const ROUTER_BASE = '/data-model/table';
-        const { subjectFields, modelLevels } = this.state
+        const { subjectFields, modelLevels, params } = this.state
         const tableList = this.state.table;
         const { project } = this.props;
-        const { totalCount, currentPage, data } = tableList;
+        const { totalCount, data } = tableList;
 
         const pagination = {
             total: totalCount,
             defaultPageSize: 20,
-            current: currentPage,
+            current: params.pageIndex,
         };
 
         const marginTop10 = { marginTop: '8px' };
@@ -224,6 +226,15 @@ class TableList extends Component {
                 width: 90,
                 dataIndex: 'subject',
             },
+            {
+                title: '生命周期',
+                key: 'lifeDay',
+                width: 90,
+                dataIndex: 'lifeDay',
+                render(text, record) {
+                    return `${text}天`;
+                }
+            },,
             {
                 title: '创建者',
                 key: 'userName',
@@ -305,16 +316,20 @@ class TableList extends Component {
                             columns={ columns }
                             dataSource={ data }
                             pagination={ pagination }
-                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
+                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
                         />
                         <Modal className="m-codemodal"
                             width={750}
-                            title="DDL建表"
+                            title={(
+                                <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
+                            )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}
                         >
                             <Editor
+                                style={{height:"400px"}}
+                                placeholder={DDL_placeholder}
                                 onChange={ this.handleDdlChange.bind(this) } 
                                 value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
                             />

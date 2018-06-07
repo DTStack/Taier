@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect,IndexRedirect } from 'react-router'
+import { Route, IndexRoute, Redirect, IndexRedirect } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
 import { openNewWindow } from 'funcs'
@@ -31,8 +31,8 @@ import MyAPI from './views/myApi'
 import APIDetail from './views/market/detail'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
-import NewApi from "./views/management/NewApi"
-import EditAPI from './views/management/EditApi';
+import NewApi from "./views/management/newApi"
+import EditAPI from './views/management/editApi';
 
 
 // ======= 测试 =======
@@ -56,7 +56,6 @@ export default (
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/api" component={ Container }>
-            
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
             <Route path="approval" component={ APIApproval }></Route>

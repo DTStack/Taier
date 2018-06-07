@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
-import { isEqual, throttle, range, isObject } from 'lodash';
+import { isEqual, throttle, range, isObject, isEmpty } from 'lodash';
 
 import ajax from '../../../api';
 
@@ -39,15 +39,18 @@ export default class BaseForm extends React.Component {
         this.props.form.setFieldsValue({'lifeDay': value})
     }
 
-    changeTableName = (value, index, modelType) => {
+    changeTableName = (value, index, modelType, option) => {
         const newArrs = [...this.state.tableNameArr];
         newArrs[index] = value;
         this.setState({ tableNameArr: newArrs });
+
+        // 更新form字段值
         const fields = { tableName: newArrs.join('_') };
         if (modelType && modelType === TABLE_MODEL_RULE.LEVEL) {
-            fields.subject = value;
-        } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
             fields.grade = value;
+            fields.lifeDay = option.props.data.lifeDay;
+        } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
+            fields.subject = value;
         }
         this.props.form.setFieldsValue(fields)
     }
@@ -70,17 +73,19 @@ export default class BaseForm extends React.Component {
 
     validateTableName(rule, value, callback) {
         const ctx = this;
+        const { tableNameArr } = this.state;
+        const haveFilledTables = tableNameArr.filter((item) => {
+            return !isEmpty(item);
+        })
 
-        const valArr = value.split('_');
-        if (valArr.length !== this.props.tableNameRules.length) {
-            callback('请按要求设置表名！');
+        if (haveFilledTables.length !== this.props.tableNameRules.length) {
+            callback('所有规则必须设置！');
         } else {
             value ? ajax.checkTableExist({
                 tableName: value
             }).then(res => {
                 if(res.code === 1) {
-                    // 转换为小写
-                    ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
+                    // 如果true 则存在
                     if(res.data) callback('该表已经存在！');
                 }
             })
@@ -136,8 +141,8 @@ export default class BaseForm extends React.Component {
                 case TABLE_MODEL_RULE.FREQUENCY: {
                     data = freshFrequencies; break;
                 }
-                default:
-                case TABLE_MODEL_RULE.CUSTOM: {
+                case TABLE_MODEL_RULE.CUSTOM: 
+                default: {
                     return (
                         <Input 
                             placeholder="自定义"
@@ -152,12 +157,14 @@ export default class BaseForm extends React.Component {
                 <Select
                     placeholder="请选择"
                     style={inlineStyle}
-                    onSelect={(value, option) => this.changeTableName(value, index, rule.value)}
+                    onSelect={(value, option) => this.changeTableName(value, index, rule.value, option)}
                 >
                     {
                         data && data.map(item =>
                             <Option
                                 id={item.id}
+                                key={item.id}
+                                data={item}
                                 title={item.prefix}
                                 value={item.prefix}
                             >
@@ -180,10 +187,16 @@ export default class BaseForm extends React.Component {
                 {renderRules(rule, index)}
             </span>
         ))
-
+        const style = {
+            width: '100%',
+            wordBreak: 'break-all',
+            lineHeight: '18px',
+            display: 'inline-block',
+            marginTop: '5px',
+        }
         return <div>
             {rules}
-            <span> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
+            <span style={style}> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
         </div>
     }
 
@@ -314,7 +327,7 @@ export default class BaseForm extends React.Component {
                 {...formItemLayout}
                 label="描述"
             >
-                {getFieldDecorator('desc', {
+                {getFieldDecorator('tableDesc', {
                     rules: [{
                         max: 200,
                         message: '描述不得超过200个字符！',

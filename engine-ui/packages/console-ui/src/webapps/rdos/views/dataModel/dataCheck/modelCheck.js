@@ -55,7 +55,7 @@ export default class ModelCheck extends Component {
 
     ignore = (record) => {
         Api.ignoreCheck({
-            monitorId: record.monitorId,
+            id: record.id,
             type: '1',
             ignore: record.isIgnore ? false : true,
         }).then(res => {
@@ -75,9 +75,13 @@ export default class ModelCheck extends Component {
     }
     
     changeParams = (field, value) => {
-        this.setState(Object.assign(this.state.params, {
+        const params = {
             [field]: value,
-        }), this.loadData)
+        }
+
+        if (field !== 'pageIndex') params.pageIndex = 1;
+
+        this.setState(Object.assign(this.state.params, params), this.loadData)
     }
 
     initColumns = () => {
@@ -105,20 +109,24 @@ export default class ModelCheck extends Component {
             dataIndex: 'increType',
             key: 'increType',
         }, {
+            title: '刷新频率',
+            dataIndex: 'refreshRate',
+            key: 'refreshRate',
+        }, {
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
             title: '最后修改时间',
-            dataIndex: 'lastModify',
-            key: 'lastModify',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '检测结果',
-            dataIndex: 'triggerType',
-            key: 'triggerType',
-            render: value => <TableNameCheck value={value} />,
+            dataIndex: 'checkResult',
+            key: 'checkResult',
         }, {
+            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -176,8 +184,8 @@ export default class ModelCheck extends Component {
                                 >
                                     <Option value="1">分层不合理</Option>
                                     <Option value="2">主题域不合理</Option>
-                                    <Option value="3">引用标识不合理</Option>
-                                    <Option value="4">引用不合理</Option>
+                                    <Option value="3">刷新频率不合理</Option>
+                                    <Option value="4">增量不合理</Option>
                                 </Select>
                             </FormItem>
                             <FormItem>

@@ -29,6 +29,7 @@ export const dashBoardActions = {
             dispatch(dashBoardActions.getApprovedMsgCount());
             dispatch(dashBoardActions.getUserCallTopN({time:date,topn:topn},true,date))
             dispatch(dashBoardActions.getApiCallFailRateTopN({time:date,topn:topn},true,date))
+            dispatch(dashBoardActions.listApiCallNumTopNForManager({time:date,topn:topn}))
 
             
         }
@@ -53,7 +54,7 @@ export const dashBoardActions = {
                         payload: {
                             callCount:res.data.callCount,//调用总数
                             failPercent:res.data.failRate,//失败率
-                            callTopAPI:res.data.topCallApiName,//调用最多api
+                            apiNum:res.data.apiNum,//调用最多api
                             infoList:res.data.infoList
                         },
                         date:date
@@ -170,5 +171,22 @@ export const dashBoardActions = {
                 
             });
         }
-    }
+    },
+    //管理员获取api调用次数topN
+    listApiCallNumTopNForManager(params){
+        return (dispatch) => {
+            
+            API.listApiCallNumTopNForManager(params).then((res) => {
+                if (res.code === 1) {
+                    const data=res.data||[];
+                    dispatch({
+                        type: ACTION_TYPE.GET_MARKET_TOP_CALL_FUNC,
+                        payload: data,
+                        date:params.time
+                    });
+                }
+                
+            });
+        }
+    },
 }
