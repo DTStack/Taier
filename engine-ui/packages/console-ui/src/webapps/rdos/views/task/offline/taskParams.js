@@ -81,9 +81,13 @@ class TaskParams extends React.Component {
     }
 
     render() {
+        const {tabData} = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const formItems = this.getFormItems()
+        
         return (
-            <Form>
+            <Form style={{position:"relative"}}>
+                {isLocked?<div className="cover-mask"></div>:null} 
                 <Collapse bordered={false} defaultActiveKey={['1', '2']}>
                     <Panel key="1" header={<span>
                             系统参数配置 <HelpDoc style={{position: 'inherit'}} doc="customSystemParams" />

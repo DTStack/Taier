@@ -39,6 +39,8 @@ export default class TaskVersion extends React.Component {
     render() {
         const { taskInfo } = this.props;
         const { showDiff, campareTo } = this.state;
+        const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
+
         return (
             <div>
                 <Table
@@ -59,6 +61,7 @@ export default class TaskVersion extends React.Component {
                     footer={null}
                 >
                     <DiffCodeEditor 
+                        readOnly={isLocked}
                         value={taskInfo.sqlText} 
                         compareTo={campareTo.sqlText}
                         onChange={this.codeChange}
