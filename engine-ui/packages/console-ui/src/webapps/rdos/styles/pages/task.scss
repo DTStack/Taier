@@ -675,3 +675,12 @@
 .clear-offset .ant-btn.ant-btn-loading:not(.ant-btn-circle):not(.ant-btn-circle-outline):not(.ant-btn-icon-only){
     padding-left: 20px;
 }
+.cover-mask{
+    position: absolute;
+    bottom: 0px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    cursor: not-allowed;
+    z-index: 999;
+}
