@@ -45,7 +45,7 @@ export default class RowItem extends React.Component {
         }
 
         const newData = assign({}, data, { [iptName]: value });
-        const TYPE = newData.type.toUpperCase();
+        const TYPE = newData.columnType.toUpperCase();
 
         if(TYPE === 'DECIMAL') {
             if(!newData.precision) newData.precision = 10;
@@ -89,9 +89,11 @@ export default class RowItem extends React.Component {
     render() {
         const { data, columnFileds } = this.props;
         const { editMode } = this.state;
+        console.log('rowItem',this.props);
+        
         const options = columnFileds && columnFileds.map(field => <Option title={field.columnName} value={field.columnName} key={field.columnName}>{field.columnName}</Option>)
-        const { isSaved, isPartition, precision, scale } = data;
-        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(data.type.toUpperCase()) !== -1;
+        const { isSaved, isPartition, precision, scale, columnType } = data;
+        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
         const TYPES = isPartition ?
             ['STRING', 'BIGINT'] :
             ["TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
@@ -103,29 +105,29 @@ export default class RowItem extends React.Component {
             <Col span={4} className="cell">
                 <Select
                     mode="combobox"
-                    value={data.name}
+                    value={data.columnName}
                     placeholder={this.props.placeholder}
                     notFoundContent=""
-                    name="name"
+                    name="columnName"
                     showArrow={true}
                     style={{width: '100%'}}
                     defaultActiveFirstOption={false}
                     disabled={ isSaved }
                     filterOption={false}
-                    onChange={ this.handleChange.bind(this, 'name') }
+                    onChange={ this.handleChange.bind(this, 'columnName') }
                 >
                     {options}
                 </Select>
             </Col>
             <Col span={8} className="cell">
-                <Select name="type" defaultValue={ data.type }
-                    onChange={ this.handleChange.bind(this, 'type') }
+                <Select name="columnType" defaultValue={ data.columnType }
+                    onChange={ this.handleChange.bind(this, 'columnType') }
                     style={{ width: needExtra ? '40%' : '80%' }}
                     disabled={ isSaved }
                 >
                     {TYPES.map(str => <Option key={str} value={str}>{str}</Option>)}
                 </Select>
-                { needExtra && this.renderExtra(data.type) }
+                { needExtra && this.renderExtra(data.columnType) }
             </Col>
             <Col span={7} className="cell">
                 <Input 
@@ -155,13 +157,13 @@ export default class RowItem extends React.Component {
         </Row>
     }
 
-    renderExtra(type) {
+    renderExtra(columnType) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
         let result = '';
 
-        type = type.toUpperCase();
-        switch(type) {
+        columnType = columnType.toUpperCase();
+        switch(columnType) {
             case 'DECIMAL':
                 result = <span className="extra-ipt">
                     <Select name="precision"

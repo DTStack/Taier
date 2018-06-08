@@ -89,6 +89,8 @@ class AuthMana extends Component {
                     table: res.data,
                     loading: false,
                 })
+            }else{
+                this.setState({loading:false})
             }
         })
     }
