@@ -126,8 +126,15 @@ class FnMoveModal extends React.Component {
             if(!err) {
                 values.functionId = functionId;
                 delete values.name;
-                this.closeModal();
-                doMoveFn(values, moveFnData.originFn);
+                
+                doMoveFn(values, moveFnData.originFn)
+                .then(
+                    (success)=>{
+                        if(success){
+                            this.closeModal();
+                        }
+                    }
+                );
             }
         });
     }
@@ -183,7 +190,7 @@ dispatch => {
         },
 
         doMoveFn: function(params, originFn) {
-            ajax.moveOfflineFn(params)
+            return ajax.moveOfflineFn(params)
                 .then(res => {
                     if(res.code === 1) {
                         let newData = originFn;
@@ -195,6 +202,7 @@ dispatch => {
                             type: fnTreeAction.EDIT_FOLDER_CHILD,
                             payload: newData
                         });
+                        return true;
                     }
                 })
         }
