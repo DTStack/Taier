@@ -17,9 +17,9 @@ export default class ColumnsPartition extends React.Component {
 
     addRow(type) {
         this.props.addRow({
-            name: '',
-            type: 'STRING',
-            desc: '',
+            columnName: '',
+            columnType: 'STRING',
+            columnDesc: '',
             uuid: Date.now()
         }, type);
     }

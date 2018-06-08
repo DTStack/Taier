@@ -307,7 +307,9 @@ class Log extends React.Component {
             }
         }];
         const { tableList, tableLog, visibleSlidePane, isDeleted,loading } = this.state;
-        const { data, pageIndex, pageSize, totalPage, totalCount } = tableList;
+        console.log(tableList);
+        
+        const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
         const { projectUsers, params } = this.props;
 
         const title = (
@@ -348,7 +350,7 @@ class Log extends React.Component {
                         <Pagination
                             pageSize={20}
                             style={{ float: 'right', marginTop: '16px' }}
-                            current={pageIndex || 0}
+                            current={currentPage || 0}
                             total={totalCount || 0}
                             onChange={this.showTableListPage.bind(this)}
                         />
