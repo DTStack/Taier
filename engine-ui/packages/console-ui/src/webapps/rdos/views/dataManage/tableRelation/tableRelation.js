@@ -63,6 +63,8 @@ export default class TableRelation extends React.Component {
         relationTasks: {}, // 关联任务
         loading: 'success',
         currentPage: 1, 
+        parentPage: {},
+        childPage: {},
         visible: false,
     }
 
@@ -155,7 +157,8 @@ export default class TableRelation extends React.Component {
 
         const parent = graph.getDefaultParent();
 
-        this.renderTree(testData.data);
+        // this.renderTree(testData.data);
+        this.renderTree(data);
         graph.view.setTranslate(startX, startY);
     }
 

@@ -205,12 +205,17 @@ class SearchTable extends Component {
                 key: 'id',
                 dataIndex: 'permissionStatus',
                 width: 100,
-                render(text, record) {
-                    return <span>
-                        { 
-                            text == 1 ?  <a onClick={() => ctx.showModal(record)}>申请授权</a> :   text == 2 ? "等待授权" : "已授权"
-                        }
-                    </span>
+                render(status, record) {
+                    // 授权状态 0-未授权，1-已授权,2-待审批
+                    switch(status) {
+                        case 0:
+                            return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
+                        case 1:
+                            return <span>已授权</span>
+                        case 2:
+                            return <span>待审批</span>
+                        default: return '-';
+                    }
                 }
             }
         ];
