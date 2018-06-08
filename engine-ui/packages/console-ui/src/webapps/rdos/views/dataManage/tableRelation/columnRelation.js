@@ -208,15 +208,10 @@ export default class TableRelation extends React.Component {
             tableInfo.setAttribute('data', JSON.stringify(data))
 
             let newVertex = '';
-            this.executeLayout(() => {
-                newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
-                    VertexSize.width, VertexSize.height, style
-                )
-                graph.insertEdge(parent, null, '', parent, newVertex)
-                graph.view.refresh(newVertex)
-            }, () => {
-                graph.scrollCellToVisible(newVertex);
-            })
+            newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+                VertexSize.width, VertexSize.height, style
+            )
+            graph.insertEdge(parent, null, '', parent, newVertex)
             // 缓存节点
             this._vertexCells.push(newVertex)
 

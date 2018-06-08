@@ -21,7 +21,6 @@ export default class Test extends Component {
                         <h1>Right-Top</h1>
                     </div>
                     <div>
-                        <GraphEditor />
                     </div>
                 </SplitPane>
             </SplitPane>

@@ -5,7 +5,7 @@
         "belongProjectId": 151,
         "dataSourceId": -1,
         "dataSource": "wujing_test",
-        "tableName": "1",
+        "tableName": "1dafa",
         "dataSourceType": 7,
         "column": null,
         "parentTables": null,
@@ -35,48 +35,41 @@
                                 "belongProjectId": 151,
                                 "dataSourceId": -1,
                                 "dataSource": "wujing_test",
-                                "tableName": "0-0-1",
+                                "tableName": "0-fafafaf1",
                                 "dataSourceType": 7,
                                 "column": "id",
                                 "parentTables": null,
                                 "childTables": null,
-                                "parentResult": {
-                                    "currentPage": 1,
-                                    "pageSize": 6,
-                                    "totalCount": 1,
-                                    "totalPage": 0,
-                                    "data": [
-                                        {
-                                            "belongProjectId": 151,
-                                            "dataSourceId": -1,
-                                            "dataSource": "wujing_test",
-                                            "tableName": "0-0-0-1",
-                                            "dataSourceType": 7,
-                                            "column": "id",
-                                            "parentTables": null,
-                                            "childTables": null,
-                                            "parentResult": null,
-                                            "childResult": null
-                                        }, {
-                                            "belongProjectId": 151,
-                                            "dataSourceId": -1,
-                                            "dataSource": "wujing_test",
-                                            "tableName": "0-0-0-2",
-                                            "dataSourceType": 7,
-                                            "column": "id",
-                                            "parentTables": null,
-                                            "childTables": null,
-                                            "parentResult": null,
-                                            "childResult": null
-                                        }
-                                    ],
-                                    "attachment": null
-                                },
+                                "parentResult": null,
+                                "childResult": null
+                            },
+                            {
+                                "belongProjectId": 151,
+                                "dataSourceId": -1,
+                                "dataSource": "wujing_test",
+                                "tableName": "0-fafafaf2",
+                                "dataSourceType": 7,
+                                "column": "id",
+                                "parentTables": null,
+                                "childTables": null,
+                                "parentResult": null,
                                 "childResult": null
                             }
                         ],
                         "attachment": null
                     },
+                    "childResult": null
+                },
+                {
+                    "belongProjectId": 151,
+                    "dataSourceId": -1,
+                    "dataSource": "wujing_test",
+                    "tableName": "0-2",
+                    "dataSourceType": 7,
+                    "column": "id",
+                    "parentTables": null,
+                    "childTables": null,
+                    "parentResult": null,
                     "childResult": null
                 }
             ],
@@ -98,47 +91,19 @@
                     "parentTables": null,
                     "childTables": null,
                     "parentResult": null,
-                    "childResult": {
-                        "currentPage": 1,
-                        "pageSize": 6,
-                        "totalCount": 1,
-                        "totalPage": 0,
-                        "data": [
-                            {
-                                "belongProjectId": 151,
-                                "dataSourceId": -1,
-                                "dataSource": "wujing_test",
-                                "tableName": "1-2-1",
-                                "dataSourceType": 7,
-                                "column": "id",
-                                "parentTables": null,
-                                "childTables": null,
-                                "parentResult": null,
-                                "childResult": {
-                                    "currentPage": 1,
-                                    "pageSize": 6,
-                                    "totalCount": 1,
-                                    "totalPage": 0,
-                                    "data": [
-                                        {
-                                            "belongProjectId": 151,
-                                            "dataSourceId": -1,
-                                            "dataSource": "wujing_test",
-                                            "tableName": "1-2-1-1",
-                                            "dataSourceType": 7,
-                                            "column": "id",
-                                            "parentTables": null,
-                                            "childTables": null,
-                                            "parentResult": null,
-                                            "childResult": null
-                                        }
-                                    ],
-                                    "attachment": null
-                                }
-                            }
-                        ],
-                        "attachment": null
-                    }
+                    "childResult": null
+                },
+                {
+                    "belongProjectId": 151,
+                    "dataSourceId": -1,
+                    "dataSource": "wujing_test",
+                    "tableName": "1-2",
+                    "dataSourceType": 7,
+                    "column": "id",
+                    "parentTables": null,
+                    "childTables": null,
+                    "parentResult": null,
+                    "childResult": null
                 }
             ],
             "attachment": null
