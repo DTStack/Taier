@@ -135,7 +135,7 @@ export default class ModelCheck extends Component {
                 const showText = record.isIgnore ? '恢复' : '忽略';
                 return (
                     <div key={record.id}>
-                        <Link to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
+                        <Link to={`/data-model/table/modify/${record.id}`}>修改</Link>
                         <span className="ant-divider" />
                         <a onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>

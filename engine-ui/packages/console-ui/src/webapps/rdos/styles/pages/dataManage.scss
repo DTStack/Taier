@@ -245,4 +245,20 @@
             overflow: auto;
         }
     }
+
+    .graph-pagination {
+
+        .parent, .child {
+            position: absolute;
+        }
+
+        .parent {
+            left: 100px;
+        }
+
+        .child {
+            right: 100px;
+        }
+    }
+
 .CodeMirror pre.CodeMirror-placeholder { color: rgba(159, 168, 210, 0.48); }
