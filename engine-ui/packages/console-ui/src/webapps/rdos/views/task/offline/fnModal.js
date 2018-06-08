@@ -244,12 +244,16 @@ class FnModal extends React.Component {
         const form = this.form;
 
         form.validateFields((err, values) => {
-            if(!err) {
-                this.closeModal();
-                addFn(values);
-                setTimeout(()=> {
-                    form.resetFields();
-                }, 500);
+            if(!err) { 
+                addFn(values)
+                .then(
+                    (success)=>{
+                        if(success){
+                            this.closeModal();
+                            form.resetFields();
+                        }
+                    }
+                );
             }
         });
     }
@@ -317,8 +321,7 @@ dispatch => {
         },
 
         addFn: function(params) {
-            console.log(params);
-            ajax.addOfflineFunction(params)
+           return ajax.addOfflineFunction(params)
                 .then(res => {
                     console.log(res);
                     let {data} = res;
@@ -327,6 +330,7 @@ dispatch => {
                             type: fnTreeAction.ADD_FOLDER_CHILD,
                             payload: data
                         });
+                        return true;
                     }
                 })
         },
