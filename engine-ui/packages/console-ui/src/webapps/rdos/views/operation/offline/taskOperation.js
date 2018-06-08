@@ -376,7 +376,7 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: 100,
+            width: 120,
             render: (text, record) => {
                 const name = record.batchTask && record.batchTask.name
                 const showName = record.batchTask.isDeleted === 1 ? 
@@ -405,7 +405,7 @@ class OfflineTaskList extends Component {
             },
             filters: offlineTaskTypeFilter,
         }, {
-            width: 120,
+            width: 100,
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
