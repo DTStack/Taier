@@ -444,7 +444,7 @@ export default class StepTwo extends Component {
                             </FormItem>
                             <FormItem className="cell-multiple-center">
                                 {
-                                    getFieldDecorator(`threshold${record.id}`, {
+                                    getFieldDecorator(`threshold@${record.id}`, {
                                         rules: [{
                                             required: true,
                                             message: '阈值不可为空'
