@@ -28,7 +28,7 @@ class DiffEditor extends Component {
 
     initUI = (value, compareTo) => {
 
-        const { onChange } = this.props
+        const { onChange, readOnly } = this.props
 
         const instance = this.getCodeMirrorIns();
 
@@ -40,7 +40,8 @@ class DiffEditor extends Component {
             mode: "text/x-sql",
             highlightDifferences: true,
             connect: null,
-            collapseIdentical: false
+            collapseIdentical: false,
+            readOnly:readOnly
         });
 
         mv.edit.doc.on('change', (doc) => {

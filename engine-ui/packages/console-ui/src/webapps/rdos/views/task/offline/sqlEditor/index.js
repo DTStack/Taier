@@ -86,6 +86,7 @@ import {
         const size = this.state.size;
 
         const cursor = currentTabData.cursor || undefined;
+        const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
 
 
@@ -115,7 +116,7 @@ import {
                                 <CodeEditor 
                                     key="sqlEditor"
                                     sync={currentTabData.merged || undefined}
-                                    options={options}
+                                    options={{...options,readOnly:isLocked}}
                                     value={value}
                                     cursor={cursor}
                                     cursorActivity={ this.debounceSelectionChange }
@@ -143,7 +144,7 @@ import {
                             <CodeEditor
                                 key="sqlEditor"
                                 sync={currentTabData.merged || undefined}
-                                options={options}
+                                options={{...options,readOnly:isLocked}}
                                 cursor={cursor}
                                 cursorActivity={ this.debounceSelectionChange }
                                 onChange={ this.debounceChange }  

@@ -53,6 +53,8 @@ class ScheduleForm extends React.Component {
         const { status, scheduleConf } = this.props;
         const { periodType } = scheduleConf;
 
+
+
         const generateHours = () => {
             let options = [];
             for(let i = 0; i <= 23; i++) {
@@ -648,6 +650,7 @@ class SchedulingConfig extends React.Component {
 
     render() {
         const { tabData } = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         let initConf = tabData.scheduleConf;
 
         const scheduleConf = initConf === '' ?
@@ -691,7 +694,8 @@ class SchedulingConfig extends React.Component {
             lineHeight: '30px',
         };
 
-        return <div className="m-scheduling">
+        return <div className="m-scheduling" style={{position: 'relative'}}>
+            {isLocked?<div className="cover-mask"></div>:null} 
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap

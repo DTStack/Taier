@@ -53,6 +53,8 @@ class SiderBench extends React.Component {
 
     getTabPanes = () => {
         const { tabData } = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
+
         const panes = [
             <TabPane tab={<span className="title-vertical">任务属性</span>} key="params1">
                 <TaskDetail tabData={tabData}></TaskDetail>
@@ -74,7 +76,7 @@ class SiderBench extends React.Component {
                 </TabPane>,
                 <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                     <SQLEditor
-                        options={propEditorOptions}
+                        options={{...propEditorOptions,readOnly:isLocked}}
                         key={'params' + tabData.id}
                         value={tabData.taskParams}
                         onFocus={() => { }}

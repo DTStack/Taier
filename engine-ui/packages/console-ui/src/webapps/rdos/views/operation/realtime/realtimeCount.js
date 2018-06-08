@@ -107,8 +107,8 @@ class RealtimeCount extends Component {
                                 </section>
                             </Col>
                             <Col span={5}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">未提交</span>
+                                <section className="m-count-section" style={{width:"60px"}}>
+                                    <span className="m-count-title">等待提交</span>
                                     <a onClick={this.jumpToRealList.bind(this,taskStatus.UNSUBMIT)} className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</a>
                                 </section>
                             </Col>

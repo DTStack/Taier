@@ -12,7 +12,7 @@ import {
 import utils from 'utils'
 
 import Api from '../../../api'
-import { taskStatusFilter } from '../../../comm/const'
+import { taskStatusFilter, TASK_STATUS } from '../../../comm/const'
 import { TaskStatus } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
@@ -88,33 +88,45 @@ class RealTimeTaskList extends Component {
         const ctx = this
         const current = this.state.current
         const status = task.status
-        const stopArr = [4, 16, 17, 11];
+        const stopArr = [4, 16, 17, 11, 10];
         const startArr = [0, 7, 8, 9];
         const isRestore = status === 7 || status === 8 || status === 0 ? 1 : 0
-        if (startArr.indexOf(status) > -1) {
-            if (mode !== 'normal' && (status === 7 || status === 8)) { // 续跑
-                this.setState({ goOnTask: task.id })
-            } else {
-                Api.startTask({
+        
+        switch(status){
+            case TASK_STATUS.WAIT_SUBMIT:
+            case TASK_STATUS.STOPED:
+            case TASK_STATUS.RUN_FAILED:
+            case TASK_STATUS.SUBMIT_FAILED:{
+                if (mode !== 'normal' && (status === 7 || status === 8)) { // 续跑
+                    this.setState({ goOnTask: task.id })
+                } else {
+                    Api.startTask({
+                        id: task.id,
+                        isRestoration: isRestore,
+                    }).then((res) => {
+                        if (res.code === 1) {
+                            message.success('任务操作成功！')
+                            ctx.loadTaskList({ pageIndex: current })
+                        }
+                    })
+                }
+                break;
+            }
+            case TASK_STATUS.RUNNING:
+            case TASK_STATUS.SUBMITTING:
+            case TASK_STATUS.RESTARTING:
+            case TASK_STATUS.WAIT_RUN:
+            case TASK_STATUS.WAIT_COMPUTE:{
+                Api.stopTask({
                     id: task.id,
-                    isRestoration: isRestore,
                 }).then((res) => {
                     if (res.code === 1) {
-                        message.success('任务操作成功！')
+                        message.success('任务已执行停止！')
                         ctx.loadTaskList({ pageIndex: current })
                     }
                 })
+                break;
             }
-
-        } else if (stopArr.indexOf(status) > -1) {
-            Api.stopTask({
-                id: task.id,
-            }).then((res) => {
-                if (res.code === 1) {
-                    message.success('任务已执行停止！')
-                    ctx.loadTaskList({ pageIndex: current })
-                }
-            })
         }
     }
 
@@ -207,30 +219,30 @@ class RealTimeTaskList extends Component {
                 let goOn = ''
                 let popTxt = '确定执行当前操作吗?'
                 switch (record.status) {
-                    case 0:
+                    case TASK_STATUS.WAIT_SUBMIT:
                         normal = '提交'
                         break;
-                    case 5:
+                    case TASK_STATUS.FINISHED:
                         recover = <a>重跑</a>
                         popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
                         break;
-                    case 7:
+                    case TASK_STATUS.STOPED:
                         goOn = '续跑'
                         popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
                         recover = <a>重跑</a>
                         break;
-                    case 8:
+                    case TASK_STATUS.RUN_FAILED:
                         goOn = '续跑'
                         normal = '重试'
                         break;
-                    case 9:
+                    case TASK_STATUS.SUBMIT_FAILED:
                         normal = '重试'
                         break;
-                    case 4:
-                    case 16:
-                    case 17:
-                    case 10:
-                    case 11:
+                    case TASK_STATUS.RUNNING:
+                    case TASK_STATUS.WAIT_RUN:
+                    case TASK_STATUS.WAIT_COMPUTE:
+                    case TASK_STATUS.SUBMITTING:
+                    case TASK_STATUS.RESTARTING:
                         normal = '停止'
                         break;
                     default:
