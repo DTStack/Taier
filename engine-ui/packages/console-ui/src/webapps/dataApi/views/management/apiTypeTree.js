@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Card, Tree, Tooltip, Icon, Popconfirm, message } from "antd";
+import { Card, Tree, Tooltip, Icon, Popconfirm, message, Spin } from "antd";
 import { cloneDeep } from 'lodash';
 const TreeNode = Tree.TreeNode;
 class ApiTypeTree extends Component {
@@ -50,7 +50,7 @@ class ApiTypeTree extends Component {
                 expandedKeys.push(item.id.toString());
                 arr.push(
                     (
-                        <TreeNode title={this.getTreeNodeTitle.call(this, item.id, item.catalogueName, false, isLeaf, deepLength)} key={item.id}>
+                        <TreeNode title={this.getTreeNodeTitle.call(this, item.id, item.catalogueName, false, isLeaf, deepLength,item.isTmp)} key={item.id}>
                             {renderTree.call(this, item.childCatalogue, deepLength + 1)}
                         </TreeNode>
                     )
@@ -88,11 +88,21 @@ class ApiTypeTree extends Component {
         }
         return isValid;
     }
-    getTreeNodeTitle(id, text, isRoot, isLeaf, deepLength) {
-        const maxDeepLength = this.state.maxDeepLength;
+    getTreeNodeTitle(id, text, isRoot, isLeaf, deepLength, isTmp) {
+        const maxDeepLength = this.state.maxDeepLength; 
         let item;
+        const disAble=isTmp&&this.state.editNode!=id;
         //根节点
-        if (isRoot) {
+        if(disAble){
+            item = (
+                <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
+                    <Tooltip title="加载中" >
+                        <Spin size="small" />
+                    </Tooltip>
+                </span>
+            )
+        }
+        else if (isRoot) {
             item = (
                 <span className="tree-hover-show-item tree-item" style={{ marginLeft: "3px" }}>
                     <Tooltip title="添加新分类" >
@@ -223,12 +233,14 @@ class ApiTypeTree extends Component {
     addNode(id) {
         const tree = cloneDeep(this.props.tree);
         const tmpId = Math.random();
+        const {expandedKeys} = this.state;
         function addTreeNode(data, id) {
             if (id == 0) {
                 data.push({
                     id: tmpId,
                     catalogueName: "新建分类名",
-                    childCatalogue: []
+                    childCatalogue: [],
+                    isTmp:true
                 });
                 return;
             }
@@ -240,7 +252,8 @@ class ApiTypeTree extends Component {
                     item.childCatalogue.push({
                         id: tmpId,
                         catalogueName: "新建分类名" + item.childCatalogue.length,
-                        childCatalogue: []
+                        childCatalogue: [],
+                        isTmp:true
                     })
                     return;
                 }
@@ -249,6 +262,11 @@ class ApiTypeTree extends Component {
             return;
         }
         addTreeNode(tree, id)
+        if(expandedKeys){
+            if(expandedKeys.indexOf(id)==-1){
+                this.onExpands(expandedKeys.concat(id+''));
+            }
+        }
         this.setState({
             editNode: tmpId,
             mode: "add",

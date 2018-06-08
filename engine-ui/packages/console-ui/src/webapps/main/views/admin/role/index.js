@@ -126,6 +126,7 @@ class AdminRole extends Component {
             render(text, record) {
                 return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
+            width:"150px"
         }, {
             title: '角色描述',
             dataIndex: 'roleDesc',
