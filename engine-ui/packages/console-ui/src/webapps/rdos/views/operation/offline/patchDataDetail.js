@@ -341,7 +341,7 @@ class PatchDataDetail extends Component {
             filterMultiple: true,
         }, {
             title: '任务类型',
-            width: 100,
+            width: 80,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {

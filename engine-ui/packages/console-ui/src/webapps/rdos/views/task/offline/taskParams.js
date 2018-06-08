@@ -17,11 +17,11 @@ const Panel = Collapse.Panel;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 9 },
+        sm: { span: 5 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 15 },
+        sm: { span: 16 },
     },
 }
 
@@ -29,13 +29,13 @@ class TaskParams extends React.Component {
 
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
-        const reg = /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/;
-        if (reg.test(value)) {
+        // const reg = /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/;
+        // if (reg.test(value)) {
             console.log('value:', value);
             const taskVariables = [...tabData.taskVariables];
             taskVariables[index].paramCommand = value;
             onChange({taskVariables})
-        }
+        // }
     
     }
 
@@ -50,10 +50,10 @@ class TaskParams extends React.Component {
                 label={param.paramName}
             >
                 {getFieldDecorator(param.paramName, {
-                    rules: [{
-                        pattern: /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/,
-                        message: '参数格式不正确',
-                    }],
+                    // rules: [{
+                    //     pattern: /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/,
+                    //     message: '参数格式不正确',
+                    // }],
                     initialValue: param.paramCommand
                 })(
                     <Input 
