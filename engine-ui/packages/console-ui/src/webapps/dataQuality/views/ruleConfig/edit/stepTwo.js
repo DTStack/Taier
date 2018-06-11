@@ -444,7 +444,7 @@ export default class StepTwo extends Component {
                             </FormItem>
                             <FormItem className="cell-multiple-center">
                                 {
-                                    getFieldDecorator(`threshold${record.id}`, {
+                                    getFieldDecorator(`threshold@${record.id}`, {
                                         rules: [{
                                             required: true,
                                             message: '阈值不可为空'
@@ -604,7 +604,7 @@ export default class StepTwo extends Component {
             message.error("规则不能重复！");
             return;  
         }
-        this.props.form.validateFields(fields, { force: true }, (err, values) => {
+        this.props.form.validateFields(null, { force: true }, (err, values) => {
             console.log(err, values)
             if (!err) {
                 delete currentRule.editStatus;
