@@ -399,7 +399,6 @@ class AdminUser extends Component {
         } = this.state
 
         const content = this.renderPane();
-
         return (
             <div className="user-admin">
                 <h1 className="box-title">用户管理</h1>
@@ -433,6 +432,7 @@ class AdminUser extends Component {
                     visible={visibleEditRole}
                     onOk={this.updateMemberRole}
                     onCancel={this.onCancel}
+                    width={Math.min(1000,Math.max(520,(400+(roles?roles.length*60:0))))+"px"}
                 >
                     <EditMemberRoleForm
                         user={editTarget}

@@ -6,7 +6,6 @@ import {
  } from 'antd'
 
 import { 
-    formItemLayout, 
     RDOS_ROLE, 
     APP_ROLE,
     MY_APPS,
@@ -17,6 +16,17 @@ import { isDisabledRole } from './form'
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
+
+const formItemLayout={
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 6 },
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 18 },
+    },
+}
 
 
 class EditRoleForm extends Component {
