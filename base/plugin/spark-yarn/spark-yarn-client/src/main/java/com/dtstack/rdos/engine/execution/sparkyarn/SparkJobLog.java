@@ -11,7 +11,7 @@ import java.util.List;
  * 从spark上获取的任务日志
  * Date: 2017/11/24
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class SparkJobLog {
@@ -91,12 +91,5 @@ public class SparkJobLog {
         }
 
         return "";
-    }
-
-    public static void main(String[] args) {
-        SparkJobLog sparkJobLog = new SparkJobLog();
-        sparkJobLog.addDriverLog("driver-20171108161026-0001", "Launch Command:");
-        sparkJobLog.addAppLog("worker-20171108155444-172.16.8.103-48751", "Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties\\n17/11/08 16:10:32 INFO CoarseGrainedExecutorBackend");
-        System.out.println(sparkJobLog);
     }
 }

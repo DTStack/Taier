@@ -78,8 +78,10 @@ public class TaskStatusListener implements Runnable{
 
 	private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
-	
-	@Override
+	/**失败任务的额外处理：当前只是对失败任务继续更新日志*/
+    private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
+
+    @Override
 	public void run() {
 	  	int index = 0;
 	  	while(true){
@@ -90,6 +92,7 @@ public class TaskStatusListener implements Runnable{
 		  		    logger.warn("\n\t\t  \t\tThread.sleep({});TaskStatusListener start again...", LISTENER_INTERVAL);
 		  		}
 		  		updateTaskStatus();
+                dealFailedJob();
 			}catch(Throwable e){
 				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
 			}finally {
@@ -97,6 +100,32 @@ public class TaskStatusListener implements Runnable{
             }
         }
 	}
+
+	public void dealFailedJob(){
+        try{
+            for(Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()){
+                FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
+                String key = failedTaskEntry.getKey();
+                updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getEngineJobId(),
+                        failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
+                failedTaskInfo.tryLog();
+
+                if(!failedTaskInfo.canTryLogAgain()){
+                    failedJobCache.remove(key);
+                }
+            }
+
+            Thread.sleep(LISTENER_INTERVAL);
+        }catch (Exception e){
+            logger.error("dealFailed job run error:{}",ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
+    public void addFailedJob(FailedTaskInfo failedTaskInfo){
+        if(!failedJobCache.containsKey(failedTaskInfo.getJobId())){
+            failedJobCache.put(failedTaskInfo.getJobId(), failedTaskInfo);
+        }
+    }
 	
 	private void updateTaskStatus(){
 		Set<Map.Entry<String,Byte>> entrys = brokerDatas.get(zkDistributed.getLocalAddress()).getMetas().entrySet();
@@ -145,6 +174,12 @@ public class TaskStatusListener implements Runnable{
                     updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, engineTaskId, pluginInfoStr);
                 }
+
+                if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
+                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, engineTaskId,
+                            engineTypeName, computeType, pluginInfoStr);
+                    addFailedJob(failedTaskInfo);
+                }
             }else{
                 dealWaitingJobForMigrationJob(zkTaskId, oldStatus);
             }
@@ -175,6 +210,12 @@ public class TaskStatusListener implements Runnable{
                         updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                         dealBatchJobAfterGetStatus(status, taskId, zkTaskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     }
+
+                    if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
+                        FailedTaskInfo failedTaskInfo = new FailedTaskInfo(rdosBatchJob.getJobId(), rdosBatchJob.getEngineJobId(),
+                                engineTypeName, computeType, pluginInfoStr);
+                        addFailedJob(failedTaskInfo);
+                    }
                 }
             }else{
                 dealWaitingJobForMigrationJob(zkTaskId, oldStatus);
@@ -193,9 +234,9 @@ public class TaskStatusListener implements Runnable{
     private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
 
         //写入db
-        if(computeType == ComputeType.STREAM.getType()){
+        if(ComputeType.STREAM.getType().equals(computeType)){
             rdosStreamTaskDAO.updateEngineLog(jobId, jobLog);
-        }else if(computeType == ComputeType.BATCH.getType()){
+        }else if(ComputeType.BATCH.getType().equals(computeType)){
             rdosBatchEngineJobDAO.updateEngineLog(jobId, jobLog);
         }else{
             logger.info("----- not support compute type {}.", computeType);
