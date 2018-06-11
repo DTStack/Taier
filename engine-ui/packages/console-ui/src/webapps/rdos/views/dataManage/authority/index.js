@@ -64,6 +64,10 @@ class AuthMana extends Component {
             visible:false,
             loading:false,
             rangeTime:[],
+            descModel: {
+                visible: false,
+                descInfo: "",
+            },
             queryParams: {
                 listType: this.isAdminAbove==1 ?"0" : "1",
                 pageIndex: 1,
@@ -95,6 +99,7 @@ class AuthMana extends Component {
                 this.setState({
                     table: res.data,
                     loading: false,
+                    checkAll: false,
                 })
             }else{
                 this.setState({loading:false})
@@ -117,7 +122,9 @@ class AuthMana extends Component {
         ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
-                this.setState({visible: false},this.search)                
+                this.setState({
+                    visible: false,
+                },this.search)                
             }
         })
     }
@@ -161,7 +168,6 @@ class AuthMana extends Component {
         }
         this.setState({
             queryParams,
-            checkAll: false,
             selectedRowKeys: [],
         }, this.search)
     }
@@ -341,6 +347,9 @@ class AuthMana extends Component {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         },
                         {
                             title: '操作',
@@ -385,6 +394,9 @@ class AuthMana extends Component {
                             title: '有效时间',
                             key: 'day',
                             dataIndex: 'day',
+                            render(text, record) {
+                                return `${text}天`
+                            }
                         },
                         {
                             title: '审批状态',
@@ -406,6 +418,9 @@ class AuthMana extends Component {
                             title: '申请详情',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         },
                         {
                             title: '操作',
@@ -438,6 +453,9 @@ class AuthMana extends Component {
                             title: '有效时间',
                             key: 'day',
                             dataIndex: 'day',
+                            render(text, record) {
+                                return `${text}天`
+                            }
                         },
                         {
                             title: '审批状态',
@@ -464,6 +482,9 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         }
                     ]
                 )
@@ -483,6 +504,9 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         },
                         {
                             title: '处理时间',
@@ -508,6 +532,24 @@ class AuthMana extends Component {
             default: 
                 return [];
         }
+    }
+
+    closeDescModal = () => {
+        const { descModel } = this.state; 
+        descModel.descInfo = "";
+        descModel.visible = false;
+        this.setState({
+            descModel
+        })
+    }
+
+    showDescModal = (text) => {
+        const { descModel } = this.state; 
+        descModel.descInfo = text;
+        descModel.visible = true;
+        this.setState({
+            descModel
+        });
     }
 
     onChangeTime = (date, dateString)=> {
@@ -601,10 +643,10 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, } = this.state;
+        const { editRecord, visible, agreeApply, descModel} = this.state;
         return (
             <div className="box-1 m-tabs">
-                <Tabs 
+                <Tabs
                     animated={false} 
                     style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}
@@ -642,6 +684,16 @@ class AuthMana extends Component {
                     }
                     
                 </Tabs>
+                <div>
+                        <Modal
+                        title="详情信息"
+                        visible={descModel.visible}
+                        onCancel={this.closeDescModal}
+                        footer={null}
+                        >
+                            <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
+                        </Modal>
+                    </div>
             </div>
         )
     }

@@ -97,6 +97,7 @@ class DataCatalogue extends React.Component {
                 }).then(res => {
                     const source = { nodeId: node.tmpId }
                     if (res.code === 1) {
+                        message.success('数据类目增加成功！')
                         replaceTreeNode(treeData, source, res.data)
                     } else {
                         removeTreeNode(treeData, source)
