@@ -452,15 +452,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#Integration">3.2. 数据集成</a>
 <ul class="sectlevel3">
 <li><a href="#integration_datasource">3.2.1. 支持的数据源</a></li>
-<<<<<<< HEAD
-<li><a href="#integration_dataSourceManagement">3.2.2. 数据源管理</a></li>
-=======
 <li><a href="#integration_dataSourceManagement">3.2.2. 数据源管理</a>
 <ul class="sectlevel4">
 <li><a href="#integration_dataSourceManagement_sourceConfig">数据源的配置</a></li>
 </ul>
 </li>
->>>>>>> dev_ide_v2.0.1
 <li><a href="#integration_jobConfig">3.2.3. 数据同步任务的配置</a>
 <ul class="sectlevel4">
 <li><a href="#integration_jobConfig_relationalDB">关系型数据库</a></li>
@@ -1076,11 +1072,7 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </div>
 <div class="imageblock">
 <div class="content">
-<<<<<<< HEAD
-<img src="images/05_DTinsightIDEHelp_UserGuide_DataIntegration-数据输入与输出.png" alt="05 DTinsightIDEHelp UserGuide DataIntegration 数据输入与输出">
-=======
 <img src="images/04_DTinsightIDEHelp_UserGuide_DataIntegration-5a3ac.png" alt="04 DTinsightIDEHelp UserGuide DataIntegration 5a3ac">
->>>>>>> dev_ide_v2.0.1
 </div>
 <div class="title">Figure 2. 数据输入与输出图</div>
 </div>
@@ -1111,15 +1103,8 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 <div class="paragraph">
 <p>在项目上方的<strong>数据集成</strong>菜单，进入数据数据源管理页面，可看到目前已经集成的数据源列表，包括数据源名称、类型、连接信息、描述、最近修改人、最近修改时间、状态等信息，同时可执行编辑、删除等操作。</p>
 </div>
-<<<<<<< HEAD
-<div class="ulist">
-<ul>
-<li>
-<p>数据源的配置</p>
-=======
 <div class="sect4">
 <h5 id="integration_dataSourceManagement_sourceConfig">3.2.2.1. 数据源的配置</h5>
->>>>>>> dev_ide_v2.0.1
 <div class="ulist">
 <ul>
 <li>
@@ -1127,22 +1112,6 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </li>
 <li>
 <p>在<strong>数据源列表</strong>右上角的<strong>新增数据源</strong>，选择不同的数据源类型，需要填写不同的配置信息。</p>
-<<<<<<< HEAD
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>关系型数据库（MySQL、Oracle、SQLServer）</strong></p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>JDBC URL</strong>:访问数据库的连接地址，JDBC URL格式如：<br></p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">jdbc:mysql://172.16.8.104:3306/test?charset=utf8</code></pre>
-</div>
-</div>
-</li>
-=======
 </li>
 </ul>
 </div>
@@ -1158,29 +1127,12 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </div>
 <div class="ulist">
 <ul>
->>>>>>> dev_ide_v2.0.1
 <li>
 <p><strong>用户名</strong>：访问数据库的用户名</p>
 </li>
 <li>
 <p><strong>密码</strong>：访问数据库的密码</p>
 </li>
-<<<<<<< HEAD
-</ul>
-</div>
-</li>
-<li>
-<p><strong>Hive</strong></p>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>JDBC URL</strong>:访问Hive的连接地址，JDBC URL格式如：<br></p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">jdbc:mysql://172.16.8.104:3306/test?charset=utf8</code></pre>
-</div>
-</div>
-=======
 <li>
 <p><strong>指定字符集</strong>：通过`useUnicode=true&amp;characterEncoding=utf8`来只是</p>
 </li>
@@ -1207,7 +1159,6 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </li>
 <li>
 <p><strong>dbName</strong>：Hive的数据库名，默认情况下，可填写DTinsight·IDE默认的数据库名，此数据库名与当前项目的名称相同，您需要点击：<strong>项目管理-项目配置</strong>，数据库名即列表中的第一行<strong>项目名称</strong>，注意这里不是项目显示名称。如果您知晓此数据库名可直接填写。</p>
->>>>>>> dev_ide_v2.0.1
 </li>
 <li>
 <p><strong>用户名</strong>：访问数据库的用户名</p>
@@ -1216,10 +1167,6 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 <p><strong>密码</strong>：访问数据库的密码</p>
 </li>
 <li>
-<<<<<<< HEAD
-<p><strong>DefaultFS</strong>：</p>
-</li>
-=======
 <p><strong>DefaultFS</strong>：默认情况下，此参数配置为：<code>hdfs://ns1</code>，如果您在Hadoop配置文件中修改了此配置，可以在`*/hadoop/etc/hadoop`路径下的`hdfs-site.xml`文件中，找到`dfs.nameservices`参数对应的值。
 如下图所示：</p>
 </li>
@@ -1240,7 +1187,6 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </div>
 <div class="ulist">
 <ul>
->>>>>>> dev_ide_v2.0.1
 <li>
 <p><strong>高可用配置</strong>：补充高可用配置参数，可以使DTinsightIDE访问高可用模式下的Hive数据源，高可用配置的示例如下：</p>
 <div class="listingblock">
@@ -1252,12 +1198,8 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 }</code></pre>
 </div>
 </div>
-<<<<<<< HEAD
-</li>
-=======
 <div class="ulist">
 <ul>
->>>>>>> dev_ide_v2.0.1
 <li>
 <p>关于HDFS高可用的更多信息可参考
 <a href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html">Hadoop官方文档</a></p>
@@ -1265,16 +1207,11 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </ul>
 </div>
 </li>
-<<<<<<< HEAD
-<li>
-<p><strong>HDFS</strong></p>
-=======
 </ul>
 </div>
 </div>
 <div class="sect5">
 <h6 id="integration_dataSourceManagement_sourceConfig_HDFS">3.2.2.1.3. HDFS</h6>
->>>>>>> dev_ide_v2.0.1
 <div class="ulist">
 <ul>
 <li>
@@ -1300,15 +1237,9 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </li>
 </ul>
 </div>
-<<<<<<< HEAD
-</li>
-<li>
-<p><strong>HBase</strong></p>
-=======
 </div>
 <div class="sect5">
 <h6 id="integration_dataSourceManagement_sourceConfig_HBase">3.2.2.1.4. HBase</h6>
->>>>>>> dev_ide_v2.0.1
 <div class="ulist">
 <ul>
 <li>
@@ -1341,42 +1272,21 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </li>
 </ul>
 </div>
-<<<<<<< HEAD
-</li>
-<li>
-<p><strong>测试连通性</strong></p>
-=======
 </div>
 <div class="sect5">
 <h6 id="integration_dataSourceManagement_sourceConfig_connectionTest">3.2.2.1.5. 测试连通性</h6>
->>>>>>> dev_ide_v2.0.1
 <div class="ulist">
 <ul>
 <li>
 <p>在添加/编辑数据源时，可以主动测试数据源的连通性，只有数据源连接正常的情况下才可以被添加/编辑。</p>
-<<<<<<< HEAD
-=======
 <div class="ulist">
 <ul>
 <li>
 <p>数据源的状态</p>
->>>>>>> dev_ide_v2.0.1
 </li>
 </ul>
 </div>
 </li>
-<<<<<<< HEAD
-</ol>
-</div>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>数据源的状态</p>
-</li>
-=======
->>>>>>> dev_ide_v2.0.1
 </ul>
 </div>
 <div class="paragraph">
@@ -1407,7 +1317,6 @@ DTinsight的基于Flink实现的数据集成底层模块现已开源，欢迎参
 </table>
 </div>
 </div>
-<<<<<<< HEAD
 <div class="sect3">
 <h4 id="integration_jobConfig">3.2.3. 数据同步任务的配置</h4>
 <div class="paragraph">

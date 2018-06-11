@@ -558,7 +558,7 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = 'none';
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_ROUNDED] = false;
         return style
     }
 
