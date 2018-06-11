@@ -12,7 +12,7 @@ import {
 import utils from 'utils'
 import Resize from 'widgets/resize'
 
-import Api from '../../../api'
+import Api from "../../../api/dataManage"
 import { lineAreaChartOptions } from '../../../comm/const'
 
 import {
