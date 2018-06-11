@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import moment from 'moment'
-import { debounce } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 
 import {
     Table, message, Modal,
@@ -55,7 +55,7 @@ class OfflineTaskList extends Component {
         current: 1,
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
-        taskStatus: '',
+        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : [utils.getParameterByName("status")],
         bussinessDate: [yesterDay,yesterDay],
         cycDate:undefined,
         selectedRowKeys: [],
@@ -372,6 +372,7 @@ class OfflineTaskList extends Component {
     }
 
     initTaskColumns = () => {
+        const {taskStatus} = this.state;
         return [{
             title: '任务名称',
             dataIndex: 'id',
@@ -395,6 +396,7 @@ class OfflineTaskList extends Component {
             },
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
+            filteredValue:taskStatus
         }, {
             title: '任务类型',
             width: 100,
