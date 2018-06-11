@@ -185,7 +185,6 @@ export default class TableRelation extends React.Component {
         } finally {
             model.endUpdate();
         }
-        console.log('render end', this._vertexCells)
     }
 
     insertVertex = (parent, data) => {
@@ -241,7 +240,7 @@ export default class TableRelation extends React.Component {
             if (childNodes && childNodes.length > 0) {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
-                    nodeData.isParent = false;
+                    nodeData.isChild = true;
                     // 插入新节点
                     const childNode = this.insertVertex(currentNode, nodeData)
 
@@ -314,7 +313,7 @@ export default class TableRelation extends React.Component {
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
         } else if (data.isRoot) {
             return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        } else {
+        } else if (data.isChild) {
             return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
         }
     }
@@ -331,7 +330,7 @@ export default class TableRelation extends React.Component {
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
-                    return `<div class="table-vertex"><span class="table-vertex-content"><span class="table-vertex-title">${obj.name || ''}</span></span>
+                    return `<div class="table-vertex"><span style="text-align: center;" class="table-vertex-content"><span class="table-vertex-title">${obj.name || ''}</span></span>
                     </div>`
                 }
             }
@@ -350,12 +349,14 @@ export default class TableRelation extends React.Component {
     initContextMenu = (graph) => {
         const ctx = this
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
+
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
             if (cells.length > 0 && cells[0].vertex) {
                 mxPopupMenuShowMenu.apply(this, arguments);
             } else return false
         };
+
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
 
@@ -363,15 +364,21 @@ export default class TableRelation extends React.Component {
 
             const table = JSON.parse(cell.getAttribute('data'))
             const params = { tableId: table.id, }
-            menu.addItem('展开上游（1层）', null, function () {
-                ctx.loadTableParent(params)
-                ctx.loadVertexData(params)
-            })
+            console.log('table:', table);
+            if (table.isParent) {
+                menu.addItem('展开上游（1层）', null, function () {
+                    ctx.loadTableParent(params)
+                    ctx.loadVertexData(params)
+                })
+            }
 
-            menu.addItem('展开下游（1层）', null, function () {
-                ctx.loadTableChildren(params)
-                ctx.loadVertexData(params)
-            })
+            if (table.isChild) {
+                menu.addItem('展开下游（1层）', null, function () {
+                    ctx.loadTableChildren(params)
+                    ctx.loadVertexData(params)
+                })
+            }
+
         }
     }
 

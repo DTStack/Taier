@@ -286,7 +286,7 @@ export default class TableRelation extends React.Component {
                 let lis = ''
                 for (let i = 0; i < table.columns.length; i++) {
                     const col = table.columns[i]
-                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : ''}">${col}</li>`
+                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '##595959'}">${col}</li>`
                 }
                 return `<ul class="t-vertext"><li class="tname bd-top" title="${tableTitle}">${tableTitle}</li><li class="tname" title="${table.tableName}">${table.tableName}</li>${lis}</ul>`;
             } else {
