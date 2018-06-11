@@ -4,6 +4,8 @@ import {
     Button, Tooltip, Spin, Icon, Pagination,
 } from 'antd'
 
+import { cloneDeep } from 'lodash';
+
 import utils from 'utils'
 
 import Api from '../../../api/dataManage'
@@ -62,17 +64,23 @@ const getTableReqParams = (tableData) => {
     return params;
 }
 
+const isEqTable = (from, compareTo) => {
+    return from.tableName === compareTo.tableName  &&
+    from.belongProjectId === compareTo.belongProjectId &&
+    from.dataSourceId === compareTo.dataSourceId
+}
+
 export default class TableRelation extends React.Component {
 
     state = {
         selectedData: '', // 选中的数据
-        data: {}, // 数据
+        treeData: {}, // 树形数据
         tableInfo: {},
         relationTasks: {}, // 关联任务
         loading: 'success',
         currentPage: 1, 
-        parentPage: {},
-        childPage: {},
+        currentChild: {},
+        currentParent: {},
         visible: false,
     }
 
@@ -92,7 +100,6 @@ export default class TableRelation extends React.Component {
             this.loadVertexData(params)
         }
     }
-
 
     loadVertexData = (params) => {
         this.loadTableInfo(params)
@@ -122,35 +129,120 @@ export default class TableRelation extends React.Component {
         Api.getTableRelTree(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ selectedData: getVertexNode(data), data })
-                this.doInsertVertex(data)
+                const treeData = this.initRootTree(data);
+                this.doInsertVertex(treeData)
             }
             this.hideLoading();
         })
     }
 
-    loadTableChildren = (params) => {
+    loadChildrenTable = (params) => {
         this.showLoading()
         Api.getChildRelTables(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ selectedData: getVertexNode(data), data })
-                this.renderTree(data)
+                this.setState({ currentChild: data })
+                const treeNodes = this.preHandTreeNodes(data, 'child');
+                this.renderTree(treeNodes)
             }
             this.hideLoading();
         })
     }
 
-    loadTableParent = (params) => {
+    loadParentTable = (params) => {
         this.showLoading()
         Api.getParentRelTable(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ data, selectedData: getVertexNode(data) })
-                this.renderTree(data)
+                this.setState({ currentParent: data })
+                const treeNodes = this.preHandTreeNodes(data, 'parent');
+                this.renderTree(treeNodes)
             }
             this.hideLoading();
         })
+    }
+
+    handParent(parent) {
+        const cloneParent = Object.assign({}, parent);
+        cloneParent.childResult = null;
+        cloneParent.parentResult = null;
+        return cloneParent;
+    }
+
+    /**
+     * 初始化树形结构
+     */
+    initRootTree = (rootData) => {
+        rootData.isRoot = true;
+
+        const loop = (treeItem, parent) => {
+            if (treeItem) {
+                treeItem.hide = false;
+
+                treeItem.parent = this.handParent(parent);
+
+                const childNodes = treeItem.childResult && treeItem.childResult.data;
+                const parentNodes = treeItem.parentResult && treeItem.parentResult.data;
+
+                if (childNodes && childNodes.length > 0) {
+                    for (let i = 0; i < childNodes.length; i++) {
+                        loop(childNodes[i], treeItem);
+                    }
+                }
+
+                if (parentNodes && parentNodes.length > 0) {
+                    for (let i = 0; i < parentNodes.length; i++) {
+                        loop(parentNodes[i], treeItem);
+                    }
+                }
+            }
+        }
+
+        loop(rootData);
+        console.log('rootData:', rootData)
+        this.setState({ 
+            treeData: rootData, 
+            currentChild: rootData.childResult, 
+            currentParent: rootData.parentResult 
+        });
+        return rootData;
+    }
+    /**
+     * treeNode: 树形节点
+     * treeType: child 或者 parent
+     * 数据处理主要包含如下几部分工作：
+     * 1. 追加（替换）新加载的子树到原有树结构中去，
+     * 2. 给子节点的非父节点添加隐藏显示标记
+     * 3. 给当前父节点添加标记
+     */
+    preHandTreeNodes = (treeNode, treeType) => {
+        const { treeData, currentParent, currentChild } = this.state;
+        const myTree = cloneDeep(treeData);
+        myTree.isRoot = true;
+        const props = treeType === 'parent' ? 'parentResult' : 'childResult';
+        const nodeFlag = treeType === 'parent' ? 'isCurrentParent' : 'isCurrentChild';
+
+        const loop = (treeItem, parent) => {
+            treeItem.parent = this.handParent(parent);
+            if (isEqTable(treeItem, treeNode)){
+                treeNode[nodeFlag] = true;
+                treeItem.hide = false;
+                treeItem = Object.assign(treeItem, treeNode);
+                return;
+            } else if (!treeItem.isRoot) {
+                treeItem.hide = true;
+            }
+            const children = treeItem[props] ? treeItem[props].data : [];
+            if (children.length > 0) {
+                for (let i = 0; i < children.length; i++) {
+                    loop(children[i], treeItem);
+                }
+            }
+        }
+
+        loop(myTree);
+        this.setState({ treeData: myTree });
+        return myTree;
     }
 
     doInsertVertex = (data) => {
@@ -158,11 +250,11 @@ export default class TableRelation extends React.Component {
         const startX = (graph.container.clientWidth - VertexSize.width) / 3
         const startY = 100;
 
+        this.startX = startX;
+        this.startY = startY;
+
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
-
-        // const layout = new mxHierarchicalLayout(graph);
-        // layout.orientation = 'west';
 
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = true;
@@ -198,19 +290,63 @@ export default class TableRelation extends React.Component {
     renderTree = (treeNodeData) => {
         const graph = this.graph;
 
+        graph.getModel().clear();
+
         const rootCell = graph.getDefaultParent();
 
         this.executeLayout(() => {
+
             const currentNodeData = getVertexNode(treeNodeData)
             currentNodeData.isRoot = true;
             const currentNode = this.insertVertex(rootCell, currentNodeData);
+            this.loopTree(currentNode, treeNodeData);
+
             this.rootCell = currentNode;
-            this.loopParentTree(currentNode, treeNodeData);
-            this.loopChildrenTree(currentNode, treeNodeData);
         })
+
+        graph.view.setTranslate(this.startX, this.startY);
+
+    }
+
+    loopTree = (currentNode, treeNodeData) => {
+
+        if (treeNodeData) {
+            const graph = this.graph;
+
+            const rootCell = graph.getDefaultParent();
+            const parentNodes = treeNodeData.parentResult && treeNodeData.parentResult.data;
+            const childNodes = treeNodeData.childResult && treeNodeData.childResult.data;
+
+            if (parentNodes && parentNodes.length > 0) {
+                for (let i = 0; i < parentNodes.length; i++) {
+                    const nodeData = getVertexNode(parentNodes[i])
+                    nodeData.isParent = true;
+                    const current = this.insertVertex(currentNode, nodeData);
+
+                    if (parentNodes[i].parentResult && parentNodes[i].parentResult.data && parentNodes[i].parentResult.data.length > 0) {
+                        this.loopTree(current, parentNodes[i])
+                    }
+                }
+            }
+
+             // 处理被依赖节点
+             if (childNodes && childNodes.length > 0) {
+                for (let i = 0; i < childNodes.length; i++) {
+                    const nodeData = getVertexNode(childNodes[i])
+                    nodeData.isChild = true;
+                    // 插入新节点
+                    const current = this.insertVertex(currentNode, nodeData)
+                    if (childNodes[i].childResult && childNodes[i].childResult.data && childNodes[i].childResult.data.length > 0) {
+                        this.loopTree(current, childNodes[i])
+                    }
+                }
+            }
+        }
     }
 
     insertVertex = (parent, data) => {
+        // 隐藏节点不展示
+        if (data.hide === true) return;
         const graph = this.graph;
 
         const rootCell = graph.getDefaultParent()
@@ -221,7 +357,7 @@ export default class TableRelation extends React.Component {
         const tableInfo = doc.createElement('table')
         tableInfo.setAttribute('id', data.id)
         tableInfo.setAttribute('data', JSON.stringify(data))
-
+        
         const newVertex = graph.insertVertex(rootCell, null, tableInfo, 1, 1,
             VertexSize.width, VertexSize.height, style
         )
@@ -238,56 +374,9 @@ export default class TableRelation extends React.Component {
         return newVertex;
     }
 
-    loopParentTree = (currentNode, treeNodeData) => {
-
-        if (treeNodeData) {
-            const graph = this.graph;
-
-            const rootCell = graph.getDefaultParent();
-            const parentNodes = treeNodeData.parentResult && treeNodeData.parentResult.data;
-
-            if (parentNodes && parentNodes.length > 0) {
-                for (let i = 0; i < parentNodes.length; i++) {
-                    const nodeData = getVertexNode(parentNodes[i])
-
-                    nodeData.isParent = true;
-                    const parentNode = this.insertVertex(currentNode, nodeData)
-
-                    if (parentNodes[i].parentResult && parentNodes[i].parentResult.data.length > 0) {
-                        this.loopParentTree(parentNode, parentNodes[i])
-                    }
-                }
-            }
-
-        }
-    }
-
-    loopChildrenTree = (currentNode, treeNodeData) => {
-
-        if (treeNodeData) {
-            const graph = this.graph;
-
-            const rootCell = graph.getDefaultParent();
-            const childNodes = treeNodeData.childResult && treeNodeData.childResult.data;
-            
-            // 处理被依赖节点
-            if (childNodes && childNodes.length > 0) {
-                for (let i = 0; i < childNodes.length; i++) {
-                    const nodeData = getVertexNode(childNodes[i])
-                    nodeData.isChild = true;
-                    // 插入新节点
-                    const childNode = this.insertVertex(currentNode, nodeData)
-
-                    if (childNodes[i].childResult && childNodes[i].childResult.data.length > 0) {
-                        this.loopChildrenTree(childNode, childNodes[i])
-                    }
-                }
-            }
-
-        }
-    }
 
     getStyles = (data) => {
+        console.log('data style:', data)
         if (data.isParent) {
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
         } else if (data.isRoot) {
@@ -334,46 +423,63 @@ export default class TableRelation extends React.Component {
             if (!cell) return
 
             const table = JSON.parse(cell.getAttribute('data'))
-            const params = getTableReqParams(table)
+            const params = getTableReqParams(table);
+            const parentParams = getTableReqParams(table.parent);
+
             console.log('table:', table);
+
             if (table.isParent) {
-                menu.addItem('展开上游（1层）', null, function () {
-                    ctx.loadTableParent(params)
-                    ctx.loadVertexData(params)
-                })
+                if (table.isCurrentChild) {
+                    menu.addItem('收起上游', null, function () {
+                        ctx.loadParentTable(parentParams)
+                        ctx.loadVertexData(parentParams)
+                    })
+                } else {
+                    menu.addItem('展开上游（1层）', null, function () {
+                        ctx.loadParentTable(params)
+                        ctx.loadVertexData(params)
+                    })
+                }
             }
 
             if (table.isChild) {
-                menu.addItem('展开下游（1层）', null, function () {
-                    ctx.loadTableChildren(params)
-                    ctx.loadVertexData(params)
-                })
+                if (table.isCurrentChild) {
+                    menu.addItem('收起下游', null, function () {
+                        ctx.loadChildrenTable(parentParams)
+                        ctx.loadVertexData(parentParams)
+                    })
+                } else {
+                    menu.addItem('展开下游（1层）', null, function () {
+                        ctx.loadChildrenTable(params)
+                        ctx.loadVertexData(params)
+                    })
+                }
             }
 
         }
     }
 
     listenOnClick() {
-        const ctx = this
+        const ctx = this;
+        // const { selectedData } = ctx.state;
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             const target = evt.getProperty('event')
             const CLICK_LEFT = 1;
             if (target.which === CLICK_LEFT && cell && cell.vertex) {
                 let data = cell.getAttribute('data')
-                data = data ? JSON.parse(data) : ''
-                if (data.id !== ctx.state.selectedData.id) {
+                data = data ? JSON.parse(data) : '';
+                if (data) {
                     ctx.setState({ selectedData: data })
-                    ctx.loadVertexData({
-                        tableId: data.id
-                    })
+                    const params = getTableReqParams(data);
+                    ctx.loadVertexData(params)
                 }
             }
         })
     }
 
     render() {
-        const { tableInfo, relationTasks, parentPage, childPage } = this.state
+        const { tableInfo, relationTasks, currentParent, currentChild } = this.state
         return (
             <div className="graph-editor" 
                 style={{ position: 'relative', background: '#FAFAFA' }}
@@ -427,15 +533,15 @@ export default class TableRelation extends React.Component {
                         simple
                         className="parent"
                         defaultCurrent={1}
-                        total={parentPage.totalCount}
-                        current={parentPage.currentPage}
+                        total={currentParent.totalCount}
+                        current={currentParent.currentPage}
                     />
                     <Pagination
                         simple
                         className="child"
                         defaultCurrent={1}
-                        current={childPage.currentPage}
-                        total={childPage.totalCount} 
+                        current={currentChild.currentPage}
+                        total={currentChild.totalCount} 
                     />
                 </div>
                 <RelationDetail 
@@ -555,10 +661,10 @@ export default class TableRelation extends React.Component {
         let style = [];
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
+        // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = 'none';
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = false;
+        // style[mxConstants.STYLE_ROUNDED] = false;
         return style
     }
 

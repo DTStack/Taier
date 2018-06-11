@@ -309,6 +309,8 @@ export default class TableRelation extends React.Component {
 
     listenOnClick() {
         const ctx = this;
+        const { tableInfo } = ctx.state;
+
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             const cellTarget = evt.getProperty('event')
@@ -316,9 +318,12 @@ export default class TableRelation extends React.Component {
             if (cellTarget.which === CLICK_LEFT && cell && cell.vertex) {
                 let data = cell.getAttribute('data')
                 const obj = data ? JSON.parse(data) : '';
-
                 const colName = cellTarget.target.getAttribute('data-col');
-                if (ctx.state.tableInfo.tableName === obj.tableName && colName) {
+                if (
+                    colName && tableInfo.tableName === obj.tableName && 
+                    obj.belongProjectId !== tableInfo.belongProjectId &&
+                    obj.dataSourceId !== tableInfo.dataSourceId
+                ) {
                     const params = {
                         tableName: obj.tableName,
                         belongProjectId: obj.belongProjectId,
