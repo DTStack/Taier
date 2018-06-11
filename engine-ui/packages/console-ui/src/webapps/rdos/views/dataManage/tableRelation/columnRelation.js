@@ -106,79 +106,85 @@ export default class TableRelation extends React.Component {
         })
     }
 
-    insertTableColumnVertext = (data) => {
-        const graph = this.graph;
-        const parent = graph.getDefaultParent()
 
+    getXmlNode = (data) => {
         const doc = mxUtils.createXmlDocument()
-        const tableData = doc.createElement('table')
-        tableData.setAttribute('data',  JSON.stringify(data))
+        const xmlNode = doc.createElement('table')
+        xmlNode.setAttribute('data',  JSON.stringify(data))
+        return xmlNode;
+    }
 
-        const geo = this.rootCell ? graph.getCellGeometry(this.rootCell) : {x : 0, y: 0};
+    insertTableColumnVertext = (parent, data) => {
 
-        const height = (data.columns.length + 2) * VertexSize.height;
-        const newVertext = graph.insertVertex(
-            parent,
-            null,
-            tableData,
-            geo.x, geo.y,
-            VertexSize.width,
-            height
-        );
+        const graph = this.graph;
+        const tableData = this.getXmlNode(data);
+        const rootCell = graph.getDefaultParent();
 
-        return newVertext;
+        const height = ((data.columns ? data.columns.length : 0) + 2) * VertexSize.height;
+
+        let newVertex = '';
+
+        this.executeLayout(() => {
+            newVertex = graph.insertVertex(
+                rootCell,
+                null,
+                tableData,
+                this.cx,
+                this.cy,
+                VertexSize.width,
+                height,
+            );
+            if (data.isParent) {
+                console.log('isParent:', newVertex)
+                graph.insertEdge(rootCell, null, '', newVertex, parent);
+            } else if (data.isChild) {
+                console.log('isChild:', newVertex)
+                graph.insertEdge(rootCell, null, '', parent, newVertex);
+            }
+            graph.view.refresh(newVertex);
+        })
+
+        return newVertex;
     }
 
     insertRelationColumn = (data) => {
         const graph = this.graph;
-        const model = graph.getModel();
-
-        const rootCell = graph.getDefaultParent();
+        const originTable = this.state.tableInfo;
 
         const parents = data.parentTables;
         const children = data.childTables;
-        const currentCell = this.rootCell; //this.insertTableColumnVertext(this.state.tableInfo);
 
-        let newVertex = '';
+        graph.getModel().clear();
+
+        // reinsert origin table
+        const originCell = this.insertTableColumnVertext(graph.getDefaultParent(), originTable);
+        this.rootCell = originCell;
+        
         for (let i = 0; i < parents.length; i++) {
             const node = parents[i];
             node.isParent = true;
-            newVertex = this.insertTableColumnVertext(node);
-            graph.insertEdge(rootCell, null, '', newVertex, currentCell);
+            this.insertTableColumnVertext(originCell, node);
         }
         for (let i = 0; i < children.length; i++) {
             const node = children[i];
             node.isChild = true;
-            const newVertex = this.insertTableColumnVertext(node);;
-            graph.insertEdge(rootCell, null, '', currentCell, newVertex);
+            this.insertTableColumnVertext(originCell, node);;
         }
-
-        this.executeLayout(() => {
-            graph.view.refresh(newVertex);
-        }, () => {
-            graph.scrollCellToVisible(newVertex);
-        })
+        graph.view.setTranslate(this.cx, this.cy);
     }
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
-        const cy = 100;
+        this.cx = (graph.container.clientWidth - VertexSize.width) / 2;
+        this.cy = 100;
 
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        const layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST); // new mxCircleLayout(graph, true); 
-
-        model.beginUpdate();
-
-        let firstVertext = '';
-        try {
-            firstVertext = this.insertTableColumnVertext(data);
-            this.rootCell = firstVertext;
-        } finally {
-            graph.getModel().endUpdate();
-        }
+        const layout = new mxHierarchicalLayout(graph);
+        layout.orientation = 'west';
+        // const layout = new mxCompactTreeLayout(graph, true);
+        // layout.horizontal = true;
 
         this.executeLayout = function(change, post) {
             model.beginUpdate();
@@ -186,16 +192,16 @@ export default class TableRelation extends React.Component {
                 if (change != null) {
                     change();
                 }
-                layout.execute(parent, firstVertext);
+                layout.execute(graph.getDefaultParent(), this.rootCell);
             } catch (e) {
                 throw e;
             } finally {
-                if (post != null) { post();}
+                if (post != null) { post(); }
                 model.endUpdate();
             }
         }
-
-        graph.view.setTranslate(cx, cy);
+        this.rootCell = this.insertTableColumnVertext(parent, data);
+        graph.view.setTranslate(this.cx, this.cy);
     }
 
     loadEditor = (container) => {
@@ -257,7 +263,6 @@ export default class TableRelation extends React.Component {
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
 
         // 转换value显示的内容
-        // graph.convertValueToString = this.corvertValueToString
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
 
@@ -268,7 +273,7 @@ export default class TableRelation extends React.Component {
         graph.getLabel = function (cell) {
             if (this.getModel().isVertex(cell)) {
                 const data = cell.getAttribute('data');
-                const table = data ? JSON.parse(data) : {};
+                const table = data ? JSON.parse(data) : { columns: [], };
                 const tableTitle = table.isParent ? '上游' : table.isChild ? '下游' : '本表';
                 let lis = ''
                 for (let i = 0; i < table.columns.length; i++) {
