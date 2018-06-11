@@ -109,7 +109,7 @@ export default class ImportLocalData extends Component {
             overwriteFlag,
         } = this.state
         return {
-            tableId: targetTable.tableId,
+            tableId: targetTable.id,
             separator: splitSymbol,
             oriCharset: charset,
             topLineIsTitle: asTitle,
@@ -160,11 +160,19 @@ export default class ImportLocalData extends Component {
         const { splitSymbol, startLine } = this.state
         const arr = []
         const splitVal = this.parseSplitSymbol(splitSymbol)
+
         data = data.split('\n')
+        //防卡死
+        if(data&&data[0].length>5000){
+            message.error("文件内容不正确！");
+            return;
+        }
+
         for (let i = 0; i < data.length; i++) {
             const str = data[i].replace(/\r/, '') // 清除无用\r字符
             arr.push(str.split(splitVal))
         }
+
         const subArr = arr.slice(startLine - 1)
         this.setState({
             data: subArr,
@@ -172,6 +180,7 @@ export default class ImportLocalData extends Component {
             visible: true,
             originLineCount: data.length,
         })
+        
     }
 
     parseSplitSymbol(value) {
@@ -254,6 +263,7 @@ export default class ImportLocalData extends Component {
                     style={{ display: 'none' }}
                 />
                 <Modal
+                    maskClosable={false}
                     title="本地数据导入"
                     visible={visible}
                     onCancel={() => {

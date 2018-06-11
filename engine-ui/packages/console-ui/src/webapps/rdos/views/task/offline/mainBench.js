@@ -109,10 +109,22 @@ export default class MainBench extends React.Component {
 
     renderLock(tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock 
+        const isSyncScript=tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT;
+        const isEditor=(tabData.taskType==TASK_TYPE.SQL)||isSyncScript||utils.checkExist(tabData && tabData.type);
+ 
         let top = '0px';
-        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL) top = '10px'
+        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL&&!isSyncScript) top = '10px';
+        
+        //根据不同的类型设置不通的锁样式，编辑器-只添加按钮点击部分遮罩，界面-添加全部遮罩，脚本向导模式-不添加遮罩，由内部来添加屏蔽遮罩
+        let lockClassName='lock-layer';
+        if(isEditor){
+            lockClassName='lock-layer-editor';
+        }else if(tabData.taskType==TASK_TYPE.SYNC){
+            lockClassName='lock-layer-sync';
+        }
+
         return isLocked ? (
-            <div className="lock-layer">
+            <div className={lockClassName}>
                 <Alert
                     style={{ position: 'absolute', top: top, left: '35%', zIndex: '999'}}
                     showIcon

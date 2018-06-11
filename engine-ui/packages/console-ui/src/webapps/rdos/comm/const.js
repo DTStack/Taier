@@ -108,6 +108,7 @@ export const TASK_STATUS = { // 任务状态
     RESTARTING: 11,
     SET_SUCCESS: 12,
     WAIT_RUN: 16,
+    WAIT_COMPUTE:17,
     FROZEN: 18,
 }
 
@@ -176,6 +177,9 @@ export const taskStatusFilter = [{
     text: '等待提交',
     value: 0,
 }, {
+    text: '提交中',
+    value: 10,
+},{
     text: '等待运行',
     value: 16,
 }, {

@@ -7,8 +7,9 @@ import {
 import utils from 'utils'
 
 
-import API from '../../../../api'
-import Editor from '../../../../components/code-editor'
+import API from '../../../../api/dataManage';
+// import DataMaApi from '../../../../api/dataManage';
+import Editor from '../../../../components/code-editor';
 import CopyIcon from "main/components/copy-icon";
 
 import { formItemLayout } from '../../../../comm/const'
@@ -52,14 +53,22 @@ export default class ImportTarget extends Component {
 
     tableChange = (value, option) => {
         const table = option.props.data
-        const { changeStatus } = this.props
+        const { changeStatus, data } = this.props;
+        const fileColumns=data[0]||[];
 
         // 加载分区
-        API.getTable({ tableId: table.tableId }).then((res) => {
+        API.getTable({ tableId: table.id }).then((res) => {
             if (res.code === 1) {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
-                    return ""
+                    //假如发现和文件资源column有相等的columnName，则直接默认设置为此columnName。
+                    const columnName=item.name;
+                    const index=fileColumns.indexOf(columnName);
+
+                    if(index>-1){
+                        return columnName;
+                    }
+                    return "";
                 })
                 const partitions = tableData.partition && tableData.partition.map(item => {
                     return {
@@ -170,7 +179,8 @@ export default class ImportTarget extends Component {
     }
 
     generateCols = (data) => {
-        const { formState, warning } = this.props
+        const { formState, warning } = this.props;
+        const { columnMap } = formState;
         const options = data ? data[0].map((item, index) => {
             return (
                 <Option key={`col-${index}`} value={item}>
@@ -188,17 +198,16 @@ export default class ImportTarget extends Component {
             key: 'target_part',
             render: (text, record) => {
                 return (
-                    <span>{record.name}</span>
+                    <span>{record.columnName}</span>
                 )
             }
         }, {
             title: sourceTitle,
             key: 'source_part',
             render: (text, record, index) => {
-                console.log('record:', record)
                 return (<span>
                     <Select
-                        defaultValue={""}
+                        value={formState.matchType === 0?'':columnMap[index]}
                         disabled={formState.matchType === 0}
                         onSelect={(value) => { this.mapChange(value, index) }}
                         style={{ width: '200px' }}

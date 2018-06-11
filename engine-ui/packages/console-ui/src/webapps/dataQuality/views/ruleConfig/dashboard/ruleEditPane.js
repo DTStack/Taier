@@ -194,15 +194,20 @@ export default class RuleEditPane extends Component {
     onColumnNameChange = (name) => {
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
+        const { currentRule } = this.state;
 
         let columnType   = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
+        
+        
+        let fields={};
+        fields[`functionId@${currentRule.id}`]=undefined;
+        form.setFieldsValue(fields);
 
-        form.setFieldsValue({ functionId: undefined });
         this.setState({ 
             functionList,
             currentRule: {
-                ...this.state.currentRule, 
+                ...currentRule, 
                 columnName: name,
                 functionId: undefined
             }
@@ -212,7 +217,7 @@ export default class RuleEditPane extends Component {
     // 统计函数变化回调
     onFunctionChange = (id) => {
         const { form } = this.props;
-        const { functionList } = this.state;
+        const { functionList, currentRule:currentRuleState} = this.state;
 
         let isPercentage = functionList.filter(item => item.id == id)[0].isPercent,
             nameZc = functionList.filter(item => item.id == id)[0].nameZc,
@@ -227,11 +232,10 @@ export default class RuleEditPane extends Component {
             isPercentage: isPercentage, 
             percentType: isPercentage === 1 ? 'limit' : 'free'
         };
-
-        form.setFieldsValue({ 
-            verifyType: isEnum ? '1' : undefined,
-            operator: undefined 
-        });
+        let fields={};
+        fields[`verifyType@${currentRuleState.id}`]=isEnum ? '1' : undefined;
+        fields[`operator@${currentRuleState.id}`]=undefined;
+        form.setFieldsValue(fields);
 
         this.setState({ currentRule });
     }
@@ -269,7 +273,7 @@ export default class RuleEditPane extends Component {
                 if (record.isCustomizeSql) {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
-                            getFieldDecorator('customizeSql', {
+                            getFieldDecorator(`customizeSql@${record.id}`, {
                                 rules: [{
                                     required: true, 
                                     message: '自定义SQL不可为空'
@@ -293,10 +297,9 @@ export default class RuleEditPane extends Component {
                         }
                     </FormItem>
                 } else {
-                    getFieldDecorator('columnName', { initialValue: "" });
                     return <FormItem {...rowFormItemLayout}  className="rule-edit-td cell-center">
                         {
-                            getFieldDecorator('columnName', {
+                            getFieldDecorator(`columnName@${record.id}`, {
                                 rules: [{
                                     required: true, 
                                     message: '字段不可为空'
@@ -326,7 +329,7 @@ export default class RuleEditPane extends Component {
             case 'functionId': {
                 return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
-                        getFieldDecorator('functionId', {
+                        getFieldDecorator(`functionId@${record.id}`, {
                             rules: [{
                                 required: true, 
                                 message: '统计函数不可为空'
@@ -354,7 +357,7 @@ export default class RuleEditPane extends Component {
             case 'filter': {
                 return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
-                        getFieldDecorator('filter', {
+                        getFieldDecorator(`filter@${record.id}`, {
                             rules: [],
                             initialValue: record.filter
                         })(
@@ -370,7 +373,7 @@ export default class RuleEditPane extends Component {
             case 'verifyType': {
                 return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
-                        getFieldDecorator('verifyType', {
+                        getFieldDecorator(`verifyType@${record.id}`, {
                             rules: [{
                                 required: true, 
                                 message: '校验方法不可为空'
@@ -399,7 +402,7 @@ export default class RuleEditPane extends Component {
                 if (currentRule.operator === 'in') {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td">
                         {
-                            getFieldDecorator('thresholdEnum', {
+                            getFieldDecorator(`thresholdEnum@${record.id}`, {
                                 rules: [{
                                     required: true, 
                                     message: '不可为空'
@@ -418,7 +421,7 @@ export default class RuleEditPane extends Component {
                         <div className="cell-center-box">
                             <FormItem className="cell-multiple-center">  
                                 {
-                                    getFieldDecorator('operator', {
+                                    getFieldDecorator(`operator@${record.id}`, {
                                         rules: [{
                                             required: true, 
                                             message: '不可为空',
@@ -443,7 +446,7 @@ export default class RuleEditPane extends Component {
                             </FormItem>
                             <FormItem className="cell-multiple-center">
                                 {
-                                    getFieldDecorator('threshold', {
+                                    getFieldDecorator(`threshold@${record.id}`, {
                                         rules: [{
                                             required: true, 
                                             message: '不可为空',

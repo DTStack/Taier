@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { debounce } from 'lodash';
+import { debounce, cloneDeep } from 'lodash';
 
 import {
     Row, Col, Button,
-    message, Modal, Tag
+    message, Modal, Tag, Form, Input
 } from 'antd'
 
 import utils from 'utils'
@@ -17,15 +17,21 @@ import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import * as TreeAction from '../../../store/modules/realtimeTask/tree'
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
-import { MENU_TYPE, TASK_TYPE } from '../../../comm/const';
+import { MENU_TYPE, TASK_TYPE, formItemLayout } from '../../../comm/const';
 
 import TaskBrowser from './taskBrowser'
 
 const confirm = Modal.confirm;
+const FormItem = Form.Item;
 
 class TaskIndex extends Component {
 
-    componentDidMount() {}
+    state = {
+        publishDesc: "",
+        showPublish: false
+    }
+
+    componentDidMount() { }
 
     saveTask = () => {
         const { currentPage, dispatch } = this.props
@@ -33,7 +39,7 @@ class TaskIndex extends Component {
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
-        currentPage.lockVersion = currentPage.readWriteLockVO.version; 
+        currentPage.lockVersion = currentPage.readWriteLockVO.version;
         Api.saveTask(currentPage).then((res) => {
 
             const updatePageStatus = (pageData) => {
@@ -54,7 +60,7 @@ class TaskIndex extends Component {
                 const lockStatus = lockInfo.result
                 if (lockStatus === 0) { // 1-正常，2-被锁定，3-需同步
                     updatePageStatus(res.data)
-                // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                 } else if (lockStatus === 1) { // 2-被锁定
                     confirm({
                         title: '锁定提醒', // 锁定提示
@@ -73,8 +79,8 @@ class TaskIndex extends Component {
                             Api.forceUpdateTask(currentPage).then(succCall)
                         },
                     });
-                // 如果同步状态，则提示会覆盖代码，
-                // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                    // 如果同步状态，则提示会覆盖代码，
+                    // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
                 } else if (lockStatus === 2) { // 3-需同步
                     confirm({
                         title: '保存警告',
@@ -107,8 +113,15 @@ class TaskIndex extends Component {
     }
 
     editorChange = (old, newVal) => {
-        const { currentPage, dispatch } = this.props
+        let { currentPage, dispatch } = this.props;
+        currentPage=cloneDeep(currentPage);
         if (old !== newVal) {
+            //这里兼容离线任务的版本控制
+            if(typeof old=="boolean"){
+                currentPage.merged=true;
+            }else{
+                currentPage.merged=false;
+            }
             currentPage.sqlText = newVal;
             currentPage.notSynced = true;// 添加未保存标记
             dispatch(BrowserAction.setCurrentPage(currentPage))
@@ -162,35 +175,145 @@ class TaskIndex extends Component {
         })
     }
 
+    closePublish = () => {
+        this.setState({
+            publishDesc: '',
+            showPublish: false,
+        })
+    }
+
+    submitTab() {
+        const {
+            currentPage, dispatch
+        } = this.props;
+
+        const { publishDesc } = this.state
+        const result = cloneDeep(currentPage);
+
+        // 添加发布描述信息
+        if (publishDesc) {
+
+            if (publishDesc.length > 200) {
+                message.error('备注信息不可超过200个字符！')
+                return false;
+            }
+
+            result.publishDesc = publishDesc;
+            // 添加发布信息到发布记录
+            // const publishRecords = currentPage.taskVersions || []
+            // const time = Date.now()
+            // let taskVersions = [{
+            //     id: time,
+            //     gmtCreate: time,
+            //     userName: user.userName,
+            //     publishDesc: publishDesc,
+            //     sqlText: result.sqlText,
+            // }].concat(publishRecords)
+            // taskVersions = taskVersions.length >= 5 ? taskVersions.slice(0, 5) : taskVersions
+            // updateTaskFields({ taskVersions })
+        } else {
+            message.error('发布备注不可为空！')
+            return false;
+        }
+        // 修改task配置时接口要求的标记位
+        result.preSave = true;
+        result.submitStatus = 1; // 1-提交，0-保存
+
+        BrowserAction.publishTask(result)
+        .then(
+            (result)=>{
+                this.closePublish();
+                if(result){
+                    message.success('发布成功！');
+                    Api.getTask({id:currentPage.id}).then(res => {
+                        if (res.code === 1) {
+                            const taskInfo = res.data
+                            taskInfo.merged = true;
+                            taskInfo.notSynced = false;// 添加已保存标记
+                            dispatch(BrowserAction.setCurrentPage(taskInfo))
+                        }
+                    })
+                }
+            }
+        );
+        
+    }
+
+
+    publishChange = (e) => {
+        this.setState({
+            publishDesc: e.target.value
+        })
+    }
+
+    renderPublish = () => {
+        const { user } = this.props;
+        const { publishDesc } = this.state
+        return (
+            <Modal
+                wrapClassName="vertical-center-modal"
+                title="发布任务"
+                style={{ height: '600px', width: '600px' }}
+                visible={this.state.showPublish}
+                onCancel={this.closePublish}
+                onOk={this.submitTab.bind(this)}
+                cancelText="关闭"
+            >
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="发布人"
+                        hasFeedback
+                    >
+                        <span>{user.userName}</span>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label={(
+                            <span className="ant-form-item-required">备注</span>
+                        )}
+                        hasFeedback
+                    >
+                        <Input
+                            type="textarea"
+                            value={publishDesc}
+                            name="publishDesc" rows={4}
+                            onChange={this.publishChange}
+                        />
+                    </FormItem>
+                </Form>
+            </Modal>
+        )
+    }
+
     render() {
         const { dispatch, currentPage } = this.props
-
-        const canSubmit = currentPage.status === 0;
+        const disablePublish = currentPage.notSynced
 
         return (
             <Row className="task-editor">
                 <header className="toolbar bd-bottom clear">
                     <Col className="left">
                         <Button
-                        onClick={() => { 
-                              dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE)) 
-                        }}
-                          title="创建任务"
+                            onClick={() => {
+                                dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE))
+                            }}
+                            title="创建任务"
                         >
-                          <MyIcon className="my-icon" type="focus" /> 新建任务
+                            <MyIcon className="my-icon" type="focus" /> 新建任务
                         </Button>
                         <Button
-                          disabled={currentPage.invalid}
-                          onClick={this.saveTask}
-                          title="保存任务"
+                            disabled={currentPage.invalid}
+                            onClick={this.saveTask}
+                            title="保存任务"
                         >
-                          <MyIcon className="my-icon" type="save" />保存
+                            <MyIcon className="my-icon" type="save" />保存
                         </Button>
                     </Col>
                     <Col className="right">
-                        {/* <Button disabled={!canSubmit}>
+                        <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
                             <MyIcon className="my-icon" type="fly" /> 发布
-                        </Button> */}
+                        </Button>
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
                             <Button>
                                 <MyIcon className="my-icon" type="goin" /> 运维
@@ -199,21 +322,24 @@ class TaskIndex extends Component {
                     </Col>
                 </header>
                 <TaskBrowser
-                  {...this.props}
-                  ayncTree={this.loadTreeData}
-                  editorParamsChange={this.editorParamsChange}
-                  editorChange={this.debounceChange}
+                    {...this.props}
+                    ayncTree={this.loadTreeData}
+                    editorParamsChange={this.editorParamsChange}
+                    editorChange={this.debounceChange}
                 />
+                {this.renderPublish()}
             </Row>
         )
     }
 }
 
 export default connect((state) => {
-    const { resources, pages, currentPage } = state.realtimeTask
+    const { resources, pages, currentPage } = state.realtimeTask;
+    const { user } = state;
     return {
         currentPage,
         pages,
         resources,
+        user
     }
-})(TaskIndex)
+})(TaskIndex) 

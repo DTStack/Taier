@@ -98,11 +98,13 @@ class Console extends Component {
             !isEqual(newConsole.results, oldConsole.results)
         ) { // 如果成功获取结果，tab切换到结果界面
             this.setState({ activeKey: `${newConsole.results.length - 1}` })
-        } else if (
-            ((
-                !newConsole.showRes &&
-                newConsole.log !== oldConsole.log
-            ) ||
+        }
+        else if (
+            (
+            // (
+            //     !newConsole.showRes &&
+            //     newConsole.log !== oldConsole.log
+            // ) ||
                 newConsole.results.length === 0)
         ) {
             this.setState({ activeKey: `console-log` }, this.focusEditor)
@@ -182,16 +184,16 @@ class Console extends Component {
                 </span>);
                 return (
                     <TabPane
-                        style={{ minHeight: '100%',"position":"relative" }}
+                        style={{ minHeight: '100%', "position": "relative" }}
                         tab={title}
                         key={`${index}`}
                     >
                         <Result data={tab.data} />
-                        {tab.jobId?<a href={`${reqOffline.DOWNLOAD_SQL_RESULT}?jobId=${tab.jobId}`} download><Button
+                        {tab.jobId ? <a href={`${reqOffline.DOWNLOAD_SQL_RESULT}?jobId=${tab.jobId}`} download><Button
                             style={exportStyle}
                         >
                             下载
-                        </Button></a>:null}
+                        </Button></a> : null}
                     </TabPane>
                 );
             });
@@ -200,7 +202,7 @@ class Console extends Component {
     }
 
     render() {
-        const { data, dispatch } = this.props
+        const { data, dispatch, setMax, setMin } = this.props
         return (
             <div className="ide-console">
                 <Tabs
@@ -225,6 +227,9 @@ class Console extends Component {
                     </TabPane>
                     {this.renderTabs(data.results)}
                 </Tabs>
+                
+                <Icon onClick={setMax} className="console-icon up" type="up-square-o" />
+                <Icon onClick={setMin} className="console-icon down" type="down-square-o" />
                 <Tooltip
                     placement="top"
                     title="关闭控制台"

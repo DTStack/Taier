@@ -34,7 +34,7 @@ export default class RoleAdd extends Component {
         return (
             <div className="box-1">
                 <div className="box-card">
-                    <h1 className="card-title"><GoBack /> 创建角色</h1>
+                    <h1 className="card-title flex-middle"><GoBack type="textButton" /> 创建角色</h1>
                     <article className="section">
                         <RoleForm key="add-role" ref={(e) => this.form = e} />
                         <Row>

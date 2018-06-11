@@ -51,6 +51,18 @@
             width: 100%;
             height: 100%;
         }
+        .ant-tabs-bar .ant-tabs-tab-active{
+            background: #fff;
+            &:after{
+                content:"";
+                position: absolute;
+                top:0px;
+                left:0px;
+                right: 0px;
+                height: 1px;
+                background: #2491F7;
+            }
+        }
 
         .ant-tabs-nav div:nth-child(2) {
             border-left: 0;
@@ -70,6 +82,18 @@
             right: 10px;
             top: 8px;
             cursor: pointer;
+        }
+
+        .console-icon{
+            position: absolute;
+            top: 8px;
+            cursor: pointer;
+            &.up{
+                right:47px;
+            }
+            &.down{
+                right: 30px;;
+            }
         }
 
         .ant-tabs-content {

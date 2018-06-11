@@ -87,8 +87,8 @@ class OfflineCount extends Component {
                                 </section>
                             </Col>
                             <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">未提交</span>
+                                <section className="m-count-section" style={{width:"60px"}}>
+                                    <span className="m-count-title">等待提交</span>
                                     <span className="m-count-content font-gray">{data.UNSUBMIT || 0}</span>
                                 </section>
                             </Col>
