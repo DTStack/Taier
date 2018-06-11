@@ -261,4 +261,29 @@
         }
     }
 
+    .col-relation {
+
+        .t-vertext {
+            font-size: 12px;
+            width: 120px;
+            li {
+                height: 35px;
+                line-height: 35px;
+                color: #595959;
+                letter-spacing: 0;
+            }
+            .tname {
+                background: #2491F7;
+                color: #ffffff;
+                border-bottom: 1px solid #ffffff;
+            }
+
+            .tcolumn {
+                border: 1px solid #dddddd;
+                border-top: 0;
+                background: #ffffff;
+            }
+        }
+    }
+
 .CodeMirror pre.CodeMirror-placeholder { color: rgba(159, 168, 210, 0.48); }
