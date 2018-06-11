@@ -9,28 +9,18 @@ import ColumnRelation from './columnRelation';
 
 export default class TableRelationContainer extends React.Component {
 
-    state = {
-        showTableRelation: true,
-    }
-
-    onShow = (flag) => {
-        this.setState({
-            showTableRelation: flag,
-        })
-    }
-
     render() {
-        const { showTableRelation } = this.state;
+        const { showTableRelation, onShowBloodRelation } = this.props;
         return (
             <div className="table-ralation">
                 { showTableRelation ? 
                     <TableRelation 
-                        onShowColumn={() => this.onShow(false) }
+                        onShowColumn={() => onShowBloodRelation(false) }
                         {...this.props}
                     /> 
                     :
                     <ColumnRelation 
-                        onShowTable={() => this.onShow(true)} 
+                        onShowTable={() => onShowBloodRelation(true)} 
                         {...this.props}
                     /> 
                 }
