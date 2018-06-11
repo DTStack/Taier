@@ -49,7 +49,7 @@ class OfflineTaskMana extends Component {
 
         current: 1, // 当前页
         tabKey: 'taskFlow',
-        person: '',
+        person: undefined,
         taskName: utils.getParameterByName('tname') ? utils.getParameterByName('tname') : '',
         selectedTask: '',
         startTime: '',
@@ -362,7 +362,7 @@ class OfflineTaskMana extends Component {
 
         const userItems = projectUsers && projectUsers.length > 0 ?
         projectUsers.map((item) => {
-            return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
+            return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
                 {item.user.userName}
             </Option>)
         }) : []
