@@ -186,7 +186,8 @@ class TableList extends Component {
         const modelLevelOptions = modelLevels && modelLevels.map(level =>
             <Option key={level.id} value={level.name}>{level.name}</Option>
         )
-
+        console.log('table',data);
+        
         const columns = [
             {
                 title: '表名',
@@ -194,7 +195,7 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>{ text }</Link>
+                    return <Link to={`${ROUTER_BASE}/modify/${record.id}`}>{ text }</Link>
                 }
             },
             {
@@ -248,9 +249,9 @@ class TableList extends Component {
                 key: 'action',
                 render(text, record) {
                     return <span>
-                        <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>编辑</Link>
+                        <Link to={`${ROUTER_BASE}/modify/${record.id}`}>编辑</Link>
                         <span className="ant-divider"></span>
-                        <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
+                        <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link>
                     </span>
                 }
             }
@@ -311,7 +312,7 @@ class TableList extends Component {
                 <Card noHovering bordered={false} title={title} extra={extra}>
                     <div style={{ marginTop: '1px' }}>
                         <Table
-                            rowKey="tableId"
+                            rowKey="id"
                             className="m-table"
                             columns={ columns }
                             dataSource={ data }

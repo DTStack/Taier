@@ -278,10 +278,23 @@ class TableEditor extends Component {
                     dateModelAPI.alterTable(queryParams).then(res => {
                         if (res.code === 1) {
                             message.success('修改成功！');
+                            this.goBack()
                         }
                     })
                 }
             });
+        }
+    }
+
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
         }
     }
 
