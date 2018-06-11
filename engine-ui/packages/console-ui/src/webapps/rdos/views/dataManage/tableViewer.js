@@ -32,6 +32,7 @@ export default class TableViewer extends React.Component{
             visible: false,
             code: '',
             isMark: false,
+            showTableRelation: true,
         };
     }
 
@@ -93,6 +94,7 @@ export default class TableViewer extends React.Component{
                 }
             });
         }
+        this.setState({ showTableRelation: true })
     }
 
     formatPreviewData(arr) {
@@ -139,6 +141,12 @@ export default class TableViewer extends React.Component{
                 visible: false
             });
         }, 1000)
+    }
+
+    onShowBloodRelation = (flag) => {
+        this.setState({
+            showTableRelation: flag,
+        })
     }
 
     render() {
@@ -304,7 +312,11 @@ export default class TableViewer extends React.Component{
                                     </div>
                                 </TabPane>
                                 <TabPane tab="血缘信息" key="4">
-                                    <TableRelation  tableData={tableData && tableData.table}/>
+                                    <TableRelation 
+                                        showTableRelation={this.state.showTableRelation}
+                                        onShowBloodRelation={this.onShowBloodRelation}
+                                        tableData={tableData && tableData.table}
+                                    />
                                 </TabPane>
                             </Tabs>
                         </div>
