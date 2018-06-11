@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Link, routeHistory } from 'react-router'
+import { Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
@@ -135,6 +135,15 @@ class OfflineStatistics extends Component {
         })
     }
 
+    jumpToOffline(text){
+        hashHistory.push({
+            pathname:"/operation/offline-operation",
+            query:{
+                job:text
+            }
+        })
+    }
+
     topTaskTiming = () => {
         return [{
             title: '任务名称',
@@ -175,7 +184,7 @@ class OfflineStatistics extends Component {
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)` :text
                 
-                return content;
+                return <a onClick={this.jumpToOffline.bind(this,text)}>{content}</a>;
             },
         }, {
             title: '责任人',
@@ -201,7 +210,7 @@ class OfflineStatistics extends Component {
                     bordered={false}
                     loading={false} 
                     className="shadow"
-                    title="今日任务完成情况" 
+                    title="今日周期实例完成情况" 
                 >
                     <Resize onResize={this.resize}>
                         <article id="TaskTrend" style={{width: '100%', height: '300px'}}/>

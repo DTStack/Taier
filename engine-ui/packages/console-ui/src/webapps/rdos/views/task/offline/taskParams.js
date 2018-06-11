@@ -29,13 +29,13 @@ class TaskParams extends React.Component {
 
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
-        // const reg = /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/;
-        // if (reg.test(value)) {
+        const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-]{2,})\]$)|(^(?!\$)\S+$)/i;
+        if (reg.test(value)) {
             console.log('value:', value);
             const taskVariables = [...tabData.taskVariables];
             taskVariables[index].paramCommand = value;
             onChange({taskVariables})
-        // }
+        }
     
     }
 
@@ -50,10 +50,11 @@ class TaskParams extends React.Component {
                 label={param.paramName}
             >
                 {getFieldDecorator(param.paramName, {
-                    // rules: [{
-                    //     pattern: /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/,
-                    //     message: '参数格式不正确',
-                    // }],
+                    rules: [{
+                        //匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
+                        pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-]{2,})\]$)|(^(?!\$)\S+$)/i,
+                        message: '参数格式不正确',
+                    }],
                     initialValue: param.paramCommand
                 })(
                     <Input 

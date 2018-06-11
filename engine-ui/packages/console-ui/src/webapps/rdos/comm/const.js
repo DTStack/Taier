@@ -94,6 +94,7 @@ export const HELP_DOC_URL = {
 }
 
 export const TASK_STATUS = { // 任务状态
+    ALL:null,
     WAIT_SUBMIT: 0,
     CREATED: 1,
     INVOKED: 2,
@@ -197,9 +198,12 @@ export const taskStatus = {
     "ALL": null,
     "UNSUBMIT": 0,
     "WAITING_RUN": 16,
+    "FINISHED": 5,
     "RUNNING": 4,
     "CANCELED": 7,
     "FAILED": 8,
+    "SUBMITTING": 10,
+    "FROZEN": 18,
 }
 
 // 离线任务状态过滤选项
