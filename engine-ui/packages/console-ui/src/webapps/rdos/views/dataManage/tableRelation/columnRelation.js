@@ -100,7 +100,6 @@ export default class TableRelation extends React.Component {
         ctx.showLoading()
         Api.getRelTableUpDownColumns(params).then(res => {
             if (res.code === 1) {
-              
                 ctx.insertRelationColumn(res.data);
             }
             ctx.hideLoading();
@@ -111,16 +110,21 @@ export default class TableRelation extends React.Component {
         const graph = this.graph;
         const parent = graph.getDefaultParent()
 
-        const style = this.getStyles(data)
-        const vertexStyle = this.getDefaultVertexStyle()
-
         const doc = mxUtils.createXmlDocument()
         const tableData = doc.createElement('table')
         tableData.setAttribute('data',  JSON.stringify(data))
 
+        const geo = this.rootCell ? graph.getCellGeometry(this.rootCell) : {x : 0, y: 0};
+
         const height = (data.columns.length + 2) * VertexSize.height;
-        const newVertext = graph.insertVertex(parent, null, tableData, 0, 0, VertexSize.width, height);;
-    
+        const newVertext = graph.insertVertex(
+            parent,
+            null,
+            tableData,
+            geo.x, geo.y,
+            VertexSize.width,
+            height
+        );
 
         return newVertext;
     }
@@ -164,10 +168,17 @@ export default class TableRelation extends React.Component {
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        const layout = new mxHierarchicalLayout(graph); // new mxCircleLayout(graph, true); 
-        layout.orientation = 'west';
-        // layout.interHierarchySpacing = 20;
-        this.layout = layout;
+        const layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST); // new mxCircleLayout(graph, true); 
+
+        model.beginUpdate();
+
+        let firstVertext = '';
+        try {
+            firstVertext = this.insertTableColumnVertext(data);
+            this.rootCell = firstVertext;
+        } finally {
+            graph.getModel().endUpdate();
+        }
 
         this.executeLayout = function(change, post) {
             model.beginUpdate();
@@ -175,27 +186,15 @@ export default class TableRelation extends React.Component {
                 if (change != null) {
                     change();
                 }
-                layout.execute(parent);
+                layout.execute(parent, firstVertext);
             } catch (e) {
                 throw e;
             } finally {
-                var morph = new mxMorphing(graph);
-                morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
-                    if (post != null) { post();}
-                    model.endUpdate();
-                }));
-                morph.startAnimation();
+                if (post != null) { post();}
+                model.endUpdate();
             }
         }
 
-        let newVertxt = '';
-        this.executeLayout(() => {
-            newVertxt = this.insertTableColumnVertext(data);
-            graph.view.refresh(this.rootCell);
-        }, () => {
-            graph.scrollCellToVisible(this.rootCell);
-        })
-        this.rootCell = newVertxt
         graph.view.setTranslate(cx, cy);
     }
 
@@ -281,7 +280,6 @@ export default class TableRelation extends React.Component {
                 return '';
             }
         };
-
         this.graph = graph;
     }
 
@@ -325,7 +323,7 @@ export default class TableRelation extends React.Component {
             if (cellTarget.which === CLICK_LEFT && cell && cell.vertex) {
                 let data = cell.getAttribute('data')
                 const obj = data ? JSON.parse(data) : '';
-                
+
                 const colName = cellTarget.target.getAttribute('data-col');
 
                 if (ctx.state.tableInfo.tableName === obj.tableName && colName) {
@@ -393,18 +391,11 @@ export default class TableRelation extends React.Component {
 
     getDefaultVertexStyle() {
         let style = [];
-        // style[mxConstants.STYLE_SHAPE] = 'swimlane';
-        // style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
         style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
-        // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
-        // style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
-        // style[mxConstants.STYLE_STARTSIZE] = 30;
-
         return style;
     }
 
@@ -413,11 +404,6 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.SideToSide;
-        // style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
-        // style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
-        // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        // style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style
