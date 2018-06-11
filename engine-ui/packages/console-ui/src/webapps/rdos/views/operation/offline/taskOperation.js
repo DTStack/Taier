@@ -11,28 +11,28 @@ import {
     Dropdown, Menu, Icon,
     DatePicker, Tooltip,
     InputNumber, Form, Checkbox,
- } from 'antd'
+} from 'antd'
 
 import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
-import { Circle } from 'widgets/circle' 
+import { Circle } from 'widgets/circle'
 
 import Api from '../../../api'
-import { 
-    offlineTaskStatusFilter, jobTypes, 
+import {
+    offlineTaskStatusFilter, jobTypes,
     ScheduleTypeFilter, TASK_STATUS,
     offlineTaskTypeFilter,
     offlineTaskPeriodFilter,
 } from '../../../comm/const'
 
-import { 
+import {
     OfflineTaskStatus, TaskTimeType, TaskType,
 } from '../../../components/status'
 
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction' 
+} from '../../../store/modules/offlineTask/offlineAction'
 
 import TaskFlowView from './taskFlowView'
 
@@ -56,8 +56,8 @@ class OfflineTaskList extends Component {
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : [utils.getParameterByName("status")],
-        bussinessDate: [yesterDay,yesterDay],
-        cycDate:undefined,
+        bussinessDate: [yesterDay, yesterDay],
+        cycDate: undefined,
         selectedRowKeys: [],
         checkAll: false,
         execTime: '', // 执行时间
@@ -66,10 +66,10 @@ class OfflineTaskList extends Component {
         statistics: '',
         taskPeriodId: '',
         execTimeSort: '',
-        execStartSort:'',
-        execEndSort:'',
-        bussinessDateSort:'',
-        cycSort:'',
+        execStartSort: '',
+        execEndSort: '',
+        bussinessDateSort: '',
+        cycSort: '',
         visibleSlidePane: false,
         selectedTask: '',
     }
@@ -106,15 +106,15 @@ class OfflineTaskList extends Component {
         if (person) {
             reqParams.ownerId = person
         }
-        if (bussinessDate&&bussinessDate.length>1) {
-            reqParams.bizStartDay=bussinessDate[0].unix();
-            reqParams.bizEndDay=bussinessDate[1].unix();
+        if (bussinessDate && bussinessDate.length > 1) {
+            reqParams.bizStartDay = bussinessDate[0].unix();
+            reqParams.bizEndDay = bussinessDate[1].unix();
         }
-        if(cycDate&&cycDate.length>1){
-            reqParams.cycStartDay=cycDate[0].unix();
-            reqParams.cycEndDay=cycDate[1].unix();
+        if (cycDate && cycDate.length > 1) {
+            reqParams.cycStartDay = cycDate[0].unix();
+            reqParams.cycEndDay = cycDate[1].unix();
         }
-       
+
         if (jobType !== undefined && jobType !== '') {
             reqParams.type = jobType
         }
@@ -128,11 +128,11 @@ class OfflineTaskList extends Component {
             reqParams.taskPeriodId = taskPeriodId.join(',')
         }
 
-        reqParams.execTimeSort = execTimeSort||undefined;
-        reqParams.execStartSort = execStartSort||undefined;
-        reqParams.execEndSort = execEndSort||undefined;
-        reqParams.cycSort = cycSort||undefined;
-        reqParams.businessDateSort = businessDateSort||undefined;
+        reqParams.execTimeSort = execTimeSort || undefined;
+        reqParams.execStartSort = execStartSort || undefined;
+        reqParams.execEndSort = execEndSort || undefined;
+        reqParams.cycSort = cycSort || undefined;
+        reqParams.businessDateSort = businessDateSort || undefined;
 
         this.loadTaskList(reqParams)
     }
@@ -147,8 +147,12 @@ class OfflineTaskList extends Component {
         }, params)
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ tasks: res.data, loading: false })
+                ctx.setState({ tasks: res.data })
             }
+            ctx.setState({
+                loading: false
+            })
+
         })
         this.loadJobStatics(params)
     }
@@ -182,7 +186,7 @@ class OfflineTaskList extends Component {
                 onOk() {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
-                            ctx.setState({ selectedRowKeys: [], checkAll: false  })
+                            ctx.setState({ selectedRowKeys: [], checkAll: false })
                             message.success('已经成功杀死所选任务！')
                             ctx.search()
                         }
@@ -215,10 +219,10 @@ class OfflineTaskList extends Component {
                 title: '确认提示',
                 content: '确认需要重跑选择的任务？',
                 onOk() {
-                    Api.batchRestartAndResume({jobIdList: selected}).then((res) => {
+                    Api.batchRestartAndResume({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
-                            ctx.setState({ selectedRowKeys: [], checkAll: false  })
+                            ctx.setState({ selectedRowKeys: [], checkAll: false })
                             ctx.search()
                         }
                     })
@@ -244,9 +248,9 @@ class OfflineTaskList extends Component {
                 if (
                     res &&
                     res.status !== TASK_STATUS.WAIT_SUBMIT &&
-                    res.status !== TASK_STATUS.FINISHED && 
+                    res.status !== TASK_STATUS.FINISHED &&
                     res.status !== TASK_STATUS.RUN_FAILED &&
-                    res.status !== TASK_STATUS.SUBMIT_FAILED && 
+                    res.status !== TASK_STATUS.SUBMIT_FAILED &&
                     res.status !== TASK_STATUS.STOPED
                 ) return false
             }
@@ -261,8 +265,8 @@ class OfflineTaskList extends Component {
                 const id = ids[i]
                 const res = tasks.find(task => task.id === id)
                 if (res && (
-                    res.status === TASK_STATUS.SUBMIT_FAILED || 
-                    res.status === TASK_STATUS.STOPED || 
+                    res.status === TASK_STATUS.SUBMIT_FAILED ||
+                    res.status === TASK_STATUS.STOPED ||
                     res.status === TASK_STATUS.FINISHED ||
                     res.batchTask.isDeleted === 1
                 )) return false
@@ -272,8 +276,8 @@ class OfflineTaskList extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        
-        const params = { 
+
+        const params = {
             current: pagination.current,
             taskStatus: filters.status,
             jobType: filters.type ? ilters.type[0] : '',
@@ -282,33 +286,33 @@ class OfflineTaskList extends Component {
             taskPeriodId: filters.taskPeriodId,
             checkAll: false,
             execTimeSort: '',
-            execStartSort:'',
-            execEndSort:'',
-            businessDateSort:'',
-            cycSort:'',
+            execStartSort: '',
+            execEndSort: '',
+            businessDateSort: '',
+            cycSort: '',
         }
 
         if (sorter) {
             let { field, order } = sorter;
 
-            switch(field){
-                case 'execTime':{
+            switch (field) {
+                case 'execTime': {
                     params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
-                case 'execStartDate':{
+                case 'execStartDate': {
                     params.execStartSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
-                case 'execEndDate':{
+                case 'execEndDate': {
                     params.execEndSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
-                case 'cycTime':{
+                case 'cycTime': {
                     params.cycSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
-                case 'businessDate':{
+                case 'businessDate': {
                     params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
                     break;
                 }
@@ -362,7 +366,7 @@ class OfflineTaskList extends Component {
         let selectedRowKeys = []
 
         if (e.target.checked) {
-            selectedRowKeys = this.state.tasks.data.map(item => {if (item.batchTask.isDeleted !== 1) { return item.id }})
+            selectedRowKeys = this.state.tasks.data.map(item => { if (item.batchTask.isDeleted !== 1) { return item.id } })
         }
 
         this.setState({
@@ -372,7 +376,7 @@ class OfflineTaskList extends Component {
     }
 
     initTaskColumns = () => {
-        const {taskStatus} = this.state;
+        const { taskStatus } = this.state;
         return [{
             title: '任务名称',
             dataIndex: 'id',
@@ -380,9 +384,9 @@ class OfflineTaskList extends Component {
             width: 120,
             render: (text, record) => {
                 const name = record.batchTask && record.batchTask.name
-                const showName = record.batchTask.isDeleted === 1 ? 
-                    `${name} (已删除)` 
-                    : 
+                const showName = record.batchTask.isDeleted === 1 ?
+                    `${name} (已删除)`
+                    :
                     <a onClick={() => { this.showTask(record) }}>{name}</a>;
                 return showName;
             },
@@ -396,14 +400,14 @@ class OfflineTaskList extends Component {
             },
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
-            filteredValue:taskStatus
+            filteredValue: taskStatus
         }, {
             title: '任务类型',
             width: 100,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
-                return  <TaskType value={record.batchTask && record.batchTask.taskType} />
+                return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
             filters: offlineTaskTypeFilter,
         }, {
@@ -439,7 +443,7 @@ class OfflineTaskList extends Component {
             dataIndex: 'execEndDate',
             key: 'execEndDate',
             sorter: true,
-        },{
+        }, {
             title: '运行时长',
             width: 100,
             dataIndex: 'execTime',
@@ -451,8 +455,8 @@ class OfflineTaskList extends Component {
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
-                return record.batchTask && record.batchTask.createUser 
-                && record.batchTask.createUser.userName
+                return record.batchTask && record.batchTask.createUser
+                    && record.batchTask.createUser.userName
             }
         }]
     }
@@ -460,7 +464,7 @@ class OfflineTaskList extends Component {
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
-            selectedTask:null
+            selectedTask: null
         })
     }
 
@@ -471,14 +475,14 @@ class OfflineTaskList extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 30px',display:"inline-block" }}>
+                <div style={{ padding: '15px 10px 10px 30px', display: "inline-block" }}>
                     <Checkbox
-                        checked={ this.state.checkAll }
+                        checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
                 </div>
-                <div style={{display:"inline-block"}}>
+                <div style={{ display: "inline-block" }}>
                     <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
                 </div>
@@ -487,7 +491,7 @@ class OfflineTaskList extends Component {
     }
 
     render() {
-        const { 
+        const {
             tasks, selectedRowKeys, jobName,
             bussinessDate, current, statistics,
             selectedTask, visibleSlidePane, cycDate
@@ -496,11 +500,11 @@ class OfflineTaskList extends Component {
         const { projectUsers, project } = this.props
 
         const userItems = projectUsers && projectUsers.length > 0 ?
-        projectUsers.map((item) => {
-            return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
-                {item.user.userName}
-            </Option>)
-        }) : []
+            projectUsers.map((item) => {
+                return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                    {item.user.userName}
+                </Option>)
+            }) : []
 
         const pagination = {
             total: tasks.totalCount,
@@ -519,58 +523,58 @@ class OfflineTaskList extends Component {
 
         return (
             <div>
-                <h1 className="box-title" style={{lineHeight: '50px'}}>
-                <div style={{ marginTop: '5px' }}>
-                    <span className="ope-statistics">
-                        <span style={{color: "#2E3943"}}>
-                            <Circle style={{ background: '#2E3943' }} />&nbsp;
+                <h1 className="box-title" style={{ lineHeight: '50px' }}>
+                    <div style={{ marginTop: '5px' }}>
+                        <span className="ope-statistics">
+                            <span style={{ color: "#2E3943" }}>
+                                <Circle style={{ background: '#2E3943' }} />&nbsp;
                             任务实例总数: {statistics.ALL || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#F5A623"}}>
-                            <Circle style={{ background: '#F5A623 ' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#F5A623" }}>
+                                <Circle style={{ background: '#F5A623 ' }} />&nbsp;
                             等待提交: {statistics.UNSUBMIT || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#2491F7"}}>
-                            <Circle style={{ background: '#2491F7' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#2491F7" }}>
+                                <Circle style={{ background: '#2491F7' }} />&nbsp;
                             提交中: {statistics.SUBMITTING || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#F5A623"}}>
-                            <Circle style={{ background: '#F5A623' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#F5A623" }}>
+                                <Circle style={{ background: '#F5A623' }} />&nbsp;
                             等待运行: {statistics.WAITENGINE || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#2491F7"}}>
-                            <Circle style={{ background: '#2491F7' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#2491F7" }}>
+                                <Circle style={{ background: '#2491F7' }} />&nbsp;
                             运行中: {statistics.RUNNING || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#009944"}}>
-                            <Circle style={{ background: '#009944' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#009944" }}>
+                                <Circle style={{ background: '#009944' }} />&nbsp;
                             完成: {statistics.FINISHED || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#F5A623"}}>
-                            <Circle style={{ background: '#F5A623 ' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#F5A623" }}>
+                                <Circle style={{ background: '#F5A623 ' }} />&nbsp;
                             取消: {statistics.CANCELED || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#d62119"}}>
-                            <Circle style={{ background: '#d62119' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#d62119" }}>
+                                <Circle style={{ background: '#d62119' }} />&nbsp;
                             失败: {statistics.FAILED || 0}
-                        </span>&nbsp;
-                        <span style={{color: "#26dad2"}}>
-                            <Circle style={{ background: '#26dad2' }} />&nbsp;
+                            </span>&nbsp;
+                        <span style={{ color: "#26dad2" }}>
+                                <Circle style={{ background: '#26dad2' }} />&nbsp;
                             冻结: {statistics.FROZEN || 0}
-                        </span>&nbsp;
+                            </span>&nbsp;
                     </span>
                     </div>
                 </h1>
                 <div className="box-2 m-card">
-                    <Card 
+                    <Card
                         noHovering
                         bordered={false}
                         loading={false}
                         title={
-                            <Form 
+                            <Form
                                 layout="inline"
-                                style={{marginTop: '10px'}}
-                                className="m-form-inline" 
+                                style={{ marginTop: '10px' }}
+                                className="m-form-inline"
                             >
                                 <FormItem label="">
                                     <Search
@@ -604,7 +608,7 @@ class OfflineTaskList extends Component {
                                         style={{ width: 200 }}
                                         format="YYYY-MM-DD"
                                         disabledDate={this.disabledDate}
-                                        value={bussinessDate||null}
+                                        value={bussinessDate || null}
                                         onChange={this.changeBussinessDate}
                                     />
                                 </FormItem>
@@ -615,14 +619,14 @@ class OfflineTaskList extends Component {
                                         size="default"
                                         style={{ width: 200 }}
                                         format="YYYY-MM-DD"
-                                        value={cycDate||null}
+                                        value={cycDate || null}
                                         onChange={this.changecycDate}
                                     />
                                 </FormItem>
                             </Form>
                         }
                         extra={
-                            <Icon type="reload" onClick={this.search} 
+                            <Icon type="reload" onClick={this.search}
                                 style={{
                                     cursor: 'pointer',
                                     marginTop: '16px',
@@ -630,19 +634,19 @@ class OfflineTaskList extends Component {
                                 }}
                             />
                         }
-                    > 
-                         <Table
+                    >
+                        <Table
                             rowKey="id"
                             rowClassName={
                                 (record, index) => {
-                                    if (this.state.selectedTask&&this.state.selectedTask.id == record.id) {
+                                    if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
                                         return "row-select"
                                     } else {
                                         return "";
                                     }
                                 }
                             }
-                            style={{marginTop: '1px'}}
+                            style={{ marginTop: '1px' }}
                             className="m-table"
                             rowSelection={rowSelection}
                             pagination={pagination}
@@ -653,17 +657,17 @@ class OfflineTaskList extends Component {
                             footer={this.tableFooter}
                             scroll={{ y: '58%' }}
                         />
-                        <SlidePane 
+                        <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
-                            onClose={ this.closeSlidePane }
-                            visible={ visibleSlidePane } 
+                            onClose={this.closeSlidePane}
+                            visible={visibleSlidePane}
                             style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
-                            <TaskFlowView 
+                            <TaskFlowView
                                 visibleSlidePane={visibleSlidePane}
-                                goToTaskDev={this.props.goToTaskDev} 
+                                goToTaskDev={this.props.goToTaskDev}
                                 reload={this.search}
-                                taskJob={selectedTask} 
+                                taskJob={selectedTask}
                                 project={project}
                             />
                         </SlidePane>
