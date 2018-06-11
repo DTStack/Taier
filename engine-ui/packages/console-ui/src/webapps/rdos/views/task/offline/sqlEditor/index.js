@@ -24,6 +24,10 @@ import {
 
  class SQLEditor extends Component {
 
+    state={
+        customHeight:null
+    }
+
     componentDidMount() {
         const currentNode = this.props.currentTabData;
         if (currentNode) {
@@ -79,15 +83,19 @@ import {
         const consoleData = sqlEditor.console
         const data = consoleData && consoleData[currentTab] ? 
         consoleData[currentTab] : { results: [] }
+        const size = this.state.size;
 
         const cursor = currentTabData.cursor || undefined;
+        const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
+
+
 
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">
                     <Toolbar {...this.props} />
                 </div>
-                <div className="ide-content">
+                <div className='ide-content'>
                     {
                         data.log ?
                         <SplitPane
@@ -97,12 +105,18 @@ import {
                             style={{ paddingBottom: '40px' }}
                             defaultSize="60%"
                             primary="first"
+                            size={size}
+                            onDragStarted={()=>{
+                                this.setState({
+                                    size:undefined
+                                })
+                            }}
                         >
                             <div className="ide-editor bd-bottom">
                                 <CodeEditor 
                                     key="sqlEditor"
                                     sync={currentTabData.merged || undefined}
-                                    options={options}
+                                    options={{...options,readOnly:isLocked}}
                                     value={value}
                                     cursor={cursor}
                                     cursorActivity={ this.debounceSelectionChange }
@@ -114,13 +128,23 @@ import {
                                 data={data}
                                 currentTab={currentTab}
                                 dispatch={this.props.dispatch}
+                                setMax={()=>{
+                                    this.setState({
+                                        size:'100px'
+                                    })
+                                }}
+                                setMin={()=>{
+                                    this.setState({
+                                        size:'calc(100% - 40px)'
+                                    })
+                                }}
                             /> 
                         </SplitPane> : 
                         <div className="ide-editor bd-bottom">
                             <CodeEditor
                                 key="sqlEditor"
                                 sync={currentTabData.merged || undefined}
-                                options={options}
+                                options={{...options,readOnly:isLocked}}
                                 cursor={cursor}
                                 cursorActivity={ this.debounceSelectionChange }
                                 onChange={ this.debounceChange }  

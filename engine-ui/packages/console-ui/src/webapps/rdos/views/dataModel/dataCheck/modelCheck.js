@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
 import {
-    Table, Row, Col, Select, Form, 
+    Table, Row, Col, Select, Form,
     Card, Button, message, Checkbox,
     DatePicker, Input,
 } from 'antd';
@@ -19,8 +19,8 @@ const RangePicker = DatePicker.RangePicker;
 
 export default class ModelCheck extends Component {
 
-    state ={
-        table: {data: []},
+    state = {
+        table: { data: [] },
         loading: false,
 
         params: {
@@ -73,7 +73,7 @@ export default class ModelCheck extends Component {
             })
         })
     }
-    
+
     changeParams = (field, value) => {
         const params = {
             [field]: value,
@@ -105,13 +105,15 @@ export default class ModelCheck extends Component {
             dataIndex: 'subject',
             key: 'subject',
         }, {
-            title: '增量标识',
-            dataIndex: 'increType',
-            key: 'increType',
-        }, {
+            width: 80,
             title: '刷新频率',
             dataIndex: 'refreshRate',
             key: 'refreshRate',
+        }, {
+            width: 80,
+            title: '增量标识',
+            dataIndex: 'increType',
+            key: 'increType',
         }, {
             title: '最后修改人',
             dataIndex: 'userName',
@@ -159,8 +161,8 @@ export default class ModelCheck extends Component {
                     bordered={false}
                     loading={false}
                     title={
-                        <Form 
-                            className="m-form-inline" 
+                        <Form
+                            className="m-form-inline"
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
@@ -169,8 +171,8 @@ export default class ModelCheck extends Component {
                                     placeholder="按表名搜索"
                                     style={{ width: 200 }}
                                     size="default"
-                                    onChange={ this.onTableNameChange }
-                                    onSearch={ this.loadData }
+                                    onChange={this.onTableNameChange}
+                                    onSearch={this.loadData}
                                 />
                             </FormItem>
                             <FormItem label="类型">
@@ -189,8 +191,8 @@ export default class ModelCheck extends Component {
                                 </Select>
                             </FormItem>
                             <FormItem>
-                                <Checkbox 
-                                    onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0 )}
+                                <Checkbox
+                                    onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0)}
                                 >
                                     已忽略
                                 </Checkbox>
@@ -198,15 +200,15 @@ export default class ModelCheck extends Component {
                         </Form>
                     }
                 >
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            pagination={pagination}
-                            loading={loading}
-                            columns={this.initColumns()}
-                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
-                            dataSource={table.data || []}
-                        />
+                    <Table
+                        rowKey="id"
+                        className="m-table"
+                        pagination={pagination}
+                        loading={loading}
+                        columns={this.initColumns()}
+                        onChange={(pagination) => this.changeParams('pageIndex', pagination.current)}
+                        dataSource={table.data || []}
+                    />
                 </Card>
             </div>
         )

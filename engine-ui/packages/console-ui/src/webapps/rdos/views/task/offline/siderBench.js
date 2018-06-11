@@ -29,7 +29,7 @@ class SiderBench extends React.Component {
     }
 
     handleTaskParamChange(old, newVal) {
-        if(old !== newVal) {
+        if (old !== newVal) {
             this.props.setTaskParams({
                 taskParams: newVal
             });
@@ -47,12 +47,14 @@ class SiderBench extends React.Component {
             this.SideBench.style.width = '30px'
         } else if (activeKey !== selected) {
             this.SideBench.style.width = '500px'
-            this.setState({ selected: activeKey,  expanded: true });
+            this.setState({ selected: activeKey, expanded: true });
         }
     }
 
     getTabPanes = () => {
         const { tabData } = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
+
         const panes = [
             <TabPane tab={<span className="title-vertical">任务属性</span>} key="params1">
                 <TaskDetail tabData={tabData}></TaskDetail>
@@ -65,22 +67,24 @@ class SiderBench extends React.Component {
             </TabPane>
         ]
         if (tabData && utils.checkExist(tabData.taskType) && tabData.taskType !== TASK_TYPE.VIRTUAL_NODE) {
-            panes.push([<TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
-                <SQLEditor
-                    options={propEditorOptions}
-                    key={'params' + tabData.id}
-                    value={tabData.taskParams}
-                    onFocus={() => { }}
-                    focusOut={() => { }}
-                    onChange={this.handleTaskParamChange.bind(this)}
-                />
-                </TabPane>,
+            panes.push([
                 <TabPane tab={<span className="title-vertical">任务参数</span>} key="params5">
-                    <TaskParams 
-                        tabData={tabData} 
-                        onChange={this.handleCustomParamsChange} 
+                    <TaskParams
+                        tabData={tabData}
+                        onChange={this.handleCustomParamsChange}
                     />
-                </TabPane>
+                </TabPane>,
+                <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
+                    <SQLEditor
+                        options={{...propEditorOptions,readOnly:isLocked}}
+                        key={'params' + tabData.id}
+                        value={tabData.taskParams}
+                        onFocus={() => { }}
+                        focusOut={() => { }}
+                        onChange={this.handleTaskParamChange.bind(this)}
+                    />
+                </TabPane>,
+
             ])
         } else if (utils.checkExist(tabData.type)) {
             return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
