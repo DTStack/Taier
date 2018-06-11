@@ -29,6 +29,8 @@ const applyStatus = (status) => {
         return <span>待审批</span>
     } else if (status === 1) {
         return <span>通过</span>
+    }else if(status === 2){
+        return <span>不通过</span>
     }
 }
 
@@ -44,12 +46,15 @@ const revokeStatus = (status) => {
 @connect(state => {
     return {
         projects: state.projects,
+        user: state.user,
     }
 })
 class AuthMana extends Component {
 
     constructor(props) {
         super(props);
+        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
+        // this.isAdminAbove = 0;
         this.state = {
             table: [],
             editRecord: [],
@@ -60,7 +65,7 @@ class AuthMana extends Component {
             loading:false,
             rangeTime:[],
             queryParams: {
-                listType: "0",
+                listType: this.isAdminAbove==1 ?"0" : "1",
                 pageIndex: 1,
                 pageSize: 10,
                 resourceName: undefined,
@@ -69,6 +74,8 @@ class AuthMana extends Component {
                 belongProjectId: undefined,
             },
         }
+        console.log('this.isAdminAbove------------',this.isAdminAbove);
+        
     }
 
     componentDidMount() {
@@ -450,8 +457,8 @@ class AuthMana extends Component {
                         },
                         {
                             title: '审批人',
-                            key: 'approvalPerson',
-                            dataIndex: 'approvalPerson',
+                            key: 'dealUser',
+                            dataIndex: 'dealUser',
                         },
                         {
                             title: '审批意见',
@@ -569,7 +576,8 @@ class AuthMana extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange,
         }: null;
-
+        console.log('table.data-----',table.data);
+        
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>
@@ -601,31 +609,38 @@ class AuthMana extends Component {
                     style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}
                 >
-                    <TabPane tab="待我审批" key={0}>
-                        {this.renderPane(true)}
-                        <ApprovalModal 
-                            visible={visible}
-                            agreeApply={agreeApply}
-                            table={editRecord}
-                            onOk={this.approveApply}
-                            onCancel={() => {
-                                this.setState({
-                                    visible: false,
-                                    agreeApply: undefined,
-                                    editRecord: [],
-                                })
-                            }}
-                        />
-                    </TabPane>
+                   {
+                       this.isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
+                                                    {this.renderPane(true)}
+                                                    <ApprovalModal 
+                                                        visible={visible}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        onOk={this.approveApply}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                visible: false,
+                                                                agreeApply: undefined,
+                                                                editRecord: [],
+                                                            })
+                                                        }}
+                                                    />
+                                                </TabPane> : ""
+                   }
                     <TabPane tab="申请记录" key={1}>
                         {this.renderPane()}
                     </TabPane>
-                    <TabPane tab="已处理" key={2}>
-                        {this.renderPane()}
-                    </TabPane>
-                    <TabPane tab="权限回收" key={3}>
-                        {this.renderPane(true)}
-                    </TabPane>
+                    {
+                        this.isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
+                                                    {this.renderPane()}
+                                                </TabPane> : ""
+                    }
+                    {
+                        this.isAdminAbove == 1 ?<TabPane tab="权限回收" key={3}>
+                                                    {this.renderPane(true)}
+                                                </TabPane> : ""
+                    }
+                    
                 </Tabs>
             </div>
         )
