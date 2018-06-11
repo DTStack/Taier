@@ -7,8 +7,9 @@ import {
 import utils from 'utils'
 
 
-import API from '../../../../api'
-import Editor from '../../../../components/code-editor'
+import API from '../../../../api/dataManage';
+// import DataMaApi from '../../../../api/dataManage';
+import Editor from '../../../../components/code-editor';
 import CopyIcon from "main/components/copy-icon";
 
 import { formItemLayout } from '../../../../comm/const'
@@ -56,7 +57,7 @@ export default class ImportTarget extends Component {
         const fileColumns=data[0]||[];
 
         // 加载分区
-        API.getTable({ tableId: table.tableId }).then((res) => {
+        API.getTable({ tableId: table.id }).then((res) => {
             if (res.code === 1) {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
@@ -197,7 +198,7 @@ export default class ImportTarget extends Component {
             key: 'target_part',
             render: (text, record) => {
                 return (
-                    <span>{record.name}</span>
+                    <span>{record.columnName}</span>
                 )
             }
         }, {

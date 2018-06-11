@@ -302,7 +302,7 @@ class AdminUser extends Component {
                             visibleEditRole: true,
                             editTarget: record
                         })
-                    }}>编辑</a>
+                    }}>编辑角色</a>
                     {
                         hideDel ? '' : <span>
                             <span className="ant-divider" />
@@ -311,7 +311,7 @@ class AdminUser extends Component {
                                 okText="确定" cancelText="取消"
                                 onConfirm={() => { ctx.removeUserFromProject(record) }}
                             >
-                                <a>删除</a>
+                                <a>移出项目</a>
                             </Popconfirm>
                         </span>
                     }
@@ -399,7 +399,6 @@ class AdminUser extends Component {
         } = this.state
 
         const content = this.renderPane();
-
         return (
             <div className="user-admin">
                 <h1 className="box-title">用户管理</h1>
@@ -433,6 +432,7 @@ class AdminUser extends Component {
                     visible={visibleEditRole}
                     onOk={this.updateMemberRole}
                     onCancel={this.onCancel}
+                    width={Math.min(1000,Math.max(520,(400+(roles?roles.length*60:0))))+"px"}
                 >
                     <EditMemberRoleForm
                         user={editTarget}
