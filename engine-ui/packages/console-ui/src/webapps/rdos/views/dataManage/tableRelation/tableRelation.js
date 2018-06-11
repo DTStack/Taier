@@ -203,7 +203,7 @@ export default class TableRelation extends React.Component {
         const newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
             VertexSize.width, VertexSize.height, style
         )
-        
+
         if (data.isParent) {
             graph.insertEdge(rootCell, null, '', newVertex, parent)
         } else {
@@ -367,7 +367,7 @@ export default class TableRelation extends React.Component {
                 ctx.loadTableParent(params)
                 ctx.loadVertexData(params)
             })
-            
+
             menu.addItem('展开下游（1层）', null, function () {
                 ctx.loadTableChildren(params)
                 ctx.loadVertexData(params)
