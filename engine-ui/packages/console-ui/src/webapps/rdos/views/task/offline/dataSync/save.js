@@ -27,6 +27,7 @@ export default class Save extends React.Component{
 
     render() {
         const { navtoStep } = this;
+        const { notSynced } =this.props;
 
         return <div className="g-step5">
             <div className="m-preview"
@@ -75,7 +76,7 @@ export default class Save extends React.Component{
             </div>
             <div className="steps-action">
                 <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
-                <Button type="primary" onClick={() => this.save(navtoStep)}>保存</Button>
+                <Button type="primary" disabled={!notSynced} onClick={() => this.save(navtoStep)}>保存</Button>
             </div>
         </div>
     }
