@@ -6,7 +6,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
-import { filterComments } from 'funcs'
+import { filterComments, splitSql } from 'funcs'
 
 import API from '../../../../api'
 import MyIcon from '../../../../components/icon'
@@ -44,7 +44,8 @@ export default class Toolbar extends Component {
         const arr = [];
         let sqls = filterComments(sql);
         // 如果有有效内容
-        if (sqls) { sqls = sqls.split(';') }
+        if (sqls) { sqls = splitSql(sqls) }
+        console.log(sqls);
 
         if (sqls && sqls.length > 0) {
             for (let i = 0; i < sqls.length; i++) {
