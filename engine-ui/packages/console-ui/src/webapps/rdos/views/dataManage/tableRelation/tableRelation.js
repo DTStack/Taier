@@ -131,7 +131,7 @@ export default class TableRelation extends React.Component {
         Api.getTableRelTree(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                const treeData = this.initRootTree(testData.data);
+                const treeData = this.initRootTree(data);
                 this.doInsertVertex(treeData)
             }
             this.hideLoading();
