@@ -93,7 +93,7 @@ export default class ImportTarget extends Component {
         const { targetTable, partitions, originPartitions } = this.props.formState
         for (let i = 0; i < partitions.length; i++) {
             const item = partitions[i]
-            const key = originPartitions[i].name
+            const key = originPartitions[i].columnName
             if (utils.trim(item[key]) === '') {
                 message.error('分区值不可为空！')
                 return
@@ -163,7 +163,7 @@ export default class ImportTarget extends Component {
         const originPartitions = this.props.formState.partitions
         const newPartitions = [...originPartitions]
         newPartitions[index] = {
-            [partition.name]: e.target.value,
+            [partition.columnName]: e.target.value,
         }
         this.props.changeStatus({
             partitions: newPartitions
@@ -228,10 +228,10 @@ export default class ImportTarget extends Component {
                 <Row key={`partition-${index}`}>
                     <div
                         className="ellipsis"
-                        title={item.name}
+                        title={item.columnName}
                         style={{ width: '60px', display: 'inline-block' }}
                     >
-                        {item.name}
+                        {item.columnName}
                     </div>
                     <Input
                         style={{ width: '140px' }}
