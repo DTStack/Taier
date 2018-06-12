@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { message } from 'antd';
 import Api from '../../../api/dataModel';
 
-export default class BasePane extends Component {
+
+class BasePane extends Component {
 
     state ={
         table: { data: [] },
@@ -83,3 +84,4 @@ export default class BasePane extends Component {
         this.setState(params, this.loadData)
     }
 }
+export default BasePane;

@@ -95,7 +95,7 @@ export default class ProjectList extends Component {
 
     initColumns = () => {
         return [{
-            title: '项目名称',
+            title: '项目显示名称',
             dataIndex: 'projectAlias',
             key: 'projectAlias',
             render: (text, record) => {
