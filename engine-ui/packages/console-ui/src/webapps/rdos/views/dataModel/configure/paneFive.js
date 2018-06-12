@@ -180,7 +180,7 @@ class ModelDefineRule extends Component {
                     noHovering
                     bordered={false}
                     loading={false}
-                    title="表命名规则生成配置:"
+                    title="表名生成规则配置:"
                 >
                     <div>
                         <Form style={{marginTop: '24px'}}>
