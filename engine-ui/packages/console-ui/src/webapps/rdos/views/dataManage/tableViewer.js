@@ -11,11 +11,13 @@ import {
 
 import GoBack from 'main/components/go-back';
 
+import { APPLY_RESOURCE_TYPE } from "../../comm/const";
 import Editor from '../../components/code-editor';
 import ajax from '../../api/dataManage';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import TablePartition from './tablePartition';
 import TableRelation from './tableRelation';
+import TableApplyModal from './search/tableApply'
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
@@ -32,6 +34,13 @@ export default class TableViewer extends React.Component{
             visible: false,
             code: '',
             isMark: false,
+            tableData:'',
+            applyButton: false,
+            applyModal:{
+                visible: false,
+                data : {},
+            },
+           
         };
     }
 
@@ -41,22 +50,26 @@ export default class TableViewer extends React.Component{
 
     changeMark(){
         const {isMark} = this.state;
-        console.log(isMark);
-        
         if(isMark){
             ajax.cancelMark(this.queryParams).then(res=>{
                 if (res.code === 1) {
+                    message.info("取消收藏成功")
                     this.setState({
                         isMark: !isMark
                     })
+                }else{
+                    message.info("取消收藏失败,请再次点击")
                 }
             })
         }else{
             ajax.addMark(this.queryParams).then(res=>{
                 if (res.code === 1) {
+                    message.info("收藏成功")
                     this.setState({
                         isMark: !isMark
                     })
+                }else{
+                    message.info("收藏失败,请再次点击")
                 }
             })
         }
@@ -66,8 +79,12 @@ export default class TableViewer extends React.Component{
     getTable() {
         ajax.getTable(this.queryParams).then(res => {
             if(res.code === 1) {
+                const isMark = res.data.table.isCollect == "1" ? true : false;
+                const applyButton = res.data.table.permissionStatus == "0" ? true : false;
                 this.setState({
-                    tableData: res.data
+                    tableData: res.data,
+                    isMark,
+                    applyButton
                 });
             }
         });
@@ -75,7 +92,6 @@ export default class TableViewer extends React.Component{
 
     switchType(evt) {
         const showType = evt.target.value;
-
         this.setState({
             showType
         });
@@ -141,8 +157,41 @@ export default class TableViewer extends React.Component{
         }, 1000)
     }
 
+    apply = (applyData) => {
+        const { applyModal } = this.state;
+        const params = {...applyData};
+        params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
+        params.resourceId = applyModal.data.id;
+        ajax.applyTable(params).then(res => {
+            if (res.code === 1) {
+                message.success('申请成功！')
+                applyModal.visible = false;
+                applyModal.data = {};
+                this.setState({applyModal},this.getTable)
+            }
+        })
+    }
+
+    showApply = () => {
+        const { applyModal,tableData } = this.state;
+        applyModal.visible = true;
+        applyModal.data  = tableData.table;
+        this.setState({
+            applyModal
+        })
+    }
+
+    cancelApply = () => {
+        const { applyModal } = this.state;
+        applyModal.visible = false;
+        applyModal.data = {};
+        this.setState({
+            applyModal
+        })
+    }
+
     render() {
-        const { showType, tableData, previewData,isMark } = this.state;
+        const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
 
         const columns = [{
             title: '序号',
@@ -176,7 +225,7 @@ export default class TableViewer extends React.Component{
                             <GoBack  type="textButton" /> 查看表：{ tableData && tableData.table.tableName }
                             <span className="right">
                                 <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
-                                <Button className="button-top" type="primary">申请授权</Button>
+                                { applyButton ? <Button className="button-top" type="primary" onClick={this.showApply}>申请授权</Button> : ""}
                                 <Button 
                                     type="primary" 
                                     className="button-top"
@@ -198,7 +247,7 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>负责人</th>
-                                        <td>{ tableData.table.userName }</td>
+                                        <td>{ tableData.table.chargeUser }</td>
                                     </tr>
                                     <tr>
                                         <th>创建时间</th>
@@ -274,6 +323,7 @@ export default class TableViewer extends React.Component{
                                         { tableData && <Table
                                             className="m-table"
                                             columns={ columns }
+                                            rowKey="id"
                                             dataSource={ showType === 0 ? tableData.column : tableData.partition }
                                         />}
                                     </Card>
@@ -311,7 +361,7 @@ export default class TableViewer extends React.Component{
                     </Row>
                 </main>
             </div>
-
+                                        
             <Modal className="m-codemodal"
                 title="建表语句"
                 width="750"
@@ -329,6 +379,12 @@ export default class TableViewer extends React.Component{
             >
                 <Editor value={ this.state.code } readOnly style={{height: '400px'}}/>
             </Modal>
+            <TableApplyModal 
+                            visible={applyModal.visible}
+                            table={applyModal.data}
+                            onOk={this.apply}
+                            onCancel={this.cancelApply}
+                        />
         </div>
     }
 }

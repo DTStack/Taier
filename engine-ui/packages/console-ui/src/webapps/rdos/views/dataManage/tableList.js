@@ -47,7 +47,6 @@ class TableList extends Component {
             },
         }
         this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
-        console.log('tableList-----------',this.props);
     }
 
     componentDidMount() {
@@ -134,7 +133,6 @@ class TableList extends Component {
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state
-        console.log('initialColumns',queryParams);
         return [
             {
                 title: '表名',

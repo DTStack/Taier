@@ -173,7 +173,7 @@ class TableList extends Component {
 
         const pagination = {
             total: totalCount,
-            defaultPageSize: 20,
+            defaultPageSize: 10,
             current: params.pageIndex,
         };
 
