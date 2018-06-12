@@ -5,7 +5,7 @@ export default {
     UNLOCK_FILE: `${RDOS_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
 
     // ========================= 离线任务请求 ========================= //
-    SQL_FORMAT: `${RDOS_BASE_URL}/batch/sqlFormat/sqlFormat`, // SQL格式化服务
+    SQL_FORMAT: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/sqlFormat`, // SQL格式化服务
 
     // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`, // 添加或者更新任务

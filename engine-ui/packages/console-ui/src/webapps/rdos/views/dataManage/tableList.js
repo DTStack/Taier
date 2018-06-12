@@ -26,6 +26,7 @@ const ROUTER_BASE = '/data-manage/table';
 @connect(state => {
     return {
         projects: state.projects,
+        user: state.user,
     }
 })
 class TableList extends Component {
@@ -45,9 +46,12 @@ class TableList extends Component {
                 tableName: undefined,
             },
         }
+        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
+        console.log('tableList-----------',this.props);
     }
 
     componentDidMount() {
+        
         this.search();
         this.loadCatalogue();
     }
@@ -125,10 +129,6 @@ class TableList extends Component {
             visible: true,
             editRecord,
         });
-    }
-    
-    cursorActivity(){
-        console.log(arguments)
     }
 
     initialColumns = () => {
@@ -303,9 +303,9 @@ class TableList extends Component {
                     <TabPane tab="个人账号的表" key="2">
                         {this.renderPane()}
                     </TabPane>
-                    <TabPane tab="我管理的表" key="3">
-                        {this.renderPane()}
-                    </TabPane>
+                    {
+                        this.isAdminAbove == 1 ? <TabPane tab="我管理的表" key="3">{this.renderPane()}</TabPane> : ""
+                    }
                     <TabPane tab="被授权的表" key="4">
                         {this.renderPane()}
                     </TabPane>

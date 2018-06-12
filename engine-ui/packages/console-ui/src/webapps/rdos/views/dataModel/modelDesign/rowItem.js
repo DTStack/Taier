@@ -90,6 +90,7 @@ export default class RowItem extends React.Component {
         const { data, columnFileds } = this.props;
         const { editMode } = this.state;
         console.log('rowItem',this.props);
+        console.log('rowItem',data);
         
         const options = columnFileds && columnFileds.map(field => <Option title={field.columnName} value={field.columnName} key={field.columnName}>{field.columnName}</Option>)
         const { isSaved, isPartition, precision, scale, columnType } = data;
