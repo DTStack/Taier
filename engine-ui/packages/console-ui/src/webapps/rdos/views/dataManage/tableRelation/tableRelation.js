@@ -129,7 +129,7 @@ export default class TableRelation extends React.Component {
         Api.getTableRelTree(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                const treeData = this.initRootTree(data);
+                const treeData = this.initRootTree(testData.data);
                 this.doInsertVertex(treeData)
             }
             this.hideLoading();
@@ -247,7 +247,7 @@ export default class TableRelation extends React.Component {
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const startX = (graph.container.clientWidth - VertexSize.width) / 3
+        const startX = (graph.container.clientWidth - VertexSize.width) / 2
         const startY = 100;
 
         this.startX = startX;
@@ -258,15 +258,17 @@ export default class TableRelation extends React.Component {
 
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = true;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
         layout.levelDistance = 60;
-        layout.nodeDistance = 30;
+        layout.nodeDistance = 16;
 
         var layoutMgr = new mxLayoutManager(graph);
 
         layoutMgr.getLayout = function(cell) {
             if (cell.getChildCount() > 0) {
+                return layout;
             }
-            return layout;
         };
 
         this.executeLayout = function(change, post) {
@@ -275,6 +277,7 @@ export default class TableRelation extends React.Component {
                 if (change != null) {
                     change();
                 }
+                layout.execute(parent, this.rootCell);
             } catch (e) {
                 throw e;
             } finally {
@@ -284,25 +287,64 @@ export default class TableRelation extends React.Component {
         }
 
         this.renderTree(data);
-        graph.view.setTranslate(startX, startY);
     }
+
+    insertVertex = (parent, data) => {
+        // 隐藏节点不展示
+        if (data.hide === true) return;
+        const graph = this.graph;
+
+        const rootCell = graph.getDefaultParent()
+        const style = this.getStyles(data)
+
+        // 创建节点
+        const doc = mxUtils.createXmlDocument()
+        const tableInfo = doc.createElement('table')
+        tableInfo.setAttribute('id', data.id)
+        tableInfo.setAttribute('data', JSON.stringify(data))
+        
+        let geo = graph.getCellGeometry(parent);
+        console.log('geo:', parent, geo);
+        if (!geo) {  geo = {x: 1, y: 1} }
+
+        let newVertex = '';
+        this.executeLayout(() => {
+            newVertex = graph.insertVertex(rootCell, null, 
+                tableInfo, geo.x, geo.y,
+                VertexSize.width, VertexSize.height, style
+            )
+            graph.view.refresh(newVertex);
+            if (data.isParent) {
+                graph.insertEdge(rootCell, null, '', newVertex, parent)
+            } else {
+                graph.insertEdge(rootCell, null, '', parent, newVertex)
+            }
+        })
+
+        this._vertexCells.push(newVertex)
+
+        return newVertex;
+    }
+
 
     renderTree = (treeNodeData) => {
         const graph = this.graph;
+
+        console.log('render data:', treeNodeData)
 
         graph.getModel().clear();
 
         const rootCell = graph.getDefaultParent();
 
-        this.executeLayout(() => {
+        const currentNodeData = getVertexNode(treeNodeData)
+        currentNodeData.isRoot = true;
+        const currentNode = this.insertVertex(rootCell, currentNodeData);
+        this.loopTree(currentNode, treeNodeData);
+        this.rootCell = currentNode;
 
-            const currentNodeData = getVertexNode(treeNodeData)
-            currentNodeData.isRoot = true;
-            const currentNode = this.insertVertex(rootCell, currentNodeData);
-            this.loopTree(currentNode, treeNodeData);
+        graph.scrollCellToVisible(this.rootCell);
 
-            this.rootCell = currentNode;
-        })
+      
 
         graph.view.setTranslate(this.startX, this.startY);
 
@@ -344,39 +386,8 @@ export default class TableRelation extends React.Component {
         }
     }
 
-    insertVertex = (parent, data) => {
-        // 隐藏节点不展示
-        if (data.hide === true) return;
-        const graph = this.graph;
-
-        const rootCell = graph.getDefaultParent()
-        const style = this.getStyles(data)
-
-        // 创建节点
-        const doc = mxUtils.createXmlDocument()
-        const tableInfo = doc.createElement('table')
-        tableInfo.setAttribute('id', data.id)
-        tableInfo.setAttribute('data', JSON.stringify(data))
-        
-        const newVertex = graph.insertVertex(rootCell, null, tableInfo, 1, 1,
-            VertexSize.width, VertexSize.height, style
-        )
-        graph.view.refresh(newVertex);
-
-        if (data.isParent) {
-            graph.insertEdge(rootCell, null, '', newVertex, parent)
-        } else {
-            graph.insertEdge(rootCell, null, '', parent, newVertex)
-        }
-
-        this._vertexCells.push(newVertex)
-
-        return newVertex;
-    }
-
 
     getStyles = (data) => {
-        console.log('data style:', data)
         if (data.isParent) {
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
         } else if (data.isRoot) {
@@ -661,10 +672,10 @@ export default class TableRelation extends React.Component {
         let style = [];
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        // style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        style[mxConstants.STYLE_ENDARROW] = 'none';
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
+        // style[mxConstants.STYLE_ENDARROW] = 'none';
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        // style[mxConstants.STYLE_ROUNDED] = false;
+        style[mxConstants.STYLE_ROUNDED] = true;
         return style
     }
 
