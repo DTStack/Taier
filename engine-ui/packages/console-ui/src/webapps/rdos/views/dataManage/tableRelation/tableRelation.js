@@ -403,6 +403,7 @@ export default class TableRelation extends React.Component {
     corvertValueToString = (cell) => {
         if (mxUtils.isNode(cell.value)) {
             if (cell.value.nodeName.toLowerCase() == 'table') {
+                console.log('getChildCount:', cell.getChildCount(), cell.getIndex())
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
@@ -547,10 +548,10 @@ export default class TableRelation extends React.Component {
                         className="child"
                         defaultCurrent={1}
                         current={currentChild.currentPage}
-                        total={currentChild.totalCount} 
+                        total={currentChild.totalCount}
                     />
                 </div>
-                <RelationDetail 
+                <RelationDetail
                     data={tableInfo}
                     onShowColumn={this.props.onShowColumn}
                     relationTasks={relationTasks}
