@@ -17,7 +17,7 @@ const Panel = Collapse.Panel;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 5 },
+        sm: { span: 6 },
     },
     wrapperCol: {
         xs: { span: 24 },
@@ -52,7 +52,7 @@ class TaskParams extends React.Component {
                 {getFieldDecorator(param.paramName, {
                     rules: [{
                         //匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
-                        pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-]{2,})\]$)|(^(?!\$)\S+$)/i,
+                        pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i,
                         message: '参数格式不正确',
                     }],
                     initialValue: param.paramCommand
