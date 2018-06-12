@@ -87,6 +87,34 @@ class Workbench extends React.Component {
         )
     }
 
+    showPublish() {
+        const { currentTabData } = this.props;
+        const { taskType,createModel } = currentTabData;
+        let vaildPass = true;
+
+        switch(taskType){
+            case TASK_TYPE.SYNC:{
+                if(currentTabData.createModel==DATA_SYNC_TYPE.SCRIPT){
+                    vaildPass = this.checkSyncScript(currentTabData);
+                }
+            }
+        }
+
+        if(vaildPass){
+            this.setState({ showPublish: true })
+        }
+    }
+
+    checkSyncScript(currentTabData){
+        const sql=currentTabData.sqlText;
+
+        if(utils.jsonFormat(sql)){
+            return true;
+        }
+        message.error("请确认JSON格式是否正确");
+        return false;
+    }
+
     render() {
         const { tabs, currentTab, currentTabData, dataSync, taskCustomParams } = this.props;
         const { sourceMap, targetMap } = dataSync;
@@ -137,7 +165,7 @@ class Workbench extends React.Component {
                 {showPublish ? (<Col className="right">
                     <Button
                         disabled={disablePublish}
-                        onClick={() => { this.setState({ showPublish: true }) }}
+                        onClick={this.showPublish.bind(this)}
                         title="发布任务"
                     >
                         <MyIcon className="my-icon" type="fly" />发布
@@ -303,7 +331,7 @@ class Workbench extends React.Component {
 
                 return (
                     <TabPane
-                        
+
                         style={{ height: '0px' }}
                         tab={title}
                         key={tab.id}
