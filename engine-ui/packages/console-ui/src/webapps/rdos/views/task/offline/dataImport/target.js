@@ -71,7 +71,7 @@ export default class ImportTarget extends Component {
                 })
                 const partitions = tableData.partition && tableData.partition.map(item => {
                     return {
-                        [item.name]: ''
+                        [item.columnName]: ''
                     }
                 })
                 changeStatus({
