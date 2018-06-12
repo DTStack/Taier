@@ -7,7 +7,7 @@ import {
 import utils from 'utils'
 
 
-import API from '../../../../api'
+import API from '../../../../api/dataManage'
 import Editor from '../../../../components/code-editor'
 import CopyIcon from "main/components/copy-icon";
 
