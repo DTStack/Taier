@@ -91,7 +91,7 @@ class TableTree extends React.Component {
 
     handleSelect = (key, { node }) => {
         const table = node.props.data
-        this.setState({ tableId: table.tableId })
+        this.setState({ tableId: table.id })
     }
 
     renderNodes = () => {
