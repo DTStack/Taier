@@ -29,7 +29,7 @@ class TaskParams extends React.Component {
 
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
-        const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-]{2,})\]$)|(^(?!\$)\S+$)/i;
+        const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
         if (reg.test(value)) {
             console.log('value:', value);
             const taskVariables = [...tabData.taskVariables];
