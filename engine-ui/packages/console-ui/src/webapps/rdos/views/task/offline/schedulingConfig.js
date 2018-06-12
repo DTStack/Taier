@@ -565,6 +565,8 @@ class SchedulingConfig extends React.Component {
             } else {
                 this._selfReliance = scheduleConf.selfReliance;
             }
+        } else {
+            this._selfReliance = 0;
         }
     }
 
