@@ -56,12 +56,12 @@ export default class ImportTarget extends Component {
         const fileColumns=data[0]||[];
 
         // 加载分区
-        API.getTable({ tableId: table.tableId }).then((res) => {
+        API.getTable({ tableId: table.id }).then((res) => {
             if (res.code === 1) {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
                     //假如发现和文件资源column有相等的columnName，则直接默认设置为此columnName。
-                    const columnName=item.name;
+                    const columnName=item.columnName;
                     const index=fileColumns.indexOf(columnName);
 
                     if(index>-1){
@@ -101,7 +101,7 @@ export default class ImportTarget extends Component {
         }
 
         API.checkTablePartition({
-            tableId: targetTable.tableId,
+            tableId: targetTable.id,
             partitionInfo: partitions,
         }).then((res) => {
             if (res.data) {
@@ -120,8 +120,8 @@ export default class ImportTarget extends Component {
                     visible: false,
                     tableList:[res.data]
                 })
-                this.tbNameOnChange(res.data.tableId)
-                this.tableChange(res.data.tableId,{props:{data:res.data}})
+                this.tbNameOnChange(res.data.id)
+                this.tableChange(res.data.id,{props:{data:res.data}})
                 message.success('表创建成功!')
             }
         })
@@ -197,7 +197,7 @@ export default class ImportTarget extends Component {
             key: 'target_part',
             render: (text, record) => {
                 return (
-                    <span>{record.name}</span>
+                    <span>{record.columnName}</span>
                 )
             }
         }, {
