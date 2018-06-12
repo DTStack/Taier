@@ -61,6 +61,7 @@ class FreshFrequencyModal extends Component {
                 visible={visible}
                 onOk={this.submit}
                 onCancel={this.cancle}
+                maskClosable={false}
             >
                 <Form>
                     <FormItem
