@@ -553,8 +553,19 @@ class SchedulingConfig extends React.Component {
                 endDate: '2021-01-01'
             }) :
             JSON.parse(initConf);
-        this._selfReliance = typeof scheduleConf.selfReliance === 'undefined' ?
-            false : scheduleConf.selfReliance;
+
+        // this._selfReliance = typeof scheduleConf.selfReliance === 'undefined' ?
+        //     false : scheduleConf.selfReliance;
+        // scheduleConf.selfReliance兼容老代码true or false 值
+        if (scheduleConf.selfReliance !== 'undefined') {
+            if (scheduleConf.selfReliance === false) {
+                this._selfReliance = 0;
+            } else if (scheduleConf.selfReliance === true) {
+                this._selfReliance = 1;
+            } else {
+                this._selfReliance = scheduleConf.selfReliance;
+            }
+        }
     }
 
     handleScheduleStatus(evt) {
@@ -571,7 +582,6 @@ class SchedulingConfig extends React.Component {
 
                     formData.selfReliance = this._selfReliance;
                     delete formData.scheduleStatus;
-
                     this.props.changeScheduleConf(formData);
                 }
             });
@@ -738,8 +748,9 @@ class SchedulingConfig extends React.Component {
                             <RadioGroup onChange={ this.setSelfReliance.bind(this) }
                                 value={ this._selfReliance }
                             >
-                                <Radio style={radioStyle} value={false}>不依赖上一调度周期</Radio>
-                                <Radio style={radioStyle} value={true}>自依赖，等待上一调度周期结束，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
+                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期结束，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期结束，才能继续运行</Radio>
                             </RadioGroup>
                         </Col>
                     </Row>
