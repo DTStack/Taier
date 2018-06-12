@@ -7,9 +7,14 @@ import {
 import utils from 'utils'
 
 
+<<<<<<< HEAD
 import API from '../../../../api/dataManage';
 // import DataMaApi from '../../../../api/dataManage';
 import Editor from '../../../../components/code-editor';
+=======
+import API from '../../../../api/dataManage'
+import Editor from '../../../../components/code-editor'
+>>>>>>> 417d2c19249e3b51ae69e3f15683c72cecca482e
 import CopyIcon from "main/components/copy-icon";
 
 import { formItemLayout } from '../../../../comm/const'

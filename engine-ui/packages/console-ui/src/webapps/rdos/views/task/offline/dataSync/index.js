@@ -143,7 +143,7 @@ class DataSync extends React.Component{
 
     render() {
         const { currentStep, loading } = this.state;
-        const { readWriteLockVO } =this.props;
+        const { readWriteLockVO, notSynced } =this.props;
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
 
         const steps = [
@@ -169,6 +169,7 @@ class DataSync extends React.Component{
             },
             {title: '预览保存', content: <DataSyncSave
                     currentStep={currentStep}
+                    notSynced={notSynced}
                     navtoStep={ this.navtoStep.bind(this) }
                     saveJob={ this.save.bind(this) }
                 />
