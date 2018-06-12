@@ -24,6 +24,11 @@ const defaultRule = {
     name: '自定义',
 };
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 class ModelDefineRule extends Component {
 
     state = {
@@ -32,6 +37,14 @@ class ModelDefineRule extends Component {
 
     componentDidMount() {
         this.loadTbNameRules();
+    }
+
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadTbNameRules();
+        }
     }
 
     loadTbNameRules = () => {
