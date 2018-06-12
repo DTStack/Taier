@@ -27,7 +27,7 @@ export function TaskInfo(props) {
                         <td>开始时间：</td>
                         <td>{task.execStartDate ? task. execStartDate : '-'}</td>
                         <td>结束时间：</td>
-                        <td>{task.execStartDate ? task. execStartDate : '-'}</td>
+                        <td>{task.execStartDate ? task. execEndDate : '-'}</td>
                     </tr>
                     <tr>
                         <td>所属项目：</td>
