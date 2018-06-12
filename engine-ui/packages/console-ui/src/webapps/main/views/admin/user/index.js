@@ -286,7 +286,7 @@ class AdminUser extends Component {
             }
         }, {
             title: '加入时间',
-            dataIndex: 'user.gmtCreate',
+            dataIndex: 'gmtCreate',
             key: 'gmtCreate',
             render(time) {
                 return utils.formatDateTime(time);
