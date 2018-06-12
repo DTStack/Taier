@@ -56,6 +56,7 @@ const testData = require('./treeTest.json');
 const testData2 = require('./json2.json');
 
 const getTableReqParams = (tableData) => {
+    if (!tableData) return {};
     const params = {
         tableName: tableData.tableName,
         pageIndex: 1,
@@ -431,7 +432,8 @@ export default class TableRelation extends React.Component {
 
             if (!cell) return
 
-            const table = JSON.parse(cell.getAttribute('data'))
+            const table = JSON.parse(cell.getAttribute('data'));
+            console.log('popup table:', table);
             const params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
 
