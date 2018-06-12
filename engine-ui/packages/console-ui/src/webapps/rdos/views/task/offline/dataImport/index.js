@@ -109,7 +109,7 @@ export default class ImportLocalData extends Component {
             overwriteFlag,
         } = this.state
         return {
-            tableId: targetTable.tableId,
+            tableId: targetTable.id,
             separator: splitSymbol,
             oriCharset: charset,
             topLineIsTitle: asTitle,

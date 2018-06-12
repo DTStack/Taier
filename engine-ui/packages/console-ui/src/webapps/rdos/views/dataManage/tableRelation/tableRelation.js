@@ -1,10 +1,13 @@
-import React from 'react';
 
+import React from 'react';
 import {
     Button, Tooltip, Spin, Icon, Pagination,
 } from 'antd'
 
+import { cloneDeep } from 'lodash';
+
 import utils from 'utils'
+import { getRandomInt } from 'funcs'
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -46,25 +49,40 @@ const VertexSize = { // vertex大小
 }
 
 const getVertexNode = (obj) => {
-    return {
-        id: obj.tableId,
-        name: obj.tableName,
-    }
+    return obj
 }
 
 const testData = require('./treeTest.json');
+const testData2 = require('./json2.json');
+
+const getTableReqParams = (tableData) => {
+    const params = {
+        tableName: tableData.tableName,
+        pageIndex: 1,
+        pageSize: 6,
+        belongProjectId: tableData.belongProjectId,
+        dataSourceId: tableData.dataSourceId,
+    }
+    return params;
+}
+
+const isEqTable = (from, compareTo) => {
+    return from.tableName === compareTo.tableName  &&
+    from.belongProjectId === compareTo.belongProjectId &&
+    from.dataSourceId === compareTo.dataSourceId
+}
 
 export default class TableRelation extends React.Component {
 
     state = {
         selectedData: '', // 选中的数据
-        data: {}, // 数据
+        treeData: {}, // 树形数据
         tableInfo: {},
         relationTasks: {}, // 关联任务
         loading: 'success',
         currentPage: 1, 
-        parentPage: {},
-        childPage: {},
+        currentChild: {},
+        currentParent: {},
         visible: false,
     }
 
@@ -79,13 +97,7 @@ export default class TableRelation extends React.Component {
         this.loadEditor(editor)
         this.listenOnClick();
         if (tableData) {
-            const params = {
-                tableName: tableData.tableName,
-                pageIndex: 1,
-                pageSize: 6,
-                belongProjectId: tableData.belongProjectId,
-                dataSourceId: tableData.dataSourceId,
-            }
+            const params = getTableReqParams(tableData)
             this.loadTableTree(params)
             this.loadVertexData(params)
         }
@@ -119,76 +131,190 @@ export default class TableRelation extends React.Component {
         Api.getTableRelTree(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ selectedData: getVertexNode(data), data })
-                this.doInsertVertex(data)
+                const treeData = this.initRootTree(data);
+                this.doInsertVertex(treeData)
             }
             this.hideLoading();
         })
     }
 
-    loadTableChildren = (params) => {
+    loadChildrenTable = (params) => {
         this.showLoading()
         Api.getChildRelTables(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ selectedData: getVertexNode(data), data })
-                this.renderTree(data)
+                this.setState({ currentChild: data })
+                const treeNodes = this.preHandTreeNodes(data, 'child');
+                this.renderTree(treeNodes)
             }
             this.hideLoading();
         })
     }
 
-    loadTableParent = (params) => {
+    loadParentTable = (params) => {
         this.showLoading()
         Api.getParentRelTable(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ data, selectedData: getVertexNode(data) })
-                this.renderTree(data)
+                this.setState({ currentParent: data })
+                const treeNodes = this.preHandTreeNodes(data, 'parent');
+                this.renderTree(treeNodes)
             }
             this.hideLoading();
         })
     }
 
+    handParent(parent) {
+        const cloneParent = Object.assign({}, parent);
+        cloneParent.childResult = null;
+        cloneParent.parentResult = null;
+        return cloneParent;
+    }
+
+    /**
+     * 初始化树形结构
+     */
+    initRootTree = (rootData) => {
+        rootData.isRoot = true;
+
+        const loop = (treeItem, parent) => {
+            if (treeItem) {
+                treeItem.hide = false;
+
+                treeItem.parent = this.handParent(parent);
+
+                const childNodes = treeItem.childResult && treeItem.childResult.data;
+                const parentNodes = treeItem.parentResult && treeItem.parentResult.data;
+
+                if (childNodes && childNodes.length > 0) {
+                    for (let i = 0; i < childNodes.length; i++) {
+                        loop(childNodes[i], treeItem);
+                    }
+                }
+
+                if (parentNodes && parentNodes.length > 0) {
+                    for (let i = 0; i < parentNodes.length; i++) {
+                        loop(parentNodes[i], treeItem);
+                    }
+                }
+            }
+        }
+
+        loop(rootData);
+        this.setState({ 
+            treeData: rootData, 
+            currentChild: rootData.childResult, 
+            currentParent: rootData.parentResult 
+        });
+        return rootData;
+    }
+    /**
+     * treeNode: 树形节点
+     * treeType: child 或者 parent
+     * 数据处理主要包含如下几部分工作：
+     * 1. 追加（替换）新加载的子树到原有树结构中去，
+     * 2. 给子节点的非父节点添加隐藏显示标记
+     * 3. 给当前父节点添加标记
+     */
+    preHandTreeNodes = (treeNode, treeType) => {
+        const { treeData, currentParent, currentChild } = this.state;
+        const myTree = cloneDeep(treeData);
+        myTree.isRoot = true;
+        const props = treeType === 'parent' ? 'parentResult' : 'childResult';
+        const nodeFlag = treeType === 'parent' ? 'isCurrentParent' : 'isCurrentChild';
+
+        const loop = (treeItem, parent) => {
+            treeItem.parent = this.handParent(parent);
+            if (isEqTable(treeItem, treeNode)){
+                treeNode[nodeFlag] = true;
+                treeItem.hide = false;
+                treeItem = Object.assign(treeItem, treeNode);
+                return;
+            } else if (!treeItem.isRoot) {
+                treeItem.hide = true;
+            }
+            const children = treeItem[props] ? treeItem[props].data : [];
+            if (children.length > 0) {
+                for (let i = 0; i < children.length; i++) {
+                    loop(children[i], treeItem);
+                }
+            }
+        }
+
+        loop(myTree);
+        this.setState({ treeData: myTree });
+        return myTree;
+    }
+
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const startX = (graph.container.clientWidth - VertexSize.width) / 3
+        const startX = Math.floor((graph.container.clientWidth - VertexSize.width) / 2);
         const startY = 100;
 
+        this.startX = startX;
+        this.startY = startY;
+
         const parent = graph.getDefaultParent();
+        const model = graph.getModel();
+
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = true;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 60;
+        layout.nodeDistance = 60;
+
+        var layoutMgr = new mxLayoutManager(graph);
+
+        layoutMgr.getLayout = function(cell) {
+            if (cell.getChildCount() > 0) {
+                return layout;
+            }
+        };
+
+        this.executeLayout = function(change, post) {
+            model.beginUpdate();
+            try {
+                if (change != null) {
+                    change();
+                }
+                layout.execute(graph.getDefaultParent(), this.rootCell);
+            } catch (e) {
+                throw e;
+            } finally {
+                if (post != null) { post(); }
+                model.endUpdate();
+            }
+        }
 
         this.renderTree(data);
-        // this.renderTree(data);
-        graph.view.setTranslate(startX, startY);
     }
 
     renderTree = (treeNodeData) => {
         const graph = this.graph;
-        const model = graph.getModel();
 
-        const layout = new mxHierarchicalLayout(graph);
-        layout.orientation = 'west';
+        graph.getModel().clear();
 
         const rootCell = graph.getDefaultParent();
-        model.beginUpdate();
 
-        try {
+        this.executeLayout(() => {
             const currentNodeData = getVertexNode(treeNodeData)
             currentNodeData.isRoot = true;
             const currentNode = this.insertVertex(rootCell, currentNodeData);
-
+            this.rootCell = currentNode;
             this.loopTree(currentNode, treeNodeData);
+        }, () => {
+            graph.scrollCellToVisible(this.rootCell);
+        })
 
-            layout.execute(rootCell);
-            graph.scrollCellToVisible(currentNode);
+        console.log('rootCell', rootCell)
+        graph.view.setTranslate(200, 100);
 
-        } finally {
-            model.endUpdate();
-        }
-        console.log('render end', this._vertexCells)
     }
 
     insertVertex = (parent, data) => {
+        // 隐藏节点不展示
+        if (data.hide === true) return;
         const graph = this.graph;
 
         const rootCell = graph.getDefaultParent()
@@ -197,19 +323,25 @@ export default class TableRelation extends React.Component {
         // 创建节点
         const doc = mxUtils.createXmlDocument()
         const tableInfo = doc.createElement('table')
-        tableInfo.setAttribute('id', data.id)
         tableInfo.setAttribute('data', JSON.stringify(data))
 
-        const newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+        const axis = getRandomInt(1, 200);
+        const x = data.isRoot ? this.startX : 10;
+        const y = data.isRoot ? this.startY: 10;
+        console.log('axis:', x, y)
+
+        let newVertex = '';
+        newVertex = graph.insertVertex(rootCell, null,
+            tableInfo, x, y,
             VertexSize.width, VertexSize.height, style
         )
-        
+        graph.view.refresh(newVertex);
         if (data.isParent) {
             graph.insertEdge(rootCell, null, '', newVertex, parent)
         } else {
             graph.insertEdge(rootCell, null, '', parent, newVertex)
         }
-        
+
         this._vertexCells.push(newVertex)
 
         return newVertex;
@@ -227,33 +359,206 @@ export default class TableRelation extends React.Component {
             if (parentNodes && parentNodes.length > 0) {
                 for (let i = 0; i < parentNodes.length; i++) {
                     const nodeData = getVertexNode(parentNodes[i])
-
                     nodeData.isParent = true;
-                    const parentNode = this.insertVertex(currentNode, nodeData)
+                    const current = this.insertVertex(currentNode, nodeData);
 
-                    if (parentNodes[i].parentResult && parentNodes[i].parentResult.data.length > 0) {
-                        this.loopTree(parentNode, parentNodes[i])
+                    if (parentNodes[i].parentResult && parentNodes[i].parentResult.data && parentNodes[i].parentResult.data.length > 0) {
+                        this.loopTree(current, parentNodes[i])
                     }
                 }
             }
 
-            // 处理被依赖节点
-            if (childNodes && childNodes.length > 0) {
+             // 处理被依赖节点
+             if (childNodes && childNodes.length > 0) {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
-                    nodeData.isParent = false;
+                    nodeData.isChild = true;
                     // 插入新节点
-                    const childNode = this.insertVertex(currentNode, nodeData)
-
-                    if (childNodes[i].childResult && childNodes[i].childResult.data.length > 0) {
-                        this.loopTree(childNode, childNodes[i])
+                    const current = this.insertVertex(currentNode, nodeData)
+                    if (childNodes[i].childResult && childNodes[i].childResult.data && childNodes[i].childResult.data.length > 0) {
+                        this.loopTree(current, childNodes[i])
                     }
+                }
+            }
+        }
+    }
+
+
+    getStyles = (data) => {
+        if (data.isParent) {
+            return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        } else if (data.isRoot) {
+            return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        } else if (data.isChild) {
+            return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        }
+    }
+
+    formatTooltip = (cell) => {
+        const data = cell.getAttribute('data');
+        const obj = data ? JSON.parse(data) : '';
+        return obj ? obj.name : ''
+    }
+
+    corvertValueToString = (cell) => {
+        if (mxUtils.isNode(cell.value)) {
+            if (cell.value.nodeName.toLowerCase() == 'table') {
+                const data = cell.getAttribute('data');
+                const obj = data ? JSON.parse(data) : '';
+                if (obj) {
+                    return `<div class="table-vertex"><span style="text-align: center;" class="table-vertex-content"><span class="table-vertex-title" style="color: #333333;">${obj.tableName || ''}</span></span>
+                    </div>`
+                }
+            }
+        }
+        return '';
+    }
+
+    initContextMenu = (graph) => {
+        const ctx = this
+        var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
+
+        mxPopupMenu.prototype.showMenu = function () {
+            var cells = this.graph.getSelectionCells()
+            if (cells.length > 0 && cells[0].vertex) {
+                mxPopupMenuShowMenu.apply(this, arguments);
+            } else return false
+        };
+
+        graph.popupMenuHandler.autoExpand = true
+        graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
+
+            if (!cell) return
+
+            const table = JSON.parse(cell.getAttribute('data'))
+            const params = getTableReqParams(table);
+            const parentParams = getTableReqParams(table.parent);
+
+            if (table.isParent) {
+                if (table.isCurrentParent) {
+                    menu.addItem('收起上游', null, function () {
+                        ctx.loadParentTable(parentParams)
+                        ctx.loadVertexData(parentParams)
+                    })
+                } else {
+                    menu.addItem('展开上游（1层）', null, function () {
+                        ctx.loadParentTable(params)
+                        ctx.loadVertexData(params)
+                    })
+                }
+            }
+
+            if (table.isChild) {
+                if (table.isCurrentChild) {
+                    menu.addItem('收起下游', null, function () {
+                        ctx.loadChildrenTable(parentParams)
+                        ctx.loadVertexData(parentParams)
+                    })
+                } else {
+                    menu.addItem('展开下游（1层）', null, function () {
+                        ctx.loadChildrenTable(params)
+                        ctx.loadVertexData(params)
+                    })
                 }
             }
 
         }
     }
 
+    listenOnClick() {
+        const ctx = this;
+        // const { selectedData } = ctx.state;
+        this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+            const cell = evt.getProperty('cell')
+            const target = evt.getProperty('event')
+            const CLICK_LEFT = 1;
+            if (target.which === CLICK_LEFT && cell && cell.vertex) {
+                let data = cell.getAttribute('data')
+                data = data ? JSON.parse(data) : '';
+                if (data) {
+                    ctx.setState({ selectedData: data })
+                    const params = getTableReqParams(data);
+                    ctx.loadVertexData(params)
+                }
+            }
+        })
+    }
+
+    render() {
+        const { tableInfo, relationTasks, currentParent, currentChild } = this.state
+        return (
+            <div className="graph-editor" 
+                style={{ position: 'relative', background: '#FAFAFA' }}
+            >
+                <Spin
+                    tip="Loading..."
+                    size="large"
+                    spinning={this.state.loading === 'loading'}
+                >
+                    <div className="absolute-middle graph-bg">血缘关系</div>
+                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
+                </Spin>
+                <div className="graph-toolbar">
+                    <Tooltip placement="bottom" title="刷新">
+                        <Icon type="reload" onClick={this.refresh}/>
+                    </Tooltip>
+                    <Tooltip placement="bottom" title="放大">
+                        <MyIcon onClick={this.zoomIn} type="zoom-in" />
+                    </Tooltip>
+                    <Tooltip placement="bottom" title="缩小">
+                        <MyIcon onClick={this.zoomOut} type="zoom-out" />
+                    </Tooltip>
+                </div>
+                <div className="graph-legend">
+                    <div>
+                        <span 
+                            className="legend-item" 
+                            style={{background: '#E6F7FF', border: '1px solid #90D5FF'}}>
+                        </span>
+                        上游
+                    </div>
+                    <div>
+                        <span 
+                            className="legend-item current" 
+                            style={{background: '#F6FFED', border: '1px solid #B7EB8F'}}
+                        >
+                        </span>
+                        当前
+                    </div>
+                    <div>
+                        <span 
+                            className="legend-item child"
+                            style={{background: '#FFFBE6', border: '1px solid #FFE58F'}}
+                        >
+                        </span>
+                        下游
+                    </div>
+                </div>
+                <div className="graph-pagination">
+                    <Pagination
+                        simple
+                        className="parent"
+                        defaultCurrent={1}
+                        total={currentParent.totalCount}
+                        current={currentParent.currentPage}
+                    />
+                    <Pagination
+                        simple
+                        className="child"
+                        defaultCurrent={1}
+                        current={currentChild.currentPage}
+                        total={currentChild.totalCount} 
+                    />
+                </div>
+                <RelationDetail 
+                    data={tableInfo}
+                    onShowColumn={this.props.onShowColumn}
+                    relationTasks={relationTasks}
+                    loadRelTasks={this.loadRelTableTasks}
+                />
+            </div>
+        )
+    }
 
     loadEditor = (container) => {
         // // Disable context menu
@@ -309,89 +614,12 @@ export default class TableRelation extends React.Component {
         this.hideMenu();
     }
 
-    getStyles = (data) => {
-        if (data.isParent) {
-            return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
-        } else if (data.isRoot) {
-            return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        } else {
-            return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-    }
-
-    formatTooltip = (cell) => {
-        const data = cell.getAttribute('data');
-        const obj = data ? JSON.parse(data) : '';
-        return obj ? obj.name : ''
-    }
-
-    corvertValueToString = (cell) => {
-        if (mxUtils.isNode(cell.value)) {
-            if (cell.value.nodeName.toLowerCase() == 'table') {
-                const data = cell.getAttribute('data');
-                const obj = data ? JSON.parse(data) : '';
-                if (obj) {
-                    return `<div class="table-vertex"><span class="table-vertex-content"><span class="table-vertex-title">${obj.name || ''}</span></span>
-                    </div>`
-                }
-            }
-        }
-        return '';
-    }
-
     showLoading = () => {
         this.setState({ loading: 'loading' })
     }
 
     hideLoading = () => {
         this.setState({ loading: 'success' })
-    }
-
-    initContextMenu = (graph) => {
-        const ctx = this
-        var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
-        mxPopupMenu.prototype.showMenu = function () {
-            var cells = this.graph.getSelectionCells()
-            if (cells.length > 0 && cells[0].vertex) {
-                mxPopupMenuShowMenu.apply(this, arguments);
-            } else return false
-        };
-        graph.popupMenuHandler.autoExpand = true
-        graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-
-            if (!cell) return
-
-            const table = JSON.parse(cell.getAttribute('data'))
-            const params = { tableId: table.id, }
-            menu.addItem('展开上游（1层）', null, function () {
-                ctx.loadTableParent(params)
-                ctx.loadVertexData(params)
-            })
-            
-            menu.addItem('展开下游（1层）', null, function () {
-                ctx.loadTableChildren(params)
-                ctx.loadVertexData(params)
-            })
-        }
-    }
-
-    listenOnClick() {
-        const ctx = this
-        this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
-            const cell = evt.getProperty('cell')
-            const target = evt.getProperty('event')
-            const CLICK_LEFT = 1;
-            if (target.which === CLICK_LEFT && cell && cell.vertex) {
-                let data = cell.getAttribute('data')
-                data = data ? JSON.parse(data) : ''
-                if (data.id !== ctx.state.selectedData.id) {
-                    ctx.setState({ selectedData: data })
-                    ctx.loadVertexData({
-                        tableId: data.id
-                    })
-                }
-            }
-        })
     }
 
     refresh = () => {
@@ -421,64 +649,12 @@ export default class TableRelation extends React.Component {
         })
     }
 
-    render() {
-        const { tableInfo, relationTasks, parentPage, childPage } = this.state
-        return (
-            <div className="graph-editor" 
-                style={{ position: 'relative', background: '#FAFAFA' }}
-            >
-                <Spin
-                    tip="Loading..."
-                    size="large"
-                    spinning={this.state.loading === 'loading'}
-                >
-                    <div className="absolute-middle graph-bg">血缘关系</div>
-                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
-                </Spin>
-                <div className="graph-toolbar">
-                    <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh}/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="放大">
-                        <MyIcon onClick={this.zoomIn} type="zoom-in" />
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="缩小">
-                        <MyIcon onClick={this.zoomOut} type="zoom-out" />
-                    </Tooltip>
-                </div>
-                <div className="graph-pagination">
-                    <Pagination
-                        className="parent" simple
-                        defaultCurrent={1}
-                        total={parentPage.totalCount}
-                        current={parentPage.currentPage}
-                    />
-                    <Pagination
-                        simple
-                        className="child"
-                        defaultCurrent={1}
-                        current={childPage.currentPage}
-                        total={childPage.totalCount} 
-                    />
-                </div>
-                <RelationDetail 
-                    data={tableInfo}
-                    onShowColumn={this.props.onShowColumn}
-                    relationTasks={relationTasks}
-                    loadRelTasks={this.loadRelTableTasks}
-                />
-            </div>
-        )
-    }
-
     getDefaultVertexStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.EllipsePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
         style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
-        // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
         style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -491,11 +667,8 @@ export default class TableRelation extends React.Component {
         let style = [];
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        // style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        // style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
-        // style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        style[mxConstants.STYLE_ENDARROW] = 'none';//mxConstants.ARROW_CLASSIC;
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
+        // style[mxConstants.STYLE_ENDARROW] = 'none';
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style

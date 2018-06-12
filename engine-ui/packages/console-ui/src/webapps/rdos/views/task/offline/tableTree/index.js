@@ -48,7 +48,7 @@ class TableTree extends React.Component {
 
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
-                Api.searchTable(params).then(res => {
+                Api.newSearchTable(params).then(res => {
                     data.children = res.data && res.data.data;
                     loadTreeNode(data)
                 })
@@ -71,7 +71,7 @@ class TableTree extends React.Component {
     
     doReq = (queryName) => {
         const { treeData, loadTreeNode } = this.props;
-        Api.searchTable({
+        Api.newSearchTable({
             tableName: queryName,
             isDeleted: 0,
             pageSize: 1000,

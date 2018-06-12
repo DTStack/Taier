@@ -56,7 +56,7 @@ export default class ImportTarget extends Component {
         const fileColumns=data[0]||[];
 
         // 加载分区
-        API.getTable({ tableId: table.tableId }).then((res) => {
+        API.getTable({ tableId: table.id }).then((res) => {
             if (res.code === 1) {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
@@ -197,7 +197,7 @@ export default class ImportTarget extends Component {
             key: 'target_part',
             render: (text, record) => {
                 return (
-                    <span>{record.name}</span>
+                    <span>{record.columnName}</span>
                 )
             }
         }, {

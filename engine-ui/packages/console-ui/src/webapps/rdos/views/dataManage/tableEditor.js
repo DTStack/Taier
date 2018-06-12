@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import SplitPane from 'react-split-pane';
+import { browserHistory, hashHistory } from 'react-router'
 import { 
     Input, Button, message, 
     Modal, Form, Row, Col,
@@ -12,6 +13,7 @@ import moment from 'moment';
 
 import utils from 'utils';
 import GoBack from 'main/components/go-back';
+
 
 import ajax from '../../api/dataManage';
 import { ColumnsPartition } from './tableCreator';
@@ -246,7 +248,6 @@ class TableEditor extends Component {
     saveTable() {
         const { tableData, form } = this.props;
         const ctx = this;
-        console.log(tableData);
         //组装参数
         const queryParams = {};
         queryParams.tableId = tableData.id;
@@ -266,8 +267,21 @@ class TableEditor extends Component {
             form.validateFields((err) => {
                 if (!err) {
                     ctx.props.saveTable(queryParams);
+                    this.goBack();
                 }
             });
+        }
+    }
+
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
         }
     }
 

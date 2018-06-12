@@ -74,7 +74,6 @@ export default class TaskView extends Component {
         this.loadTaskChidren({
             taskId: id,
             level: 6,
-            
         })
     }
 

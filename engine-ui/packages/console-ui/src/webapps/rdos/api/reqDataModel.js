@@ -22,8 +22,8 @@ export default {
     // ============ 模型设计 ============
     TABLE_LIST: `${RDOS_BASE_URL}/batch/batchModelTable/tablePageQuery`, // 模型设计 - 表管理
     TABLE_CREATE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createTable`, // 模型设计 - 创建表
-    TABLE_DELETE: `${RDOS_BASE_URL}/batch/batchModelTable/dropTable`, // 模型设计 - 删除表
-    TABLE_ALTER: `${RDOS_BASE_URL}/batch/hiveMetaData/alterTable`, // 模型设计 - 修改表 
+    TABLE_DELETE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/dropTable`, // 模型设计 - 删除表
+    TABLE_ALTER: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/alterTable`, // 模型设计 - 修改表 
     TABLE_NAME_RULE: `${RDOS_BASE_URL}/batch/batchModelRule/getModelRule`, // 模型设计 - 获取表名规则
     TABLE_LIST_BY_TYPE: `${RDOS_BASE_URL}/batch/batchModelTable/listByType`, // 获取 层级/主题域/频率/增量 的配置列表
     TABLE_PARITIONS: `${RDOS_BASE_URL}/batch/batchModelColumn/listAll`, // 获取模型字段配置列表

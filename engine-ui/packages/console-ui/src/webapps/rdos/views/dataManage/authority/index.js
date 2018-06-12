@@ -29,6 +29,8 @@ const applyStatus = (status) => {
         return <span>待审批</span>
     } else if (status === 1) {
         return <span>通过</span>
+    }else if(status === 2){
+        return <span>不通过</span>
     }
 }
 
@@ -44,12 +46,15 @@ const revokeStatus = (status) => {
 @connect(state => {
     return {
         projects: state.projects,
+        user: state.user,
     }
 })
 class AuthMana extends Component {
 
     constructor(props) {
         super(props);
+        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
+        // this.isAdminAbove = 0;
         this.state = {
             table: [],
             editRecord: [],
@@ -59,8 +64,12 @@ class AuthMana extends Component {
             visible:false,
             loading:false,
             rangeTime:[],
+            descModel: {
+                visible: false,
+                descInfo: "",
+            },
             queryParams: {
-                listType: "0",
+                listType: this.isAdminAbove==1 ?"0" : "1",
                 pageIndex: 1,
                 pageSize: 10,
                 resourceName: undefined,
@@ -69,6 +78,8 @@ class AuthMana extends Component {
                 belongProjectId: undefined,
             },
         }
+        console.log('this.isAdminAbove------------',this.isAdminAbove);
+        
     }
 
     componentDidMount() {
@@ -88,6 +99,7 @@ class AuthMana extends Component {
                 this.setState({
                     table: res.data,
                     loading: false,
+                    checkAll: false,
                 })
             }else{
                 this.setState({loading:false})
@@ -110,7 +122,9 @@ class AuthMana extends Component {
         ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
-                this.setState({visible: false},this.search)                
+                this.setState({
+                    visible: false,
+                },this.search)                
             }
         })
     }
@@ -154,7 +168,6 @@ class AuthMana extends Component {
         }
         this.setState({
             queryParams,
-            checkAll: false,
             selectedRowKeys: [],
         }, this.search)
     }
@@ -334,6 +347,9 @@ class AuthMana extends Component {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         },
                         {
                             title: '操作',
@@ -378,6 +394,9 @@ class AuthMana extends Component {
                             title: '有效时间',
                             key: 'day',
                             dataIndex: 'day',
+                            render(text, record) {
+                                return `${text}天`
+                            }
                         },
                         {
                             title: '审批状态',
@@ -399,6 +418,9 @@ class AuthMana extends Component {
                             title: '申请详情',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         },
                         {
                             title: '操作',
@@ -431,6 +453,9 @@ class AuthMana extends Component {
                             title: '有效时间',
                             key: 'day',
                             dataIndex: 'day',
+                            render(text, record) {
+                                return `${text}天`
+                            }
                         },
                         {
                             title: '审批状态',
@@ -450,13 +475,16 @@ class AuthMana extends Component {
                         },
                         {
                             title: '审批人',
-                            key: 'approvalPerson',
-                            dataIndex: 'approvalPerson',
+                            key: 'dealUser',
+                            dataIndex: 'dealUser',
                         },
                         {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         }
                     ]
                 )
@@ -476,6 +504,9 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
+                            render(text){
+                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            }
                         },
                         {
                             title: '处理时间',
@@ -501,6 +532,24 @@ class AuthMana extends Component {
             default: 
                 return [];
         }
+    }
+
+    closeDescModal = () => {
+        const { descModel } = this.state; 
+        descModel.descInfo = "";
+        descModel.visible = false;
+        this.setState({
+            descModel
+        })
+    }
+
+    showDescModal = (text) => {
+        const { descModel } = this.state; 
+        descModel.descInfo = text;
+        descModel.visible = true;
+        this.setState({
+            descModel
+        });
     }
 
     onChangeTime = (date, dateString)=> {
@@ -569,7 +618,8 @@ class AuthMana extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange,
         }: null;
-
+        console.log('table.data-----',table.data);
+        
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>
@@ -593,40 +643,57 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, } = this.state;
+        const { editRecord, visible, agreeApply, descModel} = this.state;
         return (
             <div className="box-1 m-tabs">
-                <Tabs 
+                <Tabs
                     animated={false} 
                     style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}
                 >
-                    <TabPane tab="待我审批" key={0}>
-                        {this.renderPane(true)}
-                        <ApprovalModal 
-                            visible={visible}
-                            agreeApply={agreeApply}
-                            table={editRecord}
-                            onOk={this.approveApply}
-                            onCancel={() => {
-                                this.setState({
-                                    visible: false,
-                                    agreeApply: undefined,
-                                    editRecord: [],
-                                })
-                            }}
-                        />
-                    </TabPane>
+                   {
+                       this.isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
+                                                    {this.renderPane(true)}
+                                                    <ApprovalModal 
+                                                        visible={visible}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        onOk={this.approveApply}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                visible: false,
+                                                                agreeApply: undefined,
+                                                                editRecord: [],
+                                                            })
+                                                        }}
+                                                    />
+                                                </TabPane> : ""
+                   }
                     <TabPane tab="申请记录" key={1}>
                         {this.renderPane()}
                     </TabPane>
-                    <TabPane tab="已处理" key={2}>
-                        {this.renderPane()}
-                    </TabPane>
-                    <TabPane tab="权限回收" key={3}>
-                        {this.renderPane(true)}
-                    </TabPane>
+                    {
+                        this.isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
+                                                    {this.renderPane()}
+                                                </TabPane> : ""
+                    }
+                    {
+                        this.isAdminAbove == 1 ?<TabPane tab="权限回收" key={3}>
+                                                    {this.renderPane(true)}
+                                                </TabPane> : ""
+                    }
+                    
                 </Tabs>
+                <div>
+                        <Modal
+                        title="详情信息"
+                        visible={descModel.visible}
+                        onCancel={this.closeDescModal}
+                        footer={null}
+                        >
+                            <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
+                        </Modal>
+                    </div>
             </div>
         )
     }

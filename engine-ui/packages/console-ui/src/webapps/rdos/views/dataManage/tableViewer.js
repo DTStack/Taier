@@ -32,6 +32,7 @@ export default class TableViewer extends React.Component{
             visible: false,
             code: '',
             isMark: false,
+            showTableRelation: true,
         };
     }
 
@@ -93,6 +94,7 @@ export default class TableViewer extends React.Component{
                 }
             });
         }
+        this.setState({ showTableRelation: true })
     }
 
     formatPreviewData(arr) {
@@ -141,6 +143,12 @@ export default class TableViewer extends React.Component{
         }, 1000)
     }
 
+    onShowBloodRelation = (flag) => {
+        this.setState({
+            showTableRelation: flag,
+        })
+    }
+
     render() {
         const { showType, tableData, previewData,isMark } = this.state;
 
@@ -173,7 +181,7 @@ export default class TableViewer extends React.Component{
                 <main>
                     <div >
                         <h1 className="card-title">
-                            <GoBack /> 查看表：{ tableData && tableData.table.tableName }
+                            <GoBack  type="textButton" /> 查看表：{ tableData && tableData.table.tableName }
                             <span className="right">
                                 <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
                                 <Button className="button-top" type="primary">申请授权</Button>
@@ -304,7 +312,11 @@ export default class TableViewer extends React.Component{
                                     </div>
                                 </TabPane>
                                 <TabPane tab="血缘信息" key="4">
-                                    <TableRelation  tableData={tableData && tableData.table}/>
+                                    <TableRelation 
+                                        showTableRelation={this.state.showTableRelation}
+                                        onShowBloodRelation={this.onShowBloodRelation}
+                                        tableData={tableData && tableData.table}
+                                    />
                                 </TabPane>
                             </Tabs>
                         </div>
