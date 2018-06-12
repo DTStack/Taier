@@ -175,9 +175,9 @@ class APIMarket extends Component {
     }
     getDealType(type) {
         const dic = {
-            "complete": "查看使用情况",
+            "complete": "已审批",
             "nothing": "申请",
-            "applying": "查看审批进度"
+            "applying": "审批中"
         }
         return dic[type || 'nothing']
     }

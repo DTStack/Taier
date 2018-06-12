@@ -278,7 +278,9 @@ class ManageBasicProperties extends Component {
                                 rules: [{ required: true, message: '请选择表' }],
                                 initialValue: this.props.table
                             })(
-                                <Select placeholder="请选择表"
+                                <Select 
+                                    mode="combobox"
+                                    placeholder="请选择表"
                                     showSearch
                                     onChange={this.tableChange.bind(this)}
                                 >
@@ -293,7 +295,7 @@ class ManageBasicProperties extends Component {
                         {this.getTable()}
 
 
-                    </Form>
+                    </Form> 
                 </div>
                 <div
                     className="steps-action"
