@@ -327,6 +327,7 @@ class TableList extends Component {
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}
+                            maskClosable={false}
                         >
                             <Editor
                                 style={{height:"400px"}}
