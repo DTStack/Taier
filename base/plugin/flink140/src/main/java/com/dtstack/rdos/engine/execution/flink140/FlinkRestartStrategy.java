@@ -13,7 +13,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public class FlinkRestartStrategy implements IRestartStrategy {
+public class FlinkRestartStrategy extends IRestartStrategy {
 
     private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 
@@ -41,18 +41,22 @@ public class FlinkRestartStrategy implements IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String engineJobId, IClient client) {
-        //Flink 只能资源部足的的任务做重启---不限制重启次数
+    public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
+        boolean restart = false;
         String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
         String msg = client.getMessageByHttp(reqURL);
         if(StringUtils.isNotBlank(msg)){
             for(String emsg:errorMsgs){
                 if(msg.contains(emsg)){
-                    return true;
+                    restart =  true;
+                    break;
                 }
             }
         }
-
-        return false;
+        if(restart){
+            return retry(jobId,null);
+        }else {
+            return false;
+        }
     }
 }

@@ -22,14 +22,11 @@ import java.util.regex.Pattern;
  * @author xuchao
  */
 
-public class SparkRestartStrategy implements IRestartStrategy {
+public class SparkRestartStrategy extends IRestartStrategy {
     
     private static final Logger LOG = LoggerFactory.getLogger(SparkRestartStrategy.class);
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
-
-    /**FIXME 测试暂时改成一次*/
-    private final static int RETRY_LIMIT = 1;
 
     private final static String analysisException = "org.apache.spark.sql.AnalysisException";
 
@@ -51,8 +48,6 @@ public class SparkRestartStrategy implements IRestartStrategy {
         exceptionPatternList.add(Pattern.compile(analysisSubException));
     }
 
-    private Cache<String, Integer> retryJobCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
-
     @Override
     public boolean checkFailureForEngineDown(String msg) {
         if(msg != null && msg.contains(SPARK_ENGINE_DOWN)){
@@ -68,42 +63,29 @@ public class SparkRestartStrategy implements IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String engineJobId, IClient client) {
-
-        return false;
-
-        /*try {
-            Integer retryNum = retryJobCache.get(jobId, ()-> 0);
-            if(retryNum >= RETRY_LIMIT){
-                return false;
-            }
-
-            retryNum++;
-            retryJobCache.put(jobId, retryNum);
-        } catch (ExecutionException e) {
-            LOG.error("", e);
-            return false;
-        }
-
-        String logInfo = client.getJobLog(engineJobId);
-        if(Strings.isNullOrEmpty(logInfo)){
-            return false;
-        }
-
-        for(String excepStr : exceptionList){
-            if(logInfo.contains(excepStr)){
-                return false;
-            }
-        }
-
-        for(Pattern pattern : exceptionPatternList){
-            Matcher matcher = pattern.matcher(logInfo);
-            if(matcher.find()){
-                return false;
-            }
-        }
-
-        return true;*/
+    public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
+          return false;
+//        retry(jobId,null);
+//
+//        String logInfo = client.getJobLog(engineJobId);
+//        if(Strings.isNullOrEmpty(logInfo)){
+//            return false;
+//        }
+//
+//        for(String excepStr : exceptionList){
+//            if(logInfo.contains(excepStr)){
+//                return false;
+//            }
+//        }
+//
+//        for(Pattern pattern : exceptionPatternList){
+//            Matcher matcher = pattern.matcher(logInfo);
+//            if(matcher.find()){
+//                return false;
+//            }
+//        }
+//
+//        return true;
     }
 
 }

@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author xuchao
  */
 
-public class FlinkRestartStrategy implements IRestartStrategy {
+public class FlinkRestartStrategy extends  IRestartStrategy {
 
     private final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
@@ -36,7 +36,7 @@ public class FlinkRestartStrategy implements IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String engineJobId, IClient client) {
+    public boolean checkCanRestart(String jodId,String engineJobId, IClient client) {
         return false;
     }
 }

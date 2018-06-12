@@ -2,9 +2,8 @@ package com.dtstack.rdos.engine.execution.base.restart;
 
 
 import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 
-public class DefaultRestartStrategy implements IRestartStrategy {
+public class DefaultRestartStrategy extends IRestartStrategy {
     @Override
     public boolean checkFailureForEngineDown(String msg) {
         return false;
@@ -16,7 +15,7 @@ public class DefaultRestartStrategy implements IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String engineJobId, IClient client) {
+    public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
         return false;
     }
 

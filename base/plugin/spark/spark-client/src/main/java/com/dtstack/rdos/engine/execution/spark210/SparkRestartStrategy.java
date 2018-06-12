@@ -10,7 +10,7 @@ import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
  * @author xuchao
  */
 
-public class SparkRestartStrategy implements IRestartStrategy {
+public class SparkRestartStrategy extends IRestartStrategy {
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
@@ -29,7 +29,7 @@ public class SparkRestartStrategy implements IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String engineJobId, IClient client) {
+    public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
         return false;
     }
 }
