@@ -21,7 +21,7 @@ public class FlinkRestartStrategy implements IRestartStrategy {
 
     private final static String FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
 
-    private static List<String> errorMsgs = Lists.newArrayList(FLINK_ENGINE_DOWN,"TaskManager was lost/killed");
+    private static List<String> errorMsgs = Lists.newArrayList(FLINK_ENGINE_DOWN,"TaskManager was lost/killed","com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure");
 
     @Override
     public boolean checkFailureForEngineDown(String msg) {
