@@ -51,9 +51,6 @@ const getVertexNode = (obj) => {
     return obj
 }
 
-const testData = require('./treeTest.json');
-const testData2 = require('./json2.json');
-
 const getTableReqParams = (tableData) => {
     if (!tableData) return {};
     const params = {
