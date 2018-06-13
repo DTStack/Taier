@@ -15,7 +15,8 @@ const initTableManageState = {
         currentPage: 1,
         totalCount: 0
     },
-    tableCurrent: {}
+    tableCurrent: {},
+    isSavedSuccess: false,
 };
 
 const tableManage = (state = initTableManageState, action) => {
@@ -144,7 +145,12 @@ const tableManage = (state = initTableManageState, action) => {
 
             return clone;
         }
-
+        case tableAction.SAVE_TABLE:{
+            const clone = cloneDeep(state);
+            clone.isSavedSuccess = action.payload == 1 ? true : false;
+            console.log('SAVE_TABLE------:',clone);
+            return clone;
+        }
         default:
             return state;
     }
