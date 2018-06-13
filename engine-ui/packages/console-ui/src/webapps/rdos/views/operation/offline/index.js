@@ -12,7 +12,7 @@ import {
  import Resize from 'widgets/resize'
 
 import Api from '../../../api'
-import { lineAreaChartOptions } from '../../../comm/const'
+import { lineAreaChartOptions, TASK_STATUS } from '../../../comm/const'
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction' 
@@ -135,11 +135,13 @@ class OfflineStatistics extends Component {
         })
     }
 
-    jumpToOffline(text){
+    jumpToOffline(text,date,status){
         hashHistory.push({
             pathname:"/operation/offline-operation",
             query:{
-                job:text
+                job:text,
+                status:status,
+                date:date,
             }
         })
     }
@@ -184,7 +186,7 @@ class OfflineStatistics extends Component {
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)` :text
                 
-                return <a onClick={this.jumpToOffline.bind(this,text)}>{content}</a>;
+                return <a onClick={this.jumpToOffline.bind(this,text,30,TASK_STATUS.RUN_FAILED)}>{content}</a>;
             },
         }, {
             title: '责任人',
