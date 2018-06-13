@@ -105,7 +105,7 @@ export default class TableRelation extends React.Component {
 
     getXmlNode = (data) => {
         const doc = mxUtils.createXmlDocument()
-        const xmlNode = doc.createElement('table')
+        const xmlNode = doc.createElement('MyTable')
         xmlNode.setAttribute('data',  JSON.stringify(data))
         return xmlNode;
     }
@@ -280,7 +280,7 @@ export default class TableRelation extends React.Component {
                     const col = table.columns[i]
                     lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '##595959'}">${col}</li>`
                 }
-                return `<ul class="t-vertext"><li class="tname bd-top" title="${tableTitle}">${tableTitle}</li><li class="tname" title="${table.tableName}">${table.tableName}</li>${lis}</ul>`;
+                return `<ul class="t-vertext"><li key="tableTitle" class="tname bd-top" title="${tableTitle}">${tableTitle}</li><li key="tableName" class="tname" title="${table.tableName}">${table.tableName}</li>${lis}</ul>`;
             } else {
                 return '';
             }
@@ -311,7 +311,7 @@ export default class TableRelation extends React.Component {
                 let data = cell.getAttribute('data')
                 const obj = data ? JSON.parse(data) : '';
                 const colName = cellTarget.target.getAttribute('data-col');
-                if (colName && isEqTable(this.state.tableInfo, obj)) {
+                if (colName && isEqTable(ctx.state.tableInfo, obj)) {
                     const params = {
                         tableName: obj.tableName,
                         belongProjectId: obj.belongProjectId,

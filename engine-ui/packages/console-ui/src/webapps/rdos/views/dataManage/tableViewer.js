@@ -36,6 +36,7 @@ export default class TableViewer extends React.Component {
             isMark: false,
             tableData: '',
             applyButton: false,
+            showTableRelation: true,
             applyModal: {
                 visible: false,
                 data: {},
@@ -73,7 +74,6 @@ export default class TableViewer extends React.Component {
                 }
             })
         }
-
     }
 
     getTable() {
@@ -158,6 +158,12 @@ export default class TableViewer extends React.Component {
         }, 1000)
     }
 
+    onShowBloodRelation = (flag) => {
+        this.setState({
+            showTableRelation: flag,
+        })
+    }
+    
     apply = (applyData) => {
         const { applyModal } = this.state;
         const params = { ...applyData };

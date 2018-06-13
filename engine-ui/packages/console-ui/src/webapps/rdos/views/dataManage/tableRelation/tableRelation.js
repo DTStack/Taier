@@ -51,9 +51,6 @@ const getVertexNode = (obj) => {
     return obj
 }
 
-const testData = require('./treeTest.json');
-const testData2 = require('./json2.json');
-
 const getTableReqParams = (tableData) => {
     if (!tableData) return {};
     const params = {
@@ -324,7 +321,7 @@ export default class TableRelation extends React.Component {
 
         graph.getModel().clear();
         this.parentCells = [];
-
+        this._edges = [];
         const rootCell = graph.getDefaultParent();
 
         this.executeLayout(() => {
@@ -334,12 +331,22 @@ export default class TableRelation extends React.Component {
             this.rootCell = currentNode;
             this.parentCells.push(rootCell, currentNode);
             this.loopTree(currentNode, treeNodeData);
+            this.renderEdges();
         }, () => {
             graph.scrollCellToVisible(this.rootCell);
         })
 
         graph.view.setTranslate(200, 100);
 
+    }
+
+    renderEdges = () => {
+        const graph = this.graph;
+        const edges = this._edges;
+        for (let i = 0; i < edges.length; i++) {
+            const edge = edges[i];
+            graph.insertEdge(graph.getDefaultParent(), null, '', edge.source, edge.target)
+        }
     }
 
     insertVertex = (parent, data) => {
@@ -364,10 +371,18 @@ export default class TableRelation extends React.Component {
 
         if (data.isParent) {
             this.parentCells.push(newVertex);
-            graph.insertEdge(rootCell, null, '', newVertex, parent)
+            this._edges.push({
+                source: newVertex,
+                target: parent,
+            })
+            // graph.insertEdge(rootCell, null, '', newVertex, parent)
             console.log('isParent newVertex:', newVertex)
         } else {
-            graph.insertEdge(rootCell, null, '', parent, newVertex)
+            this._edges.push({
+                source: parent,
+                target: newVertex,
+            })
+            // graph.insertEdge(rootCell, null, '', parent, newVertex)
         }
 
         this._vertexCells.push(newVertex)
