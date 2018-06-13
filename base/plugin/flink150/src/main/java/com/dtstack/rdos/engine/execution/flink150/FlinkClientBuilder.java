@@ -136,7 +136,7 @@ public class FlinkClientBuilder {
         try {
             clusterClient = descriptor.retrieve(null);
         } catch (ClusterRetrieveException e) {
-            throw new RuntimeException("Couldn't retrieve standalone cluster", e);
+            throw new RdosException("Couldn't retrieve standalone cluster");
         }
         clusterClient.setDetached(isDetached);
 
@@ -146,9 +146,9 @@ public class FlinkClientBuilder {
             LeaderConnectionInfo connectionInfo = clusterClient.getClusterConnectionInfo();
             address = AkkaUtils.getInetSocketAddressFromAkkaURL(connectionInfo.getAddress());
         } catch (LeaderRetrievalException e) {
-            throw new RuntimeException("Could not retrieve the leader address and leader session ID.", e);
+            throw new RdosException("Could not retrieve the leader address and leader session ID.");
         } catch (Exception e1) {
-            throw new RuntimeException("Failed to retrieve JobManager address", e1);
+            throw new RdosException("Failed to retrieve JobManager address");
         }
 
         config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
@@ -183,7 +183,7 @@ public class FlinkClientBuilder {
         try {
             clusterClient = descriptor.retrieve(null);
         } catch (ClusterRetrieveException e) {
-            throw new RuntimeException("Couldn't retrieve standalone cluster", e);
+            throw new RdosException("Couldn't retrieve standalone cluster");
         }
         clusterClient.setDetached(isDetached);
         return clusterClient;
@@ -275,6 +275,7 @@ public class FlinkClientBuilder {
                 clusterDescriptor.close();
             }
             LOG.info("Couldn't retrieve Yarn cluster.", e);
+            throw new RdosException("Couldn't retrieve Yarn cluster.");
         }
 
         clusterClient.setDetached(isDetached);
