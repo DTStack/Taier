@@ -58,7 +58,7 @@ function addFolderChild(action, state) {
     let loop = (arr) => {
         arr.forEach((node, i) => {
             if(node.id === parentId) {
-                if(node.children === null) node.children = [];
+                if(node.children === null||node.children === undefined) node.children = [];
                 let fileIndex = 0;
 
                 for(let i = 0; i <= node.children.length - 1; i++) {
