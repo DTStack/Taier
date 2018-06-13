@@ -29,16 +29,13 @@ export default class DeriveIndexDefine extends PaneSix {
     initColumns = () => {
         return [{
             title: '衍生指标名称',
-            width: 120,
             dataIndex: 'columnNameZh',
             key: 'columnNameZh',
         }, {
             title: '指标命名',
-            width: 120,
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
@@ -47,19 +44,16 @@ export default class DeriveIndexDefine extends PaneSix {
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
-            width: 120,
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
-            width: 80,
             key: 'operation',
             render: (record) => {
                 return (
