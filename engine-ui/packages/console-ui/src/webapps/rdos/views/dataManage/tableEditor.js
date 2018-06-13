@@ -55,9 +55,8 @@ class TableEditor extends Component {
     render() {
         const { tableData, modifyDesc } = this.props;
         const { getFieldDecorator } = this.props.form;
-
         const { 
-            tableName, project, createTime,
+            tableName, project, gmtCreate,
             desc, chargeUser, lifeDay, catalogueId,
         } = tableData;
 
@@ -88,7 +87,7 @@ class TableEditor extends Component {
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
-                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    <td>{ moment(gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                 </tr>
                             </tbody>
                         </table>

@@ -11,6 +11,8 @@ import moment from 'moment';
 import SlidePane from 'widgets/slidePane';
 
 import ajax from '../../api/dataManage';
+import * as UserAction from '../../store/modules/user'
+
 
 const Search = Input.Search;
 const FormItem = Form.Item;
@@ -79,7 +81,7 @@ class TableLog extends React.Component {
 
     componentDidMount() {
         this.search();
-        // this.props.getUsers()
+        this.props.getUsers()
     }
 
     render() {
