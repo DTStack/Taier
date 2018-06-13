@@ -90,7 +90,7 @@ class TaskFlowView extends Component {
         this.loadEditor(editor)
         this.listenOnClick()
         this.listenDoubleClick();
-        this.hideMenu()
+        this.hideMenu();
         this.loadTaskChidren({
             jobId: id,
             level: 6,
@@ -100,7 +100,7 @@ class TaskFlowView extends Component {
     componentWillReceiveProps(nextProps) {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
-        if ((!currentJob && taskJob) || taskJob && visibleSlidePane && taskJob.id !== currentJob.id) {
+        if (taskJob && visibleSlidePane && taskJob.id !== currentJob.id) {
             this.initGraph(taskJob.id)
         }
     }
@@ -224,7 +224,7 @@ class TaskFlowView extends Component {
                 this.executeLayout(() => {
 
                     newVertex = graph.insertVertex(
-                        graph.getDefaultParent(), null, taskInfo, 0, 0,
+                        graph.getDefaultParent(), null, taskInfo, 1, 1,
                         VertexSize.width, VertexSize.height, style
                     )
                     this.insertEdge(graph, type, parent, newVertex)
@@ -275,12 +275,12 @@ class TaskFlowView extends Component {
                 } catch (e) {
                     throw e;
                 } finally {
-                    var morph = new mxMorphing(graph);
-                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function () {
-                        graph.getModel().endUpdate();
-                        if (post != null) { post(); }
-                    }));
-                    morph.startAnimation();
+                    graph.getModel().endUpdate();
+                    if (post != null) { post(); }
+                    // var morph = new mxMorphing(graph);
+                    // morph.addListener(mxEvent.DONE, mxUtils.bind(this, function () {
+                    // }));
+                    // morph.startAnimation();
                 }
             }
         }

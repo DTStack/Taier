@@ -3,35 +3,44 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import moment from 'moment';
 import SplitPane from 'react-split-pane';
-import { 
-    Row, Col, Table, Button, 
-    Tabs, Radio, Icon, 
+import {
+    Row, Col, Table, Button,
+    Tabs, Radio, Icon,
     Modal, message, Card
 } from 'antd';
 
 import GoBack from 'main/components/go-back';
 
+import { APPLY_RESOURCE_TYPE } from "../../comm/const";
 import Editor from '../../components/code-editor';
 import ajax from '../../api/dataManage';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import TablePartition from './tablePartition';
 import TableRelation from './tableRelation';
+import TableApplyModal from './search/tableApply'
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 
-export default class TableViewer extends React.Component{
+export default class TableViewer extends React.Component {
     constructor(props) {
         super(props);
         this.tableId = this.props.routeParams.tableId;
-        this.queryParams = { tableId : this.tableId };
+        this.queryParams = { tableId: this.tableId };
         this.state = {
             showType: 0, // 0/1 (非)字段
             visible: false,
             code: '',
             isMark: false,
+            tableData: '',
+            applyButton: false,
+            applyModal: {
+                visible: false,
+                data: {},
+            },
+
         };
     }
 
@@ -39,35 +48,43 @@ export default class TableViewer extends React.Component{
         this.getTable();
     }
 
-    changeMark(){
-        const {isMark} = this.state;
-        console.log(isMark);
-        
-        if(isMark){
-            ajax.cancelMark(this.queryParams).then(res=>{
+    changeMark() {
+        const { isMark } = this.state;
+        if (isMark) {
+            ajax.cancelMark(this.queryParams).then(res => {
                 if (res.code === 1) {
+                    message.info("取消收藏成功")
                     this.setState({
                         isMark: !isMark
                     })
+                } else {
+                    message.info("取消收藏失败,请再次点击")
                 }
             })
-        }else{
-            ajax.addMark(this.queryParams).then(res=>{
+        } else {
+            ajax.addMark(this.queryParams).then(res => {
                 if (res.code === 1) {
+                    message.info("收藏成功")
                     this.setState({
                         isMark: !isMark
                     })
+                } else {
+                    message.info("收藏失败,请再次点击")
                 }
             })
         }
-        
+
     }
 
     getTable() {
         ajax.getTable(this.queryParams).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
+                const isMark = res.data.table.isCollect == "1" ? true : false;
+                const applyButton = res.data.table.permissionStatus == "0" ? true : false;
                 this.setState({
-                    tableData: res.data
+                    tableData: res.data,
+                    isMark,
+                    applyButton
                 });
             }
         });
@@ -75,7 +92,6 @@ export default class TableViewer extends React.Component{
 
     switchType(evt) {
         const showType = evt.target.value;
-
         this.setState({
             showType
         });
@@ -83,16 +99,17 @@ export default class TableViewer extends React.Component{
 
     getPreview(key) {
         const { previewData } = this.state;
-        if(previewData) return;
-        if(+key === 2 || +key === 3) {
+        if (previewData) return;
+        if (+key === 2 || +key === 3) {
             ajax.previewTable(this.queryParams).then(res => {
-                if(res.code === 1 && res.data) {
+                if (res.code === 1 && res.data) {
                     this.setState({
                         previewData: this.formatPreviewData(res.data)
                     });
                 }
             });
         }
+        this.setState({ showTableRelation: true })
     }
 
     formatPreviewData(arr) {
@@ -101,7 +118,7 @@ export default class TableViewer extends React.Component{
         this.previewCols = cols;
         return arr.map(keyArr => {
             let o = {};
-            for(let i = 0; i < keyArr.length; i++) {
+            for (let i = 0; i < keyArr.length; i++) {
                 o[cols[i]] = keyArr[i]
             }
             return o
@@ -110,20 +127,20 @@ export default class TableViewer extends React.Component{
 
     getCreateCode() {
         !this.state.code ? ajax.getCreateTableCode(this.queryParams).then(res => {
-            if(res.code === 1 && res.data) {
+            if (res.code === 1 && res.data) {
                 this.setState({
                     visible: true,
                     code: res.data
                 });
             }
-            else{
+            else {
                 message.error('从服务器获取数据失败！');
             }
         }) :
-        this.setState({
-            visible: true,
-            code: this.state.code
-        });
+            this.setState({
+                visible: true,
+                code: this.state.code
+            });
     }
 
     handleCancel() {
@@ -141,8 +158,41 @@ export default class TableViewer extends React.Component{
         }, 1000)
     }
 
+    apply = (applyData) => {
+        const { applyModal } = this.state;
+        const params = { ...applyData };
+        params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
+        params.resourceId = applyModal.data.id;
+        ajax.applyTable(params).then(res => {
+            if (res.code === 1) {
+                message.success('申请成功！')
+                applyModal.visible = false;
+                applyModal.data = {};
+                this.setState({ applyModal }, this.getTable)
+            }
+        })
+    }
+
+    showApply = () => {
+        const { applyModal, tableData } = this.state;
+        applyModal.visible = true;
+        applyModal.data = tableData.table;
+        this.setState({
+            applyModal
+        })
+    }
+
+    cancelApply = () => {
+        const { applyModal } = this.state;
+        applyModal.visible = false;
+        applyModal.data = {};
+        this.setState({
+            applyModal
+        })
+    }
+
     render() {
-        const { showType, tableData, previewData,isMark } = this.state;
+        const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
 
         const columns = [{
             title: '序号',
@@ -151,15 +201,15 @@ export default class TableViewer extends React.Component{
             render(index) {
                 return ++index
             }
-        },{
+        }, {
             title: '字段名称',
             dataIndex: 'columnName',
             key: 'columnName'
-        },{
+        }, {
             title: '类型',
             dataIndex: 'columnType',
             key: 'columnType'
-        },{
+        }, {
             title: '注释',
             dataIndex: 'columnDesc',
             key: 'columnDesc',
@@ -173,14 +223,14 @@ export default class TableViewer extends React.Component{
                 <main>
                     <div >
                         <h1 className="card-title">
-                            <GoBack /> 查看表：{ tableData && tableData.table.tableName }
+                            <GoBack type="textButton" /> 查看表：{tableData && tableData.table.tableName}
                             <span className="right">
                                 <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
-                                <Button className="button-top" type="primary">申请授权</Button>
-                                <Button 
-                                    type="primary" 
+                                {applyButton ? <Button className="button-top" type="primary" onClick={this.showApply}>申请授权</Button> : ""}
+                                <Button
+                                    type="primary"
                                     className="button-top"
-                                    onClick={ this.getCreateCode.bind(this) }
+                                    onClick={this.getCreateCode.bind(this)}
                                 >
                                     生成建表语句
                                 </Button>
@@ -188,42 +238,42 @@ export default class TableViewer extends React.Component{
                         </h1>
                     </div>
                     <Row className="m-tablebasic">
-                        <Col span={12} className="col-sep" style={{paddingLeft: 0}}>
+                        <Col span={12} className="col-sep" style={{ paddingLeft: 0 }}>
                             <h3> 基本信息 </h3>
-                            { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
+                            {tableData && <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tbody>
                                     <tr>
                                         <th>所属项目</th>
-                                        <td>{ tableData.table.projectAlias }</td>
+                                        <td>{tableData.table.projectAlias}</td>
                                     </tr>
                                     <tr>
                                         <th>负责人</th>
-                                        <td>{ tableData.table.userName }</td>
+                                        <td>{tableData.table.chargeUser}</td>
                                     </tr>
                                     <tr>
                                         <th>创建时间</th>
-                                        <td>{ moment(tableData.table.createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{moment(tableData.table.createTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
                                     <tr>
                                         <th>所属类目</th>
-                                        <td>{ tableData.table.catalogue }</td>
+                                        <td>{tableData.table.catalogue}</td>
                                     </tr>
                                     <tr>
                                         <th>描述</th>
-                                        <td style={{height: '50px', width: '100%', border: 0 }} className="cell-overflow no-scroll-bar">
+                                        <td style={{ height: '50px', width: '100%', border: 0 }} className="cell-overflow no-scroll-bar">
                                             {tableData.table.tableDesc}
                                         </td>
                                     </tr>
                                 </tbody>
-                            </table> }
+                            </table>}
                         </Col>
-                        <Col span={12} className="col-sep" style={{paddingRight: 0}}>
+                        <Col span={12} className="col-sep" style={{ paddingRight: 0 }}>
                             <h3>存储信息</h3>
-                            { tableData && <table width="100%" cellPadding="0" cellSpacing="0">
+                            {tableData && <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tbody>
                                     <tr>
                                         <th>物理存储量</th>
-                                        <td>{ tableData.table.storeSize }</td>
+                                        <td>{tableData.table.storeSize}</td>
                                     </tr>
                                     <tr>
                                         <th>生命周期</th>
@@ -231,25 +281,25 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>是否分区</th>
-                                        <td>{ tableData.table.partitions ? '是' : '否' }</td>
+                                        <td>{tableData.table.partitions ? '是' : '否'}</td>
                                     </tr>
                                     <tr>
                                         <th>DDL最后变更时间</th>
-                                        <td>{ moment(tableData.table.lastDDLTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{moment(tableData.table.lastDDLTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
                                     <tr>
                                         <th>数据最后变更时间</th>
-                                        <td>{ moment(tableData.table.lastDataChangeTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{moment(tableData.table.lastDataChangeTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
                                 </tbody>
-                            </table> }
+                            </table>}
                         </Col>
                     </Row>
                     <Row>
                         <div className="m-tabs m-card bd">
-                            <Tabs 
+                            <Tabs
                                 animated={false}
-                                onChange={ this.getPreview.bind(this) }
+                                onChange={this.getPreview.bind(this)}
                             >
                                 <TabPane tab="字段信息" key="1">
                                     <Card
@@ -258,7 +308,7 @@ export default class TableViewer extends React.Component{
                                         title={
                                             <RadioGroup
                                                 defaultValue={showType}
-                                                onChange={ this.switchType.bind(this) }
+                                                onChange={this.switchType.bind(this)}
                                                 style={{ marginTop: 10 }}
                                             >
                                                 <RadioButton value={0}>非分区字段</RadioButton>
@@ -267,14 +317,15 @@ export default class TableViewer extends React.Component{
                                         }
                                         extra={
                                             <p style={{ color: '#ccc' }}>
-                                                共 { tableData ? (tableData[showType === 0 ? 'column' : 'partition'].length) : 0} 个字段
+                                                共 {tableData ? (tableData[showType === 0 ? 'column' : 'partition'].length) : 0} 个字段
                                             </p>
                                         }
                                     >
-                                        { tableData && <Table
+                                        {tableData && <Table
                                             className="m-table"
-                                            columns={ columns }
-                                            dataSource={ showType === 0 ? tableData.column : tableData.partition }
+                                            columns={columns}
+                                            rowKey="id"
+                                            dataSource={showType === 0 ? tableData.column : tableData.partition}
                                         />}
                                     </Card>
                                 </TabPane>
@@ -283,15 +334,15 @@ export default class TableViewer extends React.Component{
                                 </TabPane>
                                 <TabPane tab="数据预览" key="3">
                                     <div className="box">
-                                        { previewData ? <Table
-                                            columns={ this.previewCols.map((str,i) => ({
+                                        {previewData ? <Table
+                                            columns={this.previewCols.map((str, i) => ({
                                                 title: str,
                                                 dataIndex: str,
                                                 key: str + i,
-                                                width:"200px"
-                                            })) }
+                                                width: "200px"
+                                            }))}
                                             className="m-table"
-                                            dataSource={ previewData }
+                                            dataSource={previewData}
                                             scroll={{ x: 200 * this.previewCols.length }}
                                         ></Table> :
                                             <p style={{
@@ -304,7 +355,11 @@ export default class TableViewer extends React.Component{
                                     </div>
                                 </TabPane>
                                 <TabPane tab="血缘信息" key="4">
-                                    <TableRelation  tableData={tableData && tableData.table}/>
+                                    <TableRelation
+                                        showTableRelation={this.state.showTableRelation}
+                                        onShowBloodRelation={this.onShowBloodRelation}
+                                        tableData={tableData && tableData.table}
+                                    />
                                 </TabPane>
                             </Tabs>
                         </div>
@@ -320,15 +375,21 @@ export default class TableViewer extends React.Component{
                 closable
                 onCancel={this.handleCancel.bind(this)}
                 footer={[
-                    <Button key="cancel" onClick={ this.handleCancel.bind(this) }>取消</Button>,
-                     <CopyToClipboard key="copy" text={this.state.code}
+                    <Button key="cancel" onClick={this.handleCancel.bind(this)}>取消</Button>,
+                    <CopyToClipboard key="copy" text={this.state.code}
                         onCopy={this.handleOk.bind(this)}>
                         <Button type="primary">复制</Button>
                     </CopyToClipboard>
                 ]}
             >
-                <Editor value={ this.state.code } readOnly style={{height: '400px'}}/>
+                <Editor value={this.state.code} readOnly style={{ height: '400px' }} />
             </Modal>
+            <TableApplyModal
+                visible={applyModal.visible}
+                table={applyModal.data}
+                onOk={this.apply}
+                onCancel={this.cancelApply}
+            />
         </div>
     }
 }

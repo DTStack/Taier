@@ -65,6 +65,8 @@ export default class StepTwo extends Component {
         const { currentStep, navToStep, editParams } = this.props;
         const { currentRule } = this.state;
 
+
+
         if (editParams.rules.length) {
             if (!isEmpty(currentRule)) {
                 this.save(currentRule.id, () => {
@@ -186,17 +188,21 @@ export default class StepTwo extends Component {
 
     // 校验字段回调
     onColumnNameChange = (name) => {
+        const {currentRule} = this.state;
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
 
         let columnType = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
 
-        form.setFieldsValue({ functionId: undefined });
+        let fields={};
+        fields[`functionId@${currentRule.id}`]=undefined;
+
+        form.setFieldsValue(fields);
         this.setState({
             functionList,
             currentRule: {
-                ...this.state.currentRule,
+                ...currentRule,
                 columnName: name,
                 functionId: undefined
             }
@@ -206,7 +212,7 @@ export default class StepTwo extends Component {
     // 统计函数变化回调
     onFunctionChange = (id) => {
         const { form } = this.props;
-        const { functionList } = this.state;
+        const { functionList, currentRule:currentRuleState } = this.state;
 
         let isPercentage = functionList.filter(item => item.id == id)[0].isPercent,
             nameZc = functionList.filter(item => item.id == id)[0].nameZc,
@@ -222,10 +228,11 @@ export default class StepTwo extends Component {
             percentType: isPercentage === 1 ? 'limit' : 'free'
         };
 
-        form.setFieldsValue({
-            verifyType: isEnum ? '1' : undefined,
-            operator: undefined
-        });
+        let fields={};
+        fields[`verifyType@${currentRuleState.id}`]=isEnum ? '1' : undefined;
+        fields[`operator@${currentRuleState.id}`]=undefined;
+
+        form.setFieldsValue(fields);
 
         this.setState({ currentRule });
     }
@@ -266,7 +273,7 @@ export default class StepTwo extends Component {
                 if (record.isCustomizeSql) {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
-                            getFieldDecorator('customizeSql', {
+                            getFieldDecorator(`customizeSql@${record.id}`, {
                                 rules: [{
                                     required: true,
                                     message: '自定义SQL不可为空'
@@ -290,10 +297,9 @@ export default class StepTwo extends Component {
                         }
                     </FormItem>
                 } else {
-                    getFieldDecorator('columnName', { initialValue: "" });
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
-                            getFieldDecorator('columnName', {
+                            getFieldDecorator(`columnName@${record.id}`, {
                                 rules: [{
                                     required: true,
                                     message: '字段不可为空'
@@ -323,7 +329,7 @@ export default class StepTwo extends Component {
             case 'functionId': {
                 return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
-                        getFieldDecorator('functionId', {
+                        getFieldDecorator(`functionId@${record.id}`, {
                             rules: [{
                                 required: true,
                                 message: '统计函数不可为空'
@@ -350,7 +356,7 @@ export default class StepTwo extends Component {
             case 'filter': {
                 return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
-                        getFieldDecorator('filter', {
+                        getFieldDecorator(`filter@${record.id}`, {
                             rules: [],
                             initialValue: record.filter
                         })(
@@ -365,7 +371,7 @@ export default class StepTwo extends Component {
             case 'verifyType': {
                 return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                     {
-                        getFieldDecorator('verifyType', {
+                        getFieldDecorator(`verifyType@${record.id}`, {
                             rules: [{
                                 required: true,
                                 message: '校验方法不可为空'
@@ -394,7 +400,7 @@ export default class StepTwo extends Component {
                 if (currentRule.operator === 'in') {
                     return <FormItem {...rowFormItemLayout} className="rule-edit-td cell-center">
                         {
-                            getFieldDecorator('thresholdEnum', {
+                            getFieldDecorator(`thresholdEnum@${record.id}`, {
                                 rules: [{
                                     required: true,
                                     message: '范围不可为空'
@@ -413,7 +419,7 @@ export default class StepTwo extends Component {
                         <div className="cell-center-box">
                             <FormItem className="cell-multiple-center">
                                 {
-                                    getFieldDecorator('operator', {
+                                    getFieldDecorator(`operator@${record.id}`, {
                                         rules: [{
                                             required: true,
                                             message: '设置不可为空'
@@ -438,7 +444,7 @@ export default class StepTwo extends Component {
                             </FormItem>
                             <FormItem className="cell-multiple-center">
                                 {
-                                    getFieldDecorator('threshold', {
+                                    getFieldDecorator(`threshold@${record.id}`, {
                                         rules: [{
                                             required: true,
                                             message: '阈值不可为空'
@@ -494,11 +500,13 @@ export default class StepTwo extends Component {
 
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0];
+            
 
         if (!isEmpty(currentRule)) {
-            if (currentRule.editStatus === 'edit') {
-                delete currentRule.editable
-                delete currentRule.editStatus
+            let current = newData.filter(item => currentRule.id === item.id)[0];
+            if (current.editStatus === 'edit') {
+                delete current.editable
+                delete current.editStatus
             } else {
                 newData.shift();
             }
@@ -507,7 +515,7 @@ export default class StepTwo extends Component {
         if (target) {
             target.editable = true;
             target.editStatus = "edit";
-            if(!target.isCustomizeSql){
+            if (!target.isCustomizeSql) {
                 if (target.isTable) {
                     functionList = monitorFunction.all.filter(item => item.level === 1);
                 } else {
@@ -550,6 +558,36 @@ export default class StepTwo extends Component {
         }
     }
 
+    checkRepeat() {
+        const { currentRule } = this.state;
+        const newData = [...this.props.editParams.rules];
+        const keys = ['columnName', 'filter', 'functionId', 'verifyType', 'customizeSql', 'operator'];
+        let pass = true;
+
+        for (let i = 0; i < newData.length; i++) {
+            const item = newData[i];
+            let itemPass = false; //当前元素校验是否通过
+                 
+            if (item.id == currentRule.id) {
+                continue;
+            }
+
+            for (let j=0;j<keys.length;j++) {
+                let key = keys[j];
+                if (currentRule[key] != item[key]) {
+                    itemPass = true;//检测到一项不同，通过。
+                    break;
+                }
+            }
+            if (!itemPass) {
+                pass = false;
+                break;
+            }
+
+        }
+        return pass;
+    }
+
     // 保存规则
     save(id, callback) {
         const { currentRule, enumFields, SQLFields, columnFields } = this.state;
@@ -562,8 +600,11 @@ export default class StepTwo extends Component {
         if (currentRule.operator === 'in') {
             fields = enumFields;
         }
-
-        this.props.form.validateFields(fields, { force: true }, (err, values) => {
+        if(!this.checkRepeat()){
+            message.error("规则不能重复！");
+            return;  
+        }
+        this.props.form.validateFields(null, { force: true }, (err, values) => {
             console.log(err, values)
             if (!err) {
                 delete currentRule.editStatus;

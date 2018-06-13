@@ -12,7 +12,7 @@ import moment from 'moment';
 import { isEmpty } from 'lodash';
 
 import utils from 'utils';
-import { APPLY_RESOURCE_TYPE } from "../../../comm/const"
+import { APPLY_RESOURCE_TYPE } from "../../../comm/const";
 import CatalogueTree from '../catalogTree';
 import TableApplyModal from './tableApply';
 import ajax from '../../../api/dataManage';
@@ -33,6 +33,10 @@ class SearchTable extends Component {
         super(props);
         this.state = {
             visible: false,
+            descModel: {
+                visible: false,
+                descInfo: "",
+            },
             table: [],
             editRecord: {},
             cardLoading:false,
@@ -134,6 +138,24 @@ class SearchTable extends Component {
         });
     }
 
+    showDescModal = (text) => {
+        const { descModel } = this.state; 
+        descModel.descInfo = text;
+        descModel.visible = true;
+        this.setState({
+            descModel
+        });
+    }
+
+    closeDescModal = () => {
+        const { descModel } = this.state; 
+        descModel.descInfo = "";
+        descModel.visible = false;
+        this.setState({
+            descModel
+        })
+    }
+    
     initialColumns = () => {
         const ctx = this;
         return [
@@ -173,7 +195,7 @@ class SearchTable extends Component {
                 key: 'tableDesc',
                 dataIndex: 'tableDesc',
                 render(text, record) {
-                    return text
+                    return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                 }
             },
             {
@@ -211,9 +233,9 @@ class SearchTable extends Component {
                         case 0:
                             return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
                         case 1:
-                            return <span>已授权</span>
+                            return <span>授权成功</span>
                         case 2:
-                            return <span>待审批</span>
+                            return <span>等待授权</span>
                         default: return '-';
                     }
                 }
@@ -221,8 +243,10 @@ class SearchTable extends Component {
         ];
     }
 
+
+
     render() {
-        const { table, queryParams, visible, editRecord,cardLoading } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading, descModel } = this.state;
         const { projects } = this.props;
 
         const marginTop10 = { marginTop: '8px' };
@@ -239,7 +263,7 @@ class SearchTable extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem label="类目">
-                    <span style={{ width: 120, display: 'inline-block' }}>
+                    <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
@@ -293,29 +317,39 @@ class SearchTable extends Component {
             defaultPageSize: 10,
         };
         return <div className="m-tablelist">
-            <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                <Card noHovering bordered={false} title={title} >
-                    <Spin tip="正在加载中..." spinning={cardLoading}>
-                        <div style={{ marginTop: '1px' }}>
-                            <Table
-                                rowKey="id"
-                                className="m-table"
-                                columns={this.initialColumns()}
-                                dataSource={table.data}
-                                pagination={pagination}
-                                onChange={this.handleTableChange.bind(this)}
-                            />
-                        </div>
-                    </Spin>
-                </Card>
-                <TableApplyModal 
-                    visible={visible}
-                    table={editRecord}
-                    onOk={this.apply}
-                    onCancel={() => {this.setState({visible: false, editRecord: {} })}}
-                />
-            </div>
-        </div>
+                    <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
+                        <Card noHovering bordered={false} title={title} >
+                            <Spin tip="正在加载中..." spinning={cardLoading}>
+                                <div style={{ marginTop: '1px' }}>
+                                    <Table
+                                        rowKey="id"
+                                        className="m-table"
+                                        columns={this.initialColumns()}
+                                        dataSource={table.data}
+                                        pagination={pagination}
+                                        onChange={this.handleTableChange.bind(this)}
+                                    />
+                                </div>
+                            </Spin>
+                        </Card>
+                        <TableApplyModal 
+                            visible={visible}
+                            table={editRecord}
+                            onOk={this.apply}
+                            onCancel={() => {this.setState({visible: false, editRecord: {} })}}
+                        />
+                    </div>
+                    <div>
+                        <Modal
+                        title="详情信息"
+                        visible={descModel.visible}
+                        onCancel={this.closeDescModal}
+                        footer={null}
+                        >
+                            <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
+                        </Modal>
+                    </div>
+                </div>
     }
 
 }

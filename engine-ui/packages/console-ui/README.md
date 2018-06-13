@@ -52,6 +52,8 @@ DTinsight Tag v1.0.0 发布！
 - 修复数据模型表名验证错误
 - 修复生命周期自定义时, 会自动切换默认选项，隐藏自定义输入框的行为
 
+## v2.0.4 (2018-06-06)
+- 修复数据类目添加, 更新节点Bug
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)

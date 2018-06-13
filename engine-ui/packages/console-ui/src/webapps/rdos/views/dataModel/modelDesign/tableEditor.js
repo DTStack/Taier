@@ -258,19 +258,43 @@ class TableEditor extends Component {
     saveTable() {
         const { tableData, form } = this.props;
         const ctx = this;
+        //组装参数
+        const queryParams = {};
+        queryParams.tableId = tableData.id;
+        queryParams.tableName = tableData.tableName;
+        queryParams.desc = tableData.tableDesc;
+        // queryParams.delim = tableData.id;
+        queryParams.lifeDay = tableData.lifeDay;
+        // queryParams.storedType = tableData.id;
+        queryParams.catalogueId = tableData.catalogueId;
+        queryParams.columns = tableData.columns;
+        queryParams.partition_keys = tableData.partition_keys;
         if (this.checkColumnsIsNull(tableData.columns)) {
             message.error('新建字段名称不可为空！')
         } else {
             form.validateFields((err) => {
                 if (!err) {
                     // ctx.props.saveTable(tableData);
-                    dateModelAPI.alterTable(tableData).then(res => {
+                    dateModelAPI.alterTable(queryParams).then(res => {
                         if (res.code === 1) {
                             message.success('修改成功！');
+                            this.goBack()
                         }
                     })
                 }
             });
+        }
+    }
+
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
         }
     }
 
