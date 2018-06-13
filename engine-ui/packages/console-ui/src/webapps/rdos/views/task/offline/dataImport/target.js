@@ -61,7 +61,7 @@ export default class ImportTarget extends Component {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
                     //假如发现和文件资源column有相等的columnName，则直接默认设置为此columnName。
-                    const columnName=item.name;
+                    const columnName=item.columnName;
                     const index=fileColumns.indexOf(columnName);
 
                     if(index>-1){
@@ -71,7 +71,7 @@ export default class ImportTarget extends Component {
                 })
                 const partitions = tableData.partition && tableData.partition.map(item => {
                     return {
-                        [item.name]: ''
+                        [item.columnName]: ''
                     }
                 })
                 changeStatus({
@@ -93,7 +93,7 @@ export default class ImportTarget extends Component {
         const { targetTable, partitions, originPartitions } = this.props.formState
         for (let i = 0; i < partitions.length; i++) {
             const item = partitions[i]
-            const key = originPartitions[i].name
+            const key = originPartitions[i].columnName
             if (utils.trim(item[key]) === '') {
                 message.error('分区值不可为空！')
                 return
@@ -101,7 +101,7 @@ export default class ImportTarget extends Component {
         }
 
         API.checkTablePartition({
-            tableId: targetTable.tableId,
+            tableId: targetTable.id,
             partitionInfo: partitions,
         }).then((res) => {
             if (res.data) {
@@ -120,8 +120,8 @@ export default class ImportTarget extends Component {
                     visible: false,
                     tableList:[res.data]
                 })
-                this.tbNameOnChange(res.data.tableId)
-                this.tableChange(res.data.tableId,{props:{data:res.data}})
+                this.tbNameOnChange(res.data.id)
+                this.tableChange(res.data.id,{props:{data:res.data}})
                 message.success('表创建成功!')
             }
         })
@@ -163,7 +163,7 @@ export default class ImportTarget extends Component {
         const originPartitions = this.props.formState.partitions
         const newPartitions = [...originPartitions]
         newPartitions[index] = {
-            [partition.name]: e.target.value,
+            [partition.columnName]: e.target.value,
         }
         this.props.changeStatus({
             partitions: newPartitions
@@ -228,10 +228,10 @@ export default class ImportTarget extends Component {
                 <Row key={`partition-${index}`}>
                     <div
                         className="ellipsis"
-                        title={item.name}
+                        title={item.columnName}
                         style={{ width: '60px', display: 'inline-block' }}
                     >
-                        {item.name}
+                        {item.columnName}
                     </div>
                     <Input
                         style={{ width: '140px' }}

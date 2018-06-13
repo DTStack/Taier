@@ -75,7 +75,6 @@ class CodeEditor extends Component {
                 }
             }
         }
-        
     }
 
     getCodeMirrorIns() {

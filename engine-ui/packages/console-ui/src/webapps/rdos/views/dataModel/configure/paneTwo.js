@@ -14,6 +14,11 @@ import BasePane from './basePane';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 export default class SubjectDomain extends BasePane {
 
     constructor(props) {
@@ -26,6 +31,14 @@ export default class SubjectDomain extends BasePane {
                 type: 2, // 主题域	
             }),
         }, this.loadData)
+    }
+
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
     }
 
     initColumns = () => {
