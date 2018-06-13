@@ -44,6 +44,7 @@ import java.util.Set;
  * 根据不同的配置创建对应的client
  * Date: 2018/5/3
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -58,32 +59,32 @@ public class FlinkClientBuilder {
 
     private YarnConfiguration yarnConf;
 
-    private FlinkClientBuilder(){
+    private FlinkClientBuilder() {
     }
 
-    public static FlinkClientBuilder create(org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf){
+    public static FlinkClientBuilder create(org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf) {
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.setHadoopConf(hadoopConf);
         builder.setYarnConf(yarnConf);
         return builder;
     }
 
-    public ClusterClient create(FlinkConfig flinkConfig){
+    public ClusterClient create(FlinkConfig flinkConfig) {
 
         String clusterMode = flinkConfig.getClusterMode();
-        if(StringUtils.isEmpty(clusterMode)) {
+        if (StringUtils.isEmpty(clusterMode)) {
             clusterMode = Deploy.standalone.name();
         }
 
         String defaultFS = hadoopConf.get(HadoopConfTool.FS_DEFAULTFS);
-        if(Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())){
+        if (Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())) {
             //设置默认值
             flinkConfig.setDefaultFlinkHighAvailabilityStorageDir(defaultFS);
         }
 
         flinkConfig.updateFlinkHighAvailabilityStorageDir(defaultFS);
 
-        if(clusterMode.equals( Deploy.standalone.name())) {
+        if (clusterMode.equals(Deploy.standalone.name())) {
             return createStandalone(flinkConfig);
         } else if (clusterMode.equals(Deploy.yarn.name())) {
             return createYarnClient(flinkConfig);
@@ -92,40 +93,41 @@ public class FlinkClientBuilder {
         }
     }
 
-    private ClusterClient createStandalone(FlinkConfig flinkConfig){
+    private ClusterClient createStandalone(FlinkConfig flinkConfig) {
 
         Preconditions.checkState(flinkConfig.getFlinkJobMgrUrl() != null || flinkConfig.getFlinkZkNamespace() != null,
                 "flink client can not init for host and zkNamespace is null at the same time.");
 
-        if(flinkConfig.getFlinkZkNamespace() != null){//优先使用zk
+        if (flinkConfig.getFlinkZkNamespace() != null) {//优先使用zk
             Preconditions.checkNotNull(flinkConfig.getFlinkHighAvailabilityStorageDir(), "you need to set high availability storage dir...");
             return initClusterClientByZK(flinkConfig.getFlinkZkNamespace(), flinkConfig.getFlinkZkAddress(), flinkConfig.getFlinkClusterId(),
                     flinkConfig.getFlinkHighAvailabilityStorageDir());
-        }else{
+        } else {
             return initClusterClientByURL(flinkConfig.getFlinkJobMgrUrl());
         }
     }
 
-    private ClusterClient createYarnClient(FlinkConfig flinkConfig){
+    private ClusterClient createYarnClient(FlinkConfig flinkConfig) {
         ClusterClient clusterClient = initYarnClusterClient(flinkConfig);
         return clusterClient;
     }
 
     /**
      * 根据zk获取clusterclient
+     *
      * @param zkNamespace
      */
-    private ClusterClient initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId,String flinkHighAvailabilityStorageDir){
+    private ClusterClient initClusterClientByZK(String zkNamespace, String zkAddress, String clusterId, String flinkHighAvailabilityStorageDir) {
 
         Configuration config = new Configuration();
         config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
         config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, zkAddress);
         config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkHighAvailabilityStorageDir);
-        if(zkNamespace != null){//不设置默认值"/flink"
+        if (zkNamespace != null) {//不设置默认值"/flink"
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, zkNamespace);
         }
 
-        if(clusterId != null){//不设置默认值"/default"
+        if (clusterId != null) {//不设置默认值"/default"
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
         }
 
@@ -157,15 +159,16 @@ public class FlinkClientBuilder {
 
     /**
      * 直接指定jobmanager host:port方式
+     *
      * @return
      * @throws Exception
      */
-    private ClusterClient initClusterClientByURL(String jobMgrURL){
+    private ClusterClient initClusterClientByURL(String jobMgrURL) {
 
         String[] splitInfo = jobMgrURL.split(":");
-        if(splitInfo.length < 2){
+        if (splitInfo.length < 2) {
             throw new RdosException("the config of engineUrl is wrong. " +
-                    "setting value is :" + jobMgrURL +", please check it!");
+                    "setting value is :" + jobMgrURL + ", please check it!");
         }
 
         String jobMgrHost = splitInfo[0].trim();
@@ -189,10 +192,10 @@ public class FlinkClientBuilder {
     /**
      * 根据yarn方式获取ClusterClient
      */
-    public ClusterClient initYarnClusterClient(FlinkConfig flinkConfig){
+    public ClusterClient initYarnClusterClient(FlinkConfig flinkConfig) {
 
         Configuration config = new Configuration();
-        if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
+        if (StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
             config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
@@ -202,11 +205,11 @@ public class FlinkClientBuilder {
 //            //config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
 //        }
 
-        if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
+        if (flinkConfig.getFlinkZkNamespace() != null) {//不设置默认值"/flink"
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
         }
 
-        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
+        if (flinkConfig.getFlinkClusterId() != null) {//不设置默认值"/default"
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
@@ -224,18 +227,18 @@ public class FlinkClientBuilder {
 
             int maxMemory = -1;
             int maxCores = -1;
-            for(ApplicationReport report : reportList) {
-                if(!report.getName().startsWith("Flink session")){
+            for (ApplicationReport report : reportList) {
+                if (!report.getName().startsWith("Flink session")) {
                     continue;
                 }
 
-                if(!report.getYarnApplicationState().equals(YarnApplicationState.RUNNING)) {
+                if (!report.getYarnApplicationState().equals(YarnApplicationState.RUNNING)) {
                     continue;
                 }
 
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
                 int thisCores = report.getApplicationResourceUsageReport().getNeededResources().getVirtualCores();
-                if(thisMemory > maxMemory || thisMemory == maxMemory && thisCores > maxCores) {
+                if (thisMemory > maxMemory || thisMemory == maxMemory && thisCores > maxCores) {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId().toString();
@@ -243,18 +246,18 @@ public class FlinkClientBuilder {
 
             }
 
-            if(StringUtils.isEmpty(applicationId)) {
+            if (StringUtils.isEmpty(applicationId)) {
                 throw new RdosException("No flink session found on yarn cluster.");
             }
 
         } catch (Exception e) {
-            LOG.error("",e);
+            LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
 
         yarnClient.stop();
 
-        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, yarnConf, ".", yarnClient,false);
+        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, yarnConf, ".", yarnClient, false);
 //        try {
 //            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
 //            confField.setAccessible(true);
@@ -268,9 +271,10 @@ public class FlinkClientBuilder {
         try {
             clusterClient = clusterDescriptor.retrieve(yarnApplicationId);
         } catch (ClusterRetrieveException e) {
-            LOG.info("Could not properly close the yarn cluster descriptor.", e);
-        } finally {
-            clusterDescriptor.close();
+            if (clusterDescriptor != null) {
+                clusterDescriptor.close();
+            }
+            LOG.info("Couldn't retrieve Yarn cluster.", e);
         }
 
         clusterClient.setDetached(isDetached);
