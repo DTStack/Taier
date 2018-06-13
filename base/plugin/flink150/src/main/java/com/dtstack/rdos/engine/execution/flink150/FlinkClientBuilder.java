@@ -5,13 +5,20 @@ import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.client.deployment.ClusterRetrieveException;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
+import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.StandaloneClusterClient;
+import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.configuration.JobManagerOptions;
+import org.apache.flink.runtime.akka.AkkaUtils;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
+import org.apache.flink.runtime.leaderretrieval.LeaderRetrievalException;
+import org.apache.flink.runtime.util.LeaderConnectionInfo;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -119,13 +126,27 @@ public class FlinkClientBuilder {
         }
 
         StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
-        StandaloneClusterClient clusterClient = descriptor.retrieve(null);
+        RestClusterClient<StandaloneClusterId> clusterClient = null;
+        try {
+            clusterClient = descriptor.retrieve(null);
+        } catch (ClusterRetrieveException e) {
+            throw new RuntimeException("Couldn't retrieve standalone cluster", e);
+        }
         clusterClient.setDetached(isDetached);
 
         //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
-        InetSocketAddress address = clusterClient.getJobManagerAddress();
-        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, address.getAddress().getHostAddress());
-        config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, address.getPort());
+        InetSocketAddress address = null;
+        try {
+            LeaderConnectionInfo connectionInfo = clusterClient.getClusterConnectionInfo();
+            address = AkkaUtils.getInetSocketAddressFromAkkaURL(connectionInfo.getAddress());
+        } catch (LeaderRetrievalException e) {
+            throw new RuntimeException("Could not retrieve the leader address and leader session ID.", e);
+        } catch (Exception e1) {
+            throw new RuntimeException("Failed to retrieve JobManager address", e);
+        }
+
+        config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
+        config.setInteger(JobManagerOptions.PORT, address.getPort());
 
         return clusterClient;
     }
