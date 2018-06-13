@@ -107,6 +107,7 @@ export default {
             tableMaApi.saveTable(params).then(res => {
                 if(res.code === 1) {
                     message.success('保存成功')
+                    dispatch(this.saveStatus(res.code))
                 }
             })
         }
@@ -124,6 +125,12 @@ export default {
         return {
             type: logAction.GET_USERS_SUC,
             payload: params
+        }
+    },
+    saveStatus(code){
+        return {
+            type: tableAction.SAVE_TABLE,
+            payload: code
         }
     }
 }

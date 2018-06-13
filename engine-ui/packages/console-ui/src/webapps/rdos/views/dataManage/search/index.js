@@ -283,8 +283,8 @@ class SearchTable extends Component {
                         onChange={(value) => this.changeParams('permissionStatus', value)}
                     >
                         <Option value="all">全部表</Option>
-                        <Option value="0">授权成功</Option>
-                        <Option value="1">申请授权</Option>
+                        <Option value="0">申请授权</Option>
+                        <Option value="1">授权成功</Option>
                         <Option value="2">等待授权</Option>
                     </Select>
                 </FormItem>

@@ -189,25 +189,17 @@ export default class TableRelation extends React.Component {
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        const layout = new mxCompactTreeLayout(graph, false);
-        layout.horizontal = true;
-        layout.levelDistance = 60;
-        layout.nodeDistance = 30;
-
-        var layoutMgr = new mxLayoutManager(graph);
-
-        layoutMgr.getLayout = function(cell) {
-            if (cell.getChildCount() > 0) {
-                return layout;
-            }
-        };
-
         this.executeLayout = function(change, post) {
             model.beginUpdate();
             try {
+                const layout = new mxHierarchicalLayout(graph, false);
+                layout.orientation = 'west';
+                layout.disableEdgeStyle = false;
+
                 if (change != null) {
                     change();
                 }
+                layout.execute(graph.getDefaultParent())
             } catch (e) {
                 throw e;
             } finally {
@@ -219,6 +211,7 @@ export default class TableRelation extends React.Component {
         this.executeLayout(() => {
             this.insertRootTree(data);
         })
+        graph.view.setTranslate(this.cx, this.cy);
     }
 
     loadEditor = (container) => {
@@ -389,14 +382,9 @@ export default class TableRelation extends React.Component {
 
     getDefaultEdgeStyle() {
         let style = [];
-        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
-        style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
-        style[mxConstants.STYLE_FONTSIZE] = '10';
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
         style[mxConstants.STYLE_ROUNDED] = true;
         return style;
     }

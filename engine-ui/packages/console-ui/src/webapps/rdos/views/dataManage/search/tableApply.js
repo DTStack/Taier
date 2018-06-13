@@ -49,7 +49,11 @@ class TableApply extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('day', {
-                            rules: [],
+                            rules: [
+                                {
+                                    required: true, message: '请选择有效期时间',
+                                }
+                            ],
                         })(
                             <InputNumber min={1} placeholder="请输入申请时长（天）" style={{width: "100%"}}/>,
                         )}
@@ -63,7 +67,9 @@ class TableApply extends Component {
                             rules: [{
                                 max: 200,
                                 message: '申请理由请控制在200个字符以内！',
-                            }],
+                            },{
+                                required: true, message: '必须填写申请理由',
+                              }],
                         })(
                             <Input type="textarea" rows={4} placeholder="请输入申请理由" />,
                         )}

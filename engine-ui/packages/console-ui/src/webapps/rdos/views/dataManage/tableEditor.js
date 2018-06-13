@@ -44,6 +44,19 @@ class TableEditor extends Component {
         this.loadCatalogue();
     }
 
+    
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.isSaved){
+            this.goBack()
+        }
+    }
+    
+    
+    componentWillUnmount() {
+        this.props.saveStatus();
+    }
+    
+
     loadCatalogue = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
@@ -55,9 +68,8 @@ class TableEditor extends Component {
     render() {
         const { tableData, modifyDesc } = this.props;
         const { getFieldDecorator } = this.props.form;
-
         const { 
-            tableName, project, createTime,
+            tableName, project, gmtCreate,
             desc, chargeUser, lifeDay, catalogueId,
         } = tableData;
 
@@ -88,7 +100,7 @@ class TableEditor extends Component {
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
-                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    <td>{ moment(gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -225,7 +237,6 @@ class TableEditor extends Component {
     
     delTable() {
         const the = this;
-
         confirm({
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',
@@ -267,7 +278,6 @@ class TableEditor extends Component {
             form.validateFields((err) => {
                 if (!err) {
                     ctx.props.saveTable(queryParams);
-                    this.goBack();
                 }
             });
         }
@@ -318,6 +328,9 @@ const mapDispatch = dispatch => ({
     },
     saveTable(params) {
         dispatch(actions.saveTable(params));
+    },
+    saveStatus(){
+        dispatch(actions.saveStatus(0));
     }
 });
 
@@ -326,6 +339,7 @@ const BaseFormWrapper = Form.create()(TableEditor);
 
 export default connect((state) => {
     return {
-        tableData: state.dataManage.tableManage.tableCurrent
+        tableData: state.dataManage.tableManage.tableCurrent,
+        isSaved: state.dataManage.tableManage.isSavedSuccess,
     }
 }, mapDispatch)(BaseFormWrapper);

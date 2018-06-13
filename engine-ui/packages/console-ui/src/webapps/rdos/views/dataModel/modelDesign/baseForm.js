@@ -4,7 +4,7 @@ import { Button, message, Form, Input,
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject, isEmpty } from 'lodash';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataManage'
 
 import { 
     formItemLayout, 
