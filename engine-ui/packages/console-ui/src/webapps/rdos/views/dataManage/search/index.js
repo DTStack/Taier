@@ -12,7 +12,7 @@ import moment from 'moment';
 import { isEmpty } from 'lodash';
 
 import utils from 'utils';
-import { APPLY_RESOURCE_TYPE } from "../../../comm/const"
+import { APPLY_RESOURCE_TYPE } from "../../../comm/const";
 import CatalogueTree from '../catalogTree';
 import TableApplyModal from './tableApply';
 import ajax from '../../../api/dataManage';
@@ -195,7 +195,7 @@ class SearchTable extends Component {
                 key: 'tableDesc',
                 dataIndex: 'tableDesc',
                 render(text, record) {
-                    return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                    return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                 }
             },
             {
@@ -233,9 +233,9 @@ class SearchTable extends Component {
                         case 0:
                             return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
                         case 1:
-                            return <span>已授权</span>
+                            return <span>授权成功</span>
                         case 2:
-                            return <span>待审批</span>
+                            return <span>等待授权</span>
                         default: return '-';
                     }
                 }
@@ -263,7 +263,7 @@ class SearchTable extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem label="类目">
-                    <span style={{ width: 120, display: 'inline-block' }}>
+                    <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
