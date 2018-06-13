@@ -243,12 +243,16 @@
     .parent,
     .child {
         position: absolute;
+        top: 20px;
+        z-index: 2;
     }
+
     .parent {
-        left: 100px;
+        left: 150px;
+
     }
     .child {
-        right: 100px;
+        right: 150px;
     }
 }
 

@@ -91,7 +91,7 @@ class TableTree extends React.Component {
 
     handleSelect = (key, { node }) => {
         const table = node.props.data
-        this.setState({ tableId: table.tableId })
+        this.setState({ tableId: table.id })
     }
 
     renderNodes = () => {
@@ -108,7 +108,7 @@ class TableTree extends React.Component {
             >
                 {name}  
                 <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                    {data.createUser || data.userName}
+                    {data.chargeUser || data.userName}
                 </i>
             </span>
 

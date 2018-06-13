@@ -10,6 +10,8 @@ import GoBack from 'main/components/go-back'
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 
+import { isEqTable } from './tableRelation'
+
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
@@ -46,13 +48,6 @@ const {
 const VertexSize = { // vertex大小
     width: 120,
     height: 35,
-}
-
-const getVertexNode = (obj) => {
-    return {
-        id: obj.tableId,
-        name: obj.tableName
-    }
 }
 
 export default class TableRelation extends React.Component {
@@ -203,11 +198,8 @@ export default class TableRelation extends React.Component {
 
         layoutMgr.getLayout = function(cell) {
             if (cell.getChildCount() > 0) {
+                return layout;
             }
-            return layout;
-        };
-        layout.isVertexMovable = function(cell) {
-            return true;
         };
 
         this.executeLayout = function(change, post) {
@@ -309,7 +301,7 @@ export default class TableRelation extends React.Component {
 
     listenOnClick() {
         const ctx = this;
-        const { tableInfo } = ctx.state;
+        const tableInfo = this.state.tableInfo;
 
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
@@ -319,11 +311,7 @@ export default class TableRelation extends React.Component {
                 let data = cell.getAttribute('data')
                 const obj = data ? JSON.parse(data) : '';
                 const colName = cellTarget.target.getAttribute('data-col');
-                if (
-                    colName && tableInfo.tableName === obj.tableName && 
-                    obj.belongProjectId !== tableInfo.belongProjectId &&
-                    obj.dataSourceId !== tableInfo.dataSourceId
-                ) {
+                if (colName && isEqTable(this.state.tableInfo, obj)) {
                     const params = {
                         tableName: obj.tableName,
                         belongProjectId: obj.belongProjectId,

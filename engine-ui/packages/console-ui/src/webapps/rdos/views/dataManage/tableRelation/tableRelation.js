@@ -1,13 +1,12 @@
 
 import React from 'react';
 import {
-    Button, Tooltip, Spin, Icon, Pagination,
+    Button, Tooltip, Spin, Icon, Pagination, message,
 } from 'antd'
 
 import { cloneDeep } from 'lodash';
 
 import utils from 'utils'
-import { getRandomInt } from 'funcs'
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -56,6 +55,7 @@ const testData = require('./treeTest.json');
 const testData2 = require('./json2.json');
 
 const getTableReqParams = (tableData) => {
+    if (!tableData) return {};
     const params = {
         tableName: tableData.tableName,
         pageIndex: 1,
@@ -66,7 +66,7 @@ const getTableReqParams = (tableData) => {
     return params;
 }
 
-const isEqTable = (from, compareTo) => {
+export const isEqTable = (from, compareTo) => {
     return from.tableName === compareTo.tableName  &&
     from.belongProjectId === compareTo.belongProjectId &&
     from.dataSourceId === compareTo.dataSourceId
@@ -143,9 +143,13 @@ export default class TableRelation extends React.Component {
         Api.getChildRelTables(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ currentChild: data })
-                const treeNodes = this.preHandTreeNodes(data, 'child');
-                this.renderTree(treeNodes)
+                if (data.childResult.data && data.childResult.data.length > 0) {
+                    this.setState({ currentChild: data })
+                    const treeNodes = this.preHandTreeNodes(data, 'child');
+                    this.renderTree(treeNodes)
+                } else {
+                    message.warning('当前表没有下游表！')
+                }
             }
             this.hideLoading();
         })
@@ -156,12 +160,31 @@ export default class TableRelation extends React.Component {
         Api.getParentRelTable(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                this.setState({ currentParent: data })
-                const treeNodes = this.preHandTreeNodes(data, 'parent');
-                this.renderTree(treeNodes)
+                if (data.parentResult.data && data.parentResult.data.length > 0) {
+                    this.setState({ currentParent: data })
+                    const treeNodes = this.preHandTreeNodes(data, 'parent');
+                    this.renderTree(treeNodes)
+                } else {
+                    message.warning('当前表没有上游表！')
+                }
             }
             this.hideLoading();
         })
+    }
+
+    onPageChange = (current, type) => {
+        console.log('onPageChange:', current, type)
+        const { currentChild, currentParent } = this.state;
+       
+        if (type === 'parent') {
+            const params = getTableReqParams(currentParent);
+            params.pageIndex = current;
+            this.loadParentTable(params);
+        } else {
+            const params = getTableReqParams(currentChild);
+            params.pageIndex = current;
+            this.loadChildrenTable(params);
+        }
     }
 
     handParent(parent) {
@@ -176,7 +199,6 @@ export default class TableRelation extends React.Component {
      */
     initRootTree = (rootData) => {
         rootData.isRoot = true;
-
         const loop = (treeItem, parent) => {
             if (treeItem) {
                 treeItem.hide = false;
@@ -203,8 +225,8 @@ export default class TableRelation extends React.Component {
         loop(rootData);
         this.setState({ 
             treeData: rootData, 
-            currentChild: rootData.childResult, 
-            currentParent: rootData.parentResult 
+            currentChild: rootData,
+            currentParent: rootData,
         });
         return rootData;
     }
@@ -226,9 +248,9 @@ export default class TableRelation extends React.Component {
         const loop = (treeItem, parent) => {
             treeItem.parent = this.handParent(parent);
             if (isEqTable(treeItem, treeNode)){
-                treeNode[nodeFlag] = true;
+                treeItem[nodeFlag] = true;
                 treeItem.hide = false;
-                treeItem = Object.assign(treeItem, treeNode);
+                treeItem[props] = Object.assign({}, treeNode[props]);
                 return;
             } else if (!treeItem.isRoot) {
                 treeItem.hide = true;
@@ -262,7 +284,7 @@ export default class TableRelation extends React.Component {
         layout.useBoundingBox = false;
         layout.edgeRouting = false;
         layout.levelDistance = 60;
-        layout.nodeDistance = 60;
+        layout.nodeDistance = 20;
 
         var layoutMgr = new mxLayoutManager(graph);
 
@@ -278,7 +300,7 @@ export default class TableRelation extends React.Component {
                 if (change != null) {
                     change();
                 }
-                layout.execute(graph.getDefaultParent(), this.rootCell);
+                layout.execute(graph.getDefaultParent());
             } catch (e) {
                 throw e;
             } finally {
@@ -290,10 +312,18 @@ export default class TableRelation extends React.Component {
         this.renderTree(data);
     }
 
+    generateSourceTarget = () => {
+        const data = [];
+
+    }
+
     renderTree = (treeNodeData) => {
+
+        console.log('renderTree', treeNodeData)
         const graph = this.graph;
 
         graph.getModel().clear();
+        this.parentCells = [];
 
         const rootCell = graph.getDefaultParent();
 
@@ -302,12 +332,12 @@ export default class TableRelation extends React.Component {
             currentNodeData.isRoot = true;
             const currentNode = this.insertVertex(rootCell, currentNodeData);
             this.rootCell = currentNode;
+            this.parentCells.push(rootCell, currentNode);
             this.loopTree(currentNode, treeNodeData);
         }, () => {
             graph.scrollCellToVisible(this.rootCell);
         })
 
-        console.log('rootCell', rootCell)
         graph.view.setTranslate(200, 100);
 
     }
@@ -325,19 +355,17 @@ export default class TableRelation extends React.Component {
         const tableInfo = doc.createElement('table')
         tableInfo.setAttribute('data', JSON.stringify(data))
 
-        const axis = getRandomInt(1, 200);
-        const x = data.isRoot ? this.startX : 10;
-        const y = data.isRoot ? this.startY: 10;
-        console.log('axis:', x, y)
-
         let newVertex = '';
         newVertex = graph.insertVertex(rootCell, null,
-            tableInfo, x, y,
+            tableInfo, 20, 20,
             VertexSize.width, VertexSize.height, style
         )
         graph.view.refresh(newVertex);
+
         if (data.isParent) {
+            this.parentCells.push(newVertex);
             graph.insertEdge(rootCell, null, '', newVertex, parent)
+            console.log('isParent newVertex:', newVertex)
         } else {
             graph.insertEdge(rootCell, null, '', parent, newVertex)
         }
@@ -368,8 +396,8 @@ export default class TableRelation extends React.Component {
                 }
             }
 
-             // 处理被依赖节点
-             if (childNodes && childNodes.length > 0) {
+            // 处理被依赖节点
+            if (childNodes && childNodes.length > 0) {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
                     nodeData.isChild = true;
@@ -382,7 +410,6 @@ export default class TableRelation extends React.Component {
             }
         }
     }
-
 
     getStyles = (data) => {
         if (data.isParent) {
@@ -403,6 +430,7 @@ export default class TableRelation extends React.Component {
     corvertValueToString = (cell) => {
         if (mxUtils.isNode(cell.value)) {
             if (cell.value.nodeName.toLowerCase() == 'table') {
+                console.log('getChildCount:', cell.getChildCount(), cell.getIndex())
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
@@ -430,7 +458,7 @@ export default class TableRelation extends React.Component {
 
             if (!cell) return
 
-            const table = JSON.parse(cell.getAttribute('data'))
+            const table = JSON.parse(cell.getAttribute('data'));
             const params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
 
@@ -467,7 +495,6 @@ export default class TableRelation extends React.Component {
 
     listenOnClick() {
         const ctx = this;
-        // const { selectedData } = ctx.state;
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             const target = evt.getProperty('event')
@@ -485,10 +512,13 @@ export default class TableRelation extends React.Component {
     }
 
     render() {
-        const { tableInfo, relationTasks, currentParent, currentChild } = this.state
+        const { tableInfo, relationTasks, currentParent, currentChild } = this.state;
+        const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
+        const childPage = currentChild.childResult ? currentChild.childResult : {};
+
         return (
             <div className="graph-editor" 
-                style={{ position: 'relative', background: '#FAFAFA' }}
+                style={{ position: 'relative', background: '#FAFAFA'}}
             >
                 <Spin
                     tip="Loading..."
@@ -539,18 +569,22 @@ export default class TableRelation extends React.Component {
                         simple
                         className="parent"
                         defaultCurrent={1}
-                        total={currentParent.totalCount}
-                        current={currentParent.currentPage}
+                        pageSize={6}
+                        onChange={(page) => this.onPageChange(page, 'parent')}
+                        total={parentPage.totalCount}
+                        current={parentPage.currentPage}
                     />
                     <Pagination
                         simple
                         className="child"
                         defaultCurrent={1}
-                        current={currentChild.currentPage}
-                        total={currentChild.totalCount} 
+                        pageSize={6}
+                        onChange={(page) => this.onPageChange(page, 'child')}
+                        current={childPage.currentPage}
+                        total={childPage.totalCount}
                     />
                 </div>
-                <RelationDetail 
+                <RelationDetail
                     data={tableInfo}
                     onShowColumn={this.props.onShowColumn}
                     relationTasks={relationTasks}
@@ -668,7 +702,6 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
-        // style[mxConstants.STYLE_ENDARROW] = 'none';
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style

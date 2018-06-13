@@ -90,7 +90,7 @@ export default class ImportLocalData extends Component {
             let filledParitions = true;
             for (let i = 0; i < partitions.length; i++) {
                 const item = partitions[i]
-                const key = originPartitions[i].name
+                const key = originPartitions[i].columnName
                 if (item[key] === '') {
                     flag = false
                     filledParitions = false;

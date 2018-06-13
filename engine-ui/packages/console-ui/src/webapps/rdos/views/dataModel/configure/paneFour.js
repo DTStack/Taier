@@ -14,6 +14,11 @@ import IncrementDefineModal from './paneFourModal';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 export default class IncrementDefine extends BasePane {
 
     componentDidMount() {
@@ -22,6 +27,14 @@ export default class IncrementDefine extends BasePane {
                 type: 4, // 增量定义
             }),
         }, this.loadData)
+    }
+
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
     }
 
     initColumns = () => {

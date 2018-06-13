@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal } from 'antd'
+import { Form, Input, Modal, InputNumber } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 
@@ -51,7 +51,7 @@ class TableApply extends Component {
                         {getFieldDecorator('day', {
                             rules: [],
                         })(
-                            <Input type="number" placeholder="请输入申请时长（天）" />,
+                            <InputNumber min={1} placeholder="请输入申请时长（天）" style={{width: "100%"}}/>,
                         )}
                     </FormItem>
                     <FormItem

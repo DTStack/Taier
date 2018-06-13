@@ -69,7 +69,7 @@ class AuthMana extends Component {
                 descInfo: "",
             },
             queryParams: {
-                listType: this.isAdminAbove==1 ?"0" : "1",
+                listType: this.isAdminAbove==1 ? "0" : "1",
                 pageIndex: 1,
                 pageSize: 10,
                 resourceName: undefined,
@@ -181,12 +181,9 @@ class AuthMana extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log(pagination);
-        
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
         })
-        console.log(queryParams);
         this.setState({
             queryParams,
             selectedRowKeys: [],
@@ -203,7 +200,6 @@ class AuthMana extends Component {
     }
 
     onSelectChange = (selectedRowKeys) => {
-        console.log(selectedRowKeys,this.state.table);
         const checkAll = selectedRowKeys.length === this.state.table.data.length;
         this.setState({ selectedRowKeys,checkAll });
     }
@@ -348,7 +344,7 @@ class AuthMana extends Component {
                             key: 'applyReason',
                             dataIndex: 'applyReason',
                             render(text){
-                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         },
                         {
@@ -419,7 +415,7 @@ class AuthMana extends Component {
                             key: 'applyReason',
                             dataIndex: 'applyReason',
                             render(text){
-                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         },
                         {
@@ -483,7 +479,7 @@ class AuthMana extends Component {
                             key: 'reply',
                             dataIndex: 'reply',
                             render(text){
-                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         }
                     ]
@@ -505,7 +501,7 @@ class AuthMana extends Component {
                             key: 'reply',
                             dataIndex: 'reply',
                             render(text){
-                                return  text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         },
                         {
@@ -618,7 +614,6 @@ class AuthMana extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange,
         }: null;
-        console.log('table.data-----',table.data);
         
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
@@ -685,15 +680,15 @@ class AuthMana extends Component {
                     
                 </Tabs>
                 <div>
-                        <Modal
-                        title="详情信息"
-                        visible={descModel.visible}
-                        onCancel={this.closeDescModal}
-                        footer={null}
-                        >
-                            <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
-                        </Modal>
-                    </div>
+                    <Modal
+                    title="详情信息"
+                    visible={descModel.visible}
+                    onCancel={this.closeDescModal}
+                    footer={null}
+                    >
+                        <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
+                    </Modal>
+                </div>
             </div>
         )
     }

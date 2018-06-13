@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import { debounce, endsWith } from 'lodash';
 
 /**
  * 存放一些零碎的公共方法
@@ -203,6 +203,42 @@ export function filterComments(sql) {
     sql = replaceStrFormIndexArr(sql, '', comments)
 
     return sql;
+}
+
+/**
+ * 分割sql
+ * @param {String} sqlText 
+ */
+export function splitSql(sqlText){
+    if(!sqlText){
+        return sqlText;
+    }
+    sqlText=sqlText.trim();
+    if(!endsWith(sqlText,';')){
+        sqlText+=';';
+    }
+
+    let results=[];
+    let index=0;
+    let tmpChar=null;
+    for(let i=0;i<sqlText.length;i++){
+        let char=sqlText[i];
+
+        if(char=="'"||char=='"'){
+            if(tmpChar==char){
+                tmpChar=null;
+            }else{
+                tmpChar=char;
+            }
+        }else if(char==';'){
+            if(tmpChar==null){
+                results.push(sqlText.substring(index,i));
+                index=i+1;
+            }
+        }
+    }
+
+    return results;
 }
 
 

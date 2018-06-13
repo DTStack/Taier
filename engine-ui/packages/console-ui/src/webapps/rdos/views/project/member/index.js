@@ -322,6 +322,7 @@ class ProjectMember extends Component {
                   visible={visible}
                   onOk={this.addMember}
                   onCancel={this.onCancel}
+                  maskClosable={false}
                 >
                     <MemberForm
                       wrappedComponentRef={(e) => { this.memberForm = e }}
