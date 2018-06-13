@@ -7,6 +7,10 @@ import Api from './api'
 /* eslint-disable */
 export function authBeforeFormate(response) {
     switch (response.status) {
+    case 500:
+    case 502:
+    case 504:
+        message.info('服务器出现了点问题')
     case 402:
     case 200:
         return response;
