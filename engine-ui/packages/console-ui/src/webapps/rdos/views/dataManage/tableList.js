@@ -5,7 +5,7 @@ import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
     Tag, Icon, Card, Select, Tabs,
-    Spin,
+    Spin
 } from 'antd';
 
 import { Link } from 'react-router';
@@ -14,6 +14,8 @@ import { isEmpty } from 'lodash';
 
 import utils from 'utils';
 
+import SlidePane from 'widgets/slidePane';
+import TableLog from './tableLog';
 import CatalogueTree from './catalogTree';
 import ajax from '../../api/dataManage';
 
@@ -37,6 +39,11 @@ class TableList extends Component {
             table: [],
             editRecord: {},
             loading:false,
+            tableLog:{
+                tableId: undefined,
+                tableName: undefined,
+                visible: false,
+            },
             queryParams: {
                 listType: "1",
                 pageIndex: 1,
@@ -130,6 +137,27 @@ class TableList extends Component {
         });
     }
 
+    showTableLog(table) {
+        const { id, tableName } = table;
+        const { tableLog } = this.state;
+        tableLog.tableId = id;
+        tableLog.tableName = tableName;
+        tableLog.visible = true;
+        this.setState({
+            tableLog
+        })
+    }
+
+    closeSlidePane = () => {
+        const { tableLog } = this.state;
+        tableLog.visible = false;
+        tableLog.tableId = undefined;
+        tableLog.tableName = undefined;
+        this.setState({
+            tableLog
+        })
+    }
+
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state
@@ -191,7 +219,8 @@ class TableList extends Component {
                             return <span>
                                 <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
                                 <span className="ant-divider"></span>
-                                <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link>
+                                {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
+                                <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
                             </span>
                         case '5':
                         return <span>
@@ -205,7 +234,6 @@ class TableList extends Component {
             }
         ];
     }
-
 
     renderPane = () => {
         const { table, queryParams, editRecord,loading } = this.state;
@@ -222,7 +250,7 @@ class TableList extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={{marginTop: '10px'}}>
                 <FormItem label="类目">
-                    <span style={{ width: 120, display: 'inline-block' }}>
+                    <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
@@ -286,8 +314,8 @@ class TableList extends Component {
     }
 
     render() {
-
-
+        const { tableLog } = this.state;
+        const projectUsers = [];
         return (
             <div className="box-1 m-tabs">
                 <Tabs 
@@ -311,6 +339,18 @@ class TableList extends Component {
                         {this.renderPane()}
                     </TabPane>
                 </Tabs>
+                {
+                  tableLog.visible ?  <SlidePane
+                        onClose={this.closeSlidePane}
+                        visible={tableLog.visible}
+                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                    >
+                        <div className="m-loglist">
+                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
+                        </div>
+                    </SlidePane> : ""
+                }
+                
             </div>
         )
     }

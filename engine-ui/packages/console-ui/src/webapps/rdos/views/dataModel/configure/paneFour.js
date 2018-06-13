@@ -39,12 +39,10 @@ export default class IncrementDefine extends BasePane {
 
     initColumns = () => {
         return [{
-            width: 120,
             title: '增量定义',
             dataIndex: 'name',
             key: 'name',
         }, {
-            width: 120,
             title: '增量方式标识',
             dataIndex: 'prefix',
             key: 'prefix',
@@ -53,18 +51,15 @@ export default class IncrementDefine extends BasePane {
             dataIndex: 'modelDesc',
             key: 'modelDesc',
         }, {
-            width: 120,
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
