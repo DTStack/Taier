@@ -255,7 +255,7 @@ public class FlinkClientBuilder {
             throw new RdosException(e.getMessage());
         }
 
-        yarnClient.stop();
+//        yarnClient.stop();
 
         AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, yarnConf, ".", yarnClient, false);
 //        try {

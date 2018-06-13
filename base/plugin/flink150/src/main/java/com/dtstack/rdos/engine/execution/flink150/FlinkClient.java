@@ -139,8 +139,8 @@ public class FlinkClient extends AbsClient {
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
-        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
-        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
+//        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
+//        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
         yarnMonitorES = new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
