@@ -755,6 +755,7 @@ class DataSourceForm extends Component {
                 visible={visible}
                 onCancel={this.cancle}
                 footer={false}
+                maskClosable={false}
             >
                 <FormWrapper 
                     types={this.state.types} 
