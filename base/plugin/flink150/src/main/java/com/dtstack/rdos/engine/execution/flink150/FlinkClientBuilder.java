@@ -23,12 +23,16 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.flink.yarn.YarnClusterDescriptor;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
@@ -52,12 +56,12 @@ public class FlinkClientBuilder {
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
-    private org.apache.hadoop.conf.Configuration yarnConf;
+    private YarnConfiguration yarnConf;
 
     private FlinkClientBuilder(){
     }
 
-    public static FlinkClientBuilder create(org.apache.hadoop.conf.Configuration hadoopConf, org.apache.hadoop.conf.Configuration yarnConf){
+    public static FlinkClientBuilder create(org.apache.hadoop.conf.Configuration hadoopConf, YarnConfiguration yarnConf){
         FlinkClientBuilder builder = new FlinkClientBuilder();
         builder.setHadoopConf(hadoopConf);
         builder.setYarnConf(yarnConf);
@@ -142,7 +146,7 @@ public class FlinkClientBuilder {
         } catch (LeaderRetrievalException e) {
             throw new RuntimeException("Could not retrieve the leader address and leader session ID.", e);
         } catch (Exception e1) {
-            throw new RuntimeException("Failed to retrieve JobManager address", e);
+            throw new RuntimeException("Failed to retrieve JobManager address", e1);
         }
 
         config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
@@ -168,11 +172,16 @@ public class FlinkClientBuilder {
         Integer jobMgrPort = Integer.parseInt(splitInfo[1].trim());
 
         Configuration config = new Configuration();
-        config.setString(ConfigConstants.JOB_MANAGER_IPC_ADDRESS_KEY, jobMgrHost);
-        config.setInteger(ConfigConstants.JOB_MANAGER_IPC_PORT_KEY, jobMgrPort);
+        config.setString(JobManagerOptions.ADDRESS, jobMgrHost);
+        config.setInteger(JobManagerOptions.PORT, jobMgrPort);
 
         StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
-        StandaloneClusterClient clusterClient = descriptor.retrieve(null);
+        RestClusterClient<StandaloneClusterId> clusterClient = null;
+        try {
+            clusterClient = descriptor.retrieve(null);
+        } catch (ClusterRetrieveException e) {
+            throw new RuntimeException("Couldn't retrieve standalone cluster", e);
+        }
         clusterClient.setDetached(isDetached);
         return clusterClient;
     }
@@ -245,19 +254,26 @@ public class FlinkClientBuilder {
 
         yarnClient.stop();
 
-        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, ".");
+        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, yarnConf, ".", yarnClient,false);
+//        try {
+//            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
+//            confField.setAccessible(true);
+//            confField.set(clusterDescriptor, yarnConf);
+//        } catch (Exception e) {
+//            LOG.error("", e);
+//            throw new RdosException(e.getMessage());
+//        }
+        ApplicationId yarnApplicationId = ConverterUtils.toApplicationId(applicationId);
+        ClusterClient<ApplicationId> clusterClient = null;
         try {
-            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
-            confField.setAccessible(true);
-            confField.set(clusterDescriptor, yarnConf);
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosException(e.getMessage());
+            clusterClient = clusterDescriptor.retrieve(yarnApplicationId);
+        } catch (ClusterRetrieveException e) {
+            LOG.info("Could not properly close the yarn cluster descriptor.", e);
+        } finally {
+            clusterDescriptor.close();
         }
 
-        YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId);
         clusterClient.setDetached(isDetached);
-
         LOG.warn("---init flink client with yarn session success----");
         return clusterClient;
     }
@@ -274,7 +290,7 @@ public class FlinkClientBuilder {
         return yarnConf;
     }
 
-    public void setYarnConf(org.apache.hadoop.conf.Configuration yarnConf) {
+    public void setYarnConf(YarnConfiguration yarnConf) {
         this.yarnConf = yarnConf;
     }
 }

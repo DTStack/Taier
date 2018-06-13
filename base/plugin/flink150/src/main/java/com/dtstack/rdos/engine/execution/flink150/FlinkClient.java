@@ -59,6 +59,7 @@ import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.BatchTableSource;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterClient;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.http.HttpStatus;
 import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
@@ -115,7 +116,7 @@ public class FlinkClient extends AbsClient {
 
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
-    private org.apache.hadoop.conf.Configuration yarnConf;
+    private YarnConfiguration yarnConf;
 
     private FlinkClientBuilder flinkClientBuilder;
 

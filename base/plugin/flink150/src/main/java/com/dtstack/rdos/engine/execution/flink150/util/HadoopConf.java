@@ -30,13 +30,13 @@ public class HadoopConf {
 
     private static volatile Configuration defaultConfiguration = null;
 
-    private static volatile Configuration defaultYarnConfiguration = null;
+    private static volatile YarnConfiguration defaultYarnConfiguration = null;
 
     private static final Object initLock = new Object();
 
 	private Configuration configuration;
 
-	private Configuration yarnConfiguration;
+	private YarnConfiguration yarnConfiguration;
 
 	private static void initDefaultConfig(){
 
@@ -149,7 +149,7 @@ public class HadoopConf {
         return defaultConfiguration;
     }
 
-    public static Configuration getDefaultYarnConfiguration() {
+    public static YarnConfiguration getDefaultYarnConfiguration() {
         if(defaultYarnConfiguration == null){
             initDefaultConfig();
         }
@@ -164,7 +164,7 @@ public class HadoopConf {
 		return configuration.get("fs.defaultFS");
 	}
 
-	public Configuration getYarnConfiguration() {
+	public YarnConfiguration getYarnConfiguration() {
 		return yarnConfiguration;
 	}
 }
