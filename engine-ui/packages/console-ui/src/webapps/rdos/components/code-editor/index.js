@@ -63,8 +63,9 @@ class CodeEditor extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { value, sync, cursor,placeholder,cursorAlwaysInEnd } = nextProps
-        
+        const { value, sync, cursor,placeholder,cursorAlwaysInEnd, options } = nextProps
+        if(options) this.self.setOption('readOnly',options.readOnly)
+
         if (this.props.value !== value) {
             if (cursor) this.self.doc.setCursor(cursor)
             if (sync) {
