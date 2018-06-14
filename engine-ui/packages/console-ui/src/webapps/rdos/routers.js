@@ -157,6 +157,8 @@ export default (
                 <Route path="alarm-config" component={OpeAlarmConfig} />
                 <Route path="dirty-data" component={DirtyData} />
                 <Route path="dirty-data/table/:tableId" component={DirtyDataTbOverview} />
+                <Route path="log" component={Log} />
+                <Route path="log/:tableId/:tableName" component={Log}></Route>
             </Route>
             <Route path="/database" component={DataSourceIndex}>
                 <IndexRoute component={DataSourceIndex} />
@@ -168,8 +170,6 @@ export default (
                     <Route path="view/:tableId" component={TableViewer} />
                     <Route path="edit/:tableId" component={TableEditor} />
                 </Route>
-                <Route path="log" component={Log} />
-                <Route path="log/:tableId/:tableName" component={Log}></Route>
                 <Route path="catalogue" component={DataCatalogue} />
                 <Route path="auth" component={AuthMana} />
                 <Route path="search" component={SearchTable} />
