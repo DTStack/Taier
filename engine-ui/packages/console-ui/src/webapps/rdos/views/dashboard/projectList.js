@@ -113,7 +113,7 @@ export default class ProjectList extends Component {
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
-                return record.createUser.userName
+                return record.createUser && record.createUser.userName
             },
         }, {
             title: '项目管理员',
