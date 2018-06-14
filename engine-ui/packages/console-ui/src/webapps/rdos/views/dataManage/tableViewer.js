@@ -284,11 +284,11 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>DDL最后变更时间</th>
-                                        <td>{ moment(tableData.table.lastDDLTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{ moment(tableData.table.lastDdlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                     <tr>
                                         <th>数据最后变更时间</th>
-                                        <td>{ moment(tableData.table.lastDataChangeTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{ moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                 </tbody>
                             </table> }
