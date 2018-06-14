@@ -170,7 +170,6 @@ export default class TableRelation extends React.Component {
     }
 
     onPageChange = (current, type) => {
-        console.log('onPageChange:', current, type)
         const { currentChild, currentParent } = this.state;
 
         if (type === 'parent') {
@@ -401,7 +400,6 @@ export default class TableRelation extends React.Component {
             this.loopTree(currentNode, treeNodeData);
 
         }, () => {
-            console.log('allCells:', this._parentPrev, this._parentNext);
             this.renderPagination();
             graph.scrollCellToVisible(this.rootCell);
         });
@@ -640,8 +638,8 @@ export default class TableRelation extends React.Component {
         const { tableInfo, relationTasks } = this.state;
         return (
             <div className="graph-editor"
-                style={{ position: 'relative', background: '#FAFAFA' }}
-            >
+                style={{ position: 'relative', background: '#FAFAFA', height: '1000px' }}
+                >
                 <Spin
                     tip="Loading..."
                     size="large"

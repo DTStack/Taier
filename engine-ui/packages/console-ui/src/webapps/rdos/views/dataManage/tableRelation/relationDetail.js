@@ -122,7 +122,7 @@ class RelationDetail extends React.Component {
         return (
             <div className="task-floating-window rel-table-info ant-table" style={{top: "600px"}}>
                 <div>
-                    <Row className="tb-wrapper">
+                    <Row className="tb-wrapper" style={{borderBottom: 0}}>
                         <table>
                             <tbody className="ant-table-tbody" >
                                 <tr>
@@ -159,7 +159,7 @@ class RelationDetail extends React.Component {
                             </tbody>
                         </table>
                     </Row>
-                    <Row className="tb-wrapper" style={{marginTop: '20px' }}>
+                    <Row className="tb-wrapper" style={{marginTop: '20px', height: '200px' }}>
                         <span className="bd-bottom" style={titleStyle}>
                             <b>相关任务与脚本</b>
                         </span>

@@ -303,9 +303,10 @@ export default class TableViewer extends React.Component {
                     </Row>
                     <Row>
                         <div className="m-tabs m-card bd">
-                            <Tabs
+                            <Tabs 
                                 animated={false}
                                 onChange={this.getPreview.bind(this)}
+                                style={{height: 'auto'}}
                             >
                                 <TabPane tab="字段信息" key="1">
                                     <Card
