@@ -272,7 +272,7 @@ export default class TableViewer extends React.Component{
                                 <tbody>
                                     <tr>
                                         <th>物理存储量</th>
-                                        <td>{ tableData.table.storeSize }</td>
+                                        <td>{ tableData.table.tableSize }</td>
                                     </tr>
                                     <tr>
                                         <th>生命周期</th>
@@ -280,7 +280,7 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>是否分区</th>
-                                        <td>{ tableData.table.partitions ? '是' : '否' }</td>
+                                        <td>{ tableData.table.partition ? '是' : '否' }</td>
                                     </tr>
                                     <tr>
                                         <th>DDL最后变更时间</th>
