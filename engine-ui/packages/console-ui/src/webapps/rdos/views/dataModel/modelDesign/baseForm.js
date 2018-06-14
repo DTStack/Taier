@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
-import { isEqual, throttle, range, isObject, isEmpty } from 'lodash';
+import { isEqual, throttle, range, isObject, isEmpty, cloneDeep } from 'lodash';
 
 import ajax from '../../../api/dataManage'
 
@@ -29,9 +29,13 @@ export default class BaseForm extends React.Component {
     constructor(props) {
         super(props);
 
+        const { tableName, tableNameRules, location } = this.props;
+        const tableNamePropArr=tableName?tableName.split("_"):[];
+
+
         this.state = {
-            type: '1', // 1: 内部表 2:外部表
-            tableNameArr: [],
+            type: location?'2':'1', // 1: 内部表 2:外部表
+            tableNameArr: cloneDeep(tableNamePropArr),
         };
     }
 
@@ -117,7 +121,7 @@ export default class BaseForm extends React.Component {
     renderTableRules = () => {
         const { 
             subjectFields, modelLevels, changeRuleValue,
-            incrementCounts, freshFrequencies, tableNameRules,
+            incrementCounts, freshFrequencies, tableNameRules, tableName
         } = this.props;
         const { tableNameArr } = this.state;
         console.log('---------tableNameArr:',tableNameArr,tableNameRules);
@@ -142,6 +146,7 @@ export default class BaseForm extends React.Component {
                     return (
                         <Input 
                             placeholder="自定义"
+                            value={tableNameArr[index]}
                             onChange={(e) => this.changeTableName(e.target.value, index)}
                             style={inlineStyle}
                         />
@@ -153,6 +158,7 @@ export default class BaseForm extends React.Component {
                 <Select
                     placeholder="请选择"
                     style={inlineStyle}
+                    value={tableNameArr[index]}
                     onSelect={(value, option) => this.changeTableName(value, index, rule.value, option)}
                 >
                     {
@@ -197,6 +203,7 @@ export default class BaseForm extends React.Component {
         </div>
     }
 
+
     render() {
         const { getFieldDecorator } = this.props.form;
         console.log('------------this.props',this.props);
@@ -204,10 +211,10 @@ export default class BaseForm extends React.Component {
         const { 
             tableName, tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
-            subject,
+            subject, tableModelRules
         } = this.props;
 
-        const { type } = this.state;
+        const { type, tableNameArr } = this.state;
 
         return <Form>
             <FormItem
@@ -221,6 +228,7 @@ export default class BaseForm extends React.Component {
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
+                    initialValue:tableNameArr.join("_"),
                     validateTrigger: 'onBlur',
                 })(
                     <Input type="hidden" />,
