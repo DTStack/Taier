@@ -162,6 +162,8 @@ public class FlinkClientBuilder {
     public ClusterClient initYarnClusterClient(FlinkConfig flinkConfig){
 
         Configuration config = new Configuration();
+        config.setString("akka.client.timeout", "180 s");
+
         if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
