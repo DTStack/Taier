@@ -112,7 +112,7 @@ class DataCatalogue extends React.Component {
             case 'delete': {
                 const succCall = res => {
                     if (res.code === 1) {
-                        message.success('数据类目移除成功！')
+                        message.success('数据类目删除成功！')
                         removeTreeNode(treeData, node)
                         self.setState({
                             treeData,
