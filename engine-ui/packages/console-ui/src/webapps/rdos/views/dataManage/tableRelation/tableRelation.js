@@ -31,10 +31,11 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxUndoManager,
-    mxCompactTreeLayout,
     mxLayoutManager,
+    mxCompactTreeLayout,
     mxHierarchicalLayout,
-    mxSwimlaneLayout,
+    mxRadialTreeLayout,
+    mxParallelEdgeLayout,
     mxMorphing,
     mxUtils,
     mxXmlCanvas2D,
@@ -84,7 +85,6 @@ export default class TableRelation extends React.Component {
     }
 
     componentDidMount() {
-        this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.layout = "";
         this.graph = "";
@@ -267,7 +267,7 @@ export default class TableRelation extends React.Component {
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const startX = Math.floor((graph.container.clientWidth - VertexSize.width) / 2);
+        const startX = Math.floor((graph.container.clientWidth - VertexSize.width * 3 - 100) / 2);
         const startY = 100;
 
         this.startX = startX;
@@ -276,28 +276,20 @@ export default class TableRelation extends React.Component {
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
 
-        const layout = new mxCompactTreeLayout(graph, false);
-        layout.horizontal = true;
-        layout.useBoundingBox = false;
-        layout.edgeRouting = false;
-        layout.levelDistance = 60;
-        layout.nodeDistance = 20;
-
-        var layoutMgr = new mxLayoutManager(graph);
-
-        layoutMgr.getLayout = function(cell) {
-            if (cell.getChildCount() > 0) {
-                return layout;
-            }
-        };
-
         this.executeLayout = function(change, post) {
             model.beginUpdate();
             try {
+                const layout = new mxHierarchicalLayout(graph, false);
+                layout.orientation = 'west';
+                layout.disableEdgeStyle = false;
+                layout.interRankCellSpacing = 50;
+                layout.intraCellSpacing = 15;
+
                 if (change != null) {
                     change();
                 }
-                layout.execute(graph.getDefaultParent());
+                layout.execute(graph.getDefaultParent())
+
             } catch (e) {
                 throw e;
             } finally {
@@ -307,21 +299,21 @@ export default class TableRelation extends React.Component {
         }
 
         this.renderTree(data);
+
     }
 
     generateSourceTarget = () => {
         const data = [];
-
     }
 
     renderTree = (treeNodeData) => {
 
-        console.log('renderTree', treeNodeData)
         const graph = this.graph;
+        console.log('renderTree:', treeNodeData)
 
         graph.getModel().clear();
-        this.parentCells = [];
-        this._edges = [];
+        this._vertexCells = [] // 用于缓存创建的顶点节点
+
         const rootCell = graph.getDefaultParent();
 
         this.executeLayout(() => {
@@ -329,15 +321,12 @@ export default class TableRelation extends React.Component {
             currentNodeData.isRoot = true;
             const currentNode = this.insertVertex(rootCell, currentNodeData);
             this.rootCell = currentNode;
-            this.parentCells.push(rootCell, currentNode);
             this.loopTree(currentNode, treeNodeData);
-            this.renderEdges();
         }, () => {
             graph.scrollCellToVisible(this.rootCell);
         })
 
-        graph.view.setTranslate(200, 100);
-
+        graph.view.setTranslate(this.startX, this.startY);
     }
 
     renderEdges = () => {
@@ -367,23 +356,13 @@ export default class TableRelation extends React.Component {
             tableInfo, 20, 20,
             VertexSize.width, VertexSize.height, style
         )
-        graph.view.refresh(newVertex);
-
+        
         if (data.isParent) {
-            this.parentCells.push(newVertex);
-            this._edges.push({
-                source: newVertex,
-                target: parent,
-            })
-            // graph.insertEdge(rootCell, null, '', newVertex, parent)
-            console.log('isParent newVertex:', newVertex)
+            graph.insertEdge(rootCell, null, '', newVertex, parent)
         } else {
-            this._edges.push({
-                source: parent,
-                target: newVertex,
-            })
-            // graph.insertEdge(rootCell, null, '', parent, newVertex)
+            graph.insertEdge(rootCell, null, '', parent, newVertex)
         }
+        graph.view.refresh(newVertex);
 
         this._vertexCells.push(newVertex)
 
@@ -403,6 +382,8 @@ export default class TableRelation extends React.Component {
                 for (let i = 0; i < parentNodes.length; i++) {
                     const nodeData = getVertexNode(parentNodes[i])
                     nodeData.isParent = true;
+                    nodeData.isParentStart = i === 0;
+                    nodeData.isParentEnd = i === parentNodes.length - 1;
                     const current = this.insertVertex(currentNode, nodeData);
 
                     if (parentNodes[i].parentResult && parentNodes[i].parentResult.data && parentNodes[i].parentResult.data.length > 0) {
@@ -416,6 +397,8 @@ export default class TableRelation extends React.Component {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
                     nodeData.isChild = true;
+                    nodeData.isChildStart = i === 0;
+                    nodeData.isChildEnd = i === childNodes.length - 1;
                     // 插入新节点
                     const current = this.insertVertex(currentNode, nodeData)
                     if (childNodes[i].childResult && childNodes[i].childResult.data && childNodes[i].childResult.data.length > 0) {
@@ -445,11 +428,11 @@ export default class TableRelation extends React.Component {
     corvertValueToString = (cell) => {
         if (mxUtils.isNode(cell.value)) {
             if (cell.value.nodeName.toLowerCase() == 'table') {
-                console.log('getChildCount:', cell.getChildCount(), cell.getIndex())
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
-                    return `<div class="table-vertex"><span style="text-align: center;" class="table-vertex-content"><span class="table-vertex-title" style="color: #333333;">${obj.tableName || ''}</span></span>
+                    const name = obj.tableName || '';
+                    return `<div class="table-vertex"><span style="text-align: center;" class="table-vertex-content"><span class="table-vertex-title" style="color: #333333;" title="${name}">${name}</span></span>
                     </div>`
                 }
             }
@@ -645,7 +628,7 @@ export default class TableRelation extends React.Component {
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
-        
+
         // anchor styles
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
@@ -717,7 +700,6 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
-        style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style
     }

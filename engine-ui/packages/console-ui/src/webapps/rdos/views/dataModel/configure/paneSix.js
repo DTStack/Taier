@@ -102,7 +102,6 @@ class AtomIndexDefine extends BasePane {
 
     initColumns = () => {
         return [{
-            width: 100,
             title: '指标类型',
             dataIndex: 'columnType',
             key: 'columnType',
@@ -116,23 +115,19 @@ class AtomIndexDefine extends BasePane {
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {

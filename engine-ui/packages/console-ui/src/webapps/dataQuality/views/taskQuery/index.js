@@ -114,7 +114,7 @@ export default class TaskQuery extends Component {
             dataIndex: 'alarmSum',
             key: 'alarmSum',
             width: '8%',
-            // sorter: true
+            sorter: true
         }, {
             title: '数据源',
             dataIndex: 'sourceTypeValue',
@@ -154,7 +154,7 @@ export default class TaskQuery extends Component {
 
         if (field) {
             params[
-                field === 'alarmSum' ? 'alarmSumSort' : 'executeTimeSort'
+                field === 'alarmSum' ? 'alarmSort' : 'executeTimeSort'
             ] = order === 'descend' ? 'desc' : 'asc';
         }
 

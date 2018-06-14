@@ -11,10 +11,9 @@ import {
  import EditMemberRoleForm from './editRole'
  
  import * as UserAction from '../../../store/modules/user'
+ import * as ProjectAction from '../../../store/modules/project'
 
 const Search = Input.Search
-// const is_ADMIN = 3 // 管理员
-// const is_NORMAL = 4 // 普通
 
 class ProjectMember extends Component {
 
@@ -52,13 +51,14 @@ class ProjectMember extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
-        const { project } = this.props
+        const { project, dispatch } = this.props
         Api.removeProjectUser({
             targetUserId: member.userId,
             projectId: project.id,
         }).then((res) => {
             if (res.code === 1) {
-                ctx.search()
+                ctx.search();
+                dispatch(ProjectAction.getProject(project.id))
                 message.success('移出成员成功!')
             }
         })
@@ -101,7 +101,7 @@ class ProjectMember extends Component {
     addMember = () => {
         const ctx = this
         const { notProjectUsers } = this.state;
-        const { project } = this.props
+        const { project, dispatch } = this.props
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
 
@@ -124,7 +124,8 @@ class ProjectMember extends Component {
                         ctx.setState({ visible: false }, () => {
                             form.resetFields()
                         })
-                        ctx.search()
+                        ctx.search();
+                        dispatch(ProjectAction.getProject(project.id))
                         message.success('添加成员成功!')
                     }
                 })
