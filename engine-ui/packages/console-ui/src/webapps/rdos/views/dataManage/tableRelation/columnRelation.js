@@ -178,7 +178,8 @@ export default class TableRelation extends React.Component {
                 this.insertTableColumnVertext(originCell, node);;
             }
         })
-        graph.view.setTranslate(150, this.cy);
+        graph.center();
+
     }
 
     doInsertVertex = (data) => {

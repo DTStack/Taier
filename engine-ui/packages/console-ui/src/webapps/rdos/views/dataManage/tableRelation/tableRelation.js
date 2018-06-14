@@ -65,9 +65,9 @@ const getTableReqParams = (tableData) => {
 }
 
 export const isEqTable = (from, compareTo) => {
-    return from.tableName === compareTo.tableName  &&
-    from.belongProjectId === compareTo.belongProjectId &&
-    from.dataSourceId === compareTo.dataSourceId
+    return from.tableName === compareTo.tableName &&
+        from.belongProjectId === compareTo.belongProjectId &&
+        from.dataSourceId === compareTo.dataSourceId
 }
 
 export default class TableRelation extends React.Component {
@@ -78,7 +78,7 @@ export default class TableRelation extends React.Component {
         tableInfo: {},
         relationTasks: {}, // 关联任务
         loading: 'success',
-        currentPage: 1, 
+        currentPage: 1,
         currentChild: {},
         currentParent: {},
         visible: false,
@@ -172,7 +172,7 @@ export default class TableRelation extends React.Component {
     onPageChange = (current, type) => {
         console.log('onPageChange:', current, type)
         const { currentChild, currentParent } = this.state;
-       
+
         if (type === 'parent') {
             const params = getTableReqParams(currentParent);
             params.pageIndex = current;
@@ -220,13 +220,14 @@ export default class TableRelation extends React.Component {
         }
 
         loop(rootData);
-        this.setState({ 
-            treeData: rootData, 
+        this.setState({
+            treeData: rootData,
             currentChild: rootData,
             currentParent: rootData,
         });
         return rootData;
     }
+
     /**
      * treeNode: 树形节点
      * treeType: child 或者 parent
@@ -244,7 +245,7 @@ export default class TableRelation extends React.Component {
 
         const loop = (treeItem, parent) => {
             treeItem.parent = this.handParent(parent);
-            if (isEqTable(treeItem, treeNode)){
+            if (isEqTable(treeItem, treeNode)) {
                 treeItem[nodeFlag] = true;
                 treeItem.hide = false;
                 treeItem[props] = Object.assign({}, treeNode[props]);
@@ -267,23 +268,18 @@ export default class TableRelation extends React.Component {
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const startX = Math.floor((graph.container.clientWidth - VertexSize.width * 3 - 100) / 2);
-        const startY = 100;
-
-        this.startX = startX;
-        this.startY = startY;
 
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
 
-        this.executeLayout = function(change, post) {
+        this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
                 const layout = new mxHierarchicalLayout(graph, false);
                 layout.orientation = 'west';
                 layout.disableEdgeStyle = false;
-                layout.interRankCellSpacing = 50;
-                layout.intraCellSpacing = 15;
+                layout.interRankCellSpacing = 40;
+                layout.intraCellSpacing = 10;
 
                 if (change != null) {
                     change();
@@ -297,22 +293,103 @@ export default class TableRelation extends React.Component {
                 model.endUpdate();
             }
         }
-
         this.renderTree(data);
-
     }
 
-    generateSourceTarget = () => {
+    renderPagination = () => {
         const data = [];
+        const graph = this.graph;
+        const { currentChild, currentParent } = this.state;
+        const rootCell = graph.getDefaultParent();
+        const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
+        const childPage = currentChild.childResult ? currentChild.childResult : {};
+
+        const getGeo = (pos, po) => {
+            const x = pos && pos.geometry ? pos.geometry.x : 0;
+            const y = pos && pos.geometry ? pos.geometry.y : 0;
+
+            return po === 'prev' ? {
+                x: x,
+                y: y - 60,
+            } : {
+                x: x,
+                y: y + 80,
+            }
+        }
+
+        if (this._parentPrev && parentPage.totalPage > 0) {
+            const geoParentPerv = getGeo(this._parentPrev, 'prev');
+            const geoParentNext = getGeo(this._parentNext);
+
+            if (parentPage.currentPage > 1) {
+                graph.insertVertex(
+                    rootCell,
+                    'parentPrev',
+                    'pagination',
+                    geoParentPerv.x,
+                    geoParentPerv.y,
+                    VertexSize.width,
+                    VertexSize.height,
+                    'prevBtn'
+                )
+            }
+
+            if (parentPage.currentPage < parentPage.totalPage ) {
+                graph.insertVertex(
+                    rootCell,
+                    'parentNext',
+                    'pagination',
+                    geoParentNext.x,
+                    geoParentNext.y,
+                    VertexSize.width,
+                    VertexSize.height,
+                    'nextBtn'
+                )
+            }
+        }
+
+        if (this._childPrev && childPage.totalPage > 0) {
+
+            const geoChildPerv = getGeo(this._childPrev, 'prev');
+            const geoChildNext = getGeo(this._childNext);
+            if (childPage.currentPage > 1) {
+                graph.insertVertex(
+                    rootCell,
+                    'childPrev',
+                    'pagination',
+                    geoChildPerv.x,
+                    geoChildPerv.y,
+                    VertexSize.width,
+                    VertexSize.height,
+                    'prevBtn'
+                )
+            }
+            if (childPage.currentPage < childPage.totalPage ) {
+                graph.insertVertex(
+                    rootCell,
+                    'childNext',
+                    'pagination',
+                    geoChildNext.x,
+                    geoChildNext.y,
+                    VertexSize.width,
+                    VertexSize.height,
+                    'nextBtn'
+                )
+            }
+        }
     }
 
     renderTree = (treeNodeData) => {
 
         const graph = this.graph;
-        console.log('renderTree:', treeNodeData)
 
         graph.getModel().clear();
-        this._vertexCells = [] // 用于缓存创建的顶点节点
+
+        // 缓存分页的vertet
+        this._parentPrev = '';
+        this._parentNext = '';
+        this._childPrev = '';
+        this._childNext = '';
 
         const rootCell = graph.getDefaultParent();
 
@@ -322,11 +399,14 @@ export default class TableRelation extends React.Component {
             const currentNode = this.insertVertex(rootCell, currentNodeData);
             this.rootCell = currentNode;
             this.loopTree(currentNode, treeNodeData);
-        }, () => {
-            graph.scrollCellToVisible(this.rootCell);
-        })
 
-        graph.view.setTranslate(this.startX, this.startY);
+        }, () => {
+            console.log('allCells:', this._parentPrev, this._parentNext);
+            this.renderPagination();
+            graph.scrollCellToVisible(this.rootCell);
+        });
+
+        graph.center();
     }
 
     renderEdges = () => {
@@ -356,7 +436,7 @@ export default class TableRelation extends React.Component {
             tableInfo, 20, 20,
             VertexSize.width, VertexSize.height, style
         )
-        
+
         if (data.isParent) {
             graph.insertEdge(rootCell, null, '', newVertex, parent)
         } else {
@@ -364,7 +444,18 @@ export default class TableRelation extends React.Component {
         }
         graph.view.refresh(newVertex);
 
-        this._vertexCells.push(newVertex)
+        if (!data.isRoot) {
+            // 缓存分页节点位置
+            if (data.isParentStart) {
+                this._parentPrev = newVertex;
+            } else if (data.isParentEnd) {
+                this._parentNext = newVertex;
+            } else if (data.isChildStart) {
+                this._childPrev = newVertex;
+            } else if (data.isChildEnd) {
+                this._childNext = newVertex;
+            }
+        }
 
         return newVertex;
     }
@@ -420,9 +511,17 @@ export default class TableRelation extends React.Component {
     }
 
     formatTooltip = (cell) => {
-        const data = cell.getAttribute('data');
-        const obj = data ? JSON.parse(data) : '';
-        return obj ? obj.name : ''
+        if (cell.value === 'pagination') {
+            if (cell.id.indexOf('Next') > -1) {
+                return '下一页'
+            } else if (cell.id.indexOf('Prev') > -1) {
+                return '上一页'
+            }
+        } else {
+            const data = cell.getAttribute('data');
+            const obj = data ? JSON.parse(data) : '';
+            return obj ? obj.tableName : ''
+        }
     }
 
     corvertValueToString = (cell) => {
@@ -491,32 +590,57 @@ export default class TableRelation extends React.Component {
         }
     }
 
-    listenOnClick() {
+    listenOnClick = () => {
         const ctx = this;
+        
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             const target = evt.getProperty('event')
             const CLICK_LEFT = 1;
             if (target.which === CLICK_LEFT && cell && cell.vertex) {
-                let data = cell.getAttribute('data')
-                data = data ? JSON.parse(data) : '';
-                if (data) {
-                    ctx.setState({ selectedData: data })
-                    const params = getTableReqParams(data);
-                    ctx.loadVertexData(params)
+                if (cell.value === 'pagination') {
+                    
+                    const currentChild = ctx.state.currentChild;
+                    const currentParent = ctx.state.currentParent;
+                    const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
+                    const childPage = currentChild.childResult ? currentChild.childResult : {};
+
+                    switch(cell.id) {
+                        case 'parentPrev': {
+                            ctx.onPageChange(parentPage.currentPage - 1, 'parent');
+                            return;
+                        }
+                        case 'parentNext': {
+                            ctx.onPageChange(parentPage.currentPage + 1, 'parent');
+                            return;
+                        }
+                        case 'childPrev': {
+                            ctx.onPageChange(childPage.currentPage - 1, 'child');
+                            return;
+                        }
+                        case 'childNext': {
+                            ctx.onPageChange(childPage.currentPage + 1, 'child');
+                            return;
+                        }
+                    }
+                } else {
+                    let data = cell.getAttribute('data')
+                    data = data ? JSON.parse(data) : '';
+                    if (data) {
+                        ctx.setState({ selectedData: data })
+                        const params = getTableReqParams(data);
+                        ctx.loadVertexData(params)
+                    }
                 }
             }
         })
     }
 
     render() {
-        const { tableInfo, relationTasks, currentParent, currentChild } = this.state;
-        const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
-        const childPage = currentChild.childResult ? currentChild.childResult : {};
-
+        const { tableInfo, relationTasks } = this.state;
         return (
-            <div className="graph-editor" 
-                style={{ position: 'relative', background: '#FAFAFA'}}
+            <div className="graph-editor"
+                style={{ position: 'relative', background: '#FAFAFA' }}
             >
                 <Spin
                     tip="Loading..."
@@ -524,11 +648,11 @@ export default class TableRelation extends React.Component {
                     spinning={this.state.loading === 'loading'}
                 >
                     <div className="absolute-middle graph-bg">血缘关系</div>
-                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
+                    <div className="editor pointer" style={{ height: '600px' }} ref={(e) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh}/>
+                        <Icon type="reload" onClick={this.refresh} />
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -539,48 +663,28 @@ export default class TableRelation extends React.Component {
                 </div>
                 <div className="graph-legend">
                     <div>
-                        <span 
-                            className="legend-item" 
-                            style={{background: '#E6F7FF', border: '1px solid #90D5FF'}}>
+                        <span
+                            className="legend-item"
+                            style={{ background: '#E6F7FF', border: '1px solid #90D5FF' }}>
                         </span>
                         上游
                     </div>
                     <div>
-                        <span 
-                            className="legend-item current" 
-                            style={{background: '#F6FFED', border: '1px solid #B7EB8F'}}
+                        <span
+                            className="legend-item current"
+                            style={{ background: '#F6FFED', border: '1px solid #B7EB8F' }}
                         >
                         </span>
                         当前
                     </div>
                     <div>
-                        <span 
+                        <span
                             className="legend-item child"
-                            style={{background: '#FFFBE6', border: '1px solid #FFE58F'}}
+                            style={{ background: '#FFFBE6', border: '1px solid #FFE58F' }}
                         >
                         </span>
                         下游
                     </div>
-                </div>
-                <div className="graph-pagination">
-                    <Pagination
-                        simple
-                        className="parent"
-                        defaultCurrent={1}
-                        pageSize={6}
-                        onChange={(page) => this.onPageChange(page, 'parent')}
-                        total={parentPage.totalCount}
-                        current={parentPage.currentPage}
-                    />
-                    <Pagination
-                        simple
-                        className="child"
-                        defaultCurrent={1}
-                        pageSize={6}
-                        onChange={(page) => this.onPageChange(page, 'child')}
-                        current={childPage.currentPage}
-                        total={childPage.totalCount}
-                    />
                 </div>
                 <RelationDetail
                     data={tableInfo}
@@ -612,27 +716,30 @@ export default class TableRelation extends React.Component {
         // 禁止连接
         graph.setConnectable(false)
         // 禁止Edge对象移动
-        graph.isCellsMovable = function (cell) {
+        graph.isCellsMovable = function () {
             var cell = graph.getSelectionCell()
-            return !(cell && cell.edge)
+            return !(cell && (cell.edge || cell.value === 'pagination'))
         }
         // 禁止cell编辑
-        graph.isCellEditable = function() {
+        graph.isCellEditable = function () {
             return false;
         }
 
         // 设置Vertex样式
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
-        
+
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
 
+        // 初始化分页样式
+        this.initPaginationStyles();
         // anchor styles
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+        mxConstants.CURSOR_MOVABLE_VERTEX = 'pointer';
 
         // 转换value显示的内容
         graph.convertValueToString = this.corvertValueToString
@@ -693,6 +800,22 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
         return style;
+    }
+
+    initPaginationStyles() {
+        let PrevStyle = new Object();
+        PrevStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
+        PrevStyle[mxConstants.STYLE_STROKECOLOR] = 'none';
+        PrevStyle[mxConstants.STYLE_FILLCOLOR] = 'none';
+        PrevStyle[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+        PrevStyle[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+        PrevStyle[mxConstants.STYLE_IMAGE] = '/public/rdos/img/icon/s-arrow-top.svg';
+
+        let nextStyle = mxUtils.clone(PrevStyle);
+        nextStyle[mxConstants.STYLE_IMAGE] = '/public/rdos/img/icon/s-arrow-bottom.svg';
+
+        this.graph.getStylesheet().putCellStyle('prevBtn', PrevStyle);
+        this.graph.getStylesheet().putCellStyle('nextBtn', nextStyle);
     }
 
     getDefaultEdgeStyle() {
