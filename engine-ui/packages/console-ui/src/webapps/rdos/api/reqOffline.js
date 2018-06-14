@@ -117,6 +117,12 @@ export default {
     ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
     DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
 
+    SAVE_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/saveConfig`,             // 保存整库同步配置
+    GET_SYNC_HISTORY: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/list`,                   // 获取整库同步历史
+    GET_SYNC_DETAIL: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/getDetail`,               // 获取整库同步详情
+    PUBLISH_SYNC_TASK: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/task`,                  // 发布单表
+    CHECK_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkTransformConfig`,  // 检查高级配置
+
     // ===== 项目统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/tableCount`, // 表总量
     PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/totalSize`, // 表总存储量

@@ -48,6 +48,7 @@ import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
 
 // ======= 运维 =======
 import DataSourceIndex from './views/dataSource'
+import DataSourceMigration from './views/dataSource/dbSync'
 
 // ======= 数据管理 =======
 import TableManage from './views/dataManage/tableManage';
@@ -124,7 +125,7 @@ export default (
             <Route path="role/add" component={ GRoleAdd } />
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
-        <Route path="/rdos" component={ Container }>
+        <Route path="/rdos" component={Container}>
             <IndexRoute component={Dashboard} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
@@ -155,8 +156,9 @@ export default (
                 <Route path="alarm-record" component={OpeAlarm} />
                 <Route path="alarm-config" component={OpeAlarmConfig} />
             </Route>
-            <Route path="/database" component={DataSourceIndex}>
+            <Route path="/database">
                 <IndexRoute component={DataSourceIndex} />
+                <Route path="db-sync/:sourceId/:sourceName" component={DataSourceMigration} />
             </Route>
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>

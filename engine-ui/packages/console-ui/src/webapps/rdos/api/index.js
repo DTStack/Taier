@@ -532,6 +532,23 @@ export default {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
 
+    // ============== dataSource 整库同步 ==================
+    saveSyncConfig(params) {
+        return http.post(offlineReq.SAVE_SYNC_CONFIG, params)
+    },
+    getSyncHistoryList(params) {
+        return http.post(offlineReq.GET_SYNC_HISTORY, params)
+    },
+    getSyncDetail(params) {
+        return http.post(offlineReq.GET_SYNC_DETAIL, params)
+    },
+    publishSyncTask(params) {
+        return http.post(offlineReq.PUBLISH_SYNC_TASK, params)
+    },
+    checkSyncConfig(params) {
+        return http.post(offlineReq.CHECK_SYNC_CONFIG, params)
+    },
+
     // ============== dataManage 数据管理 ==================
     createTable(params) {
         return http.post(dataManageReq.CREATE_TABLE, params)

@@ -137,7 +137,7 @@ class BaseForm extends Component {
     }
 
     sourceChange = (value) => {
-        this.setState({ sourceType: value, hasHdfsConfig: false })
+        this.setState({ sourceType: parseInt(value, 10), hasHdfsConfig: false })
         this.props.form.resetFields();
     }
 
@@ -616,7 +616,7 @@ class BaseForm extends Component {
             item => (
                 <Option
                     key={item.value}
-                    value={item.value}
+                    value={item.value.toString()}
                 >
                     {item.name}
                 </Option>
@@ -635,7 +635,7 @@ class BaseForm extends Component {
                         rules: [{
                             required: true, message: '数据源类型不可为空！',
                         }],
-                        initialValue: sourceData.type || sourceType,
+                        initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString(),
                     })(
                         <Select
                             onChange={this.sourceChange}
