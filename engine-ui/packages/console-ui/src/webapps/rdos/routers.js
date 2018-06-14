@@ -164,7 +164,6 @@ export default (
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>
                     <IndexRoute component={TableList} />
-                    <Route path="create" component={TableCreator} />
                     <Route path="view/:tableId" component={TableViewer} />
                     <Route path="edit/:tableId" component={TableEditor} />
                 </Route>
@@ -180,6 +179,7 @@ export default (
                 <Route path="overview" component={DataModelOverview} />
                 <Route path="check" component={DataModelCheckCenter}></Route>
                 <Route path="table" component={DataModelDesign} />
+                <Route path="table/create" component={TableCreator} />                
                 <Route path="table/design" component={DataModelCreate} />
                 <Route path="table/modify/:tableId" component={DataModelModify} />
                 <Route path="config" component={DataModelConfig} />

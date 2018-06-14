@@ -298,7 +298,7 @@ class TableList extends Component {
                     <Link to={`${ROUTER_BASE}/design`}>新建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`/data-manage/table/create`}>普通建表</Link>
+                    <Link to={`/data-model/table/create`}>普通建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right' }}
                     onClick={ this.showModal.bind(this) }
