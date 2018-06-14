@@ -181,9 +181,14 @@ class AdminUser extends Component {
 
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
+        if (memberRole.roleIds.length === 0) {
+            message.error('用户角色不可为空！');
+            return;
+        }
+
         const params = {
             targetUserId: editTarget.userId,
-            roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
+            roleIds: memberRole.roleIds,
         }
 
         if (hasProject(active)) {
