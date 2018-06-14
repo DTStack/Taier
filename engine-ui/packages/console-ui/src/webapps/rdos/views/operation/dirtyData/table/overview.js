@@ -7,7 +7,7 @@ import {
 import utils from 'utils';
 import Resize from 'widgets/resize';
 
-import ajax from '../../../../api';
+import ajax from '../../../../api/dataManage';
 import { lineAreaChartOptions } from '../../../../comm/const'
 
 // 引入 ECharts 主模块

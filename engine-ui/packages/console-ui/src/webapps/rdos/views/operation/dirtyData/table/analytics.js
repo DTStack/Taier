@@ -3,7 +3,7 @@ import {
     Row, Col, Tabs, Table, Radio, Select, Card
 } from 'antd'
 
-import ajax from '../../../../api';
+import ajax from '../../../../api/dataManage';
 import TitleBar from '../../../../components/title-bar' 
 
 const TabPane = Tabs.TabPane;

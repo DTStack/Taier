@@ -7,6 +7,7 @@ import {
 } from 'antd';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
+import utils from "utils";
 
 import SlidePane from 'widgets/slidePane';
 
@@ -206,7 +207,7 @@ class Log extends React.Component {
     }
 
     componentDidMount() {
-        const { tableName } = this.props.params
+        const tableName  = utils.getParameterByName('tableName');
         this.searchTable({
             tableName: tableName || ''
         });
@@ -298,6 +299,7 @@ class Log extends React.Component {
                 { text: '未删除', value: 0 },
             ],
             filterMultiple: false,
+            filteredValue:(this.state.isDeleted||this.state.isDeleted===0)?[this.state.isDeleted]:undefined
         }, {
             title: '最近变更时间',
             dataIndex: 'lastDmlTime',
@@ -307,15 +309,15 @@ class Log extends React.Component {
             }
         }];
         const { tableList, tableLog, visibleSlidePane, isDeleted,loading } = this.state;
-        console.log(tableList);
+
         
         const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
-        const { projectUsers, params } = this.props;
+        const { projectUsers } = this.props;
 
         const title = (
             <Search style={{ width: 200, marginTop: 10 }}
                 placeholder="按表名搜索"
-                defaultValue={params.tableName}
+                defaultValue={ utils.getParameterByName('tableName')}
                 onChange={this.onTableNameChange}
                 onSearch={value => { this.searchTable({ tableName: value, isDeleted }) }}
             />
@@ -330,23 +332,23 @@ class Log extends React.Component {
                     title={title}
                 >
                     <Spin spinning={loading}>
-                        {data && <Table columns={columns}
+                        <Table columns={columns}
                             rowClassName={
                                 (record, index) => {
-                                    if (this.state.tableLog && this.state.tableLog.tableId == record.tableId) {
+                                    if (this.state.tableLog && this.state.tableLog.tableId == record.id) {
                                         return "row-select"
                                     } else {
                                         return "";
                                     }
                                 }
                             }
-                            dataSource={data}
+                            dataSource={data||[]}
                             className="m-table"
                             rowKey="id"
                             pagination={false}
                             onChange={this.handleTableChange}
                             bordered
-                        />}
+                        />
                         <Pagination
                             pageSize={20}
                             style={{ float: 'right', marginTop: '16px' }}

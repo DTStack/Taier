@@ -111,12 +111,14 @@ class SourceForm extends React.Component {
     }
 
     changeSource(value) {
-        const { handleSourceChange } = this.props;
+        const { handleSourceChange, form } = this.props;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
 
         handleSourceChange(this.getDataObjById(value));
+        form.resetFields(['table'])
+        this.changeTable('');
     }
 
     changeTable(value) {
@@ -432,7 +434,8 @@ class SourceForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -557,7 +560,8 @@ class SourceForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
