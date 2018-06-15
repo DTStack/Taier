@@ -31,7 +31,7 @@ export default class ImportTarget extends Component {
 
     componentWillReceiveProps(nextProps){
         const { visible } = this.props;
-        const { visibleNext } = nextProps;
+        const { visible:visibleNext } = nextProps;
         if(visible!=visibleNext&&!visibleNext){
             this.setState({
                 pagination:{
