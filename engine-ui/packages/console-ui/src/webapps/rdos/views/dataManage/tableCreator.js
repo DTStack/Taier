@@ -316,7 +316,6 @@ export class RowItem extends React.Component {
         const { data } = this.props;
         const { editMode } = this.state;
         const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
-        console.log('RowItem',this.props);
         
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
         //const needExtra = true;
@@ -332,7 +331,7 @@ export class RowItem extends React.Component {
                 <Input name="columnName" defaultValue={ columnName }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    
                 />
             </Col>
             <Col span={8} className="cell">
@@ -351,7 +350,7 @@ export class RowItem extends React.Component {
                     defaultValue={ comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    
                 />
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
