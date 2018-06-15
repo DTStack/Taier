@@ -7,7 +7,8 @@ import {
     Spin
 } from 'antd';
 
-import { Link } from 'react-router';
+import { Link,hashHistory } from 'react-router';
+import { parse } from 'qs';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 
@@ -54,6 +55,8 @@ class AuthMana extends Component {
     constructor(props) {
         super(props);
         this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
+        const isPermission = this.isAdminAbove==1 ? "0" : "1";
+        const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
         // this.isAdminAbove = 0;
         this.state = {
             table: [],
@@ -69,7 +72,7 @@ class AuthMana extends Component {
                 descInfo: "",
             },
             queryParams: {
-                listType: this.isAdminAbove==1 ? "0" : "1",
+                listType,
                 pageIndex: 1,
                 pageSize: 10,
                 resourceName: undefined,
@@ -78,8 +81,6 @@ class AuthMana extends Component {
                 belongProjectId: undefined,
             },
         }
-        console.log('this.isAdminAbove------------',this.isAdminAbove);
-        
     }
 
     componentDidMount() {
@@ -162,9 +163,13 @@ class AuthMana extends Component {
 
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
+        const pathname = this.props.location.pathname;        
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
+            if(field==="listType"){
+                hashHistory.push(`${pathname}?listType=${value}`)
+            }
         }
         this.setState({
             queryParams,
@@ -638,13 +643,15 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, descModel} = this.state;
+        const { editRecord, visible, agreeApply, descModel, queryParams} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
+                    activeKey={queryParams.listType}
                     animated={false} 
                     style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}
+
                 >
                    {
                        this.isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
