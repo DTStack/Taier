@@ -290,7 +290,7 @@ export default class TableViewer extends React.Component {
                                         <td>{ tableData.table.partition ? '是' : '否' }</td>
                                     </tr>
                                     <tr>
-                                        <th>DDL最后变更时间</th>
+                                        <th>表结构最后变更时间</th>
                                         <td>{ moment(tableData.table.lastDdlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                     <tr>
