@@ -167,15 +167,20 @@ export default class TableRelation extends React.Component {
         this.executeLayout(() => {
             originTable.currentColumn = columnName;
             const originCell = this.insertRootTree(originTable);
-            for (let i = 0; i < parents.length; i++) {
-                const node = parents[i];
-                node.isParent = true;
-                this.insertTableColumnVertext(originCell, node);
+            if (parents && parents.length > 0) {
+                for (let i = 0; i < parents.length; i++) {
+                    const node = parents[i];
+                    node.isParent = true;
+                    this.insertTableColumnVertext(originCell, node);
+                }
             }
-            for (let i = 0; i < children.length; i++) {
-                const node = children[i];
-                node.isChild = true;
-                this.insertTableColumnVertext(originCell, node);;
+
+            if (children && children.length > 0) {
+                for (let i = 0; i < children.length; i++) {
+                    const node = children[i];
+                    node.isChild = true;
+                    this.insertTableColumnVertext(originCell, node);;
+                }
             }
         })
         graph.center();
@@ -351,12 +356,6 @@ export default class TableRelation extends React.Component {
                     <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">
-                    <Tooltip placement="bottom" title="返回">
-                        <Icon
-                            type="left-circle"
-                            onClick={this.props.onShowTable}
-                        />
-                    </Tooltip>
                     <Tooltip placement="bottom" title="刷新">
                         <Icon type="reload" onClick={this.refresh} />
                     </Tooltip>
@@ -367,6 +366,15 @@ export default class TableRelation extends React.Component {
                         <MyIcon onClick={this.zoomOut} type="zoom-out" />
                     </Tooltip>
                 </div>
+                <Button style={{
+                    position: 'absolute',
+                    top: -30,
+                    right: 10
+                }} 
+                    onClick={this.props.onShowTable} 
+                    size="small">
+                    <Icon type="left" />返回
+                </Button>
             </div>
         )
     }
