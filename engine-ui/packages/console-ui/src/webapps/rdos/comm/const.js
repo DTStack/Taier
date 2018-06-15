@@ -91,6 +91,7 @@ export const TASK_TYPE_ARRAY = [ //
 export const HELP_DOC_URL = {
     DATA_SOURCE: "/public/rdos/helpSite/index.html#integration_datasource",
     DATA_SYNC: "/public/rdos/helpSite/index.html#Integration",
+    TASKPARAMS: "/public/rdos/helpSite/index.html#deve_batch_schedule_param"
 }
 
 export const TASK_STATUS = { // 任务状态
