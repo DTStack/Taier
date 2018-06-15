@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 import { 
     Input, Button, Popconfirm,
     Table, message, Card,
@@ -9,9 +10,11 @@ import utils from 'utils'
 
 import Api from '../../api'
 import DataSourceForm from './form'
-import { formItemLayout, DataSourceTypeFilter } from '../../comm/const'
+import DbSyncModal from './syncModal'
+import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../comm/const'
 import { DatabaseType } from '../../components/status'
 import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes'
+import '../../styles/pages/dataSource.scss';
 
 const Search = Input.Search
 
@@ -22,7 +25,7 @@ class DataSourceMana extends Component {
             data: [],
         },
         visible: false,
-        visibleEdit: false,
+        syncModalVisible: false,
         loading: false,
         title: '新增数据源',
         status: 'add',
@@ -132,12 +135,12 @@ class DataSourceMana extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: 120,
+            width: '15%',
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
-            width: 80,
+            width: '10%',
             render: (text, record) => {
                 return <DatabaseType value={record.type} />
             },
@@ -148,11 +151,12 @@ class DataSourceMana extends Component {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: 100,
+            width: '20%',
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserId',
             key: 'modifyUserId',
+            width: '12%',
             render: (text, record) => {
                 return record.modifyUser ? record.modifyUser.userName : ''
             }
@@ -160,23 +164,38 @@ class DataSourceMana extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
+            width: '12%',
             render: text => utils.formatDateTime(text),
         }, {
             title: '状态',
             dataIndex: 'active',
             key: 'active',
-            width: 100,
+            width: '10%',
             render: (text, record) => {
                 return record.active === 1 ? '使用中' : '未启用'
             },
         }, {
             title: '操作',
-            width: 100,
+            width: '15%',
             key: 'operation',
             render: (text, record) => {
                  // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
+                        {
+                            record.type === DATA_SOURCE.MYSQL
+                            &&
+                            <span>
+                                <a onClick={this.openSyncModal.bind(this, record)}>
+                                    同步历史
+                                </a>
+                                <span className="ant-divider" />
+                                <Link to={`/database/db-sync/${record.id}/${record.dataName}`}>
+                                    整库同步
+                                </Link>
+                                <span className="ant-divider" />
+                            </span>
+                        }
                         <a onClick={() => {this.initEdit(record)}}>
                             编辑
                         </a>
@@ -194,8 +213,22 @@ class DataSourceMana extends Component {
         }]
     }
 
+    openSyncModal = (record) => {
+        this.setState({
+            syncModalVisible: true,
+            source: record
+        });
+    }
+
+    closeSyncModal = () => {
+        this.setState({
+            syncModalVisible: false,
+            source: {}
+        });
+    }
+
     render() {
-        const { visible, dataSource } = this.state
+        const { visible, syncModalVisible, source, dataSource } = this.state
         const { project } = this.props
         const pagination = {
             total: dataSource.totalCount,
@@ -217,7 +250,8 @@ class DataSourceMana extends Component {
                 className="right"
                 onClick={() => {
                     this.setState({
-                        visible: true, source: {},
+                        visible: true, 
+                        source: {},
                         status: 'add',
                         title: '添加数据源',
                     })
@@ -226,10 +260,10 @@ class DataSourceMana extends Component {
         )
         return (
             <div>
-                <h1 className="box-title" style={{paddingTop: '0'}}>
+                <h1 className="box-title">
                     离线数据源
                 </h1>
-               <div className="box-2 m-card shadow">
+                <div className="box-2 m-card shadow">
                     <Card 
                         title={title} 
                         extra={extra} 
@@ -247,6 +281,7 @@ class DataSourceMana extends Component {
                         />
                     </Card>
                 </div>
+                
                 <DataSourceForm
                     title={this.state.title}
                     visible={this.state.visible}
@@ -255,6 +290,12 @@ class DataSourceMana extends Component {
                     testConnection={this.testConnection}
                     sourceData={this.state.source}
                     handCancel={() => { this.setState({ visible: false }) }}
+                />
+
+                <DbSyncModal
+                    visible={syncModalVisible}
+                    source={source}
+                    cancel={this.closeSyncModal}
                 />
             </div>
         )

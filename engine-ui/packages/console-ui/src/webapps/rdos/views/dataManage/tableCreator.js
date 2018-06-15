@@ -4,6 +4,8 @@ import { Steps, Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
+import { browserHistory, hashHistory } from 'react-router'
+
 
 import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
@@ -618,7 +620,7 @@ class TableCreator extends React.Component {
                         result: 'success'
                     });
                     setTimeout(() => {
-                        this.props.router.push('/data-manage/table');
+                        this.goBack();
                     }, 3000);
                 }
             })
@@ -763,7 +765,20 @@ class TableCreator extends React.Component {
         });
     }
 
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
+        }
+    }
+
     render() {
+        const { current } = this.state;
         const the = this;
         const BaseFormWrapper = Form.create({
             onValuesChange(props, values) {
@@ -810,27 +825,29 @@ class TableCreator extends React.Component {
         }];
 
         return <div className="bg-w" style={{ padding: '20px', margin: '20px' }}>
-            <Steps current={this.state.current}>
+            <Steps current={current}>
                 {steps.map(item => <Step key={item.title} title={item.title} />)}
             </Steps>
             <div className="steps-content">
-                {steps[this.state.current].content}
+                {steps[current].content}
             </div>
             <div className="steps-action">
-                <Button style={{ marginRight: 8 }}
-                    onClick={ () => this.props.router.push('/data-manage/table') }
-                >取消</Button>
-                { this.state.current > 0 && this.state.current !== 2 &&
+                {
+                    current != 2&&<Button style={{ marginRight: 8 }}
+                        onClick={this.goBack}
+                    >取消</Button>
+                }
+                { current > 0 && current !== 2 &&
                     <Button style={{ marginRight: 8 }}
                         onClick={() => this.prev()}
                     > 上一步 </Button>
                 }
-                { this.state.current < steps.length - 1 && <Button type="primary"
+                { current < steps.length - 1 && <Button type="primary"
                         onClick={ () => this.next() }
-                    >{ this.state.current === 1 ? '提交' : '下一步' }</Button>
+                    >{ current === 1 ? '提交' : '下一步' }</Button>
                 }
-                { this.state.current === steps.length - 1 && <Button type="primary"
-                        onClick={() => this.props.router.push('/data-manage/table')}
+                { current != 2 &&current === steps.length - 1 && <Button type="primary"
+                        onClick={this.goBack}
                     >返回</Button>
                 }
             </div>

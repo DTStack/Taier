@@ -120,14 +120,14 @@ class RelationDetail extends React.Component {
             width: '100px',
         }
         return (
-            <div className="task-floating-window rel-table-info ant-table">
+            <div className="task-floating-window rel-table-info ant-table" style={{top: "600px"}}>
                 <div>
-                    <Row className="tb-wrapper">
+                    <Row className="tb-wrapper" style={{borderBottom: 0}}>
                         <table>
                             <tbody className="ant-table-tbody" >
                                 <tr>
                                     <td>
-                                        <span style={{ fontSize: '12px' }}>{data.catalogue}/</span>
+                                        <span style={{ fontSize: '12px' }}>{data.catalogue}</span>
                                         <span title={data.tableName}><b>{data.tableName}</b></span>
                                     </td>
                                     <td><span>创建者：{data.createUser}</span></td>
@@ -159,7 +159,7 @@ class RelationDetail extends React.Component {
                             </tbody>
                         </table>
                     </Row>
-                    <Row className="tb-wrapper" style={{marginTop: '20px' }}>
+                    <Row className="tb-wrapper" style={{marginTop: '20px', height: '200px' }}>
                         <span className="bd-bottom" style={titleStyle}>
                             <b>相关任务与脚本</b>
                         </span>

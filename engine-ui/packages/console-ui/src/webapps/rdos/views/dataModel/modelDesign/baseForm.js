@@ -56,6 +56,8 @@ export default class BaseForm extends React.Component {
         } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
             fields.subject = value;
         }
+        console.log('--------fields:',fields);
+        
         this.props.form.setFieldsValue(fields)
     }
 
@@ -117,21 +119,15 @@ export default class BaseForm extends React.Component {
     }
 
     renderTableRules = () => {
-
         const { 
             subjectFields, modelLevels, changeRuleValue,
             incrementCounts, freshFrequencies, tableNameRules, tableName
         } = this.props;
-
         const { tableNameArr } = this.state;
-
+        console.log('---------tableNameArr:',tableNameArr,tableNameRules);
         const inlineStyle = { width: 100, display: 'inline-block' }
-
         const renderRules = (rule, index) => {
-
             let data = [];
-            const defaultVal = tableNameArr[index];
-
             switch(rule.value) {
                 case TABLE_MODEL_RULE.LEVEL: {
                     data = modelLevels; break;
@@ -152,7 +148,7 @@ export default class BaseForm extends React.Component {
                             placeholder="自定义"
                             value={tableNameArr[index]}
                             onChange={(e) => this.changeTableName(e.target.value, index)}
-                            style={inlineStyle} 
+                            style={inlineStyle}
                         />
                     )
                 }
@@ -200,6 +196,7 @@ export default class BaseForm extends React.Component {
             display: 'inline-block',
             marginTop: '5px',
         }
+
         return <div>
             {rules}
             <span style={style}> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
@@ -209,9 +206,10 @@ export default class BaseForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-
+        console.log('------------this.props',this.props);
+        
         const { 
-            tableName, desc, delim, dataCatalogue,
+            tableName, tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
             subject, tableModelRules
         } = this.props;
@@ -340,7 +338,7 @@ export default class BaseForm extends React.Component {
                         max: 200,
                         message: '描述不得超过200个字符！',
                     }],
-                    initialValue: desc
+                    initialValue: tableDesc
                 })(
                     <Input type="textarea" placeholder="描述信息" />
                 )}
