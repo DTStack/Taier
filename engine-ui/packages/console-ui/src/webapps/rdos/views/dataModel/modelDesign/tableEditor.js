@@ -105,16 +105,24 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="所属类目"
                             >
-                                <CatalogueTree
+                                {getFieldDecorator('所属类目', {
+                                    rules: [{
+                                    required: true,
+                                    message: '请选择所属类目',
+                                    }],
+                                    initialValue: catalogueId
+                                })(
+                                    <CatalogueTree
                                     id="catalogue"
                                     value={catalogueId}
                                     isPicker
                                     isFolderPicker
                                     treeData={this.state.dataCatalogue}
                                     onChange={(val) => {
-                                        modifyDesc({ name: 'catalogueId', value: val })
+                                        modifyDesc({name: 'catalogueId', value: val})
                                     }}
-                                />
+                                    />
+                                )}
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}

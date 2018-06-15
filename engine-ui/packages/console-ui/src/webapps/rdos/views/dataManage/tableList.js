@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
+import { parse } from 'qs';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
@@ -8,7 +9,7 @@ import {
     Spin
 } from 'antd';
 
-import { Link } from 'react-router';
+import { Link,hashHistory } from 'react-router';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 
@@ -35,6 +36,7 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
+        const {listType} = this.props.location.search &&parse(this.props.location.search.substr(1)) || {listType : "1"};        
         this.state = {
             table: [],
             editRecord: {},
@@ -45,7 +47,7 @@ class TableList extends Component {
                 visible: false,
             },
             queryParams: {
-                listType: "1",
+                listType,
                 pageIndex: 1,
                 pageSize: 10,
                 catalogueId: undefined,
@@ -57,7 +59,6 @@ class TableList extends Component {
     }
 
     componentDidMount() {
-        
         this.search();
         this.loadCatalogue();
     }
@@ -95,9 +96,13 @@ class TableList extends Component {
 
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
+        const pathname = this.props.location.pathname;
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1 ;
+            if(field==="listType"){
+                hashHistory.push(`${pathname}?listType=${value}`)
+            }
         }
         this.setState({
             queryParams,
@@ -161,7 +166,7 @@ class TableList extends Component {
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state
-        return [
+        let initialColumns = [
             {
                 title: '表名',
                 width: 120,
@@ -226,13 +231,16 @@ class TableList extends Component {
                         return <span>
                                 <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
                             </span>
-                        case '4':
                         default: 
                             return '--';
                     }
                 }
             }
         ];
+        if(queryParams.listType == "4"){
+            initialColumns.pop(1);
+        }
+        return initialColumns;
     }
 
     renderPane = () => {
@@ -314,11 +322,12 @@ class TableList extends Component {
     }
 
     render() {
-        const { tableLog } = this.state;
+        const { tableLog,queryParams } = this.state;
         const projectUsers = [];
         return (
             <div className="box-1 m-tabs">
                 <Tabs 
+                    activeKey={queryParams.listType}
                     animated={false} 
                     style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}

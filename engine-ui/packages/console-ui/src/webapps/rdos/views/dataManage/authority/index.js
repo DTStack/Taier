@@ -7,7 +7,8 @@ import {
     Spin
 } from 'antd';
 
-import { Link } from 'react-router';
+import { Link,hashHistory } from 'react-router';
+import { parse } from 'qs';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 
@@ -28,15 +29,19 @@ const applyStatus = (status) => {
     if (status === 0) {
         return <span>待审批</span>
     } else if (status === 1) {
-        return <span>通过</span>
-    } else if (status === 2) {
-        return <span>不通过</span>
+        return <span>已通过</span>
+    }else if(status === 2){
+        return <span>未通过</span>
+    }else if(status === 3){
+        return <span>已过期</span>
+    }else if(status === 4){
+        return <span>已撤销</span>
     }
 }
 
 const revokeStatus = (status) => {
     if (status === 0) {
-        return <span>否</span>
+        return <span>未回收</span>
     } else if (status === 1) {
         return <span>已回收</span>
     }
@@ -53,7 +58,9 @@ class AuthMana extends Component {
 
     constructor(props) {
         super(props);
-        this.isAdminAbove = this.props.user && this.props.user.isAdminAbove;
+        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
+        const isPermission = this.isAdminAbove==1 ? "0" : "1";
+        const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
         // this.isAdminAbove = 0;
         this.state = {
             table: [],
@@ -69,7 +76,7 @@ class AuthMana extends Component {
                 descInfo: "",
             },
             queryParams: {
-                listType: this.isAdminAbove == 1 ? "0" : "1",
+                listType,
                 pageIndex: 1,
                 pageSize: 10,
                 resourceName: undefined,
@@ -158,9 +165,13 @@ class AuthMana extends Component {
 
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
+        const pathname = this.props.location.pathname;        
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
+            if(field==="listType"){
+                hashHistory.push(`${pathname}?listType=${value}`)
+            }
         }
         this.setState({
             queryParams,
@@ -416,8 +427,8 @@ class AuthMana extends Component {
                         },
                         {
                             title: '操作',
-                            key: 'isCancel',
-                            dataIndex: 'isCancel',
+                            key: 'operation',
+                            dataIndex: 'applyStatus',
                             width: 120,
                             render(text, record) {
                                 return <span>
@@ -450,7 +461,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '审批状态',
+                            title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
                             render(status) {
@@ -634,13 +645,15 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, descModel } = this.state;
+        const { editRecord, visible, agreeApply, descModel, queryParams} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
-                    animated={false}
-                    style={{ height: 'auto' }}
+                    activeKey={queryParams.listType}
+                    animated={false} 
+                    style={{height: 'auto'}} 
                     onChange={value => this.changeParams('listType', value)}
+
                 >
                     {
                         this.isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>

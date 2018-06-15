@@ -115,9 +115,9 @@ export default class ModelCheck extends Component {
             dataIndex: 'increType',
             key: 'increType',
         }, {
-            title: '最后修改人',
-            dataIndex: 'userName',
-            key: 'userName',
+            title: '负责人',
+            dataIndex: 'chargeUser',
+            key: 'chargeUser',
         }, {
             title: '最后修改时间',
             dataIndex: 'gmtModified',

@@ -26,18 +26,12 @@ const {
     mxPolyline,
     mxEvent,
     mxRubberband,
-    mxCellState,
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
     mxPerimeter,
-    mxUndoManager,
     mxCompactTreeLayout,
-    mxMorphing,
     mxUtils,
-    mxXmlCanvas2D,
-    mxImageExport,
-    mxXmlRequest,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -61,10 +55,10 @@ export default class TaskView extends Component {
     }
 
     initGraph = (id) => {
-        this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
-        this.layout = "";
+        this._vertexCells = []; // 用于缓存创建的顶点节点
+
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
@@ -92,7 +86,7 @@ export default class TaskView extends Component {
     loadTaskChidren = (params) => {
         const ctx = this
 
-        params.type=2;
+        params.type = 2;
 
         this.setState({ loading: 'loading' })
         Api.getTaskChildren(params).then(res => {
@@ -108,7 +102,7 @@ export default class TaskView extends Component {
     loadTaskParent = (params) => {
         const ctx = this
 
-        params.type=1;
+        params.type = 1 ;
 
         this.setState({ loading: 'loading' })
         Api.getTaskChildren(params).then(res => {
@@ -127,9 +121,8 @@ export default class TaskView extends Component {
         const rootCell = graph.getDefaultParent()
 
         const exist = this._vertexCells.find((cell) => {
-            const dataStr = cell.getAttribute('data')
-            if (!dataStr) return null
-            const itemData = JSON.parse(dataStr)
+            if (!cell.value) return null
+            const itemData = cell.value;
             return itemData.id === data.id
         })
 
@@ -142,22 +135,12 @@ export default class TaskView extends Component {
         } else {// 如果该节点为新节点， 则从新生成并创建
             const style = this.getStyles(data)
 
-            // 创建节点
-            const doc = mxUtils.createXmlDocument()
-            const tableInfo = doc.createElement('Task')
-            tableInfo.setAttribute('id', data.id)
-            tableInfo.setAttribute('data', JSON.stringify(data))
-
-            let newVertex = '';
-            this.executeLayout(() => {
-                newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
-                    VertexSize.width, VertexSize.height, style
-                )
-                graph.insertEdge(parent, null, '', parent, newVertex)
-                graph.view.refresh(newVertex)
-            }, () => {
-                // graph.scrollCellToVisible(newVertex,true);
-            })
+            let newVertex = graph.insertVertex(rootCell, null, data, 0, 0,
+                VertexSize.width, VertexSize.height, style
+            )
+            graph.insertEdge(parent, null, '', parent, newVertex)
+            graph.view.refresh(newVertex)
+  
             // 缓存节点
             this._vertexCells.push(newVertex)
 
@@ -216,38 +199,32 @@ export default class TaskView extends Component {
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        if (!layout) {
-            layout = new mxCompactTreeLayout(graph)
+        this.executeLayout = function(change, post) {
+            const layout = new mxCompactTreeLayout(graph)
             layout.horizontal = false;
             layout.useBoundingBox = false;
             layout.edgeRouting = false;
             layout.levelDistance = 30;
             layout.nodeDistance = 10;
 
-            this.layout = layout;
-            this.executeLayout = function(change, post) {
+            model.beginUpdate();
 
-                model.beginUpdate();
-
-                try {
-                    if (change != null) { change(); }
-                    layout.execute(parent);
-                } catch (e) {
-                    throw e;
-                } finally {
-                    var morph = new mxMorphing(graph);
-                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
-                        graph.getModel().endUpdate();
-                        if (post != null) { post();}
-                    }));
-                    morph.startAnimation();
-                }
+            try {
+                if (change != null) { change(); }
+                layout.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post();}
             }
         }
 
-        graph.view.setTranslate(cx, cy);
-        this.loopTree(graph, data);
-        this.executeLayout();
+        this.executeLayout(() => {
+            this.loopTree(graph, data);
+        })
+       
+        graph.center();
     }
 
     loadEditor = (container) => {
@@ -282,7 +259,7 @@ export default class TaskView extends Component {
         // 转换value显示的内容
         graph.convertValueToString = this.corvertValueToString
         // 重置tooltip
-        graph.getTooltipForCell = this.formatTooltip
+        graph.getTooltipForCell = this.formatTooltip;
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
@@ -298,22 +275,18 @@ export default class TaskView extends Component {
     }
 
     formatTooltip = (cell) => {
-        const data = cell.getAttribute('data');
-        const task = data ? JSON.parse(data) : ''; 
+        const task = cell.value || ''; 
         return task ? task.name : ''
     }
 
     corvertValueToString = (cell) => {
-        if (mxUtils.isNode(cell.value)) {
-            if (cell.value.nodeName.toLowerCase() == 'task') {
-                const data = cell.getAttribute('data');
-                const task = data ? JSON.parse(data) : '';
-                const taskType = taskTypeText(task.taskType);
-                if (task) {
-                    return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
-                    <span style="font-size:10px; color: #666666;">${taskType}</span>
-                    </div>`
-                }
+        if (cell.vertex && cell.value) {
+            const task = cell.value || {};
+            const taskType = taskTypeText(task.taskType);
+            if (task) {
+                return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
+                <span style="font-size:10px; color: #666666;">${taskType}</span>
+                </div>`
             }
         }
         return '';
@@ -353,7 +326,7 @@ export default class TaskView extends Component {
 
             if (!cell) return
 
-            const currentNode = JSON.parse(cell.getAttribute('data'))
+            const currentNode = cell.value || {};
 
             menu.addItem('展开上游（6层）', null, function() {
                 ctx.loadTaskParent({
@@ -401,8 +374,7 @@ export default class TaskView extends Component {
         this.graph.addListener(mxEvent.onClick, function(sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell && cell.vertex) {
-                let data = cell.getAttribute('data')
-                data = data ? JSON.parse(data) : ''
+                let data = cell.value;
                 ctx.setState({ selectedTask: data })
             }
         })
@@ -423,37 +395,6 @@ export default class TaskView extends Component {
 
     zoomOut = () => {
         this.graph.zoomOut()
-    }
-
-    showImage = () => {
-        const graph = this.graph
-
-        // const xmlDoc = mxUtils.createXmlDocument();
-        // const root = xmlDoc.createElement('output');
-        // xmlDoc.appendChild(root);
-        this.setState({ visible: true })
-
-        const bounds = graph.getGraphBounds();
-        const w = Math.ceil(bounds.x + bounds.width);
-        const h = Math.ceil(bounds.y + bounds.height);
- 
-        const myCanvas = this.MyCanvas;
-        const ctx = myCanvas.getContext('2d');
-        const svgData = this.Container.innerHTML
-        const DOMURL = window.URL || window.webkitURL || window;
-
-        myCanvas.width = w;
-        myCanvas.height = h;
-
-        const img = new Image();
-        const svg = new Blob([svgData], {type: 'image/svg+xml'});
-        const url = DOMURL.createObjectURL(svg);
-
-        img.onload = function() {
-            ctx.drawImage(img, 0, 0);
-            DOMURL.revokeObjectURL(url);
-        }
-        img.src = url;
     }
 
     hideMenu = () => {
