@@ -1,23 +1,11 @@
-# DATA-STACK
+# DATA-STACK 
 
-# 更新日志
+# 项目实验室 
 
-DTinsight v2.1.0
-
- > 版本：DTinsight v2.1.0 <br>
- > 日期：2018-05-31
-
-### DTinsight v2.1.0
-- 新增数据地图功能
-- 数据集成支持整库同步
-- 脏数据管理移至运维中心
-- 优化表血缘管理
-- 新增表字段依赖图
-- 大量细节优化、Bug修复
-
-## 其他
-- 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-0-2/issues)
-
+### TODO
+- 整合Webpack v4.0
+- 升级React至16.3
+- ...
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
