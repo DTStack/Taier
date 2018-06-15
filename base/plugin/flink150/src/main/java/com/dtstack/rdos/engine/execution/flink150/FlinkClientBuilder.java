@@ -274,7 +274,7 @@ public class FlinkClientBuilder {
             if (clusterDescriptor != null) {
                 clusterDescriptor.close();
             }
-            LOG.info("Couldn't retrieve Yarn cluster.", e);
+            LOG.info("Couldn't retrieve Ya]rn cluster.", e);
             throw new RdosException("Couldn't retrieve Yarn cluster.");
         }
 
