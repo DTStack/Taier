@@ -1,0 +1,17 @@
+.merge-text .CodeMirror-merge-editor{
+    position: relative;
+}
+.merge-text .CodeMirror-merge-editor:before{
+    content:"\5F53\524D\7248\672C";
+    position: absolute;
+    top:-20px;
+    left:30px;
+    color:#8c8c8c;
+}
+.merge-text .CodeMirror-merge-right:before{
+    content:"\5386\53F2\7248\672C";
+    position: absolute;
+    top:-20px;
+    left:30px;
+    color:#8c8c8c;
+}

@@ -1,28 +1,24 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');   // css单独打包
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const HappyPack = require('happypack')
+const os = require('os')
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
 
 const MY_PATH = require('./consts');
+const splitChunksConfig = require("./splitChunksConfig");
 const VERSION = JSON.stringify(require('../package.json').version); // app version.
 const theme = require('../src/theme')();
 
-module.exports = function() {
+module.exports = function () {
     return {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
             rdos: MY_PATH.RDOS_APP_FILE,
             dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
             dataApi: MY_PATH.DATA_API_APP_FILE,
-            dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
-            vendor: [
-                'react', 'react-dom',
-                'react-router', 'prop-types',
-                'react-redux', 'redux',
-                'react-router-redux', 'redux-thunk',
-                'moment', 'lodash', 'mirror-creator',
-                'object-assign',
-            ],
+            dataLabel: MY_PATH.DATA_LABEL_APP_FILE
         },
         output: {
             path: MY_PATH.BUILD_PATH,
@@ -30,6 +26,26 @@ module.exports = function() {
             filename: '[name].[hash].js',
             sourceMapFilename: '[name].map',
             publicPath: '/'
+        },
+        optimization: {
+            splitChunks: {
+                chunks: "all",
+                minSize: 30000,
+                minChunks: 1,
+                maxAsyncRequests: 5,
+                maxInitialRequests: 8,
+                automaticNameDelimiter: '~',
+                name: true,
+                cacheGroups: {
+                    baseCommon: {
+                        test: splitChunksConfig.baseCommonRegExp,
+                        priority: 1
+                    }
+                }
+            },
+            "runtimeChunk": {
+                "name": "manifest"
+            }
         },
         module: {
             rules: [
@@ -41,29 +57,9 @@ module.exports = function() {
                         path.resolve(MY_PATH.ROOT_PATH, 'node_modules'),
                         path.resolve(MY_PATH.WEB_PUBLIC),
                     ],
-                    loader: ['babel-loader']
+                    // loader: ['babel-loader?cacheDirectory']
+                    loader: ['happypack/loader?id=happy-babel-js'],
                 }, {
-                    test: /\.css$/,
-                    use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
-                        fallback: "style-loader",
-                        use: ['css-loader?sourceMap']
-                    })),
-                }, {
-                    test: /\.scss$/,
-                    use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
-                        fallback: "style-loader",
-                        use: ["css-loader?sourceMap", "sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true"]
-                    }))
-                }, {
-                    test: /\.less$/,
-                    use: ExtractTextPlugin.extract({
-                        fallback: "style-loader",
-                        use:["css-loader?sourceMap", 
-                            `less-loader?{"sourceMap":true,
-                            "modifyVars": ${JSON.stringify(theme)}}`
-                        ] //
-                    }),
-                },{
                     test: /\.(jpg|png|gif)$/,
                     loader: ['file-loader', "url-loader?limit=100000"]
                 }, {
@@ -97,10 +93,18 @@ module.exports = function() {
             }
         },
         plugins: [
-            new ExtractTextPlugin('[name].[hash].css'),
+            new HappyPack({
+                id: 'happy-babel-js',
+                loaders: ['babel-loader?cacheDirectory=true'],
+                threadPool: happyThreadPool,
+                cache:true
+            }),
+            new MiniCssExtractPlugin({ //提取为外部css代码
+                filename: '[name].css?v=[contenthash]'
+            }),
             new CopyWebpackPlugin([{
                 from: path.resolve(MY_PATH.WEB_PUBLIC),
-                to: path.resolve(MY_PATH.BUILD_PATH, 'public'), 
+                to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
                 ignore: ['*/index.html']
             }]),
 
@@ -108,12 +112,7 @@ module.exports = function() {
                 'APP': {
                     'VERSION': VERSION,
                 }
-            }),
-
-            new webpack.optimize.CommonsChunkPlugin({
-                names: ['vendor', 'manifest'],    // 指定公共 bundle 的名字。
-                minChunks: Infinity
-            }),
+            })
         ]
     }
 }
