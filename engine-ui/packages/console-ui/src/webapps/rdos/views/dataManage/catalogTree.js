@@ -263,6 +263,7 @@ class CatalogueTree extends Component {
                     name={item.name}
                     isLeaf={isLeaf}
                     data={data}
+                    selectable={!isFolder}
                     className={isTable && 's-table'}
                 >
                     {isFolder && loopTree(data.children)}
