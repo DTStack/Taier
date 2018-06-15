@@ -1,4 +1,4 @@
-# DATA-STACK
+# DATA-STACK 
 
 # 更新日志
 
@@ -15,6 +15,10 @@ DTinsight v2.1.0
 - 【任务开发】优化`任务调度依赖规则`
 - 【其他】大量细节优化、Bug修复，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-0-2/issues)
 
+### TODO
+- 整合Webpack v4.0
+- 升级React至16.3
+- ...
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
