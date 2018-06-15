@@ -279,7 +279,6 @@ export default class TableViewer extends React.Component {
                                 <tbody>
                                     <tr>
                                         <th>物理存储量</th>
-                                        <td>{tableData.table.storeSize}</td>
                                         <td>{ tableData.table.tableSize }</td>
                                     </tr>
                                     <tr>

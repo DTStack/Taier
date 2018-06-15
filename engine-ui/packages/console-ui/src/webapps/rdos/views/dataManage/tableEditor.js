@@ -173,13 +173,15 @@ class TableEditor extends Component {
                     <Row className="box-card txt-center">
                         <Button 
                             type="primary"
-                            style={{ marginRight: '20px' }}
                             onClick={ this.saveTable.bind(this) }
+                            style={{float:"right"}}
                         >
                             保存
                         </Button>
-                        <Button type="danger" 
+                        <Button 
+                            type="danger" 
                             onClick={ this.delTable.bind(this) }
+                            style={{float:"right",marginRight: '20px'}}
                         >
                             删除表
                         </Button>
@@ -271,7 +273,7 @@ class TableEditor extends Component {
         const queryParams = {};
         queryParams.tableId = tableData.id;
         queryParams.tableName = tableData.tableName;
-        queryParams.desc = tableData.tableDesc;
+        queryParams.tableDesc = tableData.tableDesc;
         // queryParams.delim = tableData.id;
         queryParams.lifeDay = tableData.lifeDay;
         // queryParams.storedType = tableData.id;
