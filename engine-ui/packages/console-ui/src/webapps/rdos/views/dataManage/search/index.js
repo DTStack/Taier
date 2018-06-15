@@ -207,7 +207,7 @@ class SearchTable extends Component {
                 }
             },
             {
-                title: 'DDL最后变更时间',
+                title: '表结构最后变更时间',
                 key: 'lastDdlTime',
                 dataIndex: 'lastDdlTime',
                 render(text) {
