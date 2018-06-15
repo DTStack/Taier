@@ -29,15 +29,19 @@ const applyStatus = (status) => {
     if (status === 0) {
         return <span>待审批</span>
     } else if (status === 1) {
-        return <span>通过</span>
+        return <span>已通过</span>
     }else if(status === 2){
-        return <span>不通过</span>
+        return <span>未通过</span>
+    }else if(status === 3){
+        return <span>已过期</span>
+    }else if(status === 4){
+        return <span>已撤销</span>
     }
 }
 
 const revokeStatus = (status) => {
     if (status === 0) {
-        return <span>否</span>
+        return <span>未回收</span>
     } else if (status === 1) {
         return <span>已回收</span>
     }
@@ -425,8 +429,8 @@ class AuthMana extends Component {
                         },
                         {
                             title: '操作',
-                            key: 'isCancel',
-                            dataIndex: 'isCancel',
+                            key: 'operation',
+                            dataIndex: 'applyStatus',
                             width: 120,
                             render(text, record) {
                                 return <span>

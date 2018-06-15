@@ -228,7 +228,7 @@ class CatalogueTree extends Component {
                                 }
                                 {
                                     isLeaf && !isTable &&
-                                    <Tooltip title="删除表">
+                                    <Tooltip title="删除目录">
                                         &nbsp;
                                         {
                                             disabledAdd ? 

@@ -166,7 +166,7 @@ class TableList extends Component {
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state
-        return [
+        let initialColumns = [
             {
                 title: '表名',
                 width: 120,
@@ -231,13 +231,16 @@ class TableList extends Component {
                         return <span>
                                 <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
                             </span>
-                        case '4':
                         default: 
                             return '--';
                     }
                 }
             }
         ];
+        if(queryParams.listType == "4"){
+            initialColumns.pop(1);
+        }
+        return initialColumns;
     }
 
     renderPane = () => {
