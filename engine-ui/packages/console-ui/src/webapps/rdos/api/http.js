@@ -36,9 +36,9 @@ class Http {
         return fetch(url, options)
         .then(authBeforeFormate)
         .then(response => {
-            setTimeout(() => { 
-                ProgressBar.hide() 
-            }, 300)
+            setTimeout(() => {
+                ProgressBar.hide()
+            }, 300);
             return response.json()
         })
         .then(authAfterFormated)

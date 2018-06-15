@@ -461,7 +461,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '审批状态',
+                            title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
                             render(status) {

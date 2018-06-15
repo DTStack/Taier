@@ -25,22 +25,13 @@ const {
     mxPolyline,
     mxEvent,
     mxRubberband,
-    mxCellState,
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
     mxPerimeter,
-    mxUndoManager,
-    mxLayoutManager,
-    mxCompactTreeLayout,
     mxHierarchicalLayout,
-    mxRadialTreeLayout,
     mxParallelEdgeLayout,
-    mxMorphing,
     mxUtils,
-    mxXmlCanvas2D,
-    mxImageExport,
-    mxXmlRequest,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -590,7 +581,7 @@ export default class TableRelation extends React.Component {
 
     listenOnClick = () => {
         const ctx = this;
-        
+
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             const target = evt.getProperty('event')

@@ -26,8 +26,9 @@ export default class GoBack extends Component {
         }
         switch (type) {
             case "textButton":
+                mStyle.marginRight = '5px';
                 return (
-                    <Button style={{marginRight:"5px"}} onClick={this.go} size="small">
+                    <Button style={mStyle} onClick={this.go} size="small">
                         <Icon type="left" />返回
                     </Button>
                 );
