@@ -279,6 +279,7 @@ export default class ImportLocalData extends Component {
                         changeStatus={this.changeStatus}
                     />
                     <DataTarget
+                        visible={visible}
                         warning={targetExchangeWarning}
                         data={data}
                         file={file}
