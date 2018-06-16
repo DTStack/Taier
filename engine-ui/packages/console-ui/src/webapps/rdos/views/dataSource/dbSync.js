@@ -8,6 +8,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 
+import TransformModal from './transformModal';
 import GoBack from 'main/components/go-back';
 import Api from '../../api';
 
@@ -31,11 +32,11 @@ export default class DBSync extends Component {
 
     state = {
         percent: 0,
+        loading: false,
         visible: false,
         tableList: [],
         selectedTable: [],
         transformFields: [],
-        config: {},
         hourTime: 1,
         successNum: 0,
         failNum: 0
@@ -58,6 +59,10 @@ export default class DBSync extends Component {
                 this.setState({ tableList });
             }
         });
+    }
+
+    changeTransformFields = (value) => {
+        this.setState({ transformFields: value });
     }
 
     // table设置
@@ -90,10 +95,6 @@ export default class DBSync extends Component {
                 }
             },
         }]
-    }
-
-    onDateChange = (date, dateString) => {
-        console.log(date, dateString)
     }
 
     onHourTimeChange = (value) => {
@@ -144,7 +145,7 @@ export default class DBSync extends Component {
     }
 
     publishTask = () => {
-        const { selectedTable, hourTime } = this.state;
+        const { selectedTable, hourTime, transformFields } = this.state;
         const { form, routeParams } = this.props;
 
         if (selectedTable.length < 1) {
@@ -169,7 +170,8 @@ export default class DBSync extends Component {
                         beginDate: values.beginDate[0].format('YYYY-MM-DD'),
                         endDate: values.beginDate[1].format('YYYY-MM-DD'),
                         periodType: '2',
-                        hour: values.hour
+                        hour: values.hour,
+                        min: '0',
                     }),
                     syncType: values.syncType,
                     timeFieldIdentifier: values.syncType == 1 ? values.timeFieldIdentifier : undefined,
@@ -178,13 +180,15 @@ export default class DBSync extends Component {
                         hourTime: hourTime,
                         tableNum: values.tableNum
                     } : undefined,
-                    transformFields: []
+                    transformFields: transformFields
                 }
 
                 if (params.parallelType === 1 && !this.checkParallelConfig(params.parallelConfig)) {
                     message.error('您所选的某些同步任务可能会在该日24点后才能执行，请检查您的执行计划再提交');
                     return;
                 }
+
+                this.setState({ loading: true });
 
                 if (values.saveConfig) {
                     Api.saveSyncConfig(params).then(res => {
@@ -200,6 +204,7 @@ export default class DBSync extends Component {
         });
     }
 
+    // 逐表发布
     publishSyncTask = async (params, mid) => {
         const { selectedTable, tableList } = this.state;
 
@@ -208,20 +213,18 @@ export default class DBSync extends Component {
             params.oldTable = tableName;
             params.migrationId = mid ? mid : undefined;
     
-            let res = await Api.publishSyncTask(params);
-            let isFail = res.code != 1 || res.data.status != 1;
-            let percent = parseInt(((selectedTable.indexOf(tableName) + 1) / selectedTable.length) * 100);
+            let res = await Api.publishSyncTask(params),
+                isFail = res.code != 1 || res.data.status != 1,
+                percent = parseInt(((selectedTable.indexOf(tableName) + 1) / selectedTable.length) * 100);
            
             if (res.code === 1) {
-                let newTableList = [...tableList];
-                let curIndex = newTableList.indexOf(newTableList.filter(item => item.tableName === tableName)[0]);
+                let newTableList = [...tableList],
+                    curIndex = newTableList.indexOf(newTableList.filter(item => item.tableName === tableName)[0]);
 
                 newTableList[curIndex].status = res.data.status;
                 newTableList[curIndex].report = res.data.report;
 
-                this.setState({
-                    tableList: newTableList
-                });
+                this.setState({ tableList: newTableList });
             }
 
             this.setState((prevState) => {
@@ -232,6 +235,8 @@ export default class DBSync extends Component {
                 }
             });
         }
+
+        this.setState({ loading: false });
     }
 
     // 所选表是否能一天同步完
@@ -239,17 +244,8 @@ export default class DBSync extends Component {
         const { selectedTable } = this.state;
 
         let canSyncNum = Math.floor(24 / config.hourTime);
-        console.log(canSyncNum, config)
 
         return selectedTable.length > canSyncNum ? false : true;
-    }
-
-    saveSyncConfig = () => {
-
-    }
-
-    onSaveChange = (e) => {
-        console.log(e)
     }
 
     openConfigModal = () => {
@@ -263,15 +259,12 @@ export default class DBSync extends Component {
     render() {
         const { form, routeParams } = this.props;
         const { getFieldDecorator } = form;
-        const { percent, visible, tableList, selectedTable, successNum, failNum } = this.state;
+        const { percent, loading, visible, tableList, selectedTable, successNum, failNum, transformFields } = this.state;
 
-        // 差异比对选择配置
         const rowSelection = {
             selectedRowKeys: selectedTable,
             onChange: (selectedIds) => {
-                this.setState({
-                    selectedTable: selectedIds
-                });
+                this.setState({ selectedTable: selectedIds });
             }
         };
 
@@ -322,7 +315,6 @@ export default class DBSync extends Component {
                                             format="YYYY-MM-DD"
                                             style={{ width: 300 }}
                                             placeholder={['开始时间', '结束时间']}
-                                            onChange={this.onDateChange}
                                         />
                                     )
                                 }
@@ -445,102 +437,36 @@ export default class DBSync extends Component {
                         <div className="sync-action">
                             <Button 
                                 type="primary" 
+                                loading={loading}
                                 onClick={this.publishTask}>
                                 发布任务
                             </Button>
-                            <span className="m-v-10">
+                            <span className="m-h-10">
                                 进度
                             </span>
                             <Progress 
                                 style={{ flexBasis: '30%' }} 
                                 percent={percent} 
                             />
-                            <span className="m-v-10">
+                            <span className="m-h-10">
                                 共：{selectedTable.length} 个
                             </span>
-                            <span className="m-v-10">
+                            <span className="m-h-10">
                                 成功：{successNum} 个
                             </span>
-                            <span className="m-v-10">
+                            <span className="m-h-10">
                                 失败：{failNum} 个
                             </span>
                         </div>
                     </div>
 
-                    <Modal
-                        title="高级设置"
-                        width={'50%'}
+                    <TransformModal 
                         visible={visible}
-                        maskClosable={false}
-                        okText="保存"
-                        cancelText="取消"
-                        onOk={this.closeConfigModal}
-                        onCancel={this.closeConfigModal}
-                    >
-                        <Form layout="inline">
-                            <Row>
-                                <FormItem label="表名转换规则">
-                                    {
-                                        getFieldDecorator('tableNameRule', {
-                                            rules: [], 
-                                        })(
-                                            <Input />
-                                        )
-                                    }
-                                </FormItem>
-                                <FormItem>
-                                    {
-                                        getFieldDecorator('tableNameRule1', {
-                                            rules: [], 
-                                        })(
-                                            <Input />
-                                        )
-                                    }
-                                </FormItem>
-                            </Row>
-                            <Row>
-                                <FormItem label="字段名转换规则">
-                                    {
-                                        getFieldDecorator('columnNameRule', {
-                                            rules: [], 
-                                        })(
-                                            <Input />
-                                        )
-                                    }
-                                </FormItem>
-                                <FormItem>
-                                    {
-                                        getFieldDecorator('columnNameRule1', {
-                                            rules: [], 
-                                        })(
-                                            <Input />
-                                        )
-                                    }
-                                </FormItem>
-                            </Row>
-                            <Row>
-                                <FormItem label="字段类型转换规则">
-                                    {
-                                        getFieldDecorator('columnTypeRule', {
-                                            rules: [], 
-                                        })(
-                                            <Input />
-                                        )
-                                    }
-                                </FormItem>
-                                <FormItem>
-                                    {
-                                        getFieldDecorator('columnTypeRule1', {
-                                            rules: [], 
-                                        })(
-                                            <Input />
-                                        )
-                                    }
-                                </FormItem>
-                            </Row>
-                        </Form>
+                        transformFields={transformFields}
+                        changeTransformFields={this.changeTransformFields}
+                        closeModal={this.closeConfigModal}
+                    />
 
-                    </Modal>
                 </Card>
             </div>
         )
