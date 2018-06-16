@@ -381,6 +381,39 @@ export const defaultEditorOptions = { // 编辑器选项
     // extraKeys: { 'Ctrl-Space': 'autocomplete' },
 }
 
+export const originTypeTransformRule = [
+    'tinyint',
+    'smallint',
+    'mediumint',
+    'int',
+    'bigint',
+    'varchar',
+    'char',
+    'tinytext',
+    'text',
+    'mediumtext',
+    'longtext',
+    'year',
+    'float',
+    'double',
+    'decimal',
+    'date',
+    'datetime',
+    'timestamp',
+    'time',
+    'bit',
+    'bool'
+]
+
+export const targetTypeTransformRule = [
+    'BIGINT',
+    'STRING',
+    'DOUBLE',
+    'DATETIME',
+    'BOOLEAN'
+]
+
+
 export const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },

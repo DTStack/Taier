@@ -1,22 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Table, Button, Icon } from 'antd';
+import { Link, hashHistory } from 'react-router';
+import { Modal, Table, Button, Tooltip, Icon } from 'antd';
 import { isEmpty } from 'lodash';
 
 // import { tagConfigActions } from '../../actions/tagConfig';
 // import { dataSourceActions } from '../../actions/dataSource';
 // import { formItemLayout, TAG_TYPE, TAG_PUBLISH_STATUS } from '../../consts';
 import Api from '../../api';
+import { workbenchActions } from '../../store/modules/offlineTask/offlineAction';
+const mapStateToProps = state => {
+    return {}
+}
 
-// const mapStateToProps = state => {
-//     const { tagConfig, dataSource, apiMarket } = state;
-//     return { tagConfig, dataSource, apiMarket }
-// }
-
-// const mapDispatchToProps = dispatch => ({
-    
-// })
-// @connect(mapStateToProps, mapDispatchToProps)
+const mapDispatchToProps = dispatch => ({
+ 	checkTask(id) {
+        return dispatch(workbenchActions().openTaskInDev(id));
+    },
+})
+@connect(mapStateToProps, mapDispatchToProps)
+// @connect()
 export default class dbSyncHistoryModal extends Component {
 
     state = {
@@ -90,30 +93,49 @@ export default class dbSyncHistoryModal extends Component {
             title: '表名',
             dataIndex: 'tableName',
             key: 'tableName',
-            width: '30%'
+            width: '40%'
         }, {
             title: 'DTinsight.IDE',
             dataIndex: 'ideTableName',
             key: 'ideTableName',
-            width: '30%'
+            width: '40%'
         }, {
             title: '任务状态',
-            width: '40%',
+            width: '20%',
             render: (text, record) => {
             	if (record.status) {
                     return record.status === 1 ? 
                     <div>
-                        <Icon type="check-circle" style={{ color: 'green', marginRight: 10 }} /> 
-                        成功 查看任务
+                        <span className="m-r-8">
+	                        <Icon type="check-circle" style={{ color: 'green', marginRight: 8 }} /> 
+	                        成功 
+                        </span>
+                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.id)}>
+	                        查看任务 
+                        </a>
                     </div>
                     : 
                     <div>
-                        <Icon type="close-circle" style={{ color: 'red', marginRight: 10 }} />
-                        {record.report} 查看任务
+                    	<span className="m-r-8">
+	                        <Icon type="close-circle" style={{ color: 'red', marginRight: 8 }} /> 
+	                        <Tooltip overlayClassName="sync-tooltip" placement="bottom" title={record.report}>
+	                        	失败
+	                        </Tooltip>
+                        </span>
+                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.id)}>
+	                        查看任务
+                        </a>
                     </div>
                 }
             },
         }];
+    }
+
+    checkTask = (id) => {
+    	console.log(id)
+    	// hashHistory.push('/offline/task');
+    	// this.props.checkTask(id);
+
     }
 
     back = () => {
@@ -142,7 +164,7 @@ export default class dbSyncHistoryModal extends Component {
                 </div>
  			)
     	} else {
-    		let scheduleConf = JSON.parse(syncDetail.scheduleConf);
+    		let scheduleConf = syncDetail.scheduleConf ? JSON.parse(syncDetail.scheduleConf) : {};
 
     		return (
     			<div className="sync-detail">
@@ -174,7 +196,7 @@ export default class dbSyncHistoryModal extends Component {
 	                {
 	                	syncDetail.parallelType === 1
 	                	&&
-	                	<p>从启动时间开始，每{syncDetail.parallelConfig.hourTime}小时同步{syncDetail.parallelConfig.tableNum}个表</p>
+	                	<p>从启动时间开始，每{syncDetail.parallelConfig.hourTime}小时同步{syncDetail.parallelConfig.tableNum}张表</p>
 	                }
 	            </div>
     		) 
