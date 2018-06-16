@@ -11,7 +11,11 @@ import { Link } from 'react-router';
 
 import Editor from '../../../components/code-editor';
 import CopyIcon from "main/components/copy-icon";
-import { DDL_placeholder } from "../../../comm/DDLCommon"
+import {DDL_placeholder} from "../../../comm/DDLCommon"
+import SlidePane from 'widgets/slidePane';
+import TableLog from '../../dataManage/tableLog';
+
+
 
 import ajax from '../../../api/dataModel';
 
@@ -27,14 +31,17 @@ class TableList extends Component {
         this.state = {
             visible: false,
             filterDropdownVisible: false,
-
             params: {
                 pageIndex: 1,
                 tableName: '',
                 isDeleted: 0, // 添加删除标记
                 isDirtyDataTable: 0, // 非脏数据标记
             },
-
+            tableLog:{
+                tableId: undefined,
+                tableName: undefined,
+                visible: false,
+            },
             table: { data: [] },
             subjectFields: [],
             modelLevels: []
@@ -159,13 +166,34 @@ class TableList extends Component {
         this._DDL = value;
     }
 
+    showTableLog(table) {
+        const { id, tableName } = table;
+        const { tableLog } = this.state;
+        tableLog.tableId = id;
+        tableLog.tableName = tableName;
+        tableLog.visible = true;
+        this.setState({
+            tableLog
+        })
+    }
+
+    closeSlidePane = () => {
+        const { tableLog } = this.state;
+        tableLog.visible = false;
+        tableLog.tableId = undefined;
+        tableLog.tableName = undefined;
+        this.setState({
+            tableLog
+        })
+    }
+
     render() {
         const ROUTER_BASE = '/data-model/table';
-        const { subjectFields, modelLevels, params } = this.state
+        const { subjectFields, modelLevels, params,tableLog } = this.state
         const tableList = this.state.table;
         const { project } = this.props;
         const { totalCount, data } = tableList;
-
+        const projectUsers = [];
         const pagination = {
             total: totalCount,
             defaultPageSize: 10,
@@ -181,8 +209,7 @@ class TableList extends Component {
         const modelLevelOptions = modelLevels && modelLevels.map(level =>
             <Option key={level.id} value={level.name}>{level.name}</Option>
         )
-        console.log('table',data);
-        
+        const ctx = this;
         const columns = [
             {
                 title: '表名',
@@ -246,7 +273,8 @@ class TableList extends Component {
                     return <span>
                         <Link to={`${ROUTER_BASE}/modify/${record.id}`}>编辑</Link>
                         <span className="ant-divider"></span>
-                        <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link>
+                        {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
+                        <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
                     </span>
                 }
             }
@@ -333,6 +361,17 @@ class TableList extends Component {
                         </Modal>
                     </div>
                 </Card>
+                {
+                  tableLog.visible ?  <SlidePane
+                        onClose={this.closeSlidePane}
+                        visible={tableLog.visible}
+                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                    >
+                        <div className="m-loglist">
+                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
+                        </div>
+                    </SlidePane> : ""
+                }
             </div>
         </div>
     }
