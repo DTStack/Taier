@@ -10,7 +10,7 @@ export function authBeforeFormate(response) {
     case 500:
     case 502:
     case 504:
-        message.info('服务器出现了点问题')
+        message.error('服务器出现了点问题')
     case 402:
     case 200:
         return response;
@@ -28,8 +28,9 @@ export function authBeforeFormate(response) {
 
 // 状态码这块还是太乱
 export function authAfterFormated(response) {
+    
     switch (response.code) {
-    case 1:
+        case 1:
         return response;
     case 0: // 需要登录
         Api.openLogin()

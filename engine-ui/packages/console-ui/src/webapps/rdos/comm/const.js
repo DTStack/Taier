@@ -35,7 +35,7 @@ export const SCHEDULE_STATUS = {
 export const APPLY_RESOURCE_TYPE = {
     TABLE: 0,
     FUNCTION: 1,
-    SOURCE:2,
+    SOURCE: 2,
 }
 
 
@@ -91,10 +91,11 @@ export const TASK_TYPE_ARRAY = [ //
 export const HELP_DOC_URL = {
     DATA_SOURCE: "/public/rdos/helpSite/index.html#integration_datasource",
     DATA_SYNC: "/public/rdos/helpSite/index.html#Integration",
+    TASKPARAMS: "/public/rdos/helpSite/index.html#deve_batch_schedule_param"
 }
 
 export const TASK_STATUS = { // 任务状态
-    ALL:null,
+    ALL: null,
     WAIT_SUBMIT: 0,
     CREATED: 1,
     INVOKED: 2,
@@ -109,7 +110,7 @@ export const TASK_STATUS = { // 任务状态
     RESTARTING: 11,
     SET_SUCCESS: 12,
     WAIT_RUN: 16,
-    WAIT_COMPUTE:17,
+    WAIT_COMPUTE: 17,
     FROZEN: 18,
 }
 
@@ -180,7 +181,7 @@ export const taskStatusFilter = [{
 }, {
     text: '提交中',
     value: 10,
-},{
+}, {
     text: '等待运行',
     value: 16,
 }, {

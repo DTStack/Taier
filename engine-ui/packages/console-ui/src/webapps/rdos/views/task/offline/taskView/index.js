@@ -26,18 +26,12 @@ const {
     mxPolyline,
     mxEvent,
     mxRubberband,
-    mxCellState,
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
     mxPerimeter,
-    mxUndoManager,
     mxCompactTreeLayout,
-    mxMorphing,
     mxUtils,
-    mxXmlCanvas2D,
-    mxImageExport,
-    mxXmlRequest,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -60,16 +54,13 @@ export default class TaskView extends Component {
     }
 
     componentDidMount() {
-        this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
-        this.layout = "";
         
         const editor = this.Container
         const currentTask = this.props.tabData
         this.initEditor()
         this.loadEditor(editor)
-        this.listenDoubleClick()
         this.hideMenu()
         this.loadTaskChidren({
             taskId: currentTask.id,
@@ -117,16 +108,12 @@ export default class TaskView extends Component {
             tableInfo.setAttribute('id', data.id)
             tableInfo.setAttribute('data', JSON.stringify(data))
 
-            let newVertex = '';
-            this.executeLayout(() => {
-                newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
-                    VertexSize.width, VertexSize.height, style
-                )
-                graph.view.refresh(newVertex)
-                graph.insertEdge(parent, null, '', parent, newVertex)
-            }, () => {
-                graph.scrollCellToVisible(newVertex);
-            })
+            let newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+                VertexSize.width, VertexSize.height, style
+            )
+            graph.view.refresh(newVertex)
+            graph.insertEdge(parent, null, '', parent, newVertex)
+
             // 缓存节点
             this._vertexCells.push(newVertex)
 
@@ -178,44 +165,39 @@ export default class TaskView extends Component {
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        let layout = this.layout;
         const cx = (graph.container.clientWidth - VertexSize.width) / 2
         const cy = 200
+        this._vertexCells = []; // 用于缓存创建的顶点节点
 
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        if (!layout) {
-            layout = new mxCompactTreeLayout(graph)
+        this.executeLayout = function(change, post) {
+
+            const layout = new mxCompactTreeLayout(graph)
             layout.horizontal = false;
             layout.useBoundingBox = false;
             layout.edgeRouting = false;
-            // layout = new mxCompactTreeLayout(graph)
-            this.layout = layout
-            this.executeLayout = function(change, post) {
 
-                model.beginUpdate();
+            model.beginUpdate();
 
-                try {
-                    if (change != null) {
-                        change();
-                    }
-                    layout.execute(parent);
-                } catch (e) {
-                    throw e;
-                } finally {
-                    var morph = new mxMorphing(graph);
-                    morph.addListener(mxEvent.DONE, mxUtils.bind(this, function() {
-                        graph.getModel().endUpdate();
-                        if (post != null) { post();}
-                    }));
-                    morph.startAnimation();
+            try {
+                if (change != null) {
+                    change();
                 }
+                layout.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post();}
             }
         }
 
-        this.loopTree(graph, data);
-        this.executeLayout();
+        this.executeLayout(() => {
+            this.loopTree(graph, data);
+        });
+
         graph.view.setTranslate(cx, cy);
     }
 

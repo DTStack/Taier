@@ -4,6 +4,8 @@ import { Steps, Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
+import { browserHistory, hashHistory } from 'react-router'
+
 
 import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
@@ -306,15 +308,14 @@ export class RowItem extends React.Component {
         return true;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return !isEqual(this.props, nextProps);
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     // return !isEqual(this.props, nextProps);
+    // }
 
     render() {
         const { data } = this.props;
         const { editMode } = this.state;
         const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
-        console.log('RowItem',this.props);
         
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
         //const needExtra = true;
@@ -327,10 +328,10 @@ export class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                <Input name="columnName" defaultValue={ columnName }
+                <Input name="columnName" value={ columnName }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    disabled={isPartition}
                 />
             </Col>
             <Col span={8} className="cell">
@@ -346,10 +347,10 @@ export class RowItem extends React.Component {
             <Col span={7} className="cell">
                 <Input 
                     name="comment" 
-                    defaultValue={ comment }
+                    value={ comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    disabled={isPartition}
                 />
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
@@ -477,7 +478,6 @@ export class ColumnsPartition extends React.Component {
 
     render() {
         const { columns, partition_keys, isEdit } = this.props;
-        console.log('ColumnsPartition',this.props);
         
         return <div className="m-columnspartition">
             <div className="columns box">
@@ -618,7 +618,7 @@ class TableCreator extends React.Component {
                         result: 'success'
                     });
                     setTimeout(() => {
-                        this.props.router.push('/data-manage/table');
+                        this.goBack();
                     }, 3000);
                 }
             })
@@ -763,7 +763,20 @@ class TableCreator extends React.Component {
         });
     }
 
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
+        }
+    }
+
     render() {
+        const { current } = this.state;
         const the = this;
         const BaseFormWrapper = Form.create({
             onValuesChange(props, values) {
@@ -810,27 +823,29 @@ class TableCreator extends React.Component {
         }];
 
         return <div className="bg-w" style={{ padding: '20px', margin: '20px' }}>
-            <Steps current={this.state.current}>
+            <Steps current={current}>
                 {steps.map(item => <Step key={item.title} title={item.title} />)}
             </Steps>
             <div className="steps-content">
-                {steps[this.state.current].content}
+                {steps[current].content}
             </div>
             <div className="steps-action">
-                <Button style={{ marginRight: 8 }}
-                    onClick={ () => this.props.router.push('/data-manage/table') }
-                >取消</Button>
-                { this.state.current > 0 && this.state.current !== 2 &&
+                {
+                    current != 2&&<Button style={{ marginRight: 8 }}
+                        onClick={this.goBack}
+                    >取消</Button>
+                }
+                { current > 0 && current !== 2 &&
                     <Button style={{ marginRight: 8 }}
                         onClick={() => this.prev()}
                     > 上一步 </Button>
                 }
-                { this.state.current < steps.length - 1 && <Button type="primary"
+                { current < steps.length - 1 && <Button type="primary"
                         onClick={ () => this.next() }
-                    >{ this.state.current === 1 ? '提交' : '下一步' }</Button>
+                    >{ current === 1 ? '提交' : '下一步' }</Button>
                 }
-                { this.state.current === steps.length - 1 && <Button type="primary"
-                        onClick={() => this.props.router.push('/data-manage/table')}
+                { current != 2 &&current === steps.length - 1 && <Button type="primary"
+                        onClick={this.goBack}
                     >返回</Button>
                 }
             </div>

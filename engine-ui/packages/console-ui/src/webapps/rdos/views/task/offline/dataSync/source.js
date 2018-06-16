@@ -111,14 +111,28 @@ class SourceForm extends React.Component {
     }
 
     changeSource(value) {
-        const { handleSourceChange, form } = this.props;
+        const { handleSourceChange } = this.props;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
 
         handleSourceChange(this.getDataObjById(value));
-        form.resetFields(['table'])
+        this.resetTable();
+    }   
+
+    resetTable(){
+        const { form } = this.props;
         this.changeTable('');
+        //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
+        this.setState({
+            selectHack:true
+        },()=>{
+            form.resetFields(['table'])
+            this.setState({
+                selectHack:false
+            })
+        })
+        
     }
 
     changeTable(value) {
@@ -341,6 +355,7 @@ class SourceForm extends React.Component {
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
+        const { selectHack } = this.state;
         const { sourceMap, dataSourceList, isCurrentTabNew } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         let formItem;
@@ -350,7 +365,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -421,7 +436,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.MAXCOMPUTE:
             case DATA_SOURCE.HIVE: {// Relational DB
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -547,7 +562,7 @@ class SourceForm extends React.Component {
                 break;
             case DATA_SOURCE.HBASE:
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"

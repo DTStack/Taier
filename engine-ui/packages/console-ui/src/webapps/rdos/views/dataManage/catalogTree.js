@@ -177,9 +177,11 @@ class CatalogueTree extends Component {
                 if (isFolderPicker && isTable) {
                     return null;
                 }
-
-                this._expendKeys.push(`${key}`)
-
+                
+                if(this._expendKeys.indexOf(key+'')==-1){
+                    this._expendKeys.push(`${key}`)
+                }
+                
                 if (data.isNew) this._active = key
                 
                 const title = !isPicker ? <span
@@ -228,7 +230,7 @@ class CatalogueTree extends Component {
                                 }
                                 {
                                     isLeaf && !isTable &&
-                                    <Tooltip title="删除表">
+                                    <Tooltip title="删除目录">
                                         &nbsp;
                                         {
                                             disabledAdd ? 

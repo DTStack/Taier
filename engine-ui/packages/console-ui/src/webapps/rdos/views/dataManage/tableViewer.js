@@ -279,7 +279,7 @@ export default class TableViewer extends React.Component {
                                 <tbody>
                                     <tr>
                                         <th>物理存储量</th>
-                                        <td>{tableData.table.storeSize}</td>
+                                        <td>{ tableData.table.tableSize }</td>
                                     </tr>
                                     <tr>
                                         <th>生命周期</th>
@@ -287,15 +287,15 @@ export default class TableViewer extends React.Component {
                                     </tr>
                                     <tr>
                                         <th>是否分区</th>
-                                        <td>{tableData.table.partitions ? '是' : '否'}</td>
+                                        <td>{ tableData.table.partition ? '是' : '否' }</td>
                                     </tr>
                                     <tr>
-                                        <th>DDL最后变更时间</th>
-                                        <td>{moment(tableData.table.lastDDLTime).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                        <th>表结构最后变更时间</th>
+                                        <td>{ moment(tableData.table.lastDdlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                     <tr>
                                         <th>数据最后变更时间</th>
-                                        <td>{moment(tableData.table.lastDataChangeTime).format('YYYY-MM-DD HH:mm:ss')}</td>
+                                        <td>{ moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                 </tbody>
                             </table>}
@@ -303,9 +303,10 @@ export default class TableViewer extends React.Component {
                     </Row>
                     <Row>
                         <div className="m-tabs m-card bd">
-                            <Tabs
+                            <Tabs 
                                 animated={false}
                                 onChange={this.getPreview.bind(this)}
+                                style={{height: 'auto'}}
                             >
                                 <TabPane tab="字段信息" key="1">
                                     <Card
