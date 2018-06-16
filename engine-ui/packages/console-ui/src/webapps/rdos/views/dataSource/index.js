@@ -175,8 +175,9 @@ class DataSourceMana extends Component {
                 return record.active === 1 ? '使用中' : '未启用'
             },
         }, {
-            title: '操作',
+            title: <div className="txt-right m-r-8">操作</div>,
             width: '15%',
+            className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
                  // active  '0：未启用，1：使用中'。  只有为0时，可以修改
@@ -258,6 +259,7 @@ class DataSourceMana extends Component {
                 }}
             >新增数据源</Button>
         )
+
         return (
             <div>
                 <h1 className="box-title">
