@@ -86,7 +86,6 @@ class TableLog extends React.Component {
 
     render() {
         const { tableId, tableName, projectUsers } = this.props;
-        console.log('-----------tablelog',this.props);
         
         const { logs } = this.state;
         const columns = [{
@@ -185,7 +184,6 @@ class TableLog extends React.Component {
     }
 
     doSearch(params) {
-        console.log('---------',params);
         ajax.searchLog(params).then(res => {
             if (res.code === 1) {
                 this.setState({
