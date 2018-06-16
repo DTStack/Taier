@@ -1,0 +1,189 @@
+.editor {
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    // background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UwZTBlMCIgb3BhY2l0eT0iMC4yIiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTBlMGUwIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=);
+    background-position: -1px -1px;
+}
+
+.task-floating-window {
+    position: absolute !important;
+    right: 20px;
+    left: 20px;
+    bottom: 60px;
+    background: #FAFAFA;
+    z-index: 2;
+    table tr td {
+        padding: 5px;
+    }
+
+    .tb-wrapper {
+        border: 1px solid #e9e9e9;
+        background: #ffffff;
+    }
+}
+
+.graph-editor {
+    .ant-spin-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .graph-info {
+        position: absolute;
+        bottom: 35px;
+        left: 0px;
+        z-index: 999;
+        width: 100%;
+        border-bottom: 1px solid #DDDDDD;
+        box-shadow: -2px 0 2px 0 rgba(0,0,0,0.10);
+        background-color: white;
+        font-family: PingFangSC-Regular;
+        font-size: 12px;
+        color: #666666;
+        letter-spacing: 0;
+    }
+}
+
+body div.mxPopupMenu {
+    -webkit-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.15);
+    position: absolute;
+    background: #FFFFFF;
+    border-radius: 2px;
+    border: 0;
+}
+body table.mxPopupMenu {
+    border-collapse: collapse;
+    margin: 0px;
+}
+body tr.mxPopupMenuItem {
+    color: #666666;
+    cursor: default;
+}
+body td.mxPopupMenuItem {
+    padding: 6px 60px 6px 30px;
+    font-size: 10pt;
+    font-family: PingFangSC-Regular;
+    font-size: 12px;
+    color: #666666;
+    letter-spacing: 0;
+}
+body td.mxPopupMenuIcon {
+    background-color: white;
+    padding: 0px;
+}
+body tr.mxPopupMenuItemHover {
+    background-color: #E6F7FF;;
+    
+    .mxPopupMenuItem {
+        color: #2491F7;
+    }
+}
+table.mxPopupMenu hr {
+    border-top: solid 1px #cccccc;
+}
+table.mxPopupMenu tr {
+    font-size: 4pt;
+}
+
+.graph-bg {
+    font-size: 40px;
+    color: #2491F7;
+    z-index: 1;
+    opacity: 0.2;
+    text-align: center;
+}
+
+.goback-list {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    z-index: 2;
+}
+
+.graph-toolbar {
+    position: absolute;
+    z-index: 2;
+    right: 14px;
+    top: 20px;
+    height: 18px;
+    border-radius: 2px;
+    text-align: center;
+
+
+    img, .anticon {
+        width: 18px;
+        height: 16px;
+        line-height: 16px;
+        cursor: pointer;
+        float: left;
+        margin-right: 12px;
+        color: #94A8C6;
+    }
+}
+
+.vertex {
+    user-select: none;
+    .vertex-title {
+        padding: 2px 0 0 0;
+        width: 120px;
+        text-align: center;
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-family: PingFangSC-Regular;
+        font-size: 12px;
+        color: #333333;
+    }
+
+    .vertex-desc {
+        font-family: PingFangSC-Regular;
+        font-size: 10px;
+        color: #666666;
+    }
+    
+}
+
+
+.table-vertex {
+    .table-vertex-content {
+        height: 30px;
+        line-height: 20px;
+        left: 0;
+        text-indent: 2px;
+        top: 0;
+        padding: 7px 5px;
+        width: 100px;
+        text-align: left;
+        display: inline-block;
+        text-overflow: ellipsis;
+
+        .table-vertex-title {
+            margin-left: 5px;
+            width: 60px;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        img {
+            float: left;
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+
+
+
+
