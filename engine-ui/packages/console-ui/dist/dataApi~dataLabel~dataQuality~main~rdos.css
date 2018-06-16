@@ -184,6 +184,18 @@
   margin-right: 0;
 }
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
+=======
+.menu-text-ellipsis {
+  display: inline-block;
+  max-width: 80px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+>>>>>>> conflict
 .msg-box {
   min-height: 170px;
 }

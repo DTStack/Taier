@@ -22,6 +22,7 @@ module.exports = {
         'css-hot-loader',
         MiniCssExtractPlugin.loader,
         {
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 <<<<<<< a2d378b31d5e11c8814b8a24c9c833d471f17749
           test:/\.css$/,
           use:[
@@ -137,6 +138,8 @@ module.exports = {
           
         ],
 =======
+=======
+>>>>>>> conflict
           loader: "css-loader",
           options: {
             sourceMap: true
@@ -227,6 +230,9 @@ module.exports = {
       ]
     }
   ],
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 >>>>>>> 图片压缩，更多模块分割，sourcemap减少
+=======
+>>>>>>> conflict
 }
 

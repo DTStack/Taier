@@ -1,7 +1,8 @@
 # DATA-STACK 
 
-# 更新日志
+# News!
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 DTinsight v2.1.0
 
  > 版本：DTinsight v2.1.0 <br>
@@ -19,6 +20,15 @@ DTinsight v2.1.0
 - 整合Webpack v4.0
 - 升级React至16.3
 - ...
+=======
+项目构建工具已经升级到Webpack v4.0！
+
+## 升级方法
+> npm install
+
+> npm run dev
+
+>>>>>>> conflict
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)

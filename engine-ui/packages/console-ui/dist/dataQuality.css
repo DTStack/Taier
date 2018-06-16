@@ -282,6 +282,14 @@
   font-weight: normal;
 }
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
+=======
+.flex-middle {
+  display: flex;
+  align-items: center;
+}
+
+>>>>>>> conflict
 .m-slide-pane .box-title {
   height: 35px;
   line-height: 35px;
@@ -556,18 +564,32 @@
   color: #ffffff;
 }
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap,
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--single {
+=======
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap,
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field,
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple,
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single {
+>>>>>>> conflict
   height: 28px;
   line-height: 28px;
 }
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--single .ant-select-selection__rendered {
+=======
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap .ant-select-selection__rendered,
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field .ant-select-selection__rendered,
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple .ant-select-selection__rendered,
+.m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single .ant-select-selection__rendered {
+>>>>>>> conflict
   height: 28px;
   line-height: 28px;
 }
@@ -642,6 +664,12 @@
   position: absolute;
 }
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
+=======
+.copy-hover:hover{
+    color:#58abf9;
+}
+>>>>>>> conflict
 * {
     margin: 0;
     padding: 0;
@@ -666,6 +694,14 @@ ul,li{
 /**
 ** CSS 主引入口
 **/
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
+=======
+body {
+  overflow: unset;
+  background: #f2f7fa;
+}
+
+>>>>>>> conflict
 .m-8 {
   margin: 0 8px;
 }
@@ -743,9 +779,36 @@ table {
   font-size: 12px;
 }
 
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 .rule-dashboard {
   height: 100%;
   overflow-x: hidden;
+=======
+.header-fixed .header {
+  position: fixed;
+  z-index: 1009;
+}
+
+.container-relative .container {
+  position: relative;
+  overflow-y: unset;
+}
+
+.ant-form-inline .ant-form-item-with-help.cell-center {
+  margin-bottom: 0px;
+  padding: 10px 0px;
+}
+
+.cell-center-box {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ant-form-inline .ant-form-item-with-help.cell-multiple-center {
+  margin-top: 15px;
+  margin-bottom: 15px;
+>>>>>>> conflict
 }
 
 .rule-dashboard .rule-manage {

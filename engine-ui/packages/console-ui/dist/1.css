@@ -1,3 +1,4 @@
+<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -53,6 +54,8 @@
 }
 @icon-url : /public/iconfont/iconfont;
 
+=======
+>>>>>>> conflict
 .CodeMirror-merge {
   position: relative;
   border: 1px solid #ddd;
