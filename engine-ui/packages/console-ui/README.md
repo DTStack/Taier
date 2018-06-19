@@ -1,11 +1,14 @@
 # DATA-STACK 
 
-# 项目实验室 
+# News!
 
-### TODO
-- 整合Webpack v4.0
-- 升级React至16.3
-- ...
+项目构建工具已经升级到Webpack v4.0！
+
+## 升级方法
+> npm install
+
+> npm run dev
+
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
