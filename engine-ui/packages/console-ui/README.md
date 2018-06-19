@@ -19,6 +19,9 @@ DTinsight v2.1.0
 - 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-0-2/issues)
 
 
+# v2.0.6 （2018-06-19)
+- 新增任务依赖类型
+
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明

@@ -136,6 +136,7 @@ class SourceForm extends React.Component {
     }
 
     changeTable(value) {
+        console.log('changeTable:', value)
         if(value){
             this.getTableColumn(value);
         }
@@ -450,7 +451,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
