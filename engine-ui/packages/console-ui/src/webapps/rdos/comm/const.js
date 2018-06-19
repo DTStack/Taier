@@ -364,7 +364,13 @@ export const defaultEditorOptions = { // 编辑器选项
     // extraKeys: { 'Ctrl-Space': 'autocomplete' },
 }
 
-export const originTypeTransformRule = [
+export const transformRuleType = { // 整库迁移高级设置转换类型
+    1: 'nameRule',
+    2: 'columnRule',
+    3: 'typeRule',
+}
+
+export const originTypeTransformRule = [ // 整库迁移高级设置字段转换规则
     'tinyint',
     'smallint',
     'mediumint',
@@ -388,7 +394,7 @@ export const originTypeTransformRule = [
     'bool'
 ]
 
-export const targetTypeTransformRule = [
+export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换规则
     'BIGINT',
     'STRING',
     'DOUBLE',
