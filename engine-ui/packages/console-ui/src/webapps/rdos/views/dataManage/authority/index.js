@@ -584,6 +584,9 @@ class AuthMana extends Component {
 
         const { projects } = this.props;
 
+        const today0 = new Date(new Date().toLocaleDateString()).getTime();
+        const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
+
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
@@ -619,7 +622,12 @@ class AuthMana extends Component {
                     />
                 </FormItem>
                 <FormItem label="时间选择">
-                    <RangePicker onChange={this.onChangeTime} format="YYYY-MM-DD HH:mm:ss" value={rangeTime} />
+                    <RangePicker 
+                        onChange={this.onChangeTime} 
+                        format="YYYY-MM-DD HH:mm:ss" 
+                        value={rangeTime} 
+                        ranges={{ Today: [moment(today0), moment(today24)]}}
+                    />
                 </FormItem>
             </Form>
         )
@@ -657,6 +665,7 @@ class AuthMana extends Component {
     }
 
     render() {
+       
         const { editRecord, visible, agreeApply, descModel, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
