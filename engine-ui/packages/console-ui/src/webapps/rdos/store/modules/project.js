@@ -6,6 +6,7 @@ import Api from '../../api'
 const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
+    'GET_ALL_PROJECTS',
     'SET_PROJECT',
 ], { prefix: 'project/' })
 
@@ -53,10 +54,32 @@ export function getProjects(params) {
     }
 }
 
+export function getAllProjects(params) {
+    return function fn(dispatch) {
+        Api.getAllProjects(params).then((res) => {
+            return dispatch({
+                type: projectAction.GET_ALL_PROJECTS,
+                data: res.data,
+            })
+        })
+    }
+}
+
 // Reducer
+// 获取系统下登录用户有权限的项目
 export function projects(state = [], action) {
     switch (action.type) {
     case projectAction.GET_PROJECTS:
+        return action.data || state
+    default:
+        return state
+    }
+}
+
+// 获取系统所以项目
+export function allProjects(state = [], action) {
+    switch (action.type) {
+    case projectAction.GET_ALL_PROJECTS:
         return action.data || state
     default:
         return state

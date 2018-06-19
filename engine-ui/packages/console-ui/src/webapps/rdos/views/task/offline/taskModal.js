@@ -385,7 +385,7 @@ class TaskModal extends React.Component {
                                 this.closeModal();
                                 setTimeout(() => {
                                     form.resetFields();
-                                }, 500);
+                                }, 300);
                             }
                         }
                     );
