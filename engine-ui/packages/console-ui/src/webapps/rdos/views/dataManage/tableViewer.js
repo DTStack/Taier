@@ -210,8 +210,8 @@ export default class TableViewer extends React.Component{
             key: 'columnType'
         },{
             title: '注释',
-            dataIndex: 'columnDesc',
-            key: 'columnDesc',
+            dataIndex: 'comment',
+            key: 'comment',
             render(text) {
                 return text
             }
@@ -251,7 +251,7 @@ export default class TableViewer extends React.Component{
                                     </tr>
                                     <tr>
                                         <th>创建时间</th>
-                                        <td>{ moment(tableData.table.createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{ moment(tableData.table.gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                     <tr>
                                         <th>所属类目</th>

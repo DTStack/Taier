@@ -58,11 +58,11 @@ class AuthMana extends Component {
 
     constructor(props) {
         super(props);
-        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
-        const isPermission = this.isAdminAbove==1 ? "0" : "1";
+        const isAdminAbove = this.props.user&&this.props.user.isAdminAbove || 0;
+        const isPermission = isAdminAbove==1 ? "0" : "1";
         const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
-        // this.isAdminAbove = 0;
         this.state = {
+            isAdminAbove,
             table: [],
             editRecord: [],
             checkAll: false,
@@ -93,6 +93,18 @@ class AuthMana extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        if(nextProps.user != this.props.user){
+            this.judgmentAauthority(nextProps)
+        }
+    }
+
+    judgmentAauthority = (nextProps) => {
+        let { queryParams,isAdminAbove } = this.state;
+        isAdminAbove = nextProps.user&&nextProps.user.isAdminAbove;
+        const isPermission = isAdminAbove==1 ? "0" : "1";
+        const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
+        queryParams.listType = listType;
+        this.setState({queryParams,isAdminAbove})
     }
 
     search = () => {
@@ -281,7 +293,7 @@ class AuthMana extends Component {
                             <Button type="primary" size="small"  onClick={()=>{this.revoke()}}>批量回收</Button>&nbsp;
                         </div>
                     </div>
-                )
+                ) 
             }
             case "1": // 申请记录
             case "2":  // 已处理
@@ -647,7 +659,7 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, descModel, queryParams} = this.state;
+        const { editRecord, visible, agreeApply, descModel, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
@@ -658,7 +670,7 @@ class AuthMana extends Component {
 
                 >
                    {
-                       this.isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
+                        isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
                                                     {this.renderPane(true)}
                                                     <ApprovalModal 
                                                         visible={visible}
@@ -679,12 +691,12 @@ class AuthMana extends Component {
                         {this.renderPane()}
                     </TabPane>
                     {
-                        this.isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
+                        isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
                                                     {this.renderPane()}
                                                 </TabPane> : ""
                     }
                     {
-                        this.isAdminAbove == 1 ?<TabPane tab="权限回收" key={3}>
+                        isAdminAbove == 1 ?<TabPane tab="权限回收" key={3}>
                                                     {this.renderPane(true)}
                                                 </TabPane> : ""
                     }
