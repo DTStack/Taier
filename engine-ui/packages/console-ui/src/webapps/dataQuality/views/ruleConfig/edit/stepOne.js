@@ -466,6 +466,7 @@ export default class StepOne extends Component {
                                     initialValue: tableName
                                 })(
                                     <Select
+                                        mode="combobox"
                                         showSearch
                                         style={{ width: '85%', marginRight: 15 }}
                                         onChange={this.onTableChange}>

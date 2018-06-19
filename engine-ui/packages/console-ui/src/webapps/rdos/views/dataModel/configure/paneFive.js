@@ -24,6 +24,11 @@ const defaultRule = {
     name: '自定义',
 };
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 class ModelDefineRule extends Component {
 
     state = {
@@ -32,6 +37,14 @@ class ModelDefineRule extends Component {
 
     componentDidMount() {
         this.loadTbNameRules();
+    }
+
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadTbNameRules();
+        }
     }
 
     loadTbNameRules = () => {
@@ -167,7 +180,7 @@ class ModelDefineRule extends Component {
                     noHovering
                     bordered={false}
                     loading={false}
-                    title="表命名规则生成配置:"
+                    title="表名生成规则配置:"
                 >
                     <div>
                         <Form style={{marginTop: '24px'}}>

@@ -99,11 +99,27 @@ class TargetForm extends React.Component {
     }
 
     changeSource(value) {
-        const { handleSourceChange } = this.props;
+        const { handleSourceChange, form } = this.props;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
         handleSourceChange(this.getDataObjById(value));
+        this.resetTable();
+    }
+
+    resetTable(){
+        const { form } = this.props;
+        this.changeTable('');
+        //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
+        this.setState({
+            selectHack:true
+        },()=>{
+            form.resetFields(['table'])
+            this.setState({
+                selectHack:false
+            })
+        })
+        
     }
 
     changeTable(value) {
@@ -216,6 +232,7 @@ class TargetForm extends React.Component {
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
+        const { selectHack } = this.state
 
         const { targetMap, dataSourceList, isCurrentTabNew } = this.props;
         let formItem;
@@ -227,7 +244,7 @@ class TargetForm extends React.Component {
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -315,7 +332,7 @@ class TargetForm extends React.Component {
             case DATA_SOURCE.HIVE:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -328,7 +345,8 @@ class TargetForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -491,7 +509,7 @@ class TargetForm extends React.Component {
             }
             case DATA_SOURCE.HBASE: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -504,7 +522,8 @@ class TargetForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onBlur={this.changeTable.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

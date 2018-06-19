@@ -9,14 +9,20 @@ import {
 import utils from 'utils';
 
 import BasePane from './basePane';
-import PaneSix from './paneSix';
+import { AtomIndexDefine } from './paneSix';
 import DeriveIndexModal from './paneSevenModal';
 import Api from '../../../api/dataModel';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class DeriveIndexDefine extends PaneSix {
+
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
+export default class DeriveIndexDefine extends AtomIndexDefine {
 
     componentDidMount() {
         this.setState({
@@ -24,6 +30,14 @@ export default class DeriveIndexDefine extends PaneSix {
                 type: 2, // 原子指标
             }),
         }, this.loadData)
+    }
+
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
     }
 
     initColumns = () => {
@@ -75,7 +89,7 @@ export default class DeriveIndexDefine extends PaneSix {
 
     render() {
 
-        const { loading, table, modalVisible, modalData } = this.state;
+        const { loading, table={}, modalVisible, modalData } = this.state;
 
         const pagination = {
             total: table.totalCount,

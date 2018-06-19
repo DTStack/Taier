@@ -10,6 +10,8 @@ import GoBack from 'main/components/go-back'
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 
+import { isEqTable } from './tableRelation'
+
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
@@ -23,36 +25,16 @@ const {
     mxPolyline,
     mxEvent,
     mxRubberband,
-    mxCellState,
     mxConstants,
     mxEdgeStyle,
-    mxPopupMenu,
-    mxPerimeter,
-    mxUndoManager,
-    mxCompactTreeLayout,
     mxHierarchicalLayout,
-    mxMorphing,
-    mxGraphView,
-    mxCircleLayout,
-    mxGraphHandler,
-    mxStackLayout,
     mxLayoutManager,
     mxUtils,
-    mxXmlCanvas2D,
-    mxImageExport,
-    mxXmlRequest,
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 120,
     height: 35,
-}
-
-const getVertexNode = (obj) => {
-    return {
-        id: obj.tableId,
-        name: obj.tableName
-    }
 }
 
 export default class TableRelation extends React.Component {
@@ -62,6 +44,7 @@ export default class TableRelation extends React.Component {
         data: {}, // 数据
         tableInfo: {},
         loading: 'success',
+        columnName: '',
         visible: false,
     }
 
@@ -109,9 +92,27 @@ export default class TableRelation extends React.Component {
 
     getXmlNode = (data) => {
         const doc = mxUtils.createXmlDocument()
-        const xmlNode = doc.createElement('table')
+        const xmlNode = doc.createElement('MyTable')
         xmlNode.setAttribute('data',  JSON.stringify(data))
         return xmlNode;
+    }
+
+    insertRootTree = (data) => {
+        const graph = this.graph;
+        const tableData = this.getXmlNode(data);
+        const rootCell = graph.getDefaultParent();
+
+        const height = ((data.columns ? data.columns.length : 0) + 2) * VertexSize.height;
+        const rootVertex = graph.insertVertex(
+            rootCell,
+            null,
+            tableData,
+            this.cx,
+            this.cy,
+            VertexSize.width,
+            height,
+        );
+        return rootVertex;
     }
 
     insertTableColumnVertext = (parent, data) => {
@@ -122,27 +123,21 @@ export default class TableRelation extends React.Component {
 
         const height = ((data.columns ? data.columns.length : 0) + 2) * VertexSize.height;
 
-        let newVertex = '';
-
-        this.executeLayout(() => {
-            newVertex = graph.insertVertex(
-                rootCell,
-                null,
-                tableData,
-                this.cx,
-                this.cy,
-                VertexSize.width,
-                height,
-            );
-            if (data.isParent) {
-                console.log('isParent:', newVertex)
-                graph.insertEdge(rootCell, null, '', newVertex, parent);
-            } else if (data.isChild) {
-                console.log('isChild:', newVertex)
-                graph.insertEdge(rootCell, null, '', parent, newVertex);
-            }
-            graph.view.refresh(newVertex);
-        })
+        const newVertex = graph.insertVertex(
+            rootCell,
+            null,
+            tableData,
+            1,
+            1,
+            VertexSize.width,
+            height,
+        );
+        graph.view.refresh(newVertex);
+        if (data.isParent) {
+            graph.insertEdge(rootCell, null, '', newVertex, parent);
+        } else if (data.isChild) {
+            graph.insertEdge(rootCell, null, '', parent, newVertex);
+        }
 
         return newVertex;
     }
@@ -150,27 +145,33 @@ export default class TableRelation extends React.Component {
     insertRelationColumn = (data) => {
         const graph = this.graph;
         const originTable = this.state.tableInfo;
+        const columnName = this.state.columnName;
 
         const parents = data.parentTables;
         const children = data.childTables;
 
         graph.getModel().clear();
+        this.executeLayout(() => {
+            originTable.currentColumn = columnName;
+            const originCell = this.insertRootTree(originTable);
+            if (parents && parents.length > 0) {
+                for (let i = 0; i < parents.length; i++) {
+                    const node = parents[i];
+                    node.isParent = true;
+                    this.insertTableColumnVertext(originCell, node);
+                }
+            }
 
-        // reinsert origin table
-        const originCell = this.insertTableColumnVertext(graph.getDefaultParent(), originTable);
-        this.rootCell = originCell;
-        
-        for (let i = 0; i < parents.length; i++) {
-            const node = parents[i];
-            node.isParent = true;
-            this.insertTableColumnVertext(originCell, node);
-        }
-        for (let i = 0; i < children.length; i++) {
-            const node = children[i];
-            node.isChild = true;
-            this.insertTableColumnVertext(originCell, node);;
-        }
-        graph.view.setTranslate(this.cx, this.cy);
+            if (children && children.length > 0) {
+                for (let i = 0; i < children.length; i++) {
+                    const node = children[i];
+                    node.isChild = true;
+                    this.insertTableColumnVertext(originCell, node);;
+                }
+            }
+        })
+        graph.center();
+
     }
 
     doInsertVertex = (data) => {
@@ -181,18 +182,17 @@ export default class TableRelation extends React.Component {
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        const layout = new mxHierarchicalLayout(graph);
-        layout.orientation = 'west';
-        // const layout = new mxCompactTreeLayout(graph, true);
-        // layout.horizontal = true;
-
         this.executeLayout = function(change, post) {
             model.beginUpdate();
             try {
+                const layout = new mxHierarchicalLayout(graph, false);
+                layout.orientation = 'west';
+                layout.disableEdgeStyle = false;
+
                 if (change != null) {
                     change();
                 }
-                layout.execute(graph.getDefaultParent(), this.rootCell);
+                layout.execute(graph.getDefaultParent())
             } catch (e) {
                 throw e;
             } finally {
@@ -200,7 +200,10 @@ export default class TableRelation extends React.Component {
                 model.endUpdate();
             }
         }
-        this.rootCell = this.insertTableColumnVertext(parent, data);
+
+        this.executeLayout(() => {
+            this.insertRootTree(data);
+        })
         graph.view.setTranslate(this.cx, this.cy);
     }
 
@@ -209,19 +212,15 @@ export default class TableRelation extends React.Component {
         // Disables the context menu
         mxEvent.disableContextMenu(container);
 
-        mxGraphView.prototype.optimizeVmlReflows = false;
-        mxGraphHandler.prototype.htmlPreview = true;
-
         const graph = new mxGraph(container);
+        this.graph = graph;
 
         // Disables global features
-        graph.setCellsDisconnectable(false);
-        graph.setAllowDanglingEdges(false);
-        graph.setCellsEditable(false);
         graph.setConnectable(true);
         graph.setPanning(true);
         graph.centerZoom = false;
         graph.keepEdgesInBackground = true;
+
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
         graph.setTooltips(true)
@@ -232,10 +231,8 @@ export default class TableRelation extends React.Component {
 
         // 禁止Edge对象移动
         graph.isCellsMovable = function () {
-            if (this.graph) {
-                var cell = this.graph.getSelectionCell()
-            }
-            return true;
+            var cell = graph.getSelectionCell()
+            return !(cell && cell.edge)
         }
         // 禁止cell编辑
         graph.isCellEditable = function () {
@@ -246,13 +243,6 @@ export default class TableRelation extends React.Component {
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
 
-        let style = [];
-        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
-        style[mxConstants.STYLE_STROKECOLOR] = '#DDDDDD';
-        style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
-        style[mxConstants.STYLE_FOLDABLE] = false;
-        graph.getStylesheet().putCellStyle('column', style);
-
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
@@ -261,10 +251,6 @@ export default class TableRelation extends React.Component {
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
-
-        // 转换value显示的内容
-        // 重置tooltip
-        graph.getTooltipForCell = this.formatTooltip
 
         // enables rubberband
         new mxRubberband(graph);
@@ -278,37 +264,17 @@ export default class TableRelation extends React.Component {
                 let lis = ''
                 for (let i = 0; i < table.columns.length; i++) {
                     const col = table.columns[i]
-                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn">${col}</li>`
+                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '##595959'}">${col}</li>`
                 }
-                return `<ul class="t-vertext"><li class="tname bd-top">${tableTitle}</li><li class="tname">${table.tableName}</li>${lis}</ul>`;
+                return `<ul class="t-vertext"><li key="tableTitle" class="tname bd-top" title="${tableTitle}">${tableTitle}</li><li key="tableName" class="tname" title="${table.tableName}">${table.tableName}</li>${lis}</ul>`;
             } else {
                 return '';
             }
         };
-        this.graph = graph;
     }
 
     getStyles = (data) => {
         return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
-    }
-
-    formatTooltip = (cell) => {
-        const data = cell.getAttribute('data');
-        const obj = data ? JSON.parse(data) : '';
-        return obj ? obj.name : ''
-    }
-
-    corvertValueToString = (cell) => {
-        if (mxUtils.isNode(cell.value)) {
-            if (cell.value.nodeName.toLowerCase() == 'table') {
-                const data = cell.getAttribute('data');
-                const obj = data ? JSON.parse(data) : '';
-                if (obj) {
-                    return obj.name || ''
-                }
-            }
-        }
-        return '';
     }
 
     showLoading = () => {
@@ -321,6 +287,8 @@ export default class TableRelation extends React.Component {
 
     listenOnClick() {
         const ctx = this;
+        const tableInfo = this.state.tableInfo;
+
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             const cellTarget = evt.getProperty('event')
@@ -328,16 +296,17 @@ export default class TableRelation extends React.Component {
             if (cellTarget.which === CLICK_LEFT && cell && cell.vertex) {
                 let data = cell.getAttribute('data')
                 const obj = data ? JSON.parse(data) : '';
-
                 const colName = cellTarget.target.getAttribute('data-col');
-
-                if (ctx.state.tableInfo.tableName === obj.tableName && colName) {
+                if (colName && isEqTable(ctx.state.tableInfo, obj)) {
                     const params = {
                         tableName: obj.tableName,
                         belongProjectId: obj.belongProjectId,
                         dataSourceId: obj.dataSourceId,
                         column: colName,
                     }
+                    ctx.setState({
+                        columnName: colName,
+                    })
                     ctx.loadRelationColumns(params)
                 }
             }
@@ -374,12 +343,6 @@ export default class TableRelation extends React.Component {
                     <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">
-                    <Tooltip placement="bottom" title="返回">
-                        <Icon
-                            type="left-circle"
-                            onClick={this.props.onShowTable}
-                        />
-                    </Tooltip>
                     <Tooltip placement="bottom" title="刷新">
                         <Icon type="reload" onClick={this.refresh} />
                     </Tooltip>
@@ -390,6 +353,15 @@ export default class TableRelation extends React.Component {
                         <MyIcon onClick={this.zoomOut} type="zoom-out" />
                     </Tooltip>
                 </div>
+                <Button style={{
+                    position: 'absolute',
+                    top: -30,
+                    right: 10
+                }} 
+                    onClick={this.props.onShowTable} 
+                    size="small">
+                    <Icon type="left" />返回
+                </Button>
             </div>
         )
     }
@@ -406,12 +378,11 @@ export default class TableRelation extends React.Component {
 
     getDefaultEdgeStyle() {
         let style = [];
-        style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        style[mxConstants.STYLE_FONTSIZE] = '10';
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
         style[mxConstants.STYLE_ROUNDED] = true;
-        return style
+        return style;
     }
 
     /* eslint-disable */

@@ -7,9 +7,8 @@ import {
 import utils from 'utils'
 
 
-import API from '../../../../api/dataManage';
-// import DataMaApi from '../../../../api/dataManage';
-import Editor from '../../../../components/code-editor';
+import API from '../../../../api/dataManage'
+import Editor from '../../../../components/code-editor'
 import CopyIcon from "main/components/copy-icon";
 
 import { formItemLayout } from '../../../../comm/const'
@@ -24,8 +23,25 @@ export default class ImportTarget extends Component {
 
     state = {
         visible: false,
+        pagination:{
+            current:1,
+            pageSize:10
+        }
     }
 
+    componentWillReceiveProps(nextProps){
+        const { visible } = this.props;
+        const { visible:visibleNext } = nextProps;
+        if(visible!=visibleNext&&!visibleNext){
+            this.setState({
+                pagination:{
+                    current:1,
+                    pageSize:10
+                }
+            })
+        }
+    }
+    
     tableInput = (tableName) => {
         const { changeStatus } = this.props
         if (tableName.length > 0) {
@@ -62,7 +78,7 @@ export default class ImportTarget extends Component {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
                     //假如发现和文件资源column有相等的columnName，则直接默认设置为此columnName。
-                    const columnName=item.name;
+                    const columnName=item.columnName;
                     const index=fileColumns.indexOf(columnName);
 
                     if(index>-1){
@@ -72,7 +88,7 @@ export default class ImportTarget extends Component {
                 })
                 const partitions = tableData.partition && tableData.partition.map(item => {
                     return {
-                        [item.name]: ''
+                        [item.columnName]: ''
                     }
                 })
                 changeStatus({
@@ -94,7 +110,7 @@ export default class ImportTarget extends Component {
         const { targetTable, partitions, originPartitions } = this.props.formState
         for (let i = 0; i < partitions.length; i++) {
             const item = partitions[i]
-            const key = originPartitions[i].name
+            const key = originPartitions[i].columnName
             if (utils.trim(item[key]) === '') {
                 message.error('分区值不可为空！')
                 return
@@ -102,7 +118,7 @@ export default class ImportTarget extends Component {
         }
 
         API.checkTablePartition({
-            tableId: targetTable.tableId,
+            tableId: targetTable.id,
             partitionInfo: partitions,
         }).then((res) => {
             if (res.data) {
@@ -121,8 +137,8 @@ export default class ImportTarget extends Component {
                     visible: false,
                     tableList:[res.data]
                 })
-                this.tbNameOnChange(res.data.tableId)
-                this.tableChange(res.data.tableId,{props:{data:res.data}})
+                this.tbNameOnChange(res.data.id)
+                this.tableChange(res.data.id,{props:{data:res.data}})
                 message.success('表创建成功!')
             }
         })
@@ -141,6 +157,12 @@ export default class ImportTarget extends Component {
         changeStatus({
             columnMap: arr,
             targetExchangeWarning: false
+        })
+    }
+
+    onTableChange(pagination){
+        this.setState({
+            pagination:pagination
         })
     }
 
@@ -164,7 +186,7 @@ export default class ImportTarget extends Component {
         const originPartitions = this.props.formState.partitions
         const newPartitions = [...originPartitions]
         newPartitions[index] = {
-            [partition.name]: e.target.value,
+            [partition.columnName]: e.target.value,
         }
         this.props.changeStatus({
             partitions: newPartitions
@@ -180,6 +202,7 @@ export default class ImportTarget extends Component {
 
     generateCols = (data) => {
         const { formState, warning } = this.props;
+        const { pagination } = this.state;
         const { columnMap } = formState;
         const options = data ? data[0].map((item, index) => {
             return (
@@ -205,11 +228,12 @@ export default class ImportTarget extends Component {
             title: sourceTitle,
             key: 'source_part',
             render: (text, record, index) => {
+                let columnIndex=index+(pagination.current-1)*pagination.pageSize
                 return (<span>
                     <Select
-                        value={formState.matchType === 0?'':columnMap[index]}
+                        value={formState.matchType === 0?'':columnMap[columnIndex]}
                         disabled={formState.matchType === 0}
-                        onSelect={(value) => { this.mapChange(value, index) }}
+                        onSelect={(value) => { this.mapChange(value, columnIndex) }}
                         style={{ width: '200px' }}
                     >
                         <Option key={`col-null`} value={""}>
@@ -229,10 +253,10 @@ export default class ImportTarget extends Component {
                 <Row key={`partition-${index}`}>
                     <div
                         className="ellipsis"
-                        title={item.name}
+                        title={item.columnName}
                         style={{ width: '60px', display: 'inline-block' }}
                     >
-                        {item.name}
+                        {item.columnName}
                     </div>
                     <Input
                         style={{ width: '140px' }}
@@ -262,6 +286,7 @@ export default class ImportTarget extends Component {
     render() {
         const { data, file, display, formState } = this.props
         const { tableList, tableData, queryTable, asTitle } = formState
+        const { pagination } = this.state;
 
         const columns = this.generateCols(data, tableData)
 
@@ -348,6 +373,8 @@ export default class ImportTarget extends Component {
                         bordered
                         columns={columns}
                         dataSource={dataSource}
+                        onChange={this.onTableChange.bind(this)}
+                        pagination={pagination}
                     />
                 </Row>
                 <Modal className="m-codemodal"

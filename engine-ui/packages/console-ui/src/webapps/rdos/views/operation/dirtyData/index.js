@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { cloneDeep } from 'lodash'
-import { Link } from 'react-router'
+import { Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux';
 
 import {
     Row, Col, Card, Button,
-    Form, Select, Input, Table, 
+    Form, Select, Input, Table,
     Radio,
 } from 'antd'
 
@@ -33,32 +33,32 @@ const Option = Select.Option;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
-const TIME_OBJ={
-    3:{
-        interval:2,
-        field:1,
-        formatter:function(time){
+const TIME_OBJ = {
+    3: {
+        interval: 2,
+        field: 1,
+        formatter: function (time) {
             return utils.formatDateHours(time)
         }
     },
-    7:{
-        interval:3,
-        field:1,
-        formatter:function(time){
+    7: {
+        interval: 3,
+        field: 1,
+        formatter: function (time) {
             return utils.formatDateHours(time)
         }
     },
-    30:{
-        interval:1,
-        field:2,
-        formatter:function(time){
+    30: {
+        interval: 1,
+        field: 2,
+        formatter: function (time) {
             return utils.formatDate(time)
         }
     },
-    60:{
-        interval:1,
-        field:2,
-        formatter:function(time){
+    60: {
+        interval: 1,
+        field: 2,
+        formatter: function (time) {
             return utils.formatDate(time)
         }
     },
@@ -89,12 +89,12 @@ class DirtyData extends Component {
     }
 
     componentDidMount() {
-        this.loadProduceTrendData({ 
-            recent: 3, 
+        this.loadProduceTrendData({
+            recent: 3,
         })
-        this.loadProduceTop30({ 
-            recent: 3, 
-            topN: 30, 
+        this.loadProduceTop30({
+            recent: 3,
+            topN: 30,
         })
         this.loadProduceData()
         this.loadSyncTasks()
@@ -104,12 +104,12 @@ class DirtyData extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.loadProduceTrendData({ 
-                recent: 3, 
+            this.loadProduceTrendData({
+                recent: 3,
             })
-            this.loadProduceTop30({ 
-                recent: 3, 
-                topN: 30, 
+            this.loadProduceTop30({
+                recent: 3,
+                topN: 30,
             })
             this.loadProduceData()
         }
@@ -121,9 +121,9 @@ class DirtyData extends Component {
 
     loadProduceTrendData = (params) => {
         const ctx = this
-        const time=params.recent;
-        params.interval=TIME_OBJ[time].interval;
-        params.field=TIME_OBJ[time].field;
+        const time = params.recent;
+        params.interval = TIME_OBJ[time].interval;
+        params.field = TIME_OBJ[time].field;
 
         Api.getDirtyDataTrend(params).then((res) => {
             if (res.code === 1) {
@@ -190,9 +190,9 @@ class DirtyData extends Component {
         this.loadProduceTrendData({
             recent: value,
         })
-        this.loadProduceTop30({ 
-            recent: value, 
-            topN: 30, 
+        this.loadProduceTop30({
+            recent: value,
+            topN: 30,
         })
     }
 
@@ -200,10 +200,10 @@ class DirtyData extends Component {
         const { timeRange } = this.state
         this.loadProduceTrendData({
             taskId: value,
-            recent: timeRange, 
+            recent: timeRange,
         })
     }
-    
+
     onTableNameChange = (e) => {
         this.setState({ tableName: e.target.value, currentPage: 1 })
     }
@@ -219,8 +219,8 @@ class DirtyData extends Component {
             for (let i = 0; i < legend.length; i++) {
                 arr.push({
                     name: legend[i],
-                    
-                    type:'line',
+
+                    type: 'line',
                     data: data.y[i].data,
                 })
             }
@@ -231,8 +231,8 @@ class DirtyData extends Component {
     renderProduceTrend = (chartData) => {
         let myChart = echarts.init(document.getElementById('ProduceTrend'));
         const option = cloneDeep(lineAreaChartOptions);
-        const {timeRange} =this.state;
-       
+        const { timeRange } = this.state;
+
         option.grid = {
             left: '2%',
             right: '8%',
@@ -241,22 +241,22 @@ class DirtyData extends Component {
         }
         option.legend.show = false
         option.title.text = ''
-        option.tooltip.axisPointer.label.formatter = function(obj) {
+        option.tooltip.axisPointer.label.formatter = function (obj) {
             return obj ? TIME_OBJ[timeRange].formatter(+obj.value) : null;
         };
 
         option.xAxis[0].boundaryGap = ['5%', '5%'];
-        option.xAxis[0].axisLabel.formatter = function(value) {
+        option.xAxis[0].axisLabel.formatter = function (value) {
             return value ? TIME_OBJ[timeRange].formatter(+value) : null;
         };
 
         option.yAxis[0].minInterval = 1
         option.legend.data = chartData && chartData.type ? chartData.type.data : []
-        option.xAxis[0].data =  chartData && chartData.x ? chartData.x.data : []
+        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : []
         option.series = this.getSeries(chartData)
         // 绘制图表
         console.log(option)
-        myChart.setOption(option,true);
+        myChart.setOption(option, true);
         this.setState({ lineChart: myChart })
     }
 
@@ -288,7 +288,7 @@ class DirtyData extends Component {
         ]
 
         return (
-            <Card 
+            <Card
                 noHovering
                 bordered={false}
                 loading={false}
@@ -298,9 +298,9 @@ class DirtyData extends Component {
                 <Table
                     rowKey="taskName"
                     pagination={false}
-                    loading={ loadingTop }
-                    columns={ columns }
-                    dataSource={ top30 || [] }
+                    loading={loadingTop}
+                    columns={columns}
+                    dataSource={top30 || []}
                 />
             </Card>
         )
@@ -318,22 +318,22 @@ class DirtyData extends Component {
                 title: '相关任务',
                 dataIndex: 'tableId',
                 key: 'tableId',
-                render: function(text, record) {
-                    const arr = (record.tasks && record.tasks.map(task => 
-                        task.isDeleted === 1 ? 
-                        `${task.name} (已删除)` :
-                        <a onClick={
-                            () => {
-                                ctx.props.goToTaskDev(task.id)
-                            }
-                        }>{task.name}</a>) 
+                render: function (text, record) {
+                    const arr = (record.tasks && record.tasks.map(task =>
+                        task.isDeleted === 1 ?
+                            `${task.name} (已删除)` :
+                            <a onClick={
+                                () => {
+                                    ctx.props.goToTaskDev(task.id)
+                                }
+                            }>{task.name}</a>)
                     ) || []
                     return arr;
                 }
             }, {
-                title: '创建者',
-                dataIndex: 'userName',
-                key: 'userName'
+                title: '责任人',
+                dataIndex: 'chargeUser',
+                key: 'chargeUser'
             }, {
                 title: '描述',
                 dataIndex: 'tableDesc',
@@ -342,27 +342,35 @@ class DirtyData extends Component {
                 title: '最近更新时间',
                 dataIndex: 'gmtModified',
                 key: 'gmtModified',
-                render: function(text) {
+                render: function (text) {
                     return utils.formatDateTime(text);
                 }
             }, {
                 title: '占用存储',
-                dataIndex: 'storeSize',
-                key: 'storeSize'
+                dataIndex: 'tableSize',
+                key: 'tableSize'
             }, {
                 title: '生命周期',
                 dataIndex: 'lifeDay',
                 key: 'lifeDay'
             }, {
                 title: '操作',
-                dataIndex: 'tableId',
+                dataIndex: 'id',
                 key: 'operation',
                 render(id, record) {
                     return (
                         <span>
-                            <Link to={`/data-manage/dirty-data/table/${id}`}>详情</Link>
+                            <Link to={`/operation/dirty-data/table/${id}`}>详情</Link>
                             <span className="ant-divider" />
-                            <Link to={`/data-manage/log/${id}/${record.tableName}`}>操作记录</Link>
+                            <a onClick={() => {
+                                hashHistory.push({
+                                    pathname: '/operation/log',
+                                    query: {
+                                        id: id,
+                                        tableName: record.tableName
+                                    }
+                                })
+                            }}>操作记录</a>
                         </span>
                     )
                 }
@@ -370,10 +378,10 @@ class DirtyData extends Component {
         ]
 
         const title = (
-            <Form layout="inline" 
+            <Form layout="inline"
                 className="m-form-inline"
                 style={{ marginTop: '10px' }}
-                >
+            >
                 <FormItem
                     label="选择任务"
                 >
@@ -393,8 +401,8 @@ class DirtyData extends Component {
                         placeholder="按表名称搜索"
                         style={{ width: 150 }}
                         size="default"
-                        onChange={ this.onTableNameChange }
-                        onSearch={ this.search }
+                        onChange={this.onTableNameChange}
+                        onSearch={this.search}
                     />
                 </FormItem>
                 <FormItem>
@@ -403,14 +411,14 @@ class DirtyData extends Component {
             </Form>
         );
 
-        const pagination = { 
+        const pagination = {
             total: produceList.totalCount,
             defaultPageSize: 10,
             current: currentPage,
         };
 
         return (
-            <Card title={title} 
+            <Card title={title}
                 noHovering
                 bordered={false}
                 loading={false}
@@ -420,8 +428,8 @@ class DirtyData extends Component {
                     rowKey="tableName"
                     className="m-table"
                     pagination={pagination}
-                    style={{minHeight: '0'}}
-                    loading={ loading }
+                    style={{ minHeight: '0' }}
+                    loading={loading}
                     columns={columns}
                     onChange={this.onTableChange}
                     dataSource={produceList.data || []}
@@ -433,11 +441,11 @@ class DirtyData extends Component {
     render() {
 
         const { taskList } = this.state
-       
-        const taskOptions = taskList && taskList.map(option => 
-            <Option 
-                key={option.id} 
-                name={option.taskName} 
+
+        const taskOptions = taskList && taskList.map(option =>
+            <Option
+                key={option.id}
+                name={option.taskName}
                 value={`${option.id}`}>
                 {option.taskName}
             </Option>
@@ -448,7 +456,7 @@ class DirtyData extends Component {
                 <h1 className="box-title">
                     脏数据统计
                     <span className="right">
-                        <RadioGroup 
+                        <RadioGroup
                             defaultValue={3}
                             onChange={this.onTimeRangeChange}
                             style={{ marginTop: '8.5px' }}
@@ -460,10 +468,10 @@ class DirtyData extends Component {
                         </RadioGroup>
                     </span>
                 </h1>
-                <Row style={{margin: '0 20px'}}>
+                <Row style={{ margin: '0 20px' }}>
                     <Col span={12} style={{ paddingRight: '10px' }}>
                         <Card className="shadow" noHovering bordered={false} title="脏数据产生趋势" extra={
-                            <Select  
+                            <Select
                                 allowClear
                                 showSearch
                                 style={{ width: 150, marginTop: '10px' }}
@@ -471,20 +479,20 @@ class DirtyData extends Component {
                                 onChange={this.onTrendSelectTask}
                                 optionFilterProp="name"
                             >
-                                { taskOptions }
+                                {taskOptions}
                             </Select>
                         }>
                             <Resize onResize={this.resize}>
-                                <section id="ProduceTrend" style={{height: '300px', padding: '0 20px 20px 20px'}}></section>
+                                <section id="ProduceTrend" style={{ height: '300px', padding: '0 20px 20px 20px' }}></section>
                             </Resize>
                         </Card>
                     </Col>
-                    <Col span={12} style={{paddingLeft: '10px'}}>
-                        { this.renderProduceTop30() }
+                    <Col span={12} style={{ paddingLeft: '10px' }}>
+                        {this.renderProduceTop30()}
                     </Col>
                 </Row>
-                <Row style={{margin: '20px'}}>
-                    { this.renderProduceList(taskOptions) }
+                <Row style={{ margin: '20px' }}>
+                    {this.renderProduceList(taskOptions)}
                 </Row>
             </div>
         )

@@ -273,7 +273,7 @@ class PatchDataDetail extends Component {
             execTimeSort: '',//运行时长
             execStartSort: '',//执行开始
             cycSort: '',//计划时间
-            businessDate: ''
+            businessDateSort: ''
 
         }
         if (sorter) {

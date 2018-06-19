@@ -72,6 +72,7 @@ class ProjectConfig extends Component {
                     if (res.code === 1) {
                         const newProject = Object.assign(project, projectForm)
                         dispatch(ProjectAction.setProject(newProject))
+                        dispatch(ProjectAction.getProjects())
                         ctx.setState({ visibleUpdateDesc: false })
                         message.success('项目更新成功！')
                     }

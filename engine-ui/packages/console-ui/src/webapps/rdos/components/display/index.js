@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { TASK_TYPE, SCHEDULE_STATUS } from '../../comm/const'
+import { TASK_TYPE, SCHEDULE_STATUS, TASK_STATUS } from '../../comm/const'
 import { Circle } from 'widgets/circle' 
 
 export function taskTypeText(type) {
@@ -19,6 +19,44 @@ export function taskTypeText(type) {
             return 'SQL';
         default:
             return '未知';
+    }
+}
+
+export function taskStatusText(type) {
+    switch (type) {
+        case TASK_STATUS.WAIT_SUBMIT:
+            return '等待提交';
+        case TASK_STATUS.CREATED:
+            return '数据同步';
+        case TASK_STATUS.INVOKED:
+            return '已调用';
+        case TASK_STATUS.DEPLOYING:
+            return '部署中';
+        case TASK_STATUS.RUNNING:
+            return '运行中';
+        case TASK_STATUS.FINISHED:
+            return '完成';
+        case TASK_STATUS.STOPED:
+            return '取消';
+        case TASK_STATUS.STOPING:
+            return '取消中';
+        case TASK_STATUS.RUN_FAILED:
+        case TASK_STATUS.SUBMIT_FAILED:
+            return '失败';
+        case TASK_STATUS.SUBMITTING:
+            return '提交中';
+        case TASK_STATUS.RESTARTING:
+            return '重启中';
+        case TASK_STATUS.SET_SUCCESS:
+            return '设置成功';
+        case TASK_STATUS.WAIT_RUN:
+            return '等待运行';
+        case TASK_STATUS.WAIT_COMPUTE:
+            return '等待计算';
+        case TASK_STATUS.FROZEN:
+            return '冻结';
+        default:
+            return '';
     }
 }
 

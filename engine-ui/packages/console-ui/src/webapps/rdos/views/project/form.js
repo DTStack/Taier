@@ -58,7 +58,7 @@ class ProjectForm extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="项目别名"
+                        label="项目显示名称"
                         hasFeedback
                     >
                         {getFieldDecorator('projectAlias', {

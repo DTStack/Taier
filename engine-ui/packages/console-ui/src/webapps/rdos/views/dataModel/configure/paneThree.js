@@ -14,6 +14,11 @@ import FreshFrequencyModal from './paneThreeModal';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 export default class FreshFrequency extends BasePane {
     
     constructor(props) {
@@ -26,6 +31,14 @@ export default class FreshFrequency extends BasePane {
                 type: 3, // 刷新频率
             }),
         }, this.loadData)
+    }
+
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
     }
 
     initColumns = () => {

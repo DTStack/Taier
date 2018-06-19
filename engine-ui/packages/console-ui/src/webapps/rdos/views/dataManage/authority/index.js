@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message, Checkbox,
-    Tag, Icon, Card, Select, Tabs,DatePicker,
+    Tag, Icon, Card, Select, Tabs, DatePicker,
     Spin
 } from 'antd';
 
@@ -68,9 +68,9 @@ class AuthMana extends Component {
             checkAll: false,
             selectedRowKeys: [],
             agreeApply: undefined,
-            visible:false,
-            loading:false,
-            rangeTime:[],
+            visible: false,
+            loading: false,
+            rangeTime: [],
             descModel: {
                 visible: false,
                 descInfo: "",
@@ -108,19 +108,17 @@ class AuthMana extends Component {
     }
 
     search = () => {
-        const { table,loading } = this.state;
-        this.setState({table:[],loading:true})
+        const { table, loading } = this.state;
+        this.setState({ table: [], loading: true })
         const params = this.state.queryParams;
         ajax.getApplyList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
-                    loading: false,
                     checkAll: false,
                 })
-            }else{
-                this.setState({loading:false})
             }
+            this.setState({ loading: false })
         })
     }
 
@@ -134,41 +132,41 @@ class AuthMana extends Component {
     }
 
     approveApply = (params) => {
-        delete params.tableName ;
+        delete params.tableName;
         const { visible } = this.state;
         ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
                 this.setState({
                     visible: false,
-                },this.search)                
+                }, this.search)
             }
         })
     }
 
-    revoke = (ids=[]) => {
+    revoke = (ids = []) => {
         let params;
-        if(ids.length > 0){
-            params = {ids};
-        }else{
-            const { selectedRowKeys,table } = this.state;
-            params = {ids:selectedRowKeys}
+        if (ids.length > 0) {
+            params = { ids };
+        } else {
+            const { selectedRowKeys, table } = this.state;
+            params = { ids: selectedRowKeys }
         }
-        if(params.ids.length > 0){
+        if (params.ids.length > 0) {
             ajax.revoke(params).then(res => {
                 if (res.code === 1) {
                     message.success('回收成功！')
                     this.search()
                 }
             })
-        }else{
+        } else {
             message.warning('请勾选要操作的列表')
         }
-        
+
     }
 
     cancelApply = (id) => {
-        const params = {id}
+        const params = { id }
         ajax.cancelApply(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
@@ -222,13 +220,13 @@ class AuthMana extends Component {
 
     onSelectChange = (selectedRowKeys) => {
         const checkAll = selectedRowKeys.length === this.state.table.data.length;
-        this.setState({ selectedRowKeys,checkAll });
+        this.setState({ selectedRowKeys, checkAll });
     }
 
     onCheckAllChange = (e) => {
         let selectedRowKeys = []
         if (e.target.checked) {
-            selectedRowKeys = this.state.table.data.map(item => item.applyId )
+            selectedRowKeys = this.state.table.data.map(item => item.applyId)
         }
         this.setState({
             checkAll: e.target.checked,
@@ -236,15 +234,15 @@ class AuthMana extends Component {
         })
     }
 
-    batchApply(agreeApply){
-        const { selectedRowKeys,table } = this.state;
+    batchApply(agreeApply) {
+        const { selectedRowKeys, table } = this.state;
         const editRecord = [];
-        if(selectedRowKeys.length > 0){
-            selectedRowKeys.map(item=>{
-                table.data.map(v=>{
-                   if(v.applyId === item ){
-                    editRecord.push(v)
-                   }
+        if (selectedRowKeys.length > 0) {
+            selectedRowKeys.map(item => {
+                table.data.map(v => {
+                    if (v.applyId === item) {
+                        editRecord.push(v)
+                    }
                 })
             })
             this.setState({
@@ -252,9 +250,9 @@ class AuthMana extends Component {
                 visible: true,
                 editRecord,
             })
-        }else{
+        } else {
             message.warning('请勾选要操作的列表')
-        }  
+        }
     }
 
     tableFooter = (currentPageData) => {
@@ -265,16 +263,16 @@ class AuthMana extends Component {
             case "0": { // 待审批
                 return (
                     <div className="ant-table-row  ant-table-row-level-0">
-                        <div style={{ padding: '15px 10px 10px 30px', display:"inline-block" }}>
+                        <div style={{ padding: '15px 10px 10px 30px', display: "inline-block" }}>
                             <Checkbox
-                                checked={ this.state.checkAll }
-                                onChange={ this.onCheckAllChange }
+                                checked={this.state.checkAll}
+                                onChange={this.onCheckAllChange}
                             >
                             </Checkbox>
                         </div>
-                        <div style={{display:"inline-block", marginLeft: '15px'}}>
-                            <Button type="primary" size="small" onClick={this.batchApply.bind(this,true)}>批量通过</Button>&nbsp;
-                            <Button type="primary" size="small" onClick={this.batchApply.bind(this,false)}>批量驳回</Button>&nbsp;
+                        <div style={{ display: "inline-block", marginLeft: '15px' }}>
+                            <Button type="primary" size="small" onClick={this.batchApply.bind(this, true)}>批量通过</Button>&nbsp;
+                            <Button type="primary" size="small" onClick={this.batchApply.bind(this, false)}>批量驳回</Button>&nbsp;
                         </div>
                     </div>
                 )
@@ -282,15 +280,15 @@ class AuthMana extends Component {
             case "3": { // 权限回收
                 return (
                     <div className="ant-table-row  ant-table-row-level-0">
-                        <div style={{ padding: '15px 10px 10px 30px', display:"inline-block" }}>
+                        <div style={{ padding: '15px 10px 10px 30px', display: "inline-block" }}>
                             <Checkbox
-                                checked={ this.state.checkAll }
-                                onChange={ this.onCheckAllChange }
+                                checked={this.state.checkAll}
+                                onChange={this.onCheckAllChange}
                             >
                             </Checkbox>
                         </div>
-                        <div style={{display:"inline-block", marginLeft: '15px'}}>
-                            <Button type="primary" size="small"  onClick={()=>{this.revoke()}}>批量回收</Button>&nbsp;
+                        <div style={{ display: "inline-block", marginLeft: '15px' }}>
+                            <Button type="primary" size="small" onClick={() => { this.revoke() }}>批量回收</Button>&nbsp;
                         </div>
                     </div>
                 ) 
@@ -306,7 +304,7 @@ class AuthMana extends Component {
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state;
-        
+
         const baseCols = [
             {
                 title: '表名',
@@ -364,8 +362,8 @@ class AuthMana extends Component {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
-                            render(text){
-                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            render(text) {
+                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         },
                         {
@@ -416,7 +414,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '审批状态',
+                            title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
                             render(status) {
@@ -435,8 +433,8 @@ class AuthMana extends Component {
                             title: '申请详情',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
-                            render(text){
-                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            render(text) {
+                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         },
                         {
@@ -447,7 +445,7 @@ class AuthMana extends Component {
                             render(text, record) {
                                 return <span>
                                     {
-                                        text == 0 ? <a onClick={()=>{ctx.cancelApply(record.applyId)}}>撤销</a> : "撤销"
+                                        text == 0 ? <a onClick={() => { ctx.cancelApply(record.applyId) }}>撤销</a> : "撤销"
                                     }
                                 </span>
                             }
@@ -475,7 +473,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '审批状态',
+                            title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
                             render(status) {
@@ -499,8 +497,8 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
-                            render(text){
-                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            render(text) {
+                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         }
                     ]
@@ -521,8 +519,8 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
-                            render(text){
-                                return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
+                            render(text) {
+                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
                             }
                         },
                         {
@@ -539,20 +537,20 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a onClick={()=>{ ctx.revoke([record.applyId]) }}>收回</a>
+                                    <a onClick={() => { ctx.revoke([record.applyId]) }}>收回</a>
                                 </span>
                             }
                         }
                     ]
                 )
             }
-            default: 
+            default:
                 return [];
         }
     }
 
     closeDescModal = () => {
-        const { descModel } = this.state; 
+        const { descModel } = this.state;
         descModel.descInfo = "";
         descModel.visible = false;
         this.setState({
@@ -561,7 +559,7 @@ class AuthMana extends Component {
     }
 
     showDescModal = (text) => {
-        const { descModel } = this.state; 
+        const { descModel } = this.state;
         descModel.descInfo = text;
         descModel.visible = true;
         this.setState({
@@ -569,22 +567,25 @@ class AuthMana extends Component {
         });
     }
 
-    onChangeTime = (date, dateString)=> {
-        let { queryParams,rangeTime } = this.state;
+    onChangeTime = (date, dateString) => {
+        let { queryParams, rangeTime } = this.state;
         rangeTime = date;
         const startTime = Date.parse(dateString[0]);
-        const endTime =  Date.parse(dateString[1]);
+        const endTime = Date.parse(dateString[1]);
         queryParams.startTime = startTime;
         queryParams.endTime = endTime;
         this.setState({
-            queryParams,rangeTime
-        },this.search);
+            queryParams, rangeTime
+        }, this.search);
     };
-      
-    renderPane = (isShowRowSelection=false) => {
-        const { table, selectedRowKeys,queryParams,rangeTime,loading } = this.state;
+
+    renderPane = (isShowRowSelection = false) => {
+        const { table, selectedRowKeys, queryParams, rangeTime, loading } = this.state;
 
         const { projects } = this.props;
+
+        const today0 = new Date(new Date().toLocaleDateString()).getTime();
+        const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
 
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
@@ -596,7 +597,7 @@ class AuthMana extends Component {
         </Option>)
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={{marginTop: '10px'}}>
+            <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
                 <FormItem label="项目">
                     <Select
                         allowClear
@@ -625,8 +626,7 @@ class AuthMana extends Component {
                         onChange={this.onChangeTime} 
                         format="YYYY-MM-DD HH:mm:ss" 
                         value={rangeTime} 
-                        format="YYYY/MM/DD HH:mm:ss"
-                        ranges={{ Today: [moment(), moment()], 'This Month': [moment(), moment().endOf('month')] }}
+                        ranges={{ Today: [moment(today0), moment(today24)]}}
                     />
                 </FormItem>
             </Form>
@@ -636,12 +636,12 @@ class AuthMana extends Component {
             total: table.totalCount,
             defaultPageSize: 10,
         };
-        
+
         const rowSelection = isShowRowSelection ? {
             selectedRowKeys,
             onChange: this.onSelectChange,
-        }: null;
-        
+        } : null;
+
         return <div className="m-tablelist">
             <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
                 <Card noHovering bordered={false} title={title}>
@@ -665,15 +665,7 @@ class AuthMana extends Component {
     }
 
     render() {
-        console.log('----0点',
-            new Date(new Date().toLocaleDateString()).getTime()
-          );
-        console.log('----24点',
-            new Date(new Date().toLocaleDateString()).getTime() +
-              24 * 60 * 60 * 1000 -
-              1
-          );
-        
+       
         const { editRecord, visible, agreeApply, descModel, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
@@ -715,16 +707,16 @@ class AuthMana extends Component {
                                                     {this.renderPane(true)}
                                                 </TabPane> : ""
                     }
-                    
+
                 </Tabs>
                 <div>
                     <Modal
-                    title="详情信息"
-                    visible={descModel.visible}
-                    onCancel={this.closeDescModal}
-                    footer={null}
+                        title="详情信息"
+                        visible={descModel.visible}
+                        onCancel={this.closeDescModal}
+                        footer={null}
                     >
-                        <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
+                        <div style={{ textIndent: "16px" }}>{descModel.descInfo}</div>
                     </Modal>
                 </div>
             </div>

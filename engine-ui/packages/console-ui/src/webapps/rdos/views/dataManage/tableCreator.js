@@ -308,15 +308,14 @@ export class RowItem extends React.Component {
         return true;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return !isEqual(this.props, nextProps);
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     // return !isEqual(this.props, nextProps);
+    // }
 
     render() {
         const { data } = this.props;
         const { editMode } = this.state;
         const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
-        console.log('RowItem',this.props);
         
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
         //const needExtra = true;
@@ -329,10 +328,10 @@ export class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                <Input name="columnName" defaultValue={ columnName }
+                <Input name="columnName" value={ columnName }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    disabled={isPartition}
                 />
             </Col>
             <Col span={8} className="cell">
@@ -348,10 +347,10 @@ export class RowItem extends React.Component {
             <Col span={7} className="cell">
                 <Input 
                     name="comment" 
-                    defaultValue={ comment }
+                    value={ comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    disabled={isPartition}
                 />
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
@@ -479,7 +478,6 @@ export class ColumnsPartition extends React.Component {
 
     render() {
         const { columns, partition_keys, isEdit } = this.props;
-        console.log('ColumnsPartition',this.props);
         
         return <div className="m-columnspartition">
             <div className="columns box">

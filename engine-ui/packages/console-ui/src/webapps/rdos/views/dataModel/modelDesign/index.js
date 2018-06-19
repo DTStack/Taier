@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
-import { 
+import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
     Tag, Icon, Card, Select
@@ -66,7 +66,7 @@ class TableList extends Component {
     search = () => {
         const { params } = this.state;
         ajax.getTableList(params).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 this.setState({
                     table: res.data,
                 })
@@ -102,7 +102,7 @@ class TableList extends Component {
     cleanSearch() {
         const $input = findDOMNode(this.searchInput).querySelector('input');
 
-        if($input.value.trim() === '') return;
+        if ($input.value.trim() === '') return;
 
         $input.value = '';
         this.search();
@@ -134,24 +134,19 @@ class TableList extends Component {
     }
 
     handleOk() {
-        if(this._DDL) {
+        if (this._DDL) {
             ajax.createTableByDDL({
                 sql: this._DDL
             }).then(res => {
-                if(res.code === 1) {
-                    if(!res.data) {
-                        this._DDL = undefined;
-                        // 设置值
-                        this.DDLEditor.self.doc.setValue('');
-                        this.setState({
-                            visible: false
-                        });
-                        message.info('建表成功');
-                        this.search();
-                    }
-                    else {
-                        message.error(res.data.message)
-                    }
+                if (res.code === 1) {
+                    this._DDL = undefined;
+                    // 设置值
+                    this.DDLEditor.self.doc.setValue('');
+                    this.setState({
+                        visible: false
+                    });
+                    message.success('建表成功');
+                    this.search();
                 }
             })
         }
@@ -262,7 +257,7 @@ class TableList extends Component {
                 render(text, record) {
                     return `${text}天`;
                 }
-            },,
+            }, ,
             {
                 title: '负责人',
                 key: 'chargeUser',
@@ -291,10 +286,10 @@ class TableList extends Component {
                     <Select
                         allowClear
                         placeholder="选择主题域"
-                        style={{ width: '120px'}}
+                        style={{ width: '120px' }}
                         onChange={(value) => this.changeParams('subject', value)}
                     >
-                        { subjectFieldsOptions }
+                        {subjectFieldsOptions}
                     </Select>
                 </FormItem>
                 <FormItem label="模型层级">
@@ -302,9 +297,9 @@ class TableList extends Component {
                         allowClear
                         placeholder="选择模型层级"
                         onChange={(value) => this.changeParams('grade', value)}
-                        style={{ width: '120px'}}
+                        style={{ width: '120px' }}
                     >
-                        {  modelLevelOptions }
+                        {modelLevelOptions}
                     </Select>
                 </FormItem>
                 <FormItem>
@@ -312,15 +307,15 @@ class TableList extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
-                        onChange={ this.onTableNameChange }
-                        onSearch={ this.search }
-                        ref={ el => this.searchInput = el }
+                        onChange={this.onTableNameChange}
+                        onSearch={this.search}
+                        ref={el => this.searchInput = el}
                     />
                 </FormItem>
             </Form>
         )
 
-        const extra = ( 
+        const extra = (
             <div style={marginTop10}>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
                     <Link to={`${ROUTER_BASE}/design`}>新建表</Link>
@@ -329,7 +324,7 @@ class TableList extends Component {
                     <Link to={`/data-model/table/create`}>普通建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right' }}
-                    onClick={ this.showModal.bind(this) }
+                    onClick={this.showModal.bind(this)}
                 >DDL建表</Button>
             </div>
         )
@@ -342,25 +337,26 @@ class TableList extends Component {
                         <Table
                             rowKey="id"
                             className="m-table"
-                            columns={ columns }
-                            dataSource={ data }
-                            pagination={ pagination }
-                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
+                            columns={columns}
+                            dataSource={data}
+                            pagination={pagination}
+                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current)}
                         />
                         <Modal className="m-codemodal"
                             width={750}
                             title={(
-                                <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
+                                <span>DDL建表<CopyIcon style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
                             )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}
+                            maskClosable={false}
                         >
                             <Editor
-                                style={{height:"400px"}}
+                                style={{ height: "400px" }}
                                 placeholder={DDL_placeholder}
-                                onChange={ this.handleDdlChange.bind(this) } 
-                                value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
+                                onChange={this.handleDdlChange.bind(this)}
+                                value={this._DDL} ref={(e) => { this.DDLEditor = e }}
                             />
                         </Modal>
                     </div>
