@@ -1,19 +1,19 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { 
     Input, Button, Popconfirm,
     Table, message, Card,
- } from 'antd'
+ } from 'antd';
 
-import utils from 'utils'
+import utils from 'utils';
 
-import Api from '../../api'
-import DataSourceForm from './form'
-import DbSyncModal from './syncModal'
-import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../comm/const'
-import { DatabaseType } from '../../components/status'
-import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes'
+import Api from '../../api';
+import DataSourceForm from './form';
+import DbSyncModal from './syncModal';
+import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../comm/const';
+import { DatabaseType } from '../../components/status';
+import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes';
 import '../../styles/pages/dataSource.scss';
 
 const Search = Input.Search

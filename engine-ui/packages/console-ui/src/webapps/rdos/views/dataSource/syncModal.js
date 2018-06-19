@@ -1,40 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, hashHistory } from 'react-router';
 import { Modal, Table, Button, Tooltip, Icon } from 'antd';
-import { isEmpty } from 'lodash';
 
-// import { tagConfigActions } from '../../actions/tagConfig';
-// import { dataSourceActions } from '../../actions/dataSource';
-// import { formItemLayout, TAG_TYPE, TAG_PUBLISH_STATUS } from '../../consts';
 import Api from '../../api';
 import { workbenchActions } from '../../store/modules/offlineTask/offlineAction';
-const mapStateToProps = state => {
-    return {}
-}
 
-const mapDispatchToProps = dispatch => ({
- 	checkTask(id) {
-        return dispatch(workbenchActions().openTaskInDev(id));
-    },
-})
-@connect(mapStateToProps, mapDispatchToProps)
-// @connect()
-export default class dbSyncHistoryModal extends Component {
+class dbSyncHistoryModal extends Component {
 
     state = {
-    	showDetail: false,
     	listData: {},
+    	showDetail: false,
     	syncDetail: {}
-    }
-
-    componentDidMount() {
-        console.log(this,'sync')
     }
 
     componentWillReceiveProps(nextProps) {
     	if (nextProps.source.id) {
-    		console.log(this, nextProps.source)
     		Api.getSyncHistoryList({
     			dataSourceId: nextProps.source.id,
     			currentPage: 1,
@@ -132,14 +112,14 @@ export default class dbSyncHistoryModal extends Component {
     }
 
     checkTask = (id) => {
-    	console.log(id)
-    	// hashHistory.push('/offline/task');
-    	// this.props.checkTask(id);
-
+    	this.props.goToTaskDev(id);
     }
 
     back = () => {
-    	this.setState({ showDetail: false });
+    	this.setState({ 
+    		showDetail: false,
+    		syncDetail: {}
+    	});
     }
 
     renderContent = () => {
@@ -149,9 +129,7 @@ export default class dbSyncHistoryModal extends Component {
     	if (!showDetail) {
  			return (
  				<div className="sync-list">
-	 				<h2>
-		            	{source.dataName}
-		            </h2>
+	 				<h2>{source.dataName}</h2>
 
 		            <Table 
 	                    rowKey="id"
@@ -168,12 +146,10 @@ export default class dbSyncHistoryModal extends Component {
 
     		return (
     			<div className="sync-detail">
-    				<span style={{ fontSize: 14 }}>
-		            	<Icon 
-		            		style={{ cursor: 'pointer' }}
-		            		type="left-circle" 
-		            		onClick={this.back} /> 返回
-	            	</span>
+	            	<Icon 
+	            		type="left-circle" 
+	            		style={{ cursor: 'pointer', fontSize: 14 }}
+	            		onClick={this.back} /> 返回
 
 		            <Table 
 	                    rowKey="id"
@@ -183,20 +159,34 @@ export default class dbSyncHistoryModal extends Component {
 	                    dataSource={syncDetail.migrationTasks}
 	                />
 
-	                <p>生效日期：{`${scheduleConf.beginDate} 到 ${scheduleConf.endDate}`}</p>
-	                <p>调度周期：天</p>
-	                <p>选择时间：{`${scheduleConf.hour}: 00`}</p>
-	                <p>同步方式：{syncDetail.syncType === 1 ? '增量' : '全量'}</p>
+	                <p>
+	                	生效日期：{`${scheduleConf.beginDate} 到 ${scheduleConf.endDate}`}
+	                </p>
+	                <p>
+	                	调度周期：天
+	                </p>
+	                <p>
+	                	选择时间：{scheduleConf.hour < 10 ? `0${scheduleConf.hour} : 00`: `${scheduleConf.hour} : 00`}
+	                </p>
+	                <p>
+	                	同步方式：{syncDetail.syncType === 1 ? '增量' : '全量'}
+	                </p>
 	                {
 	                	syncDetail.syncType === 1
 	                	&&
-	                	<p>根据日期字段：{syncDetail.timeFieldIdentifier}</p>
+	                	<p>
+	                		根据日期字段：{syncDetail.timeFieldIdentifier}
+	                	</p>
 	                }
-	                <p>并发配置：{syncDetail.parallelType === 1 ? '分批上传' : '整批上传'}</p>
+	                <p>
+	                	并发配置：{syncDetail.parallelType === 1 ? '分批上传' : '整批上传'}
+	                </p>
 	                {
 	                	syncDetail.parallelType === 1
 	                	&&
-	                	<p>从启动时间开始，每{syncDetail.parallelConfig.hourTime}小时同步{syncDetail.parallelConfig.tableNum}张表</p>
+	                	<p>
+	                		从启动时间开始，每{syncDetail.parallelConfig.hourTime}小时同步{syncDetail.parallelConfig.tableNum}张表
+	                	</p>
 	                }
 	            </div>
     		) 
@@ -204,8 +194,12 @@ export default class dbSyncHistoryModal extends Component {
     }
 
     closeModal = () => {
-    	this.setState({ showDetail: false });
     	this.props.cancel();
+
+    	this.setState({ 
+    		syncDetail: {},
+    		showDetail: false
+    	});
     }
 
     render() {
@@ -218,9 +212,13 @@ export default class dbSyncHistoryModal extends Component {
 	            width={'50%'}
 	            visible={visible}
 	            maskClosable={false}
-	            footer={
-		            <Button key="back" type="primary" onClick={this.closeModal}>关闭</Button>
-	          	}
+	            onCancel={this.closeModal}
+	            footer={<Button 
+	            	key="back" 
+	            	type="primary" 
+	            	onClick={this.closeModal}>
+	            	关闭
+	            </Button>}
 	        >
                 {
                 	this.renderContent()
@@ -229,4 +227,18 @@ export default class dbSyncHistoryModal extends Component {
         )
     }
 }
+
+export default connect((state) => {
+    return {
+        project: state.project,
+        projectUsers: state.projectUsers,
+    }
+}, dispatch => {
+    const actions = workbenchActions(dispatch)
+    return {
+        goToTaskDev: (id) => {
+            actions.openTaskInDev(id)
+        }
+    }
+})(dbSyncHistoryModal)
 		

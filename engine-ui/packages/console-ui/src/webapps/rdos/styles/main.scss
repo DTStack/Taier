@@ -190,3 +190,11 @@ table {
     float: left;
     padding: 0px 5px;
 }
+
+.select-all-table {
+    .ant-table-thead {
+        .ant-table-selection-column>span {
+            visibility: visible;
+        }
+    }
+}

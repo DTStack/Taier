@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, hashHistory } from 'react-router';
-import { isEmpty } from 'lodash';
 import { 
-    Table, Card, Form, Radio, Modal, Checkbox, Row, Col,
-    Button, Input, Select, Icon, InputNumber, DatePicker, Tooltip, message, Alert, Progress
+    Table, Card, Form, Radio, 
+    Checkbox, Button, Input, Select, 
+    Icon, InputNumber, DatePicker, Tooltip, 
+    Alert, Progress, message
 } from 'antd';
 import moment from 'moment';
 
@@ -293,7 +293,7 @@ export default class DBSync extends Component {
                         <Table 
                             bordered
                             rowKey="tableName"
-                            className="m-table sync-table"
+                            className="m-table sync-table select-all-table"
                             columns={this.initColumns()} 
                             pagination={false}
                             rowSelection={rowSelection}
@@ -309,7 +309,10 @@ export default class DBSync extends Component {
                                             required: true, 
                                             message: '生效日期不能为空'
                                         }],
-                                        initialValue: [moment(), moment().add(100, 'years')]
+                                        initialValue: [
+                                            moment('2001-01-01'), 
+                                            moment('2001-01-01').add(120, 'years')
+                                        ]
                                     })(
                                         <RangePicker
                                             format="YYYY-MM-DD"
@@ -411,7 +414,6 @@ export default class DBSync extends Component {
                                         })(
                                             <InputNumber 
                                                 min={1} 
-                                                max={10}
                                                 step={1}
                                                 precision={0}
                                                 className="m-l-8"

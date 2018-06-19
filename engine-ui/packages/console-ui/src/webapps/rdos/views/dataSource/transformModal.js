@@ -53,8 +53,8 @@ export default class TransformModal extends Component {
                 }
 
             });
-            console.log(nameRule,columnRule,typeRule)
 
+            // 去除空的行
             this.setState({
                 nameRule: nameRule.length > 1 ? nameRule.filter(item => item.left && item.right) : nameRule,
                 columnRule: columnRule.length > 1 ? columnRule.filter(item => item.left && item.right) : columnRule,
@@ -64,6 +64,7 @@ export default class TransformModal extends Component {
         }
     }
 
+    // 增加设置
     add = (type, id) => {
         let data = [...this.state[type]],
             ids  = data.map(item => item.id),
@@ -72,14 +73,13 @@ export default class TransformModal extends Component {
             index = data.indexOf(target) + 1,
             newRule = {};
         
-        
         data.splice(index, 0, { id: newId });
-
         newRule[type] = data;
 
         this.setState(newRule);
     }
 
+    // 移除
     remove = (type, id) => {
         let data = [...this.state[type]],
             target = data.filter(item => item.id == id)[0],
@@ -91,10 +91,12 @@ export default class TransformModal extends Component {
         this.setState(newRule);
     }
 
+    // 取得id
     getRuleId = (str) => {
         return parseInt(str.replace(/[^0-9]/ig, ''));
     }
 
+    // 保存配置，先检查，通过了再保存
     saveConfig = () => {
         const { form } = this.props;
         const { nameRule, columnRule, typeRule } = this.state;
@@ -103,17 +105,17 @@ export default class TransformModal extends Component {
             console.log(err,values)
 
             if(!err) {
-                let left = [],
+                let leftKeys = [],
                     fields = [];
 
+                // 拿到所有左侧的值
                 for (let [key, value] of Object.entries(values)) {
                     if (value && key.indexOf('left') > 0) {
-                        left.push(key);
+                        leftKeys.push(key);
                     }
                 }
-                console.log(left)
 
-                fields = left.map(key => {
+                fields = leftKeys.map(key => {
                     let type,
                         rightKey = key.replace(/left/, 'right');
 
@@ -134,7 +136,6 @@ export default class TransformModal extends Component {
                 });
 
                 if (fields.length) {
-
                     Api.checkSyncConfig({
                         transformFields: fields
                     }).then(res => {
@@ -146,11 +147,9 @@ export default class TransformModal extends Component {
                 } else {
                     this.cancel();
                 }
-
             }
         });
     }
-
 
     cancel = () => {
         this.props.form.resetFields();
@@ -166,9 +165,8 @@ export default class TransformModal extends Component {
     }
 
     renderFormItem = (data, type) => {
-        const { form, transformFields } = this.props;
+        const { form } = this.props;
         const { getFieldDecorator } = form;
-        console.log(data,type)
 
         return data.map((item, index) => {
             if (index === 0) {
@@ -190,9 +188,10 @@ export default class TransformModal extends Component {
 
                 return <Row className="flex-center m-v-10" key={`${type}-${item.id}`}>
                     <FormItem 
-                        {...formItemLayout} 
                         label={label}
-                        style={{ flexBasis: '40%' }}>
+                        {...formItemLayout} 
+                        style={{ flexBasis: '40%' }}
+                    >
                         {
                             getFieldDecorator(`${type}-${item.id}-left`, {
                                 rules: [{
@@ -202,8 +201,7 @@ export default class TransformModal extends Component {
                                 initialValue: item.left
                             })(
                                 type === 'typeRule' ?
-                                <Select 
-                                    size="large">
+                                <Select size="large">
                                     {
                                         originTypeTransformRule.map(item => {
                                             return <Option key={item}>{item}</Option>
@@ -217,14 +215,13 @@ export default class TransformModal extends Component {
                             )
                         }
                     </FormItem>
-
                     <div className="txt-center font-16" style={{ flexBasis: '5%' }}>
                         <Icon type="right" />
                     </div>
-
                     <FormItem 
                         style={{ flexBasis: '40%' }} 
-                        {...formItemLayoutWithOutLabel}>
+                        {...formItemLayoutWithOutLabel}
+                    >
                         <div className="flex flex-v-center">
                             {
                                 getFieldDecorator(`${type}-${item.id}-right`, {
@@ -263,9 +260,10 @@ export default class TransformModal extends Component {
             } else {
                 return <Row className="flex-center m-v-10" key={`${type}-${item.id}`}>
                     <FormItem 
-                        {...formItemLayoutWithOutLabel}     
                         className="left-item"
-                        style={{ flexBasis: '40%' }}>
+                        {...formItemLayoutWithOutLabel}     
+                        style={{ flexBasis: '40%' }}
+                    >
                         <div className="flex flex-right">
                             {
                                 getFieldDecorator(`${type}-${item.id}-left`, {
@@ -295,14 +293,13 @@ export default class TransformModal extends Component {
                             }
                         </div>
                     </FormItem>
-
                     <div className="txt-center font-16" style={{ flexBasis: '5%' }}>
                         <Icon type="right" />
                     </div>
-
                     <FormItem 
                         style={{ flexBasis: '40%' }} 
-                        {...formItemLayoutWithOutLabel}>
+                        {...formItemLayoutWithOutLabel}
+                    >
                         <div className="flex flex-v-center">
                             {
                                 getFieldDecorator(`${type}-${item.id}-right`, {
@@ -348,8 +345,7 @@ export default class TransformModal extends Component {
     }
 
     render() {
-    	const { form, visible } = this.props;
-        const { getFieldDecorator } = form;
+    	const { visible } = this.props;
         const { nameRule, columnRule, typeRule } = this.state;
 
     	return (
