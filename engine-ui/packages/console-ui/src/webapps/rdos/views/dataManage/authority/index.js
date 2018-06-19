@@ -50,7 +50,7 @@ const revokeStatus = (status) => {
 
 @connect(state => {
     return {
-        projects: state.projects,
+        projects: state.allProjects,
         user: state.user,
     }
 })

@@ -81,9 +81,11 @@ class Header extends Component {
         const projects = this.props.projects
         if (projects && projects.length > 0) {
             return projects.map((project) => {
+                const name = project.projectAlias || project.projectName;
                 return (<Menu.Item
                   data={project}
-                  value={project.projectAlias || project.projectName}
+                  title={name}
+                  value={name}
                   key={project.id}
                 >
                     {project.projectAlias || project.projectName}
@@ -125,23 +127,24 @@ class Header extends Component {
     }
 
     renderProjectSelect = () => {
-        const {  project, projects } = this.props
+        const {  project, projects } = this.props;
+
+        const projectName = project && project.projectName ? 
+        (project.projectAlias || project.projectName) : '项目选择';
 
         return (
             <SubMenu
                 defaultSelectedKeys={
-                projects && projects[0] ? projects[0].id : ''
+                    projects && projects[0] ? projects[0].id : ''
                 }
                 title={
                     <span className="my-menu-item">
                     {
-                        project && project.projectName ? 
-                        <span className="menu-text-ellipsis">
-                            { (project.projectAlias || project.projectName) }
+                        <span className="menu-text-ellipsis" title={projectName}>
+                            { projectName }
                         </span> 
-                        : 
-                        <span className="menu-text-ellipsis">项目选择</span>
-                    } <Icon type="caret-down" /></span>
+                    } <Icon type="caret-down" />
+                    </span>
                 }
             >
                 { this.getProjectItems() }

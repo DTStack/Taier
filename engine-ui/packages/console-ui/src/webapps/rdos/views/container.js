@@ -25,6 +25,7 @@ class Container extends Component {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
+        dispatch(ProjectAction.getAllProjects())
         dispatch(updateApp(rdosApp))
         this.initProject()
     }
