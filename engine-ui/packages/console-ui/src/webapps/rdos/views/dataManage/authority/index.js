@@ -621,7 +621,13 @@ class AuthMana extends Component {
                     />
                 </FormItem>
                 <FormItem label="时间选择">
-                    <RangePicker onChange={this.onChangeTime} format="YYYY-MM-DD HH:mm:ss" value={rangeTime}/>
+                    <RangePicker 
+                        onChange={this.onChangeTime} 
+                        format="YYYY-MM-DD HH:mm:ss" 
+                        value={rangeTime} 
+                        format="YYYY/MM/DD HH:mm:ss"
+                        ranges={{ Today: [moment(), moment()], 'This Month': [moment(), moment().endOf('month')] }}
+                    />
                 </FormItem>
             </Form>
         )
@@ -659,6 +665,15 @@ class AuthMana extends Component {
     }
 
     render() {
+        console.log('----0点',
+            new Date(new Date().toLocaleDateString()).getTime()
+          );
+        console.log('----24点',
+            new Date(new Date().toLocaleDateString()).getTime() +
+              24 * 60 * 60 * 1000 -
+              1
+          );
+        
         const { editRecord, visible, agreeApply, descModel, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
