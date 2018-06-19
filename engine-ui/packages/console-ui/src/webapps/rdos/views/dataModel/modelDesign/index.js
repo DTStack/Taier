@@ -222,7 +222,7 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/modify/${record.id}`}>{ text }</Link>
+                    return <Link to={`data-manage/table/view/${record.id}`}>{ text }</Link>
                 }
             },
             {
@@ -264,9 +264,9 @@ class TableList extends Component {
                 }
             },,
             {
-                title: '创建者',
-                key: 'userName',
-                dataIndex: 'userName',
+                title: '负责人',
+                key: 'chargeUser',
+                dataIndex: 'chargeUser',
                 render(text, record) {
                     return text
                 }
