@@ -55,6 +55,9 @@ DTinsight Tag v1.0.0 发布！
 ## v2.0.4 (2018-06-06)
 - 修复数据类目添加, 更新节点Bug
 
+# v2.0.6 （2018-06-19)
+- 新增任务依赖类型
+
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
