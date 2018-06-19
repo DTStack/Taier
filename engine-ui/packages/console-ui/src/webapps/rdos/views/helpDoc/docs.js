@@ -149,3 +149,12 @@ export const customParams = (
         </p>
     </div>
 )
+
+// 
+export const taskDependentTypeDesc = (
+    <div>
+        <p>
+            任务结束主要是指任务失败、完成、取消等情况
+        </p>
+    </div>
+)
