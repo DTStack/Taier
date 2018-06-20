@@ -137,8 +137,8 @@ public class FlinkClient extends AbsClient {
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
-//        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
-//        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
+        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
+        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
         initHadoopConf(flinkConfig);
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
