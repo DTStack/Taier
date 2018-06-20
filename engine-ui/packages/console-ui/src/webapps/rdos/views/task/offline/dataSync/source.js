@@ -356,7 +356,7 @@ class SourceForm extends React.Component {
         }
     }
 
-    debounceTableSearch = debounce(this.changeTable, 500, { 'maxWait': 2000 })
+    debounceTableSearch = debounce(this.changeTable, 600, { 'maxWait': 2000 })
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;

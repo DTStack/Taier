@@ -748,7 +748,7 @@ class SchedulingConfig extends React.Component {
                         </Row>
                     </Panel>
                 }
-                <Panel key="3" header="依赖类型">
+                <Panel key="3" header="跨周期依赖">
                     <Row>
                         <Col span="1" />
                         <Col>
