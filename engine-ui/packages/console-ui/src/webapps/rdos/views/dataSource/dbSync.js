@@ -183,7 +183,7 @@ export default class DBSync extends Component {
                     transformFields: transformFields
                 }
 
-                if (params.parallelType === 1 && !this.checkParallelConfig(params.parallelConfig)) {
+                if (params.parallelType === 1 && !this.checkParallelConfig(params.parallelConfig, values.hour)) {
                     message.error('您所选的某些同步任务可能会在该日24点后才能执行，请检查您的执行计划再提交');
                     return;
                 }
@@ -240,10 +240,11 @@ export default class DBSync extends Component {
     }
 
     // 所选表是否能一天同步完
-    checkParallelConfig = (config) => {
+    checkParallelConfig = (config, startTime) => {
         const { selectedTable } = this.state;
 
-        let canSyncNum = Math.floor(24 / config.hourTime);
+        let time = 24 - parseInt(startTime),
+            canSyncNum = Math.floor(time / config.hourTime) * config.tableNum;
 
         return selectedTable.length > canSyncNum ? false : true;
     }
@@ -400,7 +401,7 @@ export default class DBSync extends Component {
                             {
                                 form.getFieldValue('parallelType') === 1
                                 &&
-                                <FormItem {...formItemLayout} label="从启动时间开始，每" colon={false}>
+                                <FormItem {...formItemLayout} label="从启动时间开始，每隔" colon={false}>
                                     {
                                         this.generateHours()
                                     }
