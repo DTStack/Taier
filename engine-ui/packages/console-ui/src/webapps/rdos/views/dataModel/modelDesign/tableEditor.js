@@ -270,7 +270,7 @@ class TableEditor extends Component {
         const queryParams = {};
         queryParams.tableId = tableData.id;
         queryParams.tableName = tableData.tableName;
-        queryParams.desc = tableData.tableDesc;
+        queryParams.tableDesc = tableData.tableDesc;
         // queryParams.delim = tableData.id;
         queryParams.lifeDay = tableData.lifeDay;
         // queryParams.storedType = tableData.id;
