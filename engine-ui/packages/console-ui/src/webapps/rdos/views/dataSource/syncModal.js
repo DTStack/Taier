@@ -102,7 +102,7 @@ class dbSyncHistoryModal extends Component {
 	                        	失败
 	                        </Tooltip>
                         </span>
-                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.id)}>
+                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.taskId)}>
 	                        查看任务
                         </a>
                     </div>
@@ -111,8 +111,8 @@ class dbSyncHistoryModal extends Component {
         }];
     }
 
-    checkTask = (id) => {
-    	this.props.goToTaskDev(id);
+    checkTask = (taskId) => {
+    	this.props.goToTaskDev(taskId);
     }
 
     back = () => {
