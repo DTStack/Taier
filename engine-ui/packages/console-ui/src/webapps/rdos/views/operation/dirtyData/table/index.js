@@ -101,19 +101,19 @@ export default class TableDetail extends React.Component {
         const { showType, tableData, previewData } = this.state;
         const columns = [{
             title: '序号',
-            dataIndex: 'index',
-            key: 'index',
-            render(index) {
-                return index + 1;
+            dataIndex: 'id',
+            key: 'id',
+            render(id) {
+                return id;
             }
         }, {
             title: '字段名称',
-            dataIndex: 'name',
-            key: 'name'
+            dataIndex: 'columnName',
+            key: 'columnName'
         }, {
             title: '类型',
-            dataIndex: 'type',
-            key: 'type'
+            dataIndex: 'columnType',
+            key: 'columnType'
         }, {
             title: '注释',
             dataIndex: 'comment',
@@ -122,8 +122,10 @@ export default class TableDetail extends React.Component {
                 return text
             }
         }];
-
+        
         const fieldsData = showType === 0 ? tableData.column : tableData.partition;
+        console.log('--------fieldsData',fieldsData);
+        
         const tableInfo = tableData.table || {};
         const relTasks = tableInfo.tasks && tableInfo.tasks.map(i => i.name)
 
@@ -171,7 +173,7 @@ export default class TableDetail extends React.Component {
                                         <tr>
                                             <th>物理存储量</th>
                                             <td>{tableInfo.storeSize}</td>
-                                        </tr>
+                                        </tr> 
                                         <tr>
                                             <th>生命周期</th>
                                             <td>{tableInfo.lifeDay}天</td>
@@ -182,11 +184,11 @@ export default class TableDetail extends React.Component {
                                         </tr>
                                         <tr>
                                             <th>DDL最后变更时间</th>
-                                            <td>{utils.formatDateTime(tableInfo.lastDDLTime)}</td>
+                                            <td>{utils.formatDateTime(tableInfo.lastDdlTime)}</td>
                                         </tr>
                                         <tr>
                                             <th>数据最后变更时间</th>
-                                            <td>{utils.formatDateTime(tableInfo.lastDataChangeTime)}</td>
+                                            <td>{utils.formatDateTime(tableInfo.lastDmlTime)}</td>
                                         </tr>
                                     </tbody>
                                 </table>}

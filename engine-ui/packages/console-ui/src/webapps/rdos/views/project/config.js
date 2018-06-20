@@ -114,7 +114,7 @@ class ProjectConfig extends Component {
                                     修改
                                 </a>
                             </td></tr>
-                            <tr><td className="t-title">项目管理员</td><td>{admins}</td></tr>
+                            <tr><td className="t-title">管理员</td><td>{admins}</td></tr>
                             <tr>
                                 <td className="t-title">普通成员</td>
                                 <td>
