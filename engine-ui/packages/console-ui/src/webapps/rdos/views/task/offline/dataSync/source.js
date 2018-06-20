@@ -138,7 +138,6 @@ class SourceForm extends React.Component {
     }
 
     changeTable(value) {
-        console.log('changeTable:', value)
         if(value){
             this.getTableColumn(value);
         }
@@ -223,6 +222,7 @@ class SourceForm extends React.Component {
                 validateFields.push('encoding')
             }
         }
+
         form.validateFieldsAndScroll(validateFields, { force: true }, (err, values) => {
             if (!err) {
                 cb.call(null, 1);
@@ -356,7 +356,7 @@ class SourceForm extends React.Component {
         }
     }
 
-    debounceTableSearch = debounce(this.changeTable, 600, { 'maxWait': 2000 })
+    debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;

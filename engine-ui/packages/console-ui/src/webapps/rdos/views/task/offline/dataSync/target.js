@@ -175,7 +175,8 @@ class TargetForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleTargetMapChange } = this.props;
+        const { form, handleTargetMapChange, targetMap } = this.props;
+
         form.validateFields((err, values) => {
             if (!err) {
                 cb.call(null, 2);
