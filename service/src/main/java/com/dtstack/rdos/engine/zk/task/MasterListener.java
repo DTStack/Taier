@@ -1,13 +1,13 @@
-package com.dtstack.rdos.engine.entrance.zk.task;
+package com.dtstack.rdos.engine.zk.task;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.dtstack.rdos.engine.entrance.node.MasterNode;
+import com.dtstack.rdos.engine.node.MasterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 
 
 

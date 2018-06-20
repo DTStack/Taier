@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.zk;
+package com.dtstack.rdos.engine.zk;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -11,21 +11,21 @@ import java.util.Set;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
-import com.dtstack.rdos.engine.entrance.zk.task.*;
+import com.dtstack.rdos.engine.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
 import com.dtstack.rdos.engine.util.TaskIdUtil;
+import com.dtstack.rdos.engine.zk.data.BrokerHeartNode;
+import com.dtstack.rdos.engine.zk.data.BrokersNode;
+import com.dtstack.rdos.engine.zk.task.*;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.entrance.enums.MachineAppType;
-import com.dtstack.rdos.engine.entrance.enums.RdosNodeMachineType;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokersNode;
+import com.dtstack.rdos.engine.enums.MachineAppType;
+import com.dtstack.rdos.engine.enums.RdosNodeMachineType;
+import com.dtstack.rdos.engine.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.send.HttpSendClient;
 import com.google.common.collect.Lists;
@@ -127,7 +127,7 @@ public class ZkDistributed implements Closeable{
 
 	public ZkDistributed zkRegistration() throws Exception {
 		createNodeIfExists(this.distributeRootNode,"");
-		createNodeIfExists(this.brokersNode,BrokersNode.initBrokersNode());
+		createNodeIfExists(this.brokersNode, BrokersNode.initBrokersNode());
 		createNodeIfExists(this.localNode,"");
 		initNeedLock();
 		createLocalBrokerHeartNode();

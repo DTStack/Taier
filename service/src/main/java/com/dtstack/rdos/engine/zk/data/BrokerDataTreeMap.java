@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.zk.data;
+package com.dtstack.rdos.engine.zk.data;
 
 import org.apache.commons.lang3.StringUtils;
 

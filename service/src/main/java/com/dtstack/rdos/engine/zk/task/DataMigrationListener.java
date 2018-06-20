@@ -1,8 +1,8 @@
-package com.dtstack.rdos.engine.entrance.zk.task;
+package com.dtstack.rdos.engine.zk.task;
 
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerHeartNode;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.zk.data.BrokerHeartNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

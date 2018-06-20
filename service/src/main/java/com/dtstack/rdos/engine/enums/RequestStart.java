@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.enums;
+package com.dtstack.rdos.engine.enums;
 
 public enum RequestStart {
 	

@@ -1,10 +1,10 @@
-package com.dtstack.rdos.engine.entrance.node;
+package com.dtstack.rdos.engine.node;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.zk.task;
+package com.dtstack.rdos.engine.zk.task;
 
 import com.dtstack.rdos.engine.execution.base.plugin.log.LogStoreFactory;
 import org.slf4j.Logger;

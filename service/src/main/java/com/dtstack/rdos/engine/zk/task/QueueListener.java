@@ -1,8 +1,8 @@
-package com.dtstack.rdos.engine.entrance.zk.task;
+package com.dtstack.rdos.engine.zk.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerQueueNode;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;

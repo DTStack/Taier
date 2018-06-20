@@ -6,7 +6,7 @@ import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.IClient;

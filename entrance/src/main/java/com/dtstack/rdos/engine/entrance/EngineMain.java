@@ -4,7 +4,7 @@ import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.SystemPropertyUtil;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.web.VertxHttpServer;
 import org.slf4j.Logger;

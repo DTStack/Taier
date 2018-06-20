@@ -1,6 +1,6 @@
-package com.dtstack.rdos.engine.entrance.service;
+package com.dtstack.rdos.engine.service;
 
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 
 import java.util.Map;
 

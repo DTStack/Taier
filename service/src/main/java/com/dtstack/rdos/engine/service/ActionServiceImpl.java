@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.service;
+package com.dtstack.rdos.engine.service;
 
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
@@ -11,10 +11,10 @@ import com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo;
-import com.dtstack.rdos.engine.entrance.enums.RequestStart;
-import com.dtstack.rdos.engine.entrance.node.JobStopAction;
-import com.dtstack.rdos.engine.entrance.node.MasterNode;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.enums.RequestStart;
+import com.dtstack.rdos.engine.node.JobStopAction;
+import com.dtstack.rdos.engine.node.MasterNode;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.enums;
+package com.dtstack.rdos.engine.enums;
 
 /**
  * Created by sishu.yss on 2017/5/22.

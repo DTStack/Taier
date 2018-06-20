@@ -8,10 +8,9 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
 
 /**
  * Created by sishu.yss on 2017/3/14.

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.entrance.zk.task;
+package com.dtstack.rdos.engine.zk.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -11,8 +11,8 @@ import com.dtstack.rdos.engine.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.entrance.zk.ZkDistributed;
-import com.dtstack.rdos.engine.entrance.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.zk.ZkDistributed;
+import com.dtstack.rdos.engine.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
