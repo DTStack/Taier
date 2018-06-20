@@ -27,7 +27,10 @@ public class FlinkRestartStrategy extends IRestartStrategy {
 
     private final static String JOBMGR_NOT_RESPONSE = "JobTimeoutException: JobManager did not respond within";
 
-    private static List<String> errorMsgs = Lists.newArrayList(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION, FLINK_ENGINE_DOWN, FLINK_TASK_LOST, JDBC_LINK_FAILURE, JOBMGR_NOT_RESPONSE);
+    private final static String FUTURES_TIME_OUT = "java.util.concurrent.TimeoutException: Futures timed out after";
+
+    private static List<String> errorMsgs = Lists.newArrayList(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION, FLINK_ENGINE_DOWN,
+            FLINK_TASK_LOST, JDBC_LINK_FAILURE, JOBMGR_NOT_RESPONSE, FUTURES_TIME_OUT);
 
     @Override
     public boolean checkFailureForEngineDown(String msg) {
@@ -52,7 +55,7 @@ public class FlinkRestartStrategy extends IRestartStrategy {
         String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
         String msg = client.getMessageByHttp(reqURL);
         if(StringUtils.isNotBlank(msg)){
-            for(String emsg:errorMsgs){
+            for(String emsg : errorMsgs){
                 if(msg.contains(emsg)){
                     restart =  true;
                     break;
