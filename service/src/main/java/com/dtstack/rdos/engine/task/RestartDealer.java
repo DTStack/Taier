@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.task;
 
-import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.db.dao.RdosEngineBatchJobDAO;
@@ -290,7 +289,6 @@ public class RestartDealer {
         }
     }
 
-    @Forbi
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
         if (ComputeType.STREAM.getType().equals(computeType)) {
             engineStreamJobDAO.updateTaskStatus(jobId, status);
