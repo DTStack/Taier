@@ -85,7 +85,9 @@ class RelationDetail extends React.Component {
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
-                return <a onClick={this.showRecord.bind(this, record)}>{text}</a>
+                // 是否有权限 0-否，1-是
+                return record.isPermissioned === 1 ? 
+                <a onClick={this.showRecord.bind(this, record)}>{text}</a> : text;
             }
         },{
             title: '类型',
@@ -96,6 +98,10 @@ class RelationDetail extends React.Component {
                 <ScriptType value={record.scriptType} /> : 
                 <TaskType value={record.taskType} />
             }
+        }, {
+            title: '所属项目',
+            dataIndex: 'projectName',
+            key: 'projectName'
         }, {
             title: '创建者',
             dataIndex: 'createUser',
