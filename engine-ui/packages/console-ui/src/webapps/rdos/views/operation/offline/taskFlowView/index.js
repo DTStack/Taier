@@ -100,7 +100,7 @@ class TaskFlowView extends Component {
     componentWillReceiveProps(nextProps) {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
-        if (taskJob && visibleSlidePane && taskJob.id !== currentJob.id) {
+        if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
             this.initGraph(taskJob.id)
         }
     }
@@ -171,7 +171,6 @@ class TaskFlowView extends Component {
     corvertValueToString = (cell) => {
         if (mxUtils.isNode(cell.value)) {
             if (cell.value.nodeName.toLowerCase() == 'task') {
-                console.log(0)
                 const data = cell.getAttribute('data');
                 const dataParse = data ? JSON.parse(data) : {};
                 const task = data ? JSON.parse(data).batchTask : '';
