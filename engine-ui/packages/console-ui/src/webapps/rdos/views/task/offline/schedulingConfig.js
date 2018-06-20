@@ -756,12 +756,12 @@ class SchedulingConfig extends React.Component {
                                 value={ this._selfReliance }
                             >
                                 <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
-                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期完成，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
                                 <Radio style={radioStyle} value={3}>
                                     自依赖，等待上一调度周期结束，才能继续运行&nbsp;
                                     <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
                                 </Radio>
-                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期完成，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
                                 <Radio style={radioStyle} value={4}>
                                     等待下游任务的上一周期结束，才能继续运行&nbsp;
                                     <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />

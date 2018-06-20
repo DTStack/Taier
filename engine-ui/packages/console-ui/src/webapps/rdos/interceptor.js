@@ -27,10 +27,7 @@ export function authBeforeFormate(response) {
 }
 
 // TODO 状态码这块还是太乱
-// 
-const ERROR_MSG_BUFFER = [];
 export function authAfterFormated(response) {
-    
     switch (response.code) {
         case 1:
         return response;
@@ -38,12 +35,14 @@ export function authAfterFormated(response) {
         Api.openLogin()
         return Promise.reject(response);
     case 3: {// 功能无权限
-        ERROR_MSG_BUFFER.push(response.code)
-        console.log(ERROR_MSG_BUFFER);
-        notification['error']({
-            message: '权限通知',
-            description: response.message,
-        });
+        // 通过判断dom数量，限制通知数量
+        const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
+        if (notifyMsgs.length === 0) {
+            notification['error']({
+                message: '权限通知',
+                description: response.message,
+            });
+        }
         return Promise.reject(response);
     }
     case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
