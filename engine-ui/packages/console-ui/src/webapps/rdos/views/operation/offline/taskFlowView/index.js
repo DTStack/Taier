@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { Link, hashHistory } from 'react-router'
 
 import {
-    Button, Tooltip, Spin,
+    Tooltip, Spin,
     Modal, message, Icon,
 } from 'antd'
 
@@ -15,12 +14,6 @@ import { taskTypeText, taskStatusText } from '../../../../components/display'
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
-
-import {
-    workbenchActions
-} from '../../../../store/modules/offlineTask/offlineAction'
-import { workbenchAction } from '../../../../store/modules/offlineTask/actionType'
-import * as FlowAction from '../../../../store/modules/operation/taskflow'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -35,16 +28,13 @@ const {
     mxPolyline,
     mxEvent,
     mxRubberband,
-    mxCellState,
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
     mxPerimeter,
-    mxUndoManager,
     mxCompactTreeLayout,
     mxLayoutManager,
-    mxMorphing,
-    mxUtils,
+    mxText,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -134,6 +124,8 @@ class TaskFlowView extends Component {
     }
 
     loadEditor = (container) => {
+        mxText.prototype.ignoreStringSize = true;
+
         // Disable context menu
         mxEvent.disableContextMenu(container)
         const graph = new mxGraph(container)
@@ -146,7 +138,7 @@ class TaskFlowView extends Component {
         graph.setTooltips(true)
         graph.view.setScale(1)
         // Enables HTML labels
-        graph.htmlLabels = true;
+        graph.setHtmlLabels(true);
         graph.setAllowDanglingEdges(false)
         // 禁止连接
         graph.setConnectable(false)
@@ -164,6 +156,7 @@ class TaskFlowView extends Component {
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle)
         // 转换value显示的内容
         graph.convertValueToString = this.corvertValueToString
+
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
 
@@ -175,7 +168,6 @@ class TaskFlowView extends Component {
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
-
         // enables rubberband
         new mxRubberband(graph)
         this.initContextMenu(graph)
