@@ -47,6 +47,12 @@ public class FlinkClientBuilder {
 
     private org.apache.hadoop.conf.Configuration yarnConf;
 
+    private static String akka_ask_timeout = "50 s";
+
+    private static String akka_client_timeout="300 s";
+
+    private static String akka_tcp_timeout = "60 s";
+
     private FlinkClientBuilder(){
     }
 
@@ -164,18 +170,15 @@ public class FlinkClientBuilder {
         Configuration config = new Configuration();
 
         //FIXME 浙大环境测试修改,暂时写在这
-        config.setString("akka.client.timeout", "180 s");
-        config.setString("akka.ask.timeout", "30 s");
+        config.setString("akka.client.timeout",akka_client_timeout);
+        config.setString("akka.ask.timeout",akka_ask_timeout);
+        config.setString("akka.tcp.timeout",akka_tcp_timeout);
 
         if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
             config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
         }
-
-//        if(System.getenv("HADOOP_CONF_DIR") != null) {
-//            //config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
-//        }
 
         if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
