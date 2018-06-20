@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import {
     Table, Row, Col, Select, Form, Card,
     Input, Button, message, Popconfirm,
+    Tooltip
 } from 'antd';
 
 import utils from 'utils';
@@ -40,6 +41,20 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
         }
     }
 
+    characterProcess = (text="",maxWidth="300px") => {
+        const style ={overflow: "hidden",
+            maxWidth,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"}
+        const content = (
+        <Tooltip title={text} >
+            <div style ={style}>{text}</div>
+        </Tooltip>
+        )
+       
+        return content
+    }
+
     initColumns = () => {
         return [{
             title: '衍生指标名称',
@@ -55,8 +70,10 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
             key: 'dataType',
         }, {
             title: '指标口径',
+            width: '400px',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
+            render : text => this.characterProcess(text),
         }, {
             title: '最后修改人',
             dataIndex: 'userName',
