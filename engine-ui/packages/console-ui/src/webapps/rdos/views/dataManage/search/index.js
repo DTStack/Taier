@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
-    Tag, Icon, Card, Select,Spin
+    Tag, Icon, Card, Select,Spin,
+    Tooltip
 } from 'antd';
 
 import { Link } from 'react-router';
@@ -33,10 +34,6 @@ class SearchTable extends Component {
         super(props);
         this.state = {
             visible: false,
-            descModel: {
-                visible: false,
-                descInfo: "",
-            },
             table: [],
             editRecord: {},
             cardLoading:false,
@@ -138,24 +135,20 @@ class SearchTable extends Component {
         });
     }
 
-    showDescModal = (text) => {
-        const { descModel } = this.state; 
-        descModel.descInfo = text;
-        descModel.visible = true;
-        this.setState({
-            descModel
-        });
+    characterProcess = (text="",maxWidth="300px") => {
+        const style ={overflow: "hidden",
+            maxWidth,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"}
+        const content = (
+        <Tooltip title={text} >
+            <div style ={style}>{text}</div>
+        </Tooltip>
+        )
+       
+        return content
     }
 
-    closeDescModal = () => {
-        const { descModel } = this.state; 
-        descModel.descInfo = "";
-        descModel.visible = false;
-        this.setState({
-            descModel
-        })
-    }
-    
     initialColumns = () => {
         const ctx = this;
         return [
@@ -194,9 +187,8 @@ class SearchTable extends Component {
                 width: 150,
                 key: 'tableDesc',
                 dataIndex: 'tableDesc',
-                render(text, record) {
-                    return  text&&text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                }
+                render : text => this.characterProcess(text,"150px"),
+               
             },
             {
                 title: '创建时间',
@@ -246,7 +238,7 @@ class SearchTable extends Component {
 
 
     render() {
-        const { table, queryParams, visible, editRecord, cardLoading, descModel } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading } = this.state;
         const { projects } = this.props;
 
         const marginTop10 = { marginTop: '8px' };
@@ -338,16 +330,6 @@ class SearchTable extends Component {
                             onOk={this.apply}
                             onCancel={() => {this.setState({visible: false, editRecord: {} })}}
                         />
-                    </div>
-                    <div>
-                        <Modal
-                        title="详情信息"
-                        visible={descModel.visible}
-                        onCancel={this.closeDescModal}
-                        footer={null}
-                        >
-                            <div style={{textIndent: "16px"}}>{descModel.descInfo}</div>
-                        </Modal>
                     </div>
                 </div>
     }

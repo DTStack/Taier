@@ -4,7 +4,7 @@ import {
     Input, Button, Table, Form,
     Pagination, Modal, message, Checkbox,
     Tag, Icon, Card, Select, Tabs, DatePicker,
-    Spin
+    Spin,Tooltip
 } from 'antd';
 
 import { Link,hashHistory } from 'react-router';
@@ -71,10 +71,6 @@ class AuthMana extends Component {
             visible: false,
             loading: false,
             rangeTime: [],
-            descModel: {
-                visible: false,
-                descInfo: "",
-            },
             queryParams: {
                 listType,
                 pageIndex: 1,
@@ -301,6 +297,20 @@ class AuthMana extends Component {
 
     }
 
+    characterProcess = (text="",maxWidth="300px") => {
+        const style ={overflow: "hidden",
+            maxWidth,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"}
+        const content = (
+        <Tooltip title={text} >
+            <div style ={style}>{text}</div>
+        </Tooltip>
+        )
+       
+        return content
+    }
+
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state;
@@ -362,9 +372,8 @@ class AuthMana extends Component {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width: "100px",
+                            render : text => this.characterProcess(text,"100px"),
                         },
                         {
                             title: '操作',
@@ -433,9 +442,8 @@ class AuthMana extends Component {
                             title: '申请详情',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width:"100px",
+                            render : text => this.characterProcess(text,"100px"),
                         },
                         {
                             title: '操作',
@@ -497,9 +505,8 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width:"100px",
+                            render : text => this.characterProcess(text,"100px"),
                         }
                     ]
                 )
@@ -519,9 +526,8 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width:"100px",
+                            render : text => this.characterProcess(text,"100px"),
                         },
                         {
                             title: '处理时间',
@@ -547,24 +553,6 @@ class AuthMana extends Component {
             default:
                 return [];
         }
-    }
-
-    closeDescModal = () => {
-        const { descModel } = this.state;
-        descModel.descInfo = "";
-        descModel.visible = false;
-        this.setState({
-            descModel
-        })
-    }
-
-    showDescModal = (text) => {
-        const { descModel } = this.state;
-        descModel.descInfo = text;
-        descModel.visible = true;
-        this.setState({
-            descModel
-        });
     }
 
     onChangeTime = (date, dateString) => {
@@ -666,7 +654,7 @@ class AuthMana extends Component {
 
     render() {
        
-        const { editRecord, visible, agreeApply, descModel, queryParams, isAdminAbove} = this.state;
+        const { editRecord, visible, agreeApply, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
@@ -709,16 +697,6 @@ class AuthMana extends Component {
                     }
 
                 </Tabs>
-                <div>
-                    <Modal
-                        title="详情信息"
-                        visible={descModel.visible}
-                        onCancel={this.closeDescModal}
-                        footer={null}
-                    >
-                        <div style={{ textIndent: "16px" }}>{descModel.descInfo}</div>
-                    </Modal>
-                </div>
             </div>
         )
     }
