@@ -4,7 +4,6 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
-import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -80,9 +79,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -129,7 +127,7 @@ public class FlinkClient extends AbsClient {
     /**客户端是否处于可用状态*/
     private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
-    private ExecutorService yarnMonitorES;
+    private ScheduledExecutorService yarnMonitorES;
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -139,18 +137,17 @@ public class FlinkClient extends AbsClient {
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
-        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
-        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
-        yarnMonitorES = new ThreadPoolExecutor(1, 1,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+//        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
+//        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
         initHadoopConf(flinkConfig);
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
         initClient();
-        if(flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
+        if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
+            yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
+
             //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(this));
+            yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnMonitorES));
         }
     }
 

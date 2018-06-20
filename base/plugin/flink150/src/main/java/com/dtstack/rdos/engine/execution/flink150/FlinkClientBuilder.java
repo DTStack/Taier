@@ -21,6 +21,7 @@ import org.apache.flink.runtime.leaderretrieval.LeaderRetrievalException;
 import org.apache.flink.runtime.util.LeaderConnectionInfo;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
+import org.apache.flink.yarn.LegacyYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -257,7 +258,7 @@ public class FlinkClientBuilder {
 
 //        yarnClient.stop();
 
-        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, yarnConf, ".", yarnClient, false);
+        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(config, yarnConf, ".", yarnClient, true);
 //        try {
 //            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
 //            confField.setAccessible(true);
@@ -267,9 +268,9 @@ public class FlinkClientBuilder {
 //            throw new RdosException(e.getMessage());
 //        }
         ApplicationId yarnApplicationId = ConverterUtils.toApplicationId(applicationId);
-        ClusterClient<ApplicationId> clusterClient = null;
+        YarnClusterClient clusterClient = null;
         try {
-            clusterClient = clusterDescriptor.retrieve(yarnApplicationId);
+            clusterClient = (YarnClusterClient) clusterDescriptor.retrieve(yarnApplicationId);
         } catch (ClusterRetrieveException e) {
             if (clusterDescriptor != null) {
                 clusterDescriptor.close();

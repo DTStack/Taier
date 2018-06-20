@@ -1,23 +1,26 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
-import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.runtime.clusterframework.ApplicationStatus;
+import org.apache.flink.runtime.concurrent.ScheduledExecutorServiceAdapter;
+import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.flink.yarn.cli.YarnApplicationStatusMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 用于检测 flink-application 切换的问题
  * Date: 2018/3/26
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
-public class YarnAppStatusMonitor implements Runnable{
+public class YarnAppStatusMonitor implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(YarnAppStatusMonitor.class);
 
@@ -27,38 +30,48 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private FlinkClient flinkClient;
 
-    public YarnAppStatusMonitor(FlinkClient flinkClient){
+    private YarnApplicationStatusMonitor yarnApplicationStatusMonitor;
+
+    public YarnAppStatusMonitor(FlinkClient flinkClient, ScheduledExecutorService executorService) {
         this.flinkClient = flinkClient;
+        try {
+            YarnClusterClient clusterClient = (YarnClusterClient) flinkClient.getClient();
+            Field clusterDescriptorField = clusterClient.getClass().getDeclaredField("clusterDescriptor");
+            clusterDescriptorField.setAccessible(true);
+            AbstractYarnClusterDescriptor clusterDescriptor = (AbstractYarnClusterDescriptor) clusterDescriptorField.get(clusterClient);
+
+            this.yarnApplicationStatusMonitor = new YarnApplicationStatusMonitor(
+                    clusterDescriptor.getYarnClient(),
+                    clusterClient.getApplicationId(),
+                    new ScheduledExecutorServiceAdapter(executorService));
+        } catch (Exception e) {
+            LOG.error("-------Flink monitor init error---- {}", e);
+        }
     }
 
     @Override
     public void run() {
 
         LOG.warn("start flink monitor thread");
-        while (run.get()){
-            if(flinkClient.isClientOn()){
-                try{
-                    ClusterClient client = flinkClient.getClient();
-                    Field pollingRunnerField = ((YarnClusterClient) client).getClass().getDeclaredField("pollingRunner");
-                    pollingRunnerField.setAccessible(true);
-                    Object pollingThread = pollingRunnerField.get(client);
-                    Field reportField = pollingThread.getClass().getDeclaredField("lastReport");
-                    reportField.setAccessible(true);
-                    ApplicationReport lastReport = (ApplicationReport) reportField.get(pollingThread);
-                    if(!YarnApplicationState.RUNNING.equals(lastReport.getYarnApplicationState())){
+        while (run.get()) {
+            if (flinkClient.isClientOn()) {
+                try {
+                    final ApplicationStatus applicationStatus = yarnApplicationStatusMonitor.getApplicationStatusNow();
+
+                    if (!ApplicationStatus.SUCCEEDED.equals(applicationStatus)) {
                         LOG.error("-------Flink session is down----");
                         //限制任务提交---直到恢复
                         flinkClient.setClientOn(false);
                     }
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     LOG.error("-------Flink session is down----");
                     //限制任务提交---直到恢复
                     flinkClient.setClientOn(false);
                 }
             }
 
-            if(!flinkClient.isClientOn()){
+            if (!flinkClient.isClientOn()) {
                 retry();
             }
 
@@ -71,18 +84,18 @@ public class YarnAppStatusMonitor implements Runnable{
     }
 
 
-    private void retry(){
+    private void retry() {
         //重试
-        try{
+        try {
             LOG.warn("--retry flink client with yarn session----");
             flinkClient.initClient();
-        }catch (Exception e){
+        } catch (Exception e) {
             LOG.error("", e);
         }
     }
 
 
-    public void setRun(boolean run){
+    public void setRun(boolean run) {
         this.run = new AtomicBoolean(run);
     }
 }
