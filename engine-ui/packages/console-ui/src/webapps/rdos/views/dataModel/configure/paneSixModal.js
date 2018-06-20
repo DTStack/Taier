@@ -106,12 +106,12 @@ class AtomIndexDefineModal extends Component {
                         label="指标口径"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexDesc', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
                                 message: '指标口径请控制在200个字符以内！',
                             }],
-                            initialValue: data ? data.indexDesc : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input type="textarea" rows={4} />,
                         )}
