@@ -180,7 +180,6 @@ class TaskFlowView extends Component {
     }
 
     corvertValueToString = (cell) => {
-<<<<<<< HEAD
         if (cell.vertex && cell.value) {
             const dataParse = cell.value ? cell.value : {};
             const task = dataParse.batchTask || '';
@@ -190,21 +189,6 @@ class TaskFlowView extends Component {
                 return `<div  class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}(${taskStatus})</span></span>
                 </div>`
-=======
-        if (mxUtils.isNode(cell.value)) {
-            if (cell.value.nodeName.toLowerCase() == 'task') {
-                const data = cell.getAttribute('data');
-                const dataParse = data ? JSON.parse(data) : {};
-                const task = data ? JSON.parse(data).batchTask : '';
-                const taskType = taskTypeText(task.taskType);
-                const taskStatus = this.getTaskStatus(dataParse.status);
-
-                if (task) {
-                    return `<div  class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
-                    <span style="font-size:10px; color: #666666;">${taskType}(${taskStatus})</span></span>
-                    </div>`
-                }
->>>>>>> hotfix_cycleInstan
             }
         }
     }
