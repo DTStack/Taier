@@ -4,8 +4,8 @@ package com.dtstack.rdos.engine.entrance.test;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.dtstack.rdos.engine.db.dao.RdosNodeMachineDAO;
-import com.dtstack.rdos.engine.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 
 /**
  * Reason:

@@ -5,13 +5,13 @@
 
 <configuration>
     <typeAliases>
-        <typeAlias alias="RdosEngineStreamJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineStreamJob"/>
-        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.db.dataobject.RdosNodeMachine"/>
-        <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineBatchJob"/>
-        <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineJobCache" />
-        <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.db.dataobject.RdosStreamTaskCheckpoint" />
-        <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.db.dataobject.RdosPluginInfo"/>
-        <typeAlias alias="RdosEngineUniqueSign" type="com.dtstack.rdos.engine.db.dataobject.RdosEngineUniqueSign"/>
+        <typeAlias alias="RdosEngineStreamJob" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob"/>
+        <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.service.db.dataobject.RdosNodeMachine"/>
+        <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob"/>
+        <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache" />
+        <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint" />
+        <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo"/>
+        <typeAlias alias="RdosEngineUniqueSign" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign"/>
     </typeAliases>
     <environments default="production">
         <environment id="production">
