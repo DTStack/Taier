@@ -43,7 +43,7 @@ public class RestartDealer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestartDealer.class);
 
-    private static final Integer SUBMIT_INTERVAL = 5 * 60 * 1000;
+    private static final Integer SUBMIT_INTERVAL = 2 * 60 * 1000;
 
     private static final Integer CHECK_INTERVAL = 10 * 1000;
 
@@ -112,7 +112,6 @@ public class RestartDealer {
             if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo)){
                 return false;
             }
-
             resetStatus(jobId, computeType, engineType);
             RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             if(jobCache == null){
@@ -124,7 +123,7 @@ public class RestartDealer {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
             addToRestart(jobClient);
-            LOG.info("------ job: {} add into orderLinkedBlockingQueue again.", jobClient.getTaskId());
+            LOG.warn("jobName:{}---jobId:{} resubmit again...",jobClient.getJobName(), jobClient.getTaskId());
             return true;
         } catch (Exception e) {
             LOG.error("", e);
@@ -291,7 +290,7 @@ public class RestartDealer {
         }
     }
 
-    @Forbidden
+    @Forbi
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
         if (ComputeType.STREAM.getType().equals(computeType)) {
             engineStreamJobDAO.updateTaskStatus(jobId, status);
