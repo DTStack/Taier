@@ -377,7 +377,6 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
 
-
                 addOfflineTask(values, isEditExist, defaultData)
                     .then(
                         (isSuccess) => {

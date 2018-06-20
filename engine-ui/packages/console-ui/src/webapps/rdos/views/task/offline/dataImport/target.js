@@ -6,7 +6,6 @@ import {
 } from 'antd';
 import utils from 'utils'
 
-
 import API from '../../../../api/dataManage'
 import Editor from '../../../../components/code-editor'
 import CopyIcon from "main/components/copy-icon";
@@ -162,7 +161,7 @@ export default class ImportTarget extends Component {
 
     onTableChange(pagination){
         this.setState({
-            pagination:pagination
+            pagination: pagination
         })
     }
 
@@ -210,7 +209,7 @@ export default class ImportTarget extends Component {
                     {item}
                 </Option>
             )
-        }) : []
+        }) : [];
 
         const sourceTitle = (
             <span>源字段 {warning && <span style={{ color: "#ce3b3b", float: "right" }}>请至少选择一个源字段</span>}</span>

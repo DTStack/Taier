@@ -26,7 +26,9 @@ export function authBeforeFormate(response) {
     }
 }
 
-// 状态码这块还是太乱
+// TODO 状态码这块还是太乱
+// 
+const ERROR_MSG_BUFFER = [];
 export function authAfterFormated(response) {
     
     switch (response.code) {
@@ -35,12 +37,15 @@ export function authAfterFormated(response) {
     case 0: // 需要登录
         Api.openLogin()
         return Promise.reject(response);
-    case 3: // 功能无权限
+    case 3: {// 功能无权限
+        ERROR_MSG_BUFFER.push(response.code)
+        console.log(ERROR_MSG_BUFFER);
         notification['error']({
             message: '权限通知',
             description: response.message,
         });
         return Promise.reject(response);
+    }
     case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
         hashHistory.push('/');
     default:
