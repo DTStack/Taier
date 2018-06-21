@@ -1,18 +1,11 @@
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon } from 'antd'
-import { Link } from 'react-router'
-import { connect } from 'react-redux'
+import { Menu, Icon } from 'antd'
 
 import { MenuRight } from 'main/components/nav'
 
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
-import { setTaskFlow } from '../../store/modules/operation/taskflow'
 
-import {
-    workbenchAction,
-} from '../../store/modules/offlineTask/actionType';
-import { clearPages } from '../../store/modules/realtimeTask/browser';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -21,16 +14,6 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
 
 const SubMenu = Menu.SubMenu
 
-@connect(null, dispatch => {
-    return {
-        cleanAllTabData: () => {
-            dispatch(clearPages());
-            dispatch({
-                type: workbenchAction.CLOSE_ALL_TABS
-            });
-        },
-    }
-})
 class Header extends Component {
 
     constructor(props) {
@@ -58,7 +41,6 @@ class Header extends Component {
         if (project) {
             dispatch(ProjectAction.getProject(project.id));
             // 清理tab数据
-            cleanAllTabData();
             if (this.state.current === 'overview') {
                 router.push('/offline/task')
             }
@@ -153,7 +135,7 @@ class Header extends Component {
     }
 
     render() {
-        const { user, project, settingMenus, apps, app, router } = this.props
+        const { user, project, apps, app, router } = this.props
         const { current, devPath } = this.state;
 
         let pathname = router.location.pathname;

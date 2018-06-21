@@ -8,14 +8,6 @@ import { browserAction } from './actionTypes'
 export function publishTask(params){
     const succCallback = (res) => {
         if (res.code === 1) {
-            
-            // dispatch({
-            //     type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
-            //     payload: (res.data && res.data.submitStatus) || 1
-            // });
-            // dispatch({
-            //     type: workbenchAction.MAKE_TAB_CLEAN
-            // })
             return res
         }
     }

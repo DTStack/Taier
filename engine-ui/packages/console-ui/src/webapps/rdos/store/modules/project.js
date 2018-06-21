@@ -3,6 +3,12 @@ import mc from 'mirror-creator';
 import utils from 'utils'
 import Api from '../../api'
 
+import {
+    workbenchAction,
+} from '../../store/modules/offlineTask/actionType';
+import { clearPages } from '../../store/modules/realtimeTask/browser';
+
+
 const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
@@ -25,6 +31,11 @@ export function getProject(id) {
         Api.getProjectByID({
             projectId: id,
         }).then((res) => {
+            // 当切换项目时，应当清理任务开发导航中的缓存数据
+            dispatch(clearPages());
+            dispatch({ 
+                type: workbenchAction.CLOSE_ALL_TABS
+            });
             return dispatch({
                 type: projectAction.GET_PROJECT,
                 data: res.data,

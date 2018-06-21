@@ -360,7 +360,7 @@ class ScheduleForm extends React.Component {
                         dom = <span  key={type}>
                             <FormItem
                                 {...formItemLayout}
-                                label="起调周期"
+                                label="具体时间"
                             >
                             <Col span="6">
                             {getFieldDecorator('hour', {

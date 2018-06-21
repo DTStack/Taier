@@ -133,8 +133,7 @@ class RelationDetail extends React.Component {
                             <tbody className="ant-table-tbody" >
                                 <tr>
                                     <td>
-                                        <span style={{ fontSize: '12px' }}>{data.catalogue}</span>
-                                        <span title={data.tableName}><b>{data.tableName}</b></span>
+                                        <span title={data.tableName}><b>{data.dataSource}.{data.tableName}</b></span>
                                     </td>
                                     <td><span>创建者：{data.createUser}</span></td>
                                     <td><a className="right" onClick={this.props.onShowColumn}>字段血缘关系</a></td>
