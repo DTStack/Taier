@@ -55,9 +55,9 @@ export default class TransformModal extends Component {
 
                 // 去除没有数据的空行
                 this.setState({
-                    nameRule: nameRule.filter(item => item.left && item.right),
-                    columnRule: columnRule.filter(item => item.left && item.right),
-                    typeRule: typeRule.filter(item => item.left && item.right)
+                    nameRule: nameRule.length > 1 ? nameRule.filter(item => item.left && item.right) : nameRule,
+                    columnRule: columnRule.length > 1 ? columnRule.filter(item => item.left && item.right) : columnRule,
+                    typeRule: typeRule.length > 1 ? typeRule.filter(item => item.left && item.right) : typeRule
                 });
             } else {
                 this.setState({
