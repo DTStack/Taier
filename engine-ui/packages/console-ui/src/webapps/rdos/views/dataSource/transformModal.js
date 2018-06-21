@@ -21,45 +21,51 @@ const formItemLayoutWithOutLabel = {
 export default class TransformModal extends Component {
 
     state = {
-    	itemId: 0,
-        initialRule: {},
         nameRule: [{id: 1}],
         columnRule: [{id: 1}],
         typeRule: [{id: 1}]
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.visible && !this.props.visible && nextProps.transformFields.length) {
+        if (nextProps.visible && !this.props.visible) {
             let nameRule = [...this.state.nameRule],
                 columnRule = [...this.state.columnRule],
                 typeRule = [...this.state.typeRule];
 
-            nextProps.transformFields.forEach((item) => {
-                switch (item.convertObject) {
-                    case 1:
-                        nameRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                        nameRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                        break;
-                    case 2:
-                        columnRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                        columnRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                        break;
-                    case 3:
-                        typeRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                        typeRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                        break;
-                    default:
-                        break;
-                }
+            if (nextProps.transformFields.length) {
+                nextProps.transformFields.forEach((item) => {
+                    switch (item.convertObject) {
+                        case 1:
+                            nameRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                            nameRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                            break;
+                        case 2:
+                            columnRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                            columnRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                            break;
+                        case 3:
+                            typeRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                            typeRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                            break;
+                        default:
+                            break;
+                    }
 
-            });
+                });
 
-            // 去除空的行
-            this.setState({
-                nameRule: nameRule.length > 1 ? nameRule.filter(item => item.left && item.right) : nameRule,
-                columnRule: columnRule.length > 1 ? columnRule.filter(item => item.left && item.right) : columnRule,
-                typeRule: typeRule.length > 1 ? typeRule.filter(item => item.left && item.right) : typeRule
-            });
+                // 去除没有数据的空行
+                this.setState({
+                    nameRule: nameRule.length > 1 ? nameRule.filter(item => item.left && item.right) : nameRule,
+                    columnRule: columnRule.length > 1 ? columnRule.filter(item => item.left && item.right) : columnRule,
+                    typeRule: typeRule.length > 1 ? typeRule.filter(item => item.left && item.right) : typeRule
+                });
+            } else {
+                this.setState({
+                    nameRule: [{id: 1}],
+                    columnRule: [{id: 1}],
+                    typeRule: [{id: 1}]
+                });
+            }
 
         }
     }
@@ -99,10 +105,9 @@ export default class TransformModal extends Component {
     // 保存配置，先检查，通过了再保存
     saveConfig = () => {
         const { form } = this.props;
-        const { nameRule, columnRule, typeRule } = this.state;
 
         form.validateFields((err, values) => {
-            console.log(err,values)
+            // console.log(err,values)
 
             if(!err) {
                 let leftKeys = [],
@@ -141,26 +146,45 @@ export default class TransformModal extends Component {
                     }).then(res => {
                         if (res.code === 1) {
                             this.props.closeModal();
-                            this.props.changeTransformFields(fields);
                         }
                     });
                 } else {
                     this.cancel();
                 }
+
+                this.props.changeTransformFields(fields);
             }
         });
     }
 
+    // 取消操作
     cancel = () => {
         this.props.form.resetFields();
         this.props.closeModal();
     }
 
+    // 输入为空时重置对应item
     handleInput = (target, e) => {
         const { form } = this.props;
 
         if (!e.target.value && !form.getFieldValue(target)) {
-            form.resetFields([target]);
+            let data = {};
+
+            data[target] = undefined;
+            form.setFieldsValue(data);
+        }
+    }
+
+    // 选择为空时重置对应item
+    handleSelect = (target, value) => {
+        console.log(target,value)
+        const { form } = this.props;
+
+        if (!value && !form.getFieldValue(target)) {
+            let data = {};
+
+            data[target] = undefined;
+            form.setFieldsValue(data);
         }
     }
 
@@ -203,7 +227,8 @@ export default class TransformModal extends Component {
                                 type === 'typeRule' ?
                                 <Select
                                     allowClear 
-                                    size="large">
+                                    size="large"
+                                    onChange={this.handleSelect.bind(this, `${type}-${item.id}-right`)}>
                                     {
                                         originTypeTransformRule.map(item => {
                                             return <Option key={item}>{item}</Option>
@@ -237,7 +262,8 @@ export default class TransformModal extends Component {
                                     <Select 
                                         allowClear
                                         size="large" 
-                                        className="col-16">
+                                        className="col-16"
+                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-left`)}>
                                         {
                                             targetTypeTransformRule.map(item => {
                                                 return <Option key={item}>{item}</Option>
@@ -280,7 +306,8 @@ export default class TransformModal extends Component {
                                     <Select 
                                         allowClear
                                         size="large" 
-                                        className="col-16">
+                                        className="col-16"
+                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-right`)}>
                                         {
                                             originTypeTransformRule.map(item => {
                                                 return <Option key={item}>{item}</Option>
@@ -317,7 +344,8 @@ export default class TransformModal extends Component {
                                     <Select 
                                         size="large" 
                                         allowClear
-                                        className="col-16">
+                                        className="col-16"
+                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-left`)}>
                                         {
                                             targetTypeTransformRule.map(item => {
                                                 return <Option key={item}>{item}</Option>
@@ -349,6 +377,19 @@ export default class TransformModal extends Component {
         })
     }
 
+    // 清除所有设置
+    clearData = () => {
+        this.setState((prevState) => {
+            this.props.form.resetFields();
+
+            return {
+                nameRule: [{id: 1}],
+                columnRule: [{id: 1}],
+                typeRule: [{id: 1}]
+            }
+        });
+    }
+
     render() {
     	const { visible } = this.props;
         const { nameRule, columnRule, typeRule } = this.state;
@@ -359,10 +400,27 @@ export default class TransformModal extends Component {
                 width={'70%'}
                 visible={visible}
                 maskClosable={false}
-                okText="保存"
-                cancelText="取消"
-                onOk={this.saveConfig}
                 onCancel={this.cancel}
+                footer={[
+                    <Button 
+                        key="clear" 
+                        type="primary" 
+                        className="left"
+                        onClick={this.clearData}>
+                        清除设置
+                    </Button>,
+                    <Button 
+                        key="cancel" 
+                        onClick={this.cancel}>
+                        取消
+                    </Button>,
+                    <Button 
+                        key="save" 
+                        type="primary" 
+                        onClick={this.saveConfig}>
+                        保存
+                    </Button>,
+                ]}
             >
                 <Form layout="inline" className="config-form">
                     {
