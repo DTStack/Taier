@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import {
     Row, Col, Tabs, Table, Radio, Select, Card
 } from 'antd'
+import moment from 'moment';
 
 import ajax from '../../../../api/dataManage';
-import TitleBar from '../../../../components/title-bar' 
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
@@ -92,12 +92,17 @@ export default class TableAnalytics extends Component {
                 },
             }]
             data.forEach((item, index) => {
+                let titleItem = item;
                 arr.push({
                     title: item,
                     key: index + item,
                     width: 200,
-                    render: (text, item) => {
-                        return <span>{item[index]}</span>
+                    render: (text, item) => {  
+                        if (titleItem==="ts") {
+                            return <span>{moment(item[index]).format('YYYY-MM-DD HH:mm:ss')}</span>
+                        }else{
+                            return <span>{item[index]}</span>
+                        }
                     },
                 })
             })
