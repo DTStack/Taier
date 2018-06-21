@@ -148,7 +148,7 @@ export default class TaskQuery extends Component {
             ...this.state.params,
             currentPage: page.current,
             statusFilter: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
-            alarmSumSort: undefined,
+            alarmSort: undefined,
             executeTimeSort: undefined,
         };
 
@@ -156,6 +156,8 @@ export default class TaskQuery extends Component {
             params[
                 field === 'alarmSum' ? 'alarmSort' : 'executeTimeSort'
             ] = order === 'descend' ? 'desc' : 'asc';
+        }else{
+            params.alarmSort =  params.executeTimeSort = undefined;
         }
 
         this.props.getTaskList(params);
