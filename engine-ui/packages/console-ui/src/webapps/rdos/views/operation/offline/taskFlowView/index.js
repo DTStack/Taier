@@ -179,8 +179,6 @@ class TaskFlowView extends Component {
     formatTooltip = (cell) => {
         if (cell.vertex) {
             return cell.value;
-            // const task = cell.value ? cell.value.batchTask : {};
-            // return task ? task.name : ''
         }
     }
 
@@ -279,8 +277,8 @@ class TaskFlowView extends Component {
             this.insertVertex(graph, data, parent, type)
         }, () => {
             // graph.center();
-            // graph.view.setTranslate(cx, cy);
         })
+        graph.view.setTranslate(cx, cy);
     }
 
     initContextMenu = (graph) => {
@@ -503,7 +501,8 @@ class TaskFlowView extends Component {
                         ref={(e) => { this.Container = e }}
                         style={{
                             position: 'relative',
-                            // overflow: 'scroll',
+                            overflow: 'auto',
+                            paddingBottom: '20px',
                             height: '95%',
                         }}
                     />
