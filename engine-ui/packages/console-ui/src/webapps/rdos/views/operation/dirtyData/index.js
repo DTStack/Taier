@@ -67,13 +67,17 @@ const TIME_OBJ = {
     },
 }
 
-@connect(null, (dispatch) => {
+@connect((state) => {
+    return {
+        project: state.project,
+    }
+}, (dispatch) => {
     const actions = workbenchActions(dispatch)
     return {
         goToTaskDev: (id) => {
             actions.openTaskInDev(id)
         }
-    }
+    } 
 })
 class DirtyData extends Component {
 
