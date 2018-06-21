@@ -14,6 +14,9 @@ import Resize from 'widgets/resize'
 
 import Api from "../../../api/dataManage"
 import { lineAreaChartOptions } from '../../../comm/const'
+import TableLog from '../../dataManage/tableLog';
+import SlidePane from 'widgets/slidePane';
+
 
 import {
     workbenchActions
@@ -64,13 +67,17 @@ const TIME_OBJ = {
     },
 }
 
-@connect(null, (dispatch) => {
+@connect((state) => {
+    return {
+        project: state.project,
+    }
+}, (dispatch) => {
     const actions = workbenchActions(dispatch)
     return {
         goToTaskDev: (id) => {
             actions.openTaskInDev(id)
         }
-    }
+    } 
 })
 class DirtyData extends Component {
 
@@ -86,6 +93,11 @@ class DirtyData extends Component {
         loadingTop: false,
         loading: false,
         currentPage: 1,
+        tableLog:{
+            tableId: undefined,
+            tableName: undefined,
+            visible: false,
+        },
     }
 
     componentDidMount() {
@@ -306,6 +318,27 @@ class DirtyData extends Component {
         )
     }
 
+    showTableLog(table) {
+        const { id, tableName } = table;
+        const { tableLog } = this.state;
+        tableLog.tableId = id;
+        tableLog.tableName = tableName;
+        tableLog.visible = true;
+        this.setState({
+            tableLog
+        })
+    }
+
+    closeSlidePane = () => {
+        const { tableLog } = this.state;
+        tableLog.visible = false;
+        tableLog.tableId = undefined;
+        tableLog.tableName = undefined;
+        this.setState({
+            tableLog
+        })
+    }
+
     renderProduceList = (taskOptions) => {
         const { produceList, loading, currentPage } = this.state
         const ctx = this;
@@ -362,15 +395,7 @@ class DirtyData extends Component {
                         <span>
                             <Link to={`/operation/dirty-data/table/${id}`}>详情</Link>
                             <span className="ant-divider" />
-                            <a onClick={() => {
-                                hashHistory.push({
-                                    pathname: '/operation/log',
-                                    query: {
-                                        id: id,
-                                        tableName: record.tableName
-                                    }
-                                })
-                            }}>操作记录</a>
+                            <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
                         </span>
                     )
                 }
@@ -439,9 +464,8 @@ class DirtyData extends Component {
     }
 
     render() {
-
-        const { taskList } = this.state
-
+        const { taskList,tableLog } = this.state
+        const projectUsers = [];
         const taskOptions = taskList && taskList.map(option =>
             <Option
                 key={option.id}
@@ -494,6 +518,17 @@ class DirtyData extends Component {
                 <Row style={{ margin: '20px' }}>
                     {this.renderProduceList(taskOptions)}
                 </Row>
+                {
+                  tableLog.visible ?  <SlidePane
+                        onClose={this.closeSlidePane}
+                        visible={tableLog.visible}
+                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                    >
+                        <div className="m-loglist">
+                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
+                        </div>
+                    </SlidePane> : ""
+                }
             </div>
         )
     }

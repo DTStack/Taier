@@ -326,12 +326,12 @@ class AuthMana extends Component {
                 }
             },
             {
-                title: 'project',
+                title: '项目名称',
                 key: 'projectName',
                 dataIndex: 'projectName',
             },
             {
-                title: '项目名',
+                title: '项目显示名称',
                 key: 'projectAlias',
                 dataIndex: 'projectAlias',
             },
