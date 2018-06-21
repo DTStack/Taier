@@ -46,6 +46,7 @@ export default class DBSync extends Component {
         this.getTableList(this.props.routeParams.sourceId);
     }
 
+    // 获取所有表
     getTableList = (sourceId) => {
         Api.getOfflineTableList({
             sourceId: sourceId,
@@ -71,15 +72,15 @@ export default class DBSync extends Component {
             title: '表名',
             dataIndex: 'tableName',
             key: 'tableName',
-            width: '30%',
+            width: '32%',
         }, {
             title: 'DTinsight.IDE',
             dataIndex: 'tableName',
             key: 'ideTableName',
-            width: '30%',
+            width: '32%',
         }, {
             title: '任务状态',
-            width: '30%',
+            width: '28%',
             render: (text, record) => {
                 if (record.status) {
                     return record.status === 1 ? 
@@ -144,6 +145,7 @@ export default class DBSync extends Component {
         </Select>
     }
 
+    // 发布所有任务
     publishTask = () => {
         const { selectedTable, hourTime, transformFields } = this.state;
         const { form, routeParams } = this.props;
@@ -154,7 +156,6 @@ export default class DBSync extends Component {
         }
 
         form.validateFields((err, values) => {
-            console.log(err,values)
             this.setState((prevState, props) => {
                 return {
                     percent: 0,
@@ -166,13 +167,13 @@ export default class DBSync extends Component {
             if(!err) {
                 let params = {
                     dataSourceId: routeParams.sourceId,
-                    scheduleConf: JSON.stringify({
+                    scheduleConf: {
                         beginDate: values.beginDate[0].format('YYYY-MM-DD'),
                         endDate: values.beginDate[1].format('YYYY-MM-DD'),
                         periodType: '2',
-                        hour: values.hour,
-                        min: '0',
-                    }),
+                        hour: parseInt(values.hour),
+                        min: 0,
+                    },
                     syncType: values.syncType,
                     timeFieldIdentifier: values.syncType == 1 ? values.timeFieldIdentifier : undefined,
                     parallelType: values.parallelType,
@@ -193,7 +194,7 @@ export default class DBSync extends Component {
                 if (values.saveConfig) {
                     Api.saveSyncConfig(params).then(res => {
                         if (res.code === 1) {
-                            message.success('保存成功')
+                            message.success('保存成功');
                             this.publishSyncTask(params, res.data);
                         }
                     })
@@ -208,14 +209,28 @@ export default class DBSync extends Component {
     publishSyncTask = async (params, mid) => {
         const { selectedTable, tableList } = this.state;
 
+        let times = 1,
+            scheduleConf = params.scheduleConf,
+            parallelConfig = params.parallelConfig;
+
         for (let tableName of selectedTable) {
+            let index = selectedTable.indexOf(tableName);
+
             params.table = tableName;
             params.oldTable = tableName;
             params.migrationId = mid ? mid : undefined;
-    
+
+            // 任务调度时间的变化
+            if (parallelConfig && index >= parallelConfig.tableNum * times) {
+                scheduleConf.hour += parallelConfig.hourTime;
+                ++times;
+            }
+
+            params.scheduleConf = JSON.stringify(scheduleConf);
+
             let res = await Api.publishSyncTask(params),
                 isFail = res.code != 1 || res.data.status != 1,
-                percent = parseInt(((selectedTable.indexOf(tableName) + 1) / selectedTable.length) * 100);
+                percent = parseInt(((index + 1) / selectedTable.length) * 100);
            
             if (res.code === 1) {
                 let newTableList = [...tableList],
