@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
-import org.apache.parquet.Strings;
+
+import com.google.common.base.Strings;
 
 import java.util.Map;
 
