@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link, hashHistory } from 'react-router'
+
 
 import {
-    Button, Tooltip, Spin,
-    Modal, notification, Icon,
+    Tooltip, Spin, Icon,
 } from 'antd'
 
-import utils from 'utils'
 
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
@@ -28,9 +25,9 @@ const {
     mxRubberband,
     mxConstants,
     mxEdgeStyle,
-    mxPopupMenu,
     mxPerimeter,
     mxCompactTreeLayout,
+    mxHierarchicalLayout,
     mxUtils,
 } = Mx
 
@@ -96,7 +93,7 @@ export default class TaskView extends Component {
         if (exist) {
             const edges = graph.getEdgesBetween(parent, exist)
             if (edges.length === 0) {
-                graph.insertEdge(parent, null, '', parent, exist)
+                graph.insertEdge(rootCell, null, '', parent, exist)
             }
             return exist;
         } else {// 如果该节点为新节点， 则从新生成并创建
@@ -108,11 +105,11 @@ export default class TaskView extends Component {
             tableInfo.setAttribute('id', data.id)
             tableInfo.setAttribute('data', JSON.stringify(data))
 
-            let newVertex = graph.insertVertex(rootCell, null, tableInfo, 0, 0,
+            let newVertex = graph.insertVertex(rootCell, null, tableInfo, 1, 1,
                 VertexSize.width, VertexSize.height, style
             )
+            graph.insertEdge(rootCell, null, '', parent, newVertex)
             graph.view.refresh(newVertex)
-            graph.insertEdge(parent, null, '', parent, newVertex)
 
             // 缓存节点
             this._vertexCells.push(newVertex)
@@ -174,14 +171,15 @@ export default class TaskView extends Component {
 
         this.executeLayout = function(change, post) {
 
-            const layout = new mxCompactTreeLayout(graph)
-            layout.horizontal = false;
-            layout.useBoundingBox = false;
-            layout.edgeRouting = false;
-
             model.beginUpdate();
 
             try {
+                const layout = new mxHierarchicalLayout(graph, false);
+                layout.orientation = 'north';
+                layout.disableEdgeStyle = false;
+                layout.interRankCellSpacing = 40;
+                layout.intraCellSpacing = 10;
+
                 if (change != null) {
                     change();
                 }
@@ -196,9 +194,10 @@ export default class TaskView extends Component {
 
         this.executeLayout(() => {
             this.loopTree(graph, data);
+        }, () => {
+            graph.view.setTranslate(cx, cy);
         });
 
-        graph.view.setTranslate(cx, cy);
     }
 
 

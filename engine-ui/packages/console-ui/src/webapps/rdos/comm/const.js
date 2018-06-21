@@ -415,7 +415,7 @@ export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换
     'BIGINT',
     'STRING',
     'DOUBLE',
-    'DATETIME',
+    'TIMESTAMP',
     'BOOLEAN'
 ]
 
