@@ -23,19 +23,24 @@ const defaultProject = {
 
 // Action
 export function getProject(id) {
-    if (!id || id === 0) return;
-    if (id) {
-        utils.setCookie('project_id', id)
-    }
+
     return (dispatch) => {
-        Api.getProjectByID({
-            projectId: id,
-        }).then((res) => {
+
+        const projectKey = 'project_id';
+        const oldProjectID = utils.getCookie(projectKey);
+
+        // 如果为不同的项目
+        if (id && id != oldProjectID) {
+            utils.setCookie(projectKey, id)
             // 当切换项目时，应当清理任务开发导航中的缓存数据
             dispatch(clearPages());
             dispatch({ 
                 type: workbenchAction.CLOSE_ALL_TABS
             });
+        } 
+        Api.getProjectByID({
+            projectId: id,
+        }).then((res) => {
             return dispatch({
                 type: projectAction.GET_PROJECT,
                 data: res.data,

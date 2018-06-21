@@ -288,7 +288,6 @@ class ScriptModal extends React.Component {
                             onClick={ this.handleSubmit }
                         > 确认 </Button>
                     ]}
-                    key={ this.dtcount }
                     onCancel={this.closeModal}
                 >
                     <ScriptFormWrapper
