@@ -90,7 +90,7 @@ class dbSyncHistoryModal extends Component {
 	                        <Icon type="check-circle" style={{ color: 'green', marginRight: 8 }} /> 
 	                        成功 
                         </span>
-                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.id)}>
+                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.taskId)}>
 	                        查看任务 
                         </a>
                     </div>
