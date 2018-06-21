@@ -167,13 +167,13 @@ export default class DBSync extends Component {
             if(!err) {
                 let params = {
                     dataSourceId: routeParams.sourceId,
-                    scheduleConf: {
+                    scheduleConf: JSON.stringify({
                         beginDate: values.beginDate[0].format('YYYY-MM-DD'),
                         endDate: values.beginDate[1].format('YYYY-MM-DD'),
                         periodType: '2',
                         hour: parseInt(values.hour),
                         min: 0,
-                    },
+                    }),
                     syncType: values.syncType,
                     timeFieldIdentifier: values.syncType == 1 ? values.timeFieldIdentifier : undefined,
                     parallelType: values.parallelType,
@@ -210,7 +210,7 @@ export default class DBSync extends Component {
         const { selectedTable, tableList } = this.state;
 
         let times = 1,
-            scheduleConf = params.scheduleConf,
+            scheduleConf = JSON.parse(params.scheduleConf),
             parallelConfig = params.parallelConfig;
 
         for (let tableName of selectedTable) {
