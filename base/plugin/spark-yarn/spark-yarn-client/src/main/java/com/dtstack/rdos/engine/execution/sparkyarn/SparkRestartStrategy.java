@@ -3,17 +3,10 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 import com.clearspring.analytics.util.Lists;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
-import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Reason:
@@ -28,24 +21,12 @@ public class SparkRestartStrategy extends IRestartStrategy {
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
-    private final static String analysisException = "org.apache.spark.sql.AnalysisException";
-
-    private final static String metadataFetchException = "org.apache.spark.shuffle.MetadataFetchFailedException";
-
-    private final static String parseException = "org.apache.spark.sql.catalyst.parser.ParseException";
-
-    private final static String analysisSubException = ".*org\\.apache\\.spark\\.sql\\.catalyst\\.analysis\\.\\w+Exception";
+    private final static String treeNodeException = "org.apache.spark.sql.catalyst.errors.package$TreeNodeException: execute, tree";
 
     private final static List<String> exceptionList = Lists.newArrayList();
 
-    private final static List<Pattern> exceptionPatternList = Lists.newArrayList();
-
     static {
-        exceptionList.add(analysisException);
-        exceptionList.add(parseException);
-        exceptionList.add(metadataFetchException);
-
-        exceptionPatternList.add(Pattern.compile(analysisSubException));
+        exceptionList.add(treeNodeException);
     }
 
     @Override
@@ -64,28 +45,20 @@ public class SparkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
-          return false;
-//        retry(jobId,null);
-//
-//        String logInfo = client.getJobLog(engineJobId);
-//        if(Strings.isNullOrEmpty(logInfo)){
-//            return false;
-//        }
-//
-//        for(String excepStr : exceptionList){
-//            if(logInfo.contains(excepStr)){
-//                return false;
-//            }
-//        }
-//
-//        for(Pattern pattern : exceptionPatternList){
-//            Matcher matcher = pattern.matcher(logInfo);
-//            if(matcher.find()){
-//                return false;
-//            }
-//        }
-//
-//        return true;
+        boolean restart = false;
+        String msg = client.getJobLog(engineJobId);
+        if(StringUtils.isNotBlank(msg)){
+            for(String emsg : exceptionList){
+                if(msg.contains(emsg)){
+                    restart =  true;
+                    break;
+                }
+            }
+        }
+        if(restart){
+            return retry(jobId,null);
+        }else {
+            return false;
+        }
     }
-
 }
