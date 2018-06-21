@@ -33,7 +33,6 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxCompactTreeLayout,
-    mxLayoutManager,
     mxGraphView,
     mxText,
 } = Mx
@@ -174,6 +173,7 @@ class TaskFlowView extends Component {
         // enables rubberband
         new mxRubberband(graph)
         this.initContextMenu(graph)
+
     }
 
     formatTooltip = (cell) => {
@@ -246,8 +246,9 @@ class TaskFlowView extends Component {
     }
 
     doInsertVertex = (data, type) => {
-        const graph = this.graph
 
+        const graph = this.graph
+        const ctx = this;
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
         const cx = (graph.container.clientWidth - VertexSize.width) / 2
@@ -274,11 +275,10 @@ class TaskFlowView extends Component {
             }
         }
         this.executeLayout(() => {
-            this.insertVertex(graph, data, parent, type)
+            ctx.insertVertex(graph, data, parent, type)
         }, () => {
-            // graph.center();
+            graph.view.setTranslate(cx, cy);
         })
-        graph.view.setTranslate(cx, cy);
     }
 
     initContextMenu = (graph) => {
@@ -482,21 +482,31 @@ class TaskFlowView extends Component {
 
     /* eslint-enable */
     render() {
-        const selectedJob = this.state.selectedJob
-        const taskLog = this.state.taskLog
+        const { selectedJob, taskLog } = this.state;
         const { goToTaskDev, project, taskJob } = this.props
+        const progStyle = {
+            width: '50%',
+            height: '18px',
+            top: 0,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            margin: 'auto',
+        }
         return (
             <div className="graph-editor"
                 style={{
                     position: 'relative',
                 }}
             >
+
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div
+                   <div
                         className="editor pointer"
                         ref={(e) => { this.Container = e }}
                         style={{
@@ -505,7 +515,8 @@ class TaskFlowView extends Component {
                             paddingBottom: '20px',
                             height: '95%',
                         }}
-                    />
+                    >
+                    </div>
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
