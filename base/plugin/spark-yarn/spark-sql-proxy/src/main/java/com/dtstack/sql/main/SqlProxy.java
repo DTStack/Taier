@@ -15,7 +15,7 @@ import java.util.Map;
  * 需要单独打成jar 放到hdfs上 用于执行sql的时候调用
  * Date: 2017/4/11
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class SqlProxy {
@@ -38,7 +38,8 @@ public class SqlProxy {
                 .enableHiveSupport()
                 .getOrCreate();
 
-        String[] sqlArray = submitSql.split(";");
+        //屏蔽引号内的 分号
+        String[] sqlArray = submitSql.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)(?=(?:[^']*'[^']*')*[^']*$)");
         for(String sql : sqlArray){
             if(sql == null || sql.trim().length() == 0){
                 continue;
