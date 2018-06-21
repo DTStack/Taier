@@ -34,6 +34,7 @@ const {
     mxPerimeter,
     mxCompactTreeLayout,
     mxLayoutManager,
+    mxGraphView,
     mxText,
 } = Mx
 
@@ -123,8 +124,8 @@ class TaskFlowView extends Component {
     }
 
     loadEditor = (container) => {
-        mxText.prototype.ignoreStringSize = true;
-
+        mxGraphView.prototype.optimizeVmlReflows = false;
+        mxText.prototype.ignoreStringSize = true; //to avoid calling getBBox
         // Disable context menu
         mxEvent.disableContextMenu(container)
         const graph = new mxGraph(container)
@@ -138,6 +139,7 @@ class TaskFlowView extends Component {
         graph.view.setScale(1)
         // Enables HTML labels
         graph.setHtmlLabels(true);
+
         graph.setAllowDanglingEdges(false)
         // 禁止连接
         graph.setConnectable(false)
@@ -167,6 +169,8 @@ class TaskFlowView extends Component {
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+        mxConstants.STYLE_OVERFLOW = 'hidden';
+
         // enables rubberband
         new mxRubberband(graph)
         this.initContextMenu(graph)
@@ -174,19 +178,29 @@ class TaskFlowView extends Component {
 
     formatTooltip = (cell) => {
         if (cell.vertex) {
-            const task = cell.value ? cell.value.batchTask : {};
-            return task ? task.name : ''
+            return cell.value;
+            // const task = cell.value ? cell.value.batchTask : {};
+            // return task ? task.name : ''
         }
+    }
+
+    getShowStr = (data) => {
+        const task = data.batchTask;
+        const taskType = taskTypeText(task.taskType);
+        const taskStatus = taskStatusText(data.status); 
+        const str = `${task.name || ''} <br/> ${taskType}(${taskStatus})`;
+        return str;
     }
 
     corvertValueToString = (cell) => {
         if (cell.vertex && cell.value) {
+            console.log(1)
             const dataParse = cell.value ? cell.value : {};
             const task = dataParse.batchTask || '';
             const taskType = taskTypeText(task.taskType);
-            const taskStatus = taskStatusText(dataParse.status); //this.getTaskStatus(dataParse.status);
+            const taskStatus = taskStatusText(dataParse.status); 
             if (task) {
-                return `<div  class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
+                return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}(${taskStatus})</span></span>
                 </div>`
             }
@@ -208,11 +222,13 @@ class TaskFlowView extends Component {
             const exist = this._vertexCells[data.id];
 
             let newVertex = exist;
+            console.log(2)
 
             if (exist && parent.id !== '1') {
                 this.insertEdge(graph, type, parent, exist)
             } else if (!exist) {
                 // 插入当前节点
+                const str = this.getShowStr(data)
                 newVertex = newVertex = graph.insertVertex(
                     graph.getDefaultParent(), null, data, 1, 1,
                     VertexSize.width, VertexSize.height, style
@@ -236,6 +252,9 @@ class TaskFlowView extends Component {
 
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2
+        const cy = 200;
+
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = false;
         layout.useBoundingBox = false;
@@ -243,13 +262,25 @@ class TaskFlowView extends Component {
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
 
-        var layoutMgr = new mxLayoutManager(graph);
-        layoutMgr.getLayout = function(cell) {
-            if (cell.getChildCount() > 0)
-                return layout;
-        };
-        this.insertVertex(graph, data, parent, type)
-        graph.center();
+        this.executeLayout = function (change, post) {
+
+            model.beginUpdate();
+            try {
+                if (change != null) { change(); }
+                layout.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post(); }
+            }
+        }
+        this.executeLayout(() => {
+            this.insertVertex(graph, data, parent, type)
+        }, () => {
+            // graph.center();
+            // graph.view.setTranslate(cx, cy);
+        })
     }
 
     initContextMenu = (graph) => {
@@ -472,7 +503,7 @@ class TaskFlowView extends Component {
                         ref={(e) => { this.Container = e }}
                         style={{
                             position: 'relative',
-                            overflow: 'auto',
+                            // overflow: 'scroll',
                             height: '95%',
                         }}
                     />
@@ -553,6 +584,8 @@ class TaskFlowView extends Component {
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
+        style[mxConstants.STYLE_OVERFLOW] = 'hidden';
+
         return style;
     }
 
