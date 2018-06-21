@@ -164,7 +164,7 @@ export default class ProjectList extends Component {
         const title = (
             <div>
                 <Search
-                  placeholder="按项目名称搜索"
+                  placeholder="按项目显示名称搜索"
                   style={{ width: 200 }}
                   value={projectName}
                   onChange={this.changeProjectName}
