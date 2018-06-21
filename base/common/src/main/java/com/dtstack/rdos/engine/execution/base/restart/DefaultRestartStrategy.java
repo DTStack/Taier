@@ -19,4 +19,9 @@ public class DefaultRestartStrategy extends IRestartStrategy {
         return false;
     }
 
+    @Override
+    public boolean checkCanRestart(String jobId, String msg) {
+        return false;
+    }
+
 }

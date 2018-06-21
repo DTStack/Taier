@@ -51,9 +51,15 @@ public class FlinkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
-        boolean restart = false;
         String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
         String msg = client.getMessageByHttp(reqURL);
+        return checkCanRestart(jobId, msg);
+    }
+
+    @Override
+    public boolean checkCanRestart(String jobId, String msg) {
+
+        boolean restart = false;
         if(StringUtils.isNotBlank(msg)){
             for(String emsg : errorMsgs){
                 if(msg.contains(emsg)){
@@ -62,6 +68,7 @@ public class FlinkRestartStrategy extends IRestartStrategy {
                 }
             }
         }
+
         if(restart){
             return retry(jobId,null);
         }else {

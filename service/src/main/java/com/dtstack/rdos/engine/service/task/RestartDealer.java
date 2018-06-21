@@ -150,12 +150,9 @@ public class RestartDealer {
         if(jobClient.getJobResult() == null){
             //未提交过
             return true;
-        } else if(isSubmitFailOfEngineDown(jobClient)){
-            //引擎挂了,需要不断重试
-            return true;
         }
 
-        return false;
+        return retrySubmitFail(jobClient);
     }
 
     private boolean isSubmitFail(JobClient jobClient){
@@ -167,7 +164,7 @@ public class RestartDealer {
         return false;
     }
 
-    private boolean isSubmitFailOfEngineDown(JobClient jobClient){
+    private boolean retrySubmitFail(JobClient jobClient){
 
         if(!isSubmitFail(jobClient)){
             return false;
@@ -176,7 +173,7 @@ public class RestartDealer {
         try{
             String engineType = jobClient.getEngineType();
             String resultMsg = jobClient.getJobResult().getMsgInfo();
-            return RestartStrategyUtil.getInstance().checkFailureForEngineDown(engineType, resultMsg);
+            return RestartStrategyUtil.getInstance().retrySubmitFail(jobClient.getTaskId(), engineType, resultMsg);
 
         }catch (Exception e){
             LOG.error("", e);

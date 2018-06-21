@@ -281,9 +281,6 @@ public class FlinkClient extends AbsClient {
     }
 
     /**
-     * 1: 不再对操作顺序做限制
-     * 2：不再限制输入源数量
-     * 3：不再限制输出源数量
      * @param jobClient
      * @return
      * @throws IOException

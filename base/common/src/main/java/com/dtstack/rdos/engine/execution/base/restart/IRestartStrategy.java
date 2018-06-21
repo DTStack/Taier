@@ -29,6 +29,16 @@ public abstract class IRestartStrategy {
 
     public abstract boolean checkCanRestart(String jobId,String engineJobId, IClient client);
 
+    public abstract boolean checkCanRestart(String jobId, String msg);
+
+    public boolean retrySubmitFail(String jobId, String msg, Integer retryNum){
+        if(checkFailureForEngineDown(msg)){
+            return true;
+        }
+
+        return checkCanRestart(jobId, msg);
+    }
+
     public boolean retry(String jobId,Integer retryNum){
         try {
             Integer retry_limit_real = retryNum!=null?retryNum:RETRY_LIMIT;

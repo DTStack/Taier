@@ -45,8 +45,13 @@ public class SparkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
-        boolean restart = false;
         String msg = client.getJobLog(engineJobId);
+        return checkCanRestart(jobId, msg);
+    }
+
+    @Override
+    public boolean checkCanRestart(String jobId, String msg) {
+        boolean restart = false;
         if(StringUtils.isNotBlank(msg)){
             for(String emsg : exceptionList){
                 if(msg.contains(emsg)){

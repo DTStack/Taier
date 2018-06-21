@@ -86,13 +86,13 @@ public class RestartStrategyUtil {
         }
     }
 
-    public boolean checkFailureForEngineDown(String engineType, String msg){
+    public boolean retrySubmitFail(String jobId, String engineType, String msg){
         IRestartStrategy dealer = getDealer(engineType);
         if(dealer == null){
             throw new RdosException("can't find result dealer with engine type:" + engineType);
         }
 
-        return dealer.checkFailureForEngineDown(msg);
+        return dealer.retrySubmitFail(jobId, msg, null);
     }
 
     public boolean checkNOResource(String engineType, String msg){

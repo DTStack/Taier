@@ -32,4 +32,9 @@ public class SparkRestartStrategy extends IRestartStrategy {
     public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
         return false;
     }
+
+    @Override
+    public boolean checkCanRestart(String jobId, String msg) {
+        return false;
+    }
 }
