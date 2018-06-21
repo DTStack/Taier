@@ -36,6 +36,14 @@ export default class ModelCheck extends Component {
         this.loadData();
     }
 
+    componentWillReceiveProps(nextProps) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+           this.componentDidMount();
+        }
+    }
+
     loadData = () => {
         const { params } = this.state;
         this.setState({

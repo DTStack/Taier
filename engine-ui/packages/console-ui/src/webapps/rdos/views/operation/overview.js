@@ -14,7 +14,7 @@ export default class Index extends Component {
             <div className="operation-overview" style={{ background: '#f2f7fa' }}>
                 <RealtimeCount />
                 <OfflineCount />
-                <OfflineStatistics />
+                <OfflineStatistics /> 
             </div>
         )
     }

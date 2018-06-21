@@ -201,7 +201,9 @@ export default class TransformModal extends Component {
                                 initialValue: item.left
                             })(
                                 type === 'typeRule' ?
-                                <Select size="large">
+                                <Select
+                                    allowClear 
+                                    size="large">
                                     {
                                         originTypeTransformRule.map(item => {
                                             return <Option key={item}>{item}</Option>
@@ -233,6 +235,7 @@ export default class TransformModal extends Component {
                                 })(
                                     type === 'typeRule' ?
                                     <Select 
+                                        allowClear
                                         size="large" 
                                         className="col-16">
                                         {
@@ -275,6 +278,7 @@ export default class TransformModal extends Component {
                                 })(
                                     type === 'typeRule' ?
                                     <Select 
+                                        allowClear
                                         size="large" 
                                         className="col-16">
                                         {
@@ -312,6 +316,7 @@ export default class TransformModal extends Component {
                                     type === 'typeRule' ?
                                     <Select 
                                         size="large" 
+                                        allowClear
                                         className="col-16">
                                         {
                                             targetTypeTransformRule.map(item => {
