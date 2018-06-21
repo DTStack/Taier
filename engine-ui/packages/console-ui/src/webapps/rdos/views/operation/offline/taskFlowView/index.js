@@ -9,7 +9,7 @@ import utils from 'utils'
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { getVertxtStyle } from '../../../../comm'
-import { TASK_STATUS, TASK_TYPE, offlineTaskStatusFilter } from '../../../../comm/const'
+import { TASK_STATUS } from '../../../../comm/const'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
@@ -192,7 +192,6 @@ class TaskFlowView extends Component {
 
     corvertValueToString = (cell) => {
         if (cell.vertex && cell.value) {
-            console.log(1)
             const dataParse = cell.value ? cell.value : {};
             const task = dataParse.batchTask || '';
             const taskType = taskTypeText(task.taskType);
@@ -220,7 +219,6 @@ class TaskFlowView extends Component {
             const exist = this._vertexCells[data.id];
 
             let newVertex = exist;
-            console.log(2)
 
             if (exist && parent.id !== '1') {
                 this.insertEdge(graph, type, parent, exist)
