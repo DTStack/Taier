@@ -453,7 +453,6 @@ class FolderTree extends React.Component {
             if (isFilepicker && type === 'file' && acceptRes !== undefined ) {
                 if (acceptRes !== resourceType) return null;
             }
-            
 
             // 目录选择过滤掉具体文件
             if (ispicker && !isFilepicker && data.children !== null) {
@@ -472,9 +471,9 @@ class FolderTree extends React.Component {
                             {createUser}
                         </i>
                     </span> :
-                    <CtxMenu 
-                        id={ id } 
-                        key={ `${taskType}-ctxmenu-${id}` } 
+                    <CtxMenu
+                        id={ id }
+                        key={ `${taskType}-ctxmenu-${id}` }
                         operations={ this.generateCtxMenu(type, treeType, data) } >
                         <span title={name} className={type === 'file' ? 'task-item' : 'folder-item'}>
                             { this.renderStatusBadge(treeType, data) }
