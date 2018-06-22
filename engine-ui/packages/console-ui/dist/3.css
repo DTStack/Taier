@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 .g-datamanage .Resizer {
   background: #DDDDDD;
@@ -264,6 +265,8 @@
 .CodeMirror pre.CodeMirror-placeholder {
   color: rgba(159, 168, 210, 0.48);
 =======
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -316,6 +319,9 @@
   padding-top: 1px;
   padding-bottom: 1px;
   height: 22px;
+<<<<<<< HEAD
 >>>>>>> conflict
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 }
 

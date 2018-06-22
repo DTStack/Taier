@@ -282,14 +282,20 @@
   font-weight: normal;
 }
 
+<<<<<<< HEAD
 <<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 =======
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .flex-middle {
   display: flex;
   align-items: center;
 }
 
+<<<<<<< HEAD
 >>>>>>> conflict
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-slide-pane .box-title {
   height: 35px;
   line-height: 35px;
@@ -564,32 +570,44 @@
   color: #ffffff;
 }
 
+<<<<<<< HEAD
 <<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap,
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--single {
 =======
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single {
+<<<<<<< HEAD
 >>>>>>> conflict
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   height: 28px;
   line-height: 28px;
 }
 
+<<<<<<< HEAD
 <<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select .ant-select-search__field .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select .ant-select-selection--single .ant-select-selection__rendered {
 =======
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single .ant-select-selection__rendered {
+<<<<<<< HEAD
 >>>>>>> conflict
+=======
+>>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   height: 28px;
   line-height: 28px;
 }

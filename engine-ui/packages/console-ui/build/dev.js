@@ -56,7 +56,7 @@ function loadHtmlPlugs() {
                     filename: app.filename,
                     template: tmp,
                     inject: 'body',
-                    chunks: ['vendor', app.id, 'manifest'],
+                    chunks: [app.id, 'manifest'],
                     showErrors: true,
                     hash: true,
                 })

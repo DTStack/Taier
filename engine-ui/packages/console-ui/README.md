@@ -2,8 +2,6 @@
 
 # News!
 
-DTinsight v2.1.0
-
 项目构建工具已经升级到Webpack v4.0！
 
 ## 升级方法
