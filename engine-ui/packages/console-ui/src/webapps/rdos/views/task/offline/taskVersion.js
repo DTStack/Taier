@@ -6,12 +6,17 @@ import utils from 'utils';
 
 import DiffCodeEditor from '../../../components/diff-code-editor';
 import { TASK_TYPE } from '../../../comm/const';
+import DiffParams from './diffParams';
 
 export default class TaskVersion extends React.Component {
 
     state = {
         showDiff: false,
         campareTo: '',
+        diffParams:{
+            showDiffparams: false,
+            tableInfo: '',
+        },
     }
 
     constructor(props) {
@@ -25,10 +30,28 @@ export default class TaskVersion extends React.Component {
         })
     }
 
+    diffParams = (data) => {
+        const { diffParams } = this.state;
+        diffParams.showDiffparams = true;
+        diffParams.tableInfo = data;
+        this.setState({
+           diffParams
+        })
+    }
+
     close = () => {
         this.setState({
             showDiff: false,
             campareTo: '',
+        })
+    }
+
+    closeParamsModal = () => {
+        const { diffParams } = this.state;
+        diffParams.showDiffparams = false;
+        diffParams.tableInfo = "";
+        this.setState({
+           diffParams
         })
     }
 
@@ -38,7 +61,7 @@ export default class TaskVersion extends React.Component {
     
     render() {
         const { taskInfo } = this.props;
-        const { showDiff, campareTo } = this.state;
+        const { showDiff, campareTo,diffParams } = this.state;
         const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
 
         return (
@@ -52,7 +75,7 @@ export default class TaskVersion extends React.Component {
                 />
                 <Modal
                     wrapClassName="vertical-center-modal modal-body-nopadding"
-                    title="历史版本对比"
+                    title="代码对比"
                     width="900px"
                     bodyStyle={{height: '500px'}}
                     visible={showDiff}
@@ -65,7 +88,19 @@ export default class TaskVersion extends React.Component {
                         value={taskInfo.sqlText} 
                         compareTo={campareTo.sqlText}
                         onChange={this.codeChange}
-                    />
+                    /> 
+                </Modal>
+                <Modal
+                    wrapClassName="vertical-center-modal modal-body-nopadding"
+                    title="参数对比"
+                    width="900px"
+                    bodyStyle={{height: '500px'}}
+                    visible={diffParams.showDiffparams}
+                    onCancel={this.closeParamsModal}
+                    cancelText="关闭"
+                    footer={null}
+                >
+                   <DiffParams {...this.props}/>
                 </Modal>
             </div>
         )
@@ -99,9 +134,16 @@ export default class TaskVersion extends React.Component {
                 render: (text, record) => {
                     return <span>
                         {taskInfo.taskType === TASK_TYPE.SQL ? 
-                            <a onClick={() => this.diffCode(record)}>
-                                代码
-                            </a> : '-'
+                            <div>
+                                <a onClick={() => this.diffCode(record)}>
+                                    代码
+                                </a>
+                                <span className="ant-divider"></span>
+                                <a onClick={() => this.diffParams(record)}>
+                                    参数
+                                </a>
+                            </div>
+                             : '-'
                         }
                     </span>
                 },
