@@ -213,7 +213,7 @@ class TableList extends Component {
                 dataIndex: 'lifeDay',
             },
             {
-                title: '操作',
+                title: '操作', 
                 key: 'id',
                 width: 120,
                 render(text, record) {
