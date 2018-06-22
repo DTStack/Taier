@@ -64,7 +64,7 @@ class DiffEditor extends Component {
             editorHeight(mergeView.editor()),
             editorHeight(mergeView.rightOriginal()));
     }
-
+ 
     resize(mergeView) {
         var height = this.mergeViewHeight(mergeView);
         for (; ;) {
