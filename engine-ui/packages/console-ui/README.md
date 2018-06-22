@@ -13,12 +13,7 @@ DTinsight v2.1.0
 - 【数据地图】优化`表级血缘`，新增`字段血缘`
 - 【运维中心】调整原数据管理`脏数据`模块至运维中心
 - 【任务开发】优化`任务调度依赖规则`
-- 【其他】大量细节优化、Bug修复
-
-
-
-## 其他
-- 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-0-2/issues)
+- 【其他】大量细节优化、Bug修复，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-0-2/issues)
 
 
 # 其他文档
