@@ -308,7 +308,7 @@ class CatalogueTree extends Component {
                 onSelect={onSelect}
                 onChange={onChange}
                 onExpand={this.onExpand}
-                expandedKeys={ this.state.expendKeys }
+                expandedKeys={ this.state.expendKeys } 
                 autoExpandParent={ this.state.autoExpandParent }
             >
                 { this.renderTreeNodes() }
