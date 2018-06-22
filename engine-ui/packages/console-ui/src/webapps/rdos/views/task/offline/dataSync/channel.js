@@ -107,7 +107,7 @@ class ChannelForm extends React.Component{
                         rules: [],
                         initialValue: setting.isSaveDirty
                     })(
-                        <Checkbox  checked={setting.isSaveDirty}> 记录保存 </Checkbox>
+                        <Checkbox checked={setting.isSaveDirty}> 记录保存 </Checkbox>
                     )}
                     <HelpDoc doc="recordDirtyData" />
                 </FormItem>
@@ -212,12 +212,12 @@ class ChannelForm extends React.Component{
 
 const ChannelFormWrap = Form.create({
     onValuesChange: function(props, values) {
-        const { changeChannelSetting } = props;
-        if (values.isSaveDirty && !values.lifeDay) {
+        const { changeChannelSetting, setting } = props;
+        if (setting.isSaveDirty && !setting.lifeDay) {
             values.lifeDay = 90;
         }
-        if(!values.isSaveDirty){
-            values.tableName=null;
+        if(!setting.isSaveDirty){
+            values.tableName = null;
         }
         changeChannelSetting(values);
     }
