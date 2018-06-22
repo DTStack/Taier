@@ -30,10 +30,10 @@ class PatchDataList extends Component {
         loading: false,
         current: 1 ,
         tasks: { data: [] },
-        
+
         // 参数
         jobName: '',
-        runDay: moment(),
+        runDay: undefined,
         bizDay: '',
         dutyUserId: undefined,
         checkVals: [],
@@ -151,7 +151,7 @@ class PatchDataList extends Component {
             } else if (item === 'todayUpdate') {
                 conditions.runDay = moment()
                 conditions.dutyUserId  = `${user.id}`;
-            } 
+            }
         })
         
         // 清理掉责任人信息

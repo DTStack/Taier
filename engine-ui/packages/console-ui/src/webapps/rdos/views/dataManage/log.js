@@ -3,15 +3,15 @@ import { connect } from 'react-redux';
 import SplitPane from 'react-split-pane';
 import {
     Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon, Card, Tabs,
+    Form, DatePicker, Select, Icon, Card, Tabs,Spin
 } from 'antd';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
+import utils from "utils";
 
 import SlidePane from 'widgets/slidePane';
 
-import ajax from '../../api';
-// import actions from '../../store/modules/dataManage/actionCreator';
+import ajax from '../../api/dataManage';
 import * as UserAction from '../../store/modules/user'
 
 const Search = Input.Search;
@@ -138,6 +138,7 @@ class TableLog extends React.Component {
                 >
                     <Table columns={columns}
                         className="m-table bd"
+                        rowKey="id"
                         style={{ borderBottom: 0 }}
                         dataSource={logs.data}
                         pagination={false}
@@ -145,7 +146,7 @@ class TableLog extends React.Component {
                     <Pagination
                         pageSize={10}
                         style={{ float: 'right', margin: '30px' }}
-                        current={logs.currentPage}
+                        current={logs.pageIndex}
                         total={logs.totalCount}
                         onChange={this.showPage.bind(this)}
                     />
@@ -201,11 +202,12 @@ class Log extends React.Component {
             visibleSlidePane: false,
             tableName: '',
             isDeleted: '',
+            loading: false,
         }
     }
 
     componentDidMount() {
-        const { tableName } = this.props.params
+        const tableName  = utils.getParameterByName('tableName');
         this.searchTable({
             tableName: tableName || ''
         });
@@ -213,7 +215,9 @@ class Log extends React.Component {
     }
 
     searchTable(args) {
-        const { isDeleted, tableName } = this.state
+        let { isDeleted, tableName, loading, tableList } = this.state
+        tableList = [];
+        this.setState({loading: true,tableList})
         const params = Object.assign({
             timeSort: 'desc',
             pageSize: 20,
@@ -221,12 +225,14 @@ class Log extends React.Component {
             isDeleted,
         }, args);
 
-        ajax.searchTable(params).then(res => {
+        ajax.newSearchTable(params).then(res => {
             if (res.code === 1) {
-                this.setState({
-                    tableList: res.data
-                })
+                tableList = res.data;
             }
+            this.setState({
+                tableList,
+                loading: false,
+            })
         });
     }
 
@@ -254,9 +260,9 @@ class Log extends React.Component {
     }
 
     showTableLog(table) {
-        const { tableId, tableName } = table;
+        const { id, tableName } = table;
         this.setState({
-            tableLog: { tableId, tableName },
+            tableLog: { tableId:id, tableName },
             visibleSlidePane: true,
         })
     }
@@ -293,27 +299,29 @@ class Log extends React.Component {
                 { text: '未删除', value: 0 },
             ],
             filterMultiple: false,
+            filteredValue:(this.state.isDeleted||this.state.isDeleted===0)?[this.state.isDeleted]:undefined
         }, {
             title: '最近变更时间',
-            dataIndex: 'lastDataChangeTime',
-            key: 'lastDataChangeTime',
+            dataIndex: 'lastDmlTime',
+            key: 'lastDmlTime',
             render(text, record) {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }];
-        const { tableList, tableLog, visibleSlidePane, isDeleted } = this.state;
+        const { tableList, tableLog, visibleSlidePane, isDeleted,loading } = this.state;
+
+        
         const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
-        const { projectUsers, params } = this.props;
+        const { projectUsers } = this.props;
 
         const title = (
             <Search style={{ width: 200, marginTop: 10 }}
                 placeholder="按表名搜索"
-                defaultValue={params.tableName}
+                defaultValue={ utils.getParameterByName('tableName')}
                 onChange={this.onTableNameChange}
                 onSearch={value => { this.searchTable({ tableName: value, isDeleted }) }}
             />
         )
-
         return <div className="g-tablelogs">
             <h1 className="box-title">操作记录</h1>
             <div className="box-2 m-card" style={{ padding: '0 20px 20px 0' }}>
@@ -323,29 +331,32 @@ class Log extends React.Component {
                     loading={false}
                     title={title}
                 >
-                    {data && <Table columns={columns}
-                        rowClassName={
-                            (record, index) => {
-                                if (this.state.tableLog && this.state.tableLog.tableId == record.tableId) {
-                                    return "row-select"
-                                } else {
-                                    return "";
+                    <Spin spinning={loading}>
+                        <Table columns={columns}
+                            rowClassName={
+                                (record, index) => {
+                                    if (this.state.tableLog && this.state.tableLog.tableId == record.id) {
+                                        return "row-select"
+                                    } else {
+                                        return "";
+                                    }
                                 }
                             }
-                        }
-                        dataSource={data}
-                        className="m-table"
-                        pagination={false}
-                        onChange={this.handleTableChange}
-                        bordered
-                    />}
-                    <Pagination
-                        pageSize={20}
-                        style={{ float: 'right', marginTop: '16px' }}
-                        current={currentPage || 0}
-                        total={totalCount || 0}
-                        onChange={this.showTableListPage.bind(this)}
-                    />
+                            dataSource={data||[]}
+                            className="m-table"
+                            rowKey="id"
+                            pagination={false}
+                            onChange={this.handleTableChange}
+                            bordered
+                        />
+                        <Pagination
+                            pageSize={20}
+                            style={{ float: 'right', marginTop: '16px' }}
+                            current={currentPage || 0}
+                            total={totalCount || 0}
+                            onChange={this.showTableListPage.bind(this)}
+                        />
+                    </Spin>
                     <SlidePane
                         onClose={this.closeSlidePane}
                         visible={visibleSlidePane}

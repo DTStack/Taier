@@ -5,7 +5,7 @@ import {
     Input, Tooltip, Icon,
 } from 'antd';
 
-import Api from '../../../../api'
+import Api from '../../../../api/dataManage'
 import { debounceEventHander } from 'funcs'
 
 import {
@@ -48,7 +48,7 @@ class TableTree extends React.Component {
 
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
-                Api.searchTable(params).then(res => {
+                Api.newSearchTable(params).then(res => {
                     data.children = res.data && res.data.data;
                     loadTreeNode(data)
                 })
@@ -71,7 +71,7 @@ class TableTree extends React.Component {
     
     doReq = (queryName) => {
         const { treeData, loadTreeNode } = this.props;
-        Api.searchTable({
+        Api.newSearchTable({
             tableName: queryName,
             isDeleted: 0,
             pageSize: 1000,
@@ -91,7 +91,7 @@ class TableTree extends React.Component {
 
     handleSelect = (key, { node }) => {
         const table = node.props.data
-        this.setState({ tableId: table.tableId })
+        this.setState({ tableId: table.id })
     }
 
     renderNodes = () => {
@@ -108,7 +108,7 @@ class TableTree extends React.Component {
             >
                 {name}  
                 <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                    {data.createUser || data.userName}
+                    {data.chargeUser || data.userName}
                 </i>
             </span>
 

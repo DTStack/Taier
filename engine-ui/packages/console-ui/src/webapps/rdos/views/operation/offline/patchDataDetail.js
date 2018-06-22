@@ -55,7 +55,7 @@ class PatchDataDetail extends Component {
         fillJobName: '',
         jobStatuses: '',
         taskName: '',
-        bizDay: '',
+        bizDay: undefined,
         taskType: '',
 
         table: {
@@ -86,7 +86,9 @@ class PatchDataDetail extends Component {
     search = () => {
         const {
             fillJobName, dutyUserId, jobStatuses,
-            bizDay, current, taskName, taskType
+            bizDay, current, taskName, taskType,
+            execTimeSort, execStartSort, cycSort,
+            businessDateSort
         } = this.state;
         const reqParams = {
             currentPage: current,
@@ -101,8 +103,9 @@ class PatchDataDetail extends Component {
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId
         }
-        if (bizDay) {
-            reqParams.bizDay = moment(bizDay).unix()
+        if (bizDay && bizDay.length > 1) {
+            reqParams.bizStartDay = bizDay[0].unix();
+            reqParams.bizEndDay = bizDay[1].unix();
         }
         if (jobStatuses && jobStatuses.length > 0) {
             reqParams.jobStatuses = jobStatuses.join(',')
@@ -110,6 +113,12 @@ class PatchDataDetail extends Component {
         if (taskType) {
             reqParams.taskType = taskType.join(',')
         }
+
+        reqParams.execTimeSort = execTimeSort || undefined;
+        reqParams.execStartSort = execStartSort || undefined;
+        reqParams.cycSort = cycSort || undefined;
+        reqParams.businessDateSort = businessDateSort || undefined;
+
         this.loadPatchRecords(reqParams)
     }
 
@@ -255,14 +264,41 @@ class PatchDataDetail extends Component {
         }
     }
 
-    handleTableChange = (pagination, filters) => {
-        let status;
-        this.setState({
+    handleTableChange = (pagination, filters, sorter) => {
+        let params = {
             current: pagination.current,
             jobStatuses: filters.status,
             taskType: filters.taskType,
-            selectedRowKeys: []
-        }, () => {
+            selectedRowKeys: [],
+            execTimeSort: '',//运行时长
+            execStartSort: '',//执行开始
+            cycSort: '',//计划时间
+            businessDateSort: ''
+
+        }
+        if (sorter) {
+            let { field, order } = sorter;
+
+            switch (field) {
+                case 'exeTime': {
+                    params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'exeStartTime': {
+                    params.execStartSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'cycTime': {
+                    params.cycSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'bizDay': {
+                    params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+            }
+        }
+        this.setState(params, () => {
             this.search()
         })
     }
@@ -340,7 +376,7 @@ class PatchDataDetail extends Component {
             filterMultiple: true,
         }, {
             title: '任务类型',
-            width: 100,
+            width: 80,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
@@ -351,22 +387,26 @@ class PatchDataDetail extends Component {
             title: '业务日期',
             dataIndex: 'bizDay',
             width: 120,
-            key: 'bizDay'
+            key: 'bizDay',
+            sorter: true
         }, {
             width: 120,
             title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
+            sorter: true
         }, {
             width: 120,
             title: '开始时间',
             dataIndex: 'exeStartTime',
             key: 'exeStartTime',
+            sorter: true
         }, {
             width: 120,
             title: '运行时长',
             dataIndex: 'exeTime',
             key: 'exeTime',
+            sorter: true
         }, {
             title: '责任人',
             width: 100,
@@ -493,12 +533,8 @@ class PatchDataDetail extends Component {
                                     }}
                                 >
                                     <GoBack
-                                        type="left-circle-o"
+                                        type="textButton"
                                         url="/operation/task-patch-data"
-                                        style={{
-                                            fontSize: '18px',
-                                            color: '9EABB2'
-                                        }}
                                     />
                                     <span style={{
                                         fontSize: '14px',
@@ -544,11 +580,11 @@ class PatchDataDetail extends Component {
                                     <FormItem
                                         label="业务日期"
                                     >
-                                        <DatePicker
+                                        <RangePicker
+                                            disabledDate={this.disabledDate}
                                             size="default"
-                                            style={{ width: 120 }}
+                                            style={{ width: 200 }}
                                             format="YYYY-MM-DD"
-                                            placeholder="业务日期"
                                             value={bizDay}
                                             onChange={this.changeBussinessDate}
                                         />

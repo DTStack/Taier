@@ -3,9 +3,16 @@ import mc from 'mirror-creator';
 import utils from 'utils'
 import Api from '../../api'
 
+import {
+    workbenchAction,
+} from '../../store/modules/offlineTask/actionType';
+import { clearPages } from '../../store/modules/realtimeTask/browser';
+
+
 const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
+    'GET_ALL_PROJECTS',
     'SET_PROJECT',
 ], { prefix: 'project/' })
 
@@ -16,11 +23,21 @@ const defaultProject = {
 
 // Action
 export function getProject(id) {
-    if (!id || id === 0) return;
-    if (id) {
-        utils.setCookie('project_id', id)
-    }
+
     return (dispatch) => {
+
+        const projectKey = 'project_id';
+        const oldProjectID = utils.getCookie(projectKey);
+
+        // 如果为不同的项目
+        if (id && id != oldProjectID) {
+            utils.setCookie(projectKey, id)
+            // 当切换项目时，应当清理任务开发导航中的缓存数据
+            dispatch(clearPages());
+            dispatch({ 
+                type: workbenchAction.CLOSE_ALL_TABS
+            });
+        } 
         Api.getProjectByID({
             projectId: id,
         }).then((res) => {
@@ -53,10 +70,32 @@ export function getProjects(params) {
     }
 }
 
+export function getAllProjects(params) {
+    return function fn(dispatch) {
+        Api.getAllProjects(params).then((res) => {
+            return dispatch({
+                type: projectAction.GET_ALL_PROJECTS,
+                data: res.data,
+            })
+        })
+    }
+}
+
 // Reducer
+// 获取系统下登录用户有权限的项目
 export function projects(state = [], action) {
     switch (action.type) {
     case projectAction.GET_PROJECTS:
+        return action.data || state
+    default:
+        return state
+    }
+}
+
+// 获取系统所以项目
+export function allProjects(state = [], action) {
+    switch (action.type) {
+    case projectAction.GET_ALL_PROJECTS:
         return action.data || state
     default:
         return state

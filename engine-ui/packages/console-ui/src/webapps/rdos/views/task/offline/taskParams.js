@@ -17,11 +17,11 @@ const Panel = Collapse.Panel;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 9 },
+        sm: { span: 6 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 15 },
+        sm: { span: 16 },
     },
 }
 
@@ -29,7 +29,7 @@ class TaskParams extends React.Component {
 
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
-        const reg = /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/;
+        const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
         if (reg.test(value)) {
             console.log('value:', value);
             const taskVariables = [...tabData.taskVariables];
@@ -51,7 +51,8 @@ class TaskParams extends React.Component {
             >
                 {getFieldDecorator(param.paramName, {
                     rules: [{
-                        pattern: /([a-zA-Z]{4,14})\s*([\-\+])\s*(\d+)/,
+                        //匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
+                        pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i,
                         message: '参数格式不正确',
                     }],
                     initialValue: param.paramCommand
@@ -81,9 +82,13 @@ class TaskParams extends React.Component {
     }
 
     render() {
+        const {tabData} = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const formItems = this.getFormItems()
+        
         return (
-            <Form>
+            <Form style={{position:"relative"}}>
+                {isLocked?<div className="cover-mask"></div>:null} 
                 <Collapse bordered={false} defaultActiveKey={['1', '2']}>
                     <Panel key="1" header={<span>
                             系统参数配置 <HelpDoc style={{position: 'inherit'}} doc="customSystemParams" />

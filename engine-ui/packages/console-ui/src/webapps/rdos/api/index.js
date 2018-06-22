@@ -66,6 +66,9 @@ export default {
     getProjects(params) { // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)
     },
+    getAllProjects(params) {// 获取所有项目
+        return http.post(req.GET_ALL_PROJECTS, params);
+    },
     removeProjectUser(params) {
         return http.post(req.REMOVE_USER_FROM_PROJECT, params)
     },
@@ -160,6 +163,10 @@ export default {
     getCheckPoints(params) {
         return http.post(req.GET_CHECK_POINTS, params)
     },
+    publishRealtimeTask(params){
+        return http.post(req.PUBLISH_REALTIME_TASK, params)
+    },
+
 
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
@@ -438,24 +445,7 @@ export default {
     addOfflineFunction(params) {
         return http.post(offlineReq.ADD_OFFLINE_FUNCTION, params)
     },
-    getDataCatalogues(params) {
-        return http.post(offlineReq.GET_TABLE_CATALOGUE, params)
-    },
-    addDataCatalogue(params) {
-        return http.post(offlineReq.ADD_TABLE_CATALOGUE, params)
-    },
-    delDataCatalogue(params) {
-        return http.post(offlineReq.DEL_TABLE_CATALOGUE, params)
-    },
-    updateDataCatalogue(params) {
-        return http.post(offlineReq.UPDATE_TABLE_CATALOGUE, params)
-    },
-    addTableToCatalogue(params) {
-        return http.post(offlineReq.ADD_TABLE_TO_CATALOGUE, params)
-    },
-    delTableInCatalogue(params) {
-        return http.post(offlineReq.DEL_TABLE_IN_CATALOGUE, params)
-    },
+    
 
     // =========== 离线文件操作 ==================//
     delOfflineTask(params){
@@ -530,6 +520,23 @@ export default {
     },
     getDataSourceTypes(params) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
+    },
+
+    // ============== dataSource 整库同步 ==================
+    saveSyncConfig(params) {
+        return http.post(offlineReq.SAVE_SYNC_CONFIG, params)
+    },
+    getSyncHistoryList(params) {
+        return http.post(offlineReq.GET_SYNC_HISTORY, params)
+    },
+    getSyncDetail(params) {
+        return http.post(offlineReq.GET_SYNC_DETAIL, params)
+    },
+    publishSyncTask(params) {
+        return http.post(offlineReq.PUBLISH_SYNC_TASK, params)
+    },
+    checkSyncConfig(params) {
+        return http.post(offlineReq.CHECK_SYNC_CONFIG, params)
     },
 
     // ============== dataManage 数据管理 ==================

@@ -72,6 +72,7 @@ class ProjectConfig extends Component {
                     if (res.code === 1) {
                         const newProject = Object.assign(project, projectForm)
                         dispatch(ProjectAction.setProject(newProject))
+                        dispatch(ProjectAction.getProjects())
                         ctx.setState({ visibleUpdateDesc: false })
                         message.success('项目更新成功！')
                     }
@@ -83,10 +84,12 @@ class ProjectConfig extends Component {
     render() {
         const { visibleUpdateDesc } = this.state
         const { params, project } = this.props
+        const adminLength = project && project.adminUsers && project.adminUsers.length;
+        const memberLength = project && project.memberUsers && project.memberUsers.length;
         const admins = project && project.adminUsers && project.adminUsers.length > 0 ?
-            project.adminUsers.map(item => <span key={item.id}>{item.userName}; </span>) : ''
+            project.adminUsers.map((item,index )=> index==adminLength-1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span> ) : ''
         const members = project && project.memberUsers && project.memberUsers.length > 0 ?
-            project.memberUsers.map(item => <span key={item.id}>{item.userName};</span>) : ''
+            project.memberUsers.map((item,index)=> index==memberLength-1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
         return (
             <div className="project-config">
                 <h1 className="box-title">
@@ -111,7 +114,7 @@ class ProjectConfig extends Component {
                                     修改
                                 </a>
                             </td></tr>
-                            <tr><td className="t-title">项目管理员</td><td>{admins}</td></tr>
+                            <tr><td className="t-title">管理员</td><td>{admins}</td></tr>
                             <tr>
                                 <td className="t-title">普通成员</td>
                                 <td>

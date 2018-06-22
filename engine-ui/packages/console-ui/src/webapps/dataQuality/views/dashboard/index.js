@@ -35,7 +35,7 @@ const mapDispatchToProps = dispatch => ({
 export default class DashBoard extends Component {
 
     state = {
-        currentDate: '7'
+        currentDate: '1'
     }
 
     componentDidMount() {

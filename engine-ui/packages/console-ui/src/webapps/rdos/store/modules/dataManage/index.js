@@ -4,7 +4,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { tableAction, logAction } from './actionType';
 
 // move up/down
-Array.prototype.__move = function(from, to) {
+Array.prototype.__move = function (from, to) {
     this.splice(to, 0, this.splice(from, 1)[0]);
     return this;
 };
@@ -15,11 +15,12 @@ const initTableManageState = {
         currentPage: 1,
         totalCount: 0
     },
-    tableCurrent: {}
+    tableCurrent: {},
+    isSavedSuccess: false,
 };
 
 const tableManage = (state = initTableManageState, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case tableAction.LOAD_TABLE_LIST: {
             const clone = cloneDeep(state);
             const { data, currentPage, totalCount } = action.payload;
@@ -52,10 +53,10 @@ const tableManage = (state = initTableManageState, action) => {
             const { columns, partition_keys } = clone.tableCurrent;
             const { type, data } = action.payload;
 
-            if(type === 1) {
+            if (type === 1) {
                 columns.push(data);
             }
-            else if(type === 2) {
+            else if (type === 2) {
                 partition_keys.push(data);
             }
 
@@ -67,12 +68,12 @@ const tableManage = (state = initTableManageState, action) => {
             const { columns, partition_keys } = clone.tableCurrent;
             const { type, uuid } = action.payload;
 
-            if(type === 1) {
+            if (type === 1) {
                 clone.tableCurrent.columns = columns.filter(col => {
                     return col.uuid !== uuid
                 });
             }
-            else if(type === 2) {
+            else if (type === 2) {
                 clone.tableCurrent.partition_keys = partition_keys.filter(col => {
                     return col.uuid !== uuid
                 });
@@ -85,17 +86,20 @@ const tableManage = (state = initTableManageState, action) => {
             const clone = cloneDeep(state);
             const { columns, partition_keys } = clone.tableCurrent;
             const { newCol, type } = action.payload;
-            const { uuid } = newCol;
+            let { uuid, id } = newCol;
+            if (!uuid) {
+                uuid = id;
+            }
 
-            if(type === 1) {
+            if (type === 1) {
                 clone.tableCurrent.columns = columns.map(col => {
-                    if(col.uuid === uuid) return newCol;
+                    if (col.uuid === uuid || col.id === uuid) return newCol;
                     else return col;
                 });
             }
-            else if(type === 2) {
+            else if (type === 2) {
                 clone.tableCurrent.partition_keys = partition_keys.map(col => {
-                    if(col.uuid === uuid) return newCol;
+                    if (col.uuid === uuid || col.id === uuid) return newCol;
                     else return col;
                 });
             }
@@ -111,29 +115,29 @@ const tableManage = (state = initTableManageState, action) => {
             let p2 = [];
             let from;
 
-            if(type === 1) {
+            if (type === 1) {
                 columns.forEach((col, i) => {
-                    if(col.isSaved) p1.push(col);
+                    if (col.isSaved) p1.push(col);
                     else p2.push(col);
                 });
 
                 p2.forEach((col, i) => {
-                    if(col.uuid === uuid) from = i;
+                    if (col.uuid === uuid) from = i;
                 });
-                
+
                 if (isUp && from === 0) { return clone } // 过滤顶部移动 
 
                 p2 = p2.__move(from, isUp ? from - 1 : from + 1);
                 clone.tableCurrent.columns = p1.concat(p2);
             }
-            else if(type === 2) {
+            else if (type === 2) {
                 partition_keys.forEach((col, i) => {
-                    if(col.isSaved) p1.push(col);
+                    if (col.isSaved) p1.push(col);
                     else p2.push(col);
                 });
 
                 p2.forEach((col, i) => {
-                    if(col.uuid === uuid) from = i;
+                    if (col.uuid === uuid) from = i;
                 });
 
                 if (isUp && from === 0) { return clone } // 过滤顶部移动 
@@ -144,7 +148,12 @@ const tableManage = (state = initTableManageState, action) => {
 
             return clone;
         }
-
+        case tableAction.SAVE_TABLE: {
+            const clone = cloneDeep(state);
+            clone.isSavedSuccess = action.payload == 1 ? true : false;
+            console.log('SAVE_TABLE------:', clone);
+            return clone;
+        }
         default:
             return state;
     }
@@ -153,7 +162,7 @@ const tableManage = (state = initTableManageState, action) => {
 const log = (state = {
     projectUsers: []
 }, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case logAction.GET_USERS_SUC: {
             const clone = cloneDeep(state);
 

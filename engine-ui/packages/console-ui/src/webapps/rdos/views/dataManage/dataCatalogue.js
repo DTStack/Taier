@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { Card, message } from 'antd';
 import { hashHistory } from 'react-router'
 
-import API from '../../api';
+import API from '../../api/dataManage';
 import CatalogueTree from './catalogTree';
 
 function appendTreeNode(treeNode, append, target) {
@@ -38,6 +38,10 @@ function replaceTreeNode(treeNodes, source, target) {
     for (let i = 0; i < treeNodes.length; i += 1) {
         const node = treeNodes[i]
         if (node.nodeId === source.nodeId) {
+            //后端不返回子节点情况下兼容性处理
+            if(!target.children||target.children.length==0){
+                target.children=treeNodes[i].children;
+            }
             treeNodes[i] = target // 替换节点
             break;
         }
@@ -97,6 +101,7 @@ class DataCatalogue extends React.Component {
                 }).then(res => {
                     const source = { nodeId: node.tmpId }
                     if (res.code === 1) {
+                        message.success('数据类目增加成功！')
                         replaceTreeNode(treeData, source, res.data)
                     } else {
                         removeTreeNode(treeData, source)
@@ -111,7 +116,7 @@ class DataCatalogue extends React.Component {
             case 'delete': {
                 const succCall = res => {
                     if (res.code === 1) {
-                        message.success('数据类目移除成功！')
+                        message.success('数据类目删除成功！')
                         removeTreeNode(treeData, node)
                         self.setState({
                             treeData,
@@ -131,6 +136,7 @@ class DataCatalogue extends React.Component {
                 API.updateDataCatalogue(node).then((res) => {
                     if (res.code === 1) {
                         const source = { nodeId: node.id }
+                        
                         replaceTreeNode(treeData, source, res.data)
                         message.success('数据类目更新成功！')
                     }

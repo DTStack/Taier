@@ -1,5 +1,6 @@
 // 帮助文档
 import React from 'react'
+import { HELP_DOC_URL } from '../../comm/const'
 
 export const dataFilterDoc = (
     <div>
@@ -140,13 +141,10 @@ export const partitionDesc = (
 // 自定义参数配置
 export const customParams = (
     <div>
-        <p>
-            自定义参数有固定格式:
-        </p>
-        <p>
-            <span>（时间格式(4-14未字母表示) (+或-) 天数）</span>
-            <span>例如：yyyyMMhh+33</span>
-        </p>
+        <p>支持常量或变量</p>
+        <p>常量直接输入字符串或数字</p>
+        变量基于bdp.system.cyctime取值，例如“key1=$[yyyy]”取bdp.system.cyctime的年的部分
+        <p>详细说明请参考<a href={HELP_DOC_URL.TASKPARAMS} target="blank">《帮助文档》</a></p>
     </div>
 )
 
@@ -154,7 +152,7 @@ export const customParams = (
 export const taskDependentTypeDesc = (
     <div>
         <p>
-            任务结束主要是指任务失败、完成、取消等情况
+            任务结束包括成功、失败、取消3种情况
         </p>
     </div>
 )

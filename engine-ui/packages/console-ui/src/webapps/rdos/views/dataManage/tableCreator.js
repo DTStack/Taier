@@ -4,8 +4,10 @@ import { Steps, Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
+import { browserHistory, hashHistory } from 'react-router'
 
-import ajax from '../../api';
+
+import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
@@ -257,7 +259,7 @@ export class RowItem extends React.Component {
     handleChange(selectName, evt) {
         const { data, replaceRow } = this.props;
         let iptName, value;
-
+        
         if(isObject(evt)) {
             iptName = evt.target.name;
             value = evt.target.value;
@@ -266,9 +268,10 @@ export class RowItem extends React.Component {
             iptName = selectName;
             value = evt;
         }
-
+        console.log('input-select',iptName, value);
+        
         const newData = assign({}, data, { [iptName]: value });
-        const TYPE = newData.type.toUpperCase();
+        const TYPE = newData.columnType.toUpperCase();
 
         if(TYPE === 'DECIMAL') {
             if(!newData.precision) newData.precision = 10;
@@ -288,12 +291,12 @@ export class RowItem extends React.Component {
 
     checkParams(params) {
         const reg = /^[A-Za-z0-9_]+$/;
-        if (params.name) {
-            if (!reg.test(params.name)) {
+        if (params.columnName) {
+            if (!reg.test(params.columnName)) {
                 message.error('字段名称只能由字母、数字、下划线组成！')
                 return false;
             }
-            if (params.name.length > 20) {
+            if (params.columnName.length > 20) {
                 message.error('字段名称不可超过20个字符！')
                 return false;
             }
@@ -305,15 +308,17 @@ export class RowItem extends React.Component {
         return true;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return !isEqual(this.props, nextProps);
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     // return !isEqual(this.props, nextProps);
+    // }
 
     render() {
         const { data } = this.props;
         const { editMode } = this.state;
-        const { isSaved, isPartition, precision, scale } = data;
-        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(data.type.toUpperCase()) !== -1;
+        const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
+        
+        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
+        //const needExtra = true;
         const TYPES = isPartition ?
             ['STRING', 'BIGINT'] :
             ["TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
@@ -323,29 +328,29 @@ export class RowItem extends React.Component {
 
         return <Row className="row">
             <Col span={4} className="cell">
-                <Input name="name" defaultValue={ data.name }
+                <Input name="columnName" value={ columnName }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved }
+                    disabled={isSaved}
                 />
             </Col>
             <Col span={8} className="cell">
-                <Select name="type" defaultValue={ data.type }
-                    onChange={ this.handleChange.bind(this, 'type') }
+                <Select name="columnType" defaultValue={ columnType }
+                    onChange={ this.handleChange.bind(this, 'columnType') }
                     style={{ width: needExtra ? '40%' : '80%' }}
                     disabled={ isSaved }
                 >
                     {TYPES.map(str => <Option key={str} value={str}>{str}</Option>)}
                 </Select>
-                { needExtra && this.renderExtra(data.type) }
+                { needExtra && this.renderExtra(columnType) }
             </Col>
             <Col span={7} className="cell">
                 <Input 
                     name="comment" 
-                    defaultValue={ data.comment }
+                    value={ comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={ isSaved && isPartition }
+                    disabled={isSaved}
                 />
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
@@ -367,13 +372,13 @@ export class RowItem extends React.Component {
         </Row>
     }
 
-    renderExtra(type) {
+    renderExtra(columnType) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
         let result = '';
 
-        type = type.toUpperCase();
-        switch(type) {
+        columnType = columnType.toUpperCase();
+        switch(columnType) {
             case 'DECIMAL':
                 result = <span className="extra-ipt">
                     <Select name="precision"
@@ -452,10 +457,10 @@ export class ColumnsPartition extends React.Component {
 
     addRow(type) {
         this.props.addRow({
-            name: '',
-            type: 'STRING',
-            desc: '',
-            uuid: Date.now()
+            columnName: '',
+            columnType: 'STRING',
+            columnDesc: '',
+            uuid: Date.now(),
         }, type);
     }
 
@@ -473,7 +478,7 @@ export class ColumnsPartition extends React.Component {
 
     render() {
         const { columns, partition_keys, isEdit } = this.props;
-
+        
         return <div className="m-columnspartition">
             <div className="columns box">
                 <h3>字段信息</h3>
@@ -613,7 +618,7 @@ class TableCreator extends React.Component {
                         result: 'success'
                     });
                     setTimeout(() => {
-                        this.props.router.push('/data-manage/table');
+                        this.goBack();
                     }, 3000);
                 }
             })
@@ -758,7 +763,20 @@ class TableCreator extends React.Component {
         });
     }
 
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
+        }
+    }
+
     render() {
+        const { current } = this.state;
         const the = this;
         const BaseFormWrapper = Form.create({
             onValuesChange(props, values) {
@@ -805,27 +823,29 @@ class TableCreator extends React.Component {
         }];
 
         return <div className="bg-w" style={{ padding: '20px', margin: '20px' }}>
-            <Steps current={this.state.current}>
+            <Steps current={current}>
                 {steps.map(item => <Step key={item.title} title={item.title} />)}
             </Steps>
             <div className="steps-content">
-                {steps[this.state.current].content}
+                {steps[current].content}
             </div>
             <div className="steps-action">
-                <Button style={{ marginRight: 8 }}
-                    onClick={ () => this.props.router.push('/data-manage/table') }
-                >取消</Button>
-                { this.state.current > 0 && this.state.current !== 2 &&
+                {
+                    current != 2&&<Button style={{ marginRight: 8 }}
+                        onClick={this.goBack}
+                    >取消</Button>
+                }
+                { current > 0 && current !== 2 &&
                     <Button style={{ marginRight: 8 }}
                         onClick={() => this.prev()}
                     > 上一步 </Button>
                 }
-                { this.state.current < steps.length - 1 && <Button type="primary"
+                { current < steps.length - 1 && <Button type="primary"
                         onClick={ () => this.next() }
-                    >{ this.state.current === 1 ? '提交' : '下一步' }</Button>
+                    >{ current === 1 ? '提交' : '下一步' }</Button>
                 }
-                { this.state.current === steps.length - 1 && <Button type="primary"
-                        onClick={() => this.props.router.push('/data-manage/table')}
+                { current != 2 &&current === steps.length - 1 && <Button type="primary"
+                        onClick={this.goBack}
                     >返回</Button>
                 }
             </div>

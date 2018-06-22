@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, Input, Select, Button, Radio } from 'antd';
-import { isEmpty } from 'lodash';
+import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
 import ajax from '../../../../api';
@@ -87,6 +87,8 @@ class TargetForm extends React.Component {
         }).then(res => {
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
+            } else {
+                handleTableColumnChange([]);
             }
         })
     }
@@ -99,11 +101,27 @@ class TargetForm extends React.Component {
     }
 
     changeSource(value) {
-        const { handleSourceChange } = this.props;
+        const { handleSourceChange, form } = this.props;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
         handleSourceChange(this.getDataObjById(value));
+        this.resetTable();
+    }
+
+    resetTable(){
+        const { form } = this.props;
+        this.changeTable('');
+        //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
+        this.setState({
+            selectHack:true
+        },()=>{
+            form.resetFields(['table'])
+            this.setState({
+                selectHack:false
+            })
+        })
+        
     }
 
     changeTable(value) {
@@ -157,7 +175,8 @@ class TargetForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleTargetMapChange } = this.props;
+        const { form, handleTargetMapChange, targetMap } = this.props;
+
         form.validateFields((err, values) => {
             if (!err) {
                 cb.call(null, 2);
@@ -214,8 +233,11 @@ class TargetForm extends React.Component {
         </div>
     }
 
+    debounceTableSearch = debounce(this.changeTable, 600, { 'maxWait': 2000 })
+
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
+        const { selectHack } = this.state
 
         const { targetMap, dataSourceList, isCurrentTabNew } = this.props;
         let formItem;
@@ -227,7 +249,7 @@ class TargetForm extends React.Component {
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -243,7 +265,7 @@ class TargetForm extends React.Component {
                             mode="combobox"
                             disabled={ !isCurrentTabNew }
                             optionFilterProp="value"
-                            onBlur={this.changeTable.bind(this)}
+                            onChange={this.debounceTableSearch.bind(this)}
                         >
                             {this.state.tableList.map(table => {
                                 return <Option 
@@ -315,7 +337,7 @@ class TargetForm extends React.Component {
             case DATA_SOURCE.HIVE:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -328,7 +350,8 @@ class TargetForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -491,7 +514,7 @@ class TargetForm extends React.Component {
             }
             case DATA_SOURCE.HBASE: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -504,7 +527,8 @@ class TargetForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

@@ -95,7 +95,7 @@ export default class ProjectList extends Component {
 
     initColumns = () => {
         return [{
-            title: '项目名称',
+            title: '项目显示名称',
             dataIndex: 'projectAlias',
             key: 'projectAlias',
             render: (text, record) => {
@@ -113,7 +113,7 @@ export default class ProjectList extends Component {
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
-                return record.createUser.userName
+                return record.createUser && record.createUser.userName
             },
         }, {
             title: '项目管理员',
@@ -164,7 +164,7 @@ export default class ProjectList extends Component {
         const title = (
             <div>
                 <Search
-                  placeholder="按项目名称搜索"
+                  placeholder="按项目显示名称搜索"
                   style={{ width: 200 }}
                   value={projectName}
                   onChange={this.changeProjectName}

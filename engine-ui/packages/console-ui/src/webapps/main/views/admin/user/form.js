@@ -33,7 +33,7 @@ export const isDisabledRole = (app, value, loginUser) => {
                 value === RDOS_ROLE.VISITOR
             }
         }
-        case MY_APPS.API: 
+        case MY_APPS.API:
         case MY_APPS.LABEL:
         case MY_APPS.DATA_QUALITY: {
             if (loginUser.isTenantAdmin) {

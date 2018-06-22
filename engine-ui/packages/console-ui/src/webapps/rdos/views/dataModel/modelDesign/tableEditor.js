@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, browserHistory, hashHistory } from 'react-router';
 import SplitPane from 'react-split-pane';
-import { 
-    Input, Button, message, 
+import {
+    Input, Button, message,
     Modal, Form, Row, Col,
- } from 'antd';
+} from 'antd';
 
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -13,7 +13,7 @@ import moment from 'moment';
 import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataManage';
 import dateModelAPI from '../../../api/dataModel';
 import ColumnsPartition from './columnsPartition';
 import actions from '../../../store/modules/dataManage/actionCreator';
@@ -64,38 +64,39 @@ class TableEditor extends Component {
         const { getFieldDecorator } = this.props.form;
 
         const { 
-            tableName, project, createTime,
-            desc, userName, lifeDay, catalogueId,
+            tableName, project, gmtCreate,
+            desc, chargeUser, lifeDay, catalogueId,
         } = tableData;
 
         const formItemLayout = {
             labelCol: { span: 2 },
             wrapperCol: { span: 12 },
         };
-
+        console.log('tableEditor',tableData);
+        
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
-                    <h1 className="card-title"><GoBack /> { tableData && <span>编辑表：{ tableName }</span> }</h1>
+                    <h1 className="card-title flex-middle"><GoBack type="textButton" /> {tableData && <span>编辑表：{tableName}</span>}</h1>
                     <Row className="box-card m-tablebasic">
                         <h3>基本信息</h3>
                         <table width="100%" cellPadding="0" cellSpacing="0">
                             <tbody>
                                 <tr>
                                     <th>表名</th>
-                                    <td>{ tableName }</td>
+                                    <td>{tableName}</td>
                                 </tr>
                                 <tr>
                                     <th>所属项目</th>
-                                    <td>{ project }</td>
+                                    <td>{project}</td>
                                 </tr>
                                 <tr>
-                                    <th>创建者</th>
-                                    <td>{userName}</td>
+                                    <th>负责人</th>
+                                    <td>{chargeUser}</td>
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
-                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    <td>{ moment(gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -104,7 +105,14 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="所属类目"
                             >
-                                <CatalogueTree
+                                {getFieldDecorator('belongCatalogue', {
+                                    rules: [{
+                                    required: true,
+                                    message: '请选择所属类目',
+                                    }],
+                                    initialValue: catalogueId
+                                })(
+                                    <CatalogueTree
                                     id="catalogue"
                                     value={catalogueId}
                                     isPicker
@@ -113,7 +121,8 @@ class TableEditor extends Component {
                                     onChange={(val) => {
                                         modifyDesc({name: 'catalogueId', value: val})
                                     }}
-                                />
+                                    />
+                                )}
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}
@@ -139,10 +148,10 @@ class TableEditor extends Component {
                                     }],
                                     initialValue: desc
                                 })(
-                                    <Input 
+                                    <Input
                                         name="tableDesc"
                                         onChange={this.changeTable.bind(this)}
-                                        type="textarea" placeholder="描述信息" 
+                                        type="textarea" placeholder="描述信息"
                                     />
                                 )}
                             </FormItem>
@@ -150,27 +159,28 @@ class TableEditor extends Component {
                     </Row>
                     <Row className="box-card">
                         {!isEmpty(tableData) && <ColumnsPartition
-                            {...tableData }
-                            addRow={ this.addRow.bind(this) }
-                            delRow={ this.delRow.bind(this) }
-                            columnFileds={ this.state.columnFileds }
-                            replaceRow={ this.replaceRow.bind(this) }
-                            moveRow={ this.moveRow.bind(this) }
+                            {...tableData}
+                            addRow={this.addRow.bind(this)}
+                            delRow={this.delRow.bind(this)}
+                            columnFileds={this.state.columnFileds}
+                            replaceRow={this.replaceRow.bind(this)}
+                            moveRow={this.moveRow.bind(this)}
                             isEdit
                         />}
                     </Row>
-                    <Row className="box-card txt-center">
+                    <Row className="box-card txt-right">
                         <Button 
-                            type="primary"
+                            type="danger"
                             style={{ marginRight: '20px' }}
-                            onClick={ this.saveTable.bind(this) }
-                        >
-                            保存
-                        </Button>
-                        <Button type="danger" 
-                            onClick={ this.delTable.bind(this) }
+                            onClick={this.delTable.bind(this)}
                         >
                             删除表
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={this.saveTable.bind(this)}
+                        >
+                            保存
                         </Button>
                     </Row>
                 </main>
@@ -231,7 +241,7 @@ class TableEditor extends Component {
         const { name, value } = evt.target;
         this.props.modifyDesc({ name, value });
     }
-    
+
     delTable() {
         const the = this;
         confirm({
@@ -241,7 +251,7 @@ class TableEditor extends Component {
                 dateModelAPI.deleteTable({
                     tableId: the.tableId
                 }).then(res => {
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         message.info('删除成功, 即将返回列表页');
                         setTimeout(() => {
                             the.props.router.replace('/data-model/table');
@@ -249,26 +259,50 @@ class TableEditor extends Component {
                     }
                 })
             },
-            onCancel() {},
+            onCancel() { },
         });
     }
 
     saveTable() {
         const { tableData, form } = this.props;
         const ctx = this;
+        //组装参数
+        const queryParams = {};
+        queryParams.tableId = tableData.id;
+        queryParams.tableName = tableData.tableName;
+        queryParams.tableDesc = tableData.tableDesc;
+        // queryParams.delim = tableData.id;
+        queryParams.lifeDay = tableData.lifeDay;
+        // queryParams.storedType = tableData.id;
+        queryParams.catalogueId = tableData.catalogueId;
+        queryParams.columns = tableData.columns;
+        queryParams.partition_keys = tableData.partition_keys;
         if (this.checkColumnsIsNull(tableData.columns)) {
             message.error('新建字段名称不可为空！')
         } else {
             form.validateFields((err) => {
                 if (!err) {
                     // ctx.props.saveTable(tableData);
-                    dateModelAPI.alterTable(tableData).then(res => {
+                    dateModelAPI.alterTable(queryParams).then(res => {
                         if (res.code === 1) {
                             message.success('修改成功！');
+                            this.goBack()
                         }
                     })
                 }
             });
+        }
+    }
+
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
         }
     }
 

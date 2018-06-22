@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { debounce } from 'lodash';
 
-import {  TASK_TYPE, TASK_STATUS } from './const'
+import {  TASK_TYPE, TASK_STATUS, RESOURCE_TYPE } from './const'
 
 // 请求防抖动
 export function debounceEventHander(...args) {
@@ -47,6 +47,19 @@ export function taskTypeIcon(type) {
             return 's-virtualicon'
         }
         default: ''
+    } 
+}
+
+export function resourceTypeIcon(type){
+    switch (type) {
+        case RESOURCE_TYPE.JAR: {
+            return 's-jaricon-r'
+        }
+        case RESOURCE_TYPE.PY: {
+            return 's-pythonicon-r'
+        }
+        default: 
+            return '';
     }
 }
 

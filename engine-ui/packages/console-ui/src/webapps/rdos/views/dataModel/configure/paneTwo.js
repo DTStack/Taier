@@ -14,6 +14,11 @@ import BasePane from './basePane';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 export default class SubjectDomain extends BasePane {
 
     constructor(props) {
@@ -28,9 +33,16 @@ export default class SubjectDomain extends BasePane {
         }, this.loadData)
     }
 
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
+    }
+
     initColumns = () => {
         return [{
-            width: 100,
             title: '主题域名称',
             dataIndex: 'name',
             key: 'name',
@@ -43,18 +55,15 @@ export default class SubjectDomain extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
-            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {

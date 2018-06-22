@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
-import { 
+import {
     Input, Button, Table, Form,
     Pagination, Modal, message,
     Tag, Icon, Card, Select
@@ -12,6 +12,10 @@ import { Link } from 'react-router';
 import Editor from '../../../components/code-editor';
 import CopyIcon from "main/components/copy-icon";
 import {DDL_placeholder} from "../../../comm/DDLCommon"
+import SlidePane from 'widgets/slidePane';
+import TableLog from '../../dataManage/tableLog';
+
+
 
 import ajax from '../../../api/dataModel';
 
@@ -27,14 +31,17 @@ class TableList extends Component {
         this.state = {
             visible: false,
             filterDropdownVisible: false,
-
             params: {
                 pageIndex: 1,
                 tableName: '',
                 isDeleted: 0, // 添加删除标记
                 isDirtyDataTable: 0, // 非脏数据标记
             },
-
+            tableLog:{
+                tableId: undefined,
+                tableName: undefined,
+                visible: false,
+            },
             table: { data: [] },
             subjectFields: [],
             modelLevels: []
@@ -59,7 +66,7 @@ class TableList extends Component {
     search = () => {
         const { params } = this.state;
         ajax.getTableList(params).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 this.setState({
                     table: res.data,
                 })
@@ -95,7 +102,7 @@ class TableList extends Component {
     cleanSearch() {
         const $input = findDOMNode(this.searchInput).querySelector('input');
 
-        if($input.value.trim() === '') return;
+        if ($input.value.trim() === '') return;
 
         $input.value = '';
         this.search();
@@ -127,24 +134,19 @@ class TableList extends Component {
     }
 
     handleOk() {
-        if(this._DDL) {
+        if (this._DDL) {
             ajax.createTableByDDL({
                 sql: this._DDL
             }).then(res => {
-                if(res.code === 1) {
-                    if(!res.data) {
-                        this._DDL = undefined;
-                        // 设置值
-                        this.DDLEditor.self.doc.setValue('');
-                        this.setState({
-                            visible: false
-                        });
-                        message.info('建表成功');
-                        this.search();
-                    }
-                    else {
-                        message.error(res.data.message)
-                    }
+                if (res.code === 1) {
+                    this._DDL = undefined;
+                    // 设置值
+                    this.DDLEditor.self.doc.setValue('');
+                    this.setState({
+                        visible: false
+                    });
+                    message.success('建表成功');
+                    this.search();
                 }
             })
         }
@@ -164,16 +166,37 @@ class TableList extends Component {
         this._DDL = value;
     }
 
+    showTableLog(table) {
+        const { id, tableName } = table;
+        const { tableLog } = this.state;
+        tableLog.tableId = id;
+        tableLog.tableName = tableName;
+        tableLog.visible = true;
+        this.setState({
+            tableLog
+        })
+    }
+
+    closeSlidePane = () => {
+        const { tableLog } = this.state;
+        tableLog.visible = false;
+        tableLog.tableId = undefined;
+        tableLog.tableName = undefined;
+        this.setState({
+            tableLog
+        })
+    }
+
     render() {
         const ROUTER_BASE = '/data-model/table';
-        const { subjectFields, modelLevels, params } = this.state
+        const { subjectFields, modelLevels, params,tableLog } = this.state
         const tableList = this.state.table;
         const { project } = this.props;
         const { totalCount, data } = tableList;
-
+        const projectUsers = [];
         const pagination = {
             total: totalCount,
-            defaultPageSize: 20,
+            defaultPageSize: 10,
             current: params.pageIndex,
         };
 
@@ -186,7 +209,7 @@ class TableList extends Component {
         const modelLevelOptions = modelLevels && modelLevels.map(level =>
             <Option key={level.id} value={level.name}>{level.name}</Option>
         )
-
+        const ctx = this;
         const columns = [
             {
                 title: '表名',
@@ -194,7 +217,7 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render(text, record) {
-                    return <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>{ text }</Link>
+                    return <Link to={`data-manage/table/view/${record.id}`}>{ text }</Link>
                 }
             },
             {
@@ -234,11 +257,11 @@ class TableList extends Component {
                 render(text, record) {
                     return `${text}天`;
                 }
-            },,
+            }, ,
             {
-                title: '创建者',
-                key: 'userName',
-                dataIndex: 'userName',
+                title: '负责人',
+                key: 'chargeUser',
+                dataIndex: 'chargeUser',
                 render(text, record) {
                     return text
                 }
@@ -248,9 +271,10 @@ class TableList extends Component {
                 key: 'action',
                 render(text, record) {
                     return <span>
-                        <Link to={`${ROUTER_BASE}/modify/${record.tableId}`}>编辑</Link>
+                        <Link to={`${ROUTER_BASE}/modify/${record.id}`}>编辑</Link>
                         <span className="ant-divider"></span>
-                        <Link to={`/data-manage/log/${record.tableId}/${record.tableName}`}>操作记录</Link>
+                        {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
+                        <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
                     </span>
                 }
             }
@@ -262,10 +286,10 @@ class TableList extends Component {
                     <Select
                         allowClear
                         placeholder="选择主题域"
-                        style={{ width: '120px'}}
+                        style={{ width: '120px' }}
                         onChange={(value) => this.changeParams('subject', value)}
                     >
-                        { subjectFieldsOptions }
+                        {subjectFieldsOptions}
                     </Select>
                 </FormItem>
                 <FormItem label="模型层级">
@@ -273,9 +297,9 @@ class TableList extends Component {
                         allowClear
                         placeholder="选择模型层级"
                         onChange={(value) => this.changeParams('grade', value)}
-                        style={{ width: '120px'}}
+                        style={{ width: '120px' }}
                     >
-                        {  modelLevelOptions }
+                        {modelLevelOptions}
                     </Select>
                 </FormItem>
                 <FormItem>
@@ -283,9 +307,9 @@ class TableList extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
-                        onChange={ this.onTableNameChange }
-                        onSearch={ this.search }
-                        ref={ el => this.searchInput = el }
+                        onChange={this.onTableNameChange}
+                        onSearch={this.search}
+                        ref={el => this.searchInput = el}
                     />
                 </FormItem>
             </Form>
@@ -297,10 +321,10 @@ class TableList extends Component {
                     <Link to={`${ROUTER_BASE}/design`}>新建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`/data-manage/table/create`}>普通建表</Link>
+                    <Link to={`/data-model/table/create`}>普通建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right' }}
-                    onClick={ this.showModal.bind(this) }
+                    onClick={this.showModal.bind(this)}
                 >DDL建表</Button>
             </div>
         )
@@ -311,31 +335,43 @@ class TableList extends Component {
                 <Card noHovering bordered={false} title={title} extra={extra}>
                     <div style={{ marginTop: '1px' }}>
                         <Table
-                            rowKey="tableId"
+                            rowKey="id"
                             className="m-table"
-                            columns={ columns }
-                            dataSource={ data }
-                            pagination={ pagination }
-                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
+                            columns={columns}
+                            dataSource={data}
+                            pagination={pagination}
+                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current)}
                         />
                         <Modal className="m-codemodal"
                             width={750}
                             title={(
-                                <span>DDL建表<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_placeholder}/></span>
+                                <span>DDL建表<CopyIcon style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
                             )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}
+                            maskClosable={false}
                         >
                             <Editor
-                                style={{height:"400px"}}
+                                style={{ height: "400px" }}
                                 placeholder={DDL_placeholder}
-                                onChange={ this.handleDdlChange.bind(this) } 
-                                value={ this._DDL } ref={(e) => { this.DDLEditor = e }}
+                                onChange={this.handleDdlChange.bind(this)}
+                                value={this._DDL} ref={(e) => { this.DDLEditor = e }}
                             />
                         </Modal>
                     </div>
                 </Card>
+                {
+                  tableLog.visible ?  <SlidePane
+                        onClose={this.closeSlidePane}
+                        visible={tableLog.visible}
+                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                    >
+                        <div className="m-loglist">
+                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
+                        </div>
+                    </SlidePane> : ""
+                }
             </div>
         </div>
     }

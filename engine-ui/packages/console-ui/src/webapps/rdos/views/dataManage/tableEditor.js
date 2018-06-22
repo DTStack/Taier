@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import SplitPane from 'react-split-pane';
+import { browserHistory, hashHistory } from 'react-router'
 import { 
     Input, Button, message, 
     Modal, Form, Row, Col,
@@ -13,7 +14,8 @@ import moment from 'moment';
 import utils from 'utils';
 import GoBack from 'main/components/go-back';
 
-import ajax from '../../api';
+
+import ajax from '../../api/dataManage';
 import { ColumnsPartition } from './tableCreator';
 import actions from '../../store/modules/dataManage/actionCreator';
 // import { formItemLayout } from '../../comm/const';
@@ -28,6 +30,7 @@ class TableEditor extends Component {
 
     state = {
         dataCatalogue: [],
+        changetableName:undefined
     }
 
     constructor(props) {
@@ -42,6 +45,19 @@ class TableEditor extends Component {
         this.loadCatalogue();
     }
 
+    
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.isSaved){
+            this.goBack()
+        }
+    }
+    
+    
+    componentWillUnmount() {
+        this.props.saveStatus();
+    }
+    
+
     loadCatalogue = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
@@ -53,10 +69,9 @@ class TableEditor extends Component {
     render() {
         const { tableData, modifyDesc } = this.props;
         const { getFieldDecorator } = this.props.form;
-
         const { 
-            tableName, project, createTime,
-            desc, userName, lifeDay, catalogueId,
+            tableName, project, gmtCreate,
+            desc, chargeUser, lifeDay, catalogueId,
         } = tableData;
 
         const formItemLayout = {
@@ -67,35 +82,60 @@ class TableEditor extends Component {
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
-                    <h1 className="card-title"><GoBack /> { tableData && <span>编辑表：{ tableName }</span> }</h1>
+                    <h1 className="card-title"><GoBack type="textButton" /> { tableData && <span>编辑表：{ tableName }</span> }</h1>
                     <Row className="box-card m-tablebasic">
                         <h3>基本信息</h3>
                         <table width="100%" cellPadding="0" cellSpacing="0">
                             <tbody>
                                 <tr>
-                                    <th>表名</th>
-                                    <td>{ tableName }</td>
-                                </tr>
-                                <tr>
                                     <th>所属项目</th>
                                     <td>{ project }</td>
                                 </tr>
                                 <tr>
-                                    <th>创建者</th>
-                                    <td>{userName}</td>
+                                    <th>负责人</th>
+                                    <td>{chargeUser}</td>
                                 </tr>
                                 <tr>
                                     <th>创建时间</th>
-                                    <td>{ moment(createTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                    <td>{ moment(gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                 </tr>
                             </tbody>
                         </table>
                         <Form>
+                        <FormItem
+                                {...formItemLayout}
+                                label="表名"
+                            >
+                                {getFieldDecorator('表名', {
+                                    rules: [{
+                                    required: true,
+                                    message: '请输入表名',
+                                    }],
+                                    initialValue: tableName
+                                })(
+                                    <Input 
+                                        placeholder="表名" 
+                                        onChange={(evt)=>{
+                                            this.setState({
+                                                changetableName:evt.target.value
+                                            })
+                                        }}
+                                        name="tableName"
+                                    />
+                                )}
+                            </FormItem>
                             <FormItem
                                 {...formItemLayout}
                                 label="所属类目"
                             >
-                                <CatalogueTree
+                                {getFieldDecorator('所属类目', {
+                                    rules: [{
+                                    required: true,
+                                    message: '请选择所属类目',
+                                    }],
+                                    initialValue: catalogueId
+                                })(
+                                    <CatalogueTree
                                     id="catalogue"
                                     value={catalogueId}
                                     isPicker
@@ -104,7 +144,8 @@ class TableEditor extends Component {
                                     onChange={(val) => {
                                         modifyDesc({name: 'catalogueId', value: val})
                                     }}
-                                />
+                                    />
+                                )}
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}
@@ -151,13 +192,15 @@ class TableEditor extends Component {
                     <Row className="box-card txt-center">
                         <Button 
                             type="primary"
-                            style={{ marginRight: '20px' }}
                             onClick={ this.saveTable.bind(this) }
+                            style={{float:"right"}}
                         >
                             保存
                         </Button>
-                        <Button type="danger" 
+                        <Button 
+                            type="danger" 
                             onClick={ this.delTable.bind(this) }
+                            style={{float:"right",marginRight: '20px'}}
                         >
                             删除表
                         </Button>
@@ -244,15 +287,41 @@ class TableEditor extends Component {
 
     saveTable() {
         const { tableData, form } = this.props;
+        const { changetableName } = this.state;
         const ctx = this;
+        //组装参数
+        const queryParams = {};
+        queryParams.tableId = tableData.id;
+        queryParams.tableName = typeof changetableName=='undefined'?tableData.tableName:changetableName;
+        queryParams.tableDesc = tableData.tableDesc;
+        // queryParams.delim = tableData.id;
+        queryParams.lifeDay = tableData.lifeDay;
+        // queryParams.storedType = tableData.id;
+        queryParams.catalogueId = tableData.catalogueId;
+        queryParams.columns = tableData.columns;
+        queryParams.partition_keys = tableData.partition_keys;
+            
+
         if (this.checkColumnsIsNull(tableData.columns)) {
             message.error('新建字段名称不可为空！')
         } else {
             form.validateFields((err) => {
                 if (!err) {
-                    ctx.props.saveTable(tableData);
+                    ctx.props.saveTable(queryParams);
                 }
             });
+        }
+    }
+
+    goBack = () => {
+        const { url, history } = this.props
+        if (url) {
+            if (history)
+                browserHistory.push(url)
+            else
+                hashHistory.push(url)
+        } else {
+            browserHistory.go(-1)
         }
     }
 
@@ -289,6 +358,9 @@ const mapDispatch = dispatch => ({
     },
     saveTable(params) {
         dispatch(actions.saveTable(params));
+    },
+    saveStatus(){
+        dispatch(actions.saveStatus(0));
     }
 });
 
@@ -297,6 +369,7 @@ const BaseFormWrapper = Form.create()(TableEditor);
 
 export default connect((state) => {
     return {
-        tableData: state.dataManage.tableManage.tableCurrent
+        tableData: state.dataManage.tableManage.tableCurrent,
+        isSaved: state.dataManage.tableManage.isSavedSuccess,
     }
 }, mapDispatch)(BaseFormWrapper);

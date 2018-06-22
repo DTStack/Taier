@@ -15,6 +15,11 @@ import BasePane from './basePane';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
 export default class ModelLevel extends BasePane {
 
     constructor(props) {
@@ -28,15 +33,21 @@ export default class ModelLevel extends BasePane {
             }),
         }, this.loadData)
     }
+    
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
+    }
 
     initColumns = () => {
         return [{
-            width: 80,
             title: '层级编号',
             dataIndex: 'id',
             key: 'id',
         }, {
-            width: 100,
             title: '层级名称',
             dataIndex: 'name',
             key: 'name',
@@ -49,29 +60,24 @@ export default class ModelLevel extends BasePane {
             dataIndex: 'prefix',
             key: 'prefix',
         }, {
-            width: 100,
             title: '生命周期',
             dataIndex: 'lifeDay',
             key: 'lifeDay',
         }, {
-            width: 100,
             title: '是否记入层级依赖',
             dataIndex: 'depend',
             key: 'depend',
             render: depend => depend === 1 ? '是' : '否',
         }, {
-            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {

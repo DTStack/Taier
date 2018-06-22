@@ -29,7 +29,7 @@ export default class DMConfigureCenter extends Component {
                     <TabPane tab="增量定义" key="4">
                         <PaneFour />
                     </TabPane>
-                    <TabPane tab="模型生成规则" key="5">
+                    <TabPane tab="表名生成规则" key="5">
                         <PaneFive />
                     </TabPane>
                     <TabPane tab="原子指标定义" key="6">

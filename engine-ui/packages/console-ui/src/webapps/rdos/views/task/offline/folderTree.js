@@ -15,7 +15,7 @@ import {
     workbenchActions as mapDispatchToProps
 } from '../../../store/modules/offlineTask/offlineAction'
 
-import { taskTypeIcon } from '../../../comm'
+import { taskTypeIcon, resourceTypeIcon } from '../../../comm'
 import { TASK_TYPE, MENU_TYPE } from '../../../comm/const'
 
 const { TreeNode } = Tree;
@@ -69,11 +69,14 @@ class FolderTree extends React.Component {
     }
 
     onLoadData(type, treeNode) {
-        const { loadTreeNode } = this.props;
+        const { loadTreeNode, ispicker } = this.props;
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             const cataType = type || data.catalogueType
-            
+            if(ispicker&&data.children&&data.children.length>0){
+                resolve();
+                return;
+            }
             loadTreeNode(data.id, cataType);
             resolve();
         });
@@ -450,7 +453,6 @@ class FolderTree extends React.Component {
             if (isFilepicker && type === 'file' && acceptRes !== undefined ) {
                 if (acceptRes !== resourceType) return null;
             }
-            
 
             // 目录选择过滤掉具体文件
             if (ispicker && !isFilepicker && data.children !== null) {
@@ -469,9 +471,9 @@ class FolderTree extends React.Component {
                             {createUser}
                         </i>
                     </span> :
-                    <CtxMenu 
-                        id={ id } 
-                        key={ `${taskType}-ctxmenu-${id}` } 
+                    <CtxMenu
+                        id={ id }
+                        key={ `${taskType}-ctxmenu-${id}` }
                         operations={ this.generateCtxMenu(type, treeType, data) } >
                         <span title={name} className={type === 'file' ? 'task-item' : 'folder-item'}>
                             { this.renderStatusBadge(treeType, data) }
@@ -489,7 +491,7 @@ class FolderTree extends React.Component {
                 disabled={id === '0'}
                 data={data}
                 treeType={treeType}
-                className={taskTypeIcon(taskType)}
+                className={taskTypeIcon(taskType)||resourceTypeIcon(resourceType)}
             >
                 { data.children && data.children.map(o => loop(o)) }
             </TreeNode>

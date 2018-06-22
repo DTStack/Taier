@@ -143,6 +143,9 @@ class DataSync extends React.Component{
 
     render() {
         const { currentStep, loading } = this.state;
+        const { readWriteLockVO, notSynced } =this.props;
+        const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
+
         const steps = [
             {title: '数据来源', content: <DataSyncSource
                     currentStep={currentStep}
@@ -166,6 +169,7 @@ class DataSync extends React.Component{
             },
             {title: '预览保存', content: <DataSyncSave
                     currentStep={currentStep}
+                    notSynced={notSynced}
                     navtoStep={ this.navtoStep.bind(this) }
                     saveJob={ this.save.bind(this) }
                 />
@@ -176,7 +180,8 @@ class DataSync extends React.Component{
             <Steps current={currentStep}>
                 { steps.map(item => <Step key={item.title} title={item.title} />) }
             </Steps>
-            <div className="steps-content">
+            <div className="steps-content" style={{position:"relative"}}>
+                {isLocked?<div className="steps-mask"></div>:null}
                 { steps[currentStep].content }
             </div>
       </div>

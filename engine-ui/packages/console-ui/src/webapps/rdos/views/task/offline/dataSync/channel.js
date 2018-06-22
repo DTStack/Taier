@@ -212,9 +212,12 @@ class ChannelForm extends React.Component{
 
 const ChannelFormWrap = Form.create({
     onValuesChange: function(props, values) {
-        const { changeChannelSetting } = props;
-        if (values.isSaveDirty && !values.lifeDay) {
+        const { changeChannelSetting, setting } = props;
+        if (setting.isSaveDirty && !setting.lifeDay) {
             values.lifeDay = 90;
+        }
+        if(!setting.isSaveDirty){
+            values.tableName = null;
         }
         changeChannelSetting(values);
     }

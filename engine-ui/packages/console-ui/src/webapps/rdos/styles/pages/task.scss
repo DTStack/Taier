@@ -60,6 +60,12 @@
                     height: 22px;
                     display: block;
                 }
+                .tabs-icon{
+                    height:16px;
+                    margin-top: 50%;
+                    margin-left: 50%;
+                    transform: translate(-50%,-50%);
+                }
             }
 
             .ant-tabs-tab-active {
@@ -147,6 +153,11 @@
                 background-image: url(/public/rdos/img/sql.svg);
             }
         }
+        .s-jaricon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/ja.png);
+            }
+        }
         .s-mricon {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/mr.svg)
@@ -160,6 +171,11 @@
         .s-pythonicon {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/python.svg)
+            }
+        }
+        .s-pythonicon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/py.png)
             }
         }
         .s-virtualicon {
@@ -315,7 +331,16 @@
 
         .browser-tabs {
             .ant-tabs-bar .ant-tabs-tab-active {
-                background: #ecf6fd;
+                background: #fff;
+                &:after{
+                    content:"";
+                    position: absolute;
+                    top:0px;
+                    left:0px;
+                    right: 0px;
+                    height: 1px;
+                    background: #2491F7;
+                }
             }
         }
     }
@@ -375,7 +400,7 @@
         .m-siderbench {
             width: 30px;
             position: absolute;
-            z-index: 999;
+            z-index: 902;
             top: 32px;
             height: 100%;
             padding-bottom: 40px;
@@ -443,7 +468,22 @@
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: 999;
+        z-index: 900;
+        cursor: not-allowed;
+    }
+    .lock-layer-sync {
+        position: absolute;
+        top: 35px;
+        left: 0;
+        width: 100%;
+    }
+    .lock-layer-editor {
+        position: absolute;
+        top: 35px;
+        height: 35px;
+        left: 0;
+        width: 100%;
+        z-index: 900;
         cursor: not-allowed;
     }
 }
@@ -472,6 +512,15 @@
         min-height: 200px;
         text-align: center;
         padding: 40px 0;
+    }
+    .steps-mask{
+        position: absolute;
+        bottom: 0px;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        cursor: not-allowed;
+        z-index: 999;
     }
     .ant-steps-icon {
         line-height: 23px!important;
@@ -625,4 +674,13 @@
 
 .clear-offset .ant-btn.ant-btn-loading:not(.ant-btn-circle):not(.ant-btn-circle-outline):not(.ant-btn-icon-only){
     padding-left: 20px;
+}
+.cover-mask{
+    position: absolute;
+    bottom: 0px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    cursor: not-allowed;
+    z-index: 999;
 }

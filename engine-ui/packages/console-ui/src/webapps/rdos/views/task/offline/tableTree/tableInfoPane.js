@@ -8,7 +8,7 @@ import {
     Tabs, Radio, Icon, Input,
 } from 'antd';
 
-import ajax from '../../../../api';
+import ajax from '../../../../api/dataManage';
 import TableCell from 'widgets/tableCell'
 import TablePartition from '../../../dataManage/tablePartition';
 
@@ -91,7 +91,7 @@ export default class TableInfoPane extends React.Component {
         if (searchText) {
             const reg = new RegExp(searchText, 'gi');
             const filteredTables = tableColms.length > 0 && tableColms.filter(col =>{
-                return col.name.match(reg);
+                return col.columnName.match(reg);
             })
             if (filteredTables.length > 0) {
                 tableData.column = filteredTables
@@ -103,8 +103,8 @@ export default class TableInfoPane extends React.Component {
     initColums = () => {
         return [{
             title: '字段名称',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'columnName',
+            key: 'columnName',
             filterIcon: <Icon type="search" />,
             filterDropdownVisible: this.state.filterDropdownVisible,
             filterDropdown:(
@@ -126,12 +126,12 @@ export default class TableInfoPane extends React.Component {
             },
         }, {
             title: '类型',
-            dataIndex: 'type',
-            key: 'type'
+            dataIndex: 'columnType',
+            key: 'columnType'
         }, {
             title: '注释',
-            dataIndex: 'comment',
-            key: 'comment',
+            dataIndex: 'columnDesc',
+            key: 'columnDesc',
             render(text) {
                 return text
             }
@@ -151,7 +151,7 @@ export default class TableInfoPane extends React.Component {
                 <TabPane tab="字段信息" key="1">
                     <div className="box">
                         <Table
-                            rowKey="id"
+                            rowKey="columnName"
                             columns={this.initColums()}
                             dataSource={tableData.column}
                             pagination={{ simple: true, size: 'small'}}

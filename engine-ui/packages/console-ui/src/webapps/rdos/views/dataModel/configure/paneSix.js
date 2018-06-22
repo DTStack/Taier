@@ -17,14 +17,22 @@ import { IndexType } from '../../../components/display';
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class AtomIndexDefine extends BasePane {
+class AtomIndexDefine extends BasePane {
 
     componentDidMount() {
         this.setState({
-            params: Object.assign(this.state.params, { 
+            params: Object.assign(this.state.params, {
                 type: 1, // 原子指标
             }),
         }, this.loadData)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
     }
 
     loadData = () => {
@@ -94,7 +102,6 @@ export default class AtomIndexDefine extends BasePane {
 
     initColumns = () => {
         return [{
-            width: 100,
             title: '指标类型',
             dataIndex: 'columnType',
             key: 'columnType',
@@ -108,23 +115,19 @@ export default class AtomIndexDefine extends BasePane {
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
-            width: 150,
             title: '最近修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -132,8 +135,8 @@ export default class AtomIndexDefine extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <Popconfirm 
-                            title="确定删除此条记录吗?" 
+                        <Popconfirm
+                            title="确定删除此条记录吗?"
                             onConfirm={() => { this.delete(record) }}
                             okText="是" cancelText="否"
                         >
@@ -161,8 +164,8 @@ export default class AtomIndexDefine extends BasePane {
                     bordered={false}
                     loading={false}
                     title={
-                        <Form 
-                            className="m-form-inline" 
+                        <Form
+                            className="m-form-inline"
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
@@ -171,9 +174,9 @@ export default class AtomIndexDefine extends BasePane {
                                     placeholder="按指标名称搜索"
                                     style={{ width: 200 }}
                                     size="default"
-                                    onChange={ this.changeSearchName }
-                                    onSearch={ this.loadData }
-                                    ref={ el => this.searchInput = el }
+                                    onChange={this.changeSearchName}
+                                    onSearch={this.loadData}
+                                    ref={el => this.searchInput = el}
                                 />
                             </FormItem>
                             <FormItem label="指标类型">
@@ -200,24 +203,33 @@ export default class AtomIndexDefine extends BasePane {
                         </Button>
                     }
                 >
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            pagination={pagination}
-                            loading={loading}
-                            columns={this.initColumns()}
-                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
-                            dataSource={table.data || []}
-                        />
+                    <Table
+                        rowKey="id"
+                        className="m-table"
+                        pagination={pagination}
+                        loading={loading}
+                        columns={this.initColumns()}
+                        onChange={(pagination) => this.changeParams('currentPage', pagination.current)}
+                        dataSource={table.data || []}
+                    />
                 </Card>
-                <AtomIndexDefineModal 
-                    data={ modalData }
-                    handOk={ this.update }
-                    handCancel={ () => this.setState({ modalVisible: false })}
-                    visible={ modalVisible }
+                <AtomIndexDefineModal
+                    data={modalData}
+                    handOk={this.update}
+                    handCancel={() => this.setState({ modalVisible: false })}
+                    visible={modalVisible}
                 />
             </div>
         )
     }
 
 }
+
+
+export default connect((state) => {
+    return {
+        project: state.project
+    }
+})(AtomIndexDefine);
+
+export { AtomIndexDefine };

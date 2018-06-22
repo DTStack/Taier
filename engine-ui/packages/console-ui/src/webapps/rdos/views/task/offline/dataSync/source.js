@@ -5,7 +5,7 @@ import {
     Button, Icon, Table,
     message, Radio
 } from 'antd';
-import { isEmpty } from 'lodash';
+import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
 import ajax from '../../../../api';
@@ -99,6 +99,8 @@ class SourceForm extends React.Component {
         }).then(res => {
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
+            } else {
+                handleTableColumnChange([]);
             }
         })
     }
@@ -117,6 +119,22 @@ class SourceForm extends React.Component {
         }, 0);
 
         handleSourceChange(this.getDataObjById(value));
+        this.resetTable();
+    }   
+
+    resetTable(){
+        const { form } = this.props;
+        this.changeTable('');
+        //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
+        this.setState({
+            selectHack:true
+        },()=>{
+            form.resetFields(['table'])
+            this.setState({
+                selectHack:false
+            })
+        })
+        
     }
 
     changeTable(value) {
@@ -204,6 +222,7 @@ class SourceForm extends React.Component {
                 validateFields.push('encoding')
             }
         }
+
         form.validateFieldsAndScroll(validateFields, { force: true }, (err, values) => {
             if (!err) {
                 cb.call(null, 1);
@@ -337,8 +356,11 @@ class SourceForm extends React.Component {
         }
     }
 
+    debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
+
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
+        const { selectHack } = this.state;
         const { sourceMap, dataSourceList, isCurrentTabNew } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         let formItem;
@@ -348,7 +370,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER: {
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -364,7 +386,7 @@ class SourceForm extends React.Component {
                                 mode="combobox"
                                 showSearch
                                 showArrow={true}
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -419,7 +441,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.MAXCOMPUTE:
             case DATA_SOURCE.HIVE: {// Relational DB
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -432,7 +454,8 @@ class SourceForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -544,7 +567,7 @@ class SourceForm extends React.Component {
                 break;
             case DATA_SOURCE.HBASE:
                 formItem = [
-                    <FormItem
+                    !selectHack&&<FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -557,7 +580,8 @@ class SourceForm extends React.Component {
                         })(
                             <Select
                                 showSearch
-                                onChange={this.changeTable.bind(this)}
+                                mode="combobox"
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

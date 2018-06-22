@@ -2,9 +2,9 @@ import React from 'react';
 import { Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
 import assign from 'object-assign';
-import { isEqual, throttle, range, isObject, isEmpty } from 'lodash';
+import { isEqual, throttle, range, isObject, isEmpty, cloneDeep } from 'lodash';
 
-import ajax from '../../../api';
+import ajax from '../../../api/dataManage'
 
 import { 
     formItemLayout, 
@@ -29,9 +29,13 @@ export default class BaseForm extends React.Component {
     constructor(props) {
         super(props);
 
+        const { tableName, tableNameRules, location } = this.props;
+        const tableNamePropArr=tableName?tableName.split("_"):[];
+
+
         this.state = {
-            type: '1', // 1: 内部表 2:外部表
-            tableNameArr: [],
+            type: location?'2':'1', // 1: 内部表 2:外部表
+            tableNameArr: cloneDeep(tableNamePropArr),
         };
     }
 
@@ -52,6 +56,7 @@ export default class BaseForm extends React.Component {
         } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
             fields.subject = value;
         }
+        
         this.props.form.setFieldsValue(fields)
     }
 
@@ -113,21 +118,14 @@ export default class BaseForm extends React.Component {
     }
 
     renderTableRules = () => {
-
         const { 
             subjectFields, modelLevels, changeRuleValue,
-            incrementCounts, freshFrequencies, tableNameRules,
+            incrementCounts, freshFrequencies, tableNameRules, tableName
         } = this.props;
-
         const { tableNameArr } = this.state;
-
         const inlineStyle = { width: 100, display: 'inline-block' }
-
         const renderRules = (rule, index) => {
-
             let data = [];
-            const defaultVal = tableNameArr[index];
-
             switch(rule.value) {
                 case TABLE_MODEL_RULE.LEVEL: {
                     data = modelLevels; break;
@@ -146,8 +144,9 @@ export default class BaseForm extends React.Component {
                     return (
                         <Input 
                             placeholder="自定义"
+                            value={tableNameArr[index]}
                             onChange={(e) => this.changeTableName(e.target.value, index)}
-                            style={inlineStyle} 
+                            style={inlineStyle}
                         />
                     )
                 }
@@ -157,6 +156,7 @@ export default class BaseForm extends React.Component {
                 <Select
                     placeholder="请选择"
                     style={inlineStyle}
+                    value={tableNameArr[index]}
                     onSelect={(value, option) => this.changeTableName(value, index, rule.value, option)}
                 >
                     {
@@ -194,22 +194,24 @@ export default class BaseForm extends React.Component {
             display: 'inline-block',
             marginTop: '5px',
         }
+
         return <div>
             {rules}
             <span style={style}> {tableNameArr.length > 0 && tableNameArr.join('_')} </span>
         </div>
     }
 
+
     render() {
         const { getFieldDecorator } = this.props.form;
-
+        
         const { 
-            tableName, desc, delim, dataCatalogue,
+            tableName, tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
-            subject,
+            subject, tableModelRules
         } = this.props;
 
-        const { type } = this.state;
+        const { type, tableNameArr } = this.state;
 
         return <Form>
             <FormItem
@@ -223,6 +225,7 @@ export default class BaseForm extends React.Component {
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
+                    initialValue:tableNameArr.join("_"),
                     validateTrigger: 'onBlur',
                 })(
                     <Input type="hidden" />,
@@ -332,7 +335,7 @@ export default class BaseForm extends React.Component {
                         max: 200,
                         message: '描述不得超过200个字符！',
                     }],
-                    initialValue: desc
+                    initialValue: tableDesc
                 })(
                     <Input type="textarea" placeholder="描述信息" />
                 )}

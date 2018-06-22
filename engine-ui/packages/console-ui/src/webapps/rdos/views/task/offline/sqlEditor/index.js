@@ -22,7 +22,11 @@ import {
     setSelectionContent,
 } from '../../../../store/modules/offlineTask/sqlEditor';
 
- class SQLEditor extends Component {
+class SQLEditor extends Component {
+
+    state = {
+        customHeight: null
+    }
 
     componentDidMount() {
         const currentNode = this.props.currentTabData;
@@ -46,17 +50,15 @@ import {
             merged: false,
             cursor: doc.getCursor(),
         }
-        if (old !== newVal) {
-            if (utils.checkExist(task.taskType)) {
-                params.sqlText = newVal
-                // 过滤注释内容
-                const filterComm = filterComments(newVal)
-                params.taskVariables = matchTaskParams(taskCustomParams, filterComm)//this.matchTaskParams(newVal)
-            } else if (utils.checkExist(task.type)) {
-                params.scriptText = newVal
-            }
-            this.props.updateTaskFields(params);
+        if (utils.checkExist(task.taskType)) {
+            params.sqlText = newVal
+            // 过滤注释内容
+            const filterComm = filterComments(newVal)
+            params.taskVariables = matchTaskParams(taskCustomParams, filterComm)//this.matchTaskParams(newVal)
+        } else if (utils.checkExist(task.type)) {
+            params.scriptText = newVal
         }
+        this.props.updateTaskFields(params);
     }
 
     onEditorSelection = (old, doc) => {
@@ -65,7 +67,7 @@ import {
             this.props.setSelection(selected)
         } else {
             const oldSelection = this.props.sqlEditor.selection
-            if (oldSelection !== '' ) this.props.setSelection('')
+            if (oldSelection !== '') this.props.setSelection('')
         }
     }
 
@@ -77,57 +79,77 @@ import {
         const { sqlEditor, currentTabData, options, value } = this.props
         const currentTab = currentTabData.id
         const consoleData = sqlEditor.console
-        const data = consoleData && consoleData[currentTab] ? 
-        consoleData[currentTab] : { results: [] }
+        const data = consoleData && consoleData[currentTab] ?
+            consoleData[currentTab] : { results: [] }
+        const size = this.state.size;
 
         const cursor = currentTabData.cursor || undefined;
+        const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
+
+
 
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">
                     <Toolbar {...this.props} />
                 </div>
-                <div className="ide-content">
+                <div className='ide-content'>
                     {
                         data.log ?
-                        <SplitPane
-                            split="horizontal"
-                            minSize={100}
-                            maxSize={-77}
-                            style={{ paddingBottom: '40px' }}
-                            defaultSize="60%"
-                            primary="first"
-                        >
+                            <SplitPane
+                                split="horizontal"
+                                minSize={100}
+                                maxSize={-77}
+                                style={{ paddingBottom: '40px' }}
+                                defaultSize="60%"
+                                primary="first"
+                                size={size}
+                                onDragStarted={() => {
+                                    this.setState({
+                                        size: undefined
+                                    })
+                                }}
+                            >
+                                <div className="ide-editor bd-bottom">
+                                    <CodeEditor
+                                        key="sqlEditor"
+                                        sync={currentTabData.merged || undefined}
+                                        options={{ ...options, readOnly: isLocked }}
+                                        value={value}
+                                        cursor={cursor}
+                                        cursorActivity={this.debounceSelectionChange}
+                                        onChange={this.debounceChange}
+
+                                    />
+                                </div>
+                                <Console
+                                    data={data}
+                                    currentTab={currentTab}
+                                    dispatch={this.props.dispatch}
+                                    setMax={() => {
+                                        this.setState({
+                                            size: '100px'
+                                        })
+                                    }}
+                                    setMin={() => {
+                                        this.setState({
+                                            size: 'calc(100% - 40px)'
+                                        })
+                                    }}
+                                />
+                            </SplitPane> :
                             <div className="ide-editor bd-bottom">
-                                <CodeEditor 
+                                <CodeEditor
                                     key="sqlEditor"
                                     sync={currentTabData.merged || undefined}
-                                    options={options}
-                                    value={value}
+                                    options={{ ...options, readOnly: isLocked }}
                                     cursor={cursor}
-                                    cursorActivity={ this.debounceSelectionChange }
-                                    onChange={ this.debounceChange }
-                                   
+                                    cursorActivity={this.debounceSelectionChange}
+                                    onChange={this.debounceChange}
+                                    value={value}
+
                                 />
                             </div>
-                            <Console
-                                data={data}
-                                currentTab={currentTab}
-                                dispatch={this.props.dispatch}
-                            /> 
-                        </SplitPane> : 
-                        <div className="ide-editor bd-bottom">
-                            <CodeEditor
-                                key="sqlEditor"
-                                sync={currentTabData.merged || undefined}
-                                options={options}
-                                cursor={cursor}
-                                cursorActivity={ this.debounceSelectionChange }
-                                onChange={ this.debounceChange }  
-                                value={value}
-                                
-                            />
-                        </div>
                     }
                 </div>
             </div>
@@ -140,7 +162,7 @@ export default connect(state => {
         sqlEditor: state.sqlEditor,
         project: state.project,
         user: state.user,
-        
+
     }
 }, dispatch => {
     return {

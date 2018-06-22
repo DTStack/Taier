@@ -185,3 +185,16 @@ table {
 .big-tooltip .ant-tooltip-inner{
     max-width: 350px;
 }
+
+.split-text{
+    float: left;
+    padding: 0px 5px;
+}
+
+.select-all-table {
+    .ant-table-thead {
+        .ant-table-selection-column>span {
+            visibility: visible;
+        }
+    }
+}

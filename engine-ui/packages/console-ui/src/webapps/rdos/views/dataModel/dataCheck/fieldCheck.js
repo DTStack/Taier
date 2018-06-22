@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
 import {
@@ -35,6 +34,15 @@ export default class FieldCheck extends Component {
     componentDidMount() {
         this.loadData();
     }
+
+    componentWillReceiveProps(nextProps) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+           this.componentDidMount();
+        }
+    }
+    
 
     loadData = () => {
         const { params } = this.state;
@@ -104,11 +112,7 @@ export default class FieldCheck extends Component {
             dataIndex: 'tableName',
             key: 'tableName',
         }, {
-            title: '最后修改人',
-            dataIndex: 'userName',
-            key: 'userName',
-        }, {
-            title: '最后修改时间',
+            title: '最近检测时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),

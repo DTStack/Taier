@@ -32,13 +32,14 @@ const RadioGroup = Radio.Group;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 4 },
     },
     wrapperCol: {
         xs: { span: 24 },
         sm: { span: 18 },
     },
 }
+
 
 class ScheduleForm extends React.Component {
     constructor(props) {
@@ -52,6 +53,8 @@ class ScheduleForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { status, scheduleConf } = this.props;
         const { periodType } = scheduleConf;
+
+
 
         const generateHours = () => {
             let options = [];
@@ -119,7 +122,7 @@ class ScheduleForm extends React.Component {
                     onChange={ this.changeScheduleConf.bind(this) }
                 />
             )}
-            -
+            <span className="split-text" style={{float:"none"}} >-</span>
             {getFieldDecorator('endDate', {
                 initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
             })(
@@ -180,7 +183,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1">时</Col>
+                                <span className="split-text">时</span>
                                 <Col span="6">
 
                                 {getFieldDecorator('beginMin', {
@@ -195,7 +198,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1">分</Col>
+                                <span className="split-text">分</span>
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}
@@ -240,7 +243,7 @@ class ScheduleForm extends React.Component {
                                 )}
 
                                 </Col>
-                                <Col span="1">时</Col>
+                                <span className="split-text">时</span>
                                 <Col span="6">
 
                                 {getFieldDecorator('endMin', {
@@ -251,7 +254,7 @@ class ScheduleForm extends React.Component {
                                     </Select>
                                 )}
                                 </Col>
-                                <Col span="1">分</Col>
+                                <span className="split-text">分</span>
                             </FormItem>
                         </span>;
                     break;
@@ -276,7 +279,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1">时</Col>
+                                <span className="split-text">时</span>
                                 <Col span="6">
 
                                 {getFieldDecorator('beginMin', {
@@ -291,7 +294,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1">分</Col>
+                                <span className="split-text">分</span>
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}
@@ -335,7 +338,7 @@ class ScheduleForm extends React.Component {
                                     generateHours()
                             )}
                             </Col>
-                            <Col span="1">时</Col>
+                            <span className="split-text">时</span>
                             <Col span="6">
                             {getFieldDecorator('endMin', {
                                 rules: [{
@@ -348,7 +351,7 @@ class ScheduleForm extends React.Component {
                                     </Select>
                             )}
                             </Col>
-                            <Col span="1">分</Col>
+                            <span className="split-text">分</span>
                             </FormItem>
                         </span>;
                     break;
@@ -357,7 +360,7 @@ class ScheduleForm extends React.Component {
                         dom = <span  key={type}>
                             <FormItem
                                 {...formItemLayout}
-                                label="起调周期"
+                                label="具体时间"
                             >
                             <Col span="6">
                             {getFieldDecorator('hour', {
@@ -370,7 +373,7 @@ class ScheduleForm extends React.Component {
                             )}
                             </Col>
 
-                            <Col span="1">时</Col>
+                            <span className="split-text">时</span>
                             <Col span="6">
 
                             {getFieldDecorator('min', {
@@ -383,7 +386,7 @@ class ScheduleForm extends React.Component {
                                     generateMins()
                             )}
                             </Col>
-                            <Col span="1">分</Col>
+                            <span className="split-text">分</span>
                         </FormItem>
                     </span>;
                     break;
@@ -420,7 +423,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1"> 时 </Col>
+                                <span className="split-text">时</span>
                                 <Col span="6">
 
                                 {getFieldDecorator('min', {
@@ -433,7 +436,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1">分</Col>
+                                <span className="split-text">分</span>
                             </FormItem>
                         </span>;
                     break;
@@ -473,7 +476,7 @@ class ScheduleForm extends React.Component {
                                 )}
                                 </Col>
 
-                                <Col span="1"> 时 </Col>
+                                <span className="split-text">时</span>
                                 <Col span="6">
 
                                 {getFieldDecorator('min', {
@@ -485,7 +488,7 @@ class ScheduleForm extends React.Component {
                                     generateMins()
                                 )}
                                 </Col>
-                                <Col span="1"> 分 </Col>
+                                <span className="split-text">分</span>
                             </FormItem>
                         </span>;
                     break;
@@ -660,6 +663,7 @@ class SchedulingConfig extends React.Component {
 
     render() {
         const { tabData } = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         let initConf = tabData.scheduleConf;
 
         const scheduleConf = initConf === '' ?
@@ -703,7 +707,8 @@ class SchedulingConfig extends React.Component {
             lineHeight: '30px',
         };
 
-        return <div className="m-scheduling">
+        return <div className="m-scheduling" style={{position: 'relative'}}>
+            {isLocked?<div className="cover-mask"></div>:null} 
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap
@@ -713,7 +718,7 @@ class SchedulingConfig extends React.Component {
                         handleScheduleConf={ this.handleScheduleConf.bind(this) }
                         handleScheduleType={ this.handleScheduleType.bind(this) }
                         ref={ el => this.form = el }
-                        key={ `${tabData.id}-${scheduleConf.periodType}` }
+                        key={ `${tabData.id} - ${scheduleConf.periodType}` }
                     />
                 </Panel>
                 {
@@ -731,7 +736,6 @@ class SchedulingConfig extends React.Component {
                             </FormItem>
                         </Form>
                         <Row>
-                            <Col span="6"></Col>
                             <Col>
                                 <Table
                                     className="m-table"
@@ -744,20 +748,20 @@ class SchedulingConfig extends React.Component {
                         </Row>
                     </Panel>
                 }
-                <Panel key="3" header="依赖类型">
+                <Panel key="3" header="跨周期依赖">
                     <Row>
-                        <Col span="6" />
+                        <Col span="1" />
                         <Col>
                             <RadioGroup onChange={ this.setSelfReliance.bind(this) }
                                 value={ this._selfReliance }
                             >
                                 <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
-                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期完成，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
                                 <Radio style={radioStyle} value={3}>
                                     自依赖，等待上一调度周期结束，才能继续运行&nbsp;
                                     <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
                                 </Radio>
-                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期完成，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
                                 <Radio style={radioStyle} value={4}>
                                     等待下游任务的上一周期结束，才能继续运行&nbsp;
                                     <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />

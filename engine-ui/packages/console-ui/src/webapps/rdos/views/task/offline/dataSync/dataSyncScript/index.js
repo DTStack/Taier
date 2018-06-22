@@ -52,12 +52,10 @@ class DataSyncScript extends Component {
             cursor: doc.getCursor(),
         }
 
-        if (old !== newVal) {
-            if (utils.checkExist(taskType)) {
-                params.sqlText = newVal
-            }
-            this.props.updateTaskFields(params);
+        if (utils.checkExist(taskType)) {
+            params.sqlText = newVal
         }
+        this.props.updateTaskFields(params);
     }
 
     onEditorSelection = (old, doc) => {
@@ -87,7 +85,7 @@ class DataSyncScript extends Component {
                         <div className="ide-editor bd-bottom">
                             <CodeEditor
                                 key="jsonEditor"
-                                sync={merged||undefined}
+                                sync={merged || undefined}
                                 options={jsonEditorOptions}
                                 cursor={cursor}
                                 onChange={this.debounceChange}

@@ -101,9 +101,6 @@ class NewApi extends Component {
                 desc:item.instructions
             })
         }
-       
-        
-
 
         this.props.createApi(params)
         .then(
@@ -131,14 +128,15 @@ class NewApi extends Component {
             complete: {}
         })
     }
+
     next() {
         const { key} = steps[this.state.current];
         if(this.state[key]&&this.state[key].pass){
             const current = this.state.current + 1;
             this.setState({ current });
         }
-       
     }
+
     prev() {
         const current = this.state.current - 1;
         this.setState({ current });

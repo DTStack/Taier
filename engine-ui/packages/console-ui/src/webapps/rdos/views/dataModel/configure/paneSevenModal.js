@@ -52,7 +52,7 @@ class DeriveIndexModal extends Component {
                 const automIndexs = res.data ? res.data.data : []
                 const initalState = { automIndexs, }
                 if (!isEdit) {
-                    initalState.indexNames = automIndexs.length > 0 ? [automIndexs[0].columnName] : [];
+                    initalState.indexNames = automIndexs&&automIndexs.length > 0 ? [automIndexs[0].columnName] : [];
                 }
                 this.setState(initalState)
             }
@@ -178,12 +178,17 @@ class DeriveIndexModal extends Component {
             form, visible, data
         } = this.props;
 
-        const { indexNames } = this.state;
+        const { indexNames,automIndexs } = this.state;
 
         const { getFieldDecorator } = form
 
         const isEdit = data && !isEmpty(data);
         const title = isEdit ? '编辑衍生指标': '创建衍生指标'
+        const TYPES =[
+            "TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
+            "FLOAT", "DOUBLE", "STRING", "BINARY", "TIMESTAMP",
+            "DECIMAL", "DATE", "VARCHAR", "CHAR"
+        ];
 
         return (
             <Modal
@@ -191,6 +196,7 @@ class DeriveIndexModal extends Component {
                 visible={visible}
                 onOk={this.submit}
                 onCancel={this.cancle}
+                maskClosable={false}
             >
                 <Form>
                     <FormItem
@@ -231,7 +237,7 @@ class DeriveIndexModal extends Component {
                         hasFeedback
                     >
                         {
-                            this.renderIndexNames()
+                            automIndexs &&  automIndexs.length > 0 ?this.renderIndexNames() : <span style={{color: "#f00"}}>请先创建原子指标</span>
                         }
                     </FormItem>
                     <FormItem
@@ -240,7 +246,7 @@ class DeriveIndexModal extends Component {
                         style={{ wordBreak: 'break-all' }}
                     >
                         {
-                            indexNames && indexNames.length > 0 && indexNames.join('_')
+                            indexNames && indexNames.length > 0 ?  indexNames.join('_') :   <span style={{color: "#f00"}}>请先创建原子指标</span>
                         }
                     </FormItem>
                     <FormItem
@@ -253,10 +259,7 @@ class DeriveIndexModal extends Component {
                             initialValue: data ? data.dataType : 'string',
                         })(
                             <Select>
-                                <Option value="string">string</Option>
-                                <Option value="bigint">bigint</Option>
-                                <Option value="double">double</Option>
-                                <Option value="date">date</Option>
+                                {TYPES.map(str => <Option key={str} value={str}>{str}</Option>)}
                             </Select>,
                         )}
                     </FormItem>

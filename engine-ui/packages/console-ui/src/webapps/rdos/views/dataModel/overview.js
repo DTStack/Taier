@@ -4,6 +4,8 @@ import { cloneDeep } from 'lodash';
 import {
     Row, Col, Card
 } from 'antd';
+import { connect } from 'react-redux';
+
 
 import utils from 'utils';
 import Resize from 'widgets/resize';
@@ -24,7 +26,7 @@ require('echarts/lib/chart/pie');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-export default class Overview extends Component {
+class Overview extends Component {
 
     state = {
         data: '',
@@ -385,3 +387,7 @@ export default class Overview extends Component {
         )
     }
 }
+
+export default connect(state => ({
+    project: state.project
+}), null)(Overview);

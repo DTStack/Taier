@@ -4,19 +4,26 @@ import { connect } from 'react-redux';
 import {
     Table, Row, Col, Select, Form, Card,
     Input, Button, message, Popconfirm,
+    Tooltip
 } from 'antd';
 
 import utils from 'utils';
 
 import BasePane from './basePane';
-import PaneSix from './paneSix';
+import { AtomIndexDefine } from './paneSix';
 import DeriveIndexModal from './paneSevenModal';
 import Api from '../../../api/dataModel';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 
-export default class DeriveIndexDefine extends PaneSix {
+
+@connect((state) => {
+    return {
+        project: state.project
+    }
+})
+export default class DeriveIndexDefine extends AtomIndexDefine {
 
     componentDidMount() {
         this.setState({
@@ -26,40 +33,58 @@ export default class DeriveIndexDefine extends PaneSix {
         }, this.loadData)
     }
 
+    componentWillReceiveProps(nextProps){
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.loadData();
+        }
+    }
+
+    characterProcess = (text="",maxWidth="300px") => {
+        const style ={overflow: "hidden",
+            maxWidth,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"}
+        const content = (
+        <Tooltip title={text} >
+            <div style ={style}>{text}</div>
+        </Tooltip>
+        )
+       
+        return content
+    }
+
     initColumns = () => {
         return [{
             title: '衍生指标名称',
-            width: 120,
             dataIndex: 'columnNameZh',
             key: 'columnNameZh',
         }, {
             title: '指标命名',
-            width: 120,
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 100,
             title: '数据类型',
             dataIndex: 'dataType',
             key: 'dataType',
         }, {
             title: '指标口径',
+            width: '400px',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
+            render : text => this.characterProcess(text),
         }, {
-            width: 120,
             title: '最后修改人',
             dataIndex: 'userName',
             key: 'userName',
         }, {
-            width: 150,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
         }, {
             title: '操作',
-            width: 80,
             key: 'operation',
             render: (record) => {
                 return (
@@ -81,7 +106,7 @@ export default class DeriveIndexDefine extends PaneSix {
 
     render() {
 
-        const { loading, table, modalVisible, modalData } = this.state;
+        const { loading, table={}, modalVisible, modalData } = this.state;
 
         const pagination = {
             total: table.totalCount,
