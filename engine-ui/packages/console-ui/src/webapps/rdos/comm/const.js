@@ -381,6 +381,45 @@ export const defaultEditorOptions = { // 编辑器选项
     // extraKeys: { 'Ctrl-Space': 'autocomplete' },
 }
 
+export const transformRuleType = { // 整库迁移高级设置转换类型
+    1: 'nameRule',
+    2: 'columnRule',
+    3: 'typeRule',
+}
+
+export const originTypeTransformRule = [ // 整库迁移高级设置字段转换规则
+    'tinyint',
+    'smallint',
+    'mediumint',
+    'int',
+    'bigint',
+    'varchar',
+    'char',
+    'tinytext',
+    'text',
+    'mediumtext',
+    'longtext',
+    'year',
+    'float',
+    'double',
+    'decimal',
+    'date',
+    'datetime',
+    'timestamp',
+    'time',
+    'bit',
+    'bool'
+]
+
+export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换规则
+    'BIGINT',
+    'STRING',
+    'DOUBLE',
+    'TIMESTAMP',
+    'BOOLEAN'
+]
+
+
 export const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
