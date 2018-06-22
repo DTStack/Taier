@@ -1,12 +1,11 @@
 
 import React from 'react';
 import {
-    Button, Tooltip, Spin, Icon, Pagination, message,
+    Tooltip, Spin, Icon, message,
 } from 'antd'
 
 import { cloneDeep } from 'lodash';
 
-import utils from 'utils'
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -30,7 +29,6 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxHierarchicalLayout,
-    mxParallelEdgeLayout,
     mxUtils,
 } = Mx
 
@@ -227,7 +225,7 @@ export default class TableRelation extends React.Component {
      * 3. 给当前父节点添加标记
      */
     preHandTreeNodes = (treeNode, treeType) => {
-        const { treeData, currentParent, currentChild } = this.state;
+        const { treeData, } = this.state;
         const myTree = cloneDeep(treeData);
         myTree.isRoot = true;
         const props = treeType === 'parent' ? 'parentResult' : 'childResult';
@@ -398,18 +396,9 @@ export default class TableRelation extends React.Component {
         graph.center();
     }
 
-    renderEdges = () => {
-        const graph = this.graph;
-        const edges = this._edges;
-        for (let i = 0; i < edges.length; i++) {
-            const edge = edges[i];
-            graph.insertEdge(graph.getDefaultParent(), null, '', edge.source, edge.target)
-        }
-    }
-
     insertVertex = (parent, data) => {
         // 隐藏节点不展示
-        if (data.hide === true) return;
+        if (data.hide === true && !data.isCurrentChild && !data.isCurrentParent) return;
         const graph = this.graph;
 
         const rootCell = graph.getDefaultParent()
@@ -420,8 +409,7 @@ export default class TableRelation extends React.Component {
         const tableInfo = doc.createElement('table')
         tableInfo.setAttribute('data', JSON.stringify(data))
 
-        let newVertex = '';
-        newVertex = graph.insertVertex(rootCell, null,
+        const newVertex = graph.insertVertex(rootCell, null,
             tableInfo, 20, 20,
             VertexSize.width, VertexSize.height, style
         )
