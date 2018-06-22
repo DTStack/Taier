@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { Link, hashHistory } from 'react-router'
 
 import {
-    Button, Tooltip, Spin,
+    Tooltip, Spin,
     Modal, message, Icon,
 } from 'antd'
 
@@ -10,17 +9,11 @@ import utils from 'utils'
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { getVertxtStyle } from '../../../../comm'
-import { TASK_STATUS, TASK_TYPE, offlineTaskStatusFilter } from '../../../../comm/const'
+import { TASK_STATUS } from '../../../../comm/const'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
-
-import {
-    workbenchActions
-} from '../../../../store/modules/offlineTask/offlineAction'
-import { workbenchAction } from '../../../../store/modules/offlineTask/actionType'
-import * as FlowAction from '../../../../store/modules/operation/taskflow'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -35,16 +28,13 @@ const {
     mxPolyline,
     mxEvent,
     mxRubberband,
-    mxCellState,
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
     mxPerimeter,
-    mxUndoManager,
     mxCompactTreeLayout,
-    mxLayoutManager,
-    mxMorphing,
-    mxUtils,
+    mxGraphView,
+    mxText,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -101,7 +91,6 @@ class TaskFlowView extends Component {
     componentWillReceiveProps(nextProps) {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
-  
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
             this.initGraph(taskJob.id)
         }
@@ -134,6 +123,8 @@ class TaskFlowView extends Component {
     }
 
     loadEditor = (container) => {
+        mxGraphView.prototype.optimizeVmlReflows = false;
+        mxText.prototype.ignoreStringSize = true; //to avoid calling getBBox
         // Disable context menu
         mxEvent.disableContextMenu(container)
         const graph = new mxGraph(container)
@@ -146,7 +137,8 @@ class TaskFlowView extends Component {
         graph.setTooltips(true)
         graph.view.setScale(1)
         // Enables HTML labels
-        graph.htmlLabels = true;
+        graph.setHtmlLabels(true);
+
         graph.setAllowDanglingEdges(false)
         // 禁止连接
         graph.setConnectable(false)
@@ -164,6 +156,7 @@ class TaskFlowView extends Component {
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle)
         // 转换value显示的内容
         graph.convertValueToString = this.corvertValueToString
+
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
 
@@ -175,17 +168,26 @@ class TaskFlowView extends Component {
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+        mxConstants.STYLE_OVERFLOW = 'hidden';
 
         // enables rubberband
         new mxRubberband(graph)
         this.initContextMenu(graph)
+
     }
 
     formatTooltip = (cell) => {
         if (cell.vertex) {
-            const task = cell.value ? cell.value.batchTask : {};
-            return task ? task.name : ''
+            return cell.value;
         }
+    }
+
+    getShowStr = (data) => {
+        const task = data.batchTask;
+        const taskType = taskTypeText(task.taskType);
+        const taskStatus = taskStatusText(data.status); 
+        const str = `${task.name || ''} <br/> ${taskType}(${taskStatus})`;
+        return str;
     }
 
     corvertValueToString = (cell) => {
@@ -193,9 +195,9 @@ class TaskFlowView extends Component {
             const dataParse = cell.value ? cell.value : {};
             const task = dataParse.batchTask || '';
             const taskType = taskTypeText(task.taskType);
-            const taskStatus = taskStatusText(dataParse.status); //this.getTaskStatus(dataParse.status);
+            const taskStatus = taskStatusText(dataParse.status); 
             if (task) {
-                return `<div  class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
+                return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}(${taskStatus})</span></span>
                 </div>`
             }
@@ -222,6 +224,7 @@ class TaskFlowView extends Component {
                 this.insertEdge(graph, type, parent, exist)
             } else if (!exist) {
                 // 插入当前节点
+                const str = this.getShowStr(data)
                 newVertex = newVertex = graph.insertVertex(
                     graph.getDefaultParent(), null, data, 1, 1,
                     VertexSize.width, VertexSize.height, style
@@ -241,10 +244,14 @@ class TaskFlowView extends Component {
     }
 
     doInsertVertex = (data, type) => {
-        const graph = this.graph
 
+        const graph = this.graph
+        const ctx = this;
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2
+        const cy = 200;
+
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = false;
         layout.useBoundingBox = false;
@@ -252,13 +259,24 @@ class TaskFlowView extends Component {
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
 
-        var layoutMgr = new mxLayoutManager(graph);
-        layoutMgr.getLayout = function(cell) {
-            if (cell.getChildCount() > 0)
-                return layout;
-        };
-        this.insertVertex(graph, data, parent, type)
-        graph.center();
+        this.executeLayout = function (change, post) {
+
+            model.beginUpdate();
+            try {
+                if (change != null) { change(); }
+                layout.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post(); }
+            }
+        }
+        this.executeLayout(() => {
+            ctx.insertVertex(graph, data, parent, type)
+        }, () => {
+            graph.view.setTranslate(cx, cy);
+        })
     }
 
     initContextMenu = (graph) => {
@@ -462,29 +480,41 @@ class TaskFlowView extends Component {
 
     /* eslint-enable */
     render() {
-        const selectedJob = this.state.selectedJob
-        const taskLog = this.state.taskLog
+        const { selectedJob, taskLog } = this.state;
         const { goToTaskDev, project, taskJob } = this.props
+        const progStyle = {
+            width: '50%',
+            height: '18px',
+            top: 0,
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            margin: 'auto',
+        }
         return (
             <div className="graph-editor"
                 style={{
                     position: 'relative',
                 }}
             >
+
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div
+                   <div
                         className="editor pointer"
                         ref={(e) => { this.Container = e }}
                         style={{
                             position: 'relative',
                             overflow: 'auto',
+                            paddingBottom: '20px',
                             height: '95%',
                         }}
-                    />
+                    >
+                    </div>
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
@@ -562,6 +592,8 @@ class TaskFlowView extends Component {
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
+        style[mxConstants.STYLE_OVERFLOW] = 'hidden';
+
         return style;
     }
 

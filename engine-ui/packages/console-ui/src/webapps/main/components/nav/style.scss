@@ -67,7 +67,7 @@ $activeColor: #262e36; // 主色
         color: #fff;
     }
 
-    .ant-menu-item-selected {
+    > .ant-menu-item-selected {
         background-color: $activeColor !important;
         color: #fff;
         &:hover {

@@ -320,7 +320,7 @@ class SyncToolbar extends Component {
                 >
                     格式化
                 </Button>
-                <span style={{ float:"right" ,position: "relative", marginRight: "18px", lineHeight: "28px",zIndex:"1000"}}>
+                <span style={{ float:"right" ,position: "relative", marginRight: "18px", lineHeight: "28px",zIndex:"901"}}>
                     <Icon
                         style={{ color: "#2491F7", marginRight: "2px" }}
                         type="question-circle-o" />

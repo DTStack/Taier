@@ -4,7 +4,7 @@ import {
     Input, Button, Table, Form,
     Pagination, Modal, message, Checkbox,
     Tag, Icon, Card, Select, Tabs, DatePicker,
-    Spin
+    Spin,Tooltip
 } from 'antd';
 
 import { Link,hashHistory } from 'react-router';
@@ -50,7 +50,7 @@ const revokeStatus = (status) => {
 
 @connect(state => {
     return {
-        projects: state.projects,
+        projects: state.allProjects,
         user: state.user,
     }
 })
@@ -58,11 +58,11 @@ class AuthMana extends Component {
 
     constructor(props) {
         super(props);
-        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
-        const isPermission = this.isAdminAbove==1 ? "0" : "1";
+        const isAdminAbove = this.props.user&&this.props.user.isAdminAbove || 0;
+        const isPermission = isAdminAbove==1 ? "0" : "1";
         const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
-        // this.isAdminAbove = 0;
         this.state = {
+            isAdminAbove,
             table: [],
             editRecord: [],
             checkAll: false,
@@ -71,10 +71,6 @@ class AuthMana extends Component {
             visible: false,
             loading: false,
             rangeTime: [],
-            descModel: {
-                visible: false,
-                descInfo: "",
-            },
             queryParams: {
                 listType,
                 pageIndex: 1,
@@ -93,6 +89,18 @@ class AuthMana extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        if(nextProps.user != this.props.user){
+            this.judgmentAauthority(nextProps)
+        }
+    }
+
+    judgmentAauthority = (nextProps) => {
+        let { queryParams,isAdminAbove } = this.state;
+        isAdminAbove = nextProps.user&&nextProps.user.isAdminAbove;
+        const isPermission = isAdminAbove==1 ? "0" : "1";
+        const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
+        queryParams.listType = listType;
+        this.setState({queryParams,isAdminAbove})
     }
 
     search = () => {
@@ -279,7 +287,7 @@ class AuthMana extends Component {
                             <Button type="primary" size="small" onClick={() => { this.revoke() }}>批量回收</Button>&nbsp;
                         </div>
                     </div>
-                )
+                ) 
             }
             case "1": // 申请记录
             case "2":  // 已处理
@@ -287,6 +295,20 @@ class AuthMana extends Component {
                 return null;
         }
 
+    }
+
+    characterProcess = (text="",maxWidth="300px") => {
+        const style ={overflow: "hidden",
+            maxWidth,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"}
+        const content = (
+        <Tooltip title={text} >
+            <div style ={style}>{text}</div>
+        </Tooltip>
+        )
+       
+        return content
     }
 
     initialColumns = () => {
@@ -350,9 +372,8 @@ class AuthMana extends Component {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width: "100px",
+                            render : text => this.characterProcess(text,"100px"),
                         },
                         {
                             title: '操作',
@@ -402,7 +423,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '审批状态',
+                            title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
                             render(status) {
@@ -421,9 +442,8 @@ class AuthMana extends Component {
                             title: '申请详情',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width:"100px",
+                            render : text => this.characterProcess(text,"100px"),
                         },
                         {
                             title: '操作',
@@ -485,9 +505,8 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width:"100px",
+                            render : text => this.characterProcess(text,"100px"),
                         }
                     ]
                 )
@@ -507,9 +526,8 @@ class AuthMana extends Component {
                             title: '审批意见',
                             key: 'reply',
                             dataIndex: 'reply',
-                            render(text) {
-                                return text && text.length > 10 ? <span><a onClick={() => ctx.showDescModal(text)}>查看详情</a></span> : text ? text : "无"
-                            }
+                            width:"100px",
+                            render : text => this.characterProcess(text,"100px"),
                         },
                         {
                             title: '处理时间',
@@ -537,24 +555,6 @@ class AuthMana extends Component {
         }
     }
 
-    closeDescModal = () => {
-        const { descModel } = this.state;
-        descModel.descInfo = "";
-        descModel.visible = false;
-        this.setState({
-            descModel
-        })
-    }
-
-    showDescModal = (text) => {
-        const { descModel } = this.state;
-        descModel.descInfo = text;
-        descModel.visible = true;
-        this.setState({
-            descModel
-        });
-    }
-
     onChangeTime = (date, dateString) => {
         let { queryParams, rangeTime } = this.state;
         rangeTime = date;
@@ -571,6 +571,9 @@ class AuthMana extends Component {
         const { table, selectedRowKeys, queryParams, rangeTime, loading } = this.state;
 
         const { projects } = this.props;
+
+        const today0 = new Date(new Date().toLocaleDateString()).getTime();
+        const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
 
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
@@ -607,7 +610,12 @@ class AuthMana extends Component {
                     />
                 </FormItem>
                 <FormItem label="时间选择">
-                    <RangePicker onChange={this.onChangeTime} format="YYYY-MM-DD HH:mm:ss" value={rangeTime} />
+                    <RangePicker 
+                        onChange={this.onChangeTime} 
+                        format="YYYY-MM-DD HH:mm:ss" 
+                        value={rangeTime} 
+                        ranges={{ Today: [moment(today0), moment(today24)]}}
+                    />
                 </FormItem>
             </Form>
         )
@@ -645,7 +653,8 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, descModel, queryParams} = this.state;
+       
+        const { editRecord, visible, agreeApply, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
@@ -655,49 +664,39 @@ class AuthMana extends Component {
                     onChange={value => this.changeParams('listType', value)}
 
                 >
-                    {
-                        this.isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
-                            {this.renderPane(true)}
-                            <ApprovalModal
-                                visible={visible}
-                                agreeApply={agreeApply}
-                                table={editRecord}
-                                onOk={this.approveApply}
-                                onCancel={() => {
-                                    this.setState({
-                                        visible: false,
-                                        agreeApply: undefined,
-                                        editRecord: [],
-                                    })
-                                }}
-                            />
-                        </TabPane> : ""
-                    }
+                   {
+                        isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
+                                                    {this.renderPane(true)}
+                                                    <ApprovalModal 
+                                                        visible={visible}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        onOk={this.approveApply}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                visible: false,
+                                                                agreeApply: undefined,
+                                                                editRecord: [],
+                                                            })
+                                                        }}
+                                                    />
+                                                </TabPane> : ""
+                   }
                     <TabPane tab="申请记录" key={1}>
                         {this.renderPane()}
                     </TabPane>
                     {
-                        this.isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
-                            {this.renderPane()}
-                        </TabPane> : ""
+                        isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
+                                                    {this.renderPane()}
+                                                </TabPane> : ""
                     }
                     {
-                        this.isAdminAbove == 1 ? <TabPane tab="权限回收" key={3}>
-                            {this.renderPane(true)}
-                        </TabPane> : ""
+                        isAdminAbove == 1 ?<TabPane tab="权限回收" key={3}>
+                                                    {this.renderPane(true)}
+                                                </TabPane> : ""
                     }
 
                 </Tabs>
-                <div>
-                    <Modal
-                        title="详情信息"
-                        visible={descModel.visible}
-                        onCancel={this.closeDescModal}
-                        footer={null}
-                    >
-                        <div style={{ textIndent: "16px" }}>{descModel.descInfo}</div>
-                    </Modal>
-                </div>
             </div>
         )
     }

@@ -355,7 +355,7 @@ class TaskModal extends React.Component {
     }
 
     handleSubmit() {
-        const { isModalShow, toggleCreateTask, addOfflineTask, defaultData } = this.props;
+        const { addOfflineTask, defaultData } = this.props;
         const form = this.form;
 
         const isCreateNormal = typeof defaultData === 'undefined';
@@ -377,7 +377,6 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
 
-
                 addOfflineTask(values, isEditExist, defaultData)
                     .then(
                         (isSuccess) => {
@@ -385,7 +384,7 @@ class TaskModal extends React.Component {
                                 this.closeModal();
                                 setTimeout(() => {
                                     form.resetFields();
-                                }, 500);
+                                }, 300);
                             }
                         }
                     );
@@ -394,27 +393,24 @@ class TaskModal extends React.Component {
     }
 
     handleCancel() {
-        const { toggleCreateTask } = this.props;
-
         this.closeModal();
     }
 
     closeModal() {
         this.dtcount++;
-
         this.props.emptyModalDefault();
         this.props.toggleCreateTask();
     }
 
     render() {
-        const { isModalShow, toggleCreateTask, taskTreeData, resourceTreeData, defaultData } = this.props;
+        const { isModalShow, taskTreeData, resourceTreeData, defaultData } = this.props;
 
         if (!defaultData) this.isCreate = true;
         else {
             if (!defaultData.name) this.isCreate = true;
             else this.isCreate = false;
         }
-
+        console.log('visible:', isModalShow)
         return (
             <div>
                 <Modal
@@ -431,7 +427,6 @@ class TaskModal extends React.Component {
                             onClick={this.handleSubmit}
                         > 确认 </Button>
                     ]}
-                    key={this.dtcount}
                     onCancel={this.handleCancel}
                 >
                     <TaskFormWrapper
@@ -466,7 +461,7 @@ export default connect(state => {
              * @description 新建或编辑
              * @param {any} params 表单参数
              * @param {boolean} isEditExist 是否编辑
-             * @param {any} 修改前的数据
+             * @param {any} 修改前的数据 
              */
             addOfflineTask: function (params, isEditExist, defaultData) {
                 return ajax.addOfflineTask(params)
@@ -477,8 +472,8 @@ export default connect(state => {
                                 //     type: taskTreeAction.ADD_FOLDER_CHILD,
                                 //     payload: res.data
                                 // });
-                                // benchActions.loadTreeNode(params.nodePid,"TaskDevelop")
-                                benchActions.openTaskInDev(res.data.id)
+                                // benchActions.loadTreeNode(params.nodePid, "TaskDevelop")
+                                benchActions.openTaskInDev(res.data.id);
                             }
                             else {
                                 let newData = Object.assign(defaultData, res.data);
@@ -500,7 +495,7 @@ export default connect(state => {
                                     }
                                 });
                             }
-                            benchActions.loadTreeNode(params.nodePid,MENU_TYPE.TASK_DEV)
+                            benchActions.loadTreeNode(params.nodePid, MENU_TYPE.TASK_DEV)
                             return true;
                         }
                     });

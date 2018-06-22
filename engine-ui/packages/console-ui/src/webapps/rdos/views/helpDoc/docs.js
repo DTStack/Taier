@@ -147,3 +147,12 @@ export const customParams = (
         <p>详细说明请参考<a href={HELP_DOC_URL.TASKPARAMS} target="blank">《帮助文档》</a></p>
     </div>
 )
+
+// 
+export const taskDependentTypeDesc = (
+    <div>
+        <p>
+            任务结束包括成功、失败、取消3种情况
+        </p>
+    </div>
+)

@@ -28,7 +28,7 @@ const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
-        projects: state.projects,
+        projects: state.allProjects,
         user: state.user,
     }
 })
@@ -185,12 +185,12 @@ class TableList extends Component {
                 },
             },
             {
-                title: 'project',
+                title: '项目名称',
                 key: 'project',
                 dataIndex: 'project',
             },
             {
-                title: '项目名',
+                title: '项目显示名称',
                 key: 'projectAlias',
                 dataIndex: 'projectAlias',
             },

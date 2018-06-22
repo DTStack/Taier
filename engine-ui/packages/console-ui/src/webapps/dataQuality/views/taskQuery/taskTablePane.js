@@ -194,7 +194,7 @@ export default class TaskTablePane extends Component {
 
         const tableReportTitle = (
             <div>
-                表级报告
+                表级统计
                 <span 
                     style={{ fontSize: 12, color: '#999' }}>
                     （执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD HH:mm:ss")}）
@@ -257,7 +257,7 @@ export default class TaskTablePane extends Component {
                             bordered={false}
                             loading={false} 
                             className="shadow"
-                            title="最近30次表级报告" 
+                            title="最近30次表级统计" 
                         >
                             <Table 
                                 rowKey="id"
