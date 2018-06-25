@@ -410,7 +410,6 @@ class TaskModal extends React.Component {
             if (!defaultData.name) this.isCreate = true;
             else this.isCreate = false;
         }
-        console.log('visible:', isModalShow)
         return (
             <div>
                 <Modal

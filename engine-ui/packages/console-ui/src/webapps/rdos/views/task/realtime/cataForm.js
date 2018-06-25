@@ -37,12 +37,15 @@ class CataFormModal extends Component {
         } = this.props
         const { getFieldDecorator } = form
 
-        const isEdit = operation && operation.indexOf('EDIT') > -1
+        const isEdit = operation && operation.indexOf('EDIT') > -1;
         const title = isEdit ? '编辑目录': '创建目录'
 
-        let savePath = !isEmpty(defaultData) ? 
-        isEdit ? defaultData.parentId : defaultData.id : ''
+        let savePath = treeData[0] && treeData[0].id;
+        if (!isEmpty(defaultData)) {
+            savePath = isEdit ? defaultData.parentId : defaultData.id;
+        }
 
+        console.log('savePath', savePath)
         return (
             <Modal
               title={title}

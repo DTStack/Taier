@@ -153,7 +153,7 @@ class ResFormModal extends Component {
                             rules: [{
                                 required: true, message: '存储位置必选！',
                             }],
-                            initialValue: !isEmpty(activeNode) ? activeNode.id : '',
+                            initialValue: !isEmpty(activeNode) ? activeNode.id : resRoot && resRoot[0] ? resRoot[0].id : '',
                         })(
                             <FolderPicker
                                 isPicker
