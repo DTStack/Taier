@@ -51,6 +51,16 @@ class Workbench extends React.Component {
         theReqIsEnd: true,
     }
 
+    shouldComponentUpdate (nextProps, nextState) {
+        if (
+            this.props.currentTabData !== nextProps.currentTabData ||
+            this.props.tabs !== nextProps.tabs
+        ) {
+            return true;
+        }
+        return false;
+    }
+
     handleMenuClick = (e) => {
         if (e.key === '1') {
             const upload = document.getElementById('importFile')
@@ -133,6 +143,8 @@ class Workbench extends React.Component {
             isSaveAvaliable = false;
         }
 
+        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd;
+
         const isTask = currentTabData && utils.checkExist(currentTabData.taskType)
 
         const disablePublish = !isTask || currentTabData.notSynced
@@ -150,7 +162,7 @@ class Workbench extends React.Component {
                     <Button
                         onClick={this.saveTab.bind(this, true)}
                         title="保存任务"
-                        disabled={!isSaveAvaliable || currentTabData.invalid || !theReqIsEnd}
+                        disabled={!isSaveAvaliable}
                     >
                         <MyIcon className="my-icon" type="save" />保存
                     </Button>
@@ -331,7 +343,6 @@ class Workbench extends React.Component {
 
                 return (
                     <TabPane
-
                         style={{ height: '0px' }}
                         tab={title}
                         key={tab.id}

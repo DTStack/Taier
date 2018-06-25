@@ -53,6 +53,8 @@ class SiderBench extends React.Component {
 
     getTabPanes = () => {
         const { tabData } = this.props;
+        if (!tabData) return null;
+
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
 
         const panes = [
