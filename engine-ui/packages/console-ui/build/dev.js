@@ -85,6 +85,7 @@ const devServer = Object.assign({
 
 const merged = function (env) {
     return webpackMerge(baseConf, {
+        devtool: 'cheap-module-eval-source-map', //
         devServer: devServer,
         plugins: htmlPlugs,
         module: {
