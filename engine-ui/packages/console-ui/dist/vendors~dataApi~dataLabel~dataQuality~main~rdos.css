@@ -551,21 +551,9 @@ samp {
 }
 @font-face {
   font-family: 'anticon';
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-  src: url('https://at.alicdn.com/t/font_zck90zmlh7hf47vi.eot');
-  /* IE9*/
-  src: url('https://at.alicdn.com/t/font_zck90zmlh7hf47vi.eot?#iefix') format('embedded-opentype'), /* chrome、firefox */ url('https://at.alicdn.com/t/font_zck90zmlh7hf47vi.woff') format('woff'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/ url('https://at.alicdn.com/t/font_zck90zmlh7hf47vi.ttf') format('truetype'), /* iOS 4.1- */ url('https://at.alicdn.com/t/font_zck90zmlh7hf47vi.svg#iconfont') format('svg');
-=======
   src: url('/public/iconfont/iconfont.eot');
   /* IE9*/
   src: url('/public/iconfont/iconfont.eot?#iefix') format('embedded-opentype'), /* chrome、firefox */ url('/public/iconfont/iconfont.woff') format('woff'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/ url('/public/iconfont/iconfont.ttf') format('truetype'), /* iOS 4.1- */ url('/public/iconfont/iconfont.svg#iconfont') format('svg');
->>>>>>> conflict
-=======
-  src: url('/public/iconfont/iconfont.eot');
-  /* IE9*/
-  src: url('/public/iconfont/iconfont.eot?#iefix') format('embedded-opentype'), /* chrome、firefox */ url('/public/iconfont/iconfont.woff') format('woff'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/ url('/public/iconfont/iconfont.ttf') format('truetype'), /* iOS 4.1- */ url('/public/iconfont/iconfont.svg#iconfont') format('svg');
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 }
 .anticon {
   display: inline-block;
@@ -2249,13 +2237,6 @@ samp {
 .ant-motion-collapse-active {
   transition: height 0.15s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.15s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -2320,13 +2301,6 @@ samp {
     padding: 0;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -2589,13 +2563,6 @@ samp {
   background: #2491F7;
   color: #fff;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -3565,13 +3532,6 @@ samp {
     border-width: 6px;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -4062,13 +4022,6 @@ samp {
 .ant-menu-dark .ant-menu-submenu-disabled > .ant-menu-submenu-title {
   color: rgba(255, 255, 255, 0.35) !important;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -4190,13 +4143,6 @@ samp {
 .ant-tooltip-placement-bottomRight .ant-tooltip-arrow {
   right: 16px;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -4783,13 +4729,6 @@ tr.ant-table-expanded-row:hover {
 .ant-table.ant-table-scroll-position-right .ant-table-fixed-right {
   box-shadow: none;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -5030,13 +4969,6 @@ span.ant-radio + * {
     opacity: 0;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -5213,13 +5145,6 @@ span.ant-radio + * {
     position: absolute;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -5384,13 +5309,6 @@ span.ant-radio + * {
     transform: rotate(405deg);
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -5765,13 +5683,6 @@ textarea.ant-pagination-options-quick-jumper input {
     display: none;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -6306,13 +6217,6 @@ textarea.ant-pagination-options-quick-jumper input {
 .ant-select-dropdown-open .ant-select-dropdown {
   display: block;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -6891,13 +6795,6 @@ textarea.ant-input {
 .ant-input-affix-wrapper .ant-input {
   min-height: 100%;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -7415,13 +7312,6 @@ textarea.ant-input {
 .ant-tabs-vertical > .ant-tabs-content > .ant-tabs-tabpane-inactive {
   display: none;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -7590,13 +7480,6 @@ textarea.ant-input {
     max-height: 0;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -7787,13 +7670,6 @@ textarea.ant-input {
 .ant-confirm-success .ant-confirm-body > .anticon {
   color: #00a854;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -7924,13 +7800,6 @@ textarea.ant-input {
     background-position: 100% 50%;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -8135,13 +8004,6 @@ textarea.ant-input {
 .ant-popover-placement-leftBottom > .ant-popover-content > .ant-popover-arrow {
   bottom: 12px;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -8721,13 +8583,6 @@ form .ant-input-group-wrapper.ant-input-group-wrapper-sm {
     transform: scale(1);
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -11255,13 +11110,6 @@ form .ant-input-group-wrapper.ant-input-group-wrapper-sm {
     order: 0;
   }
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
@@ -11710,11 +11558,4 @@ li.ant-tree-treenode-disabled > .ant-tree-node-content-wrapper:hover {
   left: 12px;
   margin: 22px 0;
 }
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-@icon-url : /public/iconfont/iconfont;
-=======
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 

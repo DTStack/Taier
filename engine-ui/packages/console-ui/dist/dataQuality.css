@@ -282,20 +282,11 @@
   font-weight: normal;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .flex-middle {
   display: flex;
   align-items: center;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-slide-pane .box-title {
   height: 35px;
   line-height: 35px;
@@ -570,44 +561,18 @@
   color: #ffffff;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap,
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--single {
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single {
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   height: 28px;
   line-height: 28px;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap .ant-select-selection__rendered,
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field .ant-select-selection__rendered,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple .ant-select-selection__rendered,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--single .ant-select-selection__rendered {
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single .ant-select-selection__rendered {
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   height: 28px;
   line-height: 28px;
 }
@@ -682,18 +647,9 @@
   position: absolute;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
 .copy-hover:hover{
     color:#58abf9;
 }
->>>>>>> conflict
-=======
-.copy-hover:hover{
-    color:#58abf9;
-}
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 * {
     margin: 0;
     padding: 0;
@@ -718,20 +674,11 @@ ul,li{
 /**
 ** CSS 主引入口
 **/
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 body {
   overflow: unset;
   background: #f2f7fa;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-8 {
   margin: 0 8px;
 }
@@ -809,14 +756,6 @@ table {
   font-size: 12px;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.rule-dashboard {
-  height: 100%;
-  overflow-x: hidden;
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .header-fixed .header {
   position: fixed;
   z-index: 1009;
@@ -841,10 +780,6 @@ table {
 .ant-form-inline .ant-form-item-with-help.cell-multiple-center {
   margin-top: 15px;
   margin-bottom: 15px;
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 }
 
 .rule-dashboard .rule-manage {
