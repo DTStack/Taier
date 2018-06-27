@@ -1,8 +1,8 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
-import com.clearspring.analytics.util.Lists;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.sparkyarn.enums.ExceptionInfoConstrant;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,22 +19,13 @@ public class SparkRestartStrategy extends IRestartStrategy {
     
     private static final Logger LOG = LoggerFactory.getLogger(SparkRestartStrategy.class);
 
-    private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
-
-    private final static String treeNodeException = "org.apache.spark.sql.catalyst.errors.package$TreeNodeException: execute, tree";
-
-    private final static List<String> exceptionList = Lists.newArrayList();
-
-    static {
-        exceptionList.add(treeNodeException);
-    }
+    private final static List<String> exceptionList = ExceptionInfoConstrant.getNeedRestartException();
 
     @Override
     public boolean checkFailureForEngineDown(String msg) {
-        if(msg != null && msg.contains(SPARK_ENGINE_DOWN)){
+        if(msg != null && msg.contains(ExceptionInfoConstrant.SPARK_ENGINE_DOWN_RESTART_EXCEPTION)){
             return true;
         }
-
         return false;
     }
 

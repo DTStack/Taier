@@ -1,10 +1,10 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
-import avro.shaded.com.google.common.collect.Lists;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import org.apache.commons.lang3.StringUtils;
 import java.util.List;
+import com.dtstack.rdos.engine.execution.flink140.constrant.ExceptionInfoConstrant;
 
 /**
  * Reason:
@@ -17,24 +17,12 @@ public class FlinkRestartStrategy extends IRestartStrategy {
 
     private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 
-    private final static String FLINK_ENGINE_DOWN = "Could not connect to the leading JobManager";
 
-    private final static String FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
-
-    private final static String FLINK_TASK_LOST = "TaskManager was lost/killed";
-
-    private final static String JDBC_LINK_FAILURE = "com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure";
-
-    private final static String JOBMGR_NOT_RESPONSE = "JobTimeoutException: JobManager did not respond within";
-
-    private final static String FUTURES_TIME_OUT = "java.util.concurrent.TimeoutException: Futures timed out after";
-
-    private static List<String> errorMsgs = Lists.newArrayList(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION, FLINK_ENGINE_DOWN,
-            FLINK_TASK_LOST, JDBC_LINK_FAILURE, JOBMGR_NOT_RESPONSE, FUTURES_TIME_OUT);
+    private static List<String> errorMsgs = ExceptionInfoConstrant.getNeedRestartException();
 
     @Override
     public boolean checkFailureForEngineDown(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_ENGINE_DOWN)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_ENGINE_DOWN_RESTART_EXCEPTION)){
             return true;
         }
 
@@ -43,7 +31,7 @@ public class FlinkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkNOResource(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_RESTART_EXCEPTION)){
             return true;
         }
         return false;
