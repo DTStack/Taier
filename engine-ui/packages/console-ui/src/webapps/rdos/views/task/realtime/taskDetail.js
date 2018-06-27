@@ -144,6 +144,7 @@ export default class TaskDetail extends Component {
                         <TaskVersion
                             taskInfo={currentPage}
                             changeSql={editorChange.bind(null,true)}
+                            taskType="realTimeTask" 
                         />
                     </Panel>
                 </Collapse>

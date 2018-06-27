@@ -353,9 +353,9 @@ class TableList extends Component {
                     visible={tableLog.visible}
                     style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                 >
-                    <div className="m-loglist">
+                   {tableLog.visible ? <div className="m-loglist">
                         <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
-                    </div>
+                    </div> : ""}
                 </SlidePane>
             </div>
         )
