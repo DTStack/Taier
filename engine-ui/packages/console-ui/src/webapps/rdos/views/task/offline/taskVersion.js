@@ -60,7 +60,7 @@ export default class TaskVersion extends React.Component {
     }
     
     render() {
-        const { taskInfo } = this.props;
+        const { taskInfo, taskType} = this.props;
         const { showDiff, campareTo,diffParams } = this.state;
         
         const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
@@ -100,7 +100,7 @@ export default class TaskVersion extends React.Component {
                     cancelText="关闭"
                     footer={null}
                 >
-                   <DiffParams value={taskInfo} diffParams={diffParams.tableInfo}/>
+                   <DiffParams value={taskInfo} diffParams={diffParams.tableInfo} taskType={taskType}/>
                 </Modal>
             </div>
         )

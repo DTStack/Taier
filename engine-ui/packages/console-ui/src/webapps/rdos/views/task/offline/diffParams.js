@@ -9,6 +9,7 @@ import DiffCodeEditor from '../../../components/diff-code-editor';
 import ajax  from '../../../api/index';
 
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
+import { realtimeTask } from '../../../store/modules/realtimeTask';
 
 class TaskInfo extends React.Component {
 
@@ -114,27 +115,34 @@ class DiffParams extends React.Component {
                 crosscycleDependence: false,
             },
             currentParse:{},
-            tabKey:"config",
+            tabKey: this.props.taskType === "realTimeTask"?"params":"config",
             tableRefresh: Math.random(),
         }
-        this.currentValue = this.props.currentTabData;
+        this.currentValue = this.props.taskType==="realTimeTask" ? this.props.currentRealTabData : this.props.currentTabData;
         this.versionId = this.props.diffParams&&this.props.diffParams.id;
     }
 
     componentWillReceiveProps(nextProps) {
 
-        if(nextProps.diffParams.id!=this.props.diffParams.id){
+        if(!this.props.taskType&&nextProps.diffParams.id!=this.props.diffParams.id){
             if(nextProps.diffParams.id){
                 this.getData(nextProps.diffParams.id);
                 this.currentValue = nextProps.currentTabData;
             }
+        
             this.setState({
                 tabKey:"config"
-            })
+            }) 
+        }else if(this.props.taskType === "realTimeTask"){
+            this.getRealData()
+            this.currentValue = nextProps.currentRealTabData;
         }
     }
 
     getData = (id) => {
+        this.setState({
+            historyvalue: {}
+        })
         ajax.taskVersionScheduleConf({versionId:id}).then(res => {
             if(res.code == 1){
                 this.setState({
@@ -148,14 +156,23 @@ class DiffParams extends React.Component {
         })
     }
 
+    getRealData= () => {
+        this.setState({
+            historyvalue: this.props.currentRealTabData&&this.props.currentRealTabData.taskVersions[0],
+            tableRefresh: Math.random()
+        },this.contrastData)
+    }
+
     parseScheduleConf = (data)=> {
         const parseScheduleConf = {};
         const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
 
         if(data.scheduleStatus == 1){
             parseScheduleConf.scheduleStatus = "已冻结"
-        }else{
+        }else if(data.scheduleStatus == 0){
             parseScheduleConf.scheduleStatus = "未冻结"
+        }else{
+            parseScheduleConf.scheduleStatus = ""
         }
 
         const effectiveDate = `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}`;
@@ -244,7 +261,7 @@ class DiffParams extends React.Component {
         if(historyParse.crosscycleDependence != historyParse.crosscycleDependence){
             contrastResults.crosscycleDependence = true;
         };
-
+        
         this.setState({
             currentParse,
             historyParse,
@@ -253,7 +270,11 @@ class DiffParams extends React.Component {
     }
 
     componentDidMount = () => {
-        this.getData(this.versionId)
+        if(this.props.taskType != "realTimeTask"){
+            this.getData(this.versionId)
+        }else{
+            this.getRealData()
+        }
     }
 
     callback = (key) => {
@@ -268,16 +289,18 @@ class DiffParams extends React.Component {
     }
 
     render() {
-        console.log('----this.props:',this.props);
-        
+        const { taskType } = this.props;
         const { contrastResults,historyParse,currentParse,historyvalue,tabKey,tableRefresh } = this.state;
-        // const isLocked = this.currentValue.readWriteLockVO && !this.currentValue.readWriteLockVO.getLock
-       
+        const isLocked = this.currentValue.readWriteLockVO && !this.currentValue.readWriteLockVO.getLock
+        
         return <div className="m-taksdetail">
             <Tabs onChange={this.callback} type="card"  activeKey={tabKey} >
-                <TabPane tab="调度配置" key="config">
-                    <TaskInfo historyvalue={historyParse} contrastResults={contrastResults} currentValue={currentParse} />
-                </TabPane>
+                {
+                    taskType === "realTimeTask" ?  "" : 
+                        <TabPane tab="调度配置" key="config">
+                            <TaskInfo historyvalue={historyParse} contrastResults={contrastResults} currentValue={currentParse} />
+                        </TabPane>
+                }
                 <TabPane tab="环境参数" key="params">
                     <DiffCodeEditor
                         readOnly={true}
@@ -296,13 +319,13 @@ class DiffParams extends React.Component {
 
 const mapState = state => {
     const { currentTab, tabs } = state.offlineTask.workbench;
-
+    const { currentPage } = state.realtimeTask;
     const currentTabData = tabs.filter(tab => {
         return tab.id === currentTab;
     })[0];
-
     return {
         currentTabData,
+        currentRealTabData: currentPage,
     };
 };
 
