@@ -149,6 +149,21 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/../target</directory>
+                            <includes>
+                                <include>${project.name}-${project.version}.jar</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.2</version>
                 <executions>
@@ -161,8 +176,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="${basedir}/../xlearning">
-                                    <fileset dir="/">
+                                <copy todir="${basedir}/../target">
+                                    <fileset dir="${basedir}/target">
                                         <include name="${project.name}-${project.version}.jar" />
                                     </fileset>
                                 </copy>
@@ -173,8 +188,5 @@
             </plugin>
         </plugins>
     </build>
-
-
-
 
 </project>
