@@ -146,7 +146,7 @@ class DiffParams extends React.Component {
         ajax.taskVersionScheduleConf({versionId:id}).then(res => {
             if(res.code == 1){
                 this.setState({
-                    historyvalue: res.data
+                    historyvalue: res.data||{}
                 },this.contrastData)
             }else{
                 this.setState({
@@ -158,7 +158,7 @@ class DiffParams extends React.Component {
 
     getRealData= () => {
         this.setState({
-            historyvalue: this.props.currentRealTabData&&this.props.currentRealTabData.taskVersions[0],
+            historyvalue: this.props.currentRealTabData&&this.props.currentRealTabData.taskVersions[0]||{},
             tableRefresh: Math.random()
         },this.contrastData)
     }
@@ -305,8 +305,8 @@ class DiffParams extends React.Component {
                     <DiffCodeEditor
                         readOnly={true}
                         // readOnly={isLocked}
-                        compareTo={historyvalue.taskParams||" "} 
-                        value={this.currentValue.taskParams||" "}
+                        compareTo={historyvalue&&historyvalue.taskParams||" "} 
+                        value={this.currentValue&&this.currentValue.taskParams||" "}
                         tableRefresh={tableRefresh}
                         // onChange={this.codeChange}
                     /> 
