@@ -392,6 +392,7 @@ class ClientArguments {
     }
 
     appMasterJar = JobConf.findContainingJar(ApplicationMaster.class);
+
     LOG.info("Application Master's jar is " + appMasterJar);
   }
 

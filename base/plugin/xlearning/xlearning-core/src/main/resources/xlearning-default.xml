@@ -19,7 +19,7 @@
 <configuration>
     <property>
         <name>xlearning.staging.dir</name>
-        <value>/tmp/XLearning/staging</value>
+        <value>/tmp/XLearning/staging100</value>
     </property>
     <property>
         <name>xlearning.cleanup.enable</name>
