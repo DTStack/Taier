@@ -299,11 +299,34 @@
 }
 
 .diff-params {
+    .title{
+        padding: 0 10 10;
+        font-size: 14px;
+    }
     .box-padding {
-       padding: 0 10px;
-       .border {
-
+       margin-left: 10;
+       padding-left: 10;
+       border: 1px solid #ccc;
+       .line{
+            width: 80%;
+            border-bottom: 1px solid #ccc;
        }
+       .sub-title{
+            font-size: 14px;
+            padding-top: 15px;
+            height: 40px;
+       }
+       .txt-left {
+            height: 40px;
+            line-height: 40px;
+       }
+       .word-break{
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+            min-height: 40px;
+            line-height: 40px;
+      }
     }
 
 }

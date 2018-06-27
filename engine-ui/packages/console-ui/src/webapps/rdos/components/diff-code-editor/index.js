@@ -17,7 +17,11 @@ class DiffEditor extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { value, compareTo } = nextProps
+        const { value, compareTo,tableRefresh } = nextProps
+        if(tableRefresh){
+            this._self.edit.doc.setValue(value)
+            this._self.right.orig.doc.setValue(compareTo)
+        }
         if (value && this.props.value !== value) {
             this._self.edit.doc.setValue(value)
         }
