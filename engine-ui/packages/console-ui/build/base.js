@@ -1,17 +1,17 @@
-const path = require('path');
-const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require("path");
+const webpack = require("webpack");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const HappyPack = require('happypack')
-const os = require('os')
-const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
+const HappyPack = require("happypack");
+const os = require("os");
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
 
-const MY_PATH = require('./consts');
+const MY_PATH = require("./consts");
 const splitChunksConfig = require("./splitChunksConfig");
-const VERSION = JSON.stringify(require('../package.json').version); // app version.
-const theme = require('../src/theme')();
+const VERSION = JSON.stringify(require("../package.json").version); // app version.
+const theme = require("../src/theme")();
 
-module.exports = function () {
+module.exports = function() {
     return {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
@@ -22,10 +22,10 @@ module.exports = function () {
         },
         output: {
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: '[name].[hash].js',
-            filename: '[name].[hash].js',
-            sourceMapFilename: '[name].map',
-            publicPath: '/'
+            chunkFilename: "[name].[hash].js",
+            filename: "[name].[hash].js",
+            sourceMapFilename: "[name].map",
+            publicPath: "/"
         },
         optimization: {
             splitChunks: {
@@ -34,7 +34,7 @@ module.exports = function () {
                 minChunks: 1,
                 maxAsyncRequests: 5,
                 maxInitialRequests: 8,
-                automaticNameDelimiter: '~',
+                automaticNameDelimiter: "~",
                 name: true,
                 cacheGroups: {
                     baseCommon: {
@@ -43,8 +43,8 @@ module.exports = function () {
                     }
                 }
             },
-            "runtimeChunk": {
-                "name": "manifest"
+            runtimeChunk: {
+                name: "manifest"
             }
         },
         module: {
@@ -54,65 +54,72 @@ module.exports = function () {
                     enforce: "pre",
                     include: MY_PATH.APP_PATH,
                     exclude: [
-                        path.resolve(MY_PATH.ROOT_PATH, 'node_modules'),
-                        path.resolve(MY_PATH.WEB_PUBLIC),
+                        path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
+                        path.resolve(MY_PATH.WEB_PUBLIC)
                     ],
                     // loader: ['babel-loader?cacheDirectory']
-                    loader: ['happypack/loader?id=happy-babel-js'],
-                }, {
+                    loader: ["happypack/loader?id=happy-babel-js"]
+                },
+                {
                     test: /\.(jpg|png|gif)$/,
-                    loader: ['file-loader', "url-loader?limit=100000"]
-                }, {
+                    loader: ["file-loader", "url-loader?limit=100000"]
+                },
+                {
                     test: /\.(eot|woff|svg|ttf|woff2|gif|appcache|webp)(\?|$)/,
-                    loader: ['file-loader?name=[name].[ext]', "url-loader?limit=100000"]
+                    loader: [
+                        "file-loader?name=[name].[ext]",
+                        "url-loader?limit=100000"
+                    ]
                 }
             ]
         },
         resolve: {
-            modules: ['node_modules'],
-            extensions: ['.js', '.jsx', '.scss', '.css'],    //后缀名自动补全
+            modules: ["node_modules"],
+            extensions: [".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
                 // 全局公共模块目录
-                utils: path.resolve(MY_PATH.APP_PATH, 'utils'),     // 工具文件夹
-                widgets: path.resolve(MY_PATH.APP_PATH, 'widgets'), // 工具文件夹
-                consts: path.resolve(MY_PATH.APP_PATH, 'consts'),   // 工具文件夹
-                styles: path.resolve(MY_PATH.APP_PATH, 'styles'),   // 样式文件
-                funcs: path.resolve(MY_PATH.APP_PATH, 'funcs'),     // 零碎的公共方法，抽象成工具类的则移至utils目录
-                public: path.resolve(MY_PATH.APP_PATH, 'public'),   // 公共资源
-                config: path.resolve(MY_PATH.APP_PATH, 'config'),   // 数据文件，后期可能替换为借口
+                utils: path.resolve(MY_PATH.APP_PATH, "utils"), // 工具文件夹
+                widgets: path.resolve(MY_PATH.APP_PATH, "widgets"), // 工具文件夹
+                consts: path.resolve(MY_PATH.APP_PATH, "consts"), // 工具文件夹
+                styles: path.resolve(MY_PATH.APP_PATH, "styles"), // 样式文件
+                funcs: path.resolve(MY_PATH.APP_PATH, "funcs"), // 零碎的公共方法，抽象成工具类的则移至utils目录
+                public: path.resolve(MY_PATH.APP_PATH, "public"), // 公共资源
+                config: path.resolve(MY_PATH.APP_PATH, "config"), // 数据文件，后期可能替换为借口
 
                 // 应用根目录
-                main: MY_PATH.MAIN_APP_PATH,            // 主应用
-                rdos: MY_PATH.RDOS_PATH,                // RDOS
+                main: MY_PATH.MAIN_APP_PATH, // 主应用
+                rdos: MY_PATH.RDOS_PATH, // RDOS
                 dataQuality: MY_PATH.DATA_QUALITY_PATH, // 数据质量
-                dataApi: MY_PATH.DATA_API_PATH,         // 数据API
-                dataLabel: MY_PATH.DATA_LABEL_PATH,     // 标签工厂
-                dataMap: MY_PATH.DATA_MAP_PATH,         // 数据地图
-                metaData: MY_PATH.META_DATA_PATH,       // 元数据
-                coreData: MY_PATH.CORE_DATA_PATH,       // 主数据
+                dataApi: MY_PATH.DATA_API_PATH, // 数据API
+                dataLabel: MY_PATH.DATA_LABEL_PATH, // 标签工厂
+                dataMap: MY_PATH.DATA_MAP_PATH, // 数据地图
+                metaData: MY_PATH.META_DATA_PATH, // 元数据
+                coreData: MY_PATH.CORE_DATA_PATH // 主数据
             }
         },
         plugins: [
             new HappyPack({
-                id: 'happy-babel-js',
-                loaders: ['babel-loader?cacheDirectory=true'],
+                id: "happy-babel-js",
+                loaders: ["babel-loader?cacheDirectory=true"],
                 threadPool: happyThreadPool,
-                cache:true
             }),
-            new MiniCssExtractPlugin({ //提取为外部css代码
-                filename: '[name].css?v=[contenthash]'
+            new MiniCssExtractPlugin({
+                //提取为外部css代码
+                filename: "[name].css?v=[contenthash]"
             }),
-            new CopyWebpackPlugin([{
-                from: path.resolve(MY_PATH.WEB_PUBLIC),
-                to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
-                ignore: ['*/index.html']
-            }]),
+            new CopyWebpackPlugin([
+                {
+                    from: path.resolve(MY_PATH.WEB_PUBLIC),
+                    to: path.resolve(MY_PATH.BUILD_PATH, "public"),
+                    ignore: ["*/index.html"]
+                }
+            ]),
 
             new webpack.DefinePlugin({
-                'APP': {
-                    'VERSION': VERSION,
+                APP: {
+                    VERSION: VERSION
                 }
             })
         ]
-    }
-}
+    };
+};

@@ -23,6 +23,16 @@ class TaskFormModal extends Component {
 
     _update = false; // update flag;
 
+    componentWillReceiveProps(nextProps) {
+        const newTask = nextProps.taskInfo
+        const oldTask = this.props.taskInfo
+        if (newTask.id !== oldTask.id) {
+            this.setState({
+                taskType: newTask.taskType,
+            })
+        }
+    }
+
     taskTypeChange = (e) => {
         this.props.form.resetFields(['resourceIdList'])
         this.setState({ taskType: e.target.value })
@@ -55,16 +65,6 @@ class TaskFormModal extends Component {
             resourceIdList: value,
         })
         this._update = true;
-    }
-
-    componentWillReceiveProps(nextProps) {
-        const newTask = nextProps.taskInfo
-        const oldTask = this.props.taskInfo
-        if (newTask.id !== oldTask.id) {
-            this.setState({
-                taskType: newTask.taskType,
-            })
-        }
     }
 
     submit = (e) => {
@@ -261,7 +261,7 @@ class TaskFormModal extends Component {
                             rules: [{
                                 required: true, message: '必须选择存储位置！',
                             }],
-                            initialValue: taskInfo && taskInfo.nodePid ? taskInfo.nodePid : '',
+                            initialValue: taskInfo && taskInfo.nodePid ? taskInfo.nodePid : taskRoot && taskRoot[0] ? taskRoot[0].id : '',
                         })(
                             <FolderPicker
                                 id="nodePid"

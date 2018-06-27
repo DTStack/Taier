@@ -105,12 +105,12 @@
   color: #fff;
 }
 
-.header .ant-menu-item-selected {
+.header > .ant-menu-item-selected {
   background-color: #262e36 !important;
   color: #fff;
 }
 
-.header .ant-menu-item-selected:hover {
+.header > .ant-menu-item-selected:hover {
   color: #fff;
 }
 
@@ -184,11 +184,6 @@
   margin-right: 0;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .menu-text-ellipsis {
   display: inline-block;
   max-width: 80px;
@@ -198,10 +193,6 @@
   vertical-align: top;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .msg-box {
   min-height: 170px;
 }
@@ -503,20 +494,11 @@
   font-weight: normal;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .flex-middle {
   display: flex;
   align-items: center;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-slide-pane .box-title {
   height: 35px;
   line-height: 35px;
@@ -791,44 +773,18 @@
   color: #ffffff;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap,
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--single {
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single {
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   height: 28px;
   line-height: 28px;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field__wrap .ant-select-selection__rendered,
-.m-form-inline .ant-form-item .ant-select .ant-select-search__field .ant-select-selection__rendered,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--multiple .ant-select-selection__rendered,
-.m-form-inline .ant-form-item .ant-select .ant-select-selection--single .ant-select-selection__rendered {
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field__wrap .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-search__field .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--multiple .ant-select-selection__rendered,
 .m-form-inline .ant-form-item .ant-select:not(.native) .ant-select-selection--single .ant-select-selection__rendered {
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   height: 28px;
   line-height: 28px;
 }
@@ -862,11 +818,6 @@
   box-shadow: none;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 /* BASICS */
 
 .CodeMirror {
@@ -1282,10 +1233,6 @@ span.CodeMirror-selectedtext { background: none; }
   width: 100%; height: 100%;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 body {
   background-color: #f2f3f8 !important;
   overflow: hidden;
@@ -1357,20 +1304,11 @@ table {
   border: none !important;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .CodeMirror-matchingbracket {
   color: #219ed4 !important;
   font-weight: 900;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .mini-card {
   padding: 0 8px;
   display: inline-block;
@@ -1466,20 +1404,15 @@ table {
   max-width: 350px;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .split-text {
   float: left;
   padding: 0px 5px;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
+.select-all-table .ant-table-thead .ant-table-selection-column > span {
+  visibility: visible;
+}
+
 .dt-dev-tools .header {
   padding-left: 30px;
 }
@@ -1631,11 +1564,6 @@ table {
   display: block;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-dev-task .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab .tabs-icon {
   height: 16px;
   margin-top: 50%;
@@ -1643,10 +1571,6 @@ table {
   transform: translate(-50%, -50%);
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-dev-task .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab-active {
   background: #2491F7 !important;
   color: #fff !important;
@@ -1730,19 +1654,10 @@ table {
   background-image: url(/public/rdos/img/sql.svg);
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-dev-task .task-sidebar .s-jaricon-r .ant-tree-icon__docu {
   background-image: url(/public/rdos/img/icon/ja.png);
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-dev-task .task-sidebar .s-mricon .ant-tree-icon__docu {
   background-image: url(/public/rdos/img/mr.svg);
 }
@@ -1755,19 +1670,10 @@ table {
   background-image: url(/public/rdos/img/python.svg);
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-dev-task .task-sidebar .s-pythonicon-r .ant-tree-icon__docu {
   background-image: url(/public/rdos/img/icon/py.png);
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-dev-task .task-sidebar .s-virtualicon .ant-tree-icon__docu {
   background-image: url(/public/rdos/img/virtual.svg);
 }
@@ -1891,6 +1797,10 @@ table {
   cursor: pointer;
 }
 
+.diff-params .box-padding {
+  padding: 0 10px;
+}
+
 .m-dirpicker {
   border: 1px solid #ddd;
   padding: 10px;
@@ -1922,12 +1832,6 @@ table {
 }
 
 .task-editor .browser-content .browser-tabs .ant-tabs-bar .ant-tabs-tab-active {
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-  background: #ecf6fd;
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   background: #fff;
 }
 
@@ -1939,10 +1843,6 @@ table {
   right: 0px;
   height: 1px;
   background: #2491F7;
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 }
 
 .task-editor .toolbar {
@@ -2008,15 +1908,7 @@ table {
 .task-editor .task-browser .m-siderbench {
   width: 30px;
   position: absolute;
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-  z-index: 999;
-=======
-  z-index: 1001;
->>>>>>> conflict
-=======
-  z-index: 1001;
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
+  z-index: 902;
   top: 32px;
   height: 100%;
   padding-bottom: 40px;
@@ -2095,15 +1987,10 @@ table {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 999;
+  z-index: 900;
   cursor: not-allowed;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .task-editor .lock-layer-sync {
   position: absolute;
   top: 35px;
@@ -2117,14 +2004,10 @@ table {
   height: 35px;
   left: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 900;
   cursor: not-allowed;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .task-log-info {
   margin-left: -42px;
   margin-top: 20px;
@@ -2155,11 +2038,6 @@ table {
   padding: 40px 0;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-datasync .steps-mask {
   position: absolute;
   bottom: 0px;
@@ -2170,10 +2048,6 @@ table {
   z-index: 999;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .m-datasync .ant-steps-icon {
   line-height: 23px !important;
 }
@@ -2334,11 +2208,6 @@ table {
   padding: 0;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .padding-r0 .ant-tabs-vertical.ant-tabs-right > .ant-tabs-content {
   padding-right: 0px;
 }
@@ -2361,10 +2230,6 @@ table {
   z-index: 999;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .dt-operation {
   height: 100%;
 }
@@ -2628,16 +2493,8 @@ table {
   overflow: hidden;
   left: 0;
   top: 0;
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
   bottom: 0;
   right: 0;
->>>>>>> conflict
-=======
-  bottom: 0;
-  right: 0;
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   z-index: 2;
   width: 100%;
   height: 100%;
@@ -2647,23 +2504,10 @@ table {
 
 .task-floating-window {
   position: absolute !important;
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-  right: 10px;
-  bottom: 10px;
-  width: 300px;
-  background: #fbfbfb;
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   right: 20px;
   left: 20px;
   bottom: 60px;
   background: #FAFAFA;
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   z-index: 2;
 }
 
@@ -2671,20 +2515,11 @@ table {
   padding: 5px;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .task-floating-window .tb-wrapper {
   border: 1px solid #e9e9e9;
   background: #ffffff;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .graph-editor .ant-spin-container {
   width: 100%;
   height: 100%;
@@ -2894,11 +2729,6 @@ table.mxPopupMenu tr {
   height: 100%;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .ide-sql .ide-console .ant-tabs-bar .ant-tabs-tab-active {
   background: #fff;
 }
@@ -2913,10 +2743,6 @@ table.mxPopupMenu tr {
   background: #2491F7;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .ide-sql .ide-console .ant-tabs-nav div:nth-child(2) {
   border-left: 0;
 }
@@ -2926,15 +2752,7 @@ table.mxPopupMenu tr {
 }
 
 .ide-sql .ide-console .ant-tabs-bar {
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-  padding-right: 30px;
-=======
   padding-right: 65px;
->>>>>>> conflict
-=======
-  padding-right: 65px;
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   margin-bottom: 0;
   border-bottom: 1px solid #d9d9d9;
 }
@@ -2946,19 +2764,6 @@ table.mxPopupMenu tr {
   cursor: pointer;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.ide-sql .ide-console .ant-tabs-content {
-  height: 90%;
-  overflow: auto;
-}
-
-.ide-sql .ide-console .CodeMirror {
-  background: #f7f7f7;
-  font-size: 12px;
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .ide-sql .ide-console .console-icon {
   position: absolute;
   top: 8px;
@@ -2984,10 +2789,6 @@ table.mxPopupMenu tr {
 .ide-sql .ide-console .CodeMirror {
   background: #f7f7f7;
   font-size: 12px;
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
   color: #a2a1a1;
 }
 
@@ -3092,11 +2893,6 @@ table.mxPopupMenu tr {
   left: 80px;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -3412,10 +3208,6 @@ table.mxPopupMenu tr {
   }
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .rdos-icon {
   width: 14px;
   height: 14px;
@@ -3435,11 +3227,6 @@ table.mxPopupMenu tr {
   color: #ff9b1b;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -3527,10 +3314,6 @@ table.mxPopupMenu tr {
   background: #535353;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .context-menu {
   position: fixed;
   min-width: 120px;
@@ -3582,11 +3365,6 @@ table.mxPopupMenu tr {
   background: #eee;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
@@ -3714,10 +3492,6 @@ table.mxPopupMenu tr {
   background-color: #eee;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .ctx-menu {
   position: fixed;
   min-width: 120px;
@@ -3812,22 +3586,6 @@ table.mxPopupMenu tr {
   position: absolute;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-.title-bar {
-  line-height: 22px;
-  height: 42px;
-  background: #f7f7f7;
-  color: #333333;
-  font-size: 14px;
-  padding: 10px 20px;
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .g-datamanage .Resizer {
   background: #DDDDDD;
   z-index: 1;
@@ -4152,23 +3910,14 @@ table.mxPopupMenu tr {
   color: rgba(159, 168, 210, 0.48);
 }
 
-.title-bar {
-  line-height: 22px;
-  height: 42px;
-  background: #f7f7f7;
-  color: #333333;
-  font-size: 14px;
-  padding: 10px 20px;
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-}
-
 .copy-hover:hover{
     color:#58abf9;
 }
 .m-v-10 {
+  margin: 10px 0;
+}
+
+.m-h-10 {
   margin: 0 10px;
 }
 
@@ -4201,6 +3950,45 @@ table.mxPopupMenu tr {
 
 .sync-history-modal .sync-detail p {
   padding: 5px 0;
+}
+
+.config-form .ant-form-item {
+  margin-right: 0px;
+}
+
+.config-form .flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.config-form .flex-v-center {
+  align-items: center;
+}
+
+.config-form .flex-right {
+  justify-content: flex-end;
+}
+
+.config-form .left-item .ant-form-explain {
+  right: 0;
+}
+
+.config-form .col-16 {
+  width: 66.666667%;
+}
+
+.config-form .font-16, .config-form .edit-icon {
+  font-size: 16px;
+}
+
+.config-form .edit-icon {
+  cursor: pointer;
+}
+
+.sync-tooltip .ant-tooltip-inner {
+  max-width: 600px;
+  white-space: pre-line;
 }
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
@@ -4333,9 +4121,5 @@ table.mxPopupMenu tr {
     opacity: 0;
     width: 100%;
   }
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 }
 

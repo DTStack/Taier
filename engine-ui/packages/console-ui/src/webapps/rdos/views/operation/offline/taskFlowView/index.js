@@ -137,7 +137,7 @@ class TaskFlowView extends Component {
         graph.setTooltips(true)
         graph.view.setScale(1)
         // Enables HTML labels
-        graph.setHtmlLabels(true);
+        graph.setHtmlLabels(false);
 
         graph.setAllowDanglingEdges(false)
         // 禁止连接
@@ -155,7 +155,7 @@ class TaskFlowView extends Component {
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle)
         // 转换value显示的内容
-        graph.convertValueToString = this.corvertValueToString
+        // graph.convertValueToString = this.corvertValueToString
 
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
@@ -178,15 +178,17 @@ class TaskFlowView extends Component {
 
     formatTooltip = (cell) => {
         if (cell.vertex) {
-            return cell.value;
+            const currentNode = this._vertexCells[cell.id].data;
+            return currentNode.batchTask.name;
         }
     }
 
     getShowStr = (data) => {
         const task = data.batchTask;
         const taskType = taskTypeText(task.taskType);
-        const taskStatus = taskStatusText(data.status); 
-        const str = `${task.name || ''} <br/> ${taskType}(${taskStatus})`;
+        const taskStatus = taskStatusText(data.status);
+        const taskName = task.name.length > 12 ? `${task.name.substring(0, 10)}...` : task.name;
+        const str = `${taskName || ''} \n ${taskType}(${taskStatus})`;
         return str;
     }
 
@@ -195,7 +197,7 @@ class TaskFlowView extends Component {
             const dataParse = cell.value ? cell.value : {};
             const task = dataParse.batchTask || '';
             const taskType = taskTypeText(task.taskType);
-            const taskStatus = taskStatusText(dataParse.status); 
+            const taskStatus = taskStatusText(dataParse.status);
             if (task) {
                 return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}(${taskStatus})</span></span>
@@ -221,15 +223,16 @@ class TaskFlowView extends Component {
             let newVertex = exist;
 
             if (exist && parent.id !== '1') {
-                this.insertEdge(graph, type, parent, exist)
+                this.insertEdge(graph, type, parent, exist);
             } else if (!exist) {
                 // 插入当前节点
-                const str = this.getShowStr(data)
+                const str = this.getShowStr(data);
                 newVertex = newVertex = graph.insertVertex(
-                    graph.getDefaultParent(), null, data, 1, 1,
+                    graph.getDefaultParent(), data.id, str, this.cx, this.cy,
                     VertexSize.width, VertexSize.height, style
-                )
-                this.insertEdge(graph, type, parent, newVertex)
+                );
+                newVertex.data = data;
+                this.insertEdge(graph, type, parent, newVertex);
                 // 缓存节点
                 this._vertexCells[data.id] = newVertex;
             }
@@ -249,8 +252,8 @@ class TaskFlowView extends Component {
         const ctx = this;
         const parent = graph.getDefaultParent();
         const model = graph.getModel();
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2
-        const cy = 200;
+        this.cx = (graph.container.clientWidth - VertexSize.width) / 2
+        this.cy = 200;
 
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = false;
@@ -258,9 +261,8 @@ class TaskFlowView extends Component {
         layout.edgeRouting = false;
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
-
+        
         this.executeLayout = function (change, post) {
-
             model.beginUpdate();
             try {
                 if (change != null) { change(); }
@@ -274,8 +276,6 @@ class TaskFlowView extends Component {
         }
         this.executeLayout(() => {
             ctx.insertVertex(graph, data, parent, type)
-        }, () => {
-            graph.view.setTranslate(cx, cy);
         })
     }
 
@@ -293,7 +293,7 @@ class TaskFlowView extends Component {
 
             if (!cell) return
 
-            const currentNode = cell.value;
+            const currentNode = ctx._vertexCells[cell.id].data;
 
             menu.addItem('展开上游（6层）', null, function () {
                 ctx.loadTaskParent({
@@ -394,7 +394,7 @@ class TaskFlowView extends Component {
         this.graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell && cell.vertex) {
-                const currentNode = cell.value;
+                const currentNode = ctx._vertexCells[cell.id].data;
                 ctx.showJobLog(currentNode.jobId)
 
             }
@@ -406,32 +406,10 @@ class TaskFlowView extends Component {
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell && cell.vertex) {
-                const data = cell.value || ''
-                ctx.setState({ selectedJob: data })
+                const currentNode = ctx._vertexCells[cell.id].data;
+                ctx.setState({ selectedJob: currentNode })
             }
         })
-    }
-
-    refreshTask = () => {
-        const ctx = this
-        const { selectedJob, data, sort } = this.state
-        this.setState({ loading: 'loading' })
-        if (selectedJob) {
-            Api.getJobChildren({ jobId: selectedJob.id, level: 1, }).then(res => {
-                if (ctx.graph) {
-                    ctx.graph.getModel().clear();
-                }
-                const task = res.data
-                const tree = Object.assign({}, data)
-                replaceTreeNode(tree, task)
-                ctx.doInsertVertex(tree, 'children')
-                ctx.setState({
-                    selectedJob: Object.assign(selectedJob, task),
-                    data: tree,
-                    loading: 'success',
-                })
-            })
-        }
     }
 
     resetGraph = () => {

@@ -160,6 +160,14 @@ export const keyMapActions = (dispatch) => {
 export const workbenchActions = (dispatch) => {
 
     return {
+
+        updateTabData: (data) => {
+            dispatch({
+                type: workbenchAction.UPDATE_TASK_TAB,
+                payload: data
+            });
+        },
+
         openTaskInDev: (id) => {
             ajax.getOfflineTaskDetail({
                 id: id

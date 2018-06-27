@@ -198,7 +198,7 @@ class BaseForm extends Component {
                         {...tailFormItemLayout}
                     >
                         {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
+                            initialValue: hasHdfsConfig,
                         })(
                             <Checkbox
                                 checked={hasHdfsConfig}
@@ -304,7 +304,7 @@ class BaseForm extends Component {
                         {...tailFormItemLayout}
                     >
                         {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
+                            initialValue: hasHdfsConfig,
                         })(
                             <Checkbox
                                 checked={hasHdfsConfig}

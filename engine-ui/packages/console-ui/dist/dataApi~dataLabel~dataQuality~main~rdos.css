@@ -105,12 +105,12 @@
   color: #fff;
 }
 
-.header .ant-menu-item-selected {
+.header > .ant-menu-item-selected {
   background-color: #262e36 !important;
   color: #fff;
 }
 
-.header .ant-menu-item-selected:hover {
+.header > .ant-menu-item-selected:hover {
   color: #fff;
 }
 
@@ -184,11 +184,6 @@
   margin-right: 0;
 }
 
-<<<<<<< HEAD
-<<<<<<< e8dda9c91a5f7e0f3fc48c961ea4a0c234053014
-=======
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .menu-text-ellipsis {
   display: inline-block;
   max-width: 80px;
@@ -198,10 +193,6 @@
   vertical-align: top;
 }
 
-<<<<<<< HEAD
->>>>>>> conflict
-=======
->>>>>>> d78f5aa4e5874cef425e643d1111824522aca212
 .msg-box {
   min-height: 170px;
 }

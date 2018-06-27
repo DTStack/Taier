@@ -74,6 +74,7 @@ export const workbenchAction = mc([
     'LOAD_TASK_DETAIL',
     'OPEN_TASK_TAB',
     'CLOSE_TASK_TAB',
+    'UPDATE_TASK_TAB',
     'CLOSE_ALL_TABS',
     'CLOSE_OTHER_TABS',
     'CHANGE_SCHEDULE_CONF',
