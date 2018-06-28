@@ -202,10 +202,6 @@ public class FlinkClientBuilder {
             config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
         }
 
-//        if(System.getenv("HADOOP_CONF_DIR") != null) {
-//            //config.setString(ConfigConstants.PATH_HADOOP_CONFIG, System.getenv("HADOOP_CONF_DIR"));
-//        }
-
         if (flinkConfig.getFlinkZkNamespace() != null) {//不设置默认值"/flink"
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
         }
@@ -256,27 +252,16 @@ public class FlinkClientBuilder {
             throw new RdosException(e.getMessage());
         }
 
-//        yarnClient.stop();
-
         AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(config, yarnConf, ".", yarnClient, false);
-//        try {
-//            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
-//            confField.setAccessible(true);
-//            confField.set(clusterDescriptor, yarnConf);
-//        } catch (Exception e) {
-//            LOG.error("", e);
-//            throw new RdosException(e.getMessage());
-//        }
         ApplicationId yarnApplicationId = ConverterUtils.toApplicationId(applicationId);
         YarnClusterClient clusterClient = null;
         try {
             clusterClient = (YarnClusterClient) clusterDescriptor.retrieve(yarnApplicationId);
-            clusterClient.getClusterStatus();
         } catch (Exception e) {
             if (clusterDescriptor != null) {
                 clusterDescriptor.close();
             }
-            LOG.info("Couldn't retrieve Ya]rn cluster.", e);
+            LOG.info("Couldn't retrieve Yarn cluster.", e);
             throw new RdosException("Couldn't retrieve Yarn cluster.");
         }
 
