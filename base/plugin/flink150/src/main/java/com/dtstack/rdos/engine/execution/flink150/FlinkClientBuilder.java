@@ -258,7 +258,7 @@ public class FlinkClientBuilder {
 
 //        yarnClient.stop();
 
-        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(config, yarnConf, ".", yarnClient, true);
+        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(config, yarnConf, ".", yarnClient, false);
 //        try {
 //            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
 //            confField.setAccessible(true);
@@ -271,7 +271,8 @@ public class FlinkClientBuilder {
         YarnClusterClient clusterClient = null;
         try {
             clusterClient = (YarnClusterClient) clusterDescriptor.retrieve(yarnApplicationId);
-        } catch (ClusterRetrieveException e) {
+            clusterClient.getClusterStatus();
+        } catch (Exception e) {
             if (clusterDescriptor != null) {
                 clusterDescriptor.close();
             }
