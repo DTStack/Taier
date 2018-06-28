@@ -301,6 +301,23 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             break;
         }
 
+        case workbenchAction.SAVE_DATASYNC_TO_TAB: {
+            const index = state.tabs.findIndex(t => t.id === action.payload.id);
+            const newTabs = [...state.tabs];
+            const data = action.payload.data ? action.payload.data : {};
+
+            if (index > -1) {
+                newTabs[index].dataSyncSaved = data;
+                nextState = assign({}, state, {
+                    tabs: newTabs
+                });
+            } else {
+                nextState = state
+            }
+
+            break;
+        }
+
         case workbenchAction.MAKE_TAB_DIRTY: {
             const clone = cloneDeep(state);
 

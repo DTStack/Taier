@@ -89,6 +89,7 @@ export const workbenchAction = mc([
     'MAKE_TAB_DIRTY',
     'MAKE_TAB_CLEAN',
     'LOAD_TASK_CUSTOM_PARAMS',
+    'SAVE_DATASYNC_TO_TAB'
 ], {prefix: 'offline/workbench/'});
 
 export const dataSourceListAction = mc([
@@ -137,6 +138,9 @@ export const dataSyncAction = mc([
     'INIT_CURRENT_STEP',
     'RESET_SOURCE_MAP',
     'RESET_TARGET_MAP',
+    'SET_TABID',
+    'RESET_TABID',
+    'GET_DATASYNC_SAVED'
 ], {prefix: 'offline/dataSync/'});
 
 export const editorAction = mc([
