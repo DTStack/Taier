@@ -47,10 +47,9 @@ public abstract class IRestartStrategy {
                 retryJobCache.asMap().remove(jobId);
                 return false;
             }
-            rms++;
-            retryJobCache.put(jobId, rms);
-        }catch (Exception e) {
-            logger.error("", e);
+            retryJobCache.put(jobId,++rms);
+        }catch (Throwable e) {
+            logger.error("retry again:", e);
             return false;
         }
         return true;
