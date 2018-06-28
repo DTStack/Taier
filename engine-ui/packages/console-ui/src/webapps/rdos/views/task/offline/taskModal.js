@@ -378,13 +378,10 @@ class TaskModal extends React.Component {
                 }
 
                 addOfflineTask(values, isEditExist, defaultData)
-                    .then(
-                        (isSuccess) => {
+                    .then(isSuccess => {
                             if (isSuccess) {
                                 this.closeModal();
-                                setTimeout(() => {
-                                    form.resetFields();
-                                }, 300);
+                                form.resetFields();
                             }
                         }
                     );
