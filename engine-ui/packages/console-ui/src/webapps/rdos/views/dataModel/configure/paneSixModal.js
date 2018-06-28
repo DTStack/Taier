@@ -117,7 +117,7 @@ class AtomIndexDefineModal extends Component {
                                 required: true, message: '原子指标命名不可为空！',
                             }, {
                                 pattern: /^[A-Za-z0-9_]+$/,
-                                message: '原子指标命名只能由字母、数字组成!',
+                                message: '原子指标命名只能由字母、数字、下划线组成!',
                             }, {
                                 max: 64,
                                 message: '原子指标命名不得超过64个字符！',
@@ -149,7 +149,7 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('columnType', {
                             rules: [],
-                            initialValue: data ? data.columnType.toString() : '',
+                            initialValue: data ? data.columnType.toString() : 1,
                         })(
                             <Select>
                                 {
