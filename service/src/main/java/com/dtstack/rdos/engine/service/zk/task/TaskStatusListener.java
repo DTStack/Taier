@@ -114,8 +114,6 @@ public class TaskStatusListener implements Runnable{
                     failedJobCache.remove(key);
                 }
             }
-
-            Thread.sleep(LISTENER_INTERVAL);
         }catch (Exception e){
             logger.error("dealFailed job run error:{}",ExceptionUtil.getErrorMessage(e));
         }
