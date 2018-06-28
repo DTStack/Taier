@@ -19,6 +19,10 @@ export default {
     MODEL_RULE_CREATE: `${RDOS_BASE_URL}/batch/batchModelRule/save`, // 保存 表命名规则生成配置
     MODEL_RULE_LIST: `${RDOS_BASE_URL}/batch/batchModelTable/getTableRules`, // 获取配置表名的几大模块（层级/主题域/频率/增量）
 
+    COLUMN_TYPE_LIST: `${RDOS_BASE_URL}/batch/batchModelColumn/getColumnType`, //获取原子和衍生的数据类型
+
+    TYPE_LIST: `${RDOS_BASE_URL}/batch/batchModelColumn/getType`, //获取原子指标类型
+
     // ============ 模型设计 ============
     TABLE_LIST: `${RDOS_BASE_URL}/batch/batchModelTable/tablePageQuery`, // 模型设计 - 表管理
     TABLE_CREATE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createTable`, // 模型设计 - 创建表
