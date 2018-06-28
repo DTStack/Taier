@@ -101,7 +101,7 @@ export default class Toolbar extends Component {
     // 执行确认
     execConfirm = () => {
         const { currentTab, currentTabData, dispatch, user, sqlEditor } = this.props;
-        
+        this.props.changeTab(1)
         if (user.isCheckDDL === 1) { // 不检测，直接执行
             this.execSQL()
             return;
