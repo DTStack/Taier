@@ -60,10 +60,10 @@ export default class TaskVersion extends React.Component {
     }
     
     render() {
-        const { taskInfo } = this.props;
+        const { taskInfo, taskType} = this.props;
         const { showDiff, campareTo,diffParams } = this.state;
+        
         const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
-
         return (
             <div>
                 <Table
@@ -100,7 +100,7 @@ export default class TaskVersion extends React.Component {
                     cancelText="关闭"
                     footer={null}
                 >
-                   <DiffParams {...this.props}/>
+                   <DiffParams value={taskInfo} diffParams={diffParams.tableInfo} taskType={taskType}/>
                 </Modal>
             </div>
         )
@@ -128,7 +128,7 @@ export default class TaskVersion extends React.Component {
                 key: 'publishDesc',
             }, {
                 title: '操作',
-                dataIndex: 'id',
+                dataIndex: 'operation',
                 width: 80,
                 key: 'operation',
                 render: (text, record) => {

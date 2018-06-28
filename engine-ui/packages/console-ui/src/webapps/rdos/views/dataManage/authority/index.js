@@ -369,6 +369,14 @@ class AuthMana extends Component {
                             }
                         },
                         {
+                            title: '有效期',
+                            key: 'day',
+                            dataIndex: 'day',
+                            render(text, record) {
+                                return `${text}天`
+                            }
+                        },
+                        {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
@@ -415,7 +423,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '有效时间',
+                            title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
                             render(text, record) {
@@ -473,7 +481,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '有效时间',
+                            title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
                             render(text, record) {

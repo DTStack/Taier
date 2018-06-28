@@ -40,6 +40,12 @@ export default {
     getModelRules(params) {
         return http.post(dataModelReq.MODEL_RULE_LIST, params)
     },
+    getColumnType(params) {
+        return http.post(dataModelReq.COLUMN_TYPE_LIST, params)
+    },
+    getType(params) {
+        return http.post(dataModelReq.TYPE_LIST, params)
+    },
 
     // ============ 模型设计 ============
     getTableList(params) {
