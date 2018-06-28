@@ -163,13 +163,21 @@ class DiffParams extends React.Component {
         },this.contrastData)
     }
 
+    checkTime = (time) => {
+        let modTime = "00";
+        if(time){
+            modTime = time.toString().length > 1 ? time : `0${time}`
+        }
+        return modTime;
+    }
+
     parseScheduleConf = (data)=> {
         const parseScheduleConf = {};
         const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
 
-        if(data.scheduleStatus == 1){
+        if(data.scheduleStatus == 0){
             parseScheduleConf.scheduleStatus = "已冻结"
-        }else if(data.scheduleStatus == 0){
+        }else if(data.scheduleStatus == 1){
             parseScheduleConf.scheduleStatus = "未冻结"
         }else{
             parseScheduleConf.scheduleStatus = ""
@@ -200,8 +208,8 @@ class DiffParams extends React.Component {
                 break;
         }
         parseScheduleConf.schedulingCycle = schedulingCycle;
-
-        const specificTime = `${scheduleConf.hour}:${scheduleConf.hour}`;
+        
+        const specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
         parseScheduleConf.specificTime = specificTime;
 
         
@@ -214,21 +222,21 @@ class DiffParams extends React.Component {
 
         let crosscycleDependence;
         switch (scheduleConf.selfReliance) {
-            case "0":
-            case "false":
+            case 0:
+            case false:
                 crosscycleDependence = "不依赖上一调度周期"
                 break;
-            case "1":
-            case "true":
+            case 1:
+            case true:
                 crosscycleDependence = "自依赖，等待上一调度周期成功，才能继续运行"
                 break;
-            case "3":
+            case 3:
                 crosscycleDependence = "自依赖，等待上一调度周期结束，才能继续运行"
                 break;
-            case "2":
+            case 2:
                 crosscycleDependence = "等待下游任务的上一周期成功，才能继续运行"
                 break;
-            case "4":
+            case 4:
                 crosscycleDependence = "等待下游任务的上一周期结束，才能继续运行"
                 break;
             default:
