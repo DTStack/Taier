@@ -26,6 +26,8 @@ public class ExceptionInfoConstrant {
 
     public final static String  UPLOAD__RESTART_EXCEPTION= "Could not upload the program's JAR files to the JobManager";
 
+    public final static String  IN_INITIALIZER_RESTART_EXCEPTION = "java.lang.ExceptionInInitializerError";
+
     private static List<String> needRestartExceptions = Lists.newArrayList();
 
     static {
