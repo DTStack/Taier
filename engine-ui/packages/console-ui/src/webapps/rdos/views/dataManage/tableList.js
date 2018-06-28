@@ -10,8 +10,6 @@ import {
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
-import moment from 'moment';
-import { isEmpty } from 'lodash';
 
 import utils from 'utils';
 
@@ -239,6 +237,22 @@ class TableList extends Component {
         ];
         if (queryParams.listType == "4") {
             initialColumns.pop(1);
+            let addInitalColumns=[{
+                title: '有效期',
+                key: 'timeTeft',
+                dataIndex: 'timeTeft',
+                render(text, record) {
+                    return text ? `${text}天` : " " 
+                }
+            },{
+                title: '通过时间',
+                key: 'passTime',
+                dataIndex: 'passTime',
+                render(text, record) {
+                    return text ? utils.formatDateTime(text) : " "
+                }
+            }]
+            initialColumns = [...initialColumns,...addInitalColumns]
         }
         return initialColumns;
     }
@@ -338,7 +352,7 @@ class TableList extends Component {
                     <TabPane tab="个人账号的表" key="2">
                         {this.renderPane()}
                     </TabPane>
-                    {
+                    { 
                         this.isAdminAbove == 1 ? <TabPane tab="我管理的表" key="3">{this.renderPane()}</TabPane> : ""
                     }
                     <TabPane tab="被授权的表" key="4">

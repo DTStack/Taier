@@ -47,7 +47,7 @@ class ResFormModal extends Component {
 
     validateFileType = (rule, value, callback) => {
         const reg = /\.(jar)$/
-        if (value && !reg.test(value)) {
+        if (value && !reg.test(value.toLocaleLowerCase())) {
             callback('资源文件只能是Jar文件!');
         }
         callback();

@@ -41,7 +41,7 @@ class ResForm extends React.Component {
     validateFileType(rule, value, callback) {
         const reg = /\.(jar|sql|py)$/
 
-        if (value && !reg.test(value)) {
+        if (value && !reg.test(value.toLocaleLowerCase())) {
             callback('资源文件只能是Jar、SQL或者Python文件!');
         }
         callback();
