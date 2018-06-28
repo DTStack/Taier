@@ -30,25 +30,63 @@ class DataSync extends React.Component{
     }
 
     componentDidMount() {
-        const { 
-            getDataSource, getJobData, id, currentTab, 
-        } = this.props;
-        getDataSource();
-        getJobData({taskId: id})
-        .then(
-            (data)=>{
-                if(data){
-                    this.setState({
-                        currentStep:4,
-                        loading:false
-                    })
-                }else{
-                    this.setState({
-                        loading:false
-                    })
-                }
+        const { id, dataSyncSaved } = this.props;
+
+        this.getJobData({ taskId: id });
+        // if (!dataSyncSaved) {
+        //     this.props.getJobData({taskId: id})
+        //     .then((data)=>{
+        //             if(data){
+        //                 this.setState({
+        //                     currentStep:4,
+        //                     loading:false
+        //                 })
+        //             }else{
+        //                 this.setState({
+        //                     loading:false
+        //                 })
+        //             }
+        //         }
+        //     );
+        // } else {
+        //     this.props.getDataSyncSaved(dataSyncSaved);
+        //     this.setState({ loading: false });
+        // }
+
+        this.props.setTabId(id);
+        this.props.getDataSource();
+    }
+
+    getJobData = (params) => {
+        const { id, dataSyncSaved } = this.props;
+
+        ajax.getOfflineJobData(params).then(res => {
+            if (!dataSyncSaved) {
+                this.props.initJobData(res.data);
+            } else {
+                // tabs中有则把数据取出来
+                this.props.getDataSyncSaved(dataSyncSaved);
             }
-        );
+
+            if(!res.data) {
+                this.props.setTabNew();
+            } else{
+                this.props.setTabSaved();
+                this.setState({ currentStep: 4 });
+            }
+
+            this.setState({ loading: false });
+        });
+    }
+
+    // 组件离开保存数据到tabs中
+    componentWillUnmount() {
+        const { id, dataSync } = this.props;
+
+        this.props.saveDataSyncToTab({
+            id: id,
+            data: dataSync
+        })
     }
 
     next() {
@@ -212,25 +250,42 @@ const mapDispatch = dispatch => {
                     });
                 });
         },
-        getJobData: (params) => {
-            return ajax.getOfflineJobData(params)
-                .then(res => {
-                    dispatch({
-                        type: dataSyncAction.INIT_JOBDATA,
-                        payload: res.data
-                    });
-                    if(res.data === null) {
-                        dispatch({
-                            type: workbenchAction.SET_CURRENT_TAB_NEW
-                        });
-                    }
-                    else{
-                        dispatch({
-                            type: workbenchAction.SET_CURRENT_TAB_SAVED
-                        });
-                        return res.data;
-                    }
-                })
+        initJobData: (data) => {
+            dispatch({
+                type: dataSyncAction.INIT_JOBDATA,
+                payload: data
+            });
+        },
+        setTabNew: () => {
+            dispatch({
+                type: workbenchAction.SET_CURRENT_TAB_NEW
+            });
+        },
+        setTabSaved: () => {
+            dispatch({
+                type: workbenchAction.SET_CURRENT_TAB_SAVED
+            });
+        },
+        saveDataSyncToTab: (params) => {
+            dispatch({
+                type: workbenchAction.SAVE_DATASYNC_TO_TAB,
+                payload: {
+                    id: params.id,
+                    data: params.data
+                }
+            });
+        },
+        getDataSyncSaved: (params) => {
+            dispatch({
+                type: dataSyncAction.GET_DATASYNC_SAVED,
+                payload: params
+            });
+        },
+        setTabId: (id) => {
+            dispatch({
+                type: dataSyncAction.SET_TABID,
+                payload: id
+            });
         },
         saveJobData(params) {
             ajax.saveOfflineJobData(params)

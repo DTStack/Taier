@@ -207,21 +207,17 @@ export const workbenchActions = (dispatch) => {
                         id: id,
                     }).then(succCallBack);
                 }
-                dispatch({
-                    type: editorAction.SET_SELECTION_CONTENT,
-                    data: '',
-                })
             }
             else {
                 id !== currentTab && dispatch({
                     type: workbenchAction.OPEN_TASK_TAB,
                     payload: id
                 });
-                dispatch({
-                    type: editorAction.SET_SELECTION_CONTENT,
-                    data: '',
-                })
             }
+            dispatch({
+                type: editorAction.SET_SELECTION_CONTENT,
+                data: '',
+            })
         },
 
         loadTreeNode: (nodePid, type) => {
