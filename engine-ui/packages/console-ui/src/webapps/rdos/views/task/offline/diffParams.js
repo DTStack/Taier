@@ -183,7 +183,7 @@ class DiffParams extends React.Component {
             parseScheduleConf.scheduleStatus = ""
         }
 
-        const effectiveDate = `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}`;
+        const effectiveDate = scheduleConf.beginDate&&scheduleConf.endDate ? `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}` : "";
         parseScheduleConf.effectiveDate = effectiveDate;
 
         let schedulingCycle;
