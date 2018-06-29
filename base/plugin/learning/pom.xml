@@ -17,12 +17,10 @@
         <hadoop2.version>2.7.3</hadoop2.version>
         <junit.version>4.11</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <xlearning.jar.basename>xlearning-${project.version}-hadoop${hadoop2.version}</xlearning.jar.basename>
-        <xlearning.jar>${xlearning.jar.basename}.jar</xlearning.jar>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <name>base.xlearning</name>
+    <name>base.learning</name>
     <url>http://maven.apache.org</url>
     <modules>
         <module>learning-core</module>

@@ -1,7 +1,7 @@
 package com.dtstack.learning.api;
 
 import com.dtstack.learning.common.InputInfo;
-import com.dtstack.learning.container.XLearningContainerId;
+import com.dtstack.learning.container.LearningContainerId;
 import com.dtstack.learning.common.HeartbeatRequest;
 import com.dtstack.learning.common.HeartbeatResponse;
 import com.dtstack.learning.common.OutputInfo;
@@ -14,25 +14,25 @@ public interface ApplicationContainerProtocol extends VersionedProtocol {
 
   void reportReservedPort(String host, int port, String role, int index);
 
-  void reportLightGbmIpPort(XLearningContainerId containerId, String lightGbmIpPort);
+  void reportLightGbmIpPort(LearningContainerId containerId, String lightGbmIpPort);
 
   String getLightGbmIpPortStr();
 
   String getClusterDef();
 
-  HeartbeatResponse heartbeat(XLearningContainerId containerId, HeartbeatRequest heartbeatRequest);
+  HeartbeatResponse heartbeat(LearningContainerId containerId, HeartbeatRequest heartbeatRequest);
 
-  InputInfo[] getInputSplit(XLearningContainerId containerId);
+  InputInfo[] getInputSplit(LearningContainerId containerId);
 
-  InputSplit[] getStreamInputSplit(XLearningContainerId containerId);
+  InputSplit[] getStreamInputSplit(LearningContainerId containerId);
 
   OutputInfo[] getOutputLocation();
 
   void reportTensorBoardURL(String url);
 
-  void reportMapedTaskID(XLearningContainerId containerId, String taskId);
+  void reportMapedTaskID(LearningContainerId containerId, String taskId);
 
-  void reportCpuMetrics(XLearningContainerId containerId, String cpuMetrics);
+  void reportCpuMetrics(LearningContainerId containerId, String cpuMetrics);
 
   Long interResultTimeStamp();
 

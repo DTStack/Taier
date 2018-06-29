@@ -1,6 +1,7 @@
 package com.dtstack.learning.jobhistory;
 
 
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -10,7 +11,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Inject;
-import com.dtstack.learning.conf.XLearningConfiguration;
 import com.dtstack.learning.webapp.AMParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,9 +55,9 @@ public class HsController extends Controller implements AMParams {
   }
 
   public void job() throws IOException {
-    XLearningConfiguration xlearningConf = new XLearningConfiguration();
-    jobLogPath = new Path(conf.get(XLearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR) + "/" + $(APP_ID) + "/" + $(APP_ID));
+    LearningConfiguration xlearningConf = new LearningConfiguration();
+    jobLogPath = new Path(conf.get(LearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR) + "/" + $(APP_ID) + "/" + $(APP_ID));
     LOG.info("jobLogPath:" + jobLogPath);
     String line = null;
     try {
@@ -103,7 +103,7 @@ public class HsController extends Controller implements AMParams {
             } else {
               int j = 0;
               for (String output : outputList) {
-                set(OUTPUT_PATH + j, output + conf.get(XLearningConfiguration.XLEARNING_INTERREAULST_DIR, XLearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR));
+                set(OUTPUT_PATH + j, output + conf.get(LearningConfiguration.XLEARNING_INTERREAULST_DIR, LearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR));
                 j++;
               }
               set(OUTPUT_TOTAL, String.valueOf(j));

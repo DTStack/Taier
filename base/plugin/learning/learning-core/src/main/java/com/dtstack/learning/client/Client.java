@@ -2,12 +2,12 @@ package com.dtstack.learning.client;
 
 import com.dtstack.learning.AM.ApplicationMaster;
 import com.dtstack.learning.api.ApplicationMessageProtocol;
-import com.dtstack.learning.api.XLearningConstants;
+import com.dtstack.learning.api.LearningConstants;
 import com.dtstack.learning.common.LogType;
 import com.dtstack.learning.common.Message;
 import com.dtstack.learning.common.exceptions.RequestOverLimitException;
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.learning.util.Utilities;
-import com.dtstack.learning.conf.XLearningConfiguration;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,6 +29,8 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -56,7 +58,7 @@ public class Client {
 
     private static final Log LOG = LogFactory.getLog(Client.class);
     private ClientArguments clientArguments;
-    private final XLearningConfiguration conf;
+    private final LearningConfiguration conf;
     private YarnClient yarnClient;
     private YarnClientApplication newAPP;
     private ApplicationMessageProtocol xlearningClient;
@@ -69,8 +71,8 @@ public class Client {
     private final ConcurrentHashMap<String, String> outputPaths;
     private static FsPermission JOB_FILE_PERMISSION;
 
-    public Client(XLearningConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
-        //this.conf = new XLearningConfiguration();
+    public Client(LearningConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
+        //this.conf = new LearningConfiguration();
         this.conf = conf;
         this.dfs = FileSystem.get(conf);
         this.isRunning = new AtomicBoolean(false);
@@ -94,61 +96,61 @@ public class Client {
             conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
 
-        conf.set(XLearningConfiguration.XLEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
-        conf.set(XLearningConfiguration.XLEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
-        conf.set(XLearningConfiguration.XLEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
-        conf.set(XLearningConfiguration.XLEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVCores));
-        conf.set(XLearningConfiguration.XLEARNING_WORKER_NUM, String.valueOf(clientArguments.workerNum));
-        conf.set(XLearningConfiguration.XLEARNING_PS_MEMORY, String.valueOf(clientArguments.psMemory));
-        conf.set(XLearningConfiguration.XLEARNING_PS_VCORES, String.valueOf(clientArguments.psVCores));
-        conf.set(XLearningConfiguration.XLEARNING_PS_NUM, String.valueOf(clientArguments.psNum));
-        conf.set(XLearningConfiguration.XLEARNING_APP_PRIORITY, String.valueOf(clientArguments.priority));
-        conf.setBoolean(XLearningConfiguration.XLEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
-        conf.set(XLearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, String.valueOf(clientArguments.boardIndex));
-        conf.set(XLearningConfiguration.XLEARNING_TF_BOARD_RELOAD_INTERVAL, String.valueOf(clientArguments.boardReloadInterval));
-        conf.set(XLearningConfiguration.XLEARNING_TF_BOARD_ENABLE, String.valueOf(clientArguments.boardEnable));
-        conf.set(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, clientArguments.boardLogDir);
-        conf.set(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, clientArguments.boardHistoryDir);
-        conf.set(XLearningConfiguration.XLEARNING_BOARD_MODELPB, clientArguments.boardModelPB);
-        conf.set(XLearningConfiguration.XLEARNING_BOARD_CACHE_TIMEOUT, String.valueOf(clientArguments.boardCacheTimeout));
-        conf.set(XLearningConfiguration.XLEARNING_INPUT_STRATEGY, clientArguments.inputStrategy);
-        conf.set(XLearningConfiguration.XLEARNING_OUTPUT_STRATEGY, clientArguments.outputStrategy);
-        conf.setBoolean(XLearningConfiguration.XLEARNING_INPUTFILE_RENAME, clientArguments.isRenameInputFile);
-        conf.setBoolean(XLearningConfiguration.XLEARNING_INPUT_STREAM_SHUFFLE, clientArguments.inputStreamShuffle);
-        conf.setClass(XLearningConfiguration.XLEARNING_INPUTF0RMAT_CLASS, clientArguments.inputFormatClass, InputFormat.class);
-        conf.setClass(XLearningConfiguration.XLEARNING_OUTPUTFORMAT_CLASS, clientArguments.outputFormatClass, OutputFormat.class);
-        conf.set(XLearningConfiguration.XLEARNING_STREAM_EPOCH, String.valueOf(clientArguments.streamEpoch));
+        conf.set(LearningConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
+        conf.set(LearningConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
+        conf.set(LearningConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
+        conf.set(LearningConfiguration.LEARNING_WORKER_VCORES, String.valueOf(clientArguments.workerVCores));
+        conf.set(LearningConfiguration.LEARNING_WORKER_NUM, String.valueOf(clientArguments.workerNum));
+        conf.set(LearningConfiguration.LEARNING_PS_MEMORY, String.valueOf(clientArguments.psMemory));
+        conf.set(LearningConfiguration.LEARNING_PS_VCORES, String.valueOf(clientArguments.psVCores));
+        conf.set(LearningConfiguration.LEARNING_PS_NUM, String.valueOf(clientArguments.psNum));
+        conf.set(LearningConfiguration.LEARNING_APP_PRIORITY, String.valueOf(clientArguments.priority));
+        conf.setBoolean(LearningConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
+        conf.set(LearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, String.valueOf(clientArguments.boardIndex));
+        conf.set(LearningConfiguration.XLEARNING_TF_BOARD_RELOAD_INTERVAL, String.valueOf(clientArguments.boardReloadInterval));
+        conf.set(LearningConfiguration.XLEARNING_TF_BOARD_ENABLE, String.valueOf(clientArguments.boardEnable));
+        conf.set(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, clientArguments.boardLogDir);
+        conf.set(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, clientArguments.boardHistoryDir);
+        conf.set(LearningConfiguration.XLEARNING_BOARD_MODELPB, clientArguments.boardModelPB);
+        conf.set(LearningConfiguration.XLEARNING_BOARD_CACHE_TIMEOUT, String.valueOf(clientArguments.boardCacheTimeout));
+        conf.set(LearningConfiguration.XLEARNING_INPUT_STRATEGY, clientArguments.inputStrategy);
+        conf.set(LearningConfiguration.XLEARNING_OUTPUT_STRATEGY, clientArguments.outputStrategy);
+        conf.setBoolean(LearningConfiguration.XLEARNING_INPUTFILE_RENAME, clientArguments.isRenameInputFile);
+        conf.setBoolean(LearningConfiguration.XLEARNING_INPUT_STREAM_SHUFFLE, clientArguments.inputStreamShuffle);
+        conf.setClass(LearningConfiguration.LEARNING_INPUTF0RMAT_CLASS, clientArguments.inputFormatClass, InputFormat.class);
+        conf.setClass(LearningConfiguration.XLEARNING_OUTPUTFORMAT_CLASS, clientArguments.outputFormatClass, OutputFormat.class);
+        conf.set(LearningConfiguration.XLEARNING_STREAM_EPOCH, String.valueOf(clientArguments.streamEpoch));
 
         if (clientArguments.queue == null || clientArguments.queue.equals("")) {
             clientArguments.queue = appSubmitterUserName;
         }
-        conf.set(XLearningConfiguration.XLEARNING_APP_QUEUE, clientArguments.queue);
+        conf.set(LearningConfiguration.LEARNING_APP_QUEUE, clientArguments.queue);
 
         if (clientArguments.confs != null) {
             setConf();
         }
 
         if ("TENSORFLOW".equals(clientArguments.appType)) {
-            if (conf.getInt(XLearningConfiguration.XLEARNING_PS_NUM, XLearningConfiguration.DEFAULT_XLEARNING_PS_NUM) == 0) {
-                conf.setBoolean(XLearningConfiguration.XLEARNING_TF_MODE_SINGLE, true);
+            if (conf.getInt(LearningConfiguration.LEARNING_PS_NUM, LearningConfiguration.DEFAULT_LEARNING_PS_NUM) == 0) {
+                conf.setBoolean(LearningConfiguration.LEARNING_TF_MODE_SINGLE, true);
             }
         }
 
         if ("MXNET".equals(clientArguments.appType)) {
-            if (conf.getInt(XLearningConfiguration.XLEARNING_PS_NUM, XLearningConfiguration.DEFAULT_XLEARNING_PS_NUM) == 0) {
-                conf.setBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, true);
+            if (conf.getInt(LearningConfiguration.LEARNING_PS_NUM, LearningConfiguration.DEFAULT_LEARNING_PS_NUM) == 0) {
+                conf.setBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, true);
             }
         }
 
-        if (conf.getInt(XLearningConfiguration.XLEARNING_WORKER_NUM, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_NUM) == 1) {
-            conf.setInt(XLearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, 0);
+        if (conf.getInt(LearningConfiguration.LEARNING_WORKER_NUM, LearningConfiguration.DEFAULT_LEARNING_WORKER_NUM) == 1) {
+            conf.setInt(LearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, 0);
         }
 
-        if (conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("/") == 0) {
-            Path tf_board_log_dir = new Path(conf.get("fs.defaultFS"), conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR));
-            conf.set(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, tf_board_log_dir.toString());
+        if (conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("/") == 0) {
+            Path tf_board_log_dir = new Path(conf.get("fs.defaultFS"), conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR));
+            conf.set(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, tf_board_log_dir.toString());
         }
-        if ((conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs") == 0) && (!"TENSORFLOW".equals(clientArguments.appType))) {
+        if ((conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs") == 0) && (!"TENSORFLOW".equals(clientArguments.appType))) {
             LOG.warn("VisualDL not support the hdfs path for logdir. Please ensure the logdir setting is right.");
         }
 
@@ -185,7 +187,7 @@ public class Client {
             String outputRemote = outputs.nextElement();
             String outputLocal = clientArguments.outputs.getProperty(outputRemote);
             if (outputLocal.equals("true")) {
-                outputLocal = conf.get(XLearningConfiguration.XLEARNING_OUTPUT_LOCAL_DIR, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_LOCAL_DIR);
+                outputLocal = conf.get(LearningConfiguration.LEARNING_OUTPUT_LOCAL_DIR, LearningConfiguration.DEFAULT_LEARNING_OUTPUT_LOCAL_DIR);
                 LOG.info("Remote output path: " + outputRemote + " not defined the local output path. Default path: output.");
             }
             Path path = new Path(outputRemote);
@@ -240,14 +242,14 @@ public class Client {
         return appMessageHandler;
     }
 
-    private void checkArguments(XLearningConfiguration conf, GetNewApplicationResponse newApplication) {
+    private void checkArguments(LearningConfiguration conf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();
         LOG.info("Max mem capability of resources in this cluster " + maxMem);
         int maxVCores = newApplication.getMaximumResourceCapability().getVirtualCores();
         LOG.info("Max vcores capability of resources in this cluster " + maxVCores);
 
-        int amMem = conf.getInt(XLearningConfiguration.XLEARNING_AM_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_AM_MEMORY);
-        int amCores = conf.getInt(XLearningConfiguration.XLEARNING_AM_CORES, XLearningConfiguration.DEFAULT_XLEARNING_AM_CORES);
+        int amMem = conf.getInt(LearningConfiguration.LEARNING_AM_MEMORY, LearningConfiguration.DEFAULT_LEARNING_AM_MEMORY);
+        int amCores = conf.getInt(LearningConfiguration.LEARNING_AM_CORES, LearningConfiguration.DEFAULT_LEARNING_AM_CORES);
         if (amMem > maxMem) {
             throw new RequestOverLimitException("AM memory requested " + amMem +
                     " above the max threshold of yarn cluster " + maxMem);
@@ -269,9 +271,9 @@ public class Client {
         }
         LOG.info("Apply for am vcores " + amCores);
 
-        int workerNum = conf.getInt(XLearningConfiguration.XLEARNING_WORKER_NUM, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_NUM);
-        int workerMemory = conf.getInt(XLearningConfiguration.XLEARNING_WORKER_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_MEMORY);
-        int workerVcores = conf.getInt(XLearningConfiguration.XLEARNING_WORKER_VCORES, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_VCORES);
+        int workerNum = conf.getInt(LearningConfiguration.LEARNING_WORKER_NUM, LearningConfiguration.DEFAULT_LEARNING_WORKER_NUM);
+        int workerMemory = conf.getInt(LearningConfiguration.LEARNING_WORKER_MEMORY, LearningConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
+        int workerVcores = conf.getInt(LearningConfiguration.LEARNING_WORKER_VCORES, LearningConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
         if (workerNum < 1) {
             throw new IllegalArgumentException(
                     "Invalid no. of worker specified, exiting."
@@ -302,11 +304,11 @@ public class Client {
         if ("TENSORFLOW".equals(clientArguments.appType) || "MXNET".equals(clientArguments.appType)) {
             Boolean single;
             if ("TENSORFLOW".equals(clientArguments.appType)) {
-                single = conf.getBoolean(XLearningConfiguration.XLEARNING_TF_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_MODE_SINGLE);
+                single = conf.getBoolean(LearningConfiguration.LEARNING_TF_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_TF_MODE_SINGLE);
             } else {
-                single = conf.getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE);
+                single = conf.getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE);
             }
-            int psNum = conf.getInt(XLearningConfiguration.XLEARNING_PS_NUM, XLearningConfiguration.DEFAULT_XLEARNING_PS_NUM);
+            int psNum = conf.getInt(LearningConfiguration.LEARNING_PS_NUM, LearningConfiguration.DEFAULT_LEARNING_PS_NUM);
             if (psNum < 0) {
                 throw new IllegalArgumentException(
                         "Invalid no. of ps specified, exiting."
@@ -314,8 +316,8 @@ public class Client {
             }
             LOG.info("Apply for ps number " + psNum);
             if (!single) {
-                int psMemory = conf.getInt(XLearningConfiguration.XLEARNING_PS_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_PS_MEMORY);
-                int psVcores = conf.getInt(XLearningConfiguration.XLEARNING_PS_VCORES, XLearningConfiguration.DEFAULT_XLEARNING_PS_VCORES);
+                int psMemory = conf.getInt(LearningConfiguration.LEARNING_PS_MEMORY, LearningConfiguration.DEFAULT_LEARNING_PS_MEMORY);
+                int psVcores = conf.getInt(LearningConfiguration.LEARNING_PS_VCORES, LearningConfiguration.DEFAULT_LEARNING_PS_VCORES);
                 if (psMemory > maxMem) {
                     throw new RequestOverLimitException("ps memory requested " + psMemory +
                             " above the max threshold of yarn cluster " + maxMem);
@@ -337,7 +339,7 @@ public class Client {
                 }
                 LOG.info("Apply for ps vcores " + psVcores);
             }
-            int limitNode = conf.getInt(XLearningConfiguration.XLEARNING_EXECUTE_NODE_LIMIT, XLearningConfiguration.DEFAULT_XLEARNING_EXECUTENODE_LIMIT);
+            int limitNode = conf.getInt(LearningConfiguration.XLEARNING_EXECUTE_NODE_LIMIT, LearningConfiguration.DEFAULT_XLEARNING_EXECUTENODE_LIMIT);
             if (workerNum + psNum > limitNode) {
                 throw new RequestOverLimitException("Container num requested over the limit " + limitNode);
             }
@@ -400,14 +402,14 @@ public class Client {
         LOG.info("Got new Application: " + applicationId.toString());
 
         Path jobConfPath = Utilities
-                .getRemotePath(conf, applicationId, XLearningConstants.XLEARNING_JOB_CONFIGURATION);
+                .getRemotePath(conf, applicationId, LearningConstants.LEARNING_JOB_CONFIGURATION);
         FSDataOutputStream out =
                 FileSystem.create(jobConfPath.getFileSystem(conf), jobConfPath,
                         new FsPermission(JOB_FILE_PERMISSION));
         conf.writeXml(out);
         out.close();
         Map<String, LocalResource> localResources = new HashMap<>();
-        localResources.put(XLearningConstants.XLEARNING_JOB_CONFIGURATION,
+        localResources.put(LearningConstants.LEARNING_JOB_CONFIGURATION,
                 Utilities.createApplicationResource(dfs, jobConfPath, LocalResourceType.FILE));
 
         checkArguments(conf, newAppResponse);
@@ -418,19 +420,19 @@ public class Client {
         applicationContext.setApplicationType(clientArguments.appType);
         Path appJarSrc = new Path(clientArguments.appMasterJar);
         Path appJarDst = Utilities
-                .getRemotePath(conf, applicationId, XLearningConstants.XLEARNING_APPLICATION_JAR);
+                .getRemotePath(conf, applicationId, LearningConstants.LEARNING_APPLICATION_JAR);
         LOG.info("Copying " + appJarSrc + " to remote path " + appJarDst.toString());
         dfs.copyFromLocalFile(false, true, appJarSrc, appJarDst);
 
-        localResources.put(XLearningConstants.XLEARNING_APPLICATION_JAR,
+        localResources.put(LearningConstants.LEARNING_APPLICATION_JAR,
                 Utilities.createApplicationResource(dfs, appJarDst, LocalResourceType.FILE));
 
         LOG.info("Building environments for the application master");
         Map<String, String> appMasterEnv = new HashMap<>();
         if (clientArguments.appType != null && !clientArguments.appType.equals("")) {
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString(), clientArguments.appType);
+            appMasterEnv.put(LearningConstants.Environment.LEARNING_APP_TYPE.toString(), clientArguments.appType);
         } else {
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString(), XLearningConfiguration.DEFAULT_XLEARNING_APP_TYPE.toUpperCase());
+            appMasterEnv.put(LearningConstants.Environment.LEARNING_APP_TYPE.toString(), LearningConfiguration.DEFAULT_LEARNING_APP_TYPE.toUpperCase());
         }
         if (clientArguments.xlearningFiles != null) {
             Path[] xlearningFilesDst = new Path[clientArguments.xlearningFiles.length];
@@ -444,11 +446,11 @@ public class Client {
                 dfs.copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
                 appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
             }
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_FILES_LOCATION.toString(),
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_FILES_LOCATION.toString(),
                     appFilesRemotePath.deleteCharAt(appFilesRemotePath.length() - 1).toString());
 
-            if (clientArguments.appType.equals("MXNET") && !conf.getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE)) {
-                String appFilesRemoteLocation = appMasterEnv.get(XLearningConstants.Environment.XLEARNING_FILES_LOCATION.toString());
+            if (clientArguments.appType.equals("MXNET") && !conf.getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE)) {
+                String appFilesRemoteLocation = appMasterEnv.get(LearningConstants.Environment.XLEARNING_FILES_LOCATION.toString());
                 String[] xlearningFiles = StringUtils.split(appFilesRemoteLocation, ",");
                 for (String file : xlearningFiles) {
                     Path path = new Path(file);
@@ -483,7 +485,7 @@ public class Client {
             }
 
             String appFilesRemoteLocation = appLibJarsRemotePath.deleteCharAt(appLibJarsRemotePath.length() - 1).toString();
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_LIBJARS_LOCATION.toString(),
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_LIBJARS_LOCATION.toString(),
                     appFilesRemoteLocation);
 
             String[] jarFiles = StringUtils.split(appFilesRemoteLocation, ",");
@@ -497,37 +499,37 @@ public class Client {
             }
         }
         StringBuilder classPathEnv = new StringBuilder("${CLASSPATH}:./*");
-        for (String cp : conf.getStrings(XLearningConfiguration.YARN_APPLICATION_CLASSPATH,
-                XLearningConfiguration.DEFAULT_XLEARNING_APPLICATION_CLASSPATH)) {
+        for (String cp : conf.getStrings(LearningConfiguration.YARN_APPLICATION_CLASSPATH,
+                LearningConfiguration.DEFAULT_XLEARNING_APPLICATION_CLASSPATH)) {
             classPathEnv.append(':');
             classPathEnv.append(cp.trim());
         }
 
-        if (conf.getBoolean(XLearningConfiguration.XLEARNING_USER_CLASSPATH_FIRST, XLearningConfiguration.DEFAULT_XLEARNING_USER_CLASSPATH_FIRST)) {
+        if (conf.getBoolean(LearningConfiguration.LEARNING_USER_CLASSPATH_FIRST, LearningConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST)) {
             appMasterEnv.put("CLASSPATH", libJarsClassPath + classPathEnv.toString());
         } else {
             appMasterEnv.put("CLASSPATH", classPathEnv.toString() + ":" + libJarsClassPath);
         }
 
-        appMasterEnv.put(XLearningConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities
+        appMasterEnv.put(LearningConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities
                 .getRemotePath(conf, applicationId, "").toString());
 
-        appMasterEnv.put(XLearningConstants.Environment.APP_JAR_LOCATION.toString(), appJarDst.toUri().toString());
-        appMasterEnv.put(XLearningConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
+        appMasterEnv.put(LearningConstants.Environment.APP_JAR_LOCATION.toString(), appJarDst.toUri().toString());
+        appMasterEnv.put(LearningConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
 
         if (clientArguments.launchCmd != null && !clientArguments.launchCmd.equals("")) {
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_EXEC_CMD.toString(), clientArguments.launchCmd);
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString(), clientArguments.launchCmd);
         } else {
             throw new IllegalArgumentException("Invalid launch cmd for the application");
         }
 
         if (clientArguments.xlearningCacheFiles != null && !clientArguments.xlearningCacheFiles.equals("")) {
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString(), clientArguments.xlearningCacheFiles);
-            if ((clientArguments.appType.equals("MXNET") && !conf.getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE))
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString(), clientArguments.xlearningCacheFiles);
+            if ((clientArguments.appType.equals("MXNET") && !conf.getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE))
                     || clientArguments.appType.equals("DISTXGBOOST")) {
                 URI defaultUri = new Path(conf.get("fs.defaultFS")).toUri();
                 LOG.info("default URI is " + defaultUri.toString());
-                String appCacheFilesRemoteLocation = appMasterEnv.get(XLearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString());
+                String appCacheFilesRemoteLocation = appMasterEnv.get(LearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString());
                 String[] cacheFiles = StringUtils.split(appCacheFilesRemoteLocation, ",");
                 for (String path : cacheFiles) {
                     Path pathRemote;
@@ -559,11 +561,11 @@ public class Client {
         }
 
         if (clientArguments.xlearningCacheArchives != null && !clientArguments.xlearningCacheArchives.equals("")) {
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString(), clientArguments.xlearningCacheArchives);
-            if ((clientArguments.appType.equals("MXNET") && !conf.getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE))
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString(), clientArguments.xlearningCacheArchives);
+            if ((clientArguments.appType.equals("MXNET") && !conf.getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE))
                     || clientArguments.appType.equals("DISTXGBOOST")) {
                 URI defaultUri = new Path(conf.get("fs.defaultFS")).toUri();
-                String appCacheArchivesRemoteLocation = appMasterEnv.get(XLearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString());
+                String appCacheArchivesRemoteLocation = appMasterEnv.get(LearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString());
                 String[] cacheArchives = StringUtils.split(appCacheArchivesRemoteLocation, ",");
                 for (String path : cacheArchives) {
                     Path pathRemote;
@@ -602,7 +604,7 @@ public class Client {
                         append(key).
                         append("|");
             }
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_INPUTS.toString(),
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_INPUTS.toString(),
                     inputLocation.deleteCharAt(inputLocation.length() - 1).toString());
         }
 
@@ -617,21 +619,21 @@ public class Client {
                             append("|");
                 }
             }
-            appMasterEnv.put(XLearningConstants.Environment.XLEARNING_OUTPUTS.toString(),
+            appMasterEnv.put(LearningConstants.Environment.XLEARNING_OUTPUTS.toString(),
                     outputLocation.deleteCharAt(outputLocation.length() - 1).toString());
         }
 
-        appMasterEnv.put(XLearningConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
+        appMasterEnv.put(LearningConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
 
         if (clientArguments.userPath != null && !clientArguments.userPath.equals("")) {
-            appMasterEnv.put(XLearningConstants.Environment.USER_PATH.toString(), clientArguments.userPath);
+            appMasterEnv.put(LearningConstants.Environment.USER_PATH.toString(), clientArguments.userPath);
         }
 
         LOG.info("Building application master launch command");
         List<String> appMasterArgs = new ArrayList<>(20);
         appMasterArgs.add("${JAVA_HOME}" + "/bin/java");
-        appMasterArgs.add("-Xms" + conf.getInt(XLearningConfiguration.XLEARNING_AM_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_AM_MEMORY) + "m");
-        appMasterArgs.add("-Xmx" + conf.getInt(XLearningConfiguration.XLEARNING_AM_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_AM_MEMORY) + "m");
+        appMasterArgs.add("-Xms" + conf.getInt(LearningConfiguration.LEARNING_AM_MEMORY, LearningConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
+        appMasterArgs.add("-Xmx" + conf.getInt(LearningConfiguration.LEARNING_AM_MEMORY, LearningConfiguration.DEFAULT_LEARNING_AM_MEMORY) + "m");
         appMasterArgs.add(ApplicationMaster.class.getName());
         appMasterArgs.add("1>" + ApplicationConstants.LOG_DIR_EXPANSION_VAR
                 + "/" + ApplicationConstants.STDOUT);
@@ -648,8 +650,8 @@ public class Client {
         appMasterLaunchcommands.add(command.toString());
 
         Resource capability = Records.newRecord(Resource.class);
-        capability.setMemory(conf.getInt(XLearningConfiguration.XLEARNING_AM_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_AM_MEMORY));
-        capability.setVirtualCores(conf.getInt(XLearningConfiguration.XLEARNING_AM_CORES, XLearningConfiguration.DEFAULT_XLEARNING_AM_CORES));
+        capability.setMemory(conf.getInt(LearningConfiguration.LEARNING_AM_MEMORY, LearningConfiguration.DEFAULT_LEARNING_AM_MEMORY));
+        capability.setVirtualCores(conf.getInt(LearningConfiguration.LEARNING_AM_CORES, LearningConfiguration.DEFAULT_LEARNING_AM_CORES));
         applicationContext.setResource(capability);
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                 localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
@@ -657,9 +659,9 @@ public class Client {
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);
-        priority.setPriority(conf.getInt(XLearningConfiguration.XLEARNING_APP_PRIORITY, XLearningConfiguration.DEFAULT_XLEARNING_APP_PRIORITY));
+        priority.setPriority(conf.getInt(LearningConfiguration.LEARNING_APP_PRIORITY, LearningConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
         applicationContext.setPriority(priority);
-        applicationContext.setQueue(conf.get(XLearningConfiguration.XLEARNING_APP_QUEUE, XLearningConfiguration.DEFAULT_XLEARNING_APP_QUEUE));
+        applicationContext.setQueue(conf.get(LearningConfiguration.LEARNING_APP_QUEUE, LearningConfiguration.DEFAULT_LEARNING_APP_QUEUE));
         applicationId = yarnClient.submitApplication(applicationContext);
         return applicationId.toString();
     }
@@ -715,7 +717,7 @@ public class Client {
                 }
             }
 
-            int logInterval = conf.getInt(XLearningConfiguration.XLEARNING_LOG_PULL_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_LOG_PULL_INTERVAL);
+            int logInterval = conf.getInt(LearningConfiguration.LEARNING_LOG_PULL_INTERVAL, LearningConfiguration.DEFAULT_LEARNING_LOG_PULL_INTERVAL);
             Utilities.sleep(logInterval);
             applicationReport = getApplicationReport(applicationId, yarnClient);
         }
@@ -729,6 +731,10 @@ public class Client {
     public ApplicationReport getApplicationReport(String jobId) throws IOException, YarnException {
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
         return yarnClient.getApplicationReport(appId);
+    }
+
+    public List<NodeReport> getNodeReports() throws IOException, YarnException {
+        return yarnClient.getNodeReports(NodeState.RUNNING);
     }
 
 }

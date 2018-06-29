@@ -1,7 +1,7 @@
 package com.dtstack.learning.jobhistory;
 
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.google.common.annotations.VisibleForTesting;
-import com.dtstack.learning.conf.XLearningConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -61,8 +61,8 @@ public class JobHistoryServer extends CompositeService {
     @Override
     protected void serviceStart() throws Exception {
       boolean recoveryEnabled = getConfig().getBoolean(
-          XLearningConfiguration.XLEARNING_HS_RECOVERY_ENABLE,
-          XLearningConfiguration.DEFAULT_XLEARNING_HS_RECOVERY_ENABLE);
+          LearningConfiguration.XLEARNING_HS_RECOVERY_ENABLE,
+          LearningConfiguration.DEFAULT_XLEARNING_HS_RECOVERY_ENABLE);
       if (recoveryEnabled) {
         assert stateStore.isInState(STATE.STARTED);
         HistoryServerState state = stateStore.loadState();
@@ -94,7 +94,7 @@ public class JobHistoryServer extends CompositeService {
 
   @Override
   protected void serviceInit(Configuration conf) throws Exception {
-    Configuration config = new XLearningConfiguration(conf);
+    Configuration config = new LearningConfiguration(conf);
 
     config.setBoolean(Dispatcher.DISPATCHER_EXIT_ON_ERROR_KEY, true);
 
@@ -130,14 +130,14 @@ public class JobHistoryServer extends CompositeService {
   protected JHSDelegationTokenSecretManager createJHSSecretManager(
       Configuration conf, HistoryServerStateStoreService store) {
     long secretKeyInterval =
-        conf.getLong(XLearningConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_KEY,
-            XLearningConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT);
+        conf.getLong(LearningConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_KEY,
+            LearningConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT);
     long tokenMaxLifetime =
-        conf.getLong(XLearningConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_KEY,
-            XLearningConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT);
+        conf.getLong(LearningConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_KEY,
+            LearningConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT);
     long tokenRenewInterval =
-        conf.getLong(XLearningConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_KEY,
-            XLearningConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_DEFAULT);
+        conf.getLong(LearningConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_KEY,
+            LearningConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_DEFAULT);
 
     return new JHSDelegationTokenSecretManager(secretKeyInterval,
         tokenMaxLifetime, tokenRenewInterval, 3600000, store);
@@ -150,8 +150,8 @@ public class JobHistoryServer extends CompositeService {
 
   protected void doSecureLogin(Configuration conf) throws IOException {
     InetSocketAddress socAddr = getBindAddress(conf);
-    SecurityUtil.login(conf, XLearningConfiguration.XLEARNING_HISTORY_KEYTAB,
-        XLearningConfiguration.XLEARNING_HISTORY_PRINCIPAL, socAddr.getHostName());
+    SecurityUtil.login(conf, LearningConfiguration.XLEARNING_HISTORY_KEYTAB,
+        LearningConfiguration.XLEARNING_HISTORY_PRINCIPAL, socAddr.getHostName());
   }
 
   /**
@@ -161,9 +161,9 @@ public class JobHistoryServer extends CompositeService {
    * @return InetSocketAddress
    */
   public static InetSocketAddress getBindAddress(Configuration conf) {
-    return conf.getSocketAddr(XLearningConfiguration.XLEARNING_HISTORY_ADDRESS,
-        conf.get(XLearningConfiguration.XLEARNING_HISTORY_ADDRESS, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS),
-        conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_PORT, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_PORT));
+    return conf.getSocketAddr(LearningConfiguration.XLEARNING_HISTORY_ADDRESS,
+        conf.get(LearningConfiguration.XLEARNING_HISTORY_ADDRESS, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS),
+        conf.getInt(LearningConfiguration.XLEARNING_HISTORY_PORT, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_PORT));
   }
 
   private class deleteLogMonitor implements Runnable {
@@ -171,15 +171,15 @@ public class JobHistoryServer extends CompositeService {
     @Override
     public void run() {
       FileSystem fs;
-      Configuration conf = new XLearningConfiguration();
-      Path historyLog = new Path(conf.get(XLearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
-          XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR));
-      Path eventLog = new Path(conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
-          XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR));
-      int monitorInterval = conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_LOG_DELETE_MONITOR_TIME_INTERVAL,
-          XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DELETE_MONITOR_TIME_INTERVAL);
-      int logMaxAge = conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_LOG_MAX_AGE_MS,
-          XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_MAX_AGE_MS);
+      Configuration conf = new LearningConfiguration();
+      Path historyLog = new Path(conf.get(LearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
+          LearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR));
+      Path eventLog = new Path(conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
+          LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR));
+      int monitorInterval = conf.getInt(LearningConfiguration.XLEARNING_HISTORY_LOG_DELETE_MONITOR_TIME_INTERVAL,
+          LearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DELETE_MONITOR_TIME_INTERVAL);
+      int logMaxAge = conf.getInt(LearningConfiguration.XLEARNING_HISTORY_LOG_MAX_AGE_MS,
+          LearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_MAX_AGE_MS);
       final Clock clock = new SystemClock();
       while (!Thread.currentThread().isInterrupted()) {
         try {

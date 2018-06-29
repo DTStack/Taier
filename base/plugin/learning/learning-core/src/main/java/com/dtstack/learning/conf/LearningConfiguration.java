@@ -7,111 +7,111 @@ import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.OutputFormat;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
-public class XLearningConfiguration extends YarnConfiguration {
+public class LearningConfiguration extends YarnConfiguration {
 
-  private static final String XLEARNING_DEFAULT_XML_FILE = "xlearning-default.xml";
+  private static final String LEARNING_DEFAULT_XML_FILE = "learning-default.xml";
 
-  private static final String XLEARNING_SITE_XML_FILE = "xlearning-site.xml";
+  private static final String LEARNING_SITE_XML_FILE = "learning-site.xml";
 
   static {
-    YarnConfiguration.addDefaultResource(XLEARNING_DEFAULT_XML_FILE);
-    YarnConfiguration.addDefaultResource(XLEARNING_SITE_XML_FILE);
+    YarnConfiguration.addDefaultResource(LEARNING_DEFAULT_XML_FILE);
+    YarnConfiguration.addDefaultResource(LEARNING_SITE_XML_FILE);
   }
 
-  public XLearningConfiguration() {
+  public LearningConfiguration() {
     super();
   }
 
-  public XLearningConfiguration(Configuration conf) {
+  public LearningConfiguration(Configuration conf) {
     super(conf);
   }
 
   /**
    * Configuration used in Client
    */
-  public static final String DEFAULT_XLEARNING_APP_TYPE = "XLEARNING";
+  public static final String DEFAULT_LEARNING_APP_TYPE = "XLEARNING";
 
-  public static final String XLEARNING_STAGING_DIR = "xlearning.staging.dir";
+  public static final String LEARNING_STAGING_DIR = "xlearning.staging.dir";
 
-  public static final String DEFAULT_XLEARNING_STAGING_DIR = "/tmp/XLearning/staging";
+  public static final String DEFAULT_LEARNING_STAGING_DIR = "/tmp/Learning/staging";
 
-  public static final String XLEARNING_LOG_PULL_INTERVAL = "xlearning.log.pull.interval";
+  public static final String LEARNING_LOG_PULL_INTERVAL = "learning.log.pull.interval";
 
-  public static final int DEFAULT_XLEARNING_LOG_PULL_INTERVAL = 10000;
+  public static final int DEFAULT_LEARNING_LOG_PULL_INTERVAL = 10000;
 
-  public static final String XLEARNING_USER_CLASSPATH_FIRST = "xlearning.user.classpath.first";
+  public static final String LEARNING_USER_CLASSPATH_FIRST = "learning.user.classpath.first";
 
-  public static final boolean DEFAULT_XLEARNING_USER_CLASSPATH_FIRST = true;
+  public static final boolean DEFAULT_LEARNING_USER_CLASSPATH_FIRST = true;
 
-  public static final String XLEARNING_REPORT_CONTAINER_STATUS = "xlearning.report.container.status";
+  public static final String LEARNING_REPORT_CONTAINER_STATUS = "learning.report.container.status";
 
-  public static final boolean DEFAULT_XLEARNING_REPORT_CONTAINER_STATUS = true;
+  public static final boolean DEFAULT_LEARNING_REPORT_CONTAINER_STATUS = true;
 
-  public static final String XLEARNING_AM_MEMORY = "xlearning.am.memory";
+  public static final String LEARNING_AM_MEMORY = "learning.am.memory";
 
-  public static final int DEFAULT_XLEARNING_AM_MEMORY = 1024;
+  public static final int DEFAULT_LEARNING_AM_MEMORY = 1024;
 
-  public static final String XLEARNING_AM_CORES = "xlearning.am.cores";
+  public static final String LEARNING_AM_CORES = "xlearning.am.cores";
 
-  public static final int DEFAULT_XLEARNING_AM_CORES = 1;
+  public static final int DEFAULT_LEARNING_AM_CORES = 1;
 
-  public static final String XLEARNING_WORKER_MEMORY = "xlearning.worker.memory";
+  public static final String LEARNING_WORKER_MEMORY = "xlearning.worker.memory";
 
-  public static final int DEFAULT_XLEARNING_WORKER_MEMORY = 1024;
+  public static final int DEFAULT_LEARNING_WORKER_MEMORY = 1024;
 
-  public static final String XLEARNING_WORKER_VCORES = "xlearning.worker.cores";
+  public static final String LEARNING_WORKER_VCORES = "xlearning.worker.cores";
 
-  public static final int DEFAULT_XLEARNING_WORKER_VCORES = 1;
+  public static final int DEFAULT_LEARNING_WORKER_VCORES = 1;
 
-  public static final String XLEARNING_WORKER_NUM = "xlearning.worker.num";
+  public static final String LEARNING_WORKER_NUM = "xlearning.worker.num";
 
-  public static final int DEFAULT_XLEARNING_WORKER_NUM = 1;
+  public static final int DEFAULT_LEARNING_WORKER_NUM = 1;
 
-  public static final String XLEARNING_PS_MEMORY = "xlearning.ps.memory";
+  public static final String LEARNING_PS_MEMORY = "xlearning.ps.memory";
 
-  public static final int DEFAULT_XLEARNING_PS_MEMORY = 1024;
+  public static final int DEFAULT_LEARNING_PS_MEMORY = 1024;
 
-  public static final String XLEARNING_PS_VCORES = "xlearning.ps.cores";
+  public static final String LEARNING_PS_VCORES = "xlearning.ps.cores";
 
-  public static final int DEFAULT_XLEARNING_PS_VCORES = 1;
+  public static final int DEFAULT_LEARNING_PS_VCORES = 1;
 
-  public static final String XLEARNING_PS_NUM = "xlearning.ps.num";
+  public static final String LEARNING_PS_NUM = "xlearning.ps.num";
 
-  public static final int DEFAULT_XLEARNING_PS_NUM = 0;
+  public static final int DEFAULT_LEARNING_PS_NUM = 0;
 
-  public static final String XLEARNING_WORKER_MEM_AUTO_SCALE = "xlearning.worker.mem.autoscale";
+  public static final String LEARNING_WORKER_MEM_AUTO_SCALE = "xlearning.worker.mem.autoscale";
 
-  public static final Double DEFAULT_XLEARNING_WORKER_MEM_AUTO_SCALE = 0.5;
+  public static final Double DEFAULT_LEARNING_WORKER_MEM_AUTO_SCALE = 0.5;
 
-  public static final String XLEARNING_PS_MEM_AUTO_SCALE = "xlearning.ps.mem.autoscale";
+  public static final String LEARNING_PS_MEM_AUTO_SCALE = "xlearning.ps.mem.autoscale";
 
-  public static final Double DEFAULT_XLEARNING_PS_MEM_AUTO_SCALE = 0.2;
+  public static final Double DEFAULT_LEARNING_PS_MEM_AUTO_SCALE = 0.2;
 
-  public static final String XLEARNING_APP_MAX_ATTEMPTS = "xlearning.app.max.attempts";
+  public static final String LEARNING_APP_MAX_ATTEMPTS = "xlearning.app.max.attempts";
 
-  public static final int DEFAULT_XLEARNING_APP_MAX_ATTEMPTS = 1;
+  public static final int DEFAULT_LEARNING_APP_MAX_ATTEMPTS = 1;
 
-  public static final String XLEARNING_TF_MODE_SINGLE = "xlearning.tf.mode.single";
+  public static final String LEARNING_TF_MODE_SINGLE = "xlearning.tf.mode.single";
 
-  public static Boolean DEFAULT_XLEARNING_TF_MODE_SINGLE = false;
+  public static Boolean DEFAULT_LEARNING_TF_MODE_SINGLE = false;
 
-  public static final String XLEARNING_MXNET_MODE_SINGLE = "xlearning.mxnet.mode.single";
+  public static final String LEARNING_MXNET_MODE_SINGLE = "xlearning.mxnet.mode.single";
 
-  public static Boolean DEFAULT_XLEARNING_MXNET_MODE_SINGLE = false;
+  public static Boolean DEFAULT_LEARNING_MXNET_MODE_SINGLE = false;
 
-  public static final String XLEARNING_APP_QUEUE = "xlearning.app.queue";
+  public static final String LEARNING_APP_QUEUE = "xlearning.app.queue";
 
-  public static final String DEFAULT_XLEARNING_APP_QUEUE = "DEFAULT";
+  public static final String DEFAULT_LEARNING_APP_QUEUE = "DEFAULT";
 
-  public static final String XLEARNING_APP_PRIORITY = "xlearning.app.priority";
+  public static final String LEARNING_APP_PRIORITY = "xlearning.app.priority";
 
-  public static final int DEFAULT_XLEARNING_APP_PRIORITY = 3;
+  public static final int DEFAULT_LEARNING_APP_PRIORITY = 3;
 
-  public static final String XLEARNING_OUTPUT_LOCAL_DIR = "xlearning.output.local.dir";
+  public static final String LEARNING_OUTPUT_LOCAL_DIR = "xlearning.output.local.dir";
 
-  public static final String DEFAULT_XLEARNING_OUTPUT_LOCAL_DIR = "output";
+  public static final String DEFAULT_LEARNING_OUTPUT_LOCAL_DIR = "output";
 
-  public static final String XLEARNING_INPUTF0RMAT_CLASS = "xlearning.inputformat.class";
+  public static final String LEARNING_INPUTF0RMAT_CLASS = "xlearning.inputformat.class";
 
   public static final Class<? extends InputFormat> DEFAULT_XLEARNING_INPUTF0RMAT_CLASS = org.apache.hadoop.mapred.TextInputFormat.class;
 

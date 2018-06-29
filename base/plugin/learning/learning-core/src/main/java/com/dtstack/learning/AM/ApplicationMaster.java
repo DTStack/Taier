@@ -1,16 +1,16 @@
 package com.dtstack.learning.AM;
 
 import com.dtstack.learning.api.ApplicationContext;
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.google.gson.Gson;
-import com.dtstack.learning.api.XLearningConstants;
+import com.dtstack.learning.api.LearningConstants;
 import com.dtstack.learning.common.InputInfo;
 import com.dtstack.learning.common.LogType;
 import com.dtstack.learning.common.Message;
 import com.dtstack.learning.common.OutputInfo;
 import com.dtstack.learning.common.XLearningContainerStatus;
-import com.dtstack.learning.conf.XLearningConfiguration;
 import com.dtstack.learning.container.XLearningContainer;
-import com.dtstack.learning.container.XLearningContainerId;
+import com.dtstack.learning.container.LearningContainerId;
 import com.dtstack.learning.util.Utilities;
 import com.dtstack.learning.webapp.AMParams;
 import org.apache.commons.lang.StringUtils;
@@ -86,34 +86,56 @@ public class ApplicationMaster extends CompositeService {
   private Boolean single;
   private Boolean singleMx;
   private int appPriority;
-  // location of AppMaster.jar on HDFS
+
+  /** location of AppMaster.jar on HDFS */
   private Path appJarRemoteLocation;
-  // location of job.xml on HDFS
+
+  /**location of job.xml on HDFS */
   private Path appConfRemoteLocation;
-  // location of files on HDFS
+
+  /** location of files on HDFS */
   private String appFilesRemoteLocation;
-  // location of lib jars on HDFS
+
+  /** location of lib jars on HDFS */
   private String appLibJarsRemoteLocation;
-  // location of cacheFiles on HDFS
+
+  /** location of cacheFiles on HDFS */
   private String appCacheFilesRemoteLocation;
-  // location of cacheArchive on HDFS
+
+  /** location of cacheArchive on HDFS */
   private String appCacheArchivesRemoteLocation;
+
   private String xlearningCommand;
+
   private String dmlcPsRootUri;
+
   private int dmlcPsRootPort;
+
   private String dmlcTrackerUri;
+
   private int dmlcTrackerPort;
+
   private String xlearningAppType;
+
   private List<Container> acquiredWorkerContainers;
+
   private List<Container> acquiredPsContainers;
+
   private final LinkedBlockingQueue<Message> applicationMessageQueue;
+
   private final List<OutputInfo> outputInfos;
+
   private ConcurrentHashMap<String, List<FileStatus>> input2FileStatus;
-  private ConcurrentHashMap<XLearningContainerId, List<InputInfo>> containerId2InputInfo;
+
+  private ConcurrentHashMap<LearningContainerId, List<InputInfo>> containerId2InputInfo;
+
   private InputSplit[] inputFileSplits;
-  private ConcurrentHashMap<XLearningContainerId, List<InputSplit>> containerId2InputSplit;
-  // An RPC Service listening the container status
+
+  private ConcurrentHashMap<LearningContainerId, List<InputSplit>> containerId2InputSplit;
+
+  /** An RPC Service listening the container status */
   private ApplicationContainerListener containerListener;
+
   private int statusUpdateInterval;
   private final ApplicationContext applicationContext;
   private RMCallbackHandler rmCallbackHandler;
@@ -137,31 +159,31 @@ public class ApplicationMaster extends CompositeService {
   private ApplicationMaster() {
     super(ApplicationMaster.class.getName());
 
-    conf = new XLearningConfiguration();
-    conf.addResource(new Path(XLearningConstants.XLEARNING_JOB_CONFIGURATION));
-    System.setProperty(XLearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
+    conf = new LearningConfiguration();
+    conf.addResource(new Path(LearningConstants.LEARNING_JOB_CONFIGURATION));
+    System.setProperty(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
     outputInfos = new ArrayList<>();
     input2FileStatus = new ConcurrentHashMap<>();
     containerId2InputInfo = new ConcurrentHashMap<>();
     inputFileSplits = null;
     containerId2InputSplit = new ConcurrentHashMap<>();
-    statusUpdateInterval = conf.getInt(XLearningConfiguration.XLEARNING_STATUS_UPDATE_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_STATUS_PULL_INTERVAL);
+    statusUpdateInterval = conf.getInt(LearningConfiguration.XLEARNING_STATUS_UPDATE_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_STATUS_PULL_INTERVAL);
     applicationAttemptID = Records.newRecord(ApplicationAttemptId.class);
     applicationMessageQueue = new LinkedBlockingQueue<>(
-        conf.getInt(XLearningConfiguration.XLEARNING_MESSAGES_LEN_MAX, XLearningConfiguration.DEFAULT_XLEARNING_MESSAGES_LEN_MAX));
+        conf.getInt(LearningConfiguration.XLEARNING_MESSAGES_LEN_MAX, LearningConfiguration.DEFAULT_XLEARNING_MESSAGES_LEN_MAX));
     containerLocalResource = new HashMap<>();
     applicationContext = new RunningAppContext();
 
     envs = System.getenv();
-    workerMemory = conf.getInt(XLearningConfiguration.XLEARNING_WORKER_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_MEMORY);
-    workerVCores = conf.getInt(XLearningConfiguration.XLEARNING_WORKER_VCORES, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_VCORES);
-    workerNum = conf.getInt(XLearningConfiguration.XLEARNING_WORKER_NUM, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_NUM);
-    psMemory = conf.getInt(XLearningConfiguration.XLEARNING_PS_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_PS_MEMORY);
-    psVCores = conf.getInt(XLearningConfiguration.XLEARNING_PS_VCORES, XLearningConfiguration.DEFAULT_XLEARNING_PS_VCORES);
-    psNum = conf.getInt(XLearningConfiguration.XLEARNING_PS_NUM, XLearningConfiguration.DEFAULT_XLEARNING_PS_NUM);
-    single = conf.getBoolean(XLearningConfiguration.XLEARNING_TF_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_MODE_SINGLE);
-    singleMx = conf.getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE);
-    appPriority = conf.getInt(XLearningConfiguration.XLEARNING_APP_PRIORITY, XLearningConfiguration.DEFAULT_XLEARNING_APP_PRIORITY);
+    workerMemory = conf.getInt(LearningConfiguration.LEARNING_WORKER_MEMORY, LearningConfiguration.DEFAULT_LEARNING_WORKER_MEMORY);
+    workerVCores = conf.getInt(LearningConfiguration.LEARNING_WORKER_VCORES, LearningConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
+    workerNum = conf.getInt(LearningConfiguration.LEARNING_WORKER_NUM, LearningConfiguration.DEFAULT_LEARNING_WORKER_NUM);
+    psMemory = conf.getInt(LearningConfiguration.LEARNING_PS_MEMORY, LearningConfiguration.DEFAULT_LEARNING_PS_MEMORY);
+    psVCores = conf.getInt(LearningConfiguration.LEARNING_PS_VCORES, LearningConfiguration.DEFAULT_LEARNING_PS_VCORES);
+    psNum = conf.getInt(LearningConfiguration.LEARNING_PS_NUM, LearningConfiguration.DEFAULT_LEARNING_PS_NUM);
+    single = conf.getBoolean(LearningConfiguration.LEARNING_TF_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_TF_MODE_SINGLE);
+    singleMx = conf.getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE);
+    appPriority = conf.getInt(LearningConfiguration.LEARNING_APP_PRIORITY, LearningConfiguration.DEFAULT_LEARNING_APP_PRIORITY);
     acquiredWorkerContainers = new ArrayList<>();
     acquiredPsContainers = new ArrayList<>();
     dmlcPsRootUri = null;
@@ -184,61 +206,61 @@ public class ApplicationMaster extends CompositeService {
         + applicationAttemptID.getApplicationId().getClusterTimestamp()
         + ", attemptId=" + applicationAttemptID.getAttemptId());
 
-    if (applicationAttemptID.getAttemptId() > 1 && (conf.getInt(XLearningConfiguration.XLEARNING_APP_MAX_ATTEMPTS, XLearningConfiguration.DEFAULT_XLEARNING_APP_MAX_ATTEMPTS) > 1)) {
-      int maxMem = Integer.valueOf(envs.get(XLearningConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString()));
+    if (applicationAttemptID.getAttemptId() > 1 && (conf.getInt(LearningConfiguration.LEARNING_APP_MAX_ATTEMPTS, LearningConfiguration.DEFAULT_LEARNING_APP_MAX_ATTEMPTS) > 1)) {
+      int maxMem = Integer.valueOf(envs.get(LearningConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString()));
       LOG.info("maxMem : " + maxMem);
-      workerMemory = workerMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(workerMemory * conf.getDouble(XLearningConfiguration.XLEARNING_WORKER_MEM_AUTO_SCALE, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_MEM_AUTO_SCALE));
-      LOG.info("Auto Scale the Worker Memory from " + conf.getInt(XLearningConfiguration.XLEARNING_WORKER_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_WORKER_MEMORY) + " to " + workerMemory);
+      workerMemory = workerMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(workerMemory * conf.getDouble(LearningConfiguration.LEARNING_WORKER_MEM_AUTO_SCALE, LearningConfiguration.DEFAULT_LEARNING_WORKER_MEM_AUTO_SCALE));
+      LOG.info("Auto Scale the Worker Memory from " + conf.getInt(LearningConfiguration.LEARNING_WORKER_MEMORY, LearningConfiguration.DEFAULT_LEARNING_WORKER_MEMORY) + " to " + workerMemory);
       if (workerMemory > maxMem) {
         workerMemory = maxMem;
       }
       if (psNum > 0) {
-        psMemory = psMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(psMemory * conf.getDouble(XLearningConfiguration.XLEARNING_PS_MEM_AUTO_SCALE, XLearningConfiguration.DEFAULT_XLEARNING_PS_MEM_AUTO_SCALE));
-        LOG.info("Auto Scale the Ps Memory from " + conf.getInt(XLearningConfiguration.XLEARNING_PS_MEMORY, XLearningConfiguration.DEFAULT_XLEARNING_PS_MEMORY) + " to " + psMemory);
+        psMemory = psMemory + (applicationAttemptID.getAttemptId() - 1) * (int) Math.ceil(psMemory * conf.getDouble(LearningConfiguration.LEARNING_PS_MEM_AUTO_SCALE, LearningConfiguration.DEFAULT_LEARNING_PS_MEM_AUTO_SCALE));
+        LOG.info("Auto Scale the Ps Memory from " + conf.getInt(LearningConfiguration.LEARNING_PS_MEMORY, LearningConfiguration.DEFAULT_LEARNING_PS_MEMORY) + " to " + psMemory);
         if (psMemory > maxMem) {
           psMemory = maxMem;
         }
       }
     }
 
-    if (envs.containsKey(XLearningConstants.Environment.XLEARNING_FILES_LOCATION.toString())) {
-      appFilesRemoteLocation = envs.get(XLearningConstants.Environment.XLEARNING_FILES_LOCATION.toString());
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_FILES_LOCATION.toString())) {
+      appFilesRemoteLocation = envs.get(LearningConstants.Environment.XLEARNING_FILES_LOCATION.toString());
       LOG.info("Application files location: " + appFilesRemoteLocation);
     }
 
-    if (envs.containsKey(XLearningConstants.Environment.XLEARNING_LIBJARS_LOCATION.toString())) {
-      appLibJarsRemoteLocation = envs.get(XLearningConstants.Environment.XLEARNING_LIBJARS_LOCATION.toString());
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_LIBJARS_LOCATION.toString())) {
+      appLibJarsRemoteLocation = envs.get(LearningConstants.Environment.XLEARNING_LIBJARS_LOCATION.toString());
       LOG.info("Application lib Jars location: " + appLibJarsRemoteLocation);
     }
 
-    if (envs.containsKey(XLearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString())) {
-      appCacheFilesRemoteLocation = envs.get(XLearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString());
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString())) {
+      appCacheFilesRemoteLocation = envs.get(LearningConstants.Environment.XLEARNING_CACHE_FILE_LOCATION.toString());
       LOG.info("Application cacheFiles location: " + appCacheFilesRemoteLocation);
     }
 
-    if (envs.containsKey(XLearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString())) {
-      appCacheArchivesRemoteLocation = envs.get(XLearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString());
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString())) {
+      appCacheArchivesRemoteLocation = envs.get(LearningConstants.Environment.XLEARNING_CACHE_ARCHIVE_LOCATION.toString());
       LOG.info("Application cacheArchive location: " + appCacheArchivesRemoteLocation);
     }
 
-    assert (envs.containsKey(XLearningConstants.Environment.APP_JAR_LOCATION.toString()));
-    appJarRemoteLocation = new Path(envs.get(XLearningConstants.Environment.APP_JAR_LOCATION.toString()));
+    assert (envs.containsKey(LearningConstants.Environment.APP_JAR_LOCATION.toString()));
+    appJarRemoteLocation = new Path(envs.get(LearningConstants.Environment.APP_JAR_LOCATION.toString()));
     LOG.info("Application jar location: " + appJarRemoteLocation);
 
-    assert (envs.containsKey(XLearningConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString()));
-    appConfRemoteLocation = new Path(envs.get(XLearningConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString()));
+    assert (envs.containsKey(LearningConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString()));
+    appConfRemoteLocation = new Path(envs.get(LearningConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString()));
     LOG.info("Application conf location: " + appConfRemoteLocation);
 
-    if (envs.containsKey(XLearningConstants.Environment.XLEARNING_EXEC_CMD.toString())) {
-      xlearningCommand = envs.get(XLearningConstants.Environment.XLEARNING_EXEC_CMD.toString());
+    if (envs.containsKey(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString())) {
+      xlearningCommand = envs.get(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString());
       LOG.info("XLearning exec command: " + xlearningCommand);
     }
 
-    if (envs.containsKey(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString())) {
-      xlearningAppType = envs.get(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString()).toUpperCase();
+    if (envs.containsKey(LearningConstants.Environment.LEARNING_APP_TYPE.toString())) {
+      xlearningAppType = envs.get(LearningConstants.Environment.LEARNING_APP_TYPE.toString()).toUpperCase();
       LOG.info("XLearning app type: " + xlearningAppType);
     } else {
-      xlearningAppType = XLearningConfiguration.DEFAULT_XLEARNING_APP_TYPE.toUpperCase();
+      xlearningAppType = LearningConfiguration.DEFAULT_LEARNING_APP_TYPE.toUpperCase();
       LOG.info("XLearning app type: " + xlearningAppType);
     }
 
@@ -278,8 +300,8 @@ public class ApplicationMaster extends CompositeService {
     }
 
     applicationMasterTrackingUrl = applicationMasterHostname + ":" + this.webService.getHttpPort();
-    applicationHistoryUrl = conf.get(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS,
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS) + "/jobhistory/job/"
+    applicationHistoryUrl = conf.get(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS,
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS) + "/jobhistory/job/"
         + applicationAttemptID.getApplicationId();
     LOG.info("master tracking url:" + applicationMasterTrackingUrl);
     LOG.info("history url: " + applicationHistoryUrl);
@@ -287,10 +309,10 @@ public class ApplicationMaster extends CompositeService {
     cleanApplication = new Thread(new Runnable() {
       @Override
       public void run() {
-        System.clearProperty(XLearningConstants.Environment.HADOOP_USER_NAME.toString());
+        System.clearProperty(LearningConstants.Environment.HADOOP_USER_NAME.toString());
         YarnConfiguration xlearningConf = new YarnConfiguration();
-        if (xlearningConf.getBoolean(XLearningConfiguration.XLEARNING_CLEANUP_ENABLE, XLearningConfiguration.DEFAULT_XLEARNING_CLEANUP_ENABLE)) {
-          Path stagingDir = new Path(envs.get(XLearningConstants.Environment.XLEARNING_STAGING_LOCATION.toString()));
+        if (xlearningConf.getBoolean(LearningConfiguration.XLEARNING_CLEANUP_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_CLEANUP_ENABLE)) {
+          Path stagingDir = new Path(envs.get(LearningConstants.Environment.XLEARNING_STAGING_LOCATION.toString()));
           try {
             stagingDir.getFileSystem(xlearningConf).delete(stagingDir);
             LOG.info("Deleting the staging file successed.");
@@ -301,8 +323,8 @@ public class ApplicationMaster extends CompositeService {
 
         try {
           FsPermission LOG_FILE_PERMISSION = FsPermission.createImmutable((short) 0777);
-          Path jobLogPath = new Path(xlearningConf.get("fs.defaultFS") + conf.get(XLearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
-              XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR) + "/" + applicationAttemptID.getApplicationId().toString()
+          Path jobLogPath = new Path(xlearningConf.get("fs.defaultFS") + conf.get(LearningConfiguration.XLEARNING_HISTORY_LOG_DIR,
+              LearningConfiguration.DEFAULT_XLEARNING_HISTORY_LOG_DIR) + "/" + applicationAttemptID.getApplicationId().toString()
               + "/" + applicationAttemptID.getApplicationId().toString());
           LOG.info("jobLogPath:" + jobLogPath.toString());
           LOG.info("Start write the log to " + jobLogPath.toString());
@@ -313,18 +335,18 @@ public class ApplicationMaster extends CompositeService {
           logMessage.put(AMParams.APP_TYPE, xlearningAppType);
 
           String tensorboardInfo = "-";
-          if (conf.getBoolean(XLearningConfiguration.XLEARNING_TF_BOARD_ENABLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE)) {
+          if (conf.getBoolean(LearningConfiguration.XLEARNING_TF_BOARD_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE)) {
             String boardLogPath;
-            if (conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs://") == -1) {
-              if (conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR).equals(xlearningConf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR))) {
-                boardLogPath = xlearningConf.get("fs.defaultFS") + conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
-                    XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR) + "/" + applicationAttemptID.getApplicationId().toString();
+            if (conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs://") == -1) {
+              if (conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR).equals(xlearningConf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR))) {
+                boardLogPath = xlearningConf.get("fs.defaultFS") + conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
+                    LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR) + "/" + applicationAttemptID.getApplicationId().toString();
               } else {
-                boardLogPath = conf.get("fs.defaultFS") + conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
-                    XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR);
+                boardLogPath = conf.get("fs.defaultFS") + conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
+                    LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR);
               }
             } else {
-              boardLogPath = conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR);
+              boardLogPath = conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR);
             }
             tensorboardInfo = boardLogPath;
           }
@@ -333,36 +355,36 @@ public class ApplicationMaster extends CompositeService {
           String userName = StringUtils.split(conf.get("hadoop.job.ugi"), ',')[0];
           List<Container> workerContainers = applicationContext.getWorkerContainers();
           List<Container> psContainers = applicationContext.getPsContainers();
-          Map<XLearningContainerId, String> reporterProgress = applicationContext.getReporterProgress();
-          Map<XLearningContainerId, String> containersAppStartTime = applicationContext.getContainersAppStartTime();
-          Map<XLearningContainerId, String> containersAppFinishTime = applicationContext.getContainersAppFinishTime();
+          Map<LearningContainerId, String> reporterProgress = applicationContext.getReporterProgress();
+          Map<LearningContainerId, String> containersAppStartTime = applicationContext.getContainersAppStartTime();
+          Map<LearningContainerId, String> containersAppFinishTime = applicationContext.getContainersAppFinishTime();
           for (Container container : workerContainers) {
             Map<String, String> containerMessage = new HashMap<>();
             containerMessage.put(AMParams.CONTAINER_HTTP_ADDRESS, container.getNodeHttpAddress());
             containerMessage.put(AMParams.CONTAINER_ROLE, "worker");
-            if (applicationContext.getContainerStatus(new XLearningContainerId(container.getId())) != null) {
-              containerMessage.put(AMParams.CONTAINER_STATUS, applicationContext.getContainerStatus(new XLearningContainerId(container.getId())).toString());
+            if (applicationContext.getContainerStatus(new LearningContainerId(container.getId())) != null) {
+              containerMessage.put(AMParams.CONTAINER_STATUS, applicationContext.getContainerStatus(new LearningContainerId(container.getId())).toString());
             } else {
               containerMessage.put(AMParams.CONTAINER_STATUS, "-");
             }
-            if (containersAppStartTime.get(new XLearningContainerId(container.getId())) != null && !containersAppStartTime.get(new XLearningContainerId(container.getId())).equals("")) {
-              String localStartTime = containersAppStartTime.get(new XLearningContainerId(container.getId()));
+            if (containersAppStartTime.get(new LearningContainerId(container.getId())) != null && !containersAppStartTime.get(new LearningContainerId(container.getId())).equals("")) {
+              String localStartTime = containersAppStartTime.get(new LearningContainerId(container.getId()));
               containerMessage.put(AMParams.CONTAINER_START_TIME, localStartTime);
             } else {
               containerMessage.put(AMParams.CONTAINER_START_TIME, "N/A");
             }
-            if (containersAppFinishTime.get(new XLearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new XLearningContainerId(container.getId())).equals("")) {
-              String localFinishTime = containersAppFinishTime.get(new XLearningContainerId(container.getId()));
+            if (containersAppFinishTime.get(new LearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new LearningContainerId(container.getId())).equals("")) {
+              String localFinishTime = containersAppFinishTime.get(new LearningContainerId(container.getId()));
               containerMessage.put(AMParams.CONTAINER_FINISH_TIME, localFinishTime);
             } else {
               containerMessage.put(AMParams.CONTAINER_FINISH_TIME, "N/A");
             }
 
-            ConcurrentHashMap<String, LinkedBlockingDeque<Object>> cpuMetrics = applicationContext.getContainersCpuMetrics().get(new XLearningContainerId(container.getId()));
+            ConcurrentHashMap<String, LinkedBlockingDeque<Object>> cpuMetrics = applicationContext.getContainersCpuMetrics().get(new LearningContainerId(container.getId()));
             containerMessage.put(AMParams.CONTAINER_CPU_METRICS, new Gson().toJson(cpuMetrics));
 
-            if (reporterProgress.get(new XLearningContainerId(container.getId())) != null && !reporterProgress.get(new XLearningContainerId(container.getId())).equals("")) {
-              String progressLog = reporterProgress.get(new XLearningContainerId(container.getId()));
+            if (reporterProgress.get(new LearningContainerId(container.getId())) != null && !reporterProgress.get(new LearningContainerId(container.getId())).equals("")) {
+              String progressLog = reporterProgress.get(new LearningContainerId(container.getId()));
               String[] progress = progressLog.toString().split(":");
               if (progress.length != 2) {
                 containerMessage.put(AMParams.CONTAINER_REPORTER_PROGRESS, "progress log format error");
@@ -399,20 +421,20 @@ public class ApplicationMaster extends CompositeService {
               containerMessage.put(AMParams.CONTAINER_ROLE, "server");
             }
 
-            if (applicationContext.getContainerStatus(new XLearningContainerId(container.getId())) != null) {
-              containerMessage.put(AMParams.CONTAINER_STATUS, applicationContext.getContainerStatus(new XLearningContainerId(container.getId())).toString());
+            if (applicationContext.getContainerStatus(new LearningContainerId(container.getId())) != null) {
+              containerMessage.put(AMParams.CONTAINER_STATUS, applicationContext.getContainerStatus(new LearningContainerId(container.getId())).toString());
             } else {
               containerMessage.put(AMParams.CONTAINER_STATUS, "-");
             }
 
-            if (containersAppStartTime.get(new XLearningContainerId(container.getId())) != null && !containersAppStartTime.get(new XLearningContainerId(container.getId())).equals("")) {
-              String localStartTime = containersAppStartTime.get(new XLearningContainerId(container.getId()));
+            if (containersAppStartTime.get(new LearningContainerId(container.getId())) != null && !containersAppStartTime.get(new LearningContainerId(container.getId())).equals("")) {
+              String localStartTime = containersAppStartTime.get(new LearningContainerId(container.getId()));
               containerMessage.put(AMParams.CONTAINER_START_TIME, localStartTime);
             } else {
               containerMessage.put(AMParams.CONTAINER_START_TIME, "N/A");
             }
-            if (containersAppFinishTime.get(new XLearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new XLearningContainerId(container.getId())).equals("")) {
-              String localFinishTime = containersAppFinishTime.get(new XLearningContainerId(container.getId()));
+            if (containersAppFinishTime.get(new LearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new LearningContainerId(container.getId())).equals("")) {
+              String localFinishTime = containersAppFinishTime.get(new LearningContainerId(container.getId()));
               containerMessage.put(AMParams.CONTAINER_FINISH_TIME, localFinishTime);
             } else {
               containerMessage.put(AMParams.CONTAINER_FINISH_TIME, "N/A");
@@ -459,7 +481,7 @@ public class ApplicationMaster extends CompositeService {
   }
 
   private void buildInputFileStatus() {
-    String xlearningInputs = envs.get(XLearningConstants.Environment.XLEARNING_INPUTS.toString());
+    String xlearningInputs = envs.get(LearningConstants.Environment.XLEARNING_INPUTS.toString());
     if (StringUtils.isBlank(xlearningInputs)) {
       LOG.info("Application has no inputs");
       return;
@@ -503,7 +525,7 @@ public class ApplicationMaster extends CompositeService {
   }
 
   public void buildInputStreamFileStatus() throws IOException {
-    String xlearningInputs = envs.get(XLearningConstants.Environment.XLEARNING_INPUTS.toString());
+    String xlearningInputs = envs.get(LearningConstants.Environment.XLEARNING_INPUTS.toString());
     if (StringUtils.isBlank(xlearningInputs)) {
       LOG.info("Application has no inputs");
       return;
@@ -516,8 +538,8 @@ public class ApplicationMaster extends CompositeService {
     String inputPathRemote = inputPathTuple[0];
     if (!StringUtils.isBlank(inputPathRemote)) {
       JobConf jobConf = new JobConf(conf);
-      jobConf.set(XLearningConstants.STREAM_INPUT_DIR, inputPathRemote);
-      InputFormat inputFormat = ReflectionUtils.newInstance(conf.getClass(XLearningConfiguration.XLEARNING_INPUTF0RMAT_CLASS, XLearningConfiguration.DEFAULT_XLEARNING_INPUTF0RMAT_CLASS, InputFormat.class),
+      jobConf.set(LearningConstants.STREAM_INPUT_DIR, inputPathRemote);
+      InputFormat inputFormat = ReflectionUtils.newInstance(conf.getClass(LearningConfiguration.LEARNING_INPUTF0RMAT_CLASS, LearningConfiguration.DEFAULT_XLEARNING_INPUTF0RMAT_CLASS, InputFormat.class),
           jobConf);
       inputFileSplits = inputFormat.getSplits(jobConf, 1);
     } else {
@@ -530,17 +552,17 @@ public class ApplicationMaster extends CompositeService {
 
     for (Container container : acquiredWorkerContainers) {
       LOG.info("Initializing " + container.getId().toString() + " input splits");
-      containerId2InputInfo.putIfAbsent(new XLearningContainerId(container.getId()), new ArrayList<InputInfo>());
+      containerId2InputInfo.putIfAbsent(new LearningContainerId(container.getId()), new ArrayList<InputInfo>());
     }
     Set<String> fileKeys = input2FileStatus.keySet();
     for (String fileName : fileKeys) {
       List<FileStatus> files = input2FileStatus.get(fileName);
       List<Path> paths = Utilities.convertStatusToPath(files);
-      ConcurrentHashMap<XLearningContainerId, ConcurrentHashMap<String, InputInfo>> containersFiles = new ConcurrentHashMap<>();
+      ConcurrentHashMap<LearningContainerId, ConcurrentHashMap<String, InputInfo>> containersFiles = new ConcurrentHashMap<>();
       for (int i = 0, len = paths.size(); i < len; i++) {
         Integer index = i % workerNum;
         ConcurrentHashMap<String, InputInfo> mapSplit;
-        XLearningContainerId containerId = new XLearningContainerId(acquiredWorkerContainers.get(index).getId());
+        LearningContainerId containerId = new LearningContainerId(acquiredWorkerContainers.get(index).getId());
         if (containersFiles.containsKey(containerId)) {
           mapSplit = containersFiles.get(containerId);
         } else {
@@ -558,8 +580,8 @@ public class ApplicationMaster extends CompositeService {
           mapSplit.put(fileName, inputInfo);
         }
       }
-      Set<XLearningContainerId> containerIdSet = containersFiles.keySet();
-      for (XLearningContainerId containerId : containerIdSet) {
+      Set<LearningContainerId> containerIdSet = containersFiles.keySet();
+      for (LearningContainerId containerId : containerIdSet) {
         containerId2InputInfo.get(containerId).add(containersFiles.get(containerId).get(fileName));
         LOG.info("put " + fileName + " to " + containerId.toString());
       }
@@ -571,13 +593,13 @@ public class ApplicationMaster extends CompositeService {
 
     for (Container container : acquiredWorkerContainers) {
       LOG.info("Initializing " + container.getId().toString() + " input splits");
-      containerId2InputSplit.putIfAbsent(new XLearningContainerId(container.getId()), new ArrayList<InputSplit>());
+      containerId2InputSplit.putIfAbsent(new LearningContainerId(container.getId()), new ArrayList<InputSplit>());
     }
-    if (conf.getBoolean(XLearningConfiguration.XLEARNING_INPUT_STREAM_SHUFFLE, XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STREAM_SHUFFLE)) {
+    if (conf.getBoolean(LearningConfiguration.XLEARNING_INPUT_STREAM_SHUFFLE, LearningConfiguration.DEFAULT_XLEARNING_INPUT_STREAM_SHUFFLE)) {
       LOG.info("XLEARNING_INPUT_STREAM_SHUFFLE is true");
       for (int i = 0, len = inputFileSplits.length; i < len; i++) {
         Integer index = i % workerNum;
-        XLearningContainerId containerId = new XLearningContainerId(acquiredWorkerContainers.get(index).getId());
+        LearningContainerId containerId = new LearningContainerId(acquiredWorkerContainers.get(index).getId());
         containerId2InputSplit.get(containerId).add(inputFileSplits[i]);
         LOG.info("put split " + (i + 1) + " to " + containerId.toString());
       }
@@ -587,7 +609,7 @@ public class ApplicationMaster extends CompositeService {
       int msplit = inputFileSplits.length % workerNum;
       int count = 0;
       for (int i = 0; i < workerNum; i++) {
-        XLearningContainerId containerId = new XLearningContainerId(acquiredWorkerContainers.get(i).getId());
+        LearningContainerId containerId = new LearningContainerId(acquiredWorkerContainers.get(i).getId());
         for (int j = 0; j < nsplit; j++) {
           containerId2InputSplit.get(containerId).add(inputFileSplits[count++]);
           LOG.info("put split " + count + " to " + containerId.toString());
@@ -602,7 +624,7 @@ public class ApplicationMaster extends CompositeService {
   }
 
   private void buildOutputLocations() {
-    String xlearningOutputs = envs.get(XLearningConstants.Environment.XLEARNING_OUTPUTS.toString());
+    String xlearningOutputs = envs.get(LearningConstants.Environment.XLEARNING_OUTPUTS.toString());
     if (StringUtils.isBlank(xlearningOutputs)) {
       return;
     }
@@ -658,11 +680,11 @@ public class ApplicationMaster extends CompositeService {
     LOG.info("default URI is " + defaultUri.toString());
     containerLocalResource = new HashMap<>();
     try {
-      containerLocalResource.put(XLearningConstants.XLEARNING_APPLICATION_JAR,
+      containerLocalResource.put(LearningConstants.LEARNING_APPLICATION_JAR,
           Utilities.createApplicationResource(appJarRemoteLocation.getFileSystem(conf),
               appJarRemoteLocation,
               LocalResourceType.FILE));
-      containerLocalResource.put(XLearningConstants.XLEARNING_JOB_CONFIGURATION,
+      containerLocalResource.put(LearningConstants.LEARNING_JOB_CONFIGURATION,
           Utilities.createApplicationResource(appConfRemoteLocation.getFileSystem(conf),
               appConfRemoteLocation,
               LocalResourceType.FILE));
@@ -753,13 +775,13 @@ public class ApplicationMaster extends CompositeService {
   private Map<String, String> buildContainerEnv(String role) {
     LOG.info("Setting environments for the Container");
     Map<String, String> containerEnv = new HashMap<>();
-    containerEnv.put(XLearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
-    containerEnv.put(XLearningConstants.Environment.XLEARNING_TF_ROLE.toString(), role);
-    containerEnv.put(XLearningConstants.Environment.XLEARNING_EXEC_CMD.toString(), xlearningCommand);
-    containerEnv.put(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString(), xlearningAppType);
+    containerEnv.put(LearningConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoop.job.ugi").split(",")[0]);
+    containerEnv.put(LearningConstants.Environment.XLEARNING_TF_ROLE.toString(), role);
+    containerEnv.put(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString(), xlearningCommand);
+    containerEnv.put(LearningConstants.Environment.LEARNING_APP_TYPE.toString(), xlearningAppType);
     if (xlearningAppType.equals("MXNET") && !singleMx) {
-      containerEnv.put(XLearningConstants.Environment.XLEARNING_MXNET_WORKER_NUM.toString(), String.valueOf(workerNum));
-      containerEnv.put(XLearningConstants.Environment.XLEARNING_MXNET_SERVER_NUM.toString(), String.valueOf(psNum));
+      containerEnv.put(LearningConstants.Environment.XLEARNING_MXNET_WORKER_NUM.toString(), String.valueOf(workerNum));
+      containerEnv.put(LearningConstants.Environment.XLEARNING_MXNET_SERVER_NUM.toString(), String.valueOf(psNum));
       containerEnv.put("DMLC_PS_ROOT_URI", dmlcPsRootUri);
       containerEnv.put("DMLC_PS_ROOT_PORT", String.valueOf(dmlcPsRootPort));
     }
@@ -771,18 +793,18 @@ public class ApplicationMaster extends CompositeService {
     }
 
     if (xlearningAppType.equals("DISTLIGHTGBM")) {
-      containerEnv.put(XLearningConstants.Environment.XLEARNING_LIGHTGBM_WORKER_NUM.toString(), String.valueOf(workerNum));
+      containerEnv.put(LearningConstants.Environment.XLEARNING_LIGHTGBM_WORKER_NUM.toString(), String.valueOf(workerNum));
     }
 
     containerEnv.put("CLASSPATH", System.getenv("CLASSPATH"));
-    containerEnv.put(XLearningConstants.Environment.APP_ATTEMPTID.toString(), applicationAttemptID.toString());
-    containerEnv.put(XLearningConstants.Environment.APP_ID.toString(), applicationAttemptID.getApplicationId().toString());
+    containerEnv.put(LearningConstants.Environment.APP_ATTEMPTID.toString(), applicationAttemptID.toString());
+    containerEnv.put(LearningConstants.Environment.APP_ID.toString(), applicationAttemptID.getApplicationId().toString());
 
-    containerEnv.put(XLearningConstants.Environment.APPMASTER_HOST.toString(),
+    containerEnv.put(LearningConstants.Environment.APPMASTER_HOST.toString(),
         System.getenv(ApplicationConstants.Environment.NM_HOST.toString()));
-    containerEnv.put(XLearningConstants.Environment.APPMASTER_PORT.toString(),
+    containerEnv.put(LearningConstants.Environment.APPMASTER_PORT.toString(),
         String.valueOf(containerListener.getServerPort()));
-    containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(XLearningConstants.Environment.USER_PATH.toString()));
+    containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(LearningConstants.Environment.USER_PATH.toString()));
 
     LOG.debug("env:" + containerEnv.toString());
     Set<String> envStr = containerEnv.keySet();
@@ -799,7 +821,7 @@ public class ApplicationMaster extends CompositeService {
     vargs.add("${JAVA_HOME}" + "/bin/java");
     vargs.add("-Xmx" + containerMemory + "m");
     vargs.add("-Xms" + containerMemory + "m");
-    String javaOpts = conf.get(XLearningConfiguration.XLEARNING_CONTAINER_EXTRA_JAVA_OPTS, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_JAVA_OPTS_EXCEPT_MEMORY);
+    String javaOpts = conf.get(LearningConfiguration.XLEARNING_CONTAINER_EXTRA_JAVA_OPTS, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_JAVA_OPTS_EXCEPT_MEMORY);
     if (!StringUtils.isBlank(javaOpts)) {
       vargs.add(javaOpts);
     }
@@ -830,7 +852,7 @@ public class ApplicationMaster extends CompositeService {
     LOG.info("Setting up launch context for containerID="
         + container.getId());
 
-    containerEnv.put(XLearningConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
+    containerEnv.put(LearningConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
     ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
         containerLocalResource, containerEnv, containerLaunchcommands, null, null, null);
 
@@ -849,7 +871,7 @@ public class ApplicationMaster extends CompositeService {
   }
 
   private void appendMessage(Message message) {
-    if (applicationMessageQueue.size() >= conf.getInt(XLearningConfiguration.XLEARNING_MESSAGES_LEN_MAX, XLearningConfiguration.DEFAULT_XLEARNING_MESSAGES_LEN_MAX)) {
+    if (applicationMessageQueue.size() >= conf.getInt(LearningConfiguration.XLEARNING_MESSAGES_LEN_MAX, LearningConfiguration.DEFAULT_XLEARNING_MESSAGES_LEN_MAX)) {
       applicationMessageQueue.poll();
     }
     if (!applicationMessageQueue.offer(message)) {
@@ -876,7 +898,7 @@ public class ApplicationMaster extends CompositeService {
     LOG.info("ApplicationMaster Starting ...");
 
     registerApplicationMaster();
-    if (conf.get(XLearningConfiguration.XLEARNING_INPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
+    if (conf.get(LearningConfiguration.XLEARNING_INPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
       buildInputStreamFileStatus();
     } else {
       buildInputFileStatus();
@@ -894,7 +916,7 @@ public class ApplicationMaster extends CompositeService {
     rmCallbackHandler.setNeededPsContainersCount(psNum);
     rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
 
-    int allocateInterval = conf.getInt(XLearningConfiguration.XLEARNING_ALLOCATE_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_ALLOCATE_INTERVAL);
+    int allocateInterval = conf.getInt(LearningConfiguration.XLEARNING_ALLOCATE_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_ALLOCATE_INTERVAL);
     amrmAsync.setHeartbeatInterval(allocateInterval);
 
     for (int i = 0; i < psNum; i++) {
@@ -1023,15 +1045,15 @@ public class ApplicationMaster extends CompositeService {
           "DMLC_ROLE=scheduler",
           "DMLC_PS_ROOT_URI=" + dmlcPsRootUri,
           "DMLC_PS_ROOT_PORT=" + dmlcPsRootPort,
-          XLearningConstants.Environment.XLEARNING_MXNET_WORKER_NUM.toString() + "=" + workerNum,
-          XLearningConstants.Environment.XLEARNING_MXNET_SERVER_NUM.toString() + "=" + psNum,
+          LearningConstants.Environment.XLEARNING_MXNET_WORKER_NUM.toString() + "=" + workerNum,
+          LearningConstants.Environment.XLEARNING_MXNET_SERVER_NUM.toString() + "=" + psNum,
           "PYTHONUNBUFFERED=1"
       };
       LOG.info("Executing command:" + xlearningCommand);
       LOG.info("DMLC_PS_ROOT_URI is " + dmlcPsRootUri);
       LOG.info("DMLC_PS_ROOT_PORT is " + dmlcPsRootPort);
-      LOG.info(XLearningConstants.Environment.XLEARNING_MXNET_WORKER_NUM.toString() + "=" + workerNum);
-      LOG.info(XLearningConstants.Environment.XLEARNING_MXNET_SERVER_NUM.toString() + "=" + psNum);
+      LOG.info(LearningConstants.Environment.XLEARNING_MXNET_WORKER_NUM.toString() + "=" + workerNum);
+      LOG.info(LearningConstants.Environment.XLEARNING_MXNET_SERVER_NUM.toString() + "=" + psNum);
 
       try {
         Runtime rt = Runtime.getRuntime();
@@ -1157,15 +1179,15 @@ public class ApplicationMaster extends CompositeService {
     }
 
 
-    if (conf.get(XLearningConfiguration.XLEARNING_INPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
+    if (conf.get(LearningConfiguration.XLEARNING_INPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
       allocateInputStreamSplits();
     } else {
       allocateInputSplits();
     }
     buildOutputLocations();
     buildContainerLocalResource();
-    Map<String, String> workerContainerEnv = buildContainerEnv(XLearningConstants.WORKER);
-    Map<String, String> psContainerEnv = buildContainerEnv(XLearningConstants.PS);
+    Map<String, String> workerContainerEnv = buildContainerEnv(LearningConstants.WORKER);
+    Map<String, String> psContainerEnv = buildContainerEnv(LearningConstants.PS);
     List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(workerMemory);
     List<String> psContainerLaunchCommands = buildContainerLaunchCommand(psMemory);
 
@@ -1178,7 +1200,7 @@ public class ApplicationMaster extends CompositeService {
       //TODO launch container in special thread take with fault-tolerant
       launchContainer(containerLocalResource, psContainerEnv,
           psContainerLaunchCommands, container, index++);
-      containerListener.registerContainer(new XLearningContainerId(container.getId()), XLearningConstants.PS);
+      containerListener.registerContainer(new LearningContainerId(container.getId()), LearningConstants.PS);
     }
     index = 0;
     for (Container container : acquiredWorkerContainers) {
@@ -1188,7 +1210,7 @@ public class ApplicationMaster extends CompositeService {
       //TODO launch container in special thread take with fault-tolerant
       launchContainer(containerLocalResource, workerContainerEnv,
           workerContainerLaunchCommands, container, index++);
-      containerListener.registerContainer(new XLearningContainerId(container.getId()), XLearningConstants.WORKER);
+      containerListener.registerContainer(new LearningContainerId(container.getId()), LearningConstants.WORKER);
     }
 
     String diagnostics = "";
@@ -1211,7 +1233,7 @@ public class ApplicationMaster extends CompositeService {
                   }
                   break;
                 }
-                Utilities.sleep(conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL));
+                Utilities.sleep(conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL));
               }
             } catch (Exception e) {
               LOG.error("Monitor the InnerModel saving error: " + e);
@@ -1224,37 +1246,37 @@ public class ApplicationMaster extends CompositeService {
 
     try {
       LOG.info("Waiting for train completed");
-      Map<XLearningContainerId, XLearningContainerStatus> lastWorkerContainerStatus = new ConcurrentHashMap<>();
-      Map<XLearningContainerId, XLearningContainerStatus> lastPsContainerStatus = new ConcurrentHashMap<>();
+      Map<LearningContainerId, XLearningContainerStatus> lastWorkerContainerStatus = new ConcurrentHashMap<>();
+      Map<LearningContainerId, XLearningContainerStatus> lastPsContainerStatus = new ConcurrentHashMap<>();
       while (!containerListener.isTrainCompleted()) {
         //report progress to client
-        if(conf.getBoolean(XLearningConfiguration.XLEARNING_REPORT_CONTAINER_STATUS, XLearningConfiguration.DEFAULT_XLEARNING_REPORT_CONTAINER_STATUS)) {
+        if(conf.getBoolean(LearningConfiguration.LEARNING_REPORT_CONTAINER_STATUS, LearningConfiguration.DEFAULT_LEARNING_REPORT_CONTAINER_STATUS)) {
           List<Container> workerContainersStatus = applicationContext.getWorkerContainers();
           List<Container> psContainersStatus = applicationContext.getPsContainers();
           for(Container container : workerContainersStatus) {
-            if(!lastWorkerContainerStatus.containsKey(new XLearningContainerId(container.getId()))) {
-              lastWorkerContainerStatus.put(new XLearningContainerId(container.getId()), XLearningContainerStatus.STARTED);
+            if(!lastWorkerContainerStatus.containsKey(new LearningContainerId(container.getId()))) {
+              lastWorkerContainerStatus.put(new LearningContainerId(container.getId()), XLearningContainerStatus.STARTED);
             }
-            if(!applicationContext.getContainerStatus(new XLearningContainerId(container.getId())).equals(lastWorkerContainerStatus.get(new XLearningContainerId(container.getId())))) {
-              this.appendMessage("container " + container.getId().toString() + " status is " + applicationContext.getContainerStatus(new XLearningContainerId(container.getId())), false);
-              lastWorkerContainerStatus.put(new XLearningContainerId(container.getId()),applicationContext.getContainerStatus(new XLearningContainerId(container.getId())));
+            if(!applicationContext.getContainerStatus(new LearningContainerId(container.getId())).equals(lastWorkerContainerStatus.get(new LearningContainerId(container.getId())))) {
+              this.appendMessage("container " + container.getId().toString() + " status is " + applicationContext.getContainerStatus(new LearningContainerId(container.getId())), false);
+              lastWorkerContainerStatus.put(new LearningContainerId(container.getId()),applicationContext.getContainerStatus(new LearningContainerId(container.getId())));
             }
           }
           for(Container container : psContainersStatus) {
-            if(!lastPsContainerStatus.containsKey(new XLearningContainerId(container.getId()))) {
-              lastPsContainerStatus.put(new XLearningContainerId(container.getId()), XLearningContainerStatus.STARTED);
+            if(!lastPsContainerStatus.containsKey(new LearningContainerId(container.getId()))) {
+              lastPsContainerStatus.put(new LearningContainerId(container.getId()), XLearningContainerStatus.STARTED);
             }
-            if(!applicationContext.getContainerStatus(new XLearningContainerId(container.getId())).equals(lastPsContainerStatus.get(new XLearningContainerId(container.getId())))) {
-              this.appendMessage("container " + container.getId().toString() + " status is " + applicationContext.getContainerStatus(new XLearningContainerId(container.getId())), false);
-              lastPsContainerStatus.put(new XLearningContainerId(container.getId()),applicationContext.getContainerStatus(new XLearningContainerId(container.getId())));
+            if(!applicationContext.getContainerStatus(new LearningContainerId(container.getId())).equals(lastPsContainerStatus.get(new LearningContainerId(container.getId())))) {
+              this.appendMessage("container " + container.getId().toString() + " status is " + applicationContext.getContainerStatus(new LearningContainerId(container.getId())), false);
+              lastPsContainerStatus.put(new LearningContainerId(container.getId()),applicationContext.getContainerStatus(new LearningContainerId(container.getId())));
             }
           }
         }
         List<Container> workerContainers = applicationContext.getWorkerContainers();
-        Map<XLearningContainerId, String> clientProgress = applicationContext.getReporterProgress();
+        Map<LearningContainerId, String> clientProgress = applicationContext.getReporterProgress();
         float total = 0.0f;
         for (Container container : workerContainers) {
-          String progressLog = clientProgress.get(new XLearningContainerId(container.getId()));
+          String progressLog = clientProgress.get(new LearningContainerId(container.getId()));
           if (progressLog != null && !progressLog.equals("")) {
             String[] progress = progressLog.toString().split(":");
             if (progress.length != 2) {
@@ -1295,12 +1317,12 @@ public class ApplicationMaster extends CompositeService {
 
       finalSuccess = containerListener.isAllWorkerContainersSucceeded();
       if (finalSuccess) {
-        if ((conf.get(XLearningConfiguration.XLEARNING_OUTPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) && outputInfos.size() > 0) {
+        if ((conf.get(LearningConfiguration.XLEARNING_OUTPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) && outputInfos.size() > 0) {
           LOG.info("XLEARNING_OUTPUT_STRATEGY is STREAM, AM handling the final result...");
           FileSystem fs = new Path(outputInfos.get(0).getDfsLocation()).getFileSystem(conf);
-          Map<XLearningContainerId, String> mapPath = applicationContext.getMapedTaskID();
+          Map<LearningContainerId, String> mapPath = applicationContext.getMapedTaskID();
           for (Container finishedContainer : acquiredWorkerContainers) {
-            String taskID = mapPath.get(new XLearningContainerId(finishedContainer.getId()));
+            String taskID = mapPath.get(new LearningContainerId(finishedContainer.getId()));
             Path tmpResultPath = new Path(outputInfos.get(0).getDfsLocation() + "/_temporary/" + finishedContainer.getId().toString()
                 + "/_temporary/0/_temporary/" + taskID);
             LOG.info("tmpResultPath is " + tmpResultPath.toString());
@@ -1344,7 +1366,7 @@ public class ApplicationMaster extends CompositeService {
       diagnostics = e.getMessage();
     }
 
-    int appAttempts = conf.getInt(XLearningConfiguration.XLEARNING_APP_MAX_ATTEMPTS, XLearningConfiguration.DEFAULT_XLEARNING_APP_MAX_ATTEMPTS);
+    int appAttempts = conf.getInt(LearningConfiguration.LEARNING_APP_MAX_ATTEMPTS, LearningConfiguration.DEFAULT_LEARNING_APP_MAX_ATTEMPTS);
 
     if (appAttempts > conf.getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS)) {
       appAttempts = conf.getInt(YarnConfiguration.RM_AM_MAX_ATTEMPTS, YarnConfiguration.DEFAULT_RM_AM_MAX_ATTEMPTS);
@@ -1393,7 +1415,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     @Override
-    public XLearningContainerStatus getContainerStatus(XLearningContainerId containerId) {
+    public XLearningContainerStatus getContainerStatus(LearningContainerId containerId) {
       return containerListener.getContainerStatus(containerId);
     }
 
@@ -1403,7 +1425,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     @Override
-    public List<InputInfo> getInputs(XLearningContainerId containerId) {
+    public List<InputInfo> getInputs(LearningContainerId containerId) {
       if (!containerId2InputInfo.containsKey(containerId)) {
         LOG.info("containerId2InputInfo not contains" + containerId.getContainerId());
         return new ArrayList<InputInfo>();
@@ -1412,7 +1434,7 @@ public class ApplicationMaster extends CompositeService {
     }
 
     @Override
-    public List<InputSplit> getStreamInputs(XLearningContainerId containerId) {
+    public List<InputSplit> getStreamInputs(LearningContainerId containerId) {
       if (!containerId2InputSplit.containsKey(containerId)) {
         LOG.info("containerId2InputSplit not contains" + containerId.getContainerId());
         return new ArrayList<InputSplit>();
@@ -1431,27 +1453,27 @@ public class ApplicationMaster extends CompositeService {
     }
 
     @Override
-    public Map<XLearningContainerId, String> getReporterProgress() {
+    public Map<LearningContainerId, String> getReporterProgress() {
       return containerListener.getReporterProgress();
     }
 
     @Override
-    public Map<XLearningContainerId, String> getContainersAppStartTime() {
+    public Map<LearningContainerId, String> getContainersAppStartTime() {
       return containerListener.getContainersAppStartTime();
     }
 
     @Override
-    public Map<XLearningContainerId, String> getContainersAppFinishTime() {
+    public Map<LearningContainerId, String> getContainersAppFinishTime() {
       return containerListener.getContainersAppFinishTime();
     }
 
     @Override
-    public Map<XLearningContainerId, String> getMapedTaskID() {
+    public Map<LearningContainerId, String> getMapedTaskID() {
       return containerListener.getMapedTaskID();
     }
 
     @Override
-    public Map<XLearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics() {
+    public Map<LearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics() {
       return containerListener.getContainersCpuMetrics();
     }
 

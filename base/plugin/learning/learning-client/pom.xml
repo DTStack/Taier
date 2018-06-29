@@ -130,7 +130,7 @@
                                     <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     <exclude>log4j:log4j</exclude>
                                     <exclude>org.slf4j:slf4j-api</exclude>
-                                    <exclude>com.dtstack.rdos:xlearning-core</exclude>
+                                    <exclude>com.dtstack.rdos:learning-core</exclude>
                                 </excludes>
                             </artifactSet>
                             <filters>

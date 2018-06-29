@@ -29,7 +29,7 @@ public class ContainerReporter extends Thread {
 
   private Configuration conf;
 
-  private XLearningContainerId containerId;
+  private LearningContainerId containerId;
 
   private String xlearningCmdProcessId;
 
@@ -41,7 +41,7 @@ public class ContainerReporter extends Thread {
 
 
   public ContainerReporter(ApplicationContainerProtocol protocol, Configuration conf,
-                           XLearningContainerId xlearningContainerId, String xlearningCmdProcessId) {
+                           LearningContainerId xlearningContainerId, String xlearningCmdProcessId) {
     this.protocol = protocol;
     this.conf = conf;
     this.containerId = xlearningContainerId;

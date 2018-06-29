@@ -1,7 +1,7 @@
 package com.dtstack.learning.jobhistory;
 
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.google.common.annotations.VisibleForTesting;
-import com.dtstack.learning.conf.XLearningConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
@@ -95,20 +95,20 @@ public class HistoryClientService extends AbstractService {
   }
 
   protected void serviceStart() throws Exception {
-    Configuration conf = new XLearningConfiguration();
+    Configuration conf = new LearningConfiguration();
     YarnRPC rpc = YarnRPC.create(conf);
     initializeWebApp(conf);
     InetSocketAddress address = conf.getSocketAddr(
-        XLearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
-        XLearningConfiguration.XLEARNING_HISTORY_ADDRESS,
-        conf.get(XLearningConfiguration.XLEARNING_HISTORY_ADDRESS, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS),
-        conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_PORT, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_PORT));
+        LearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
+        LearningConfiguration.XLEARNING_HISTORY_ADDRESS,
+        conf.get(LearningConfiguration.XLEARNING_HISTORY_ADDRESS, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS),
+        conf.getInt(LearningConfiguration.XLEARNING_HISTORY_PORT, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_PORT));
 
     server =
         rpc.getServer(HSClientProtocol.class, protocolHandler, address,
             conf, jhsDTSecretManager,
-            conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_CLIENT_THREAD_COUNT,
-                XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_CLIENT_THREAD_COUNT));
+            conf.getInt(LearningConfiguration.XLEARNING_HISTORY_CLIENT_THREAD_COUNT,
+                LearningConfiguration.DEFAULT_XLEARNING_HISTORY_CLIENT_THREAD_COUNT));
 
     // Enable service authorization?
     if (conf.getBoolean(
@@ -118,9 +118,9 @@ public class HistoryClientService extends AbstractService {
     }
 
     server.start();
-    this.bindAddress = conf.updateConnectAddr(XLearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
-        XLearningConfiguration.XLEARNING_HISTORY_ADDRESS,
-        conf.get(XLearningConfiguration.XLEARNING_HISTORY_ADDRESS, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS),
+    this.bindAddress = conf.updateConnectAddr(LearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
+        LearningConfiguration.XLEARNING_HISTORY_ADDRESS,
+        conf.get(LearningConfiguration.XLEARNING_HISTORY_ADDRESS, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS),
         server.getListenerAddress());
     LOG.info("Instantiated HistoryClientService at " + this.bindAddress);
 
@@ -135,7 +135,7 @@ public class HistoryClientService extends AbstractService {
 
     try {
       Method webAppBuild = WebApps.Builder.class.getMethod("build", WebApp.class);
-      webAppBuild.invoke(WebApps.$for("jobhistory", HistoryClientService.class, this, "ws").with(conf).withHttpSpnegoKeytabKey(XLearningConfiguration.XLEARNING_WEBAPP_SPNEGO_KEYTAB_FILE_KEY).withHttpSpnegoPrincipalKey(XLearningConfiguration.XLEARNING_WEBAPP_SPNEGO_USER_NAME_KEY).at(NetUtils.getHostPortString(bindAddress)), webApp);
+      webAppBuild.invoke(WebApps.$for("jobhistory", HistoryClientService.class, this, "ws").with(conf).withHttpSpnegoKeytabKey(LearningConfiguration.XLEARNING_WEBAPP_SPNEGO_KEYTAB_FILE_KEY).withHttpSpnegoPrincipalKey(LearningConfiguration.XLEARNING_WEBAPP_SPNEGO_USER_NAME_KEY).at(NetUtils.getHostPortString(bindAddress)), webApp);
       HttpServer2 httpServer = webApp.httpServer();
       WebAppContext webAppContext = httpServer.getWebAppContext();
       WebAppContext appWebAppContext = new WebAppContext();
@@ -167,9 +167,9 @@ public class HistoryClientService extends AbstractService {
           .$for("jobhistory", HistoryClientService.class, this, "ws")
           .with(conf)
           .withHttpSpnegoKeytabKey(
-              XLearningConfiguration.XLEARNING_WEBAPP_SPNEGO_KEYTAB_FILE_KEY)
+              LearningConfiguration.XLEARNING_WEBAPP_SPNEGO_KEYTAB_FILE_KEY)
           .withHttpSpnegoPrincipalKey(
-              XLearningConfiguration.XLEARNING_WEBAPP_SPNEGO_USER_NAME_KEY)
+              LearningConfiguration.XLEARNING_WEBAPP_SPNEGO_USER_NAME_KEY)
           .at(NetUtils.getHostPortString(bindAddress)).start(webApp);
     } catch (WebAppException e){
       throw new WebAppException("Error starting http server", e);

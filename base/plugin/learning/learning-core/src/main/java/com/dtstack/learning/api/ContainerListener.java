@@ -1,10 +1,10 @@
 package com.dtstack.learning.api;
 
-import com.dtstack.learning.container.XLearningContainerId;
+import com.dtstack.learning.container.LearningContainerId;
 
 public interface ContainerListener {
 
-  void registerContainer(XLearningContainerId xlearningContainerId, String role);
+  void registerContainer(LearningContainerId xlearningContainerId, String role);
 
   boolean isAllPsContainersFinished();
 

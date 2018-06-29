@@ -9,15 +9,15 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class XLearningContainerId implements Writable {
+public class LearningContainerId implements Writable {
 
   private ContainerId containerId;
 
-  public XLearningContainerId() {
+  public LearningContainerId() {
     this.containerId = null;
   }
 
-  public XLearningContainerId(ContainerId id) {
+  public LearningContainerId(ContainerId id) {
     this.containerId = id;
   }
 
@@ -48,7 +48,7 @@ public class XLearningContainerId implements Writable {
   @Override
   @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
   public boolean equals(Object obj) {
-    XLearningContainerId other = (XLearningContainerId) obj;
+    LearningContainerId other = (LearningContainerId) obj;
     return this.toString().equals(other.toString());
   }
 }

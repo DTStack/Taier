@@ -1,6 +1,7 @@
 package com.dtstack.learning.AM;
 
 import com.dtstack.learning.api.ApplicationContext;
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -11,14 +12,13 @@ import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.dtstack.learning.api.ApplicationContainerProtocol;
 import com.dtstack.learning.api.ContainerListener;
-import com.dtstack.learning.api.XLearningConstants;
+import com.dtstack.learning.api.LearningConstants;
 import com.dtstack.learning.common.HeartbeatRequest;
 import com.dtstack.learning.common.HeartbeatResponse;
 import com.dtstack.learning.common.InputInfo;
 import com.dtstack.learning.common.OutputInfo;
 import com.dtstack.learning.common.XLearningContainerStatus;
-import com.dtstack.learning.conf.XLearningConfiguration;
-import com.dtstack.learning.container.XLearningContainerId;
+import com.dtstack.learning.container.LearningContainerId;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -57,23 +57,23 @@ public class ApplicationContainerListener extends AbstractService implements App
 
   private Server server;
 
-  private final Map<XLearningContainerId, String> containerId2Role;
+  private final Map<LearningContainerId, String> containerId2Role;
 
-  private final Map<XLearningContainerId, XLearningContainerStatus> containerId2Status;
+  private final Map<LearningContainerId, XLearningContainerStatus> containerId2Status;
 
   private final Map<String, List<ContainerHostPair>> clusterDef;
 
-  private final Map<XLearningContainerId, String> lightGBMIpPortMap;
+  private final Map<LearningContainerId, String> lightGBMIpPortMap;
 
-  private final Map<XLearningContainerId, String> reporterProgress;
+  private final Map<LearningContainerId, String> reporterProgress;
 
-  private final Map<XLearningContainerId, String> mapedTaskID;
+  private final Map<LearningContainerId, String> mapedTaskID;
 
-  private final Map<XLearningContainerId, String> containersAppStartTimeMap;
+  private final Map<LearningContainerId, String> containersAppStartTimeMap;
 
-  private final Map<XLearningContainerId, String> containersAppFinishTimeMap;
+  private final Map<LearningContainerId, String> containersAppFinishTimeMap;
 
-  private final Map<XLearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> containersCpuMetrics;
+  private final Map<LearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> containersCpuMetrics;
 
   private String clusterDefStr;
 
@@ -81,7 +81,7 @@ public class ApplicationContainerListener extends AbstractService implements App
 
   private final Clock clock;
 
-  private final ConcurrentMap<XLearningContainerId, LastTime> runningContainers;
+  private final ConcurrentMap<LearningContainerId, LastTime> runningContainers;
 
   private Thread containerTimeoutMonitor;
 
@@ -99,7 +99,7 @@ public class ApplicationContainerListener extends AbstractService implements App
 
   private Long interResultTimeStamp;
 
-  private final Map<XLearningContainerId, InnerModelSavedPair> containerId2InnerModel;
+  private final Map<LearningContainerId, InnerModelSavedPair> containerId2InnerModel;
 
   private String xlearningAppType;
 
@@ -113,25 +113,25 @@ public class ApplicationContainerListener extends AbstractService implements App
     this.containersAppStartTimeMap = new ConcurrentHashMap<>();
     this.containersAppFinishTimeMap = new ConcurrentHashMap<>();
     this.clusterDef = new ConcurrentHashMap<>();
-    this.clusterDef.put(XLearningConstants.WORKER, Collections.synchronizedList(new ArrayList<ContainerHostPair>()));
-    this.clusterDef.put(XLearningConstants.PS, Collections.synchronizedList(new ArrayList<ContainerHostPair>()));
+    this.clusterDef.put(LearningConstants.WORKER, Collections.synchronizedList(new ArrayList<ContainerHostPair>()));
+    this.clusterDef.put(LearningConstants.PS, Collections.synchronizedList(new ArrayList<ContainerHostPair>()));
     this.clusterDefStr = null;
     this.lightGBMIpPortMap = new ConcurrentHashMap<>();
     this.lightGBMIpPortStr = null;
     this.applicationContext = applicationContext;
     this.clock = new SystemClock();
     this.runningContainers = new ConcurrentHashMap<>();
-    this.containerTimeOut = conf.getInt(XLearningConfiguration.XLEARNING_TASK_TIMEOUT, XLearningConfiguration.DEFAULT_XLEARNING_TASK_TIMEOUT);
-    this.localResourceTimeOut = conf.getInt(XLearningConfiguration.XLEARNING_LOCALRESOURCE_TIMEOUT, XLearningConfiguration.DEFAULT_XLEARNING_LOCALRESOURCE_TIMEOUT);
-    this.monitorInterval = conf.getInt(XLearningConfiguration.XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS, XLearningConfiguration.DEFAULT_XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS);
+    this.containerTimeOut = conf.getInt(LearningConfiguration.XLEARNING_TASK_TIMEOUT, LearningConfiguration.DEFAULT_XLEARNING_TASK_TIMEOUT);
+    this.localResourceTimeOut = conf.getInt(LearningConfiguration.XLEARNING_LOCALRESOURCE_TIMEOUT, LearningConfiguration.DEFAULT_XLEARNING_LOCALRESOURCE_TIMEOUT);
+    this.monitorInterval = conf.getInt(LearningConfiguration.XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS, LearningConfiguration.DEFAULT_XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS);
     this.isXLearningTrainFinished = false;
     this.tensorboardUrl = null;
     this.isSaveInnerModel = false;
     this.interResultTimeStamp = Long.MIN_VALUE;
     this.containerId2InnerModel = new ConcurrentHashMap<>();
     this.containersCpuMetrics = new ConcurrentHashMap<>();
-    if (System.getenv().containsKey(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString())) {
-      xlearningAppType = System.getenv(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString()).toUpperCase();
+    if (System.getenv().containsKey(LearningConstants.Environment.LEARNING_APP_TYPE.toString())) {
+      xlearningAppType = System.getenv(LearningConstants.Environment.LEARNING_APP_TYPE.toString()).toUpperCase();
     } else {
       xlearningAppType = "XLEARNING";
     }
@@ -165,23 +165,23 @@ public class ApplicationContainerListener extends AbstractService implements App
     return this.tensorboardUrl;
   }
 
-  public Map<XLearningContainerId, String> getReporterProgress() {
+  public Map<LearningContainerId, String> getReporterProgress() {
     return this.reporterProgress;
   }
 
-  public Map<XLearningContainerId, String> getContainersAppStartTime() {
+  public Map<LearningContainerId, String> getContainersAppStartTime() {
     return this.containersAppStartTimeMap;
   }
 
-  public Map<XLearningContainerId, String> getContainersAppFinishTime() {
+  public Map<LearningContainerId, String> getContainersAppFinishTime() {
     return this.containersAppFinishTimeMap;
   }
 
-  public Map<XLearningContainerId, String> getMapedTaskID() {
+  public Map<LearningContainerId, String> getMapedTaskID() {
     return this.mapedTaskID;
   }
 
-  public Map<XLearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics() {
+  public Map<LearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics() {
     return this.containersCpuMetrics;
   }
 
@@ -204,7 +204,7 @@ public class ApplicationContainerListener extends AbstractService implements App
           FileSystem fs = FileSystem.get(conf);
           for (OutputInfo output : this.applicationContext.getOutputs()) {
             Path innerResult = new Path(output.getDfsLocation()
-                + conf.get(XLearningConfiguration.XLEARNING_INTERREAULST_DIR, XLearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR)
+                + conf.get(LearningConfiguration.XLEARNING_INTERREAULST_DIR, LearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR)
                 + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date(this.interResultTimeStamp)));
             fs.mkdirs(innerResult);
             LOG.info("interResult path:" + innerResult);
@@ -221,7 +221,7 @@ public class ApplicationContainerListener extends AbstractService implements App
     return containerId2InnerModel.size();
   }
 
-  public XLearningContainerStatus getContainerStatus(XLearningContainerId xlearningContainerId) {
+  public XLearningContainerStatus getContainerStatus(LearningContainerId xlearningContainerId) {
     if (containerId2Status.containsKey(xlearningContainerId)) {
       return containerId2Status.get(xlearningContainerId);
     }
@@ -229,14 +229,14 @@ public class ApplicationContainerListener extends AbstractService implements App
   }
 
   @Override
-  public void registerContainer(XLearningContainerId containerId, String role) {
+  public void registerContainer(LearningContainerId containerId, String role) {
     containerId2Status.put(containerId, XLearningContainerStatus.UNDEFINED);
     containerId2Role.put(containerId, role);
     reporterProgress.put(containerId, "");
     containersAppStartTimeMap.put(containerId, "");
     containersAppFinishTimeMap.put(containerId, "");
     containersCpuMetrics.put(containerId, new ConcurrentHashMap<String, LinkedBlockingDeque<Object>>());
-    if (role.equals(XLearningConstants.WORKER.toString())) {
+    if (role.equals(LearningConstants.WORKER.toString())) {
       containerId2InnerModel.put(containerId, new InnerModelSavedPair());
     }
     runningContainers.put(containerId, new LastTime(clock.getTime()));
@@ -247,8 +247,8 @@ public class ApplicationContainerListener extends AbstractService implements App
     if (containerId2Status.isEmpty()) {
       return false;
     }
-    for (Entry<XLearningContainerId, XLearningContainerStatus> e : containerId2Status.entrySet()) {
-      if (containerId2Role.get(e.getKey()).equals(XLearningConstants.PS)) {
+    for (Entry<LearningContainerId, XLearningContainerStatus> e : containerId2Status.entrySet()) {
+      if (containerId2Role.get(e.getKey()).equals(LearningConstants.PS)) {
         if (e.getValue().equals(XLearningContainerStatus.UNDEFINED)
             || e.getValue().equals(XLearningContainerStatus.INITIALIZING)
             || e.getValue().equals(XLearningContainerStatus.RUNNING)) {
@@ -268,11 +268,11 @@ public class ApplicationContainerListener extends AbstractService implements App
     boolean isCompleted = true;
     Double failedNum = 0.0;
 
-    for (Entry<XLearningContainerId, XLearningContainerStatus> e : containerId2Status.entrySet()) {
+    for (Entry<LearningContainerId, XLearningContainerStatus> e : containerId2Status.entrySet()) {
       if (e.getValue().equals(XLearningContainerStatus.FAILED)) {
         LOG.error("Container " + e.getKey().toString() + " run failed!");
         failedNum += 1;
-      } else if (containerId2Role.get(e.getKey()).equals(XLearningConstants.WORKER)) {
+      } else if (containerId2Role.get(e.getKey()).equals(LearningConstants.WORKER)) {
         if (e.getValue().equals(XLearningContainerStatus.UNDEFINED)
             || e.getValue().equals(XLearningContainerStatus.INITIALIZING)
             || e.getValue().equals(XLearningContainerStatus.RUNNING)) {
@@ -281,11 +281,11 @@ public class ApplicationContainerListener extends AbstractService implements App
       }
     }
 
-    if ("TENSORFLOW".equals(xlearningAppType) && !this.getConfig().getBoolean(XLearningConfiguration.XLEARNING_TF_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_MODE_SINGLE)) {
+    if ("TENSORFLOW".equals(xlearningAppType) && !this.getConfig().getBoolean(LearningConfiguration.LEARNING_TF_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_TF_MODE_SINGLE)) {
       if (failedNum > 0) {
         return true;
       }
-    } else if ("MXNET".equals(xlearningAppType) && !this.getConfig().getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE)) {
+    } else if ("MXNET".equals(xlearningAppType) && !this.getConfig().getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE)) {
       if (failedNum > 0) {
         return true;
       }
@@ -298,7 +298,7 @@ public class ApplicationContainerListener extends AbstractService implements App
         return true;
       }
     } else {
-      Double jobFailedNum = containerId2Status.size() * this.getConfig().getDouble(XLearningConfiguration.XLEARNING_CONTAINER_MAX_FAILURES_RATE, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_FAILURES_RATE);
+      Double jobFailedNum = containerId2Status.size() * this.getConfig().getDouble(LearningConfiguration.XLEARNING_CONTAINER_MAX_FAILURES_RATE, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_FAILURES_RATE);
       if (failedNum > jobFailedNum) {
         return true;
       }
@@ -312,21 +312,21 @@ public class ApplicationContainerListener extends AbstractService implements App
       return false;
     }
     Double failedNum = 0.0;
-    for (Entry<XLearningContainerId, XLearningContainerStatus> e : containerId2Status.entrySet()) {
+    for (Entry<LearningContainerId, XLearningContainerStatus> e : containerId2Status.entrySet()) {
       if (!e.getValue().equals(XLearningContainerStatus.SUCCEEDED)) {
         failedNum += 1;
       }
     }
-    if ("TENSORFLOW".equals(xlearningAppType) && !this.getConfig().getBoolean(XLearningConfiguration.XLEARNING_TF_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_MODE_SINGLE)) {
+    if ("TENSORFLOW".equals(xlearningAppType) && !this.getConfig().getBoolean(LearningConfiguration.LEARNING_TF_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_TF_MODE_SINGLE)) {
       if (failedNum > 0) {
         return false;
       }
-    } else if ("MXNET".equals(xlearningAppType) && !this.getConfig().getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE)) {
+    } else if ("MXNET".equals(xlearningAppType) && !this.getConfig().getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE)) {
       if (failedNum > 0) {
         return false;
       }
     } else {
-      Double jobFailedNum = containerId2Status.size() * this.getConfig().getDouble(XLearningConfiguration.XLEARNING_CONTAINER_MAX_FAILURES_RATE, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_FAILURES_RATE);
+      Double jobFailedNum = containerId2Status.size() * this.getConfig().getDouble(LearningConfiguration.XLEARNING_CONTAINER_MAX_FAILURES_RATE, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_FAILURES_RATE);
       if (failedNum > jobFailedNum) {
         return false;
       }
@@ -341,7 +341,7 @@ public class ApplicationContainerListener extends AbstractService implements App
     }
 
     int completedNum = 0;
-    for (Entry<XLearningContainerId, InnerModelSavedPair> e : containerId2InnerModel.entrySet()) {
+    for (Entry<LearningContainerId, InnerModelSavedPair> e : containerId2InnerModel.entrySet()) {
       if (e.getValue().getInnerModelTimeStamp().equals(lastInnerModelStr) && e.getValue().getModelSavedStatus()) {
         completedNum++;
       }
@@ -362,7 +362,7 @@ public class ApplicationContainerListener extends AbstractService implements App
   }
 
   @Override
-  public void reportLightGbmIpPort(XLearningContainerId containerId, String lightGbmIpPort) {
+  public void reportLightGbmIpPort(LearningContainerId containerId, String lightGbmIpPort) {
     this.lightGBMIpPortMap.put(containerId, lightGbmIpPort);
     LOG.info("From container " + containerId.toString() + "Received reported lightGBM ip port: " + lightGbmIpPort);
   }
@@ -383,13 +383,13 @@ public class ApplicationContainerListener extends AbstractService implements App
   }
 
   @Override
-  public void reportMapedTaskID(XLearningContainerId containerId, String taskid) {
+  public void reportMapedTaskID(LearningContainerId containerId, String taskid) {
     this.mapedTaskID.put(containerId, taskid);
     LOG.info("STREAM containerId is:" + containerId.toString() + " taskid is:" + taskid);
   }
 
   @Override
-  public void reportCpuMetrics(XLearningContainerId containerId, String cpuMetrics) {
+  public void reportCpuMetrics(LearningContainerId containerId, String cpuMetrics) {
     if (this.containersCpuMetrics.get(containerId).size() == 0) {
       Gson gson = new GsonBuilder()
           .registerTypeAdapter(
@@ -467,22 +467,22 @@ public class ApplicationContainerListener extends AbstractService implements App
 
   @Override
   public synchronized String getClusterDef() {
-    if (this.clusterDef.get(XLearningConstants.WORKER.toString()).size() == applicationContext.getWorkerNum()
-        && this.clusterDef.get(XLearningConstants.PS.toString()).size() == applicationContext.getPsNum()) {
+    if (this.clusterDef.get(LearningConstants.WORKER.toString()).size() == applicationContext.getWorkerNum()
+        && this.clusterDef.get(LearningConstants.PS.toString()).size() == applicationContext.getPsNum()) {
       if (this.clusterDefStr == null) {
-        Collections.sort(this.clusterDef.get(XLearningConstants.PS.toString()), new compairIndex());
-        Collections.sort(this.clusterDef.get(XLearningConstants.WORKER.toString()), new compairIndex());
+        Collections.sort(this.clusterDef.get(LearningConstants.PS.toString()), new compairIndex());
+        Collections.sort(this.clusterDef.get(LearningConstants.WORKER.toString()), new compairIndex());
         List workerList = new ArrayList<String>();
         List psList = new ArrayList<String>();
-        for (int i = 0; i < this.clusterDef.get(XLearningConstants.WORKER.toString()).size(); i++) {
-          workerList.add(this.clusterDef.get(XLearningConstants.WORKER.toString()).get(i).getHost());
+        for (int i = 0; i < this.clusterDef.get(LearningConstants.WORKER.toString()).size(); i++) {
+          workerList.add(this.clusterDef.get(LearningConstants.WORKER.toString()).get(i).getHost());
         }
-        for (int i = 0; i < this.clusterDef.get(XLearningConstants.PS.toString()).size(); i++) {
-          psList.add(this.clusterDef.get(XLearningConstants.PS.toString()).get(i).getHost());
+        for (int i = 0; i < this.clusterDef.get(LearningConstants.PS.toString()).size(); i++) {
+          psList.add(this.clusterDef.get(LearningConstants.PS.toString()).get(i).getHost());
         }
         Map<String, List<String>> clusterMessage = new HashMap<>();
-        clusterMessage.put(XLearningConstants.WORKER, workerList);
-        clusterMessage.put(XLearningConstants.PS, psList);
+        clusterMessage.put(LearningConstants.WORKER, workerList);
+        clusterMessage.put(LearningConstants.PS, psList);
         LOG.info("Sending cluster def \"" + new Gson().toJson(clusterMessage) + "\"to container");
         this.clusterDefStr = new Gson().toJson(clusterMessage);
       }
@@ -491,7 +491,7 @@ public class ApplicationContainerListener extends AbstractService implements App
   }
 
   @Override
-  public HeartbeatResponse heartbeat(XLearningContainerId containerId, HeartbeatRequest heartbeatRequest) {
+  public HeartbeatResponse heartbeat(LearningContainerId containerId, HeartbeatRequest heartbeatRequest) {
     LastTime lastTime = runningContainers.get(containerId);
     if (lastTime != null) {
       lastTime.setLastTime(clock.getTime());
@@ -515,7 +515,7 @@ public class ApplicationContainerListener extends AbstractService implements App
       }
     }
 
-    if (containerId2Role.get(containerId).equals(XLearningConstants.WORKER.toString())) {
+    if (containerId2Role.get(containerId).equals(LearningConstants.WORKER.toString())) {
       String localProgressLog = heartbeatRequest.getProgressLog();
       if (!localProgressLog.equals("")) {
         this.reporterProgress.put(containerId, localProgressLog);
@@ -567,13 +567,13 @@ public class ApplicationContainerListener extends AbstractService implements App
   }
 
   @Override
-  public InputInfo[] getInputSplit(XLearningContainerId containerId) {
+  public InputInfo[] getInputSplit(LearningContainerId containerId) {
     int inputInfoSize = applicationContext.getInputs(containerId).size();
     return applicationContext.getInputs(containerId).toArray(new InputInfo[inputInfoSize]);
   }
 
   @Override
-  public InputSplit[] getStreamInputSplit(XLearningContainerId containerId) {
+  public InputSplit[] getStreamInputSplit(LearningContainerId containerId) {
     int inputSplitSize = applicationContext.getStreamInputs(containerId).size();
     return applicationContext.getStreamInputs(containerId).toArray(new InputSplit[inputSplitSize]);
   }
@@ -618,8 +618,8 @@ public class ApplicationContainerListener extends AbstractService implements App
     public void run() {
       while (!Thread.currentThread().isInterrupted()) {
         long currentTime = clock.getTime();
-        Set<Entry<XLearningContainerId, LastTime>> entrySet = runningContainers.entrySet();
-        for (Entry<XLearningContainerId, LastTime> entry : entrySet) {
+        Set<Entry<LearningContainerId, LastTime>> entrySet = runningContainers.entrySet();
+        for (Entry<LearningContainerId, LastTime> entry : entrySet) {
           if(containerId2Status.get(entry.getKey()).equals(XLearningContainerStatus.UNDEFINED)) {
             if (currentTime > (entry.getValue().getLastTime() + localResourceTimeOut)) {
               LOG.info("Container " + entry.getKey().toString() + " local resource timed out after "

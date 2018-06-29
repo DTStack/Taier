@@ -5,7 +5,7 @@ import com.dtstack.learning.common.HeartbeatRequest;
 import com.dtstack.learning.common.HeartbeatResponse;
 import com.dtstack.learning.common.OutputInfo;
 import com.dtstack.learning.common.XLearningContainerStatus;
-import com.dtstack.learning.conf.XLearningConfiguration;
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.learning.util.Utilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +24,7 @@ public class Heartbeat extends Thread {
 
   private Configuration conf;
 
-  private XLearningContainerId containerId;
+  private LearningContainerId containerId;
 
   private HeartbeatRequest heartbeatRequest;
 
@@ -39,7 +39,7 @@ public class Heartbeat extends Thread {
   private Boolean IsXLearningTrainCompleted;
 
   public Heartbeat(ApplicationContainerProtocol protocol, Configuration conf,
-                   XLearningContainerId xlearningContainerId) {
+                   LearningContainerId xlearningContainerId) {
     this.protocol = protocol;
     this.conf = conf;
     this.containerId = xlearningContainerId;
@@ -47,8 +47,8 @@ public class Heartbeat extends Thread {
     this.heartbeatResponse = new HeartbeatResponse();
     this.lastInnerModelTimeStamp = Long.MIN_VALUE;
     this.IsXLearningTrainCompleted = false;
-    this.heartbeatInterval = this.conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL);
-    this.heartbeatRetryMax = this.conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_RETRY, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_RETRY);
+    this.heartbeatInterval = this.conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL);
+    this.heartbeatRetryMax = this.conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_RETRY, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_RETRY);
   }
 
   @SuppressWarnings("static-access")
@@ -120,7 +120,7 @@ public class Heartbeat extends Thread {
                 FileSystem localFs = FileSystem.getLocal(conf);
                 Path localPath = new Path(outputs.getLocalLocation());
                 Path remotePath = new Path(outputs.getDfsLocation()
-                    + conf.get(XLearningConfiguration.XLEARNING_INTERREAULST_DIR, XLearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR)
+                    + conf.get(LearningConfiguration.XLEARNING_INTERREAULST_DIR, LearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR)
                     + new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date(lastInnerModelTimeStamp))
                     + "/" + containerId.toString());
                 LOG.info("InnerModel path:" + remotePath);
@@ -141,7 +141,7 @@ public class Heartbeat extends Thread {
               LOG.error("upload the interResult error:" + e);
             } finally {
               Long timeInterval = System.currentTimeMillis() - lastInnerModelTimeStamp;
-              if (timeInterval <= conf.getInt(XLearningConfiguration.XLEARNING_INTERRESULT_UPLOAD_TIMEOUT, XLearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_UPLOAD_TIMEOUT)) {
+              if (timeInterval <= conf.getInt(LearningConfiguration.XLEARNING_INTERRESULT_UPLOAD_TIMEOUT, LearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_UPLOAD_TIMEOUT)) {
                 setInnerModelSavedStatus(true);
               }
             }
@@ -150,7 +150,7 @@ public class Heartbeat extends Thread {
         interResultSavedThread.start();
       } else if (!lastInnerModelTimeStamp.equals(Long.MIN_VALUE)) {
         Long timeInterval = System.currentTimeMillis() - lastInnerModelTimeStamp;
-        if (timeInterval > conf.getInt(XLearningConfiguration.XLEARNING_INTERRESULT_UPLOAD_TIMEOUT, XLearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_UPLOAD_TIMEOUT)) {
+        if (timeInterval > conf.getInt(LearningConfiguration.XLEARNING_INTERRESULT_UPLOAD_TIMEOUT, LearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_UPLOAD_TIMEOUT)) {
           setInnerModelSavedStatus(true);
         }
       }

@@ -7,11 +7,11 @@ import org.apache.hadoop.yarn.api.ApplicationConstants;
 
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface XLearningConstants {
+public interface LearningConstants {
 
-  String XLEARNING_JOB_CONFIGURATION = "core-site.xml";
+  String LEARNING_JOB_CONFIGURATION = "core-site.xml";
 
-  String XLEARNING_APPLICATION_JAR = "AppMaster.jar";
+  String LEARNING_APPLICATION_JAR = "AppMaster.jar";
 
   String WORKER = "worker";
 
@@ -24,7 +24,7 @@ public interface XLearningConstants {
   enum Environment {
     HADOOP_USER_NAME("HADOOP_USER_NAME"),
 
-    XLEARNING_APP_TYPE("XLEARNING_APP_TYPE"),
+    LEARNING_APP_TYPE("LEARNING_APP_TYPE"),
 
     XLEARNING_CONTAINER_MAX_MEMORY("XLEARNING_MAX_MEM"),
 

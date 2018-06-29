@@ -1,11 +1,11 @@
 package com.dtstack.learning.webapp;
 
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import com.dtstack.learning.api.XLearningConstants;
+import com.dtstack.learning.api.LearningConstants;
 import com.dtstack.learning.common.OutputInfo;
-import com.dtstack.learning.conf.XLearningConfiguration;
-import com.dtstack.learning.container.XLearningContainerId;
+import com.dtstack.learning.container.LearningContainerId;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -34,11 +34,11 @@ public class AppController extends Controller implements AMParams {
     this.conf = conf;
     this.app = app;
     set(APP_ID, app.context.getApplicationID().toString());
-    if (System.getenv().containsKey(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString())) {
-      if ("xlearning".equals(System.getenv(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString()).toLowerCase())) {
+    if (System.getenv().containsKey(LearningConstants.Environment.LEARNING_APP_TYPE.toString())) {
+      if ("xlearning".equals(System.getenv(LearningConstants.Environment.LEARNING_APP_TYPE.toString()).toLowerCase())) {
         set(APP_TYPE, "XLearning");
       } else {
-        char[] appType = System.getenv(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString()).toLowerCase().toCharArray();
+        char[] appType = System.getenv(LearningConstants.Environment.LEARNING_APP_TYPE.toString()).toLowerCase().toCharArray();
         appType[0] -= 32;
         set(APP_TYPE, String.valueOf(appType));
       }
@@ -47,7 +47,7 @@ public class AppController extends Controller implements AMParams {
     }
 
     String boardUrl = app.context.getTensorBoardUrl();
-    if (this.conf.getBoolean(XLearningConfiguration.XLEARNING_TF_BOARD_ENABLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE)) {
+    if (this.conf.getBoolean(LearningConfiguration.XLEARNING_TF_BOARD_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE)) {
       if (boardUrl != null) {
         set(BOARD_INFO, boardUrl);
       } else {
@@ -60,9 +60,9 @@ public class AppController extends Controller implements AMParams {
 
     List<Container> workerContainers = app.context.getWorkerContainers();
     List<Container> psContainers = app.context.getPsContainers();
-    Map<XLearningContainerId, String> reporterProgress = app.context.getReporterProgress();
-    Map<XLearningContainerId, String> containersAppStartTime = app.context.getContainersAppStartTime();
-    Map<XLearningContainerId, String> containersAppFinishTime = app.context.getContainersAppFinishTime();
+    Map<LearningContainerId, String> reporterProgress = app.context.getReporterProgress();
+    Map<LearningContainerId, String> containersAppStartTime = app.context.getContainersAppStartTime();
+    Map<LearningContainerId, String> containersAppFinishTime = app.context.getContainersAppFinishTime();
     set(CONTAINER_NUMBER, String.valueOf(workerContainers.size() + psContainers.size()));
     set(WORKER_NUMBER, String.valueOf(workerContainers.size()));
     set(USER_NAME, StringUtils.split(conf.get("hadoop.job.ugi"), ',')[0]);
@@ -70,15 +70,15 @@ public class AppController extends Controller implements AMParams {
     for (Container container : workerContainers) {
       set(CONTAINER_HTTP_ADDRESS + i, container.getNodeHttpAddress());
       set(CONTAINER_ID + i, container.getId().toString());
-      if (app.context.getContainerStatus(new XLearningContainerId(container.getId())) != null) {
-        set(CONTAINER_STATUS + i, app.context.getContainerStatus(new XLearningContainerId(container.getId())).toString());
+      if (app.context.getContainerStatus(new LearningContainerId(container.getId())) != null) {
+        set(CONTAINER_STATUS + i, app.context.getContainerStatus(new LearningContainerId(container.getId())).toString());
       } else {
         set(CONTAINER_STATUS + i, "-");
       }
       set(CONTAINER_ROLE + i, "worker");
 
-      if (app.context.getContainersCpuMetrics().get(new XLearningContainerId(container.getId())) != null) {
-        ConcurrentHashMap<String, LinkedBlockingDeque<Object>> cpuMetrics = app.context.getContainersCpuMetrics().get(new XLearningContainerId(container.getId()));
+      if (app.context.getContainersCpuMetrics().get(new LearningContainerId(container.getId())) != null) {
+        ConcurrentHashMap<String, LinkedBlockingDeque<Object>> cpuMetrics = app.context.getContainersCpuMetrics().get(new LearningContainerId(container.getId()));
         if (cpuMetrics.size() != 0) {
           set("cpuMemMetrics" + i, new Gson().toJson(cpuMetrics.get("CPUMEM")));
           if (cpuMetrics.containsKey("CPUUTIL")) {
@@ -87,8 +87,8 @@ public class AppController extends Controller implements AMParams {
         }
       }
 
-      if (reporterProgress.get(new XLearningContainerId(container.getId())) != null && !reporterProgress.get(new XLearningContainerId(container.getId())).equals("")) {
-        String progressLog = reporterProgress.get(new XLearningContainerId(container.getId()));
+      if (reporterProgress.get(new LearningContainerId(container.getId())) != null && !reporterProgress.get(new LearningContainerId(container.getId())).equals("")) {
+        String progressLog = reporterProgress.get(new LearningContainerId(container.getId()));
         String[] progress = progressLog.toString().split(":");
         if (progress.length != 2) {
           set(CONTAINER_REPORTER_PROGRESS + i, "progress log format error");
@@ -109,14 +109,14 @@ public class AppController extends Controller implements AMParams {
       } else {
         set(CONTAINER_REPORTER_PROGRESS + i, "0.00%");
       }
-      if (containersAppStartTime.get(new XLearningContainerId(container.getId())) != null && !containersAppStartTime.get(new XLearningContainerId(container.getId())).equals("")) {
-        String localStartTime = containersAppStartTime.get(new XLearningContainerId(container.getId()));
+      if (containersAppStartTime.get(new LearningContainerId(container.getId())) != null && !containersAppStartTime.get(new LearningContainerId(container.getId())).equals("")) {
+        String localStartTime = containersAppStartTime.get(new LearningContainerId(container.getId()));
         set(CONTAINER_START_TIME + i, localStartTime);
       } else {
         set(CONTAINER_START_TIME + i, "N/A");
       }
-      if (containersAppFinishTime.get(new XLearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new XLearningContainerId(container.getId())).equals("")) {
-        String localFinishTime = containersAppFinishTime.get(new XLearningContainerId(container.getId()));
+      if (containersAppFinishTime.get(new LearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new LearningContainerId(container.getId())).equals("")) {
+        String localFinishTime = containersAppFinishTime.get(new LearningContainerId(container.getId()));
         set(CONTAINER_FINISH_TIME + i, localFinishTime);
       } else {
         set(CONTAINER_FINISH_TIME + i, "N/A");
@@ -126,8 +126,8 @@ public class AppController extends Controller implements AMParams {
     for (Container container : psContainers) {
       set(CONTAINER_HTTP_ADDRESS + i, container.getNodeHttpAddress());
       set(CONTAINER_ID + i, container.getId().toString());
-      if (app.context.getContainerStatus(new XLearningContainerId(container.getId())) != null) {
-        set(CONTAINER_STATUS + i, app.context.getContainerStatus(new XLearningContainerId(container.getId())).toString());
+      if (app.context.getContainerStatus(new LearningContainerId(container.getId())) != null) {
+        set(CONTAINER_STATUS + i, app.context.getContainerStatus(new LearningContainerId(container.getId())).toString());
       } else {
         set(CONTAINER_STATUS + i, "-");
       }
@@ -138,14 +138,14 @@ public class AppController extends Controller implements AMParams {
       }
 
       set(CONTAINER_REPORTER_PROGRESS + i, "0.00%");
-      if (containersAppStartTime.get(new XLearningContainerId(container.getId())) != null && !containersAppStartTime.get(new XLearningContainerId(container.getId())).equals("")) {
-        String localStartTime = containersAppStartTime.get(new XLearningContainerId(container.getId()));
+      if (containersAppStartTime.get(new LearningContainerId(container.getId())) != null && !containersAppStartTime.get(new LearningContainerId(container.getId())).equals("")) {
+        String localStartTime = containersAppStartTime.get(new LearningContainerId(container.getId()));
         set(CONTAINER_START_TIME + i, localStartTime);
       } else {
         set(CONTAINER_START_TIME + i, "N/A");
       }
-      if (containersAppFinishTime.get(new XLearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new XLearningContainerId(container.getId())).equals("")) {
-        String localFinishTime = containersAppFinishTime.get(new XLearningContainerId(container.getId()));
+      if (containersAppFinishTime.get(new LearningContainerId(container.getId())) != null && !containersAppFinishTime.get(new LearningContainerId(container.getId())).equals("")) {
+        String localFinishTime = containersAppFinishTime.get(new LearningContainerId(container.getId()));
         set(CONTAINER_FINISH_TIME + i, localFinishTime);
       } else {
         set(CONTAINER_FINISH_TIME + i, "N/A");
@@ -153,7 +153,7 @@ public class AppController extends Controller implements AMParams {
       i++;
     }
 
-    if (this.conf.get(XLearningConfiguration.XLEARNING_OUTPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) {
+    if (this.conf.get(LearningConfiguration.XLEARNING_OUTPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) {
       set(OUTPUT_TOTAL, "0");
     } else {
       set(OUTPUT_TOTAL, String.valueOf(app.context.getOutputs().size()));
@@ -161,7 +161,7 @@ public class AppController extends Controller implements AMParams {
     i = 0;
     for (OutputInfo output : app.context.getOutputs()) {
       Path interResult = new Path(output.getDfsLocation()
-          + conf.get(XLearningConfiguration.XLEARNING_INTERREAULST_DIR, XLearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR));
+          + conf.get(LearningConfiguration.XLEARNING_INTERREAULST_DIR, LearningConfiguration.DEFAULT_XLEARNING_INTERRESULT_DIR));
       set(OUTPUT_PATH + i, interResult.toString());
       i++;
     }

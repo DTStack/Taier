@@ -4,13 +4,13 @@ import com.dtstack.learning.api.ApplicationContainerProtocol;
 import com.dtstack.learning.common.InputInfo;
 import com.dtstack.learning.common.TextMultiOutputFormat;
 import com.dtstack.learning.common.XLearningContainerStatus;
+import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.learning.util.Utilities;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.dtstack.learning.api.XLearningConstants;
+import com.dtstack.learning.api.LearningConstants;
 import com.dtstack.learning.common.OutputInfo;
-import com.dtstack.learning.conf.XLearningConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,7 +68,7 @@ public class XLearningContainer {
 
   private static final Log LOG = LogFactory.getLog(XLearningContainer.class);
 
-  private XLearningConfiguration conf;
+  private LearningConfiguration conf;
 
   private ApplicationContainerProtocol amClient;
 
@@ -76,7 +76,7 @@ public class XLearningContainer {
 
   private String inputFileList;
 
-  private XLearningContainerId containerId;
+  private LearningContainerId containerId;
 
   private Map<String, String> envs;
 
@@ -105,15 +105,15 @@ public class XLearningContainer {
   private String xlearningCmdProcessId;
 
   private XLearningContainer() {
-    this.conf = new XLearningConfiguration();
-    conf.addResource(new Path(XLearningConstants.XLEARNING_JOB_CONFIGURATION));
+    this.conf = new LearningConfiguration();
+    conf.addResource(new Path(LearningConstants.LEARNING_JOB_CONFIGURATION));
     LOG.info("user is " + conf.get("hadoop.job.ugi"));
-    this.containerId = new XLearningContainerId(ConverterUtils.toContainerId(System
+    this.containerId = new LearningContainerId(ConverterUtils.toContainerId(System
         .getenv(ApplicationConstants.Environment.CONTAINER_ID.name())));
-    this.downloadRetry = conf.getInt(XLearningConfiguration.XLEARNING_DOWNLOAD_FILE_RETRY, XLearningConfiguration.DEFAULT_XLEARNING_DOWNLOAD_FILE_RETRY);
+    this.downloadRetry = conf.getInt(LearningConfiguration.XLEARNING_DOWNLOAD_FILE_RETRY, LearningConfiguration.DEFAULT_XLEARNING_DOWNLOAD_FILE_RETRY);
     this.envs = System.getenv();
-    this.xlearningAppType = envs.get(XLearningConstants.Environment.XLEARNING_APP_TYPE.toString()).toUpperCase();
-    this.role = envs.get(XLearningConstants.Environment.XLEARNING_TF_ROLE.toString());
+    this.xlearningAppType = envs.get(LearningConstants.Environment.LEARNING_APP_TYPE.toString()).toUpperCase();
+    this.role = envs.get(LearningConstants.Environment.XLEARNING_TF_ROLE.toString());
     this.xlearningCmdProcessId = "";
     if ("TENSORFLOW".equals(xlearningAppType)) {
       LOG.info("TensorFlow role is:" + this.role);
@@ -131,7 +131,7 @@ public class XLearningContainer {
       LOG.info("Dist lightGBM role is:" + this.role);
     }
 
-    this.index = Integer.valueOf(envs.get(XLearningConstants.Environment.XLEARNING_TF_INDEX.toString()));
+    this.index = Integer.valueOf(envs.get(LearningConstants.Environment.XLEARNING_TF_INDEX.toString()));
     if ("TENSORFLOW".equals(xlearningAppType)) {
       LOG.info("TensorFlow index is:" + this.index);
     }
@@ -145,16 +145,16 @@ public class XLearningContainer {
       LOG.info("Dist lightGBM index is:" + this.index);
     }
 
-    this.single = conf.getBoolean(XLearningConfiguration.XLEARNING_TF_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_MODE_SINGLE);
-    this.singleMx = conf.getBoolean(XLearningConfiguration.XLEARNING_MXNET_MODE_SINGLE, XLearningConfiguration.DEFAULT_XLEARNING_MXNET_MODE_SINGLE);
-    heartbeatInterval = this.conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL);
+    this.single = conf.getBoolean(LearningConfiguration.LEARNING_TF_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_TF_MODE_SINGLE);
+    this.singleMx = conf.getBoolean(LearningConfiguration.LEARNING_MXNET_MODE_SINGLE, LearningConfiguration.DEFAULT_LEARNING_MXNET_MODE_SINGLE);
+    heartbeatInterval = this.conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_HEARTBEAT_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_INTERVAL);
     reservedSocket = new Socket();
   }
 
   private void init() {
     LOG.info("XLearningContainer initializing");
-    String appMasterHost = System.getenv(XLearningConstants.Environment.APPMASTER_HOST.toString());
-    int appMasterPort = Integer.valueOf(System.getenv(XLearningConstants.Environment.APPMASTER_PORT.toString()));
+    String appMasterHost = System.getenv(LearningConstants.Environment.APPMASTER_HOST.toString());
+    int appMasterPort = Integer.valueOf(System.getenv(LearningConstants.Environment.APPMASTER_PORT.toString()));
     InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
     try {
       this.amClient = RPC.getProxy(ApplicationContainerProtocol.class,
@@ -190,7 +190,7 @@ public class XLearningContainer {
     return this.amClient;
   }
 
-  private XLearningContainerId getContainerId() {
+  private LearningContainerId getContainerId() {
     return this.containerId;
   }
 
@@ -251,9 +251,9 @@ public class XLearningContainer {
   @SuppressWarnings("deprecation")
   private void prepareInputFiles() throws IOException, InterruptedException,
       ExecutionException {
-    if (conf.get(XLearningConfiguration.XLEARNING_INPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
+    if (conf.get(LearningConfiguration.XLEARNING_INPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
       LOG.info("XLEARNING_INPUT_STRATEGY is STREAM, use the stream way to read data from hdfs.");
-    } else if (conf.get(XLearningConfiguration.XLEARNING_INPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("PLACEHOLDER")) {
+    } else if (conf.get(LearningConfiguration.XLEARNING_INPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("PLACEHOLDER")) {
       List<InputInfo> inputs = Arrays.asList(amClient.getInputSplit(containerId));
       if (inputs.size() == 0) {
         LOG.info("Current container has no input.");
@@ -280,7 +280,7 @@ public class XLearningContainer {
       }
 
       ExecutorService executor = Executors.newFixedThreadPool(
-          conf.getInt(XLearningConfiguration.XLEARNING_DOWNLOAD_FILE_THREAD_NUMS, XLearningConfiguration.DEFAULT_XLEARNING_DOWNLOAD_FILE_THREAD_NUMS),
+          conf.getInt(LearningConfiguration.XLEARNING_DOWNLOAD_FILE_THREAD_NUMS, LearningConfiguration.DEFAULT_XLEARNING_DOWNLOAD_FILE_THREAD_NUMS),
           new ThreadFactoryBuilder()
               .setDaemon(true)
               .setNameFormat("Download-File-Thread #%d")
@@ -293,7 +293,7 @@ public class XLearningContainer {
         int index = 0;
         for (Path path : inputInfo.getPaths()) {
           String downloadDst;
-          if (conf.getBoolean(XLearningConfiguration.XLEARNING_INPUTFILE_RENAME, XLearningConfiguration.DEFAULT_XLEARNING_INPUTFILE_RENAME)) {
+          if (conf.getBoolean(LearningConfiguration.XLEARNING_INPUTFILE_RENAME, LearningConfiguration.DEFAULT_XLEARNING_INPUTFILE_RENAME)) {
             downloadDst = downloadDir + File.separator + System.currentTimeMillis() + "_" + index++;
           } else {
             String[] fileName = StringUtils.split(path.toString(), '/');
@@ -318,7 +318,7 @@ public class XLearningContainer {
   }
 
   private void createLocalOutputDir() {
-    if (this.conf.get(XLearningConfiguration.XLEARNING_OUTPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) {
+    if (this.conf.get(LearningConfiguration.XLEARNING_OUTPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) {
       LOG.info("XLEARNING_OUTPUT_STRATEGY is STREAM, do not need to create local output dir.");
     } else {
       List<OutputInfo> outputs = Arrays.asList(amClient.getOutputLocation());
@@ -328,21 +328,21 @@ public class XLearningContainer {
       }
     }
 
-    int boardIndex = this.conf.getInt(XLearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX);
-    Boolean boardEnable = this.conf.getBoolean(XLearningConfiguration.XLEARNING_TF_BOARD_ENABLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE);
-    if (boardEnable && this.role.equals(XLearningConstants.WORKER) && boardIndex == this.index) {
-      if (this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs://") == -1) {
-        Utilities.mkdirs(this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR));
-        LOG.info("Created board log dir " + this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR));
+    int boardIndex = this.conf.getInt(LearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX);
+    Boolean boardEnable = this.conf.getBoolean(LearningConfiguration.XLEARNING_TF_BOARD_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE);
+    if (boardEnable && this.role.equals(LearningConstants.WORKER) && boardIndex == this.index) {
+      if (this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs://") == -1) {
+        Utilities.mkdirs(this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR));
+        LOG.info("Created board log dir " + this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR));
       } else {
-        LOG.info("User appoint the board log dir : " + this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR));
+        LOG.info("User appoint the board log dir : " + this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR));
       }
     }
   }
 
   @SuppressWarnings("deprecation")
   private void uploadOutputFiles() throws IOException {
-    if (this.conf.get(XLearningConfiguration.XLEARNING_OUTPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) {
+    if (this.conf.get(LearningConfiguration.XLEARNING_OUTPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) {
       LOG.info("XLEARNING_OUTPUT_STRATEGY is STREAM, do not need to upload local output files.");
     } else {
       List<OutputInfo> outputs = Arrays.asList(amClient.getOutputLocation());
@@ -369,24 +369,24 @@ public class XLearningContainer {
     }
 
 
-    if (this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs://") == -1) {
-      XLearningConfiguration xlConf = new XLearningConfiguration();
-      int boardIndex = conf.getInt(XLearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX);
-      Boolean boardEnable = conf.getBoolean(XLearningConfiguration.XLEARNING_TF_BOARD_ENABLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE);
-      String boardLogDir = conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR);
+    if (this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR).indexOf("hdfs://") == -1) {
+      LearningConfiguration xlConf = new LearningConfiguration();
+      int boardIndex = conf.getInt(LearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX);
+      Boolean boardEnable = conf.getBoolean(LearningConfiguration.XLEARNING_TF_BOARD_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE);
+      String boardLogDir = conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR);
       Path localLogPath = new Path(boardLogDir);
       FileSystem boardLocalFs = FileSystem.getLocal(conf);
       String boardHistoryDir;
       Path remoteLogPath;
       FileSystem boardDfs;
-      if (conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR).equals(xlConf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR))) {
-        boardHistoryDir = xlConf.get("fs.defaultFS") + conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
-            XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR) + "/" + this.envs.get("APP_ID");
+      if (conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR).equals(xlConf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR))) {
+        boardHistoryDir = xlConf.get("fs.defaultFS") + conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
+            LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR) + "/" + this.envs.get("APP_ID");
         remoteLogPath = new Path(boardHistoryDir);
         boardDfs = remoteLogPath.getFileSystem(xlConf);
       } else {
-        boardHistoryDir = conf.get("fs.defaultFS") + conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
-            XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR);
+        boardHistoryDir = conf.get("fs.defaultFS") + conf.get(LearningConfiguration.XLEARNING_TF_BOARD_HISTORY_DIR,
+            LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR);
         remoteLogPath = new Path(boardHistoryDir);
         boardDfs = remoteLogPath.getFileSystem(conf);
       }
@@ -400,7 +400,7 @@ public class XLearningContainer {
       }
       boardLocalFs.close();
     } else {
-      LOG.info("User appoint the board log dir : " + this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR));
+      LOG.info("User appoint the board log dir : " + this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR));
       if (!(xlearningAppType.equals("TENSORFLOW"))) {
         LOG.error("Note that VisualDL not support the hdfs path of logdir.");
       }
@@ -425,10 +425,10 @@ public class XLearningContainer {
 
   private Boolean run() throws IOException {
     try {
-      if (this.role.equals(XLearningConstants.WORKER)) {
+      if (this.role.equals(LearningConstants.WORKER)) {
         prepareInputFiles();
       }
-      if (this.conf.getBoolean(XLearningConfiguration.XLEARNING_CONTAINER_AUTO_CREATE_OUTPUT_DIR, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_AUTO_CREATE_OUTPUT_DIR)) {
+      if (this.conf.getBoolean(LearningConfiguration.XLEARNING_CONTAINER_AUTO_CREATE_OUTPUT_DIR, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_AUTO_CREATE_OUTPUT_DIR)) {
         createLocalOutputDir();
       }
     } catch (InterruptedException e) {
@@ -451,7 +451,7 @@ public class XLearningContainer {
           LOG.info("Cluster def is: " + this.clusterDef);
           break;
         }
-        Utilities.sleep(this.conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL));
+        Utilities.sleep(this.conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL));
       }
     }
 
@@ -476,7 +476,7 @@ public class XLearningContainer {
           LOG.info("lightGBM IP PORT list is: " + lightGBMIpPortStr);
           break;
         }
-        Utilities.sleep(this.conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL));
+        Utilities.sleep(this.conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL));
       }
       Type type = new TypeToken<ConcurrentHashMap<String, String>>() {
       }.getType();
@@ -497,17 +497,17 @@ public class XLearningContainer {
         "/jre/lib/amd64/server:" + System.getenv("HADOOP_HOME") + "/lib/native");
     envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH") + ":" + System.getProperty("java.class.path"));
     envList.add("PYTHONUNBUFFERED=1");
-    envList.add(XLearningConstants.Environment.XLEARNING_INPUT_FILE_LIST.toString() + "=" + this.inputFileList);
+    envList.add(LearningConstants.Environment.XLEARNING_INPUT_FILE_LIST.toString() + "=" + this.inputFileList);
 
     if ("TENSORFLOW".equals(xlearningAppType)) {
-      envList.add(XLearningConstants.Environment.XLEARNING_TF_INDEX.toString() + "=" + this.index);
-      envList.add(XLearningConstants.Environment.XLEARNING_TF_ROLE.toString() + "=" + this.role);
+      envList.add(LearningConstants.Environment.XLEARNING_TF_INDEX.toString() + "=" + this.index);
+      envList.add(LearningConstants.Environment.XLEARNING_TF_ROLE.toString() + "=" + this.role);
       if (!single) {
         /**
          * set TF_CLUSTER_DEF in env
          * python script can load cluster def use "json.loads(os.environ["CLUSTER_DEF"])"
          */
-        envList.add(XLearningConstants.Environment.XLEARNING_TF_CLUSTER_DEF.toString() + "=" + this.clusterDef);
+        envList.add(LearningConstants.Environment.XLEARNING_TF_CLUSTER_DEF.toString() + "=" + this.clusterDef);
       }
     } else if (xlearningAppType.equals("MXNET")) {
       if (!singleMx) {
@@ -531,12 +531,12 @@ public class XLearningContainer {
       envList.add("DMLC_TASK_ID=" + this.index);
       envList.add("DMLC_ROLE=" + this.role);
     } else if (xlearningAppType.equals("DISTLIGHTGBM")) {
-      envList.add("LIGHTGBM_NUM_MACHINE=" + System.getenv(XLearningConstants.Environment.XLEARNING_LIGHTGBM_WORKER_NUM.toString()));
+      envList.add("LIGHTGBM_NUM_MACHINE=" + System.getenv(LearningConstants.Environment.XLEARNING_LIGHTGBM_WORKER_NUM.toString()));
       envList.add("LIGHTGBM_LOCAL_LISTEN_PORT=" + this.lightGBMLocalPort);
     }
 
     String[] env = envList.toArray(new String[envList.size()]);
-    String command = envs.get(XLearningConstants.Environment.XLEARNING_EXEC_CMD.toString());
+    String command = envs.get(LearningConstants.Environment.XLEARNING_EXEC_CMD.toString());
     LOG.info("Executing command:" + command);
     Runtime rt = Runtime.getRuntime();
 
@@ -546,22 +546,22 @@ public class XLearningContainer {
     Date now = new Date();
     heartbeatThread.setContainersStartTime(now.toString());
 
-    if (conf.get(XLearningConfiguration.XLEARNING_INPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
+    if (conf.get(LearningConfiguration.XLEARNING_INPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY).equals("STREAM")) {
       LOG.info("Starting thread to redirect stdin of xlearning process");
       Thread stdinRedirectThread = new Thread(new Runnable() {
         @Override
         public void run() {
           try {
             OutputStreamWriter osw = new OutputStreamWriter(xlearningProcess.getOutputStream());
-            File gzFile = new File(conf.get(XLearningConfiguration.XLEARNING_INPUTFORMAT_CACHEFILE_NAME, XLearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHEFILE_NAME));
+            File gzFile = new File(conf.get(LearningConfiguration.XLEARNING_INPUTFORMAT_CACHEFILE_NAME, LearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHEFILE_NAME));
             GZIPOutputStream gos = new GZIPOutputStream(new FileOutputStream(gzFile));
-            boolean isCache = conf.getBoolean(XLearningConfiguration.XLEARNING_INPUTFORMAT_CACHE, XLearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHE);
+            boolean isCache = conf.getBoolean(LearningConfiguration.XLEARNING_INPUTFORMAT_CACHE, LearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHE);
             List<InputSplit> inputs = Arrays.asList(amClient.getStreamInputSplit(containerId));
             JobConf jobConf = new JobConf(conf);
             RecordReader reader;
-            InputFormat inputFormat = ReflectionUtils.newInstance(conf.getClass(XLearningConfiguration.XLEARNING_INPUTF0RMAT_CLASS, XLearningConfiguration.DEFAULT_XLEARNING_INPUTF0RMAT_CLASS, InputFormat.class),
+            InputFormat inputFormat = ReflectionUtils.newInstance(conf.getClass(LearningConfiguration.LEARNING_INPUTF0RMAT_CLASS, LearningConfiguration.DEFAULT_XLEARNING_INPUTF0RMAT_CLASS, InputFormat.class),
                 jobConf);
-            for (int j = 0; j < conf.getInt(XLearningConfiguration.XLEARNING_STREAM_EPOCH, XLearningConfiguration.DEFAULT_XLEARNING_STREAM_EPOCH); j++) {
+            for (int j = 0; j < conf.getInt(LearningConfiguration.XLEARNING_STREAM_EPOCH, LearningConfiguration.DEFAULT_XLEARNING_STREAM_EPOCH); j++) {
               LOG.info("Epoch " + (j + 1) + " starting...");
               for (int i = 0, len = inputs.size(); i < len; i++) {
                 LOG.info("split " + (i + 1) + " is handling...");
@@ -578,13 +578,13 @@ public class XLearningContainer {
                     osw.write(value.toString());
                     osw.write("\n");
                     if (j == 0 && isCache) {
-                      if (conf.getInt(XLearningConfiguration.XLEARNING_STREAM_EPOCH, XLearningConfiguration.DEFAULT_XLEARNING_STREAM_EPOCH) > 1) {
+                      if (conf.getInt(LearningConfiguration.XLEARNING_STREAM_EPOCH, LearningConfiguration.DEFAULT_XLEARNING_STREAM_EPOCH) > 1) {
                         gos.write(value.toString().getBytes());
                         gos.write("\n".getBytes());
 
-                        if ((gzFile.length() / 1024 / 1024) > conf.getInt(XLearningConfiguration.XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT, XLearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT)) {
+                        if ((gzFile.length() / 1024 / 1024) > conf.getInt(LearningConfiguration.XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT, LearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT)) {
                           LOG.info("Inputformat cache file size is:" + gzFile.length() / 1024 / 1024 + "M "
-                              + "beyond the limit size:" + conf.getInt(XLearningConfiguration.XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT, XLearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT) + "M.");
+                              + "beyond the limit size:" + conf.getInt(LearningConfiguration.XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT, LearningConfiguration.DEFAULT_XLEARNING_INPUTFORMAT_CACHESIZE_LIMIT) + "M.");
                           gzFile.delete();
                           LOG.info("Local cache file deleted and will not use cache.");
                           isCache = false;
@@ -616,7 +616,7 @@ public class XLearningContainer {
     }
 
     List<OutputInfo> outputs = Arrays.asList(amClient.getOutputLocation());
-    if ((this.conf.get(XLearningConfiguration.XLEARNING_OUTPUT_STRATEGY, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) && outputs.size() > 0) {
+    if ((this.conf.get(LearningConfiguration.XLEARNING_OUTPUT_STRATEGY, LearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY).equals("STREAM")) && outputs.size() > 0) {
       LOG.info("Starting thread to redirect stream stdout of xlearning process");
       final Thread stdoutRedirectThread = new Thread(new Runnable() {
         @Override
@@ -634,8 +634,8 @@ public class XLearningContainer {
 
             Path remotePath = new Path(outputs.get(0).getDfsLocation() + "/_temporary/" + containerId.toString());
             FileSystem dfs = remotePath.getFileSystem(jobConf);
-            jobConf.set(XLearningConstants.STREAM_OUTPUT_DIR, remotePath.makeQualified(dfs).toString());
-            OutputFormat outputFormat = ReflectionUtils.newInstance(conf.getClass(XLearningConfiguration.XLEARNING_OUTPUTFORMAT_CLASS, XLearningConfiguration.DEFAULT_XLEARNING_OUTPUTF0RMAT_CLASS, OutputFormat.class),
+            jobConf.set(LearningConstants.STREAM_OUTPUT_DIR, remotePath.makeQualified(dfs).toString());
+            OutputFormat outputFormat = ReflectionUtils.newInstance(conf.getClass(LearningConfiguration.XLEARNING_OUTPUTFORMAT_CLASS, LearningConfiguration.DEFAULT_XLEARNING_OUTPUTF0RMAT_CLASS, OutputFormat.class),
                 jobConf);
             outputFormat.checkOutputSpecs(dfs, jobConf);
             JobID jobID = new JobID(new SimpleDateFormat("yyyyMMddHHmm").format(new Date()), 0);
@@ -706,9 +706,9 @@ public class XLearningContainer {
     heartbeatThread.setContainerStatus(XLearningContainerStatus.RUNNING);
 
     //Start board process
-    int boardIndex = this.conf.getInt(XLearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX);
-    Boolean boardEnable = this.conf.getBoolean(XLearningConfiguration.XLEARNING_TF_BOARD_ENABLE, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE);
-    if (boardEnable && this.role.equals(XLearningConstants.WORKER) && boardIndex == this.index) {
+    int boardIndex = this.conf.getInt(LearningConfiguration.XLEARNING_TF_BOARD_WORKER_INDEX, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX);
+    Boolean boardEnable = this.conf.getBoolean(LearningConfiguration.XLEARNING_TF_BOARD_ENABLE, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE);
+    if (boardEnable && this.role.equals(LearningConstants.WORKER) && boardIndex == this.index) {
       Socket boardReservedSocket = new Socket();
       try {
         boardReservedSocket.bind(new InetSocketAddress("127.0.0.1", 0));
@@ -717,16 +717,16 @@ public class XLearningContainer {
         reportFailedAndExit();
       }
       String boardHost = envs.get(ApplicationConstants.Environment.NM_HOST.toString());
-      String boardLogDir = this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR);
+      String boardLogDir = this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_LOG_DIR, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR);
       int boardPort = boardReservedSocket.getLocalPort();
       String boardCommand;
       if ("TENSORFLOW".equals(xlearningAppType)) {
-        int boardReloadInterval = this.conf.getInt(XLearningConfiguration.XLEARNING_TF_BOARD_RELOAD_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_RELOAD_INTERVAL);
-        boardCommand = this.conf.get(XLearningConfiguration.XLEARNING_TF_BOARD_PATH, XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_PATH) + " --host=" + boardHost + " --port=" + boardPort + " --reload_interval=" + boardReloadInterval + " --logdir=" + boardLogDir;
+        int boardReloadInterval = this.conf.getInt(LearningConfiguration.XLEARNING_TF_BOARD_RELOAD_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_RELOAD_INTERVAL);
+        boardCommand = this.conf.get(LearningConfiguration.XLEARNING_TF_BOARD_PATH, LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_PATH) + " --host=" + boardHost + " --port=" + boardPort + " --reload_interval=" + boardReloadInterval + " --logdir=" + boardLogDir;
       } else {
-        int boardCacheTimeout = this.conf.getInt(XLearningConfiguration.XLEARNING_BOARD_CACHE_TIMEOUT, XLearningConfiguration.DEFAULT_XLEARNING_BOARD_CACHE_TIMEOUT);
-        boardCommand = this.conf.get(XLearningConfiguration.XLEARNING_BOARD_PATH, XLearningConfiguration.DEFAULT_XLEARNING_BOARD_PATH) + " --host=" + boardHost + " --port=" + boardPort + " --logdir=" + boardLogDir + " --cache_timeout=" + boardCacheTimeout;
-        String modelpb = this.conf.get(XLearningConfiguration.XLEARNING_BOARD_MODELPB, XLearningConfiguration.DEFAULT_XLEARNING_BOARD_MODELPB);
+        int boardCacheTimeout = this.conf.getInt(LearningConfiguration.XLEARNING_BOARD_CACHE_TIMEOUT, LearningConfiguration.DEFAULT_XLEARNING_BOARD_CACHE_TIMEOUT);
+        boardCommand = this.conf.get(LearningConfiguration.XLEARNING_BOARD_PATH, LearningConfiguration.DEFAULT_XLEARNING_BOARD_PATH) + " --host=" + boardHost + " --port=" + boardPort + " --logdir=" + boardLogDir + " --cache_timeout=" + boardCacheTimeout;
+        String modelpb = this.conf.get(LearningConfiguration.XLEARNING_BOARD_MODELPB, LearningConfiguration.DEFAULT_XLEARNING_BOARD_MODELPB);
         if (!(modelpb.equals("") || modelpb == null)) {
           boardCommand = boardCommand + " --model_pb=" + modelpb;
         }
@@ -781,9 +781,9 @@ public class XLearningContainer {
       }
     }
 
-    int updateAppStatusInterval = this.conf.getInt(XLearningConfiguration.XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL, XLearningConfiguration.DEFAULT_XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL);
+    int updateAppStatusInterval = this.conf.getInt(LearningConfiguration.XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL, LearningConfiguration.DEFAULT_XLEARNING_CONTAINER_UPDATE_APP_STATUS_INTERVAL);
 
-    if (this.role.equals(XLearningConstants.WORKER)) {
+    if (this.role.equals(LearningConstants.WORKER)) {
       this.xlearningCmdProcessId = getPidOfProcess(xlearningProcess);
       LOG.info("xlearningCmdProcessId is:" + this.xlearningCmdProcessId);
       containerReporter = new ContainerReporter(amClient, conf, containerId, this.xlearningCmdProcessId);
@@ -801,7 +801,7 @@ public class XLearningContainer {
       }
     }
 
-    if (this.role.equals(XLearningConstants.PS)) {
+    if (this.role.equals(LearningConstants.PS)) {
       if (code == -1) {
         xlearningProcess.destroy();
         return true;

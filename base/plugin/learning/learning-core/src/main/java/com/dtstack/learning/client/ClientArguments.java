@@ -2,7 +2,7 @@ package com.dtstack.learning.client;
 
 import com.dtstack.learning.AM.ApplicationMaster;
 import com.dtstack.learning.common.JobPriority;
-import com.dtstack.learning.conf.XLearningConfiguration;
+import com.dtstack.learning.conf.LearningConfiguration;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -18,7 +18,7 @@ import org.apache.hadoop.mapred.JobConf;
 import java.io.IOException;
 import java.util.Properties;
 
-class ClientArguments {
+public class ClientArguments {
   private static final Log LOG = LogFactory.getLog(ClientArguments.class);
   private Options allOptions;
   String appName;
@@ -59,6 +59,30 @@ class ClientArguments {
   public Class<?> outputFormatClass;
   Properties confs;
 
+  public int getWorkerMemory() {
+    return workerMemory;
+  }
+
+  public int getWorkerVCores() {
+    return workerVCores;
+  }
+
+  public int getWorkerNum() {
+    return workerNum;
+  }
+
+  public int getPsMemory() {
+    return psMemory;
+  }
+
+  public int getPsVCores() {
+    return psVCores;
+  }
+
+  public int getPsNum() {
+    return psNum;
+  }
+
   public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
     this.init();
     this.cliParser(args);
@@ -66,15 +90,15 @@ class ClientArguments {
 
   private void init() {
     appName = "";
-    appType = XLearningConfiguration.DEFAULT_XLEARNING_APP_TYPE.toUpperCase();
-    amMem = XLearningConfiguration.DEFAULT_XLEARNING_AM_MEMORY;
-    amCores = XLearningConfiguration.DEFAULT_XLEARNING_AM_CORES;
-    workerMemory = XLearningConfiguration.DEFAULT_XLEARNING_WORKER_MEMORY;
-    workerVCores = XLearningConfiguration.DEFAULT_XLEARNING_WORKER_VCORES;
-    workerNum = XLearningConfiguration.DEFAULT_XLEARNING_WORKER_NUM;
-    psMemory = XLearningConfiguration.DEFAULT_XLEARNING_PS_MEMORY;
-    psVCores = XLearningConfiguration.DEFAULT_XLEARNING_PS_VCORES;
-    psNum = XLearningConfiguration.DEFAULT_XLEARNING_PS_NUM;
+    appType = LearningConfiguration.DEFAULT_LEARNING_APP_TYPE.toUpperCase();
+    amMem = LearningConfiguration.DEFAULT_LEARNING_AM_MEMORY;
+    amCores = LearningConfiguration.DEFAULT_LEARNING_AM_CORES;
+    workerMemory = LearningConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
+    workerVCores = LearningConfiguration.DEFAULT_LEARNING_WORKER_VCORES;
+    workerNum = LearningConfiguration.DEFAULT_LEARNING_WORKER_NUM;
+    psMemory = LearningConfiguration.DEFAULT_LEARNING_PS_MEMORY;
+    psVCores = LearningConfiguration.DEFAULT_LEARNING_PS_VCORES;
+    psNum = LearningConfiguration.DEFAULT_LEARNING_PS_NUM;
     xlearningFiles = null;
     libJars = null;
     launchCmd = "";
@@ -82,23 +106,23 @@ class ClientArguments {
     xlearningCacheArchives = "";
     appMasterJar = "";
     userPath = "";
-    priority = XLearningConfiguration.DEFAULT_XLEARNING_APP_PRIORITY;
+    priority = LearningConfiguration.DEFAULT_LEARNING_APP_PRIORITY;
     queue = "";
-    userClasspathFirst = XLearningConfiguration.DEFAULT_XLEARNING_USER_CLASSPATH_FIRST;
-    boardIndex = XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX;
-    boardReloadInterval = XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_RELOAD_INTERVAL;
-    boardEnable = XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE;
-    boardLogDir = XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR;
-    boardHistoryDir = XLearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR;
-    boardModelPB = XLearningConfiguration.DEFAULT_XLEARNING_BOARD_MODELPB;
-    boardCacheTimeout = XLearningConfiguration.DEFAULT_XLEARNING_BOARD_CACHE_TIMEOUT;
-    isRenameInputFile = XLearningConfiguration.DEFAULT_XLEARNING_INPUTFILE_RENAME;
-    streamEpoch = XLearningConfiguration.DEFAULT_XLEARNING_STREAM_EPOCH;
-    inputStreamShuffle = XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STREAM_SHUFFLE;
-    inputFormatClass = XLearningConfiguration.DEFAULT_XLEARNING_INPUTF0RMAT_CLASS;
-    outputFormatClass = XLearningConfiguration.DEFAULT_XLEARNING_OUTPUTF0RMAT_CLASS;
-    inputStrategy = XLearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY.toUpperCase();
-    outputStrategy = XLearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY.toUpperCase();
+    userClasspathFirst = LearningConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
+    boardIndex = LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_WORKER_INDEX;
+    boardReloadInterval = LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_RELOAD_INTERVAL;
+    boardEnable = LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_ENABLE;
+    boardLogDir = LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_LOG_DIR;
+    boardHistoryDir = LearningConfiguration.DEFAULT_XLEARNING_TF_BOARD_HISTORY_DIR;
+    boardModelPB = LearningConfiguration.DEFAULT_XLEARNING_BOARD_MODELPB;
+    boardCacheTimeout = LearningConfiguration.DEFAULT_XLEARNING_BOARD_CACHE_TIMEOUT;
+    isRenameInputFile = LearningConfiguration.DEFAULT_XLEARNING_INPUTFILE_RENAME;
+    streamEpoch = LearningConfiguration.DEFAULT_XLEARNING_STREAM_EPOCH;
+    inputStreamShuffle = LearningConfiguration.DEFAULT_XLEARNING_INPUT_STREAM_SHUFFLE;
+    inputFormatClass = LearningConfiguration.DEFAULT_XLEARNING_INPUTF0RMAT_CLASS;
+    outputFormatClass = LearningConfiguration.DEFAULT_XLEARNING_OUTPUTF0RMAT_CLASS;
+    inputStrategy = LearningConfiguration.DEFAULT_XLEARNING_INPUT_STRATEGY.toUpperCase();
+    outputStrategy = LearningConfiguration.DEFAULT_XLEARNING_OUTPUT_STRATEGY.toUpperCase();
 
     allOptions = new Options();
     allOptions.addOption("appName", "app-name", true,

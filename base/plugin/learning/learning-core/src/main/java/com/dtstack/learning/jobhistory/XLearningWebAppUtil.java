@@ -2,7 +2,7 @@ package com.dtstack.learning.jobhistory;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.dtstack.learning.conf.XLearningConfiguration;
+import com.dtstack.learning.conf.LearningConfiguration;
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 import org.apache.hadoop.conf.Configuration;
@@ -32,8 +32,8 @@ public class XLearningWebAppUtil {
     setHttpPolicyInYARN(conf.get(
         YarnConfiguration.YARN_HTTP_POLICY_KEY,
         YarnConfiguration.YARN_HTTP_POLICY_DEFAULT));
-    setHttpPolicyInJHS(conf.get(XLearningConfiguration.XLEARNING_HS_HTTP_POLICY,
-        XLearningConfiguration.DEFAULT_XLEARNING_HS_HTTP_POLICY));
+    setHttpPolicyInJHS(conf.get(LearningConfiguration.XLEARNING_HS_HTTP_POLICY,
+        LearningConfiguration.DEFAULT_XLEARNING_HS_HTTP_POLICY));
   }
 
   private static void setHttpPolicyInJHS(String policy) {
@@ -65,19 +65,19 @@ public class XLearningWebAppUtil {
   public static void setJHSWebappURLWithoutScheme(Configuration conf,
                                                   String hostAddress) {
     if (httpPolicyInJHS == Policy.HTTPS_ONLY) {
-      conf.set(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS, hostAddress);
+      conf.set(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS, hostAddress);
     } else {
-      conf.set(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS, hostAddress);
+      conf.set(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS, hostAddress);
     }
   }
 
   public static String getJHSWebappURLWithoutScheme(Configuration conf) {
     if (httpPolicyInJHS == Policy.HTTPS_ONLY) {
-      return conf.get(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS,
-          XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS);
+      return conf.get(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS,
+          LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS);
     } else {
-      return conf.get(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS,
-          XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS);
+      return conf.get(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS,
+          LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS);
     }
   }
 
@@ -88,16 +88,16 @@ public class XLearningWebAppUtil {
   public static InetSocketAddress getJHSWebBindAddress(Configuration conf) {
     if (httpPolicyInJHS == Policy.HTTPS_ONLY) {
       return conf.getSocketAddr(
-          XLearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
-          XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS,
-          conf.get(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS),
-          conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_PORT, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_PORT));
+          LearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
+          LearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS,
+          conf.get(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS),
+          conf.getInt(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_HTTPS_PORT, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_PORT));
     } else {
       return conf.getSocketAddr(
-          XLearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
-          XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS,
-          conf.get(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS),
-          conf.getInt(XLearningConfiguration.XLEARNING_HISTORY_WEBAPP_PORT, XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_PORT));
+          LearningConfiguration.XLEARNING_HISTORY_BIND_HOST,
+          LearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS,
+          conf.get(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_ADDRESS, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS),
+          conf.getInt(LearningConfiguration.XLEARNING_HISTORY_WEBAPP_PORT, LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_PORT));
     }
   }
 
@@ -110,8 +110,8 @@ public class XLearningWebAppUtil {
     it.next(); // ignore the bind host
     String port = it.next();
     // Use hs address to figure out the host for webapp
-    addr = conf.get(XLearningConfiguration.XLEARNING_HISTORY_ADDRESS,
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS);
+    addr = conf.get(LearningConfiguration.XLEARNING_HISTORY_ADDRESS,
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_ADDRESS);
     String host = ADDR_SPLITTER.split(addr).iterator().next();
     String hsAddress = JOINER.join(host, ":", port);
     InetSocketAddress address = NetUtils.createSocketAddr(
@@ -139,14 +139,14 @@ public class XLearningWebAppUtil {
 
   private static int getDefaultJHSWebappPort() {
     return httpPolicyInJHS == Policy.HTTPS_ONLY ?
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_PORT :
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_PORT;
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_PORT :
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_PORT;
   }
 
   private static String getDefaultJHSWebappURLWithoutScheme() {
     return httpPolicyInJHS == Policy.HTTPS_ONLY ?
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS :
-        XLearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS;
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_HTTPS_ADDRESS :
+        LearningConfiguration.DEFAULT_XLEARNING_HISTORY_WEBAPP_ADDRESS;
   }
 
   public static String getAMWebappScheme(Configuration conf) {

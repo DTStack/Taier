@@ -4,7 +4,7 @@ import com.dtstack.learning.common.InputInfo;
 import com.dtstack.learning.common.Message;
 import com.dtstack.learning.common.OutputInfo;
 import com.dtstack.learning.common.XLearningContainerStatus;
-import com.dtstack.learning.container.XLearningContainerId;
+import com.dtstack.learning.container.LearningContainerId;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.Container;
@@ -27,11 +27,11 @@ public interface ApplicationContext {
 
   List<Container> getPsContainers();
 
-  XLearningContainerStatus getContainerStatus(XLearningContainerId containerId);
+  XLearningContainerStatus getContainerStatus(LearningContainerId containerId);
 
-  List<InputInfo> getInputs(XLearningContainerId containerId);
+  List<InputInfo> getInputs(LearningContainerId containerId);
 
-  List<InputSplit> getStreamInputs(XLearningContainerId containerId);
+  List<InputSplit> getStreamInputs(LearningContainerId containerId);
 
   List<OutputInfo> getOutputs();
 
@@ -39,15 +39,15 @@ public interface ApplicationContext {
 
   String getTensorBoardUrl();
 
-  Map<XLearningContainerId, String> getReporterProgress();
+  Map<LearningContainerId, String> getReporterProgress();
 
-  Map<XLearningContainerId, String> getContainersAppStartTime();
+  Map<LearningContainerId, String> getContainersAppStartTime();
 
-  Map<XLearningContainerId, String> getContainersAppFinishTime();
+  Map<LearningContainerId, String> getContainersAppFinishTime();
 
-  Map<XLearningContainerId, String> getMapedTaskID();
+  Map<LearningContainerId, String> getMapedTaskID();
 
-  Map<XLearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics();
+  Map<LearningContainerId, ConcurrentHashMap<String, LinkedBlockingDeque<Object>>> getContainersCpuMetrics();
 
   int getSavingModelStatus();
 

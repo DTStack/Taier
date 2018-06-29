@@ -1,6 +1,6 @@
 package com.dtstack.learning.util;
 
-import com.dtstack.learning.conf.XLearningConfiguration;
+import com.dtstack.learning.conf.LearningConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileStatus;
@@ -66,9 +66,9 @@ public final class Utilities {
     return paths;
   }
 
-  public static Path getRemotePath(XLearningConfiguration conf, ApplicationId appId, String fileName) {
+  public static Path getRemotePath(LearningConfiguration conf, ApplicationId appId, String fileName) {
     String pathSuffix = appId.toString() + "/" + fileName;
-    Path remotePath = new Path(conf.get(XLearningConfiguration.XLEARNING_STAGING_DIR, XLearningConfiguration.DEFAULT_XLEARNING_STAGING_DIR),
+    Path remotePath = new Path(conf.get(LearningConfiguration.LEARNING_STAGING_DIR, LearningConfiguration.DEFAULT_LEARNING_STAGING_DIR),
         pathSuffix);
     remotePath = new Path(conf.get("fs.defaultFS"), remotePath);
     LOG.debug("Got remote path of " + fileName + " is " + remotePath.toString());
