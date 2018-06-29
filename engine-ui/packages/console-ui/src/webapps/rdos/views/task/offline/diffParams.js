@@ -175,7 +175,7 @@ class DiffParams extends React.Component {
         const parseScheduleConf = {};
         const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
 
-        if(data.scheduleStatus == 0){
+        if(data.scheduleStatus == 2){
             parseScheduleConf.scheduleStatus = "已冻结"
         }else if(data.scheduleStatus == 1){
             parseScheduleConf.scheduleStatus = "未冻结"
