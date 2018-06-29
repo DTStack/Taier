@@ -57,6 +57,7 @@ import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.BatchTableSource;
 import org.apache.flink.util.Preconditions;
+import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.http.HttpStatus;
@@ -143,9 +144,10 @@ public class FlinkClient extends AbsClient {
         initClient();
         if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
             ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
-
+            //仅作用于yarn模式下
+            AbstractYarnClusterDescriptor yarnClusterDescriptor = FlinkClientBuilder.getYarnClusterDescriptor();
             //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnMonitorES));
+            yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClusterDescriptor, yarnMonitorES));
         }
     }
 

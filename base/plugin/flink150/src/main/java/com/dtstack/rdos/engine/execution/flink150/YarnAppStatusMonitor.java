@@ -1,8 +1,8 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.runtime.concurrent.ScheduledExecutorServiceAdapter;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
-import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.service.Service;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -11,7 +11,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -38,14 +37,11 @@ public class YarnAppStatusMonitor implements Runnable, AutoCloseable {
 
     private ScheduledFuture<?> applicationStatusUpdateFuture;
 
-    public YarnAppStatusMonitor(FlinkClient flinkClient, ScheduledExecutorService executorService) {
+    public YarnAppStatusMonitor(FlinkClient flinkClient, AbstractYarnClusterDescriptor clusterDescriptor, ScheduledExecutorService executorService) {
         this.flinkClient = flinkClient;
         try {
-            YarnClusterClient clusterClient = (YarnClusterClient) flinkClient.getClient();
-            applicationId = clusterClient.getApplicationId();
-            Field clusterDescriptorField = clusterClient.getClass().getDeclaredField("clusterDescriptor");
-            clusterDescriptorField.setAccessible(true);
-            AbstractYarnClusterDescriptor clusterDescriptor = (AbstractYarnClusterDescriptor) clusterDescriptorField.get(clusterClient);
+            ClusterClient<ApplicationId> clusterClient = (ClusterClient<ApplicationId>) flinkClient.getClient();
+            applicationId = clusterClient.getClusterId();
             yarnClient = clusterDescriptor.getYarnClient();
             LOG.warn("start flink monitor thread");
             applicationStatusUpdateFuture = new ScheduledExecutorServiceAdapter(executorService).scheduleWithFixedDelay(

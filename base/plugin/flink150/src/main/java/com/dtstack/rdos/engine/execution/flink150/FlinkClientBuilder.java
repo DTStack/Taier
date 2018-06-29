@@ -10,9 +10,7 @@ import org.apache.flink.client.deployment.ClusterRetrieveException;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
-import org.apache.flink.client.program.StandaloneClusterClient;
 import org.apache.flink.client.program.rest.RestClusterClient;
-import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.JobManagerOptions;
@@ -23,7 +21,6 @@ import org.apache.flink.runtime.util.LeaderConnectionInfo;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.LegacyYarnClusterDescriptor;
-import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.flink.yarn.YarnClusterDescriptor;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -34,15 +31,11 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 根据不同的配置创建对应的client
@@ -62,6 +55,8 @@ public class FlinkClientBuilder {
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
     private YarnConfiguration yarnConf;
+
+    private static AbstractYarnClusterDescriptor yarnClusterDescriptor;
 
     private FlinkClientBuilder() {
     }
@@ -219,6 +214,7 @@ public class FlinkClientBuilder {
 
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkMode(), config, yarnConf, ".");
+        yarnClusterDescriptor = clusterDescriptor;
 
         String applicationId = acquireApplicationId(clusterDescriptor);
 
@@ -305,6 +301,10 @@ public class FlinkClientBuilder {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
+    }
+
+    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor(){
+        return yarnClusterDescriptor;
     }
 
     public org.apache.hadoop.conf.Configuration getHadoopConf() {
