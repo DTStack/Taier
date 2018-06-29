@@ -384,14 +384,11 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
 
-                addOfflineTask(values, isEditExist, defaultData, currentTab)
-                    .then(
-                        (isSuccess) => {
+                addOfflineTask(values, isEditExist, defaultData)
+                    .then(isSuccess => {
                             if (isSuccess) {
                                 this.closeModal();
-                                setTimeout(() => {
-                                    form.resetFields();
-                                }, 300);
+                                form.resetFields();
                             }
                         }
                     );
@@ -471,7 +468,7 @@ export default connect(state => {
              * @param {boolean} isEditExist 是否编辑
              * @param {any} 修改前的数据 
              */
-            addOfflineTask: function (params, isEditExist, defaultData, currentTab) {
+            addOfflineTask: function (params, isEditExist, defaultData) {
                 return ajax.addOfflineTask(params)
                     .then(res => {
                         if (res.code === 1) {
