@@ -208,11 +208,6 @@ public class FlinkClientBuilder {
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
-        YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(yarnConf);
-        yarnClient.start();
-
-
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkMode(), config, yarnConf, ".");
         yarnClusterDescriptor = clusterDescriptor;
 
