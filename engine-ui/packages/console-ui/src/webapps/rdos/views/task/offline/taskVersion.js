@@ -16,7 +16,7 @@ export default class TaskVersion extends React.Component {
         diffParams:{
             showDiffparams: false,
             tableInfo: '',
-        },
+        }, 
     }
 
     constructor(props) {
@@ -63,7 +63,13 @@ export default class TaskVersion extends React.Component {
         const { taskInfo, taskType} = this.props;
         const { showDiff, campareTo,diffParams } = this.state;
         
-        const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
+        const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
+        let sqlTextJSON="";
+        if(taskInfo.taskType == 2 &&taskInfo.sqlText){
+            sqlTextJSON = JSON.stringify(JSON.parse(taskInfo.sqlText),null,4);
+        }else{
+            sqlTextJSON = taskInfo.sqlText;
+        }
         return (
             <div>
                 <Table
@@ -72,7 +78,7 @@ export default class TaskVersion extends React.Component {
                     dataSource={taskInfo.taskVersions || []}
                     columns={this.taskVersionCols()}
                     pagination={false}
-                />
+                /> 
                 <Modal
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="代码对比"
@@ -85,10 +91,11 @@ export default class TaskVersion extends React.Component {
                 >
                     <DiffCodeEditor 
                         readOnly={isLocked}
-                        value={taskInfo.sqlText} 
+                        value={sqlTextJSON} 
                         compareTo={campareTo.sqlText}
                         onChange={this.codeChange}
                     /> 
+                  
                 </Modal>
                 <Modal
                     wrapClassName="vertical-center-modal modal-body-nopadding"
@@ -104,6 +111,33 @@ export default class TaskVersion extends React.Component {
                 </Modal>
             </div>
         )
+    }
+
+    taskTypeJudge = (taskInfo,record) => {
+
+        if(taskInfo.taskType === TASK_TYPE.SQL){
+            return  <div>
+                        <a onClick={() => this.diffCode(record)}>
+                            代码
+                        </a>
+                        <span className="ant-divider"></span>
+                        <a onClick={() => this.diffParams(record)}>
+                            参数
+                        </a>
+                    </div>
+        }else if(taskInfo.taskType === TASK_TYPE.SYNC){
+            return <div>
+                        <a onClick={() => this.diffCode(record)}>
+                                代码
+                            </a>
+                            <span className="ant-divider"></span>
+                        <a onClick={() => this.diffParams(record)}>
+                            参数
+                        </a>
+                </div>
+        }else{
+            return '-'
+        }
     }
 
     taskVersionCols = () => {
@@ -130,22 +164,9 @@ export default class TaskVersion extends React.Component {
                 title: '操作',
                 dataIndex: 'operation',
                 width: 80,
-                key: 'operation',
+                key: 'operation', 
                 render: (text, record) => {
-                    return <span>
-                        {taskInfo.taskType === TASK_TYPE.SQL ? 
-                            <div>
-                                <a onClick={() => this.diffCode(record)}>
-                                    代码
-                                </a>
-                                <span className="ant-divider"></span>
-                                <a onClick={() => this.diffParams(record)}>
-                                    参数
-                                </a>
-                            </div>
-                             : '-'
-                        }
-                    </span>
+                    return this.taskTypeJudge(taskInfo,record)
                 },
             }
         ]

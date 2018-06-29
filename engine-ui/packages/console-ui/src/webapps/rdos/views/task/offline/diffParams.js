@@ -163,19 +163,27 @@ class DiffParams extends React.Component {
         },this.contrastData)
     }
 
-    parseScheduleConf = (data)=> {
+    checkTime = (time) => {
+        let modTime = "00";
+        if(time){
+            modTime = time.toString().length > 1 ? time : `0${time}`
+        }
+        return modTime;
+    }
+
+    parseScheduleConf = (data,type)=> {
         const parseScheduleConf = {};
         const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
 
-        if(data.scheduleStatus == 1){
+        if(data.scheduleStatus == 2){
             parseScheduleConf.scheduleStatus = "已冻结"
-        }else if(data.scheduleStatus == 0){
+        }else if(data.scheduleStatus == 1){
             parseScheduleConf.scheduleStatus = "未冻结"
         }else{
             parseScheduleConf.scheduleStatus = ""
         }
 
-        const effectiveDate = `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}`;
+        const effectiveDate = scheduleConf.beginDate&&scheduleConf.endDate ? `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}` : "";
         parseScheduleConf.effectiveDate = effectiveDate;
 
         let schedulingCycle;
@@ -200,35 +208,40 @@ class DiffParams extends React.Component {
                 break;
         }
         parseScheduleConf.schedulingCycle = schedulingCycle;
-
-        const specificTime = `${scheduleConf.hour}:${scheduleConf.hour}`;
+        
+        const specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
         parseScheduleConf.specificTime = specificTime;
 
-        
-        const readWriteLockVO =  data.taskVOS || [];
-        let upstreamTask = readWriteLockVO.map(v=>{
-            return v.name
-        })
-        upstreamTask = upstreamTask.join(" 、")
-        parseScheduleConf.upstreamTask = upstreamTask;
+        if(type === 1){
+            const upstreamTask = data.dependencyTaskNames&&data.dependencyTaskNames.join(" 、");
+            parseScheduleConf.upstreamTask = upstreamTask;
+        }else{
+            const readWriteLockVO =  data.taskVOS || [];
+            let upstreamTask = readWriteLockVO.map(v=>{
+                return v.name
+            })
+            upstreamTask = upstreamTask.join(" 、")
+            parseScheduleConf.upstreamTask = upstreamTask;
+        }
+       
 
         let crosscycleDependence;
         switch (scheduleConf.selfReliance) {
-            case "0":
-            case "false":
+            case 0:
+            case false:
                 crosscycleDependence = "不依赖上一调度周期"
                 break;
-            case "1":
-            case "true":
+            case 1:
+            case true:
                 crosscycleDependence = "自依赖，等待上一调度周期成功，才能继续运行"
                 break;
-            case "3":
+            case 3:
                 crosscycleDependence = "自依赖，等待上一调度周期结束，才能继续运行"
                 break;
-            case "2":
+            case 2:
                 crosscycleDependence = "等待下游任务的上一周期成功，才能继续运行"
                 break;
-            case "4":
+            case 4:
                 crosscycleDependence = "等待下游任务的上一周期结束，才能继续运行"
                 break;
             default:
@@ -244,8 +257,11 @@ class DiffParams extends React.Component {
         contrastResults.attributes = false;
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
-        const historyParse = this.parseScheduleConf(historyvalue);
-        const currentParse = this.parseScheduleConf(this.currentValue);
+        console.log('historyvalue',historyvalue);
+        console.log('this.currentValue',this.currentValue);
+        
+        const historyParse = this.parseScheduleConf(historyvalue,1);
+        const currentParse = this.parseScheduleConf(this.currentValue,2);
         const currentAttributes = ["scheduleStatus","effectiveDate","schedulingCycle","specificTime"];
         currentAttributes.forEach(v => {
             if(historyParse[v] != currentParse[v]){
