@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkMode;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
@@ -40,6 +41,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 根据不同的配置创建对应的client
@@ -193,7 +196,7 @@ public class FlinkClientBuilder {
     /**
      * 根据yarn方式获取ClusterClient
      */
-    public ClusterClient initYarnClusterClient(FlinkConfig flinkConfig) {
+    public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
 
         Configuration config = new Configuration();
         if (StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
@@ -213,6 +216,57 @@ public class FlinkClientBuilder {
         YarnClient yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
+
+
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkMode(), config, yarnConf, ".");
+
+        String applicationId = acquireApplicationId(clusterDescriptor);
+
+        ApplicationId yarnApplicationId = ConverterUtils.toApplicationId(applicationId);
+        ClusterClient<ApplicationId> clusterClient = null;
+        try {
+            clusterClient = clusterDescriptor.retrieve(yarnApplicationId);
+        } catch (Exception e) {
+            if (clusterDescriptor != null) {
+                clusterDescriptor.close();
+            }
+            LOG.info("Couldn't retrieve Yarn cluster.", e);
+            throw new RdosException("Couldn't retrieve Yarn cluster.");
+        }
+
+        clusterClient.setDetached(isDetached);
+        LOG.warn("---init flink client with yarn session success----");
+
+        return clusterClient;
+    }
+
+    private AbstractYarnClusterDescriptor getClusterDescriptor(
+            String flinkMode,
+            Configuration configuration,
+            YarnConfiguration yarnConfiguration,
+            String configurationDirectory) {
+        final YarnClient yarnClient = YarnClient.createYarnClient();
+        yarnClient.init(yarnConfiguration);
+        yarnClient.start();
+
+        if (StringUtils.isBlank(flinkMode) || FlinkMode.LEGACY_MODE.name().equals(flinkMode)) {
+            return new LegacyYarnClusterDescriptor(
+                    configuration,
+                    yarnConfiguration,
+                    configurationDirectory,
+                    yarnClient,
+                    false);
+        } else {
+            return new YarnClusterDescriptor(
+                    configuration,
+                    yarnConfiguration,
+                    configurationDirectory,
+                    yarnClient,
+                    false);
+        }
+    }
+
+    private String acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor) {
         String applicationId = null;
 
         try {
@@ -220,7 +274,7 @@ public class FlinkClientBuilder {
             set.add("Apache Flink");
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.RUNNING);
-            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
+            List<ApplicationReport> reportList = clusterDescriptor.getYarnClient().getApplications(set, enumSet);
 
             int maxMemory = -1;
             int maxCores = -1;
@@ -246,28 +300,11 @@ public class FlinkClientBuilder {
             if (StringUtils.isEmpty(applicationId)) {
                 throw new RdosException("No flink session found on yarn cluster.");
             }
-
+            return applicationId;
         } catch (Exception e) {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
-
-        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(config, yarnConf, ".", yarnClient, false);
-        ApplicationId yarnApplicationId = ConverterUtils.toApplicationId(applicationId);
-        YarnClusterClient clusterClient = null;
-        try {
-            clusterClient = (YarnClusterClient) clusterDescriptor.retrieve(yarnApplicationId);
-        } catch (Exception e) {
-            if (clusterDescriptor != null) {
-                clusterDescriptor.close();
-            }
-            LOG.info("Couldn't retrieve Yarn cluster.", e);
-            throw new RdosException("Couldn't retrieve Yarn cluster.");
-        }
-
-        clusterClient.setDetached(isDetached);
-        LOG.warn("---init flink client with yarn session success----");
-        return clusterClient;
     }
 
     public org.apache.hadoop.conf.Configuration getHadoopConf() {

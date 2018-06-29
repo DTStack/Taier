@@ -127,8 +127,6 @@ public class FlinkClient extends AbsClient {
     /**客户端是否处于可用状态*/
     private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
-    private ScheduledExecutorService yarnMonitorES;
-
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -144,7 +142,7 @@ public class FlinkClient extends AbsClient {
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
         initClient();
         if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
-            yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
+            ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
 
             //启动守护线程---用于获取当前application状态和更新flink对应的application
             yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnMonitorES));

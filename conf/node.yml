@@ -76,6 +76,7 @@ engineTypes:
     -
         typeName: flink150
         clusterMode: yarn
+        flinkMode: new # new / legacy
         flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
         #简化为只配置/flink150/ha
         flinkHighAvailabilityStorageDir: hdfs://ns1/flink150/ha

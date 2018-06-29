@@ -45,6 +45,8 @@ public class FlinkConfig {
 
 	private String clusterMode; // 集群运行模式: standalone or yarn
 
+	private String flinkMode; // new or legacy
+
 	private Map<String, Object> hadoopConf;
 
 	private Map<String, Object> yarnConf;
@@ -172,6 +174,14 @@ public class FlinkConfig {
 
 	public void setClusterMode(String clusterMode) {
 		this.clusterMode = clusterMode;
+	}
+
+	public String getFlinkMode() {
+		return flinkMode;
+	}
+
+	public void setFlinkMode(String flinkMode) {
+		this.flinkMode = flinkMode;
 	}
 
 	public Map<String, Object> getHadoopConf() {
