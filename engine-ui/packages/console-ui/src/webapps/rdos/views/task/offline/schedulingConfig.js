@@ -580,6 +580,28 @@ class SchedulingConfig extends React.Component {
         this.props.changeScheduleStatus(checked ? 2 : 1);
     }
 
+    handleScheduleStatus(evt) {
+        const { checked } = evt.target;
+        const status = checked ? 2 : 1;
+        const { tabData }  = this.props;
+        const succInfo = checked ? "冻结成功" : "解冻成功";
+        const errInfo = checked ? "冻结失败" : "解冻失败";
+
+        ajax.forzenTask({
+            taskIdList: [tabData.id], 
+            scheduleStatus: status  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+        }).then((res) => {
+            if (res.code === 1) {
+                 // mutate
+                this.props.changeScheduleStatus(status);
+                message.info(succInfo)
+            }else{
+                message.err(errInfo)
+            }
+        })
+       
+    }
+
     handleScheduleConf() {
         setTimeout(() => {
             this.form.validateFields((err, values) => {
