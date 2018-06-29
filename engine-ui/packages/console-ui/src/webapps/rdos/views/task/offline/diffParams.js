@@ -257,20 +257,20 @@ class DiffParams extends React.Component {
         contrastResults.attributes = false;
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
-        console.log('historyvalue',historyvalue);
-        console.log('this.currentValue',this.currentValue);
-        
+     
         const historyParse = this.parseScheduleConf(historyvalue,1);
         const currentParse = this.parseScheduleConf(this.currentValue,2);
         const currentAttributes = ["scheduleStatus","effectiveDate","schedulingCycle","specificTime"];
+        
         currentAttributes.forEach(v => {
             if(historyParse[v] != currentParse[v]){
+                
                 contrastResults.attributes = true;
                 return;
             }
         });
         
-        if(historyParse.upstreamTask != currentParse.upstreamTask){
+        if(Boolean(historyParse.upstreamTask) != Boolean(currentParse.upstreamTask)){
             contrastResults.upstreamTask = true;
         };
 
