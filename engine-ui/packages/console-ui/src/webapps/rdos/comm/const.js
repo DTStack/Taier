@@ -12,6 +12,18 @@ export const DATA_SOURCE = {
     ES: 11,
 }
 
+export const DATA_SOURCE_TEXT = {
+    1: 'MySql',
+    2: 'Oracle',
+    3: 'SQLServer',
+    6: 'HDFS',
+    7: 'Hive',
+    8: 'HBase',
+    9: 'FTP',
+    10: 'MaxCompute',
+    11: 'ElasticSearch'
+}
+
 // 锁类型
 export const LOCK_TYPE = {
     OFFLINE_TASK: 'BATCH_TASK',

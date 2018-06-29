@@ -485,22 +485,19 @@ const setting = (state = { speed: 1, channel: 1, record: 100, isSaveDirty: false
     }
 };
 
-const currentStep = (state = {}, action) => {// 缓存数据同步当前操作界面
+const currentStep = (state = { step: 0 }, action) => {// 缓存数据同步当前操作界面
     switch(action.type) {
         case dataSyncAction.INIT_CURRENT_STEP: {
-            const { key } = action.payload;
-            const clone = cloneDeep(state)
-            // if (clone[key] === undefined) {
-            //     clone[key] = 0
-            // }
-            clone[key] = 0
+            const clone = cloneDeep(state);
+
+            clone.step = 0;
             return clone;
         }
 
         case dataSyncAction.SET_CURRENT_STEP: {
-            const { key, step } = action.payload;
-            const clone = cloneDeep(state)
-            clone[key] = step
+            const clone = cloneDeep(state);
+
+            clone.step = action.payload;
             return clone;
         }
 
