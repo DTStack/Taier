@@ -16,7 +16,7 @@ export default class TaskVersion extends React.Component {
         diffParams:{
             showDiffparams: false,
             tableInfo: '',
-        },
+        }, 
     }
 
     constructor(props) {
@@ -63,7 +63,11 @@ export default class TaskVersion extends React.Component {
         const { taskInfo, taskType} = this.props;
         const { showDiff, campareTo,diffParams } = this.state;
         
-        const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
+        const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
+        let sqlTextJSON="";
+        if(taskInfo.sqlText){
+            sqlTextJSON = JSON.stringify(JSON.parse(taskInfo.sqlText),null,4);
+        }
         return (
             <div>
                 <Table
@@ -72,7 +76,7 @@ export default class TaskVersion extends React.Component {
                     dataSource={taskInfo.taskVersions || []}
                     columns={this.taskVersionCols()}
                     pagination={false}
-                />
+                /> 
                 <Modal
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="代码对比"
@@ -85,10 +89,11 @@ export default class TaskVersion extends React.Component {
                 >
                     <DiffCodeEditor 
                         readOnly={isLocked}
-                        value={taskInfo.sqlText} 
+                        value={sqlTextJSON} 
                         compareTo={campareTo.sqlText}
                         onChange={this.codeChange}
                     /> 
+                  
                 </Modal>
                 <Modal
                     wrapClassName="vertical-center-modal modal-body-nopadding"
