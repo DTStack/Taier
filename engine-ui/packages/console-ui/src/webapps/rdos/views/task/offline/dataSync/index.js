@@ -66,11 +66,12 @@ class DataSync extends React.Component{
             } else {
                 // tabs中有则把数据取出来
                 this.props.getDataSyncSaved(dataSyncSaved);
+                this.setState({ currentStep: dataSyncSaved.currentStep.step });
             }
 
-            if(!res.data) {
+            if (!res.data) {
                 this.props.setTabNew();
-            } else{
+            } else {
                 this.props.setTabSaved();
                 this.setState({ currentStep: 4 });
             }
@@ -102,9 +103,8 @@ class DataSync extends React.Component{
     }
 
     navtoStep(step) {
-        this.setState({
-            currentStep: step
-        })
+        this.setState({ currentStep: step });
+        this.props.setCurrentStep(step);
     }
 
     save() {
@@ -285,6 +285,12 @@ const mapDispatch = dispatch => {
             dispatch({
                 type: dataSyncAction.SET_TABID,
                 payload: id
+            });
+        },
+        setCurrentStep: (step) => {
+            dispatch({
+                type: dataSyncAction.SET_CURRENT_STEP,
+                payload: step
             });
         },
         saveJobData(params) {
