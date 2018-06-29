@@ -65,8 +65,10 @@ export default class TaskVersion extends React.Component {
         
         const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
         let sqlTextJSON="";
-        if(taskInfo.sqlText){
+        if(taskInfo.taskType == 2 &&taskInfo.sqlText){
             sqlTextJSON = JSON.stringify(JSON.parse(taskInfo.sqlText),null,4);
+        }else{
+            sqlTextJSON = taskInfo.sqlText;
         }
         return (
             <div>
