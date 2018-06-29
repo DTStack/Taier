@@ -106,6 +106,29 @@ export default class TaskVersion extends React.Component {
         )
     }
 
+    taskTypeJudge = (taskInfo,record) => {
+
+        if(taskInfo.taskType === TASK_TYPE.SQL){
+            return  <div>
+                        <a onClick={() => this.diffCode(record)}>
+                            代码
+                        </a>
+                        <span className="ant-divider"></span>
+                        <a onClick={() => this.diffParams(record)}>
+                            参数
+                        </a>
+                    </div>
+        }else if(taskInfo.taskType === TASK_TYPE.SYNC){
+            return <div>
+                    <a onClick={() => this.diffParams(record)}>
+                        参数
+                    </a>
+                </div>
+        }else{
+            return '-'
+        }
+    }
+
     taskVersionCols = () => {
         const taskInfo = this.props.taskInfo
         return [
@@ -130,22 +153,9 @@ export default class TaskVersion extends React.Component {
                 title: '操作',
                 dataIndex: 'operation',
                 width: 80,
-                key: 'operation',
+                key: 'operation', 
                 render: (text, record) => {
-                    return <span>
-                        {taskInfo.taskType === TASK_TYPE.SQL ? 
-                            <div>
-                                <a onClick={() => this.diffCode(record)}>
-                                    代码
-                                </a>
-                                <span className="ant-divider"></span>
-                                <a onClick={() => this.diffParams(record)}>
-                                    参数
-                                </a>
-                            </div>
-                             : '-'
-                        }
-                    </span>
+                    return this.taskTypeJudge(taskInfo,record)
                 },
             }
         ]
