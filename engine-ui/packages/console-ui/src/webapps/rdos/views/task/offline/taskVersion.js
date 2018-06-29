@@ -120,9 +120,13 @@ export default class TaskVersion extends React.Component {
                     </div>
         }else if(taskInfo.taskType === TASK_TYPE.SYNC){
             return <div>
-                    <a onClick={() => this.diffParams(record)}>
-                        参数
-                    </a>
+                        <a onClick={() => this.diffCode(record)}>
+                                代码
+                            </a>
+                            <span className="ant-divider"></span>
+                        <a onClick={() => this.diffParams(record)}>
+                            参数
+                        </a>
                 </div>
         }else{
             return '-'

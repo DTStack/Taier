@@ -171,7 +171,7 @@ class DiffParams extends React.Component {
         return modTime;
     }
 
-    parseScheduleConf = (data)=> {
+    parseScheduleConf = (data,type)=> {
         const parseScheduleConf = {};
         const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
 
@@ -212,13 +212,18 @@ class DiffParams extends React.Component {
         const specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
         parseScheduleConf.specificTime = specificTime;
 
-        
-        const readWriteLockVO =  data.taskVOS || [];
-        let upstreamTask = readWriteLockVO.map(v=>{
-            return v.name
-        })
-        upstreamTask = upstreamTask.join(" 、")
-        parseScheduleConf.upstreamTask = upstreamTask;
+        if(type === 1){
+            const upstreamTask = data.dependencyTaskNames&&data.dependencyTaskNames.join(" 、");
+            parseScheduleConf.upstreamTask = upstreamTask;
+        }else{
+            const readWriteLockVO =  data.taskVOS || [];
+            let upstreamTask = readWriteLockVO.map(v=>{
+                return v.name
+            })
+            upstreamTask = upstreamTask.join(" 、")
+            parseScheduleConf.upstreamTask = upstreamTask;
+        }
+       
 
         let crosscycleDependence;
         switch (scheduleConf.selfReliance) {
@@ -252,8 +257,11 @@ class DiffParams extends React.Component {
         contrastResults.attributes = false;
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
-        const historyParse = this.parseScheduleConf(historyvalue);
-        const currentParse = this.parseScheduleConf(this.currentValue);
+        console.log('historyvalue',historyvalue);
+        console.log('this.currentValue',this.currentValue);
+        
+        const historyParse = this.parseScheduleConf(historyvalue,1);
+        const currentParse = this.parseScheduleConf(this.currentValue,2);
         const currentAttributes = ["scheduleStatus","effectiveDate","schedulingCycle","specificTime"];
         currentAttributes.forEach(v => {
             if(historyParse[v] != currentParse[v]){

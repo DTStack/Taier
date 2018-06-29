@@ -234,7 +234,7 @@ export const offlineTaskStatusFilter = [{
     value: 4,
 }, {
     id: 5,
-    text: '完成',
+    text: '成功',
     value: 5,
 }, {
     id: 6,

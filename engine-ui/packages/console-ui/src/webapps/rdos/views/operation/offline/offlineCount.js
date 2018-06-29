@@ -69,7 +69,7 @@ class OfflineCount extends Component {
                         noHovering
                         bordered={false}
                         loading={false} 
-                        title="今日周期实例完成情况"
+                        title="今日周期实例完成情况" 
                     >
                         <Row className="m-count" style={{display: 'flex'}}>
                             <Col style={flex}>
@@ -86,7 +86,7 @@ class OfflineCount extends Component {
                             </Col>
                             <Col style={flex}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">运行</span>
+                                    <span className="m-count-title">运行中</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
                                 </section>
                             </Col>
@@ -109,8 +109,8 @@ class OfflineCount extends Component {
                                 </section>
                             </Col>
                             <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title" >待运行</span>
+                                <section className="m-count-section" style={{width:"60px"}}>
+                                    <span className="m-count-title" >等待运行</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.WAITING_RUN)} className="m-count-content font-organge">{data.WAITENGINE || 0}</a>
                                 </section>
                             </Col>
@@ -127,7 +127,7 @@ class OfflineCount extends Component {
                                 </section>
                             </Col>
                         </Row>
-                    </Card>
+                    </Card> 
                 </div>
             </div>
         )

@@ -211,7 +211,7 @@ class OfflineStatistics extends Component {
                     noHovering
                     bordered={false}
                     loading={false} 
-                    className="shadow"
+                    className="shadow" 
                     title="今日周期实例完成情况" 
                 >
                     <Resize onResize={this.resize}>
