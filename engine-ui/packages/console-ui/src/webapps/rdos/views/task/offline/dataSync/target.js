@@ -15,12 +15,12 @@ import {
     formItemLayout,
     dataSourceTypes,
     DATA_SOURCE,
+    DATA_SOURCE_TEXT
 } from '../../../../comm/const';
 
 import HelpDoc from '../../../helpDoc';
 
 import { matchTaskParams } from '../../../../comm';
-import { DatabaseType } from '../../../../components/status';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -211,15 +211,15 @@ class TargetForm extends React.Component {
                             disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
-                                return <Option key={src.id}
+                                let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+
+                                return <Option 
+                                    key={src.id}
                                     name={src.dataName}
                                     value={`${src.id}`}
-                                    disabled={
-                                        src.type === DATA_SOURCE.ES
-                                    }
-                                >
-                                    {src.dataName}( <DatabaseType value={src.type} /> )
-                            </Option>
+                                    disabled={src.type === DATA_SOURCE.ES}>
+                                    {title}
+                                </Option>
                             })}
                         </Select>
                     )}
