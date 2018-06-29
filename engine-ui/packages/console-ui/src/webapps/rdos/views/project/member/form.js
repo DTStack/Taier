@@ -16,9 +16,6 @@ const CheckboxGroup = Checkbox.Group;
 
 class MemberForm extends Component {
 
-
-    debounceSearch = debounce(this.props.onSearchUsers, 300, { 'maxWait': 2000 })
-
     render() {
         const { roles, form, notProjectUsers } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
@@ -69,7 +66,6 @@ class MemberForm extends Component {
                             style={{ width: '100%' }}
                             placeholder="请选择用户"
                             optionFilterProp="name"
-                            onSearch={this.debounceSearch}
                         >
                             {userOptions}
                         </Select>,

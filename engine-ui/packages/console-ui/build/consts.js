@@ -51,6 +51,6 @@ module.exports = {
     DATA_MAP_APP_FILE,
     META_DATA_APP_FILE,
     CORE_DATA_APP_FILE,
-    
+
     BUILD_PATH,
 }

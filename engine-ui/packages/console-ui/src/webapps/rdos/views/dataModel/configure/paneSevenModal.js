@@ -21,12 +21,14 @@ class DeriveIndexModal extends Component {
     state = { 
         indexNames: [],
         automIndexs: [],
+        columnTypes: [],
     }
 
     componentDidMount() {
         // 加载原子指标
         const isEdit = this.props.data && !isEmpty(this.props.data);
         this.loadAtomIndex();
+        this.getColumnType();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -40,6 +42,16 @@ class DeriveIndexModal extends Component {
                 })
             }
         }
+    }
+
+    getColumnType() {
+        Api.getColumnType().then(res =>{
+            if(res.code === 1){
+                this.setState({
+                    columnTypes: res.data||[]
+                })
+            } 
+        })
     }
 
     loadAtomIndex = (isEdit) => {
@@ -178,17 +190,17 @@ class DeriveIndexModal extends Component {
             form, visible, data
         } = this.props;
 
-        const { indexNames,automIndexs } = this.state;
+        const { indexNames,automIndexs,columnTypes } = this.state;
 
         const { getFieldDecorator } = form
 
         const isEdit = data && !isEmpty(data);
         const title = isEdit ? '编辑衍生指标': '创建衍生指标'
-        const TYPES =[
-            "TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
-            "FLOAT", "DOUBLE", "STRING", "BINARY", "TIMESTAMP",
-            "DECIMAL", "DATE", "VARCHAR", "CHAR"
-        ];
+        // const TYPES =[
+        //     "TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
+        //     "FLOAT", "DOUBLE", "STRING", "BINARY", "TIMESTAMP",
+        //     "DECIMAL", "DATE", "VARCHAR", "CHAR"
+        // ];
 
         return (
             <Modal
@@ -256,10 +268,10 @@ class DeriveIndexModal extends Component {
                     >
                         {getFieldDecorator('dataType', {
                             rules: [],
-                            initialValue: data ? data.dataType : 'string',
+                            initialValue: data ? data.dataType : 'STRING',
                         })(
                             <Select>
-                                {TYPES.map(str => <Option key={str} value={str}>{str}</Option>)}
+                                {columnTypes.map(str => <Option key={str} value={str}>{str}</Option>)}
                             </Select>,
                         )}
                     </FormItem>

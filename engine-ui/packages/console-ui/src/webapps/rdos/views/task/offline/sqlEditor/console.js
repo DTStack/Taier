@@ -98,6 +98,7 @@ class Console extends Component {
             !isEqual(newConsole.results, oldConsole.results)
         ) { // 如果成功获取结果，tab切换到结果界面
             this.setState({ activeKey: `${newConsole.results.length - 1}` })
+            this.props.changeTab(0);
         }
         else if (
             (
@@ -119,6 +120,9 @@ class Console extends Component {
         this.setState({ activeKey }, () => {
             if (activeKey === 'console-log') {
                 this.focusEditor();
+                this.props.changeTab(1);
+            }else{
+                this.props.changeTab(0);
             }
         })
     }
@@ -202,13 +206,14 @@ class Console extends Component {
     }
 
     render() {
-        const { data, dispatch, setMax, setMin } = this.props
+        const { data, dispatch, setMax, setMin,changeTabStatus } = this.props
+        const activeKey = changeTabStatus ? "console-log" : this.state.activeKey
         return (
             <div className="ide-console">
                 <Tabs
                     hideAdd
                     type="editable-card"
-                    activeKey={this.state.activeKey}
+                    activeKey={activeKey}
                     onChange={this.onChange}
                     onEdit={this.onEdit}
                 >

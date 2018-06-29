@@ -172,7 +172,7 @@ class CatalogueTree extends Component {
                 const isFolder = item.type === 'folder'
                 const isTable = item.type === 'table'
                 const isLeaf = !data.children || data.children.length === 0
-                const isRoot = item.level === 0;
+                const isRoot = item.parentId === 0;
 
                 if (isFolderPicker && isTable) {
                     return null;
@@ -195,7 +195,7 @@ class CatalogueTree extends Component {
                         contentEditable={false} 
                         id={`node_${key}`}
                         onKeyDown={this.onKeyDown}
-                        onBlur={this.offEdit.bind(this, data)}>  
+                        onBlur={this.offEdit.bind(this, data)}>
                         {item.name}
                     </span>
                     &nbsp;
@@ -308,7 +308,7 @@ class CatalogueTree extends Component {
                 onSelect={onSelect}
                 onChange={onChange}
                 onExpand={this.onExpand}
-                expandedKeys={ this.state.expendKeys }
+                expandedKeys={ this.state.expendKeys } 
                 autoExpandParent={ this.state.autoExpandParent }
             >
                 { this.renderTreeNodes() }

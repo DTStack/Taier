@@ -59,7 +59,7 @@ class AuthMana extends Component {
     constructor(props) {
         super(props);
         const isAdminAbove = this.props.user&&this.props.user.isAdminAbove || 0;
-        const isPermission = isAdminAbove==1 ? "0" : "1";
+        const isPermission = isAdminAbove==0 ? "1" : "0";
         const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
         this.state = {
             isAdminAbove,
@@ -97,7 +97,7 @@ class AuthMana extends Component {
     judgmentAauthority = (nextProps) => {
         let { queryParams,isAdminAbove } = this.state;
         isAdminAbove = nextProps.user&&nextProps.user.isAdminAbove;
-        const isPermission = isAdminAbove==1 ? "0" : "1";
+        const isPermission = isAdminAbove==0 ? "1" : "0";
         const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
         queryParams.listType = listType;
         this.setState({queryParams,isAdminAbove})
@@ -369,6 +369,14 @@ class AuthMana extends Component {
                             }
                         },
                         {
+                            title: '有效期',
+                            key: 'day',
+                            dataIndex: 'day',
+                            render(text, record) {
+                                return `${text}天`
+                            }
+                        },
+                        {
                             title: '申请原因',
                             key: 'applyReason',
                             dataIndex: 'applyReason',
@@ -415,7 +423,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '有效时间',
+                            title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
                             render(text, record) {
@@ -473,7 +481,7 @@ class AuthMana extends Component {
                             }
                         },
                         {
-                            title: '有效时间',
+                            title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
                             render(text, record) {
@@ -653,7 +661,6 @@ class AuthMana extends Component {
     }
 
     render() {
-       
         const { editRecord, visible, agreeApply, queryParams, isAdminAbove} = this.state;
         return (
             <div className="box-1 m-tabs">
@@ -665,7 +672,7 @@ class AuthMana extends Component {
 
                 >
                    {
-                        isAdminAbove == 1 ? <TabPane tab="待我审批" key={0}>
+                        isAdminAbove == 0 ? "" : <TabPane tab="待我审批" key={0}>
                                                     {this.renderPane(true)}
                                                     <ApprovalModal 
                                                         visible={visible}
@@ -680,20 +687,24 @@ class AuthMana extends Component {
                                                             })
                                                         }}
                                                     />
-                                                </TabPane> : ""
+                                                </TabPane> 
                    }
-                    <TabPane tab="申请记录" key={1}>
-                        {this.renderPane()}
-                    </TabPane>
-                    {
-                        isAdminAbove == 1 ? <TabPane tab="已处理" key={2}>
+                   {    
+                       isAdminAbove == 2 ? "" : <TabPane tab="申请记录" key={1}>
                                                     {this.renderPane()}
-                                                </TabPane> : ""
+                                                </TabPane>
+
+                   }
+                   
+                    {
+                        isAdminAbove == 0 ? "" : <TabPane tab="已处理" key={2}>
+                                                    {this.renderPane()}
+                                                </TabPane> 
                     }
                     {
-                        isAdminAbove == 1 ?<TabPane tab="权限回收" key={3}>
+                        isAdminAbove == 0 ? "" : <TabPane tab="权限回收" key={3}>
                                                     {this.renderPane(true)}
-                                                </TabPane> : ""
+                                                </TabPane> 
                     }
 
                 </Tabs>

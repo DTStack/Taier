@@ -245,6 +245,22 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             nextState = clone;
             break;
         }
+
+        case workbenchAction.UPDATE_TASK_TAB: {
+            const obj = action.payload;
+            const clone = cloneDeep(state);
+
+            clone.tabs = clone.tabs.map(tab => {
+                if (tab.id === obj.id) {
+                    console.log('tabs:', tab)
+                    tab = assign(tab, obj);
+                    return tab;
+                }
+                return tab;
+            });
+            nextState = clone;
+            break;
+        }
         
         // 修改任务属性(代码编辑器)
         case workbenchAction.SET_TASK_FIELDS_VALUE_SILENT: {
@@ -298,6 +314,23 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             nextState = assign({}, state, {
                 isCurrentTabNew: undefined
             });
+            break;
+        }
+
+        case workbenchAction.SAVE_DATASYNC_TO_TAB: {
+            const index = state.tabs.findIndex(t => t.id === action.payload.id);
+            const newTabs = [...state.tabs];
+            const data = action.payload.data ? action.payload.data : {};
+
+            if (index > -1) {
+                newTabs[index].dataSyncSaved = data;
+                nextState = assign({}, state, {
+                    tabs: newTabs
+                });
+            } else {
+                nextState = state
+            }
+
             break;
         }
 

@@ -127,20 +127,30 @@ class FolderModal extends React.Component {
     }
 
     handleSubmit() {
-        const { isModalShow, toggleCreateFolder, addOfflineCatelogue, cateType , editOfflineCatelogue, defaultData } = this.props;
+        const { cateType, defaultData } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
-            if(!err) {
-                if(this.isCreate) addOfflineCatelogue(values, cateType);
-                else editOfflineCatelogue(assign(values, {
-                    id: defaultData.id
-                }), defaultData, cateType);
-
-                this.closeModal();
-                setTimeout(()=> {
-                    form.resetFields();
-                }, 500);
+            if (!err) {
+                if (this.isCreate) {
+                    this.props.addOfflineCatelogue(values, cateType)
+                        .then(success => {
+                            if (success) {
+                                this.closeModal();
+                                form.resetFields();
+                            }
+                        });
+                } else {
+                    this.props.editOfflineCatelogue(assign(values, {
+                        id: defaultData.id
+                    }), defaultData, cateType)
+                        .then(success => {
+                            if (success) {
+                                this.closeModal();
+                                form.resetFields();
+                            }
+                        });
+                } 
             }
         })
     }
@@ -232,7 +242,7 @@ dispatch => {
             });
         },
         addOfflineCatelogue: function(params, cateType) {
-            ajax.addOfflineCatelogue(params)
+            return ajax.addOfflineCatelogue(params)
                 .then(res => {
                     // let {data} = res;
                     // let action;
@@ -264,12 +274,13 @@ dispatch => {
                         //     payload: data
                         // });
                         benchActions.loadTreeNode(params.nodePid,cateType)
+                        return true;
                     }
                 });
         },
 
         editOfflineCatelogue: function(params, defaultData, cateType) {
-            ajax.editOfflineCatelogue(params)
+            return ajax.editOfflineCatelogue(params)
                 .then(res => {
                     if(res.code === 1) {
                         let newData = defaultData;
@@ -304,6 +315,7 @@ dispatch => {
                         //     payload: newData
                         // });
                         benchActions.loadTreeNode(params.nodePid,MENU_TYPE.TASK_DEV)
+                        return true;
                     }
                 })
         },

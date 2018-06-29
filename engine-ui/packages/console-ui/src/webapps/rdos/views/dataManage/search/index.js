@@ -170,9 +170,14 @@ class SearchTable extends Component {
                 },
             },
             {
-                title: '项目',
+                title: '项目名称',
                 key: 'project',
                 dataIndex: 'project',
+            },
+            {
+                title: '项目显示名称',
+                key: 'projectAlias',
+                dataIndex: 'projectAlias',
             },
             {
                 title: '负责人',

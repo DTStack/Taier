@@ -25,7 +25,8 @@ import {
 class SQLEditor extends Component {
 
     state = {
-        customHeight: null
+        customHeight: null,
+        changeTab: true,
     }
 
     componentDidMount() {
@@ -41,6 +42,20 @@ class SQLEditor extends Component {
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
+    }
+
+    changeTab = (state) => {
+        console.log('changeTab',state);
+        
+        let { changeTab } = this.state;
+        if(state){
+            changeTab = true;
+        }else{
+            changeTab = false;
+        }
+       this.setState({
+        changeTab
+       })
     }
 
     handleEditorTxtChange = (old, newVal, doc) => {
@@ -91,7 +106,7 @@ class SQLEditor extends Component {
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">
-                    <Toolbar {...this.props} />
+                    <Toolbar {...this.props} changeTab={this.changeTab}/>
                 </div>
                 <div className='ide-content'>
                     {
@@ -123,7 +138,10 @@ class SQLEditor extends Component {
                                     />
                                 </div>
                                 <Console
+                                    changeTab={this.changeTab}
+                                    changeTabStatus={this.state.changeTab}
                                     data={data}
+                                    ref="getSwordButton"
                                     currentTab={currentTab}
                                     dispatch={this.props.dispatch}
                                     setMax={() => {
