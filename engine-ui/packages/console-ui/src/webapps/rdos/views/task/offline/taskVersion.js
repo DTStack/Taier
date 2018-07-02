@@ -74,7 +74,7 @@ export default class TaskVersion extends React.Component {
             taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
         let sqlTextJSON = taskInfo.sqlText;
 
-        // 增加数据同步，JSON配置对比查看
+        // 增加数据同步，JSON配置格式化操作
         if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
             sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
         } else {
