@@ -25,11 +25,11 @@ const mapDispatchToProps = dispatch => ({
     getApiMarketList(params) {
         return dispatch(apiMarketActions.getApiMarketList(params));
     },
-    getApiDetail(params){
+    getApiDetail(params) {
         dispatch(apiMarketActions.getApiDetail(params));
-        
+
     },
-    getApiExtInfo(params){
+    getApiExtInfo(params) {
         dispatch(apiMarketActions.getApiExtInfo(params));
     }
 });
@@ -47,7 +47,7 @@ class APIMarket extends Component {
             apiName: "",
             desc: ""
         },
-        detailRecord:{},
+        detailRecord: {},
         type1: undefined,
         type2: undefined,
         apiName: "",
@@ -91,7 +91,7 @@ class APIMarket extends Component {
         })
     }
     getCatagoryName(value, catagorys) {
-        if(!value&&value!=0){
+        if (!value && value != 0) {
             return null;
         }
         const tree = catagorys || this.props.apiMarket.apiCatalogue;
@@ -103,7 +103,7 @@ class APIMarket extends Component {
             }
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
-                if(item.api){
+                if (item.api) {
                     continue;
                 }
                 if (item.id == value) {
@@ -221,14 +221,14 @@ class APIMarket extends Component {
         });
     }
     openDetail(record) {
-        const {getApiDetail,getApiExtInfo} = this.props;
+        const { getApiDetail, getApiExtInfo } = this.props;
         this.setState({
-            detailRecord:record,
-            slidePaneShow:true
+            detailRecord: record,
+            slidePaneShow: true
         });
-        getApiDetail({apiId:record.key});
-        getApiExtInfo({apiId:record.key});
-        
+        getApiDetail({ apiId: record.key });
+        getApiExtInfo({ apiId: record.key });
+
     }
     initColumns() {
 
@@ -237,14 +237,14 @@ class APIMarket extends Component {
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
-                return <a onClick={this.openDetail.bind(this,record)} >{text}</a>
+                return <a onClick={this.openDetail.bind(this, record)} >{text}</a>
             }
         }, {
             title: 'API分类',
             dataIndex: 'cId',
             key: 'cId',
             width: '230px',
-            render:(text,record)=>{
+            render: (text, record) => {
                 return this.getCatagoryName(text);
             }
         }, {
@@ -275,6 +275,7 @@ class APIMarket extends Component {
     }
     getSource() {
         const errorDic = {
+            5:"nothing",
             4: "complete",
             3: "complete",
             2: "nothing",
@@ -292,7 +293,7 @@ class APIMarket extends Component {
                 callCount: apiList[i].invokeTotal,
                 updateTime: apiList[i].gmtModified,
                 deal: errorDic[apiList[i].applyStatus],
-                cId:apiList[i].cId
+                cId: apiList[i].cId
             })
         }
         return arr;
@@ -381,20 +382,20 @@ class APIMarket extends Component {
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">
+                    <SlidePane
+                        className="m-tabs tabs-filter-show"
+                        visible={slidePaneShow}
+                        style={{ right: '-20px', width: '80%', minHeight: '720px', height: '100%' }}
+                        onClose={this.closeSlide.bind(this)}>
+                        <div style={{ paddingLeft: "40px", paddingTop: "20px" }}>
+                            <Content apiMarket={apiMarket} apiId={detailRecord.key} />
+                        </div>
+                    </SlidePane>
                     <Card
 
                         noHovering
                         title={this.getCardTitle()}
                     >
-                        <SlidePane
-                            className="m-tabs tabs-filter-show"
-                            visible={slidePaneShow}
-                            style={{ right: '-20px', width: '80%', minHeight: '720px', height: '100%' }}
-                            onClose={this.closeSlide.bind(this)}>
-                            <div style={{paddingLeft:"40px",paddingTop:"20px"}}>
-                                <Content  apiMarket={apiMarket} apiId={detailRecord.key}   />
-                            </div>
-                        </SlidePane>
                         <Table
                             className="m-table monitor-table"
                             columns={this.initColumns()}

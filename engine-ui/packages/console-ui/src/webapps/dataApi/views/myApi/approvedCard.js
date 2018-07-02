@@ -148,9 +148,9 @@ class ApprovedCard extends Component {
     }
     statedisabled(record) {
         this.setState({
-            slidePaneShowSuccess: false,
+            slidePaneShowSuccess: true,
             slidePaneShowNoApproved: false,
-            slidePaneShowDisabled: true,
+            slidePaneShowDisabled: false,
             showRecord: record || {}
         })
     }

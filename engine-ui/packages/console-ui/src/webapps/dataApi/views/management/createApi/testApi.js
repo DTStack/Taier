@@ -64,8 +64,9 @@ class TestApi extends React.Component {
                     let initialValue;
                     if(record.paramsName=="pageNo"||record.paramsName=="pageSize"){
                         initialValue=inFields&&inFields[record.paramsName];
+                    }else{
+                        initialValue=data&&data[record.paramsName];
                     }
-                    initialValue=data&&data[record.paramsName];
                     return <FormItem
                     style={{marginBottom:"0px"}} 
                     >
