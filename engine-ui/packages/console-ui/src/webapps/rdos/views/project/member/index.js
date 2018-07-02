@@ -33,6 +33,7 @@ class ProjectMember extends Component {
     componentDidMount() {
         this.search()
         this.loadRoles()
+        this.loadUsersNotInProject()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -152,10 +153,10 @@ class ProjectMember extends Component {
         })
     }
 
-    loadUsersNotInProject = (userName) => {
+    loadUsersNotInProject = () => {
 
         const params = {
-            userName,
+            userName:"",
             projectId: this.props.project.id,
         }
 
@@ -328,7 +329,6 @@ class ProjectMember extends Component {
                     <MemberForm
                       wrappedComponentRef={(e) => { this.memberForm = e }}
                       roles={roles}
-                      onSearchUsers={this.loadUsersNotInProject}
                       notProjectUsers={notProjectUsers}
                     />
                 </Modal>

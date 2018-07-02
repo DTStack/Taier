@@ -102,7 +102,7 @@ class RealtimeCount extends Component {
                             </Col>
                             <Col span={6}>
                                 <section className="m-count-section">
-                                    <span className="m-count-title">运行</span>
+                                    <span className="m-count-title">运行中</span>
                                     <a onClick={this.jumpToRealList.bind(this,taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
                                 </section>
                             </Col>
@@ -115,7 +115,7 @@ class RealtimeCount extends Component {
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">取消</span>
-                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.CANCELED)} className="m-count-content font-green">{data.CANCELED || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.CANCELED)} className="m-count-content font-gray">{data.CANCELED || 0}</a>
                                 </section>
                             </Col>
                         </Row>

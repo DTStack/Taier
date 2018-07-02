@@ -1,97 +1,348 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Tabs} from 'antd';
-
+import { Row, Col, Tabs, Tooltip} from 'antd';
 
 const TabPane = Tabs.TabPane;
 
+import DiffCodeEditor from '../../../components/diff-code-editor';
 
+import ajax  from '../../../api/index';
 
-function TaskInfo(props,version) {
-    const taskInfo = version;
+import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
+import { realtimeTask } from '../../../store/modules/realtimeTask';
 
-    function versionInfo(info,version){
-        const title = version ;
-         return (
-            <Col >
-                <div>{title}</div>
+class TaskInfo extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            currentValue: this.props.currentValue || {},
+            historyvalue: this.props.historyvalue || {},
+            contrastResults: this.props.contrastResults || {},
+        }
+    }
+    
+    componentWillReceiveProps(nextProps) {
+        if(nextProps != this.props){
+            this.getvalue(nextProps)
+        }
+    }
+
+    getvalue = (nextProps) => {
+        this.setState({
+            currentValue: nextProps.currentValue || {},
+            historyvalue: nextProps.historyvalue || {},
+            contrastResults: nextProps.contrastResults || {},
+        }) 
+    }
+
+     versionInfo = (version,taskInfo,contrast={}) => {
+         const { attributes, upstreamTask, crosscycleDependence } = contrast;
+         const contrastStyle = {color:"#f00"};
+        return (
+            <Col span={12}>
+                <div className="title">{version}</div>
                 <div className="box-padding">
+                    <div className="sub-title" style={attributes ? contrastStyle : {}}>调度属性</div>
+                    <div className="line"></div>
                     <Row>
-                        <Col span="10" className="txt-right">任务名称：</Col>
-                        <Col span="14">
-                            {taskInfo}
+                        <Col span="6" className="txt-left">调度状态 : </Col>
+                        <Col span="18" className="txt-left">
+                            {taskInfo.scheduleStatus}
                         </Col>
                     </Row>
                     <Row>
-                        <Col span="10" className="txt-right">任务类型：</Col>
-                        <Col span="14">
-                        {}
+                        <Col span="6" className="txt-left">生效日期 : </Col>
+                        <Col span="18" className="txt-left">
+                        {taskInfo.effectiveDate}
                         </Col>
                     </Row>
                     <Row>
-                        <Col span="10" className="txt-right">创建人员：</Col>
-                        <Col span="14">{taskInfo}</Col>
+                        <Col span="6" className="txt-left">调度周期 : </Col>
+                        <Col span="18" className="txt-left">{taskInfo.schedulingCycle}</Col>
                     </Row>
                     <Row>
-                        <Col span="10" className="txt-right">创建时间：</Col>
-                        <Col span="14">
-                            {}
+                        <Col span="6" className="txt-left">具体时间 : </Col>
+                        <Col span="18" className="txt-left">
+                            {taskInfo.specificTime}
                         </Col>
                     </Row>
+                    <div className="sub-title" style={upstreamTask ? contrastStyle : {}}>任务间依赖</div>
+                    <div className="line"></div>
                     <Row>
-                        <Col span="10" className="txt-right">最近修改人员：</Col>
-                        <Col span="14">{taskInfo}</Col>
+                        <Col span="24" className="txt-left">上游任务 : </Col>
+                        <Tooltip title={taskInfo.upstreamTask} overlayStyle={{fontSize:"14px"}}>
+                            <Col span="20" className="word-break">
+                                {taskInfo.upstreamTask}
+                            </Col>
+                        </Tooltip>
                     </Row>
+                    <div className="sub-title" style={crosscycleDependence ? contrastStyle :{}}>跨周期依赖</div>
+                    <div className="line"></div>
                     <Row>
-                        <Col span="10" className="txt-right">最近修改时间：</Col>
-                        <Col span="14">{}</Col>
-                    </Row>
-                    <Row>
-                        <Col span="10" className="txt-right">描述：</Col>
-                        <Col span="14" style={{
-                                lineHeight: '20px',
-                                padding: '10 0'
-                            }}>{taskInfo}
-                        </Col>
+                        <Tooltip title={taskInfo.crosscycleDependence} overlayStyle={{fontSize:"14px"}}>
+                            <Col span="20" className="word-break">
+                                {taskInfo.crosscycleDependence}
+                            </Col>
+                        </Tooltip>
                     </Row>
                 </div>
-        </Col >
-         )
+            </Col>
+        )
     }    
-
-    return (
-        <Row  gutter={16} className="diff-params">
-           {versionInfo('当前版本','当前版本')}
-           {versionInfo('历史版本','历史版本')}
-        </Row>
-    )
+    render(){
+        const { currentValue, historyvalue, contrastResults } = this.state;
+        return (
+            <Row  gutter={16} className="diff-params" style={{padding:"0 10px"}}>
+               {this.versionInfo('当前版本',currentValue,contrastResults)}
+               {this.versionInfo('历史版本',historyvalue)}
+            </Row>
+        )
+    }
+    
 }
 
 class DiffParams extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            historyvalue:{},
+            historyParse:{},
+            contrastResults:{
+                attributes: false,
+                upstreamTask: false,
+                crosscycleDependence: false,
+            },
+            currentParse:{},
+            tabKey: this.props.taskType === "realTimeTask"?"params":"config",
+            tableRefresh: Math.random(),
+        }
+        this.currentValue = this.props.taskType==="realTimeTask" ? this.props.currentRealTabData : this.props.currentTabData;
+        this.versionId = this.props.diffParams&&this.props.diffParams.id;
+    }
+
+    componentWillReceiveProps(nextProps) {
+
+        if(!this.props.taskType&&nextProps.diffParams.id!=this.props.diffParams.id){
+            if(nextProps.diffParams.id){
+                this.getData(nextProps.diffParams.id);
+                this.currentValue = nextProps.currentTabData;
+            }
+        
+            this.setState({
+                tabKey:"config"
+            }) 
+        }else if(this.props.taskType === "realTimeTask"){
+            this.getRealData()
+            this.currentValue = nextProps.currentRealTabData;
+        }
+    }
+
+    getData = (id) => {
+        this.setState({
+            historyvalue: {}
+        })
+        ajax.taskVersionScheduleConf({versionId:id}).then(res => {
+            if(res.code == 1){
+                this.setState({
+                    historyvalue: res.data||{}
+                },this.contrastData)
+            }else{
+                this.setState({
+                    historyvalue: {}
+                },this.contrastData)
+            }
+        })
+    }
+
+    getRealData= () => {
+        this.setState({
+            historyvalue: this.props.currentRealTabData&&this.props.currentRealTabData.taskVersions[0]||{},
+            tableRefresh: Math.random()
+        },this.contrastData)
+    }
+
+    checkTime = (time) => {
+        let modTime = "00";
+        if(time){
+            modTime = time.toString().length > 1 ? time : `0${time}`
+        }
+        return modTime;
+    }
+
+    parseScheduleConf = (data,type)=> {
+        const parseScheduleConf = {};
+        const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
+
+        if(data.scheduleStatus == 2){
+            parseScheduleConf.scheduleStatus = "已冻结"
+        }else if(data.scheduleStatus == 1){
+            parseScheduleConf.scheduleStatus = "未冻结"
+        }else{
+            parseScheduleConf.scheduleStatus = ""
+        }
+
+        const effectiveDate = scheduleConf.beginDate&&scheduleConf.endDate ? `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}` : "";
+        parseScheduleConf.effectiveDate = effectiveDate;
+
+        let schedulingCycle;
+        switch (scheduleConf.periodType) {
+            case "0":
+                schedulingCycle = "分钟"
+                break;
+            case "1":
+                schedulingCycle = "小时"
+                break;
+            case "2":
+                schedulingCycle = "天"
+                break;
+            case "3":
+                schedulingCycle = "周"
+                break;
+            case "4":
+                schedulingCycle = "月"
+                break;
+            default:
+                schedulingCycle = ""
+                break;
+        }
+        parseScheduleConf.schedulingCycle = schedulingCycle;
+        
+        const specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
+        parseScheduleConf.specificTime = specificTime;
+
+        if(type === 1){
+            const upstreamTask = data.dependencyTaskNames&&data.dependencyTaskNames.join(" 、");
+            parseScheduleConf.upstreamTask = upstreamTask;
+        }else{
+            const readWriteLockVO =  data.taskVOS || [];
+            let upstreamTask = readWriteLockVO.map(v=>{
+                return v.name
+            })
+            upstreamTask = upstreamTask.join(" 、")
+            parseScheduleConf.upstreamTask = upstreamTask;
+        }
+       
+
+        let crosscycleDependence;
+        switch (scheduleConf.selfReliance) {
+            case 0:
+            case false:
+                crosscycleDependence = "不依赖上一调度周期"
+                break;
+            case 1:
+            case true:
+                crosscycleDependence = "自依赖，等待上一调度周期成功，才能继续运行"
+                break;
+            case 3:
+                crosscycleDependence = "自依赖，等待上一调度周期结束，才能继续运行"
+                break;
+            case 2:
+                crosscycleDependence = "等待下游任务的上一周期成功，才能继续运行"
+                break;
+            case 4:
+                crosscycleDependence = "等待下游任务的上一周期结束，才能继续运行"
+                break;
+            default:
+                crosscycleDependence = "不依赖上一调度周期"
+                break;
+        }
+        parseScheduleConf.crosscycleDependence = crosscycleDependence;
+        return parseScheduleConf;
+    }
+
+    contrastData = ()=>{
+        const { historyvalue, contrastResults } = this.state;
+        contrastResults.attributes = false;
+        contrastResults.upstreamTask = false;
+        contrastResults.crosscycleDependence = false;
+     
+        const historyParse = this.parseScheduleConf(historyvalue,1);
+        const currentParse = this.parseScheduleConf(this.currentValue,2);
+        const currentAttributes = ["scheduleStatus","effectiveDate","schedulingCycle","specificTime"];
+        
+        currentAttributes.forEach(v => {
+            if(historyParse[v] != currentParse[v]){
+                
+                contrastResults.attributes = true;
+                return;
+            }
+        });
+        
+        if(Boolean(historyParse.upstreamTask) != Boolean(currentParse.upstreamTask)){
+            contrastResults.upstreamTask = true;
+        };
+
+        if(historyParse.crosscycleDependence != historyParse.crosscycleDependence){
+            contrastResults.crosscycleDependence = true;
+        };
+        
+        this.setState({
+            currentParse,
+            historyParse,
+            contrastResults
+        });
+    }
+
+    componentDidMount = () => {
+        if(this.props.taskType != "realTimeTask"){
+            this.getData(this.versionId)
+        }else{
+            this.getRealData()
+        }
     }
 
     callback = (key) => {
-        console.log(key);
-      }
+        this.setState({
+            tabKey:key,
+            tableRefresh: Math.random()
+        })
+    }
+    
+    codeChange = (old, newVal) => {
+        this.props.setTaskParams(newVal)
+    }
 
     render() {
-        const { tabData } = this.props;
+        const { taskType } = this.props;
+        const { contrastResults,historyParse,currentParse,historyvalue,tabKey,tableRefresh } = this.state;
+        const isLocked = this.currentValue.readWriteLockVO && !this.currentValue.readWriteLockVO.getLock
+        
         return <div className="m-taksdetail">
-            <Tabs onChange={this.callback} type="card">
-                <TabPane tab="Tab 1" key="config">{TaskInfo(1111)}</TabPane>
-                <TabPane tab="Tab 2" key="params">Content of Tab Pane 2</TabPane>
+            <Tabs onChange={this.callback} type="card"  activeKey={tabKey} >
+                {
+                    taskType === "realTimeTask" ?  "" : 
+                        <TabPane tab="调度配置" key="config">
+                            <TaskInfo historyvalue={historyParse} contrastResults={contrastResults} currentValue={currentParse} />
+                        </TabPane>
+                }
+                <TabPane tab="环境参数" key="params">
+                    <DiffCodeEditor
+                        readOnly={true}
+                        // readOnly={isLocked}
+                        compareTo={historyvalue&&historyvalue.taskParams||" "} 
+                        value={this.currentValue&&this.currentValue.taskParams||" "}
+                        tableRefresh={tableRefresh}
+                        // onChange={this.codeChange}
+                    /> 
+                </TabPane>
+
             </Tabs>
         </div>
     }
 }
 
-export default connect((state) => {
-    return {};
-}, dispatch => {
+const mapState = state => {
+    const { currentTab, tabs } = state.offlineTask.workbench;
+    const { currentPage } = state.realtimeTask;
+    const currentTabData = tabs.filter(tab => {
+        return tab.id === currentTab;
+    })[0];
     return {
-       
-    }
-})(DiffParams);
+        currentTabData,
+        currentRealTabData: currentPage,
+    };
+};
+
+export default connect(mapState)(DiffParams);

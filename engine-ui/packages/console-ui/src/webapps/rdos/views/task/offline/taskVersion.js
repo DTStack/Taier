@@ -1,68 +1,85 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { Row, Table, Modal } from 'antd';
+import React from "react";
+import { Table, Modal, message } from "antd";
 
-import utils from 'utils';
+import utils from "utils";
 
-import DiffCodeEditor from '../../../components/diff-code-editor';
-import { TASK_TYPE } from '../../../comm/const';
-import DiffParams from './diffParams';
+import DiffCodeEditor from "../../../components/diff-code-editor";
+import { TASK_TYPE } from "../../../comm/const";
+import DiffParams from "./diffParams";
 
 export default class TaskVersion extends React.Component {
-
     state = {
         showDiff: false,
-        campareTo: '',
-        diffParams:{
+        campareTo: "",
+        diffParams: {
             showDiffparams: false,
-            tableInfo: '',
-        },
-    }
+            tableInfo: ""
+        }
+    };
 
     constructor(props) {
         super(props);
     }
 
-    diffCode = (target) => {
+    diffCode = target => {
         this.setState({
             showDiff: true,
             campareTo: target
-        })
-    }
+        });
+    };
 
-    diffParams = (data) => {
+    diffParams = data => {
         const { diffParams } = this.state;
         diffParams.showDiffparams = true;
         diffParams.tableInfo = data;
         this.setState({
-           diffParams
-        })
-    }
+            diffParams
+        });
+    };
 
     close = () => {
         this.setState({
             showDiff: false,
-            campareTo: '',
-        })
-    }
+            campareTo: ""
+        });
+    };
 
     closeParamsModal = () => {
         const { diffParams } = this.state;
         diffParams.showDiffparams = false;
         diffParams.tableInfo = "";
         this.setState({
-           diffParams
-        })
-    }
+            diffParams
+        });
+    };
 
     codeChange = (old, newVal) => {
-        this.props.changeSql(newVal)
+        this.props.changeSql(newVal);
+    };
+
+    getFomatedJSON = (jsonText) => {
+        const output = utils.jsonFormat(jsonText);
+        if (!output) {
+            message.error('您的数据同步JSON配置格式有误');
+            return jsonText;
+        }
+        return output;
     }
-    
+
     render() {
-        const { taskInfo } = this.props;
-        const { showDiff, campareTo,diffParams } = this.state;
-        const isLocked = taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock
+        const { taskInfo, taskType } = this.props;
+        const { showDiff, campareTo, diffParams } = this.state;
+
+        const isLocked =
+            taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
+        let sqlTextJSON = taskInfo.sqlText;
+
+        // 增加数据同步，JSON配置格式化操作
+        if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
+            sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
+        } else {
+            sqlTextJSON = taskInfo.sqlText;
+        }
 
         return (
             <div>
@@ -77,78 +94,85 @@ export default class TaskVersion extends React.Component {
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="代码对比"
                     width="900px"
-                    bodyStyle={{height: '500px'}}
+                    bodyStyle={{ height: "500px" }}
                     visible={showDiff}
                     onCancel={this.close}
                     cancelText="关闭"
                     footer={null}
                 >
-                    <DiffCodeEditor 
+                    <DiffCodeEditor
                         readOnly={isLocked}
-                        value={taskInfo.sqlText} 
+                        value={sqlTextJSON}
                         compareTo={campareTo.sqlText}
                         onChange={this.codeChange}
-                    /> 
+                    />
                 </Modal>
                 <Modal
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="参数对比"
                     width="900px"
-                    bodyStyle={{height: '500px'}}
+                    bodyStyle={{ height: "500px" }}
                     visible={diffParams.showDiffparams}
                     onCancel={this.closeParamsModal}
                     cancelText="关闭"
                     footer={null}
                 >
-                   <DiffParams {...this.props}/>
+                    <DiffParams
+                        value={taskInfo}
+                        diffParams={diffParams.tableInfo}
+                        taskType={taskType}
+                    />
                 </Modal>
             </div>
-        )
+        );
     }
 
+    taskTypeJudge = (taskInfo, record) => {
+        if (taskInfo.taskType === TASK_TYPE.SQL || taskInfo.taskType === TASK_TYPE.SYNC) {
+            return (
+                <div>
+                    <a onClick={() => this.diffCode(record)}>代码</a>
+                    <span className="ant-divider" />
+                    <a onClick={() => this.diffParams(record)}>参数</a>
+                </div>
+            );
+        } else {
+            return "-";
+        }
+    };
+
     taskVersionCols = () => {
-        const taskInfo = this.props.taskInfo
+        const taskInfo = this.props.taskInfo;
         return [
             {
                 width: 120,
-                title: '发布时间',
-                dataIndex: 'gmtCreate',
-                key: 'gmtCreate',
-                render: (text) => {
-                    return utils.formatDateTime(text)
-                },
-            }, {
-                title: '发布人',
-                dataIndex: 'userName',
-                key: 'userName',
-            }, {
+                title: "发布时间",
+                dataIndex: "gmtCreate",
+                key: "gmtCreate",
+                render: text => {
+                    return utils.formatDateTime(text);
+                }
+            },
+            {
+                title: "发布人",
+                dataIndex: "userName",
+                key: "userName"
+            },
+            {
                 width: 120,
-                title: '描述',
-                dataIndex: 'publishDesc',
-                key: 'publishDesc',
-            }, {
-                title: '操作',
-                dataIndex: 'id',
+                title: "描述",
+                dataIndex: "publishDesc",
+                key: "publishDesc"
+            },
+            {
+                title: "操作",
+                dataIndex: "operation",
                 width: 80,
-                key: 'operation',
+                key: "operation",
                 render: (text, record) => {
-                    return <span>
-                        {taskInfo.taskType === TASK_TYPE.SQL ? 
-                            <div>
-                                <a onClick={() => this.diffCode(record)}>
-                                    代码
-                                </a>
-                                <span className="ant-divider"></span>
-                                <a onClick={() => this.diffParams(record)}>
-                                    参数
-                                </a>
-                            </div>
-                             : '-'
-                        }
-                    </span>
-                },
+                    return this.taskTypeJudge(taskInfo, record);
+                }
             }
-        ]
-    }
-
+        ];
+    };
 }

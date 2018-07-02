@@ -178,7 +178,8 @@ class TaskFlowView extends Component {
 
     formatTooltip = (cell) => {
         if (cell.vertex) {
-            return cell.value;
+            const currentNode = this._vertexCells[cell.id].data;
+            return currentNode.batchTask.name;
         }
     }
 
@@ -186,7 +187,8 @@ class TaskFlowView extends Component {
         const task = data.batchTask;
         const taskType = taskTypeText(task.taskType);
         const taskStatus = taskStatusText(data.status);
-        const str = `${task.name || ''} \n ${taskType}(${taskStatus})`;
+        const taskName = task.name.length > 12 ? `${task.name.substring(0, 10)}...` : task.name;
+        const str = `${taskName || ''} \n ${taskType}(${taskStatus})`;
         return str;
     }
 

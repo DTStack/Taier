@@ -1,30 +1,16 @@
 # DATA-STACK 
 
-# News!
-
-项目构建工具已经升级到Webpack v4.0！
-
-## 升级方法
-> npm install
-
-> npm run dev
-
 # 更新日志
- > 版本：DTinsight v2.1.0 <br>
- > 日期：2018-06-22
+ > 版本：DTinsight v2.2.0 <br>
+ > 日期：2018-06-29
 
-- 【开发套件】新增`数据地图`模块
-- 【数据集成】新增`整库同步`功能
-- 【数据地图】优化`表级血缘`，新增`字段血缘`
-- 【运维中心】调整原数据管理`脏数据`模块至运维中心
-- 【任务开发】优化`任务调度依赖规则`
-- 【其他】大量细节优化、Bug修复，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-0-2/issues)
+- 【开发套件】修复mxGraph绘制任务实例太多导致浏览器卡死的问题
+- 【开发套件】支持数据同步开发Tab切换后数据缓存
+- 【开发套件】支持查看任务的调度、依赖配置、环境参数等配置的历史记录
+- 【开发套件】支持同步任务的版本记录查看
+- 【应用】提升了应用在浏览器中的加载性能
 
-### TODO
-- 整合Webpack v4.0
-- 升级React至16.3
-- ...
-
+- 【其他】主要以Bug修复为主，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-2-0/issues)
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)

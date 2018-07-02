@@ -548,7 +548,7 @@ class OfflineTaskList extends Component {
                             </span>&nbsp;
                         <span style={{ color: "#009944" }}>
                                 <Circle style={{ background: '#009944' }} />&nbsp;
-                            完成: {statistics.FINISHED || 0}
+                            成功: {statistics.FINISHED || 0}
                             </span>&nbsp;
                         <span style={{ color: "#F5A623" }}>
                                 <Circle style={{ background: '#F5A623 ' }} />&nbsp;

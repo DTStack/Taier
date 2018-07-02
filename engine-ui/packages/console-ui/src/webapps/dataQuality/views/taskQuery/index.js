@@ -114,7 +114,10 @@ export default class TaskQuery extends Component {
             dataIndex: 'alarmSum',
             key: 'alarmSum',
             width: '8%',
-            sorter: true
+            sorter: true,
+            render: (text) => {
+                return text == null ? '-' : text
+            }
         }, {
             title: '数据源',
             dataIndex: 'sourceTypeValue',
