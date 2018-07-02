@@ -327,6 +327,7 @@ class ManageParamsConfig extends Component {
         return true;
     }
     sqlModeShowChange(isHide) {
+        isHide=typeof isHide=="boolean"?isHide:false;
         const dataSource = this.props.form.getFieldValue("dataSource");
         const sql = this.state.editor.sql;
         const show = !this.state.sqlModeShow;
