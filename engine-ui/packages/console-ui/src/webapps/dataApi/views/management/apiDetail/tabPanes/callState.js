@@ -71,7 +71,6 @@ class ApiManageCallState extends Component {
 
     }
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps, this.state)
         if (this.state.apiId != nextProps.apiId || this.state.dateType != nextProps.dateType) {
             this.setState({
                 apiId: nextProps.apiId,
@@ -193,6 +192,8 @@ class ApiManageCallState extends Component {
             },
         }];
         option.xAxis[0].data = times;
+        option.grid.left=40
+        option.grid.bottom=10
 
         console.log(option)
         // 绘制图表
@@ -219,7 +220,7 @@ class ApiManageCallState extends Component {
             <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
                 <Row>
                     <Col span={16}>
-                        <Row gutter={100} className="m-count padding-l20 height-101">
+                        <Row gutter={100}   style={{paddingLeft:"30px"}} className="m-count padding-l20 height-callstate-item">
                             <Col span={6}>
                                 <section className="m-count-section margin-t20" style={{ width: 150 }}>
                                     <span className="m-count-title text-left">{this.getDateText()}累计调用</span>
@@ -240,10 +241,10 @@ class ApiManageCallState extends Component {
                             </Col> */}
                         </Row>
                         <Resize onResize={this.resize}>
-                            <article id="manageApiDetail" style={{ width: '100%', height: '300px' }} />
+                            <article id="manageApiDetail" style={{ width: '100%', height: '250px' }} />
                         </Resize>
                     </Col>
-                    <Col span={8} style={{ paddingTop: "20px" }}>
+                    <Col span={8} style={{ paddingTop: "15px" }}>
                         <p style={{ fontWeight: "bold", lineHeight: 1, fontSize: "14px" }}>排行榜</p>
                         <ManageTopCall data={this.state.topCallList}></ManageTopCall>
                     </Col>

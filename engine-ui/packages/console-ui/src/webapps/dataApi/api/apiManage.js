@@ -51,6 +51,18 @@ export default {
     getApiCallErrorInfoForManager(params){
         return http.post(req.GET_API_CALL_ERROR_INFO_ADMIN, params);
     },
+    saveOrUpdateApiInfo(params){
+        return http.post(req.SAVE_OR_UPDATE_APIINFO, params);
+    },
+    sqlformat(params){
+        return http.post(req.FORMAT_SQL, params);
+    },
+    sqlParser(params){
+        return http.post(req.PARSER_SQL, params);
+    },
+    apiTest(params){
+        return http.post(req.TEST_API,params);
+    }
     
 
 }

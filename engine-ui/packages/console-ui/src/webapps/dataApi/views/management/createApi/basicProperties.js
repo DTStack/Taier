@@ -1,9 +1,10 @@
 import React, { Component } from "react"
-import { Form, Input, Icon, Button, Checkbox, Select, Row, Card, Col, Cascader, message, InputNumber } from "antd";
-import { Link } from 'react-router';
+import { Form, Input, Button, Select, Card, Cascader, message } from "antd";
 
 import DataSourceTable from "./dataSourceTable"
-import { formItemLayout } from "../../../consts"
+import { formItemLayout, API_METHOD } from "../../../consts"
+import NewGroupModal from "../../../components/newGroupModal";
+
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 const Option = Select.Option;
@@ -25,9 +26,11 @@ class ManageBasicProperties extends Component {
                     ...values
                 })
             }
-
         });
-
+    }
+    cancelAndSave() {
+        const {getFieldsValue} = this.props.form;
+        this.props.cancelAndSave({ ...getFieldsValue() });
     }
     //数据源改变，获取表
     dataSourceChange(key) {
@@ -101,7 +104,6 @@ class ManageBasicProperties extends Component {
                     }
                 }
             )
-
     }
     getTableDetail() {
         const dataSource = this.props.form.getFieldValue("dataSource");
@@ -161,12 +163,60 @@ class ManageBasicProperties extends Component {
         }
 
         return exchangeTree(tree) || [];
+    }
+    showNewGroup() {
+        this.setState({
+            newGroupModalShow: true
+        })
+    }
+    hideNewGroup() {
+        this.setState({
+            newGroupModalShow: false
+        })
+    }
+    groupChange(value) {
+        const tree=this.props.apiMarket.apiCatalogue;
+        let arr = [];
 
+        function exchangeTree(data) {
+            if (!data || data.length < 1) {
+                return null;
+            }
 
+            for (let i = 0; i < data.length; i++) {
+                let item = data[i];
+
+                if (item.id == value&&!item.api) {
+                    arr.push(item.id);
+                    return item.id;
+                }
+                if (exchangeTree(item.childCatalogue)) {
+                    arr.push(item.id);
+                    return item.id
+                }
+            }
+            return null;
+        }
+
+        if (exchangeTree(tree)) {
+            this.props.form.setFieldsValue({
+                APIGroup: arr.reverse()
+            })
+        }
+
+    }
+    renderMethod(){
+        let arr=[];
+        for(let key in API_METHOD){
+            let value=API_METHOD[key];
+            arr.push(<Option value={value}>{key}</Option>)
+        }
+        return arr;
     }
     render() {
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
+        const { newGroupModalShow } = this.state;
 
         return (
             <div>
@@ -175,145 +225,131 @@ class ManageBasicProperties extends Component {
                         <FormItem
                             {...formItemLayout}
                             label="所属分组"
-
                         >
+
                             {getFieldDecorator('APIGroup', {
                                 rules: [
                                     { required: true, message: '请选择分组' },
                                 ],
                                 initialValue: this.props.APIGroup
                             })(
-                                <Cascader showSearch popupClassName="noheight" options={options} placeholder="请选择分组" />
+                                <Cascader style={{ width: '85%' }} showSearch popupClassName="noheight" options={options} placeholder="请选择分组" />
                             )
                             }
+                            <a style={{ paddingLeft: "8px" }} onClick={this.showNewGroup.bind(this)} >新建分组</a>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="API名称"
-
-                            hasFeedback >
+                        >
                             {getFieldDecorator('APIName', {
                                 rules: [{ required: true, message: '请输入API名称' },
                                 { max: 16, message: "最大字数不能超过16" },
                                 { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
                             })(
-                                <Input />
+                                <Input style={{ width: '85%' }} />
                             )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="API描述"
-                            hasFeedback
-
                         >
                             {getFieldDecorator('APIdescription', {
                                 rules: [{ required: false, message: '请输入API描述' },
                                 { max: 200, message: "最大字符不能超过200" }],
                                 initialValue: this.props.APIdescription
                             })(
-                                <TextArea />
+                                <TextArea style={{ width: '85%' }} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="API path"
+                        >
+                            {getFieldDecorator('APIPath', {
+                                rules: [
+                                { max: 200, message: "最大字符不能超过200" },
+                                { min: 2, message: "最小字符不能小于2" },
+                                { pattern: new RegExp(/^\/([-|\w|\u4e00-\u9fa5]*)$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' }],
+                                initialValue: this.props.APIPath
+                            })(
+                                <Input style={{ width: '85%' }} />
                             )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="调用限制"
-                            hasFeedback >
+                        >
                             {getFieldDecorator('callLimit', {
                                 rules: [
                                     { required: true, message: '请输入调用次数限制' },
                                     {
                                         validator: function (rule, value, callback) {
-                                            if (value && (value > 1000 || value < 1)) {
-                                                callback("请输入不大于1000的正整数")
+                                            if (value && (value > 2000 || value < 1)) {
+                                                callback("请输入不大于2000的正整数")
                                                 return;
                                             }
                                             callback();
                                         }
                                     }
-
                                 ]
                                 ,
                                 initialValue: this.props.callLimit
                             })(
-                                <Input type="number" placeholder="单用户每秒最高调用次数" />
+                                <Input style={{ width: '85%' }} type="number" placeholder="单用户每秒最大调用次数不超过2000次" />
                             )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="返回条数限制"
-                            hasFeedback >
-                            {getFieldDecorator('backLimit', {
-                                rules: [
-                                    { required: true, message: '请输入最大返回条数' },
-                                    { pattern: new RegExp(/^1[0-9]{0,3}$|^2000$|^[0-9]$|^[1-9][0-9]{1,2}$/), message: '请输入不大于2000的正整数' },
-                                ],
-                                initialValue: this.props.backLimit
-                            })(
-                                <Input type="number" placeholder="单次最大返回数据条数 (最高支持2000条)" />
-                            )}
-                        </FormItem>
-
-                        <FormItem
-                            {...formItemLayout}
-                            label="请选择数据源"
+                            label="协议"
                         >
-                            {getFieldDecorator('dataSource', {
-                                rules: [{ required: true, message: '请选择数据源' }],
-                                initialValue: this.props.dataSource
+                            {getFieldDecorator('protocol', {
+                                initialValue: "HTTP/HTTPS"
                             })(
-                                <Select placeholder="请选择数据源"
-                                    showSearch
-                                    onChange={this.dataSourceChange.bind(this)} >
-                                    {this.getDataSourceOptionView()}
-                                </Select>
-
-                            )}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="请选择表"
-                        >
-                            {getFieldDecorator('table', {
-                                rules: [{ required: true, message: '请选择表' }],
-                                initialValue: this.props.table
-                            })(
-                                <Select 
-                                    mode="combobox"
-                                    placeholder="请选择表"
-                                    showSearch
-                                    onChange={this.tableChange.bind(this)}
-                                >
-                                    {this.getTableListView()}
+                                <Select style={{ width: '85%' }}>
+                                    <Option value="HTTP/HTTPS">HTTP/HTTPS</Option>
                                 </Select>
                             )}
                         </FormItem>
-                        <Row type="flex" justify="center" className="font-14">
-                            <a onClick={this.onSourcePreview.bind(this)}>数据预览<Icon type={this.state.showTable ? 'up' : 'down'} style={{ marginLeft: 5 }} /></a>
-                        </Row>
-
-                        {this.getTable()}
-
-
-                    </Form> 
+                        <FormItem
+                            {...formItemLayout}
+                            label="请求方式"
+                        >
+                            {getFieldDecorator('method', {
+                                rules: [{ required: true, message: "请选择请求方式" }],
+                                initialValue: API_METHOD.POST
+                            })(
+                                <Select style={{ width: '85%' }}>
+                                    {this.renderMethod()}
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="返回类型"
+                        >
+                            {getFieldDecorator('responseType', {
+                                rules: [{ required: true, message: "请选择返回类型" }],
+                                initialValue: "JSON"
+                            })(
+                                <Select style={{ width: '85%' }}>
+                                    <Option value="JSON">JSON</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </Form>
                 </div>
                 <div
                     className="steps-action"
                 >
-                    {
-
-
-                        <Button onClick={() => this.props.cancel()}>
-                            取消
-                        </Button>
-                    }
-                    {
-
-                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
-                    }
-
+                    <Button onClick={() => this.cancelAndSave()}>
+                        保存并退出
+                    </Button>
+                    <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
 
                 </div>
+                <NewGroupModal groupChange={this.groupChange.bind(this)} visible={newGroupModalShow} cancel={this.hideNewGroup.bind(this)} />
             </div>
         )
     }

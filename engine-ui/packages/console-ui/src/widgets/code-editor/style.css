@@ -1,0 +1,4 @@
+.CodeMirror, .CodeMirror-merge-pane{
+    height:inherit !important;
+    font-family: consolas !important;
+}

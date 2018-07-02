@@ -31,7 +31,7 @@ import MyAPI from './views/myApi'
 import APIDetail from './views/market/detail'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
-import NewApi from "./views/management/newApi"
+import NewApi from "./views/management/createApi"
 import EditAPI from './views/management/editApi';
 
 
