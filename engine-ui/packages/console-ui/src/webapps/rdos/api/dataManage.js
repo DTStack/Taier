@@ -64,6 +64,9 @@ export default {
     applyTable(params) {
         return http.post(dataManageReq.APPLY_TABLE, params)
     },
+    getUsersInTenant(params){
+        return http.post(dataManageReq.GET_USERS_IN_TENANT, params)
+    },
     // =========== 血缘关系 ==================//
     getTableRelTree(params) {
         return http.post(dataManageReq.GET_REL_TABLE_TREE, params)

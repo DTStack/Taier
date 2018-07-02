@@ -19,6 +19,8 @@ export default {
     CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
     NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/pageQuery`,//新的查询表的详细信息
 
+    GET_USERS_IN_TENANT:`${RDOS_BASE_URL}/common/user/getUsersInTenant`,//用户列表
+
     // ========= 数据类目 =========
     GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/getHiveCatalogue`, // 获取表目录
     ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/addCatalogue`, // 增加目录
