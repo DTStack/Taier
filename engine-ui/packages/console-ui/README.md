@@ -10,6 +10,12 @@
 - 【开发套件】支持同步任务的版本记录查看
 - 【应用】提升了应用在浏览器中的加载性能
 
+
+ > 版本：DTinsight v2.2.2 <br>
+ > 日期：2018-07-02
+
+- 【开发套件】修复任务参数Tab切换异常Bug
+
 - 【其他】主要以Bug修复为主，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-2-0/issues)
 
 # 其他文档
