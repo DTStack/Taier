@@ -21,10 +21,14 @@ export default {
     UPDATE_CATAGORY:`${DATA_API_BASE_URL}/catalogue/updateCatalogue`,//更新节点
     NEW_API:`${DATA_API_BASE_URL}/apis/createApi`,//新建api
     CHANGE_API:`${DATA_API_BASE_URL}/apis/updateApi`,//更新api信息
+    SAVE_OR_UPDATE_APIINFO:`${DATA_API_BASE_URL}/apis/saveOrUpdateApiInfo`,//保存API
     GET_TABLE_BY_DATASOURCE:`${DATA_API_BASE_URL}/dataSource/tablelist`,//根据数据源获取表
     GET_TABLE_COLUMNS_DETAIL:`${DATA_API_BASE_URL}/dataSource/tablecolumn`,//获取表字段信息
     GET_TABLE_PREVIEW_DATA:`${DATA_API_BASE_URL}/dataSource/preview`,//数据预览
     GET_API_DETAIL_INFO:`${DATA_API_BASE_URL}/apis/getApiInfo`,//获取api详细信息
+    FORMAT_SQL:`${DATA_API_BASE_URL}/apis/sqlFormat`,//格式化sql
+    PARSER_SQL:`${DATA_API_BASE_URL}/apis/sqlParser`,//sql解析
+    TEST_API:`${DATA_API_BASE_URL}/apis/apiTest`,//api测试
 
     // ===== 我的api =====//
     GET_APPLY_LIST:`${DATA_API_BASE_URL}/apply/userApplyList`,//获取申请列表

@@ -10,34 +10,68 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
 }
 
+export const API_MODE = {
+    GUIDE: 0,
+    SQL: 1
+}
+export const API_METHOD = {
+    POST: 1,
+    // GET:2
+}
+export const API_METHOD_key = {
+    1: "POST",
+    2: "GET"
+}
 
 export const API_STATUS = {
-    "-1":'NO_APPLY',
-    "0":'IN_HAND',
-    "1":'PASS',
-    "2":'REJECT',
-    "3":'STOPPED',
-    "4":'DISABLE'
+    "-1": 'NO_APPLY',
+    "0": 'IN_HAND',
+    "1": 'PASS',
+    "2": 'REJECT',
+    "3": 'STOPPED',
+    "4": 'DISABLE',
+    "5": 'EXPIRED'
 }
-export const EXCHANGE_API_STATUS= {
-    '-1':"nothing",
+export const API_USER_STATUS = {
+    "NO_APPLY": -1,
+    "IN_HAND": 0,
+    "PASS": 1,
+    "REJECT": 2,
+    "STOPPED": 3,
+    "DISABLE": 4,
+    "EXPIRED": 5
+}
+export const API_SYSTEM_STATUS = {
+    SUCCESS: 0,
+    STOP: 1,
+    EDITTING: 2
+}
+export const API_DELETE = {
+    "YES": 0,
+    "NO": 1
+}
+export const EXCHANGE_API_STATUS = {
+    '-1': "nothing",
     0: 'inhand',
     1: 'success',
     2: 'notPass',
     3: 'stop',
-    4: 'disabled'
+    4: 'disabled',
+    5: 'expired'
 }
-export const EXCHANGE_APPLY_STATUS= {
+export const EXCHANGE_APPLY_STATUS = {
     0: 'notApproved',
     1: 'pass',
     2: 'rejected',
     3: 'stop',
     4: 'disabled',
+    5: 'expired'
 
 }
-export const EXCHANGE_ADMIN_API_STATUS= {
+export const EXCHANGE_ADMIN_API_STATUS = {
     0: 'success',
     1: 'stop',
+    2: 'editting'
 }
 
 export const dataSourceTypes = [ // 数据源类型
@@ -251,7 +285,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
                 show: false,
             },
             splitLine: false,
-            minInterval:1
+            minInterval: 1
         },
         {
             nameGap: 25,
@@ -279,7 +313,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
                     type: 'dashed'
                 }
             },
-            max:100
+            max: 100
         }
     ],
     series: []
@@ -294,7 +328,7 @@ export const pieOption = {
         orient: 'horizontal',
         x: 'center',
         y: 'bottom',
-        data: ['参数错误','调用超时', '异常访问', '超出限额', '禁用', '其他'],
+        data: ['参数错误', '调用超时', '异常访问', '超出限额', '禁用', '其他'],
         itemWidth: 5,
         itemHeight: 5,
         textStyle: {
@@ -328,43 +362,52 @@ export const pieOption = {
                         }
                     }
                 },
-                { 
-                    value: 310, 
+                {
+                    value: 310,
                     name: '调用超时',
                     itemStyle: {
                         normal: {
 
                             color: "#EE9A00"
                         }
-                    } },
-                { value: 234, name: '异常访问',
-                itemStyle: {
-                    normal: {
-
-                        color: "#EE4000"
                     }
-                } },
-                { value: 535, name: '超出限额',
-                itemStyle: {
-                    normal: {
+                },
+                {
+                    value: 234, name: '异常访问',
+                    itemStyle: {
+                        normal: {
 
-                        color: "#40E0D0"
+                            color: "#EE4000"
+                        }
                     }
-                } },
-                { value: 1158, name: '禁用',
-                itemStyle: {
-                    normal: {
+                },
+                {
+                    value: 535, name: '超出限额',
+                    itemStyle: {
+                        normal: {
 
-                        color: "#71C671"
+                            color: "#40E0D0"
+                        }
                     }
-                } },
-                { value: 548, name: '其他' ,
-                itemStyle: {
-                    normal: {
+                },
+                {
+                    value: 1158, name: '禁用',
+                    itemStyle: {
+                        normal: {
 
-                        color: "#A2B5CD"
+                            color: "#71C671"
+                        }
                     }
-                }}
+                },
+                {
+                    value: 548, name: '其他',
+                    itemStyle: {
+                        normal: {
+
+                            color: "#A2B5CD"
+                        }
+                    }
+                }
             ]
         }
     ]
