@@ -47,6 +47,13 @@ const revokeStatus = (status) => {
     }
 }
 
+const selectStatusList = [
+    {status:0,value: "待审批"},
+    {status:1,value: "已通过"},
+    {status:2,value: "未通过"},
+    {status:3,value: "已过期"},
+    {status:4,value: "已撤销"}
+];
 
 @connect(state => {
     return {
@@ -71,6 +78,7 @@ class AuthMana extends Component {
             visible: false,
             loading: false,
             rangeTime: [],
+            userList:[],
             queryParams: {
                 listType,
                 pageIndex: 1,
@@ -79,6 +87,8 @@ class AuthMana extends Component {
                 startTime: undefined,
                 endTime: undefined,
                 belongProjectId: undefined,
+                applyUserId: undefined,
+                status: undefined,
             },
         }
     }
@@ -86,6 +96,19 @@ class AuthMana extends Component {
     componentDidMount() {
         this.search();
         this.loadCatalogue();
+        this.getUsersInTenant();
+    }
+
+    getUsersInTenant(){
+        ajax.getUsersInTenant().then(res=>{
+            console.log("getUsersInTenant",res);
+            if(res.code === 1){
+                this.setState({
+                    userList: res.data || []
+                })
+            }
+            
+        })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -196,9 +219,17 @@ class AuthMana extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
+        console.log("sorter", sorter);
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
         })
+        if(Object.keys(sorter).length > 0){
+            if(sorter.field === "applyTime"){
+                queryParams.sort = sorter.order === "descend" ? "desc" : "asc"
+            }else{
+                queryParams.sortColumn = sorter.order === "descend" ? "gmt_create" : "day"
+            }
+        }
         this.setState({
             queryParams,
             selectedRowKeys: [],
@@ -311,6 +342,11 @@ class AuthMana extends Component {
         return content
     }
 
+    applyDataSort = (x,y,z)=>{
+        console.log(x,y,z);
+        
+    }
+
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state;
@@ -364,6 +400,7 @@ class AuthMana extends Component {
                             title: '申请时间',
                             key: 'applyTime',
                             dataIndex: 'applyTime',
+                            sorter:true,
                             render(text, record) {
                                 return utils.formatDateTime(text)
                             }
@@ -372,6 +409,7 @@ class AuthMana extends Component {
                             title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
+                            sorter:true,
                             render(text, record) {
                                 return `${text}天`
                             }
@@ -418,6 +456,7 @@ class AuthMana extends Component {
                             title: '申请时间',
                             key: 'applyTime',
                             dataIndex: 'applyTime',
+                            sorter: true,
                             render(text, record) {
                                 return utils.formatDateTime(text)
                             }
@@ -426,6 +465,7 @@ class AuthMana extends Component {
                             title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
+                            sorter:true,
                             render(text, record) {
                                 return `${text}天`
                             }
@@ -476,6 +516,7 @@ class AuthMana extends Component {
                             title: '申请时间',
                             key: 'applyTime',
                             dataIndex: 'applyTime',
+                            sorter:true,
                             render(text, record) {
                                 return utils.formatDateTime(text)
                             }
@@ -484,6 +525,7 @@ class AuthMana extends Component {
                             title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
+                            sorter:true,
                             render(text, record) {
                                 return `${text}天`
                             }
@@ -576,7 +618,7 @@ class AuthMana extends Component {
     };
 
     renderPane = (isShowRowSelection = false) => {
-        const { table, selectedRowKeys, queryParams, rangeTime, loading } = this.state;
+        const { table, selectedRowKeys, queryParams, rangeTime, loading, userList, } = this.state;
 
         const { projects } = this.props;
 
@@ -590,6 +632,24 @@ class AuthMana extends Component {
             value={`${proj.id}`}
         >
             {proj.projectAlias}
+        </Option>)
+
+        const userOptions = userList.map(v => <Option
+            title={v.userName}
+            key={v.userId}
+            name={v.userName}
+            value={`${v.userId}`}
+        >
+            {v.userName}
+        </Option>)
+
+        const selectStatus = selectStatusList.map(v => <Option
+            title={v.value}
+            key={v.status}
+            name={v.value}
+            value={`${v.status}`}
+        >
+            {v.value}
         </Option>)
 
         const title = (
@@ -607,6 +667,34 @@ class AuthMana extends Component {
                         {projectOptions}
                     </Select>
                 </FormItem>
+                <FormItem label="申请人">
+                    <Select
+                        allowClear
+                        showSearch
+                        optionFilterProp="name"
+                        style={{ width: 120 }}
+                        placeholder="选择申请人"
+                        value={queryParams.applyUserId}
+                        onChange={(value) => this.changeParams('applyUserId', value)}
+                    >
+                        {userOptions}
+                    </Select>
+                </FormItem>
+                {
+                    queryParams.listType == 0||queryParams.listType == 3 ? "" : <FormItem label="状态">
+                            <Select
+                                allowClear
+                                showSearch
+                                optionFilterProp="status"
+                                style={{ width: 120 }}
+                                placeholder="选择状态"
+                                value={queryParams.status}
+                                onChange={(value) => this.changeParams('status', value ? [value] : undefined)}
+                            >
+                                {selectStatus}
+                            </Select>
+                        </FormItem>
+                }
                 <FormItem>
                     <Input.Search
                         placeholder="按表名搜索"
@@ -617,7 +705,7 @@ class AuthMana extends Component {
                         onSearch={this.search}
                     />
                 </FormItem>
-                <FormItem label="时间选择">
+                <FormItem label="申请时间">
                     <RangePicker 
                         onChange={this.onChangeTime} 
                         format="YYYY-MM-DD HH:mm:ss" 
