@@ -24,6 +24,7 @@ export default {
     PUBLISH_TASK: `${RDOS_BASE_URL}/batch/batchTask/publishTask`, // 发布任务
     GET_CUSTOM_TASK_PARAMS: `${RDOS_BASE_URL}/batch/batchTask/getSysParams`, // 获取任务自定义参数
     FROZEN_TASK: `${RDOS_BASE_URL}/batch/batchTask/frozenTask`, // 冻结/解冻任务
+    TASK_VERSION_SCHEDULE_CONF :`${RDOS_BASE_URL}/batch/batchTask/taskVersionScheduleConf `,
 
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/addOrUpdateScript`, // 保存脚本
@@ -33,6 +34,7 @@ export default {
     DELETE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/deleteScript`, // 删除脚本
     GET_SCRIPT_BY_ID: `${RDOS_BASE_URL}/batch/batchScript/getScriptById`, // 根据脚本获取ID
     GET_SCRIPT_TYPES: `${RDOS_BASE_URL}/batch/batchScript/getTypes`, // 脚本类型
+
 
     // ===== Job调度模块 ===== //
     QUERY_JOBS: `${RDOS_BASE_URL}/batch/batchJob/queryJobs`, // 任务运维 - 补数据搜索

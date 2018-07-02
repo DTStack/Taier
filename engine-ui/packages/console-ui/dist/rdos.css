@@ -105,12 +105,12 @@
   color: #fff;
 }
 
-.header .ant-menu-item-selected {
+.header > .ant-menu-item-selected {
   background-color: #262e36 !important;
   color: #fff;
 }
 
-.header .ant-menu-item-selected:hover {
+.header > .ant-menu-item-selected:hover {
   color: #fff;
 }
 
@@ -1409,6 +1409,10 @@ table {
   padding: 0px 5px;
 }
 
+.select-all-table .ant-table-thead .ant-table-selection-column > span {
+  visibility: visible;
+}
+
 .dt-dev-tools .header {
   padding-left: 30px;
 }
@@ -1793,6 +1797,10 @@ table {
   cursor: pointer;
 }
 
+.diff-params .box-padding {
+  padding: 0 10px;
+}
+
 .m-dirpicker {
   border: 1px solid #ddd;
   padding: 10px;
@@ -1900,7 +1908,7 @@ table {
 .task-editor .task-browser .m-siderbench {
   width: 30px;
   position: absolute;
-  z-index: 1001;
+  z-index: 902;
   top: 32px;
   height: 100%;
   padding-bottom: 40px;
@@ -1979,7 +1987,7 @@ table {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 999;
+  z-index: 900;
   cursor: not-allowed;
 }
 
@@ -1996,7 +2004,7 @@ table {
   height: 35px;
   left: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 900;
   cursor: not-allowed;
 }
 
@@ -3902,23 +3910,14 @@ table.mxPopupMenu tr {
   color: rgba(159, 168, 210, 0.48);
 }
 
-.title-bar {
-  line-height: 22px;
-  height: 42px;
-  background: #f7f7f7;
-  color: #333333;
-  font-size: 14px;
-  padding: 10px 20px;
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-}
-
 .copy-hover:hover{
     color:#58abf9;
 }
 .m-v-10 {
+  margin: 10px 0;
+}
+
+.m-h-10 {
   margin: 0 10px;
 }
 
@@ -3951,6 +3950,45 @@ table.mxPopupMenu tr {
 
 .sync-history-modal .sync-detail p {
   padding: 5px 0;
+}
+
+.config-form .ant-form-item {
+  margin-right: 0px;
+}
+
+.config-form .flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.config-form .flex-v-center {
+  align-items: center;
+}
+
+.config-form .flex-right {
+  justify-content: flex-end;
+}
+
+.config-form .left-item .ant-form-explain {
+  right: 0;
+}
+
+.config-form .col-16 {
+  width: 66.666667%;
+}
+
+.config-form .font-16, .config-form .edit-icon {
+  font-size: 16px;
+}
+
+.config-form .edit-icon {
+  cursor: pointer;
+}
+
+.sync-tooltip .ant-tooltip-inner {
+  max-width: 600px;
+  white-space: pre-line;
 }
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */

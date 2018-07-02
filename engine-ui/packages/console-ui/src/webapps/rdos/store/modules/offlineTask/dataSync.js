@@ -15,6 +15,26 @@ import {
 import { DATA_TYPE_ARRAY } from '../../../comm/const'
 
 // 缓存数据源列表
+const tabId = (state = {}, action) => {
+    switch(action.type) {
+        case dataSyncAction.SET_TABID: {
+            const tabId = action.payload;
+            return tabId;
+        }
+
+        case dataSyncAction.RESET_TABID:
+            return {};
+
+        case dataSyncAction.GET_DATASYNC_SAVED: {
+            const { tabId } = action.payload;
+            return tabId;
+        }
+
+        default: return state;
+    }
+};
+
+// 缓存数据源列表
 const dataSourceList = (state = [], action) => {
     switch(action.type) {
         case dataSourceListAction.LOAD_DATASOURCE: {
@@ -24,6 +44,11 @@ const dataSourceList = (state = [], action) => {
 
         case dataSourceListAction.RESET_DATASOURCE:
             return [];
+
+        case dataSyncAction.GET_DATASYNC_SAVED: {
+            const { dataSourceList } = action.payload;
+            return dataSourceList;
+        }
 
         default: return state;
     }
@@ -35,6 +60,11 @@ const sourceMap = (state = {}, action) => {
 
             if(action.payload === null) return {};
 
+            const { sourceMap } = action.payload;
+            return sourceMap;
+        }
+
+        case dataSyncAction.GET_DATASYNC_SAVED: {
             const { sourceMap } = action.payload;
             return sourceMap;
         }
@@ -166,6 +196,11 @@ const targetMap = (state = {}, action) => {
             return {};
         }
 
+        case dataSyncAction.GET_DATASYNC_SAVED: {
+            const { targetMap } = action.payload;
+            return targetMap;
+        }
+
         case targetMapAction.DATA_SOURCE_TARGET_CHANGE: {
             const { type, id, dataName } = action.payload;
             const clone = cloneDeep(state);
@@ -291,6 +326,11 @@ const keymap = (state = { source: [], target: [] }, action) => {
 
         case dataSyncAction.RESET_KEYMAP: {
             return { source: [], target: [] };
+        }
+
+        case dataSyncAction.GET_DATASYNC_SAVED: {
+            const { keymap } = action.payload;
+            return keymap;
         }
 
         case keyMapAction.ADD_LINKED_KEYS: {
@@ -436,27 +476,34 @@ const setting = (state = { speed: 1, channel: 1, record: 100, isSaveDirty: false
             return newSetting;
         }
 
+        case dataSyncAction.GET_DATASYNC_SAVED: {
+            const { setting } = action.payload;
+            return setting;
+        }
+
         default: return state;
     }
 };
 
-const currentStep = (state = {}, action) => {// 缓存数据同步当前操作界面
+const currentStep = (state = { step: 0 }, action) => {// 缓存数据同步当前操作界面
     switch(action.type) {
         case dataSyncAction.INIT_CURRENT_STEP: {
-            const { key } = action.payload;
-            const clone = cloneDeep(state)
-            // if (clone[key] === undefined) {
-            //     clone[key] = 0
-            // }
-            clone[key] = 0
+            const clone = cloneDeep(state);
+
+            clone.step = 0;
             return clone;
         }
 
         case dataSyncAction.SET_CURRENT_STEP: {
-            const { key, step } = action.payload;
-            const clone = cloneDeep(state)
-            clone[key] = step
+            const clone = cloneDeep(state);
+
+            clone.step = action.payload;
             return clone;
+        }
+
+        case dataSyncAction.GET_DATASYNC_SAVED: {
+            const { currentStep } = action.payload;
+            return currentStep;
         }
 
         default: return state;
@@ -464,10 +511,11 @@ const currentStep = (state = {}, action) => {// 缓存数据同步当前操作�
 }
 
 export const dataSyncReducer = combineReducers({
-   dataSourceList,
-   sourceMap,
-   targetMap,
-   keymap,
-   setting,
-   currentStep,
+    tabId,
+    dataSourceList,
+    sourceMap,
+    targetMap,
+    keymap,
+    setting,
+    currentStep,
 });

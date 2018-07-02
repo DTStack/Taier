@@ -9,6 +9,17 @@
 
 > npm run dev
 
+# 更新日志
+ > 版本：DTinsight v2.2.0 <br>
+ > 日期：2018-06-29
+
+- 【其他】主要以Bug修复为主，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-2-0/issues)
+
+### TODO
+- 整合Webpack v4.0
+- 升级React至16.3
+- ...
+
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)

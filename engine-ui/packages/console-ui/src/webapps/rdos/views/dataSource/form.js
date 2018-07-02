@@ -173,8 +173,10 @@ class BaseForm extends Component {
     renderDynamic() {
         const { form, sourceData,  } = this.props;
         const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
+        
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
+        
         switch (sourceType) {
             case DATA_SOURCE.HDFS: {
                 const formItems = [
@@ -198,7 +200,7 @@ class BaseForm extends Component {
                         {...tailFormItemLayout}
                     >
                         {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
+                            initialValue: hasHdfsConfig,
                         })(
                             <Checkbox
                                 checked={hasHdfsConfig}
@@ -209,6 +211,7 @@ class BaseForm extends Component {
                     </FormItem>,
                 ]
                 if (hasHdfsConfig) {
+
                     formItems.push(
                         <FormItem
                             {...formItemLayout}
@@ -221,7 +224,8 @@ class BaseForm extends Component {
                                 rules: [{
                                     required: true, message: 'Hadoop配置不可为空！',
                                 }],
-                                initialValue: config.hadoopConfig || ''
+                                initialValue: config.hadoopConfig ?   typeof config.hadoopConfig == "string" ? 
+                                    JSON.stringify(JSON.parse(config.hadoopConfig),null,4): JSON.stringify(config.hadoopConfig,null,4) : ''
                             })(
                                 <Input
                                     rows={5}
@@ -304,7 +308,7 @@ class BaseForm extends Component {
                         {...tailFormItemLayout}
                     >
                         {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
+                            initialValue: hasHdfsConfig,
                         })(
                             <Checkbox
                                 checked={hasHdfsConfig}
@@ -327,11 +331,13 @@ class BaseForm extends Component {
                                 rules: [{
                                     required: true, message: 'Hadoop配置不可为空！',
                                 }],
-                                initialValue: config.hadoopConfig || ''
+                                initialValue: config.hadoopConfig ?   typeof config.hadoopConfig == "string" ? 
+                                    JSON.stringify(JSON.parse(config.hadoopConfig),null,4): JSON.stringify(config.hadoopConfig,null,4) : ''
                             })(
                                 <Input
                                     className="no-scroll-bar"
                                     type="textarea" rows={5}
+                                    
                                     placeholder={hdfsConf}
                                 />,
                             )}

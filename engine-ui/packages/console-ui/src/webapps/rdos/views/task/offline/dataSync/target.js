@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, Input, Select, Button, Radio } from 'antd';
-import { isEmpty } from 'lodash';
+import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
 import ajax from '../../../../api';
@@ -15,12 +15,12 @@ import {
     formItemLayout,
     dataSourceTypes,
     DATA_SOURCE,
+    DATA_SOURCE_TEXT
 } from '../../../../comm/const';
 
 import HelpDoc from '../../../helpDoc';
 
 import { matchTaskParams } from '../../../../comm';
-import { DatabaseType } from '../../../../components/status';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -87,6 +87,8 @@ class TargetForm extends React.Component {
         }).then(res => {
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
+            } else {
+                handleTableColumnChange([]);
             }
         })
     }
@@ -173,7 +175,8 @@ class TargetForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleTargetMapChange } = this.props;
+        const { form, handleTargetMapChange, targetMap } = this.props;
+
         form.validateFields((err, values) => {
             if (!err) {
                 cb.call(null, 2);
@@ -208,15 +211,15 @@ class TargetForm extends React.Component {
                             disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
-                                return <Option key={src.id}
+                                let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+
+                                return <Option 
+                                    key={src.id}
                                     name={src.dataName}
                                     value={`${src.id}`}
-                                    disabled={
-                                        src.type === DATA_SOURCE.ES
-                                    }
-                                >
-                                    {src.dataName}( <DatabaseType value={src.type} /> )
-                            </Option>
+                                    disabled={src.type === DATA_SOURCE.ES}>
+                                    {title}
+                                </Option>
                             })}
                         </Select>
                     )}
@@ -229,6 +232,8 @@ class TargetForm extends React.Component {
             </div>}
         </div>
     }
+
+    debounceTableSearch = debounce(this.changeTable, 600, { 'maxWait': 2000 })
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
@@ -260,7 +265,7 @@ class TargetForm extends React.Component {
                             mode="combobox"
                             disabled={ !isCurrentTabNew }
                             optionFilterProp="value"
-                            onBlur={this.changeTable.bind(this)}
+                            onChange={this.debounceTableSearch.bind(this)}
                         >
                             {this.state.tableList.map(table => {
                                 return <Option 
@@ -346,7 +351,7 @@ class TargetForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -523,7 +528,7 @@ class TargetForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

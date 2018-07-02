@@ -9,9 +9,7 @@ import {
     Spin
 } from 'antd';
 
-import { Link,hashHistory } from 'react-router';
-import moment from 'moment';
-import { isEmpty } from 'lodash';
+import { Link, hashHistory } from 'react-router';
 
 import utils from 'utils';
 
@@ -28,7 +26,7 @@ const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
-        projects: state.projects,
+        projects: state.allProjects,
         user: state.user,
     }
 })
@@ -36,12 +34,12 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const {listType} = this.props.location.search &&parse(this.props.location.search.substr(1)) || {listType : "1"};        
+        const { listType } = this.props.location.search && parse(this.props.location.search.substr(1)) || { listType: "1" };
         this.state = {
             table: [],
             editRecord: {},
-            loading:false,
-            tableLog:{
+            loading: false,
+            tableLog: {
                 tableId: undefined,
                 tableName: undefined,
                 visible: false,
@@ -55,7 +53,7 @@ class TableList extends Component {
                 tableName: undefined,
             },
         }
-        this.isAdminAbove = this.props.user&&this.props.user.isAdminAbove;
+        this.isAdminAbove = this.props.user && this.props.user.isAdminAbove;
     }
 
     componentDidMount() {
@@ -69,14 +67,14 @@ class TableList extends Component {
 
     search = () => {
         const { queryParams } = this.state;
-        this.setState({table:[],loading: true})
+        this.setState({ table: [], loading: true })
         ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
                     loading: false,
                 })
-            }else{
+            } else {
                 this.setState({
                     loading: false,
                 })
@@ -85,7 +83,7 @@ class TableList extends Component {
     }
 
     cancleMark = (tableId) => {
-        const params = {tableId};
+        const params = { tableId };
         ajax.cancelMark(params).then(res => {
             if (res.code === 1) {
                 message.success('取消成功！')
@@ -99,8 +97,8 @@ class TableList extends Component {
         const pathname = this.props.location.pathname;
         if (field) {
             queryParams[field] = value;
-            queryParams.pageIndex = 1 ;
-            if(field==="listType"){
+            queryParams.pageIndex = 1;
+            if (field === "listType") {
                 hashHistory.push(`${pathname}?listType=${value}`)
             }
         }
@@ -185,12 +183,12 @@ class TableList extends Component {
                 },
             },
             {
-                title: 'project',
+                title: '项目名称',
                 key: 'project',
                 dataIndex: 'project',
             },
             {
-                title: '项目名',
+                title: '项目显示名称',
                 key: 'projectAlias',
                 dataIndex: 'projectAlias',
             },
@@ -213,7 +211,7 @@ class TableList extends Component {
                 dataIndex: 'lifeDay',
             },
             {
-                title: '操作',
+                title: '操作', 
                 key: 'id',
                 width: 120,
                 render(text, record) {
@@ -228,23 +226,39 @@ class TableList extends Component {
                                 <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
                             </span>
                         case '5':
-                        return <span>
+                            return <span>
                                 <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
                             </span>
-                        default: 
+                        default:
                             return '--';
                     }
                 }
             }
         ];
-        if(queryParams.listType == "4"){
+        if (queryParams.listType == "4") {
             initialColumns.pop(1);
+            let addInitalColumns=[{
+                title: '有效期',
+                key: 'timeTeft',
+                dataIndex: 'timeTeft',
+                render(text, record) {
+                    return text ? `${text}天` : " " 
+                }
+            },{
+                title: '通过时间',
+                key: 'passTime',
+                dataIndex: 'passTime',
+                render(text, record) {
+                    return text ? utils.formatDateTime(text) : " "
+                }
+            }]
+            initialColumns = [...initialColumns,...addInitalColumns]
         }
         return initialColumns;
     }
 
     renderPane = () => {
-        const { table, queryParams, editRecord,loading } = this.state;
+        const { table, queryParams, editRecord, loading } = this.state;
         const { projects } = this.props;
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
@@ -256,7 +270,7 @@ class TableList extends Component {
         </Option>)
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={{marginTop: '10px'}}>
+            <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
                 <FormItem label="类目">
                     <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
@@ -322,14 +336,14 @@ class TableList extends Component {
     }
 
     render() {
-        const { tableLog,queryParams } = this.state;
+        const { tableLog, queryParams } = this.state;
         const projectUsers = [];
         return (
             <div className="box-1 m-tabs">
-                <Tabs 
+                <Tabs
                     activeKey={queryParams.listType}
-                    animated={false} 
-                    style={{height: 'auto'}} 
+                    animated={false}
+                    style={{ height: 'auto' }}
                     onChange={value => this.changeParams('listType', value)}
                 >
                     <TabPane tab="我近期操作的表" key="1">
@@ -338,7 +352,7 @@ class TableList extends Component {
                     <TabPane tab="个人账号的表" key="2">
                         {this.renderPane()}
                     </TabPane>
-                    {
+                    { 
                         this.isAdminAbove == 1 ? <TabPane tab="我管理的表" key="3">{this.renderPane()}</TabPane> : ""
                     }
                     <TabPane tab="被授权的表" key="4">
@@ -348,18 +362,15 @@ class TableList extends Component {
                         {this.renderPane()}
                     </TabPane>
                 </Tabs>
-                {
-                  tableLog.visible ?  <SlidePane
-                        onClose={this.closeSlidePane}
-                        visible={tableLog.visible}
-                        style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
-                    >
-                        <div className="m-loglist">
-                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
-                        </div>
-                    </SlidePane> : ""
-                }
-                
+                <SlidePane
+                    onClose={this.closeSlidePane}
+                    visible={tableLog.visible}
+                    style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
+                >
+                   {tableLog.visible ? <div className="m-loglist">
+                        <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
+                    </div> : ""}
+                </SlidePane>
             </div>
         )
     }

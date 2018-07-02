@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, browserHistory, hashHistory } from 'react-router';
 import SplitPane from 'react-split-pane';
 import {
     Input, Button, message,
@@ -105,7 +105,7 @@ class TableEditor extends Component {
                                 {...formItemLayout}
                                 label="所属类目"
                             >
-                                {getFieldDecorator('所属类目', {
+                                {getFieldDecorator('belongCatalogue', {
                                     rules: [{
                                     required: true,
                                     message: '请选择所属类目',
@@ -270,7 +270,7 @@ class TableEditor extends Component {
         const queryParams = {};
         queryParams.tableId = tableData.id;
         queryParams.tableName = tableData.tableName;
-        queryParams.desc = tableData.tableDesc;
+        queryParams.tableDesc = tableData.tableDesc;
         // queryParams.delim = tableData.id;
         queryParams.lifeDay = tableData.lifeDay;
         // queryParams.storedType = tableData.id;

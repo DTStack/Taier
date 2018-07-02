@@ -104,7 +104,7 @@ class TaskForm extends React.Component {
         const isPyTask = value === TASK_TYPE.PYTHON
         const isSyncTast = value == TASK_TYPE.SYNC
         const acceptType = isMrTask ? RESOURCE_TYPE.JAR : isPyTask ? RESOURCE_TYPE.PY : '';
-
+        const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
         return (
             <Form>
                 <FormItem
@@ -244,11 +244,11 @@ class TaskForm extends React.Component {
                         rules: [{
                             required: true, message: '存储位置必选！',
                         }],
-                        initialValue: isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid
+                        initialValue: savePath,
                     })(
                         <FolderPicker
-                            type={MENU_TYPE.TASK_DEV}
                             ispicker
+                            type={MENU_TYPE.TASK_DEV}
                             treeData={this.props.treeData}
                             onChange={this.handleSelectTreeChange.bind(this)}
                             defaultNode={isCreateNormal ?
@@ -354,8 +354,15 @@ class TaskModal extends React.Component {
         this.dtcount = 0;
     }
 
+    shouldComponentUpdate (nextProps, nextState) {
+        if (this.props.isModalShow !== nextProps.isModalShow) {
+            return true;
+        }
+        return false;
+    }
+
     handleSubmit() {
-        const { isModalShow, toggleCreateTask, addOfflineTask, defaultData } = this.props;
+        const { addOfflineTask, defaultData, currentTab } = this.props;
         const form = this.form;
 
         const isCreateNormal = typeof defaultData === 'undefined';
@@ -377,15 +384,11 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
 
-
                 addOfflineTask(values, isEditExist, defaultData)
-                    .then(
-                        (isSuccess) => {
+                    .then(isSuccess => {
                             if (isSuccess) {
                                 this.closeModal();
-                                setTimeout(() => {
-                                    form.resetFields();
-                                }, 500);
+                                form.resetFields();
                             }
                         }
                     );
@@ -394,31 +397,28 @@ class TaskModal extends React.Component {
     }
 
     handleCancel() {
-        const { toggleCreateTask } = this.props;
-
         this.closeModal();
     }
 
     closeModal() {
         this.dtcount++;
-
         this.props.emptyModalDefault();
         this.props.toggleCreateTask();
     }
 
     render() {
-        const { isModalShow, toggleCreateTask, taskTreeData, resourceTreeData, defaultData } = this.props;
+        const { isModalShow, taskTreeData, resourceTreeData, defaultData } = this.props;
 
-        if (!defaultData) this.isCreate = true;
-        else {
-            if (!defaultData.name) this.isCreate = true;
-            else this.isCreate = false;
+        let isCreate = true;
+        if (defaultData && defaultData.name) {
+            isCreate = false;
         }
 
         return (
             <div>
                 <Modal
-                    title={!this.isCreate ? '编辑离线任务' : '新建离线任务'}
+                    title={isCreate ? '编辑离线任务' : '新建离线任务'}
+                    key={this.dtcount}
                     visible={isModalShow}
                     footer={[
                         <Button key="back"
@@ -431,7 +431,6 @@ class TaskModal extends React.Component {
                             onClick={this.handleSubmit}
                         > 确认 </Button>
                     ]}
-                    key={this.dtcount}
                     onCancel={this.handleCancel}
                 >
                     <TaskFormWrapper
@@ -450,6 +449,7 @@ export default connect(state => {
     return {
         isModalShow: state.offlineTask.modalShow.createTask,
         taskTreeData: state.offlineTask.taskTree,
+        currentTab: state.offlineTask.workbench.currentTab,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
         resourceTreeData: state.offlineTask.resourceTree
     }
@@ -466,7 +466,7 @@ export default connect(state => {
              * @description 新建或编辑
              * @param {any} params 表单参数
              * @param {boolean} isEditExist 是否编辑
-             * @param {any} 修改前的数据
+             * @param {any} 修改前的数据 
              */
             addOfflineTask: function (params, isEditExist, defaultData) {
                 return ajax.addOfflineTask(params)
@@ -477,30 +477,25 @@ export default connect(state => {
                                 //     type: taskTreeAction.ADD_FOLDER_CHILD,
                                 //     payload: res.data
                                 // });
-                                // benchActions.loadTreeNode(params.nodePid,"TaskDevelop")
-                                benchActions.openTaskInDev(res.data.id)
+                                // benchActions.loadTreeNode(params.nodePid, "TaskDevelop")
+                                benchActions.openTaskInDev(res.data.id);
                             }
                             else {
-                                let newData = Object.assign(defaultData, res.data);
-                                newData.originPid = defaultData.nodePid
-                                // dispatch({
-                                //     type: taskTreeAction.EDIT_FOLDER_CHILD,
-                                //     payload: newData
-                                // });
-
                                 // 更新tabs数据
                                 ajax.getOfflineTaskDetail({
-                                    id: newData.id,
+                                    id: defaultData.id,
                                 }).then(res => {
                                     if (res.code === 1) {
-                                        dispatch({
-                                            type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                                            payload: res.data,
-                                        })
+                                        benchActions.updateTabData(res.data);
                                     }
                                 });
+
+                                // 如果文件位置有移动，则进行文件移动处理
+                                if (params.nodePid !== defaultData.nodePid) {
+                                    benchActions.loadTreeNode(defaultData.nodePid, MENU_TYPE.TASK_DEV)
+                                }
                             }
-                            benchActions.loadTreeNode(params.nodePid,MENU_TYPE.TASK_DEV)
+                            benchActions.loadTreeNode(params.nodePid, MENU_TYPE.TASK_DEV)
                             return true;
                         }
                     });

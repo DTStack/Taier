@@ -105,12 +105,12 @@
   color: #fff;
 }
 
-.header .ant-menu-item-selected {
+.header > .ant-menu-item-selected {
   background-color: #262e36 !important;
   color: #fff;
 }
 
-.header .ant-menu-item-selected:hover {
+.header > .ant-menu-item-selected:hover {
   color: #fff;
 }
 

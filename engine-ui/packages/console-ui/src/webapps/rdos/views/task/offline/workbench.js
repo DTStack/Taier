@@ -51,6 +51,16 @@ class Workbench extends React.Component {
         theReqIsEnd: true,
     }
 
+    // shouldComponentUpdate (nextProps, nextState) {
+    //     if (
+    //         this.props.currentTabData !== nextProps.currentTabData ||
+    //         this.props.tabs !== nextProps.tabs
+    //     ) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
     handleMenuClick = (e) => {
         if (e.key === '1') {
             const upload = document.getElementById('importFile')
@@ -133,6 +143,8 @@ class Workbench extends React.Component {
             isSaveAvaliable = false;
         }
 
+        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd;
+
         const isTask = currentTabData && utils.checkExist(currentTabData.taskType)
 
         const disablePublish = !isTask || currentTabData.notSynced
@@ -150,7 +162,7 @@ class Workbench extends React.Component {
                     <Button
                         onClick={this.saveTab.bind(this, true)}
                         title="保存任务"
-                        disabled={!isSaveAvaliable || currentTabData.invalid || !theReqIsEnd}
+                        disabled={!isSaveAvaliable}
                     >
                         <MyIcon className="my-icon" type="save" />保存
                     </Button>
@@ -331,7 +343,6 @@ class Workbench extends React.Component {
 
                 return (
                     <TabPane
-
                         style={{ height: '0px' }}
                         tab={title}
                         key={tab.id}
@@ -355,7 +366,7 @@ class Workbench extends React.Component {
         // 修改task配置时接口要求的标记位
         result.preSave = true;
         result.submitStatus = 0;
-        saveTab(result, isSave, type);
+        saveTab(result, isSave, type); 
         setTimeout(() => {
             this.setState({
                 theReqIsEnd: true,
@@ -369,41 +380,48 @@ class Workbench extends React.Component {
             currentTab, updateTaskFields, user,
         } = this.props;
 
+
         const { publishDesc } = this.state
         const result = this.generateRqtBody(dataSync)
 
         // 添加发布描述信息
-        if (publishDesc) {
-
+        if (publishDesc) { 
             if (publishDesc.length > 200) {
                 message.error('备注信息不可超过200个字符！')
                 return false;
             }
+            // 修改task配置时接口要求的标记位
+            result.preSave = true;
+            result.submitStatus = 1; // 1-提交，0-保存
+            result.publishDesc = publishDesc;//发布信息
+            ajax.publishOfflineTask(result).then(res =>{
+                if (res.code === 1) {
+                    message.success('发布成功！');
+                    // 添加发布信息到发布记录
+                    const publishRecords = currentTabData.taskVersions || []
+                    const time = Date.now();
+                    let taskVersions = [{
+                        id: res.data.id,
+                        gmtCreate: time,
+                        userName: user.userName,
+                        publishDesc: publishDesc,
+                        sqlText: result.sqlText,
+                    }].concat(publishRecords)
+                    taskVersions = taskVersions.length >= 5 ? taskVersions.slice(0, 5) : taskVersions
+                    updateTaskFields({ taskVersions })
+                    publishTask(res);
+                    this.closePublish();
 
-            result.publishDesc = publishDesc;
-            // 添加发布信息到发布记录
-            const publishRecords = currentTabData.taskVersions || []
-            const time = Date.now()
-            let taskVersions = [{
-                id: time,
-                gmtCreate: time,
-                userName: user.userName,
-                publishDesc: publishDesc,
-                sqlText: result.sqlText,
-            }].concat(publishRecords)
-            taskVersions = taskVersions.length >= 5 ? taskVersions.slice(0, 5) : taskVersions
-            updateTaskFields({ taskVersions })
+                }else{
+                    message.error('发布失败！');
+                    this.closePublish();
+                }
+            });
         } else {
             message.error('发布备注不可为空！')
             return false;
         }
 
-        // 修改task配置时接口要求的标记位
-        result.preSave = true;
-        result.submitStatus = 1; // 1-提交，0-保存
-
-        publishTask(result);
-        this.closePublish();
     }
 
     switchTab(currentTab, tabId) {
@@ -685,22 +703,17 @@ const mapDispatch = dispatch => {
             actions.openTaskInDev(id)
         },
 
-        publishTask(params) {
-            const succCallback = (res) => {
-                if (res.code === 1) {
-                    message.success('发布成功！');
-                    dispatch({
-                        type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
-                        payload: (res.data && res.data.submitStatus) || 1
-                    });
-                    dispatch({
-                        type: workbenchAction.MAKE_TAB_CLEAN
-                    })
-                }
-            }
-            ajax.publishOfflineTask(params).then(succCallback);
+        publishTask(res) {
+            console.log('publishTask',res);
+            
+            dispatch({
+                type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
+                payload: (res.data && res.data.submitStatus) || 1
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_CLEAN
+            })
         },
-
         toggleCreateTask: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK

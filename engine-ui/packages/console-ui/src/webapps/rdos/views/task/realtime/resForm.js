@@ -47,7 +47,7 @@ class ResFormModal extends Component {
 
     validateFileType = (rule, value, callback) => {
         const reg = /\.(jar)$/
-        if (value && !reg.test(value)) {
+        if (value && !reg.test(value.toLocaleLowerCase())) {
             callback('资源文件只能是Jar文件!');
         }
         callback();
@@ -153,7 +153,7 @@ class ResFormModal extends Component {
                             rules: [{
                                 required: true, message: '存储位置必选！',
                             }],
-                            initialValue: !isEmpty(activeNode) ? activeNode.id : '',
+                            initialValue: !isEmpty(activeNode) ? activeNode.id : resRoot && resRoot[0] ? resRoot[0].id : '',
                         })(
                             <FolderPicker
                                 isPicker

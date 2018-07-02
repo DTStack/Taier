@@ -12,6 +12,18 @@ export const DATA_SOURCE = {
     ES: 11,
 }
 
+export const DATA_SOURCE_TEXT = {
+    1: 'MySql',
+    2: 'Oracle',
+    3: 'SQLServer',
+    6: 'HDFS',
+    7: 'Hive',
+    8: 'HBase',
+    9: 'FTP',
+    10: 'MaxCompute',
+    11: 'ElasticSearch'
+}
+
 // 锁类型
 export const LOCK_TYPE = {
     OFFLINE_TASK: 'BATCH_TASK',
@@ -234,7 +246,7 @@ export const offlineTaskStatusFilter = [{
     value: 4,
 }, {
     id: 5,
-    text: '完成',
+    text: '成功',
     value: 5,
 }, {
     id: 6,
@@ -380,6 +392,45 @@ export const defaultEditorOptions = { // 编辑器选项
     autofocus: false,
     // extraKeys: { 'Ctrl-Space': 'autocomplete' },
 }
+
+export const transformRuleType = { // 整库迁移高级设置转换类型
+    1: 'nameRule',
+    2: 'columnRule',
+    3: 'typeRule',
+}
+
+export const originTypeTransformRule = [ // 整库迁移高级设置字段转换规则
+    'tinyint',
+    'smallint',
+    'mediumint',
+    'int',
+    'bigint',
+    'varchar',
+    'char',
+    'tinytext',
+    'text',
+    'mediumtext',
+    'longtext',
+    'year',
+    'float',
+    'double',
+    'decimal',
+    'date',
+    'datetime',
+    'timestamp',
+    'time',
+    'bit',
+    'bool'
+]
+
+export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换规则
+    'BIGINT',
+    'STRING',
+    'DOUBLE',
+    'TIMESTAMP',
+    'BOOLEAN'
+]
+
 
 export const formItemLayout = { // 表单正常布局
     labelCol: {

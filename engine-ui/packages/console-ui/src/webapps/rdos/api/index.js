@@ -66,6 +66,9 @@ export default {
     getProjects(params) { // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)
     },
+    getAllProjects(params) {// 获取所有项目
+        return http.post(req.GET_ALL_PROJECTS, params);
+    },
     removeProjectUser(params) {
         return http.post(req.REMOVE_USER_FROM_PROJECT, params)
     },
@@ -163,7 +166,9 @@ export default {
     publishRealtimeTask(params){
         return http.post(req.PUBLISH_REALTIME_TASK, params)
     },
-
+    taskVersionScheduleConf(params){
+        return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF,params)
+    },
 
     // ========== CATALOGUE ========== //
     getCatalogues(params) {

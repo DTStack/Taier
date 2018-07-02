@@ -1,31 +1,37 @@
-import React, { Component } from 'react'
-import { cloneDeep } from 'lodash'
-import { Link, hashHistory } from 'react-router'
-import { connect } from 'react-redux';
+import React, { Component } from "react";
+import { cloneDeep } from "lodash";
+import { Link, hashHistory } from "react-router";
+import { connect } from "react-redux";
 
 import {
-    Row, Col, Card, Button,
-    Form, Select, Input, Table,
-    Radio,
-} from 'antd'
+    Row,
+    Col,
+    Card,
+    Button,
+    Form,
+    Select,
+    Input,
+    Table,
+    Radio
+} from "antd";
 
-import utils from 'utils'
-import Resize from 'widgets/resize'
+import utils from "utils";
+import Resize from "widgets/resize";
 
-import Api from "../../../api/dataManage"
-import { lineAreaChartOptions } from '../../../comm/const'
+import Api from "../../../api/dataManage";
+import { lineAreaChartOptions } from "../../../comm/const";
+import TableLog from "../../dataManage/tableLog";
+import SlidePane from "widgets/slidePane";
 
-import {
-    workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction'
+import { workbenchActions } from "../../../store/modules/offlineTask/offlineAction";
 
 // 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts')
+const echarts = require("echarts/lib/echarts");
 // 引入柱状图
-require('echarts/lib/chart/line')
+require("echarts/lib/chart/line");
 // 引入提示框和标题组件
-require('echarts/lib/component/tooltip')
-require('echarts/lib/component/title')
+require("echarts/lib/component/tooltip");
+require("echarts/lib/component/title");
 
 const Search = Input.Search;
 const FormItem = Form.Item;
@@ -37,47 +43,53 @@ const TIME_OBJ = {
     3: {
         interval: 2,
         field: 1,
-        formatter: function (time) {
-            return utils.formatDateHours(time)
+        formatter: function(time) {
+            return utils.formatDateHours(time);
         }
     },
     7: {
         interval: 3,
         field: 1,
-        formatter: function (time) {
-            return utils.formatDateHours(time)
+        formatter: function(time) {
+            return utils.formatDateHours(time);
         }
     },
     30: {
         interval: 1,
         field: 2,
-        formatter: function (time) {
-            return utils.formatDate(time)
+        formatter: function(time) {
+            return utils.formatDate(time);
         }
     },
     60: {
         interval: 1,
         field: 2,
-        formatter: function (time) {
-            return utils.formatDate(time)
-        }
-    },
-}
-
-@connect(null, (dispatch) => {
-    const actions = workbenchActions(dispatch)
-    return {
-        goToTaskDev: (id) => {
-            actions.openTaskInDev(id)
+        formatter: function(time) {
+            return utils.formatDate(time);
         }
     }
-})
-class DirtyData extends Component {
+};
 
+@connect(
+    state => {
+        return {
+            project: state.project
+        };
+    },
+    dispatch => {
+        const actions = workbenchActions(dispatch);
+        return {
+            goToTaskDev: id => {
+                actions.openTaskInDev(id);
+            }
+        };
+    }
+)
+class DirtyData extends Component {
     state = {
-        lineChart: '',
-        taskId: '',
-        tableName: '',
+        lineChart: "",
+        taskId: "",
+        tableName: "",
         produceList: { data: [] },
         top30: [],
         dirtyTables: [],
@@ -86,206 +98,220 @@ class DirtyData extends Component {
         loadingTop: false,
         loading: false,
         currentPage: 1,
-    }
+        tableLog: {
+            tableId: undefined,
+            tableName: undefined,
+            visible: false
+        }
+    };
 
     componentDidMount() {
         this.loadProduceTrendData({
-            recent: 3,
-        })
+            recent: 3
+        });
         this.loadProduceTop30({
             recent: 3,
-            topN: 30,
-        })
-        this.loadProduceData()
-        this.loadSyncTasks()
+            topN: 30
+        });
+        this.loadProduceData();
+        this.loadSyncTasks();
     }
 
     componentWillReceiveProps(nextProps) {
-        const project = nextProps.project
-        const oldProj = this.props.project
+        const project = nextProps.project;
+        const oldProj = this.props.project;
         if (oldProj && project && oldProj.id !== project.id) {
             this.loadProduceTrendData({
-                recent: 3,
-            })
+                recent: 3
+            });
             this.loadProduceTop30({
                 recent: 3,
-                topN: 30,
-            })
-            this.loadProduceData()
+                topN: 30
+            });
+            this.loadProduceData();
+            this.loadSyncTasks();
         }
     }
 
     resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
-    }
+        if (this.state.lineChart) this.state.lineChart.resize();
+    };
 
-    loadProduceTrendData = (params) => {
-        const ctx = this
+    loadProduceTrendData = params => {
+        const ctx = this;
         const time = params.recent;
         params.interval = TIME_OBJ[time].interval;
         params.field = TIME_OBJ[time].field;
 
-        Api.getDirtyDataTrend(params).then((res) => {
+        Api.getDirtyDataTrend(params).then(res => {
             if (res.code === 1) {
-                this.renderProduceTrend(res.data)
+                this.renderProduceTrend(res.data);
             }
-        })
-    }
+        });
+    };
 
-    loadProduceTop30 = (params) => {
-        const ctx = this
+    loadProduceTop30 = params => {
+        const ctx = this;
         this.setState({
-            loadingTop: true,
-        })
-        Api.top30DirtyData(params).then((res) => {
+            loadingTop: true
+        });
+        Api.top30DirtyData(params).then(res => {
             if (res.code === 1) {
-                ctx.setState({ top30: res.data })
+                ctx.setState({ top30: res.data });
             }
             this.setState({
-                loadingTop: false,
-            })
-        })
-    }
+                loadingTop: false
+            });
+        });
+    };
 
-    loadProduceData = (params) => {
-        const ctx = this
-        this.setState({ loading: true })
-        Api.getDirtyDataTables(params).then((res) => {
+    loadProduceData = params => {
+        const ctx = this;
+        this.setState({ loading: true });
+        Api.getDirtyDataTables(params).then(res => {
             if (res.code === 1) {
-                ctx.setState({ produceList: res.data })
+                ctx.setState({ produceList: res.data });
             }
             this.setState({
                 loading: false
-            })
-        })
-    }
+            });
+        });
+    };
 
-    loadSyncTasks = (params) => {
-        const ctx = this
-        Api.getPubSyncTask(params).then((res) => {
+    loadSyncTasks = params => {
+        const ctx = this;
+        Api.getPubSyncTask(params).then(res => {
             if (res.code === 1) {
-                ctx.setState({ taskList: res.data })
+                ctx.setState({ taskList: res.data });
             }
-        })
-    }
+        });
+    };
 
     search = () => {
-        const { taskId, tableName, currentPage } = this.state
+        const { taskId, tableName, currentPage } = this.state;
         this.loadProduceData({
             tableName: tableName,
             taskId: taskId,
-            pageIndex: currentPage,
-        })
-    }
+            pageIndex: currentPage
+        });
+    };
 
     onTableChange = (pagination, filters, sorter) => {
-        this.setState({
-            currentPage: pagination.current
-        }, this.search)
-    }
+        this.setState(
+            {
+                currentPage: pagination.current
+            },
+            this.search
+        );
+    };
 
-    onTimeRangeChange = (e) => {
-        const value = e.target.value
-        this.setState({ timeRange: value })
+    onTimeRangeChange = e => {
+        const value = e.target.value;
+        this.setState({ timeRange: value });
         this.loadProduceTrendData({
-            recent: value,
-        })
+            recent: value
+        });
         this.loadProduceTop30({
             recent: value,
-            topN: 30,
-        })
-    }
+            topN: 30
+        });
+    };
 
-    onTrendSelectTask = (value) => {
-        const { timeRange } = this.state
+    onTrendSelectTask = value => {
+        const { timeRange } = this.state;
         this.loadProduceTrendData({
             taskId: value,
-            recent: timeRange,
-        })
-    }
+            recent: timeRange
+        });
+    };
 
-    onTableNameChange = (e) => {
-        this.setState({ tableName: e.target.value, currentPage: 1 })
-    }
+    onTableNameChange = e => {
+        this.setState({ tableName: e.target.value, currentPage: 1 });
+    };
 
-    onTableSelectTask = (value) => {
-        this.setState({ taskId: value, currentPage: 1 })
-    }
+    onTableSelectTask = value => {
+        this.setState({ taskId: value, currentPage: 1 });
+    };
 
-    getSeries = (data) => {
-        const arr = []
+    getSeries = data => {
+        const arr = [];
         if (data && data.y) {
-            const legend = data && data.type ? data.type.data : []
+            const legend = data && data.type ? data.type.data : [];
             for (let i = 0; i < legend.length; i++) {
                 arr.push({
                     name: legend[i],
 
-                    type: 'line',
-                    data: data.y[i].data,
-                })
+                    type: "line",
+                    data: data.y[i].data
+                });
             }
         }
-        return arr
-    }
+        return arr;
+    };
 
-    renderProduceTrend = (chartData) => {
-        let myChart = echarts.init(document.getElementById('ProduceTrend'));
+    renderProduceTrend = chartData => {
+        let myChart = echarts.init(document.getElementById("ProduceTrend"));
         const option = cloneDeep(lineAreaChartOptions);
         const { timeRange } = this.state;
 
         option.grid = {
-            left: '2%',
-            right: '8%',
-            bottom: '2%',
+            left: "2%",
+            right: "8%",
+            bottom: "2%",
             containLabel: true
-        }
-        option.legend.show = false
-        option.title.text = ''
-        option.tooltip.axisPointer.label.formatter = function (obj) {
+        };
+        option.legend.show = false;
+        option.title.text = "";
+        option.tooltip.axisPointer.label.formatter = function(obj) {
             return obj ? TIME_OBJ[timeRange].formatter(+obj.value) : null;
         };
 
-        option.xAxis[0].boundaryGap = ['5%', '5%'];
-        option.xAxis[0].axisLabel.formatter = function (value) {
+        option.xAxis[0].boundaryGap = ["5%", "5%"];
+        option.xAxis[0].axisLabel.formatter = function(value) {
             return value ? TIME_OBJ[timeRange].formatter(+value) : null;
         };
 
-        option.yAxis[0].minInterval = 1
-        option.legend.data = chartData && chartData.type ? chartData.type.data : []
-        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : []
-        option.series = this.getSeries(chartData)
+        option.yAxis[0].minInterval = 1;
+        option.legend.data =
+            chartData && chartData.type ? chartData.type.data : [];
+        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [];
+        option.series = this.getSeries(chartData);
         // 绘制图表
-        console.log(option)
+        console.log(option);
         myChart.setOption(option, true);
-        this.setState({ lineChart: myChart })
-    }
+        this.setState({ lineChart: myChart });
+    };
 
     renderProduceTop30 = () => {
-        const { loadingTop, top30 } = this.state
+        const { loadingTop, top30 } = this.state;
         const columns = [
             {
-                title: '任务名称',
+                title: "任务名称",
                 width: 120,
-                dataIndex: 'taskName',
-                key: 'taskName'
-            }, {
-                title: '脏数据表',
-                dataIndex: 'tableName',
-                key: 'tableName'
-            }, {
-                title: '累计产生（条）',
-                dataIndex: 'totalNum',
-                key: 'totalNum'
-            }, {
-                title: '单次执行产生最多(条)',
-                dataIndex: 'maxNum',
-                key: 'maxNum'
-            }, {
-                title: '最近1次执行产生(条)',
-                dataIndex: 'recentNum',
-                key: 'recentNum'
+                dataIndex: "taskName",
+                key: "taskName"
             },
-        ]
+            {
+                title: "脏数据表",
+                dataIndex: "tableName",
+                key: "tableName"
+            },
+            {
+                title: "累计产生（条）",
+                dataIndex: "totalNum",
+                key: "totalNum"
+            },
+            {
+                title: "单次执行产生最多(条)",
+                dataIndex: "maxNum",
+                key: "maxNum"
+            },
+            {
+                title: "最近1次执行产生(条)",
+                dataIndex: "recentNum",
+                key: "recentNum"
+            }
+        ];
 
         return (
             <Card
@@ -303,88 +329,122 @@ class DirtyData extends Component {
                     dataSource={top30 || []}
                 />
             </Card>
-        )
+        );
+    };
+
+    showTableLog(table) {
+        const { id, tableName } = table;
+        const { tableLog } = this.state;
+        tableLog.tableId = id;
+        tableLog.tableName = tableName;
+        tableLog.visible = true;
+        this.setState({
+            tableLog
+        });
     }
 
-    renderProduceList = (taskOptions) => {
-        const { produceList, loading, currentPage } = this.state
+    closeSlidePane = () => {
+        const { tableLog } = this.state;
+        tableLog.visible = false;
+        tableLog.tableId = undefined;
+        tableLog.tableName = undefined;
+        this.setState({
+            tableLog
+        });
+    };
+
+    renderProduceList = taskOptions => {
+        const { produceList, loading, currentPage } = this.state;
         const ctx = this;
         const columns = [
             {
-                title: '表名',
-                dataIndex: 'tableName',
-                key: 'tableName'
-            }, {
-                title: '相关任务',
-                dataIndex: 'tableId',
-                key: 'tableId',
-                render: function (text, record) {
-                    const arr = (record.tasks && record.tasks.map(task =>
-                        task.isDeleted === 1 ?
-                            `${task.name} (已删除)` :
-                            <a onClick={
-                                () => {
-                                    ctx.props.goToTaskDev(task.id)
-                                }
-                            }>{task.name}</a>)
-                    ) || []
+                title: "表名",
+                dataIndex: "tableName",
+                key: "tableName"
+            },
+            {
+                title: "相关任务",
+                dataIndex: "tableId",
+                key: "tableId",
+                render: function(text, record) {
+                    const arr =
+                        (record.tasks &&
+                            record.tasks.map(
+                                task =>
+                                    task.isDeleted === 1 ? (
+                                        `${task.name} (已删除)`
+                                    ) : (
+                                        <a
+                                            onClick={() => {
+                                                ctx.props.goToTaskDev(task.id);
+                                            }}
+                                        >
+                                            {task.name}
+                                        </a>
+                                    )
+                            )) ||
+                        [];
                     return arr;
                 }
-            }, {
-                title: '责任人',
-                dataIndex: 'chargeUser',
-                key: 'chargeUser'
-            }, {
-                title: '描述',
-                dataIndex: 'tableDesc',
-                key: 'tableDesc'
-            }, {
-                title: '最近更新时间',
-                dataIndex: 'gmtModified',
-                key: 'gmtModified',
-                render: function (text) {
+            },
+            {
+                title: "责任人",
+                dataIndex: "chargeUser",
+                key: "chargeUser"
+            },
+            {
+                title: "描述",
+                dataIndex: "tableDesc",
+                key: "tableDesc"
+            },
+            {
+                title: "最近更新时间",
+                dataIndex: "gmtModified",
+                key: "gmtModified",
+                render: function(text) {
                     return utils.formatDateTime(text);
                 }
-            }, {
-                title: '占用存储',
-                dataIndex: 'tableSize',
-                key: 'tableSize'
-            }, {
-                title: '生命周期',
-                dataIndex: 'lifeDay',
-                key: 'lifeDay'
-            }, {
-                title: '操作',
-                dataIndex: 'id',
-                key: 'operation',
+            },
+            {
+                title: "占用存储",
+                dataIndex: "tableSize",
+                key: "tableSize"
+            },
+            {
+                title: "生命周期",
+                dataIndex: "lifeDay",
+                key: "lifeDay"
+            },
+            {
+                title: "操作",
+                dataIndex: "id",
+                key: "operation",
                 render(id, record) {
                     return (
                         <span>
-                            <Link to={`/operation/dirty-data/table/${id}`}>详情</Link>
+                            <Link to={`/operation/dirty-data/table/${id}`}>
+                                详情
+                            </Link>
                             <span className="ant-divider" />
-                            <a onClick={() => {
-                                hashHistory.push({
-                                    pathname: '/operation/log',
-                                    query: {
-                                        id: id,
-                                        tableName: record.tableName
-                                    }
-                                })
-                            }}>操作记录</a>
+                            <a
+                                href="javascript:void(0)"
+                                onClick={ctx.showTableLog.bind(ctx, record)}
+                            >
+                                操作记录
+                            </a>
                         </span>
-                    )
+                    );
                 }
-            },
-        ]
+            }
+        ];
 
         const title = (
-            <Form layout="inline"
+            <Form
+                layout="inline"
                 className="m-form-inline"
-                style={{ marginTop: '10px' }}
+                style={{ marginTop: "10px" }}
             >
-                <FormItem
-                    label="选择任务"
-                >
+                <FormItem label="选择任务">
                     <Select
                         allowClear
                         showSearch
@@ -406,7 +466,9 @@ class DirtyData extends Component {
                     />
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" size="default" onClick={this.search}>搜索</Button>
+                    <Button type="primary" size="default" onClick={this.search}>
+                        搜索
+                    </Button>
                 </FormItem>
             </Form>
         );
@@ -414,11 +476,12 @@ class DirtyData extends Component {
         const pagination = {
             total: produceList.totalCount,
             defaultPageSize: 10,
-            current: currentPage,
+            current: currentPage
         };
 
         return (
-            <Card title={title}
+            <Card
+                title={title}
                 noHovering
                 bordered={false}
                 loading={false}
@@ -428,28 +491,31 @@ class DirtyData extends Component {
                     rowKey="tableName"
                     className="m-table"
                     pagination={pagination}
-                    style={{ minHeight: '0' }}
+                    style={{ minHeight: "0" }}
                     loading={loading}
                     columns={columns}
                     onChange={this.onTableChange}
                     dataSource={produceList.data || []}
                 />
             </Card>
-        )
-    }
+        );
+    };
 
     render() {
-
-        const { taskList } = this.state
-
-        const taskOptions = taskList && taskList.map(option =>
-            <Option
-                key={option.id}
-                name={option.taskName}
-                value={`${option.id}`}>
-                {option.taskName}
-            </Option>
-        )
+        const { taskList, tableLog } = this.state;
+        const projectUsers = [];
+        const taskOptions =
+            taskList &&
+            taskList.map(option => (
+                <Option
+                    key={option.id}
+                    name={option.taskName}
+                    title={option.taskName}
+                    value={`${option.id}`}
+                >
+                    {option.taskName}
+                </Option>
+            ));
 
         return (
             <div className="dirty-data m-card">
@@ -459,7 +525,7 @@ class DirtyData extends Component {
                         <RadioGroup
                             defaultValue={3}
                             onChange={this.onTimeRangeChange}
-                            style={{ marginTop: '8.5px' }}
+                            style={{ marginTop: "8.5px" }}
                         >
                             <RadioButton value={3}>最近3天</RadioButton>
                             <RadioButton value={7}>最近7天</RadioButton>
@@ -468,35 +534,69 @@ class DirtyData extends Component {
                         </RadioGroup>
                     </span>
                 </h1>
-                <Row style={{ margin: '0 20px' }}>
-                    <Col span={12} style={{ paddingRight: '10px' }}>
-                        <Card className="shadow" noHovering bordered={false} title="脏数据产生趋势" extra={
-                            <Select
-                                allowClear
-                                showSearch
-                                style={{ width: 150, marginTop: '10px' }}
-                                placeholder="请选择任务"
-                                onChange={this.onTrendSelectTask}
-                                optionFilterProp="name"
-                            >
-                                {taskOptions}
-                            </Select>
-                        }>
+                <Row style={{ margin: "0 20px" }}>
+                    <Col span={12} style={{ paddingRight: "10px" }}>
+                        <Card
+                            className="shadow"
+                            noHovering
+                            bordered={false}
+                            title="脏数据产生趋势"
+                            extra={
+                                <Select
+                                    allowClear
+                                    showSearch
+                                    style={{ width: 150, marginTop: "10px" }}
+                                    placeholder="请选择任务"
+                                    onChange={this.onTrendSelectTask}
+                                    optionFilterProp="name"
+                                >
+                                    {taskOptions}
+                                </Select>
+                            }
+                        >
                             <Resize onResize={this.resize}>
-                                <section id="ProduceTrend" style={{ height: '300px', padding: '0 20px 20px 20px' }}></section>
+                                <section
+                                    id="ProduceTrend"
+                                    style={{
+                                        height: "300px",
+                                        padding: "0 20px 20px 20px"
+                                    }}
+                                />
                             </Resize>
                         </Card>
                     </Col>
-                    <Col span={12} style={{ paddingLeft: '10px' }}>
+                    <Col span={12} style={{ paddingLeft: "10px" }}>
                         {this.renderProduceTop30()}
                     </Col>
                 </Row>
-                <Row style={{ margin: '20px' }}>
+                <Row style={{ margin: "20px" }}>
                     {this.renderProduceList(taskOptions)}
                 </Row>
+                {tableLog.visible ? (
+                    <SlidePane
+                        onClose={this.closeSlidePane}
+                        visible={tableLog.visible}
+                        style={{
+                            right: "-20px",
+                            width: "80%",
+                            height: "100%",
+                            minHeight: "600px"
+                        }}
+                    >
+                        <div className="m-loglist">
+                            <TableLog
+                                key={tableLog.tableId}
+                                {...tableLog}
+                                projectUsers={projectUsers}
+                            />
+                        </div>
+                    </SlidePane>
+                ) : (
+                    ""
+                )}
             </div>
-        )
+        );
     }
 }
 
-export default DirtyData
+export default DirtyData;

@@ -133,6 +133,9 @@ class OfflineTaskMana extends Component {
             message.error('您没有选择任何任务！')
             return false;
         }
+
+        console.log('selected:',selected);
+            
        
         Api.forzenTask({
             taskIdList: selected, 

@@ -225,11 +225,7 @@ class ScriptModal extends React.Component {
     }
 
     handleSubmit() {
-        const { 
-            isModalShow, toggleCreateScript, 
-            createScript, defaultData 
-        } = this.props;
-
+        const { defaultData } = this.props;
         const form = this.form;
 
         const isCreateNormal = typeof defaultData === 'undefined';
@@ -247,11 +243,13 @@ class ScriptModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO); 
                 }
 
-                this.closeModal();
-                createScript(values, isEditExist, defaultData);
-                setTimeout(()=> {
-                    form.resetFields();
-                }, 500);
+                this.props.createScript(values, isEditExist, defaultData)
+                    .then(success => {
+                        if (success) {
+                            this.closeModal();
+                            form.resetFields();
+                        }
+                    });
             }
         })
     }
@@ -288,7 +286,6 @@ class ScriptModal extends React.Component {
                             onClick={ this.handleSubmit }
                         > 确认 </Button>
                     ]}
-                    key={ this.dtcount }
                     onCancel={this.closeModal}
                 >
                     <ScriptFormWrapper
@@ -324,47 +321,52 @@ dispatch => {
          * @param {any} 修改前的数据
          */
         createScript: function(params, isEditExist, defaultData) {
-            ajax.saveScript(params)
+            return ajax.saveScript(params)
                 .then(res => {
-                    ajax.getScriptById({
-                        id: res.data.id
-                    }).then(res2 => {
-                        if(!isEditExist) {
+                    if (res.code === 1) {
+                        ajax.getScriptById({
+                            id: res.data.id
+                        }).then(res2 => {
+                            if(!isEditExist) {
 
-                            const newScriptCata = res.data;
-                            if (newScriptCata.catalogueType) {
-                                newScriptCata.catalogueType = MENU_TYPE.SCRIPT
+                                const newScriptCata = res.data;
+                                if (newScriptCata.catalogueType) {
+                                    newScriptCata.catalogueType = MENU_TYPE.SCRIPT
+                                }
+
+                                dispatch({
+                                    type: scriptTreeAction.ADD_FOLDER_CHILD,
+                                    payload: newScriptCata
+                                });
+
+                                dispatch({
+                                    type: workbenchAction.LOAD_TASK_DETAIL,
+                                    payload: res2.data
+                                });
+
+                                dispatch({
+                                    type: workbenchAction.OPEN_TASK_TAB,
+                                    payload: res2.data.id
+                                });
+                            }
+                            else {
+                                let newData = Object.assign(defaultData, res.data);
+                                newData.originPid = defaultData.nodePid
+                                dispatch({
+                                    type: scriptTreeAction.EDIT_FOLDER_CHILD,
+                                    payload: newData
+                                });
+
+                                dispatch({
+                                    type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                                    payload: res2.data
+                                });
                             }
 
-                            dispatch({
-                                type: scriptTreeAction.ADD_FOLDER_CHILD,
-                                payload: newScriptCata
-                            });
-
-                            dispatch({
-                                type: workbenchAction.LOAD_TASK_DETAIL,
-                                payload: res2.data
-                            });
-
-                            dispatch({
-                                type: workbenchAction.OPEN_TASK_TAB,
-                                payload: res2.data.id
-                            });
-                        }
-                        else {
-                            let newData = Object.assign(defaultData, res.data);
-                            newData.originPid = defaultData.nodePid
-                            dispatch({
-                                type: scriptTreeAction.EDIT_FOLDER_CHILD,
-                                payload: newData
-                            });
-
-                            dispatch({
-                                type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                                payload: res2.data
-                            });
-                        }
-                    })
+                        });
+                        
+                        return true;
+                    }
                 });
         },
 

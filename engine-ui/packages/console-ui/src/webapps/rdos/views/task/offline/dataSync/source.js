@@ -5,7 +5,7 @@ import {
     Button, Icon, Table,
     message, Radio
 } from 'antd';
-import { isEmpty } from 'lodash';
+import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
 import ajax from '../../../../api';
@@ -17,12 +17,12 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import { matchTaskParams } from '../../../../comm';
-import { DatabaseType } from '../../../../components/status';
 
 import {
     formItemLayout,
     dataSourceTypes,
     DATA_SOURCE,
+    DATA_SOURCE_TEXT
 } from '../../../../comm/const';
 
 const FormItem = Form.Item;
@@ -99,6 +99,8 @@ class SourceForm extends React.Component {
         }).then(res => {
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
+            } else {
+                handleTableColumnChange([]);
             }
         })
     }
@@ -220,6 +222,7 @@ class SourceForm extends React.Component {
                 validateFields.push('encoding')
             }
         }
+
         form.validateFieldsAndScroll(validateFields, { force: true }, (err, values) => {
             if (!err) {
                 cb.call(null, 1);
@@ -258,18 +261,15 @@ class SourceForm extends React.Component {
                             disabled={ !isCurrentTabNew }
                         >
                             {dataSourceList.map(src => {
-                                return (
-                                    <Option
-                                        key={src.id}
-                                        name={src.dataName}
-                                        value={`${src.id}`}
-                                        disabled={
-                                            src.type === DATA_SOURCE.ES
-                                        }
-                                    >
-                                        {src.dataName}( <DatabaseType value={src.type} /> )
-                                    </Option>
-                                )
+                                let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+
+                                return <Option
+                                    key={src.id}
+                                    name={src.dataName}
+                                    value={`${src.id}`}
+                                    disabled={src.type === DATA_SOURCE.ES}>
+                                    {title}
+                                </Option>
                             })}
                         </Select>
                     )}
@@ -353,6 +353,8 @@ class SourceForm extends React.Component {
         }
     }
 
+    debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
+
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
@@ -381,7 +383,7 @@ class SourceForm extends React.Component {
                                 mode="combobox"
                                 showSearch
                                 showArrow={true}
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -450,7 +452,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -576,7 +578,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onBlur={this.changeTable.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this)}
                                 disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

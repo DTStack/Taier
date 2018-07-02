@@ -22,6 +22,7 @@ import ajax from '../../../api';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounceEventHander } from '../../../comm';
+import HelpDoc from '../../helpDoc';
 
 const Panel = Collapse.Panel;
 const Option = Select.Option;
@@ -359,7 +360,7 @@ class ScheduleForm extends React.Component {
                         dom = <span  key={type}>
                             <FormItem
                                 {...formItemLayout}
-                                label="起调周期"
+                                label="具体时间"
                             >
                             <Col span="6">
                             {getFieldDecorator('hour', {
@@ -579,6 +580,28 @@ class SchedulingConfig extends React.Component {
         this.props.changeScheduleStatus(checked ? 2 : 1);
     }
 
+    handleScheduleStatus(evt) {
+        const { checked } = evt.target;
+        const status = checked ? 2 : 1;
+        const { tabData }  = this.props;
+        const succInfo = checked ? "冻结成功" : "解冻成功";
+        const errInfo = checked ? "冻结失败" : "解冻失败";
+
+        ajax.forzenTask({
+            taskIdList: [tabData.id], 
+            scheduleStatus: status  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+        }).then((res) => {
+            if (res.code === 1) {
+                 // mutate
+                this.props.changeScheduleStatus(status);
+                message.info(succInfo)
+            }else{
+                message.err(errInfo)
+            }
+        })
+       
+    }
+
     handleScheduleConf() {
         setTimeout(() => {
             this.form.validateFields((err, values) => {
@@ -747,7 +770,7 @@ class SchedulingConfig extends React.Component {
                         </Row>
                     </Panel>
                 }
-                <Panel key="3" header="自依赖">
+                <Panel key="3" header="跨周期依赖">
                     <Row>
                         <Col span="1" />
                         <Col>
@@ -755,8 +778,16 @@ class SchedulingConfig extends React.Component {
                                 value={ this._selfReliance }
                             >
                                 <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
-                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期结束，才能继续运行</Radio>
-                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期结束，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={3}>
+                                    自依赖，等待上一调度周期结束，才能继续运行&nbsp;
+                                    <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                </Radio>
+                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
+                                <Radio style={radioStyle} value={4}>
+                                    等待下游任务的上一周期结束，才能继续运行&nbsp;
+                                    <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                </Radio>
                             </RadioGroup>
                         </Col>
                     </Row>

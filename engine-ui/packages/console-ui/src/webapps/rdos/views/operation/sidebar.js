@@ -94,11 +94,11 @@ export default class Sidebar extends Component {
                             <Icon type="book" />脏数据管理
                         </Link>
                     </Menu.Item>
-                    <Menu.Item key="log">
+                    {/* <Menu.Item key="log">
                         <Link to={`${base}/log`}>
                             <Icon type="book" />表操作记录
                         </Link>
-                    </Menu.Item>
+                    </Menu.Item> */}
                 </Menu>
             </div>
         )

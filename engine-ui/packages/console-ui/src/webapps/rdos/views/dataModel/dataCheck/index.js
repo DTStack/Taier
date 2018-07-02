@@ -1,25 +1,30 @@
 import React, { Component } from 'react';
 import { Tabs } from 'antd';
+import { connect } from 'react-redux';
 
 import FieldCheck from './fieldCheck';
 import ModelCheck from './modelCheck';
 
 const TabPane = Tabs.TabPane;
 
-export default class DMCheckCenter extends Component {
+class DMCheckCenter extends Component {
 
     render() {
         return (
             <div className="box-1 m-tabs">
                 <Tabs animated={false} style={{height: 'auto'}}>
                     <TabPane tab="模型检测" key="1">
-                        <ModelCheck />
+                        <ModelCheck {...this.props}/>
                     </TabPane>
                     <TabPane tab="字段检测" key="2">
-                        <FieldCheck />
+                        <FieldCheck {...this.props}/>
                     </TabPane>
                 </Tabs>
             </div>
         )
     }
 }
+
+export default connect(state => ({
+    project: state.project
+}), null)(DMCheckCenter);

@@ -56,7 +56,6 @@ export default class BaseForm extends React.Component {
         } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
             fields.subject = value;
         }
-        console.log('--------fields:',fields);
         
         this.props.form.setFieldsValue(fields)
     }
@@ -124,7 +123,6 @@ export default class BaseForm extends React.Component {
             incrementCounts, freshFrequencies, tableNameRules, tableName
         } = this.props;
         const { tableNameArr } = this.state;
-        console.log('---------tableNameArr:',tableNameArr,tableNameRules);
         const inlineStyle = { width: 100, display: 'inline-block' }
         const renderRules = (rule, index) => {
             let data = [];
@@ -206,7 +204,6 @@ export default class BaseForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        console.log('------------this.props',this.props);
         
         const { 
             tableName, tableDesc, delim, dataCatalogue,

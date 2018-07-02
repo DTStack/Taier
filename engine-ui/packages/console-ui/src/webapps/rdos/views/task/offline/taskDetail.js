@@ -52,7 +52,7 @@ function TaskInfo(props) {
             </Row>
             <Row>
                 <Col span="10" className="txt-right">最近修改人员：</Col>
-                <Col span="14">{taskInfo.modifyUser.userName}</Col>
+                <Col span="14">{taskInfo.readWriteLockVO.lastKeepLockUserName}</Col>
             </Row>
             <Row>
                 <Col span="10" className="txt-right">最近修改时间：</Col>
@@ -61,9 +61,9 @@ function TaskInfo(props) {
             <Row>
                 <Col span="10" className="txt-right">描述：</Col>
                 <Col span="14" style={{
-                                lineHeight: '20px',
-                                padding: '10 0'
-                            }}>{taskInfo.taskDesc}</Col>
+                        lineHeight: '20px',
+                        padding: '10 0'
+                    }}>{taskInfo.taskDesc}</Col>
             </Row>
         </Row>
     )

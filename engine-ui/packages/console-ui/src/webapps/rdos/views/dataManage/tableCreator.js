@@ -331,7 +331,7 @@ export class RowItem extends React.Component {
                 <Input name="columnName" value={ columnName }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={isPartition}
+                    disabled={isSaved}
                 />
             </Col>
             <Col span={8} className="cell">
@@ -350,7 +350,7 @@ export class RowItem extends React.Component {
                     value={ comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
-                    disabled={isPartition}
+                    disabled={isSaved}
                 />
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>

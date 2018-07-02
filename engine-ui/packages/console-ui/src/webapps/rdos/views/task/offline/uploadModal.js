@@ -41,7 +41,7 @@ class ResForm extends React.Component {
     validateFileType(rule, value, callback) {
         const reg = /\.(jar|sql|py)$/
 
-        if (value && !reg.test(value)) {
+        if (value && !reg.test(value.toLocaleLowerCase())) {
             callback('资源文件只能是Jar、SQL或者Python文件!');
         }
         callback();
@@ -362,18 +362,20 @@ class ResModal extends React.Component {
     }
 
     handleSubmit() {
-        const { isModalShow, toggleUploadModal, addResource } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
             if(!err) {
-                this.closeModal();
                 values.file = this.state.file.files[0];
-                addResource(values);
-                setTimeout(()=> {
-                    this.setState({ file: '' })
-                    form.resetFields();
-                }, 500);
+
+                this.props.addResource(values)
+                    .then(success => {
+                        if (success) {
+                            this.closeModal();
+                            this.setState({ file: '' });
+                            form.resetFields();
+                        }
+                    });
             }
         });
     }
@@ -448,16 +450,19 @@ dispatch => {
         },
 
         addResource: function(params) {
-            ajax.addOfflineResource(params)
+            return ajax.addOfflineResource(params)
                 .then(res => {
                     let {data} = res;
 
                     if(res.code === 1) {
-                        message.success('资源上传成功！')
+                        message.success('资源上传成功！');
+
                         dispatch({
                             type: resTreeAction.ADD_FOLDER_CHILD,
                             payload: data
                         });
+
+                        return true;
                     }
                 })
         },

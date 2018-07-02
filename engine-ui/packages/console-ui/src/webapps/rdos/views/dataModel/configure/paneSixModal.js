@@ -5,7 +5,7 @@ import {
     Radio, Modal,
 } from 'antd'
 
-import Api from '../../../api'
+import Api from '../../../api/dataModel'
 import { formItemLayout } from '../../../comm/const'
 import LifeCycle from '../../dataManage/lifeCycle'
 
@@ -15,7 +15,36 @@ const Option = Select.Option;
 
 class AtomIndexDefineModal extends Component {
 
-    state = { }
+    state = { 
+        columnTypes:[],
+        types: [],
+    }
+
+    
+    componentDidMount() {
+        this.getColumnType();
+        this.getType();
+    }
+
+    getColumnType() {
+        Api.getColumnType().then(res =>{
+            if(res.code === 1){
+                this.setState({
+                    columnTypes: res.data||[]
+                })
+            } 
+        })
+    }
+
+    getType() {
+        Api.getType().then(res =>{
+            if(res.code === 1){
+                this.setState({
+                    types: res.data||[]
+                })
+            } 
+        })
+    }
 
     submit = (e) => {
         e.preventDefault()
@@ -45,12 +74,9 @@ class AtomIndexDefineModal extends Component {
     }
 
     render() {
-
-        const {
-            form, visible, data
-        } = this.props
-
-        const { getFieldDecorator } = form
+        const { form, visible, data } = this.props;
+        const { columnTypes,types } = this.state;
+        const { getFieldDecorator } = form;
 
         const isEdit = data && !isEmpty(data);
         const title = isEdit ? '编辑原子指标': '创建原子指标'
@@ -90,8 +116,8 @@ class AtomIndexDefineModal extends Component {
                             rules: [{
                                 required: true, message: '原子指标命名不可为空！',
                             }, {
-                                pattern: /^[A-Za-z0-9]+$/,
-                                message: '原子指标命名只能由字母、数字组成!',
+                                pattern: /^[A-Za-z0-9_]+$/,
+                                message: '原子指标命名只能由字母、数字、下划线组成!',
                             }, {
                                 max: 64,
                                 message: '原子指标命名不得超过64个字符！',
@@ -106,12 +132,12 @@ class AtomIndexDefineModal extends Component {
                         label="指标口径"
                         hasFeedback
                     >
-                        {getFieldDecorator('indexDesc', {
+                        {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
                                 message: '指标口径请控制在200个字符以内！',
                             }],
-                            initialValue: data ? data.indexDesc : '',
+                            initialValue: data ? data.modelDesc : '',
                         })(
                             <Input type="textarea" rows={4} />,
                         )}
@@ -123,11 +149,12 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('columnType', {
                             rules: [],
-                            initialValue: data ? data.columnType : '1',
+                            initialValue: data ? data.columnType.toString() : 1,
                         })(
                             <Select>
-                                <Option value="1">原子指标</Option>
-                                <Option value="2">修饰词</Option>
+                                {
+                                    types.map((v,index)=><Option value={index+1}>{v}</Option>)
+                                }
                             </Select>,
                         )}
                     </FormItem>
@@ -138,11 +165,12 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('dataType', {
                             rules: [],
-                            initialValue: data ? data.dataType : 'string',
+                            initialValue: data ? data.dataType : 'STRING',
                         })(
                             <Select>
-                                <Option value="string">string</Option>
-                                <Option value="bigint">bigint</Option>
+                                {
+                                    columnTypes.map(v=> <Option value={v}>{v}</Option>)
+                                }
                             </Select>,
                         )}
                     </FormItem>

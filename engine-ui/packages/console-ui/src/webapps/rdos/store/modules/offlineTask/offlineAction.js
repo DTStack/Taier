@@ -160,6 +160,14 @@ export const keyMapActions = (dispatch) => {
 export const workbenchActions = (dispatch) => {
 
     return {
+
+        updateTabData: (data) => {
+            dispatch({
+                type: workbenchAction.UPDATE_TASK_TAB,
+                payload: data
+            });
+        },
+
         openTaskInDev: (id) => {
             ajax.getOfflineTaskDetail({
                 id: id
@@ -199,21 +207,17 @@ export const workbenchActions = (dispatch) => {
                         id: id,
                     }).then(succCallBack);
                 }
-                dispatch({
-                    type: editorAction.SET_SELECTION_CONTENT,
-                    data: '',
-                })
             }
             else {
                 id !== currentTab && dispatch({
                     type: workbenchAction.OPEN_TASK_TAB,
                     payload: id
                 });
-                dispatch({
-                    type: editorAction.SET_SELECTION_CONTENT,
-                    data: '',
-                })
             }
+            dispatch({
+                type: editorAction.SET_SELECTION_CONTENT,
+                data: '',
+            })
         },
 
         loadTreeNode: (nodePid, type) => {
