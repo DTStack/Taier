@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Input } from "antd"
+import moment from "moment";
+
 import SlidePane from "./approvedSlidePane";
 import utils from "utils"
 const sortType = {
@@ -98,14 +100,31 @@ class NoApprovedCard extends Component {
                 return <a onClick={this.openApprovedState.bind(this, record)} >{text}</a>
             }
         }, {
-            title: '描述',
-            dataIndex: 'apiDesc',
-            key: 'apiDesc',
+            title: '申请次数',
+            dataIndex: 'callLimit',
+            key: 'callLimit',
+            width:"100px",
+            render(text){
+                if(text==-1){
+                    return "无限制"
+                }
+                return text;
+            }
+        },{
+            title: '申请周期',
+            dataIndex: 'applyDateRange',
+            key: 'applyDateRange',
+            render(text,record){
+                if(!record.beginTime||!record.endTime){
+                    return "无时间限制";
+                }
+                return <span>{new moment(record.beginTime).format("YYYY-MM-DD")} ~ {new moment(record.endTime).format("YYYY-MM-DD")}</span>
+            }
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
-            width: "250px"
+            width: "300px"
 
         }, {
             title: '申请时间',
@@ -163,7 +182,7 @@ class NoApprovedCard extends Component {
 
                     <Search
                         placeholder="输入API名称搜索"
-                        style={{ width: 150, margin: '10px 0px', marginLeft: "10px" }}
+                        style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
                         onSearch={this.handleApiSearch.bind(this)}
                     />
 

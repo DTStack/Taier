@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Card, Icon, Row, Col, Button, Table } from "antd"
 import { Link } from "react-router";
 import { apiMarketActions } from '../../../actions/apiMarket';
-import Content from './content'
+import Content from '../../../components/apiContent'
 import TopCard from "./topCard"
 
 const mapStateToProps = state => {
@@ -105,11 +105,13 @@ class APIDetail extends Component {
     }
 
     render() {
+        const { apiMarket } =this.props;
+        const { apiId } =this.state;
         return (
             <div>
                 <TopCard {...this.state} {...this.props} ></TopCard>
                 <Card className="box-1" noHovering>
-                    <Content {...this.state} {...this.props}/>>
+                    <Content apiMarket={apiMarket} apiId={apiId} />>
                 </Card>
             </div>
         )

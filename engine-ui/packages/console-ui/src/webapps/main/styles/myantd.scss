@@ -58,6 +58,13 @@
 }
 
 .m-table {
+    &.m-table-showselect{
+        .ant-table-thead{
+            .ant-table-selection-column>span{
+                visibility:unset;
+            }
+        }
+    }
     .ant-pagination {
         margin-right: 20px !important;
         .ant-pagination-item {

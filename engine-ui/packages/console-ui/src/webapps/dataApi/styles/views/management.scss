@@ -265,3 +265,151 @@
 .noheight .ant-cascader-menu{
     height:auto;
 }
+.h-mini{
+    height: 25px;
+}
+.m-table .ant-table-tbody > tr.h-mini > td{
+    padding-top:0px;
+    padding-bottom: 0px;
+}
+.m-table .rank-number{
+    width:16px;
+    line-height: 16px;
+}
+.modeChooseBox{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80%;
+}
+.modeChooseItem{
+    cursor: pointer;
+    width:300px;
+    height:170px;
+    padding: 10px 25px;
+    text-align: center;
+    border: 1px rgba(0, 204, 204, 1) solid;
+}
+.modeChooseItem:hover{
+    box-shadow: 0 0 15px 0px rgba(0, 204, 204, 0.5);
+    border-color: rgba(0, 204, 204, 0.5);
+}
+.modeChooseItem .modeTitle{
+    display: flex;
+    align-items: center;
+    height: 42px;
+    line-height: 42px;
+    font-size:24px;
+    font-weight: bold;
+    color:#666666;
+}
+.modeChooseItem .modeTitle img{
+    width: 42px;
+    height: 42px;
+    margin-right: 20px;
+}
+.modeChooseItem .modeDesc{
+    text-align: left;
+    font-size: 13px;
+    margin-top:15px;
+    padding: 10px 30px;
+    color:#666666;
+    font-style: normal;
+    font-weight: 400;
+    word-break: break-all;
+}
+.modeChooseItem.leftItem{
+    margin-right: 15%;
+}
+.paramsConfigBox{
+    display: flex;
+    justify-content: space-between;
+}
+.paramsConfig_data{
+    flex-basis: 250px;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+.paramsConfig_arrow{
+    padding: 0px 30px;
+    flex-basis: 110px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+.paramsConfig_param{
+    width:700px;
+    flex-basis: 700px;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+.required-tip:before{
+    content:"*";
+    color:rgba(255, 0, 0, 0.84  );
+    font-size:12px;
+    position: absolute;
+    left: -12px;
+    top:50%;
+    transform: translateY(-50%);
+}
+.required-tip{
+    position: relative;
+}
+.middle-title{
+    color:rgba(0,0,0,0.84);
+    font-size: 14px;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 30px;
+}
+.middle-header{
+    margin:12px 30px;
+}
+.params_exchange_box{
+    position: absolute;
+    left:-100px;
+    top:0px;
+}
+.params_exchange_button{
+    cursor: pointer;
+    display: block;
+    font-size:24px;
+    margin-bottom:5px;
+    color:rgba(1,1,1,0.64);
+    transition: .3s;
+}
+.params_exchange_button:hover{
+    color:rgba(1,1,1,1);
+}
+.params_exchange_button.params_exchange_button_disable{
+    cursor: not-allowed;
+    color:rgba(0.5,0.5,0.5,0.14);
+}
+.params_exchange_button.params_exchange_button_disable:hover{
+    color:rgba(0.5,0.5,0.5,0.14);
+}
+.params_result_check{
+    font-size:12px;
+}
+.testApi_box{
+    display: flex;
+}
+.left_box{
+    flex-basis: 500px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+.right_box{
+    width: 600px;
+    flex-basis: 600px;
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding-left:30px;
+}
+.shadowtext{
+    font-size: 12px;
+    color:rgba(1,1,1,0.34);
+}
+.textarea_white_disable.ant-input-disabled{
+    background: rgba(1,1,1,0.7);
+    color:#fff;
+}

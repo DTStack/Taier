@@ -44,7 +44,9 @@ class BuyManageState extends Component {
             enAbleKey: Math.random(),
             total: 0,
             dataDisable: [],
-            dataEnable: []
+            dataEnable: [],
+            data:[],
+            total:0
         })
     }
     componentWillReceiveProps(nextProps) {

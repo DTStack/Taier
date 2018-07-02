@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table,Modal } from "antd"
+import { Table, Modal } from "antd"
 import utils from "utils"
 const errorType = {
     1: "禁用",
@@ -19,20 +19,38 @@ class errorLog extends Component {
         loading: false,
         pageIndex: 1,
         total: 0,
-        filter:{}
+        filter: {}
     }
     componentDidMount() {
-
-        this.getErrorInfo();
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
+        this.getErrorInfo(apiId,dateType);
 
     }
-    getErrorInfo(apiId) {
-        apiId=apiId||this.props.showRecord.apiId;
+    componentWillReceiveProps(nextProps) {
+        const { showRecord: nextShowRecord = {}, dateType:nextDateType } = nextProps;
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
+        const { apiId: nextApiId } = nextShowRecord;
+
+        if (apiId !== nextApiId || dateType !== nextDateType) {
+            this.setState({
+                apiId: nextProps.showRecord.apiId
+            },
+                () => {
+                    if (nextProps.slidePaneShow) {
+                        this.getErrorInfo(nextApiId,nextDateType);
+                    }
+                })
+        }
+    }
+    getErrorInfo(apiId,dateType) {
+
         if (!apiId) {
             return;
         }
-        
-        this.props.getApiCallErrorInfo(apiId)
+
+        this.props.getApiCallErrorInfo(apiId,dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -54,7 +72,7 @@ class errorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0],dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -68,17 +86,6 @@ class errorLog extends Component {
 
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (
-            (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
-        ) {
-            if(nextProps.slidePaneShow){
-                this.getErrorInfo(nextProps.showRecord.apiId);
-            }
-            
-
-        }
-    }
     initColumns() {
         return [{
             title: '调用时间',
@@ -103,7 +110,7 @@ class errorLog extends Component {
                 { text: '超出限制', value: '5' },
                 { text: '其他', value: '6' }
             ],
-            filterMultiple:false
+            filterMultiple: false
         }, {
             title: '错误日志',
             dataIndex: 'content',
@@ -114,9 +121,9 @@ class errorLog extends Component {
             title: '操作',
             dataIndex: '',
             key: 'deal',
-            render: (text,record) => {
+            render: (text, record) => {
                 return (
-                    <a onClick={this.lookAllErrorText.bind(this,record.content)}>查看全部</a>
+                    <a onClick={this.lookAllErrorText.bind(this, record.content)}>查看全部</a>
                 )
             }
         }]
@@ -135,7 +142,7 @@ class errorLog extends Component {
     onTableChange = (page, filter, sorter) => {
         this.setState({
             pageIndex: page.current,
-            filter:filter
+            filter: filter
         },
             () => {
                 this.getErrorInfo();
@@ -147,7 +154,7 @@ class errorLog extends Component {
             content: (
                 <div>
                     <p>{text}</p>
-                    
+
                 </div>
             ),
             onOk() { },
@@ -160,10 +167,10 @@ class errorLog extends Component {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
     render() {
-      
-        
+
+
         return (
-            <div>
+            <div style={{ padding: "10px 30px" }}>
                 <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
                     <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
                     <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
