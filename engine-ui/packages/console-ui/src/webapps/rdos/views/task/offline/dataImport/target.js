@@ -227,10 +227,10 @@ export default class ImportTarget extends Component {
             title: sourceTitle,
             key: 'source_part',
             render: (text, record, index) => {
-                let columnIndex=index+(pagination.current-1)*pagination.pageSize
+                let columnIndex=index+(pagination.current-1)*pagination.pageSize;
                 return (<span>
                     <Select
-                        value={formState.matchType === 0?'':columnMap[columnIndex]}
+                        value={formState.matchType === 0 ? '' :columnMap[columnIndex]}
                         disabled={formState.matchType === 0}
                         onSelect={(value) => { this.mapChange(value, columnIndex) }}
                         style={{ width: '200px' }}
