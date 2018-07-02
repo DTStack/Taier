@@ -1,22 +1,23 @@
 import React, { Component } from "react";
-import { Menu, Card, Table, Tabs, Radio } from "antd"
+import { Tabs, Radio, Row, Col } from "antd"
 
 import SlidePane from "widgets/slidePane";
-import { API_USER_STATUS } from "../../consts/index.js";
 
-import ApiCallMethod from "./others/apiCallMethod";
-import ApiCallState from "./others/apiCallState";
-import ErrorLog from "./others/errorLog";
+import { API_SYSTEM_STATUS } from "../../../consts";
+import ApiCallMethod from "../../myApi/others/apiCallMethod";
+import BuyManageState from "./tabPanes/buyState";
+import ApiCallState from "./tabPanes/callState";
+import ErrorLog from "./tabPanes/errorLog";
 
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-class detailSlidePane extends Component {
+class apiSlidePane extends Component {
     state = {
         approvedText: "同意",
         applyText: "申请调用此接口，请批准",
         nowView: "callMethod",
-        date:"1"
+        date: "1"
 
     }
 
@@ -50,6 +51,7 @@ class detailSlidePane extends Component {
                             <RadioButton value='1'>最近24小时</RadioButton>
                             <RadioButton value='7'>最近7天</RadioButton>
                             <RadioButton value='30'>最近30天</RadioButton>
+                            <RadioButton value='-1'>历史以来</RadioButton>
                         </RadioGroup>
                     </div>
                 );
@@ -62,31 +64,43 @@ class detailSlidePane extends Component {
 
 
     render() {
+        const { showRecord = {} } = this.props;
+        const { status } = showRecord;
+        const isDisAble = status == API_SYSTEM_STATUS.STOP ? true : false;
 
         return (
             <SlidePane
                 className="m-tabs tabs-filter-show"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '750px', height: '100%' }}
+                style={{ right: '-20px', width: '80%', minHeight: '800px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
-                    animated={false} 
+                    animated={false}
                     activeKey={this.state.nowView}
                     onChange={this.callback.bind(this)}
                     tabBarExtraContent={this.getDateTypeView()}
                 >
                     <Tabs.TabPane tab="API详情" key="callMethod">
-                        <ApiCallMethod {...this.props} ></ApiCallMethod>
+                        <ApiCallMethod mode="manage" {...this.props} ></ApiCallMethod>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="调用情况" key="callState">
                         <h1 className="title-border-l-blue slide-title">调用统计</h1>
-                        <ApiCallState {...this.props} dateType={this.state.date}></ApiCallState>
+                        <ApiCallState apiId={showRecord.id} dateType={this.state.date}></ApiCallState>
                         <h1 className="title-border-l-blue slide-title">错误日志</h1>
-                        <ErrorLog {...this.props} dateType={this.state.date}></ErrorLog>
+                        <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
+                            <Row>
+                                <ErrorLog apiId={showRecord.id} dateType={this.state.date}></ErrorLog>
+                            </Row>
+                        </div>
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="订购情况" key="buyState">
+                        <div style={{padding:"10px 15px"}}>
+                            <BuyManageState statusDisAble={isDisAble} apiId={showRecord.id}></BuyManageState>
+                        </div>
                     </Tabs.TabPane>
                 </Tabs>
             </SlidePane>
         )
     }
 }
-export default detailSlidePane;
+export default apiSlidePane;

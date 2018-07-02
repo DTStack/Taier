@@ -1,14 +1,20 @@
 import React, { Component } from 'react'
-import  { Card, Input, Table, Select, Modal, Form, Button,message } from "antd";
+import { Card, Input, Table, Select, Modal, Form, Button, message } from "antd";
 import { connect } from "react-redux";
+
 import utils from "utils";
-import { formItemLayout, EXCHANGE_APPLY_STATUS } from "../../consts"
+
+import { formItemLayout, EXCHANGE_APPLY_STATUS, API_USER_STATUS } from "../../consts"
 import { approvalActions } from '../../actions/approval';
+import { mineActions } from '../../actions/mine';
+import moment from 'moment';
+
 const TextArea = Input.TextArea;
-const Search = Input.Search;
 const FormItem = Form.Item;
+const confirm = Modal.confirm;
 const InputGroup = Input.Group;
 const Option = Select.Option;
+
 const sortType = {
     "applyTime": 'gmt_modified'
 }
@@ -28,6 +34,9 @@ const mapDispatchToProps = dispatch => ({
     handleApply(params) {
         return dispatch(approvalActions.handleApply(params));
     },
+    updateUserApiStatus(params) {
+        return dispatch(mineActions.updateApplyStatus(params));
+    },
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -35,50 +44,46 @@ class APIApproval extends Component {
     state = {
         pageIndex: 1,
         spVisible: false,
-        msgVisible: false,
         data: [],
         sorter: {},
         filter: {
-            status:null
+            status: null
         },
         userName: "",
-        applyContent: "",
-        replyContent: "",
-        apiName:"",
-        spApplyMsg:{},
+        apiName: "",
+        spApplyMsg: {},
         total: 0,
-        searchType:'用户名称',
+        searchType: '用户名称',
     }
-    componentWillMount(){
-        
+    componentWillMount() {
+
     }
     componentDidMount() {
-        const status=this.props.router.location.query&&this.props.router.location.query.status
-        let arr=[];
-        if(status){
+        const status = this.props.router.location.query && this.props.router.location.query.status
+        let arr = [];
+        if (status) {
             arr.push(status.toString())
         }
-        
-        
+
+
         this.setState({
-            filter:{
-                status:(arr&&arr.length>0)?arr:null
+            filter: {
+                status: (arr && arr.length > 0) ? arr : null
             }
-        },()=>{
+        }, () => {
             this.getApprovalList();
         })
-        
+
     }
     getApprovalList() {
-
         this.props.approvalList({
             userName: this.state.userName,
-            status: this.state.filter.status&&this.state.filter.status[0],
+            status: this.state.filter.status && this.state.filter.status[0],
             currentPage: this.state.pageIndex,
             pageSize: 20,
-            sort:orderType[this.state.sorter.order],
-            orderBy:sortType[this.state.sorter.columnKey],
-            apiName:this.state.apiName
+            sort: orderType[this.state.sorter.order],
+            orderBy: sortType[this.state.sorter.columnKey],
+            apiName: this.state.apiName
         })
             .then(
                 (res) => {
@@ -96,7 +101,8 @@ class APIApproval extends Component {
     handleCancel() {
         this.setState({
             spVisible: false,
-            msgVisible: false
+            spApplyMsg: {},
+            mode: null
         })
     }
     // 表格换页/排序
@@ -118,38 +124,83 @@ class APIApproval extends Component {
             total: this.state.total,
         }
     }
-    getDealType(type) {
-        const dic = {
-            "notApproved": "立即审批",
-            "pass": "查看详情",
-            "rejected": "查看详情",
-            "stop": "查看详情",
-            "disabled": "查看详情",
+    cancelApi(applyId) {
+        confirm({
+            title: '确认取消?',
+            content: '确定取消此用户的API调用权限?',
+            onOk: () => {
+                this.props.updateUserApiStatus({
+                    applyId: applyId,
+                    useAdmin: true,
+                    status: API_USER_STATUS.DISABLE
+                })
+                    .then(
+                        (res) => {
+                            if (res) {
+                                message.success("取消成功")
+                                this.getApprovalList();
+                            }
+                        }
+                    )
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    }
+    redoApi(applyId) {
+        confirm({
+            title: '确认恢复?',
+            content: '确定恢复此用户的API调用权限?',
+            onOk: () => {
+                this.props.updateUserApiStatus({
+                    applyId: applyId,
+                    useAdmin: true,
+                    status: API_USER_STATUS.PASS
+                })
+                    .then(
+                        (res) => {
+                            if (res) {
+                                message.success("取消成功")
+                                this.getApprovalList();
+                            }
+                        }
+                    )
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
+        });
+    }
+    getDealType(type, record) {
+        const detailButton = (<a onClick={this.spShow.bind(this, record, false)}>查看详情</a>);
+        const approvalButton = (<a onClick={this.spShow.bind(this, record, true)}>立即审批</a>);
+        const cancelButton = (<a onClick={this.cancelApi.bind(this, record.id)}>取消授权</a>);
+        const redoButton = (<a onClick={this.redoApi.bind(this, record.id)}>恢复授权</a>);
 
-        }
-        return dic[type || 'nothing']
-    }
-    deal(record) {
-        const method = this['deal' + EXCHANGE_APPLY_STATUS[record.status]]
-        if (method) {
-            method.call(this, record);
-        }
+        let dealView = [];
 
-    }
-    dealrejected(record) {
-        this.lookDetail(record);
-    }
-    dealstop(record) {
-        this.lookDetail(record);
-    }
-    dealdisabled(record) {
-        this.lookDetail(record);
-    }
-    dealpass(record) {
-        this.lookDetail(record);
-    }
-    dealnotApproved(record) {
-        this.spShow(record);
+        switch (type) {
+            case API_USER_STATUS.IN_HAND:
+                dealView.push(approvalButton);
+                break;
+            case API_USER_STATUS.PASS:
+                dealView.push(detailButton);
+                dealView.push(<span className="ant-divider" ></span>);
+                dealView.push(cancelButton);
+                break;
+            case API_USER_STATUS.REJECT:
+            case API_USER_STATUS.DISABLE:
+            case API_USER_STATUS.STOPPED:
+                dealView.push(detailButton);
+                dealView.push(<span className="ant-divider" ></span>);
+                dealView.push(redoButton);
+                break;
+            case API_USER_STATUS.EXPIRED:
+                dealView.push(detailButton);
+                break;
+        }
+        return <span>{dealView}</span>;
     }
     getSource() {
         return this.props.approval.approvalList;
@@ -176,7 +227,8 @@ class APIApproval extends Component {
                     "pass": "已通过",
                     "rejected": "已拒绝",
                     "stop": "已停用",
-                    "disabled": "取消授权"
+                    "disabled": "取消授权",
+                    "expired": "已过期"
                 }
                 return <span className={`state-${EXCHANGE_APPLY_STATUS[text]}`}>{dic[EXCHANGE_APPLY_STATUS[text]]}</span>
             },
@@ -197,56 +249,60 @@ class APIApproval extends Component {
                 {
                     text: '已停用',
                     value: '3'
-                },{
+                }, {
                     text: '取消授权',
                     value: '4'
+                },
+                {
+                    text: '已过期',
+                    value: '5'
                 }
             ],
-            filteredValue:this.state.filter.status||null
+            filteredValue: this.state.filter.status || null
         }, {
             title: '申请说明',
             dataIndex: 'applyContent',
             key: 'applyContent',
-            width:"250px"
+            width: "250px"
         }, {
             title: '申请时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
             sorter: true,
-            render(text){
+            render(text) {
                 return utils.formatDateTime(text);
             }
         }, {
             title: '操作',
             dataIndex: 'deal',
             render: (text, record) => {
-                return <a onClick={this.deal.bind(this, record)}>{this.getDealType(EXCHANGE_APPLY_STATUS[record.status])}</a>
+                return this.getDealType(record.status, record)
             }
         }]
     }
     renderSourceType() {
         return null;
     }
-    searchRequire(v){//搜索条件
-        let { userName, apiName,searchType } = this.state;
+    searchRequire(v) {//搜索条件
+        let { userName, apiName, searchType } = this.state;
         let value = v.trim();//去掉首位空格
-        if(searchType === '用户名称'){
+        if (searchType === '用户名称') {
             userName = value;
             apiName = '';
-            
-        }else{
+
+        } else {
             userName = '';
             apiName = value;
         }
         this.setState({
             userName,
             apiName,
-            pageIndex:1
-        },() => {
+            pageIndex: 1
+        }, () => {
             this.getApprovalList();
         })
     };
-    selectSearchType(v){//设置搜索类型
+    selectSearchType(v) {//设置搜索类型
         this.setState({
             searchType: v
         })
@@ -255,12 +311,12 @@ class APIApproval extends Component {
         const sourceType = "", sourceList = "", userList = "";
         return (
             <div className="flex font-12">
-                <InputGroup compact style={{ width: 500, margin: '10px 0px'}} >
+                <InputGroup compact style={{ width: 500, margin: '10px 0px' }} >
                     <Select defaultValue="用户名称" onChange={this.selectSearchType.bind(this)}>
                         <Option value="用户名称">用户名称</Option>
                         <Option value="API名称">API名称</Option>
                     </Select>
-                    <Input.Search style={{ width: '50%' }} placeholder="请输入搜索条件"  onSearch={this.searchRequire.bind(this)} />
+                    <Input.Search style={{ width: '50%' }} placeholder="请输入搜索条件" onSearch={this.searchRequire.bind(this)} />
                 </InputGroup>
             </div>
         )
@@ -270,48 +326,59 @@ class APIApproval extends Component {
         this.props.form.validateFields(
             (err, values) => {
                 if (!err) {
-                    const applyId=this.state.spApplyMsg.id;
-                    const approvalContent=values.APIGroup;
+                    const applyId = this.state.spApplyMsg.id;
+                    const approvalContent = values.APIGroup;
                     this.props.handleApply({
-                        applyId:applyId,
-                        isPassed:isPass,
-                        approvalContent:approvalContent
+                        applyId: applyId,
+                        isPassed: isPass,
+                        approvalContent: approvalContent
                     })
-                    .then(
-                        (res)=>{
-                            this.setState({
-                                spVisible: false
-                            })
-                            if(res){
-                                message.success("审批成功");
-                                this.getApprovalList();
+                        .then(
+                            (res) => {
+                                this.setState({
+                                    spVisible: false
+                                })
+                                if (res) {
+                                    message.success("审批成功");
+                                    this.getApprovalList();
+                                }
                             }
-                        }
-                    )
-                    
+                        )
                 }
             }
         )
     }
-    spShow(record) {
-        this.props.form.resetFields();
+    spShow(record, isApproval) {
+        const { setFieldsValue } = this.props.form;
+
+        setFieldsValue({
+            APIGroup: record.replyContent
+        });
         this.setState({
             spVisible: true,
-            spApplyMsg:record
+            spApplyMsg: record,
+            mode: isApproval ? 'approval' : 'view'
         })
     }
-    
-    lookDetail(record) {
-        this.setState({
-            msgVisible: true,
-            applyContent: record.applyContent,
-            replyContent: record.replyContent
-        })
+    getModalFooter() {
+        const { mode } = this.state;
+        if (mode == "approval") {
+            return (
+                <div>
+                    <Button type="danger" onClick={this.sp.bind(this, false)}>拒绝</Button>
+                    <Button type="primary" onClick={this.sp.bind(this, true)}>同意</Button>
+                </div>
+            )
+        } else {
+            return (<Button type="primary" onClick={this.handleCancel.bind(this)}>关闭</Button>);
+        }
     }
-
-
     render() {
-        const { getFieldDecorator } = this.props.form
+        const { getFieldDecorator } = this.props.form;
+        const { mode, spApplyMsg } = this.state;
+        const disabled = mode == 'view';
+        const modalTitle = mode == 'view' ? '审批详情' : '授权审批';
+
         return (
             <div className="api-approval">
                 <h1 className="box-title">审批授权</h1>
@@ -330,67 +397,58 @@ class APIApproval extends Component {
                             pagination={this.getPagination()}
                             dataSource={this.getSource()}
                             onChange={this.onTableChange}
-                            
+
                         />
                     </Card>
                 </div>
                 <Modal
-                    title="审批授权"
+                    title={modalTitle}
                     visible={this.state.spVisible}
-                    
                     onCancel={this.handleCancel.bind(this)}
-                    footer={
-                    (
-                        <div>
-                            <Button type="danger" onClick={this.sp.bind(this,false)}>拒绝</Button>
-                            <Button type="primary" onClick={this.sp.bind(this,true)}>同意</Button>
-                        </div>
-                    )
-                    }
-                    >
+                    footer={this.getModalFooter()}
+                >
                     <Form>
+                        <FormItem
+                            {...formItemLayout}
+                            label="API名称"
+                        >
+                            {spApplyMsg.apiName}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="申请人"
+                        >
+                            {spApplyMsg.applyUserName}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="调用次数"
+                        >
+                            {spApplyMsg.callLimit==-1?'无限制':spApplyMsg.callLimit}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="调用周期"
+                        >
+                            {spApplyMsg.beginTime?`${new moment(spApplyMsg.beginTime).format("YYYY-MM-DD")} ~ ${new moment(spApplyMsg.endTime).format("YYYY-MM-DD")}`:"无限制"}
+                        </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="申请说明"
                         >
-                            <TextArea disabled value={this.state.spApplyMsg.applyContent} />
+                            <TextArea value={spApplyMsg.applyContent} disabled />
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="审批说明"
-
                         >
                             {getFieldDecorator('APIGroup', {
                                 rules: [
                                     { required: true, message: '请填写审批说明' },
-                                    {max:200,message:"最大字数不能超过200"}
+                                    { max: 200, message: "最大字数不能超过200" }
                                 ],
-
-                            })(
-                                <TextArea  />
-                            )
+                            })(<TextArea disabled={disabled} />)
                             }
-                        </FormItem>
-                    </Form>
-                </Modal>
-                <Modal
-                    title="审批详情"
-                    visible={this.state.msgVisible}
-                    footer={<Button type="primary" onClick={this.handleCancel.bind(this)}>关闭</Button>}
-                    onCancel={this.handleCancel.bind(this)}>
-                    <Form>
-                        <FormItem
-                            {...formItemLayout}
-                            label="申请说明"
-                        >
-                            <TextArea disabled value={this.state.applyContent} />
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="审批说明"
-
-                        >
-                            <TextArea disabled value={this.state.replyContent} />
                         </FormItem>
                     </Form>
                 </Modal>

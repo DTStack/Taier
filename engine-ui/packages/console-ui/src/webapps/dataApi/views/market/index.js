@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { Card, Input, Checkbox, Select, DatePicker, Table, Modal, Form } from "antd"
+import { Card, Input, Select, Cascader, Table, Modal, Form } from "antd"
 import { apiMarketActions } from '../../actions/apiMarket';
 import utils from "utils";
-import ApplyBox from "./applyBox"
-const FormItem = Form.Item;
-const TextArea = Input.TextArea
+
+import SlidePane from "widgets/slidePane";
+import ApplyBox from "../../components/applyBox"
+import Content from "../../components/apiContent"
+
 const Option = Select.Option;
-import { Link } from "react-router";
 const Search = Input.Search;
 let modal;
 
@@ -23,6 +24,13 @@ const mapDispatchToProps = dispatch => ({
     },
     getApiMarketList(params) {
         return dispatch(apiMarketActions.getApiMarketList(params));
+    },
+    getApiDetail(params){
+        dispatch(apiMarketActions.getApiDetail(params));
+        
+    },
+    getApiExtInfo(params){
+        dispatch(apiMarketActions.getApiExtInfo(params));
     }
 });
 
@@ -34,38 +42,40 @@ class APIMarket extends Component {
         pageIndex: 1,
         loading: true,
         applyBox: false,
-        apply:{
-            apiId:"",
-            apiName:"",
-            desc:""
+        apply: {
+            apiId: "",
+            apiName: "",
+            desc: ""
         },
+        detailRecord:{},
         type1: undefined,
         type2: undefined,
         apiName: "",
         pageSize: 20,
         total: 0,
-        sorter:{}
+        sorter: {},
+        slidePaneShow: false
     }
     getMarketApi() {
         this.setState({
             loading: true
         })
-        const dic={
-            updateTime:"gmt_modified"
+        const dic = {
+            updateTime: "gmt_modified"
         }
         const orderType = {
             "ascend": 'asc',
             "descend": 'desc'
         }
-        
+
         this.props.getApiMarketList({
             apiName: this.state.searchValue,
             pid: this.state.type1 || -1,
             cid: this.state.type2 || -1,
             currentPage: this.state.pageIndex,
             pageSize: this.state.pageSize,
-            orderBy:dic[this.state.sorter.columnKey],
-            sort:orderType[this.state.sorter.order]
+            orderBy: dic[this.state.sorter.columnKey],
+            sort: orderType[this.state.sorter.order]
         }).then((res) => {
             console.log("apigetOver");
 
@@ -80,71 +90,64 @@ class APIMarket extends Component {
             })
         })
     }
+    getCatagoryName(value, catagorys) {
+        if(!value&&value!=0){
+            return null;
+        }
+        const tree = catagorys || this.props.apiMarket.apiCatalogue;
+        let arr = [];
+        function exchangeTree(data) {
+
+            if (!data || data.length < 1) {
+                return null;
+            }
+            for (let i = 0; i < data.length; i++) {
+                let item = data[i];
+                if(item.api){
+                    continue;
+                }
+                if (item.id == value) {
+                    arr.push(item.catalogueName);
+                    return item.catalogueName;
+                }
+                if (exchangeTree(item.childCatalogue)) {
+                    arr.push(item.catalogueName);
+                    return item.catalogueName
+                }
+            }
+            return null;
+        }
+        if (exchangeTree(tree)) {
+            return arr.reverse().join(" / ");
+        }
+        return null;
+
+    }
+    getCascaderData() {//处理级联选择数据
+        const cascaderData = [];
+        const { apiCatalogue } = this.props.apiMarket;
+        if (apiCatalogue.length > 0) {
+            apiCatalogue.map(v => {
+                const option = {};
+                option.value = option.label = v.catalogueName;
+                option.pid = v.id
+                if (v.childCatalogue.length > 0) {
+                    option.children = [];
+                    v.childCatalogue.map(v => {
+                        const childOpt = {};
+                        childOpt.value = childOpt.label = v.catalogueName;
+                        childOpt.cid = v.id;
+                        option.children.push(childOpt);
+                    })
+                }
+                cascaderData.push(option)
+            })
+        }
+        return cascaderData;
+    }
     componentDidMount() {
         this.props.getCatalogue(0);
         this.getMarketApi();
-    }
-    renderSourceType(id, root) {
-        function arrToOptions(arr) {
-            if (!arr || arr.length < 1) {
-                return null;
-            }
-            return arr.map(
-                (item) => {
-                    return <Option key={item.id}>{item.name}</Option>
-                }
-            )
-        }
-        let arr = [];
-         //获取子节点
-        const items = this.props.apiMarket.apiCatalogue;
-       
-       
-        //一级目录
-        if (root) {
-            if (!items) {
-                return null;
-            }
-            for (let i = 0; i < items.length; i++) {
-                arr.push({
-                    id: items[i].id,
-                    name: items[i].catalogueName
-                })
-            }
-       
-            return arrToOptions(arr);
-        } else {//二级目录
-
-            if (!items) {
-                return null;
-            }
-            let item_child;//二级目录
-            //查找二级目录
-            for (let i = 0; i < items.length; i++) {
-                
-                if (items[i].id == id) {
-                    item_child = items[i].childCatalogue;
-                    break;
-                }
-            }
-            //找不到，则返回null
-            if (!item_child) {
-                return null;
-            }
-
-
-            for (let i = 0; i < item_child.length; i++) {
-                if(item_child[i].api){
-                    continue;
-                }
-                arr.push({
-                    id: item_child[i].id,
-                    name: item_child[i].catalogueName
-                })
-            }
-            return arrToOptions(arr);
-        }
-        return null;
     }
     onSourceChange(key) {
         this.setState({
@@ -164,10 +167,10 @@ class APIMarket extends Component {
 
     }
     handleSearch(value) {
-        
+
         this.setState({
             searchValue: value,
-            pageIndex:1
+            pageIndex: 1
         }, () => {
             this.getMarketApi();
         }
@@ -189,39 +192,43 @@ class APIMarket extends Component {
 
     }
     dealcomplete(record) {
-        this.props.router.push("/api/mine/approved?apiId="+record.key);    
+        this.props.router.push("/api/mine/approved?apiId=" + record.key);
         console.log("dealcomplete", record);
     }
     dealnothing(record) {
         this.setState({
             applyBox: true,
-            apply:{
-                apiId:record.key,
-                apiName:record.apiName,
-                desc:record.description
+            apply: {
+                apiId: record.key,
+                apiName: record.apiName,
+                desc: record.description
             }
         })
         console.log("dealnothing", record);
     }
     dealapplying(record) {
-        this.props.router.push("/api/mine?apiId="+record.key);
+        this.props.router.push("/api/mine/notApproved?apiId=" + record.key);
         console.log("dealapplying", record);
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         this.setState({
             pageIndex: page.current,
-            sorter:sorter
+            sorter: sorter
 
         }, () => {
             this.getMarketApi();
         });
     }
-    openDetail(text) {
-        return function () {
-            window.open(`${location.origin + location.pathname}#/api/market/detail/${text}?isHideBack=true`)
-        }
-
+    openDetail(record) {
+        const {getApiDetail,getApiExtInfo} = this.props;
+        this.setState({
+            detailRecord:record,
+            slidePaneShow:true
+        });
+        getApiDetail({apiId:record.key});
+        getApiExtInfo({apiId:record.key});
+        
     }
     initColumns() {
 
@@ -230,26 +237,34 @@ class APIMarket extends Component {
             dataIndex: 'apiName',
             key: 'apiName',
             render: (text, record) => {
-                return <a onClick={this.openDetail(record.key)} >{text}</a>
+                return <a onClick={this.openDetail.bind(this,record)} >{text}</a>
+            }
+        }, {
+            title: 'API分类',
+            dataIndex: 'cId',
+            key: 'cId',
+            width: '230px',
+            render:(text,record)=>{
+                return this.getCatagoryName(text);
             }
         }, {
             title: '描述',
             dataIndex: 'description',
             key: 'description',
-            width:300
+            width: 300
         }, {
             title: '累计调用（次）',
             dataIndex: 'callCount',
             key: 'callCount'
 
         }, {
-            title: '更新时间',
+            title: '最近更新时间',
             dataIndex: 'updateTime',
             key: 'updateTime',
-            render(time){
+            render(time) {
                 return utils.formatDateTime(time);
             },
-            sorter:true
+            sorter: true
         }, {
             title: '操作',
             dataIndex: 'deal',
@@ -265,7 +280,7 @@ class APIMarket extends Component {
             2: "nothing",
             1: "complete",
             0: "applying",
-            "-1":"nothing",
+            "-1": "nothing",
         }
         const apiList = this.props.apiMarket.apiList;
         let arr = [];
@@ -276,7 +291,8 @@ class APIMarket extends Component {
                 description: apiList[i].apiDesc,
                 callCount: apiList[i].invokeTotal,
                 updateTime: apiList[i].gmtModified,
-                deal: errorDic[apiList[i].applyStatus]
+                deal: errorDic[apiList[i].applyStatus],
+                cId:apiList[i].cId
             })
         }
         return arr;
@@ -288,7 +304,21 @@ class APIMarket extends Component {
             total: this.state.total,
         }
     }
+
+    cascaderOnChange(value, data) {//API类型改变
+        let { type1, type2 } = this.state;
+        type1 = data[0] ? data[0].pid : undefined;
+        type2 = data[1] ? data[1].cid : undefined;
+        this.setState({
+            type1,
+            type2
+        }, () => {
+            this.getMarketApi();
+        })
+    }
+
     getCardTitle() {
+        const cascaderData = this.getCascaderData();
 
         return (
             <div className="flex font-12">
@@ -299,24 +329,12 @@ class APIMarket extends Component {
                 />
                 <div className="m-l-8">
                     API分类：
-                    <Select value={this.state.type1} allowClear onChange={this.onSourceChange.bind(this)} style={{ width: 120 }}>
-                        {
-                            this.renderSourceType(0, true)
-                        }
-                    </Select>
-                </div>
-                <div className="m-l-8">
-                    二级分类：
-                    <Select value={this.state.type2} allowClear onChange={this.onUserSourceChange.bind(this)} style={{ width: 150 }}>
-                        {
-                            this.renderSourceType(this.state.type1, false)
-                        }
-                    </Select>
+                    <Cascader placeholder="API分类" options={cascaderData} onChange={this.cascaderOnChange.bind(this)} changeOnSelect expandTrigger="hover" />
                 </div>
             </div>
         )
     }
-   
+
     jumpToMine() {
         modal.destroy();
         this.props.router.push("/api/mine");
@@ -332,20 +350,26 @@ class APIMarket extends Component {
         });
     }
     handleOk() {
-
         this.setState({
             applyBox: false
         });
-        this.showApplySuccessModal();
+        this.getMarketApi();
     }
     handleCancel() {
         this.setState({
             applyBox: false
         })
     }
+    closeSlide() {
+        this.setState({
+            slidePaneShow: false
+        })
+    }
 
     render() {
-        const { children } = this.props
+        const { children, apiMarket } = this.props
+        const { slidePaneShow, detailRecord } = this.state;
+
         return (
             <div className="api-market">
                 <ApplyBox show={this.state.applyBox}
@@ -354,7 +378,6 @@ class APIMarket extends Component {
                     apiId={this.state.apply.apiId}
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
-                    getMarketApi={this.getMarketApi.bind(this)}
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">
@@ -363,6 +386,15 @@ class APIMarket extends Component {
                         noHovering
                         title={this.getCardTitle()}
                     >
+                        <SlidePane
+                            className="m-tabs tabs-filter-show"
+                            visible={slidePaneShow}
+                            style={{ right: '-20px', width: '80%', minHeight: '720px', height: '100%' }}
+                            onClose={this.closeSlide.bind(this)}>
+                            <div style={{paddingLeft:"40px",paddingTop:"20px"}}>
+                                <Content  apiMarket={apiMarket} apiId={detailRecord.key}   />
+                            </div>
+                        </SlidePane>
                         <Table
                             className="m-table monitor-table"
                             columns={this.initColumns()}

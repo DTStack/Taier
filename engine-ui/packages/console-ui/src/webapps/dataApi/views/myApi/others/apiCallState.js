@@ -18,12 +18,12 @@ class ApiCallState extends Component {
         apiId: "",
         data: {}
     }
-    getInfo() {
+    getInfo(apiId,dateType) {
 
-        if (!this.state.apiId) {
+        if (!apiId) {
             return;
         }
-        this.props.getApiCallInfo(this.state.apiId, this.props.dateType)
+        this.props.getApiCallInfo(apiId, dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -39,28 +39,26 @@ class ApiCallState extends Component {
             )
     }
     componentDidMount() {
-        this.setState({
-            apiId: this.props.showRecord && this.props.showRecord.apiId
-        })
-        this.getInfo();
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
+
+        this.getInfo(apiId,dateType);
 
     }
     componentWillReceiveProps(nextProps) {
-        if (
-            (nextProps.showRecord && this.state.apiId !== nextProps.showRecord.apiId)
-            ||
-            (this.props.dateType !== nextProps.dateType)
-        ) {
-            
+        const { showRecord: nextShowRecord = {}, dateType:nextDateType } = nextProps;
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
+        const { apiId: nextApiId } = nextShowRecord;
+
+        if (apiId !== nextApiId || dateType !== nextDateType) {
             this.setState({
                 apiId: nextProps.showRecord.apiId
             },
                 () => {
-                    if(nextProps.slidePaneShow){
-                        this.getInfo();
+                    if (nextProps.slidePaneShow) {
+                        this.getInfo(nextApiId,nextDateType);
                     }
-                    
-
                 })
         }
     }
@@ -96,6 +94,8 @@ class ApiCallState extends Component {
         let myChart = echarts.init(document.getElementById('MyApiDetailState'));
         const option = cloneDeep(doubleLineAreaChartOptions);
         option.grid.right="40px";
+        option.grid.left="40px";
+        option.grid.bottom="10px";
         option.tooltip.formatter = function (params) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
@@ -153,7 +153,7 @@ class ApiCallState extends Component {
     render() {
         return (
             <div style={{ paddingLeft: 30 }}>
-                <Row gutter={130} className="m-count padding-l20 height-101">
+                <Row gutter={130} className="m-count padding-l20 height-callstate-item">
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">最近{this.getDateText()}累计调用</span>
@@ -173,9 +173,11 @@ class ApiCallState extends Component {
                         </section>
                     </Col>
                 </Row>
-                <Resize onResize={this.resize}>
-                    <article id="MyApiDetailState" style={{ width: '100%', height: '300px' }} />
-                </Resize>
+                <div style={{paddingRight: "20px"}}>
+                    <Resize onResize={this.resize}>
+                        <article id="MyApiDetailState" style={{ width: '100%', height: '250px' }} />
+                    </Resize>
+                </div>
             </div>
         )
     }

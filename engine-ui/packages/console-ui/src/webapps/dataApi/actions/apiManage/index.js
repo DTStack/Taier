@@ -45,7 +45,7 @@ export const apiManageActions = {
     //开启api
     openApi(apiId) {
         return (dispatch) => {
-            return API.updateApiStatus({ apiId: apiId, apiStatus: 0 }).then((res) => {
+            return API.createApi({ apiId: apiId }).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
@@ -130,6 +130,16 @@ export const apiManageActions = {
             });
         }
     },
+    //保存Api
+    saveOrUpdateApiInfo(params){
+        return (dispatch) => {
+            return API.saveOrUpdateApiInfo(params).then((res) => {
+                if (res.code === 1) {
+                    return res;
+                }
+            });
+        }
+    },
     //更新api
     updateApi(params) {
         return (dispatch) => {
@@ -196,4 +206,34 @@ export const apiManageActions = {
             });
         }
     },
-}
+    //sql格式化
+    sqlFormat(params){
+        return (dispatch) => {
+            return API.sqlformat(params).then((res) => {
+                if (res.code === 1) {
+                    return res;
+                }
+            });
+        }
+    },
+    //sql解析
+    sqlParser(params){
+        return (dispatch) => {
+            return API.sqlParser(params).then((res) => {
+                if (res.code === 1) {
+                    return res;
+                }
+            });
+        }
+    },
+    //api测试
+    apiTest(params){
+        return (dispatch) => {
+            return API.apiTest(params).then((res) => {
+                if (res.code === 1) {
+                    return res;
+                }
+            });
+        }
+    },
+}   
