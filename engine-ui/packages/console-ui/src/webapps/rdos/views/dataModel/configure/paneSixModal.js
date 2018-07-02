@@ -145,7 +145,6 @@ class AtomIndexDefineModal extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="指标类型"
-                        hasFeedback
                     >
                         {getFieldDecorator('columnType', {
                             rules: [],
@@ -161,7 +160,6 @@ class AtomIndexDefineModal extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="数据类型"
-                        hasFeedback
                     >
                         {getFieldDecorator('dataType', {
                             rules: [],
