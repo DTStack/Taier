@@ -58,6 +58,7 @@ export default class TaskVersion extends React.Component {
     };
 
     getFomatedJSON = (jsonText) => {
+        if (!jsonText) return '';
         const output = utils.jsonFormat(jsonText);
         if (!output) {
             message.error('您的数据同步JSON配置格式有误');
@@ -73,12 +74,12 @@ export default class TaskVersion extends React.Component {
         const isLocked =
             taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
         let sqlTextJSON = taskInfo.sqlText;
+        let compareToText = campareTo.sqlText;
 
         // 增加数据同步，JSON配置格式化操作
         if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
             sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
-        } else {
-            sqlTextJSON = taskInfo.sqlText;
+            compareToText = this.getFomatedJSON(campareTo.sqlText);
         }
 
         return (
@@ -103,7 +104,7 @@ export default class TaskVersion extends React.Component {
                     <DiffCodeEditor
                         readOnly={isLocked}
                         value={sqlTextJSON}
-                        compareTo={campareTo.sqlText}
+                        compareTo={compareToText}
                         onChange={this.codeChange}
                     />
                 </Modal>

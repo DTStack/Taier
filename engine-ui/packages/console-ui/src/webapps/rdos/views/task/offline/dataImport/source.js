@@ -81,11 +81,20 @@ export default class ImportSource extends Component {
         return []
     }
 
+    getRowKey(record, index) {
+        return `${record.length > 0 ? record[0] : ''}-${index}`;
+    }
+
     render() {
         const { data, file, display, formState } = this.props
         const columns = this.generateCols(formState.asTitle, data[0]);
-        const dataSource = formState.asTitle ? data.slice(1) : data
+        const dataSource = formState.asTitle ? data.slice(1) : data;
+
+        console.log('data:', data)
+        console.log('dataSource:', dataSource)
+
         const { radio } = this.state
+
         return (
             <div style={{display: display === 'source' ? 'block' : 'none'}}>
                 <Row>
@@ -134,7 +143,7 @@ export default class ImportSource extends Component {
                             label="原始字符集"
                         >
                             <Select 
-                                value={formState.charset} 
+                                value={formState.charset}
                                 onChange={this.charsetChange}
                             >
                                 <Option value="UTF-8">UTF-8</Option>
@@ -149,7 +158,7 @@ export default class ImportSource extends Component {
                         >
                             <Input 
                                 onChange={this.changeStartLine}
-                                type="number" 
+                                type="number"
                                 min={1}
                                 max={data.length}
                                 value={formState.startLine} 
@@ -170,9 +179,9 @@ export default class ImportSource extends Component {
                 </Row>
                 <Row className="no-table-padding">
                     <Table 
-                        rowKey="id"
+                        rowKey={this.getRowKey}
                         scroll={{ y: 240, x: 800, }} 
-                        bordered 
+                        bordered
                         dataSource={dataSource} 
                         columns={columns}
                     />
