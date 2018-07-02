@@ -285,7 +285,7 @@ class ManageParamsConfig extends Component {
         const { isEdit, InputColumns, OutputColums } = this.state;
         if (isEdit) {
             message.warning("请先完成参数编辑", 2)
-            this.sqlModeShowChange();
+            this.sqlModeShowChange(true);
             return;
         }
         if (!OutputColums || OutputColums.length == 0) {
@@ -326,13 +326,13 @@ class ManageParamsConfig extends Component {
         }
         return true;
     }
-    sqlModeShowChange() {
+    sqlModeShowChange(isHide) {
         const dataSource = this.props.form.getFieldValue("dataSource");
         const sql = this.state.editor.sql;
         const show = !this.state.sqlModeShow;
         if(show){
             this.setState({
-                sqlModeShow: !this.state.sqlModeShow
+                sqlModeShow: isHide?false:true
             });
             return ;
         }
