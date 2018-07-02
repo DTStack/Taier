@@ -23,7 +23,6 @@ class ManageParamsConfig extends Component {
         InputColumns: [],
         OutputColums: [],
         selectedRows: [],
-        isEdit: false,
         resultPageChecked: false,
         resultPage: undefined,
         sqlModeShow: true,
@@ -36,17 +35,18 @@ class ManageParamsConfig extends Component {
     }
 
     componentWillMount() {
-        const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql } = this.props;
+        const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql, isEdit } = this.props;
         this.setState({
             InputColumns: inputParam || [],
             OutputColums: outputParam || [],
             resultPageChecked: resultPageChecked,
             resultPage: resultPage,
-            isEdit: API_MODE.SQL == mode ? true : false,
+            isEdit: isEdit,
             editor: {
                 sql: sql,
                 sync: true
-            }
+            },
+            sqlModeShow:isEdit
         });
         if (dataSrcId || dataSrcId == 0) {
             this.props.tablelist(dataSrcId)
@@ -80,9 +80,9 @@ class ManageParamsConfig extends Component {
                 sql: value,
                 cursor: doc.getCursor(),
                 sync: false,
-            },
-            isEdit: true
+            }
         })
+        this.props.changeEditStatus(true)
     }
     resultPageCheckedChange(evt) {
         this.setState({
@@ -95,9 +95,7 @@ class ManageParamsConfig extends Component {
         })
     }
     changeEditStatus(value) {
-        this.setState({
-            isEdit: value
-        })
+        this.props.changeEditStatus(value)
     }
     updateColumns(columns, type) {
         switch (type) {
@@ -282,7 +280,12 @@ class ManageParamsConfig extends Component {
         cancelAndSave(this.getSaveData());
     }
     pass() {
-        const { isEdit, InputColumns, OutputColums } = this.state;
+        const {isEdit} = this.props;
+        const {  InputColumns, OutputColums, editor } = this.state;
+        if(!editor.sql){
+            console.log("sql不能为空")
+            return
+        }
         if (isEdit) {
             message.warning("请先完成参数编辑", 2)
             this.sqlModeShowChange(true);
@@ -303,8 +306,7 @@ class ManageParamsConfig extends Component {
         this.props.dataChange(this.getSaveData())
     }
     prev() {
-        const { isEdit } = this.state;
-        const { mode } = this.props;
+        const { mode , isEdit} = this.props;
         if (isEdit && API_MODE.GUIDE == mode) {
             message.warning("请先完成参数编辑", 2)
             return;
@@ -327,6 +329,7 @@ class ManageParamsConfig extends Component {
         return true;
     }
     sqlModeShowChange(isHide) {
+        isHide=typeof isHide=="boolean"?isHide:false;
         const dataSource = this.props.form.getFieldValue("dataSource");
         const sql = this.state.editor.sql;
         const show = !this.state.sqlModeShow;
@@ -408,8 +411,8 @@ class ManageParamsConfig extends Component {
     }
     render() {
         const columns = this.initColumns();
-        const { mode } = this.props;
-        const { tableData, dataSourceList, tableList, InputColumns, OutputColums, selectedRows, resultPageChecked, resultPage, sqlModeShow, editor, isEdit, loading } = this.state;
+        const { mode, isEdit } = this.props;
+        const { tableData, dataSourceList, tableList, InputColumns, OutputColums, selectedRows, resultPageChecked, resultPage, sqlModeShow, editor, loading } = this.state;
         const { getFieldDecorator } = this.props.form;
 
         const dataSourceOptions = dataSourceList.map(

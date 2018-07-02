@@ -69,7 +69,8 @@ class NewApi extends Component {
         mode: undefined,
         loading: false,
         apiEdit: false,
-        isSaveResult:false
+        isSaveResult:false,
+        isEdit:true
     }
     componentWillMount() {
         const apiId = utils.getParameterByName("apiId");
@@ -103,6 +104,11 @@ class NewApi extends Component {
 
         }
     }
+    changeEditStatus(value) {
+        this.setState({
+            isEdit: value
+        })
+    }
     saveResult(e){
         this.setState({
             isSaveResult:e.target.checked
@@ -121,7 +127,9 @@ class NewApi extends Component {
             }
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
-
+                if(item.api){
+                    continue;
+                }
                 if (item.id == value) {
                     arr.push(item.id);
                     return item.id;
@@ -360,7 +368,7 @@ class NewApi extends Component {
         }
     }
     render() {
-        const { mode, paramsConfig, basicProperties, apiEdit, loading, isSaveResult } = this.state;
+        const { mode, paramsConfig, basicProperties, apiEdit, loading, isSaveResult, isEdit } = this.state;
 
         const steps = [
             {
@@ -414,11 +422,13 @@ class NewApi extends Component {
                                     prev={this.prev.bind(this)}
                                     mode={mode}
                                     isSaveResult={isSaveResult}
+                                    isEdit={isEdit}
                                     saveData={this.saveData.bind(this, key)}
                                     cancelAndSave={this.cancelAndSave.bind(this, key)}
                                     apiTest={this.apiTest.bind(this)}
                                     dataChange={this[key].bind(this)}
                                     saveResult={this.saveResult.bind(this)}
+                                    changeEditStatus={this.changeEditStatus.bind(this)}
                                     ></Content>
                             </div>
                         ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}

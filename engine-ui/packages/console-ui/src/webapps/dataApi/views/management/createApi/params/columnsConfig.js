@@ -27,7 +27,7 @@ class ColumnsConfig extends React.Component {
             })
         }
     }
-    componentWillRe(nextProps){
+    componentWillReceiveProps(nextProps){
         const {isEdit} = this.props;
         if(nextProps.isEdit!=isEdit&&nextProps.isEdit){
             this.setState({
