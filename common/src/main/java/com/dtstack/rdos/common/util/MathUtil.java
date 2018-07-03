@@ -4,8 +4,7 @@ package com.dtstack.rdos.common.util;
  * 数字转换
  * Date: 2017/4/21
  * Company: www.dtstack.com
- *
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class MathUtil {

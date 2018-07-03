@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.sql.parser;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.operator.Operator;
@@ -59,7 +60,7 @@ public class SqlParser {
 	
 	private static List<Operator> parserSql(String sql,List<Class<? extends Operator>> operatorClasses) throws Exception{
 		sql = sql.trim();
-		String[] sqls = sql.split(";");
+		String[] sqls = DtStringUtil.splitIgnoreQuota(sql, ";");
 		List<Operator> operators = Lists.newArrayList();
 		A:for(String cql : sqls){
 			cql = cql.replaceAll("--.*", "").replaceAll("\r\n", "").replaceAll("\n", "").trim();
