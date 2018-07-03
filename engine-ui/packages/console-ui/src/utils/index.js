@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment from "moment";
 /**
  * utils
  */
@@ -9,7 +9,10 @@ const utils = {
      * @return {[type]} [description]
      */
     pageWidth: function() {
-        return Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+        return Math.max(
+            document.documentElement.clientWidth,
+            window.innerWidth || 0
+        );
     },
 
     /**
@@ -17,19 +20,22 @@ const utils = {
      * @return {[type]} [description]
      */
     pageHeight: function() {
-        return Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+        return Math.max(
+            document.documentElement.clientHeight,
+            window.innerHeight || 0
+        );
     },
 
     checkExist: function(prop) {
-        return prop !== undefined && prop !== null
+        return prop !== undefined && prop !== null;
     },
 
     isMacOs: function() {
-        return navigator.userAgent.indexOf('Macintosh') > -1
+        return navigator.userAgent.indexOf("Macintosh") > -1;
     },
 
     isWindows: function() {
-        return navigator.userAgent.indexOf('Windows') > -1
+        return navigator.userAgent.indexOf("Windows") > -1;
     },
 
     /**
@@ -44,7 +50,7 @@ const utils = {
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
             results = regex.exec(url);
         if (!results) return null;
-        if (!results[2]) return '';
+        if (!results[2]) return "";
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     },
 
@@ -56,10 +62,10 @@ const utils = {
      */
     getBase64: function(img, callback) {
         const reader = new FileReader();
-        reader.addEventListener('load', () => callback(reader.result));
+        reader.addEventListener("load", () => callback(reader.result));
         reader.readAsDataURL(img);
     },
-    
+
     /**
      * 百分比转换
      * @param  {[type]} num       [description]
@@ -67,11 +73,11 @@ const utils = {
      * @return {[type]}           [description]
      */
     percent: function(num, precision) {
-        if (!num || num === Infinity) return 0 + '%';
+        if (!num || num === Infinity) return 0 + "%";
         if (num > 1) num = 1;
         precision = precision ? precision : 2;
         precision = Math.pow(10, precision);
-        return Math.round(num * precision * 100) / precision + '%'
+        return Math.round(num * precision * 100) / precision + "%";
     },
 
     getCssText: function(object) {
@@ -83,39 +89,42 @@ const utils = {
     },
 
     formatDateTime: function(timestap) {
-        
-        moment.locale('zh-cn');
-        return moment(timestap).format('YYYY-MM-DD HH:mm:ss')
+        moment.locale("zh-cn");
+        return moment(timestap).format("YYYY-MM-DD HH:mm:ss");
     },
 
     formatDate: function(timestap) {
-        moment.locale('zh-cn');
-        return moment(timestap).format('YYYY-MM-DD')
+        moment.locale("zh-cn");
+        return moment(timestap).format("YYYY-MM-DD");
     },
     formatDateHours: function(timestap) {
-        moment.locale('zh-cn');
-        return moment(timestap).format('YYYY-MM-DD HH:mm')
+        moment.locale("zh-cn");
+        return moment(timestap).format("YYYY-MM-DD HH:mm");
     },
     formatHours: function(timestap) {
-        moment.locale('zh-cn');
-        return moment(timestap).format('HH:mm')
+        moment.locale("zh-cn");
+        return moment(timestap).format("HH:mm");
     },
-    
+
     /**
      * 去除空串
      */
     trim: function(str) {
-        return typeof str === 'string' ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') : str;        
+        return typeof str === "string"
+            ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "")
+            : str;
     },
 
     trimlr: function(str) {
-        const res = str.replace( /^\s*/, "") // 去左边
-        return res.replace( /\s*$/, "") // 去右边
+        const res = str.replace(/^\s*/, ""); // 去左边
+        return res.replace(/\s*$/, ""); // 去右边
     },
 
     // 原生 JavaScript 获取 cookie 值
     getCookie: function(name) {
-        const arr = document.cookie.match(new RegExp("(^| )" + name + "=([^;]*)(;|$)"));
+        const arr = document.cookie.match(
+            new RegExp("(^| )" + name + "=([^;]*)(;|$)")
+        );
         if (arr != null) return unescape(arr[2]);
         return null;
     },
@@ -125,7 +134,8 @@ const utils = {
         d.setDate(d.getDate() - 1);
         var domain = domain || document.domain;
         var path = path || "/";
-        document.cookie = name + "=; expires=" + d + "; domain=" + domain + "; path=" + path;
+        document.cookie =
+            name + "=; expires=" + d + "; domain=" + domain + "; path=" + path;
     },
 
     deleteAllCookies: function(domain, path) {
@@ -140,73 +150,71 @@ const utils = {
         var expires = "";
         if (days) {
             var date = new Date();
-            date.setTime(date.getTime() + (days*24*60*60*1000));
+            date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
             expires = "; expires=" + date.toUTCString();
         }
         document.cookie = name + "=" + value + expires + "; path=/";
     },
 
     convertBytes: function(value) {
-
         if (value > 1024) {
+            const val0 = (value / 1024).toFixed(2);
 
-            const val0 = (value / 1024).toFixed(2)
+            if (val0 > 1024) {
+                // to KB
 
-            if (val0 > 1024) { // to KB
+                const val1 = (val0 / 1024).toFixed(2);
 
-                const val1 = (val0 / 1024).toFixed(2)
+                if (val1 > 1024) {
+                    // MB
 
-                if (val1 > 1024) { // MB
+                    const val2 = (val1 / 1024).toFixed(2);
 
-                    const val2 = (val1 / 1024).toFixed(2)
-
-                    return `${val2} GB`
-
+                    return `${val2} GB`;
                 } else {
-                    return `${val1} MB`
+                    return `${val1} MB`;
                 }
-
             } else {
-                return `${val0} KB`
+                return `${val0} KB`;
             }
         } else {
-            return `${value} B`
+            return `${value} B`;
         }
     },
     //千位分割
-    toQfw:function(str){
-        if(!str){
-            return 0
+    toQfw: function(str) {
+        if (!str) {
+            return 0;
         }
-        str=str.toString?str.toString():str;
-        let re=/(?=(?!(\b))(\d{3})+$)/g;
-        str=str.replace(re,",");
+        str = str.toString ? str.toString() : str;
+        let re = /(?=(?!(\b))(\d{3})+$)/g;
+        str = str.replace(re, ",");
         return str;
     },
     //文字溢出转换
-    textOverflowExchange(text,length){
-        if(text&&text.length>length){
-            return text.substring(0,length)+"..."
+    textOverflowExchange(text, length) {
+        if (text && text.length > length) {
+            return text.substring(0, length) + "...";
         }
-        return text
+        return text;
     },
     /**
      * json格式化
-     * @param {格式化内容} text 
-     * @param {格式化占位符} space 
+     * @param {格式化内容} text
+     * @param {格式化占位符} space
      */
-    jsonFormat(text,space){
-        try{
-            const json=JSON.parse(text);
-            const output=JSON.stringify(json,null,space||2);
+    jsonFormat(text, space) {
+        try {
+            
+            const json = JSON.parse(text);
+            const output = JSON.stringify(json, null, space || 2);
 
             return output;
-        }
-        catch(e){
+        } catch (e) {
             return null;
         }
     }
-}
+};
 
-export default utils
+export default utils;
 /* eslint-disable */
