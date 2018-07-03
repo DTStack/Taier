@@ -18,42 +18,17 @@ class Content extends Component {
             title: '参数名',
             dataIndex: 'paramName',
             key: 'paramName',
+            width:120
         }, {
             title: '数据类型',
             dataIndex: 'paramType',
             key: 'paramType',
+            width:100
         }, {
-            title: '是否必填',
+            title: '必填',
             dataIndex: 'required',
             key: 'required',
-            render(text) {
-                if (text) {
-                    return '是'
-                }
-                return '否'
-            }
-        }, {
-            title: '说明',
-            dataIndex: 'desc',
-            key: 'desc'
-        }];
-    }
-    getResponseDataSource() {
-        return this.getValue('respParam') || [];
-    }
-    getResponseColumns() {
-        return [{
-            title: '参数名',
-            dataIndex: 'paramName',
-            key: 'paramName',
-        }, {
-            title: '数据类型',
-            dataIndex: 'paramType',
-            key: 'paramType',
-        }, {
-            title: '是否必填',
-            dataIndex: 'required',
-            key: 'required',
+            width:60,
             render(text) {
                 if (text) {
                     return '是'
@@ -64,6 +39,51 @@ class Content extends Component {
             title: '说明',
             dataIndex: 'desc',
             key: 'desc',
+            render(text){
+                if(text&&text.length>10){
+                    return <span title={text}>text</span>
+                }else{
+                    return text
+                }
+            }
+        }];
+    }
+    getResponseDataSource() {
+        return this.getValue('respParam') || [];
+    }
+    getResponseColumns() {
+        return [{
+            title: '参数名',
+            dataIndex: 'paramName',
+            key: 'paramName',
+            width:120
+        }, {
+            title: '数据类型',
+            dataIndex: 'paramType',
+            key: 'paramType',
+            width:100
+        }, {
+            title: '必填',
+            dataIndex: 'required',
+            key: 'required',
+            width:60,
+            render(text) {
+                if (text) {
+                    return '是'
+                }
+                return '否'
+            }
+        }, {
+            title: '说明',
+            dataIndex: 'desc',
+            key: 'desc',
+            render(text){
+                if(text&&text.length>10){
+                    return <span title={text}>text</span>
+                }else{
+                    return text
+                }
+            }
 
         }];
     }
@@ -109,7 +129,7 @@ class Content extends Component {
                         {showExt && (
                             <div>
                                 <p data-title="最近修改人：" className="pseudo-title p-line">{showRecord.modifyUser}</p>
-                                <p data-title="最近修改时间：" className="pseudo-title p-line">{new moment(showRecord.gmtModified).format("YYYY-MM-DD hh:mm:ss")}</p>
+                                <p data-title="最近修改时间：" className="pseudo-title p-line">{new moment(showRecord.gmtModified).format("YYYY-MM-DD HH:mm:ss")}</p>
                             </div>
                         )}
                         <p data-title="订购人数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('applyNum')}</p>

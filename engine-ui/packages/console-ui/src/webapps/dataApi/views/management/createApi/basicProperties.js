@@ -307,10 +307,10 @@ class ManageBasicProperties extends Component {
                             {getFieldDecorator('protocol', {
                                 initialValue: "HTTP/HTTPS"
                             })(
-                                // <Select style={{ width: '85%' }}>
-                                //     <Option value="HTTP/HTTPS">HTTP/HTTPS</Option>
-                                // </Select>
-                                <Input disabled  style={{ width: '85%' }}/>
+                                <Select style={{ width: '85%' }}>
+                                    <Option value="HTTP/HTTPS">HTTP/HTTPS</Option>
+                                </Select>
+                                // <Input disabled  style={{ width: '85%' }}/>
                             )}
                         </FormItem>
                         <FormItem
@@ -334,10 +334,10 @@ class ManageBasicProperties extends Component {
                                 rules: [{ required: true, message: "请选择返回类型" }],
                                 initialValue: "JSON"
                             })(
-                                // <Select style={{ width: '85%' }}>
-                                //     <Option value="JSON">JSON</Option>
-                                // </Select>
-                                <Input disabled  style={{ width: '85%' }} />
+                                <Select style={{ width: '85%' }}>
+                                    <Option value="JSON">JSON</Option>
+                                </Select>
+                                // <Input disabled  style={{ width: '85%' }} />
                             )}
                         </FormItem>
                     </Form>
