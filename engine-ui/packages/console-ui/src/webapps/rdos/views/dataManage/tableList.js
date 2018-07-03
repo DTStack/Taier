@@ -34,7 +34,7 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType } = this.props.location.search && parse(this.props.location.search.substr(1)) || { listType: "1" };
+        const { listType,tableName } = this.props.location.search && parse(this.props.location.search.substr(1)) || { listType: "1",tableName: undefined };
         this.state = {
             table: [],
             editRecord: {},
@@ -50,7 +50,7 @@ class TableList extends Component {
                 pageSize: 10,
                 catalogueId: undefined,
                 pId: undefined,
-                tableName: undefined,
+                tableName,
             },
         }
         this.isAdminAbove = this.props.user && this.props.user.isAdminAbove;

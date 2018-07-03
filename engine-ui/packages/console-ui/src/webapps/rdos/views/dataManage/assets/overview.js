@@ -1,0 +1,446 @@
+import React, { Component } from 'react'
+import { hashHistory } from 'react-router';
+
+import { cloneDeep } from 'lodash'
+import moment from 'moment'
+
+import {
+    Row, Col, Card, Select, DatePicker,
+} from 'antd'
+
+import utils from 'utils'
+import Resize from 'widgets/resize'
+
+import Api from '../../../api'
+import TableDataApi from '../../../api/dataManage'
+import MyIcon from '../../../components/icon'
+import { lineAreaChartOptions, defaultBarOption } from '../../../comm/const'
+
+// 引入 ECharts 主模块
+const echarts = require('echarts/lib/echarts');
+
+// 引入柱状图
+require('echarts/lib/chart/line');
+require('echarts/lib/chart/bar');
+
+// 引入提示框和标题组件
+require('echarts/lib/component/tooltip');
+require('echarts/lib/component/title');
+
+const { RangePicker } = DatePicker;
+const Option = Select.Option;
+
+function initProject(props) {
+    return props.projects && props.projects.length > 0 
+    ? props.projects[0].id : ''
+}
+
+export default class ProjectList extends Component {
+
+    state = {
+        project: {},
+        projectTable: '',
+        projectStore: '',
+        chart1: '',
+        chart2: '',
+        chart3: '',
+        selectedDate: '',
+        selectedProject: '',
+        topStyle: {
+            width: '50%',
+            height: '100%',
+            display: 'inline-block',
+        }
+    }
+
+    componentDidMount() {
+        this.loadProjectStoreTop5()
+        this.loadProjectTableTop5()
+        this.resizeChart()
+
+        if (this.props.projects.length > 0){
+            const pid = this.props.projects[0].id
+            this.setState({
+                selectedProject: pid
+            })
+            this.loadDataOverview(pid)
+            this.loadProjectCount()
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const nextProjects = nextProps.projects
+        const old = this.props.projects
+        if (old.length !== nextProjects.length) {
+            const pid = nextProjects[0].id
+            this.setState({
+                selectedProject: pid
+            }, () => {
+                this.loadDataOverview(pid);
+            })
+            this.loadProjectCount();
+        }
+    }
+
+    loadProjectCount() {
+        const ctx = this
+        const userId = utils.getCookie('dt_user_id')
+        Api.getProjectInfo().then((res) => {
+            console.log('getProjectInfo:',res);
+            
+            ctx.setState({
+                project: res.data,
+            })
+        })
+        TableDataApi.countProjectTable().then((res) => {
+            ctx.setState({
+                projectTable: res.data,
+            })
+        })
+        TableDataApi.countProjectStore().then((res) => {
+            ctx.setState({
+                projectStore: res.data,
+            })
+        })
+    }
+
+    loadDataOverview(projectId) { // 默认最近7天
+        const ctx = this
+        const { selectedDate } = this.state
+
+        if (!projectId) return;
+
+        const params = { pId: projectId }
+        if (selectedDate.length > 0) {
+            params.start = selectedDate[0].unix()
+            params.end = selectedDate[1].unix()
+        }
+        TableDataApi.getProjectDataOverview(params).then((res) => {
+            if (res.code === 1) {
+                ctx.drawOverviewChart(res.data)
+            }
+        })
+    }
+
+    loadProjectStoreTop5() {
+        const ctx = this
+        TableDataApi.getProjectStoreTop({ top: 5 }).then((res) => {
+            if (res.code === 1) {
+                ctx.drawStoreTop5(res.data)
+            }
+        })
+    }
+
+    loadProjectTableTop5() {
+        const ctx = this
+        TableDataApi.getProjectTableStoreTop({ top: 5 }).then((res) => {
+            if (res.code === 1) {
+                ctx.drawTableTop5(res.data)
+            }
+        })
+    }
+
+    getSeries = (data) => {
+        const arr = []
+        if (data.tableNum) {
+            arr.push({
+                name: '表数量',
+                type: 'line',
+                smooth: true,
+                symbolSize: 8,
+                areaStyle: { normal: { opacity: 0.4 } },
+                markLine: {
+                    precision: 1,
+                    label: {
+                        normal: {
+                            show: false,
+                        }
+                    }
+                },
+                data: data.tableNum.y.data || []
+            })
+        }
+        if (data.projectSize) {
+            arr.push({
+                name: '存储量',
+                type: 'line',
+                smooth: true,
+                symbolSize: 8,
+                yAxisIndex: 1,
+                areaStyle: { normal: { opacity: 0.4 } },
+                markLine: {
+                    precision: 1,
+                },
+                data: data.projectSize.y.data || []
+            })
+        }
+        return arr
+    }
+
+    drawOverviewChart(chartData) {
+        let myChart = echarts.init(document.getElementById('DataOverview'));
+        const option = cloneDeep(lineAreaChartOptions);
+        option.title.text = '数据概览'
+        option.legend.show = false
+        option.color[0] = '#F5A623'; //'#69e3be'
+        option.color[1] = '#2491F7'; //'#F5A623'
+
+        option.tooltip.formatter = function (params) {
+            const showVal = utils.convertBytes(params[1].value)
+            return `${params[0].axisValue}
+                <br />${params[0].seriesName}: ${params[0].value} 个
+                <br />${params[1].seriesName}: ${showVal}`
+        }
+
+        option.xAxis[0].axisLabel.formatter = '{value}'
+        option.xAxis[0].axisLabel.textStyle.color = '#666666';
+        option.xAxis[0].data = chartData && chartData.tableNum
+            ? chartData.tableNum.x.data.map(item => moment(item).format('MM-DD'))
+            : []
+
+        option.yAxis[0].name = '表数量'
+        // option.yAxis[0].minInterval = 1
+        option.yAxis[0].axisLabel.formatter = '{value}'
+
+        option.yAxis[1] = cloneDeep(option.yAxis[0])
+        option.yAxis[1].name = '存储量'
+        option.yAxis[1].axisLine.show = false
+        option.yAxis[1].splitLine.show = false
+        option.yAxis[1].axisLabel.formatter = function (value) {
+            return utils.convertBytes(value)
+        }
+
+        // option.yAxis[0].axisLabel.formatter = '{value}'
+        option.series = this.getSeries(chartData)
+        // 绘制图表
+        myChart.setOption(option);
+        this.setState({ chart1: myChart })
+    }
+
+    drawStoreTop5(chartData) {
+        //const { topStyle } = this.state;
+        let myChart = echarts.init(document.getElementById('StoreTop5'));
+        const option = cloneDeep(defaultBarOption);
+        const data = this.getPieData(chartData)
+        option.title.text = '项目占用存储TOP5'
+        option.color = ['#2491F7']
+
+        option.tooltip.formatter = function (params) {
+            const showVal = utils.convertBytes(params[0].value)
+            return `${params[0].seriesName}: ${showVal}`
+        }
+
+        option.yAxis.data = data.y
+        option.yAxis.triggerEvent = true;
+        option.series[0].name = '占用'
+        option.series[0].data = data.x
+        option.series[0].label.normal.formatter = function (params) {
+            return utils.convertBytes(params.value)
+        }
+        option.legend.show = false
+        // 绘制图表
+        myChart.setOption(option);
+        myChart.on('click', (params) => {
+            let projectId;
+            chartData.map(v=>{
+                if(v.projectname==params.value){
+                    projectId = v.projectId
+                }
+            })
+            if (projectId) hashHistory.push(`/data-manage/search?projectId=${projectId}`)
+
+        });
+        //const ctx = this;
+
+        // myChart.on('mouseover', function (params) {
+        //     console.log(params);
+        //     params.event.target.style.textFill="#f60"
+        //     topStyle.textFill = "#f60"
+        //     ctx.setState({topStyle})
+        // });
+        // myChart.on('mouseout', function (params) {
+        //     console.log(params);
+        //     params.event.target.style.textFill="#666"
+        //     topStyle.textFill = "#666"
+        //     ctx.setState({topStyle})
+        // });
+        this.setState({ chart2: myChart })
+    }
+
+    drawTableTop5(chartData) {
+        let myChart = echarts.init(document.getElementById('TableTop5'));
+        const option = cloneDeep(defaultBarOption);
+        const data = this.getPieData(chartData)
+
+        option.color = ['#F5A623']
+        option.title.text = '表占用存储TOP5'
+        option.legend.show = false
+
+        option.tooltip.formatter = function (params) {
+            const showVal = utils.convertBytes(params[0].value)
+            return `${params[0].seriesName}: ${showVal}`
+        }
+
+        option.yAxis.data = data.y
+        option.yAxis.triggerEvent = true;
+        option.series[0].data = data.x
+        option.series[0].name = '占用'
+        option.series[0].label.normal.formatter = function (params) {
+            return utils.convertBytes(params.value)
+        }
+        console.log('chartData',chartData);
+        
+        // 绘制图表
+        myChart.setOption(option);
+        myChart.on('click', (params) => {
+            let tableName = params.value;
+            if (tableName) hashHistory.push(`/data-manage/table?listType=3&tableName=${tableName}`)
+        });
+        this.setState({ chart3: myChart })
+    }
+
+    getPieData(data) {
+        const y = [], x = []
+        if (data && data.length > 0) {
+            for (let i = data.length - 1; i >= 0; i--) {
+                y.push(data[i].projectname)
+                x.push(parseInt(data[i].size, 10))
+            }
+        }
+        return { y, x }
+    }
+
+    resizeChart = () => {
+        const { chart1, chart2, chart3 } = this.state
+        if (chart1) {
+            chart1.resize()
+            chart2.resize()
+            chart3.resize()
+        }
+    }
+
+    changeDate = (selectedDate) => {
+        const { selectedProject } = this.state
+        this.setState({ selectedDate }, () => {
+            this.loadDataOverview(selectedProject)
+        })
+    }
+
+    disabledDate = (current) => {
+        return current && current.valueOf() > new Date().getTime();
+    }
+
+    projectOnChange = (selectedProject) => {
+        this.setState({ selectedProject }, () => {
+            this.loadDataOverview(selectedProject)
+        })
+    }
+
+    render() {
+
+        const { project, selectedProject, projectTable, projectStore, topStyle } = this.state
+
+        const { projects } = this.props
+        const projectOptions = projects ? projects.map(item => {
+            return <Option key={item.id} value={item.id}>{item.projectAlias || item.projectName}</Option>
+        }) : []
+
+        return (
+            <div style={{margin: '0 14px'}}>
+                <Abstract
+                    project={project}
+                    projectTable={projectTable}
+                    projectStore={projectStore}
+                />
+                <Resize onResize={this.resizeChart}>
+                <Row style={{ marginTop: '20px' }}>
+                        <Col span={12}>
+                            <div className="chart-board shadow">
+                                <section
+                                    id="DataOverview"
+                                    style={{ width: '100%', height: '100%' }}>
+                                </section>
+                                <div className="filter">
+                                    <span className="chart-tip"> &nbsp;&nbsp;&nbsp;项目：</span>
+                                    <Select
+                                        value={selectedProject}
+                                        onChange={this.projectOnChange}
+                                        style={{ width: '100px' }}
+                                    >
+                                        {projectOptions}
+                                    </Select>
+                                    &nbsp;&nbsp;
+                                    <RangePicker
+                                        style={{ width: '230px' }}
+                                        format="YYYY-MM-DD"
+                                        disabledDate={this.disabledDate}
+                                        onChange={this.changeDate}
+                                        ranges={{
+                                            '最近7天': [moment().subtract(6, 'days'), moment()],
+                                            '最近30天': [moment().subtract(29, 'days'), moment()],
+                                            '最近60天': [moment().subtract(59, 'days'), moment()]
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </Col>
+                        <Col span={12}>
+                            <div className="chart-board shadow">
+                                <section
+                                    id="StoreTop5"
+                                    color={this.state.color}
+                                    style={topStyle}>
+                                </section>
+                                <section
+                                    id="TableTop5"
+                                    style={topStyle}>
+                                </section>
+                            </div>
+                        </Col>
+                </Row>
+                </Resize>
+            </div>
+        )
+    }
+}
+
+function Abstract(props) {
+    const { project, projectTable, projectStore } = props
+    return (
+        <Row gutter={32}>
+            <Col span={6} style={{ marginLeft:10 }}>
+                <div className="indicator-col shadow">
+                    <div className="left indicator-icon">
+                        <MyIcon type="overview" />
+                    </div>
+                    <div className="left indicator-detail">
+                        <section className="indicator-title">总项目数</section>
+                        <section className="indicator-content">{project.joinProjects || 0}</section>
+                    </div>
+                </div>
+            </Col>
+            <Col span={6}>
+                <div className="indicator-col shadow">
+                    <div className="left indicator-icon">
+                        <MyIcon type="table" />
+                    </div>
+                    <div className="left indicator-detail">
+                        <section className="indicator-title">总表数</section>
+                        <section className="indicator-content">{projectTable || 0}</section>
+                    </div>
+                </div>
+            </Col>
+            <Col span={6}>
+                <div className="indicator-col shadow">
+                    <div className="left indicator-icon">
+                        <MyIcon type="store" />
+                    </div>
+                    <div className="left indicator-detail">
+                        <section className="indicator-title">总存储量</section>
+                        <section className="indicator-content">{projectStore || 0}</section>
+                    </div>
+                </div>
+            </Col>
+        </Row>
+    )
+}

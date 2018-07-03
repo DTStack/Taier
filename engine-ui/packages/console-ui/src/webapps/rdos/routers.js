@@ -61,6 +61,7 @@ import Log from './views/dataManage/log';
 import DataCatalogue from './views/dataManage/dataCatalogue';
 import AuthMana from './views/dataManage/authority';
 import SearchTable from './views/dataManage/search';
+import AssetOverview from './views/dataManage/assets'
 
 // ======= 数据模型 =======
 import DataModelOverview from './views/dataModel/overview';
@@ -174,6 +175,7 @@ export default (
                 <Route path="catalogue" component={DataCatalogue} />
                 <Route path="auth" component={AuthMana} />
                 <Route path="search" component={SearchTable} />
+                <Route path="assets" component={AssetOverview} />
 
             </Route>
             <Route path="/data-model" component={DataModelContainer}>

@@ -9,6 +9,7 @@ import {
 } from 'antd';
 
 import { Link } from 'react-router';
+import { parse } from 'qs';
 import moment from 'moment';
 import { isEmpty } from 'lodash';
 
@@ -32,16 +33,17 @@ class SearchTable extends Component {
 
     constructor(props) {
         super(props);
+        const { projectId } = this.props.location.search&&parse(this.props.location.search.substr(1))||{projectId: undefined};
         this.state = {
             visible: false,
             table: [],
             editRecord: {},
             cardLoading:false,
             queryParams: {
+                pId: projectId,
                 pageIndex: 1,
                 catalogueId: undefined,
                 permissionStatus: undefined,
-                projectId: undefined,
                 tableName: undefined,
             },
         }
@@ -57,7 +59,6 @@ class SearchTable extends Component {
     }
 
     search = () => {
-        const { cardLoading } = this.state;
         this.setState({
             cardLoading: true,
             table: [],
@@ -147,7 +148,7 @@ class SearchTable extends Component {
         )
        
         return content
-    }
+    } 
 
     initialColumns = () => {
         const ctx = this;
@@ -292,6 +293,7 @@ class SearchTable extends Component {
                         optionFilterProp="name"
                         style={{ width: 120 }}
                         placeholder="选择项目"
+                        value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
                     >
                         {projectOptions}
