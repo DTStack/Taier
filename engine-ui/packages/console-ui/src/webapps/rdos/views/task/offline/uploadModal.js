@@ -463,6 +463,8 @@ dispatch => {
                         });
 
                         return true;
+                    } else {
+                        message.success('资源上传异常！');
                     }
                 })
         },

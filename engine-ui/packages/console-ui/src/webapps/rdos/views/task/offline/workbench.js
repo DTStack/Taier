@@ -51,16 +51,6 @@ class Workbench extends React.Component {
         theReqIsEnd: true,
     }
 
-    // shouldComponentUpdate (nextProps, nextState) {
-    //     if (
-    //         this.props.currentTabData !== nextProps.currentTabData ||
-    //         this.props.tabs !== nextProps.tabs
-    //     ) {
-    //         return true;
-    //     }
-    //     return false;
-    // }
-
     handleMenuClick = (e) => {
         if (e.key === '1') {
             const upload = document.getElementById('importFile')
