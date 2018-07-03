@@ -151,7 +151,7 @@ class ApplyBox extends Component {
                                 rules: [
                                     { required: !countMode, message: "请输入调用次数" },
                                 ]
-                            })(<InputNumber disabled={countMode} type="number" />)}
+                            })(<InputNumber min={1} disabled={countMode} type="number" />)}
                              <Checkbox checked={countMode} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
                         </FormItem>
                         <FormItem
