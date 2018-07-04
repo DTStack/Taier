@@ -22,10 +22,10 @@ public abstract class AbsClient implements IClient{
     @Override
 	public JobResult submitJob(JobClient jobClient) {
 
-        EJobType jobType = jobClient.getJobType();
         JobResult jobResult;
-
         try{
+            beforeSubmitFunc(jobClient);
+            EJobType jobType = jobClient.getJobType();
 
             if(EJobType.MR.equals(jobType)){
                 jobResult = submitJobWithJar(jobClient);
@@ -42,7 +42,10 @@ public abstract class AbsClient implements IClient{
         }catch (Exception e){
             logger.error("", e);
             jobResult = JobResult.createErrorResult(e);
+        }finally {
+            afterSubmitFunc(jobClient);
         }
+
         return jobResult;
     }
 
@@ -70,5 +73,13 @@ public abstract class AbsClient implements IClient{
     @Override
     public EngineResourceInfo getAvailSlots() {
         return null;
+    }
+
+    public void beforeSubmitFunc(JobClient jobClient){
+
+    }
+
+    public void afterSubmitFunc(JobClient jobClient){
+
     }
 }

@@ -2,22 +2,27 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
+import com.dtstack.rdos.engine.execution.base.AddJarInfo;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
+import com.dtstack.rdos.engine.execution.flink140.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.flink140.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink140.util.HadoopConf;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
@@ -29,7 +34,6 @@ import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.http.HttpStatus;
-import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +43,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -85,6 +90,8 @@ public class FlinkClient extends AbsClient {
 
     private ClusterClient client;
 
+    private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
+
     /**客户端是否处于可用状态*/
     private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
@@ -113,7 +120,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public void initClient(){
+    protected void initClient(){
         client = flinkClientBuilder.create(flinkConfig);
         setClientOn(true);
     }
@@ -248,36 +255,24 @@ public class FlinkClient extends AbsClient {
      */
     private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException{
 
-        List<URL> addJarList = new ArrayList<>();
-        //TODO 下载需要add jar的语句
-
         try {
             //构建args
             List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
 
-            AddJarOperator addjarOperator = sqlPluginInfo.createAddJarOperatorForCore();
-            //TODO
-            List<Operator> operatorList = Lists.newArrayList();
-            operatorList.add(addjarOperator);
-            jobClient.setOperators(operatorList);
+            List<String> attachJarLists = cacheFile.get(jobClient.getTaskId());
+            if(!CollectionUtils.isEmpty(attachJarLists)){
+                args.add("-addjar");
+                String attachJarStr = PublicUtil.objToString(attachJarLists);
+                args.add(URLEncoder.encode(attachJarStr, Charsets.UTF_8.name()));
+            }
+
+            AddJarInfo coreJarInfo = sqlPluginInfo.createAddJarOperatorForCore();
+            jobClient.setCoreJarInfo(coreJarInfo);
 
             return submitJobWithJar(jobClient, Lists.newArrayList(), args);
         } catch (Exception e) {
             logger.info("", e);
             return JobResult.createErrorResult(e);
-        }finally {
-            //清理包含下载下来的临时jar文件
-            for(URL path : addJarList){
-                try{
-                    File file = new File(path.getPath());
-                    if(file.exists()){
-                        file.delete();
-                    }
-
-                }catch (Exception e1){
-                    logger.error("", e1);
-                }
-            }
         }
     }
 
@@ -424,8 +419,6 @@ public class FlinkClient extends AbsClient {
             } else {
                 return null;
             }
-        } catch (HttpHostConnectException e){
-            return null;
         } catch (IOException e) {
             return null;
         }
@@ -499,8 +492,8 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
-        AddJarOperator addjarOperator = syncPluginInfo.createAddJarOperator();
-        jobClient.addOperator(addjarOperator);
+        AddJarInfo coreJar = syncPluginInfo.createAddJarInfo();
+        jobClient.setCoreJarInfo(coreJar);
 
         List<String> programArgList = syncPluginInfo.createSyncPluginArgs(jobClient, this);
         List<URL> classPaths = syncPluginInfo.getClassPaths(programArgList);
@@ -555,6 +548,73 @@ public class FlinkClient extends AbsClient {
         }
 
         return resourceInfo;
+    }
+
+    @Override
+    public void beforeSubmitFunc(JobClient jobClient) {
+        String sql = jobClient.getSql();
+        String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
+        if(sqlArr.length == 0){
+            return;
+        }
+
+        List<String> sqlList = Lists.newArrayList(sqlArr);
+        Iterator<String> sqlIter = sqlList.iterator();
+        List<String> fileList = Lists.newArrayList();
+
+        while (sqlIter.hasNext()){
+            String tmpSql = sqlIter.next();
+            if(AddJarOperator.verific(tmpSql)){
+                sqlIter.remove();
+                AddJarInfo addJarInfo = AddJarOperator.parseSql(tmpSql);
+                String addFilePath = addJarInfo.getJarPath();
+                File tmpFile = null;
+                try {
+                    tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf);
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
+                fileList.add(tmpFile.getAbsolutePath());
+
+                //更改路径为本地路径
+                addJarInfo.setJarPath(tmpFile.getAbsolutePath());
+
+                if(jobClient.getJobType() == EJobType.SQL){
+                    jobClient.addAttachJarInfo(addJarInfo);
+                }else{
+                    //非sql任务只允许提交一个附件包
+                    jobClient.setCoreJarInfo(addJarInfo);
+                    break;
+                }
+            }
+        }
+
+        cacheFile.put(jobClient.getTaskId(), fileList);
+        jobClient.setSql(String.join(";", sqlList));
+    }
+
+    @Override
+    public void afterSubmitFunc(JobClient jobClient) {
+        List<String> fileList = cacheFile.get(jobClient.getTaskId());
+        if(CollectionUtils.isEmpty(fileList)){
+            return;
+        }
+
+        //清理包含下载下来的临时jar文件
+        for(String path : fileList){
+            try{
+                File file = new File(path);
+                if(file.exists()){
+                    file.delete();
+                }
+
+            }catch (Exception e1){
+                logger.error("", e1);
+            }
+        }
+
+        cacheFile.remove(jobClient.getTaskId());
     }
 
     private boolean existsJobOnFlink(String engineJobId){

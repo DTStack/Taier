@@ -46,7 +46,6 @@ public class FlinkSubmitTest {
         JobClient jobClient = new JobClient();
         AddJarOperator addJarOperator = new AddJarOperator();
         addJarOperator.setJarPath("http://114.55.63.129/flinktest-1.0-SNAPSHOT.jar");
-        jobClient.addOperator(addJarOperator);
 
         JobSubmitExecutor.getInstance().submitJob(jobClient);
         System.out.println("---------over--------");

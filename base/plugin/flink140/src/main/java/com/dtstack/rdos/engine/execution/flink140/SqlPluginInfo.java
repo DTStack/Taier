@@ -2,14 +2,15 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.AddJarInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -115,11 +116,11 @@ public class SqlPluginInfo {
         return args;
     }
 
-    public AddJarOperator createAddJarOperatorForCore(){
-        AddJarOperator addjarOperator = new AddJarOperator();
+    public AddJarInfo createAddJarOperatorForCore(){
+        AddJarInfo addJarInfo = new AddJarInfo();
         String jarFilePath  = localSqlRootJar + SP + CORE_JAR;
-        addjarOperator.setJarPath(jarFilePath);
-        return addjarOperator;
+        addJarInfo.setJarPath(jarFilePath);
+        return addJarInfo;
     }
 
 }

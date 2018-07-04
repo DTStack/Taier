@@ -68,13 +68,11 @@ public class TestRunSql {
         paramAction.setSqlText(sql);
         paramAction.setComputeType(ComputeType.STREAM.ordinal());
 
-        List<Operator> operators = SqlParser.parser(paramAction.getEngineType(),paramAction.getComputeType(),paramAction.getSqlText());
         JobClient jobClient = new JobClient();
         jobClient.setJobType(EJobType.SQL);
         jobClient.setTaskId("test_sql_job");
         jobClient.setJobName("test_sql_job");
         jobClient.setComputeType(ComputeType.STREAM);
-        jobClient.addOperators(operators);
 
         System.out.println("---------wait----------");
     }
@@ -103,14 +101,12 @@ public class TestRunSql {
         paramAction.setComputeType(ComputeType.BATCH.ordinal());
 
         initSpark();
-        List<Operator> operators = SqlParser.parser(paramAction.getEngineType(),paramAction.getComputeType(),paramAction.getSqlText());
         JobClient jobClient = new JobClient();
         jobClient.setEngineType("spark");
         jobClient.setJobType(EJobType.SQL);
         jobClient.setTaskId("test_sql_job");
         jobClient.setJobName("test_sql_job");
         jobClient.setComputeType(ComputeType.BATCH);
-        jobClient.addOperators(operators);
 
         System.out.println("---------wait----------");
     }
