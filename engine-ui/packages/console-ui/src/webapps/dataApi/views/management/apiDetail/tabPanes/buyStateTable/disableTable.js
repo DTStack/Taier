@@ -13,7 +13,6 @@ class DisableTable extends Component {
             title: '用户',
             dataIndex: 'userName',
             key: 'userName',
-            fixed:"left",
             width:"180px"
 
         },{
@@ -62,7 +61,6 @@ class DisableTable extends Component {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            fixed:"right",
             width:"200px",
             render(text){
                 return utils.formatDateTime(text);

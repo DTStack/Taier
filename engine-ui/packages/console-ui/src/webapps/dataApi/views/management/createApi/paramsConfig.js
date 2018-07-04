@@ -280,9 +280,9 @@ class ManageParamsConfig extends Component {
         cancelAndSave(this.getSaveData());
     }
     pass() {
-        const {isEdit} = this.props;
+        const {isEdit,mode} = this.props;
         const {  InputColumns, OutputColums, editor } = this.state;
-        if(!editor.sql){
+        if(!editor.sql&&mode==API_MODE.SQL){
             console.log("sql不能为空")
             return
         }

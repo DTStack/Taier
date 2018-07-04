@@ -185,6 +185,8 @@ export function DatabaseType(props) {
         return <span>Oracle</span>
     case DATA_SOURCE.SQLSERVER:
         return <span>SQLServer</span>
+    case DATA_SOURCE.POSTGRESQL:
+        return <span>PostgreSQL</span> 
     case DATA_SOURCE.HDFS:
         return <span>HDFS</span>
     case DATA_SOURCE.HIVE:
@@ -197,6 +199,10 @@ export function DatabaseType(props) {
         return <span>MaxCompute</span>
     case DATA_SOURCE.ES:
         return <span>ElasticSearch</span>
+    case DATA_SOURCE.REDIS:
+        return <span>Redis</span>
+    case DATA_SOURCE.MONGODB:
+        return <span>MongoDB</span>
     default:
         return <span>其他</span>
     }

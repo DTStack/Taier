@@ -16,14 +16,12 @@ class EnableTable extends Component {
             title: '用户',
             dataIndex: 'userName',
             key: 'userName',
-            fixed:"left",
             width:"180px"
 
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            fixed:"left",
             width:"80px",
             filters: [
                 { text: '正常', value: '1' },
@@ -89,7 +87,6 @@ class EnableTable extends Component {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            fixed:"right",
             width:"180px",
             render(text) {
                 return utils.formatDateTime(text);

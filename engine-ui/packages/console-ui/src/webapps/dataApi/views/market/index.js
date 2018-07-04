@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { Card, Input, Select, Cascader, Table, Modal, Form } from "antd"
+import { Card, Input, Select, Cascader, Table, Modal, Tabs } from "antd"
 import { apiMarketActions } from '../../actions/apiMarket';
 import utils from "utils";
 
@@ -275,7 +275,7 @@ class APIMarket extends Component {
     }
     getSource() {
         const errorDic = {
-            5:"nothing",
+            5: "nothing",
             4: "complete",
             3: "complete",
             2: "nothing",
@@ -382,14 +382,23 @@ class APIMarket extends Component {
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">
+
                     <SlidePane
                         className="m-tabs tabs-filter-show"
                         visible={slidePaneShow}
                         style={{ right: '-20px', width: '80%', minHeight: '720px', height: '100%' }}
                         onClose={this.closeSlide.bind(this)}>
-                        <div style={{ paddingLeft: "40px", paddingTop: "20px" }}>
-                            <Content apiMarket={apiMarket} apiId={detailRecord.key} />
-                        </div>
+                        <Tabs
+                            animated={false}
+                            
+                        >
+                            <Tabs.TabPane tab="API详情" key="callMethod">
+                                <div style={{ paddingLeft: "40px", paddingTop: "20px" }}>
+                                    <Content apiMarket={apiMarket} apiId={detailRecord.key} />
+                                </div>
+                            </Tabs.TabPane>
+                        </Tabs>
+
                     </SlidePane>
                     <Card
 

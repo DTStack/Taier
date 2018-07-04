@@ -566,9 +566,128 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
+            case DATA_SOURCE.REDIS: {
+                return [
+                    <FormItem
+                        {...formItemLayout}
+                        label="地址"
+                        key="hostport"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hostPort', {
+                            rules: [{
+                                required: true, message: '地址不可为空！',
+                            }],
+                            initialValue: config.hostPort || '',
+                        })(
+                            <Input
+                                placeholder="Redis地址，例如：IP1:Port，暂不支持集群模式"
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="database"
+                        {...formItemLayout}
+                        label="数据库"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.database', {
+                            rules: [{
+                                required: true, message: '数据库不可为空！',
+                            }],
+                            initialValue: '',
+                        })(
+                            <Input autoComplete="off" />,
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="password"
+                        {...formItemLayout}
+                        label="密码"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: true, message: '密码不可为空！',
+                            }],
+                            initialValue: '',
+                        })(
+                            <Input type="password" autoComplete="off" />,
+                        )}
+                    </FormItem>,
+                ]
+            }
+            case DATA_SOURCE.MONGODB: {
+                return [
+                    <FormItem
+                        {...formItemLayout}
+                        label="集群地址"
+                        key="hostports"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hostPorts', {
+                            rules: [{
+                                required: true, message: '集群地址不可为空！',
+                            }],
+                            initialValue: config.hostPorts || '',
+                        })(
+                            <Input
+                                type="textarea" rows={4}
+                                placeholder="MongoDB集群地址，例如：IP1:Port,IP2:Port,IP3:Port"
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="username"
+                        {...formItemLayout}
+                        label="用户名"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.username', {
+                            rules: [{
+                                required: true, message: '用户名不可为空！',
+                            }],
+                            initialValue: '',
+                        })(
+                            <Input autoComplete="off" />,
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="password"
+                        {...formItemLayout}
+                        label="密码"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: true, message: '密码不可为空！',
+                            }],
+                            initialValue: '',
+                        })(
+                            <Input type="password" autoComplete="off" />,
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="database"
+                        {...formItemLayout}
+                        label="数据库"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.database', {
+                            rules: [{
+                                required: true, message: '数据库不可为空！',
+                            }],
+                            initialValue: '',
+                        })(
+                            <Input autoComplete="off" />,
+                        )}
+                    </FormItem>,
+                ]
+            }
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER: {
+            case DATA_SOURCE.SQLSERVER: 
+            case DATA_SOURCE.POSTGRESQL: {
                 return [
                     <FormItem
                         {...formItemLayout}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
 import { Card, Icon, Row, Col, Button, Modal } from "antd"
-import ApplyBox from "../applyBox"
+
 import utils from "utils";
 let modal;
 class TopCard extends Component {

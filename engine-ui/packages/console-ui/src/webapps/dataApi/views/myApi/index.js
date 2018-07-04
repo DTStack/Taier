@@ -122,7 +122,7 @@ class MyAPI extends Component {
                         <Tabs.TabPane tab="已审批" key="approved">
                             <ApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
-                        <Tabs.TabPane tab="未审批" key="notApproved">
+                        <Tabs.TabPane tab="审批中" key="notApproved">
                             <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>
