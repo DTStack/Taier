@@ -51,7 +51,6 @@ public class SparkSubmitTest {
         BatchAddJarOperator addJarOperator = new BatchAddJarOperator();
         addJarOperator.setJarPath("hdfs://172.16.1.151:9000/user/spark/spark-0.0.1-SNAPSHOT.jar");
         addJarOperator.setMainClass("com.dtstack.main.SparkFirstTest");
-        jobClient.addOperator(addJarOperator);
         jobClient.setJobName("engine_submit_job_test");
 
         JobSubmitExecutor.getInstance().submitJob(jobClient);
@@ -70,7 +69,6 @@ public class SparkSubmitTest {
 
         String sql = "CREATE TABLE engine_test (a int, b int, c int);";
         executionOperator.createOperator(sql);
-        jobClient.addOperator(executionOperator);
         jobClient.setJobName("engine_submit_job_test");
 
         JobSubmitExecutor.getInstance().submitJob(jobClient);

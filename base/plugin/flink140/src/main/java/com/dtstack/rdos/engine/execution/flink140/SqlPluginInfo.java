@@ -116,7 +116,7 @@ public class SqlPluginInfo {
         return args;
     }
 
-    public AddJarInfo createAddJarOperatorForCore(){
+    public AddJarInfo createCoreJarInfo(){
         AddJarInfo addJarInfo = new AddJarInfo();
         String jarFilePath  = localSqlRootJar + SP + CORE_JAR;
         addJarInfo.setJarPath(jarFilePath);

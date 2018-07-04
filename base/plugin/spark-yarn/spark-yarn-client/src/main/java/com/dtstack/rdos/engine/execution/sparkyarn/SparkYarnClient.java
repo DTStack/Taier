@@ -220,20 +220,9 @@ public class SparkYarnClient extends AbsClient {
      */
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
         setHadoopUserName(sparkYarnConfig);
-        if(jobClient.getOperators().size() < 1){
-            throw new RdosException("don't have any batch operator for spark sql job. please check it.");
-        }
 
-        StringBuffer sb = new StringBuffer("");
-        for(Operator operator : jobClient.getOperators()){
-            String tmpSql = operator.getSql();
-            sb.append(tmpSql)
-                    .append(";");
-        }
-
-        String exeSql = sb.toString();
         Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put("sql", exeSql);
+        paramsMap.put("sql", jobClient.getSql());
         paramsMap.put("appName", jobClient.getJobName());
 
         String sqlExeJson = null;

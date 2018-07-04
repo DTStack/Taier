@@ -266,7 +266,7 @@ public class FlinkClient extends AbsClient {
                 args.add(URLEncoder.encode(attachJarStr, Charsets.UTF_8.name()));
             }
 
-            AddJarInfo coreJarInfo = sqlPluginInfo.createAddJarOperatorForCore();
+            AddJarInfo coreJarInfo = sqlPluginInfo.createCoreJarInfo();
             jobClient.setCoreJarInfo(coreJarInfo);
 
             return submitJobWithJar(jobClient, Lists.newArrayList(), args);
@@ -277,108 +277,6 @@ public class FlinkClient extends AbsClient {
     }
 
     private JobResult submitSqlJobForBatch(JobClient jobClient) throws FileNotFoundException, MalformedURLException, ClassNotFoundException {
-        /*ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-        BatchTableEnvironment tableEnv = BatchTableEnvironment.getTableEnvironment(env);
-        Table resultTable = null;
-
-        URLClassLoader classLoader = null;
-        int currStep = 0;
-        List<String> jarPathList = new ArrayList<>();
-        List<URL> jarURList = Lists.newArrayList();
-        Set<String> classPathSet = Sets.newHashSet();
-
-        try{
-            for(Operator operator : jobClient.getOperators()){
-
-                if(operator instanceof BatchAddJarOperator){
-                    if(currStep > 0){
-                        throw new RdosException("sql job order setting err. cause of AddJarOperator");
-                    }
-
-                    BatchAddJarOperator addJarOperator = (BatchAddJarOperator) operator;
-                    String addFilePath = addJarOperator.getJarPath();
-                    File tmpFile = FlinkUtil.downloadJar(addFilePath, tmpFileDirPath, hadoopConf);
-                    jarURList.add(tmpFile.toURI().toURL());
-                    jarPathList.add(tmpFile.getAbsolutePath());
-
-                }else if(operator instanceof BatchCreateSourceOperator){
-                    if(currStep > 1){
-                        throw new RdosException("sql job order setting err. cause of BatchCreateSourceOperator");
-                    }
-
-                    currStep = 1;
-
-                    BatchCreateSourceOperator sourceOperator = (BatchCreateSourceOperator) operator;
-                    BatchTableSource tableSource = BatchSourceFactory.getBatchSource(sourceOperator, sqlPluginInfo);
-                    tableEnv.registerTableSource(sourceOperator.getName(), tableSource);
-
-                    String sourceType = sourceOperator.getType() + BatchSourceFactory.SUFFIX_JAR;
-                    String remoteJarPath = sqlPluginInfo.getRemoteJarFilePath(sourceType);
-                    classPathSet.add(remoteJarPath);
-
-                }else if(operator instanceof CreateFunctionOperator){//注册自定义func
-                    if(currStep > 2){
-                        throw new RdosException("sql job order setting err. cause of CreateFunctionOperator");
-                    }
-
-                    currStep = 2;
-                    CreateFunctionOperator tmpOperator = (CreateFunctionOperator) operator;
-                    //需要把字节码加载进来
-                    if(classLoader == null){
-                        classLoader = FlinkUtil.createNewClassLoader(jarURList, this.getClass().getClassLoader());
-                    }
-
-                    classLoader.loadClass(tmpOperator.getClassName());
-                    FlinkUtil.registerUDF(tmpOperator.getType(), tmpOperator.getClassName(), tmpOperator.getName(),
-                            tableEnv, classLoader);
-
-                }else if(operator instanceof BatchExecutionOperator){
-
-                    if(currStep > 3){
-                        throw new RdosException("sql job order setting err. cause of ExecutionOperator");
-                    }
-
-                    currStep = 3;
-                    BatchExecutionOperator exeOperator = (BatchExecutionOperator) operator;
-                    resultTable = tableEnv.sql(exeOperator.getSql());
-
-                }else if(operator instanceof BatchCreateResultOperator){
-
-                    if(currStep > 4){
-                        throw new RdosException("sql job order setting err. cause of StreamCreateResultOperator");
-                    }
-
-                    currStep = 4;
-
-                    BatchCreateResultOperator sinkOperator = (BatchCreateResultOperator) operator;
-                    TableSink tableSink = BatchSinkFactory.getTableSink(sinkOperator, sqlPluginInfo);
-                    resultTable.writeToSink(tableSink);
-
-                    String sinkType = sinkOperator.getType() + BatchSinkFactory.SUFFIX_JAR;
-                    String remoteJarPath = sqlPluginInfo.getRemoteJarFilePath(sinkType);
-                    classPathSet.add(remoteJarPath);
-                }
-            }
-
-
-            Plan plan = env.createProgramPlan();
-            Configuration configuration = client.getFlinkConfiguration();
-            Optimizer pc = new Optimizer(new DataStatistics(), configuration);
-            OptimizedPlan op = pc.compile(plan);
-
-            List<URL> classPathList = Lists.newArrayList();
-            for(String jarPath : classPathSet){
-                URL jarURL = new URL(SqlPluginInfo.getFileURLFormat(jarPath));
-                classPathList.add(jarURL);
-            }
-
-            JobSubmissionResult submissionResult = client.run(op, jarURList, classPathList, this.getClass().getClassLoader());
-            return JobResult.createSuccessResult(submissionResult.getJobID().toString());
-        }catch (Exception e){
-            logger.error("", e);
-            return JobResult.createErrorResult(e);
-        }*/
-
         throw new RdosException("not support for flink batch sql now!!!");
 
     }
