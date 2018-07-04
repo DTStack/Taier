@@ -169,8 +169,9 @@ export function getVertxtStyle(type) {
         case TASK_STATUS.FINISHED: // 完成
         case TASK_STATUS.SET_SUCCESS:
             return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;'
-        case TASK_STATUS.RUNNING: // 进行中
         case TASK_STATUS.SUBMITTING:
+        case TASK_STATUS.RUNNING:
+                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
         case TASK_STATUS.RESTARTING:
         case TASK_STATUS.STOPING:
         case TASK_STATUS.DEPLOYING:

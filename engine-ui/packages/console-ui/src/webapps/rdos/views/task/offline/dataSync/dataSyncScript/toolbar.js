@@ -292,7 +292,7 @@ class SyncToolbar extends Component {
         data.sqlText = utils.jsonFormat(template);
 
         this.setState({
-            execConfirmVisible:false
+            execConfirmVisible: false
         });
 
         dispatch({

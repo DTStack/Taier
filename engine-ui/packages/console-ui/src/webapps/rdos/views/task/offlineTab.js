@@ -123,12 +123,6 @@ class OfflineTabPane extends Component {
             toggleUpload,
             toggleCreateFolder,
             toggleCoverUpload,
-            taskTreeData,
-            resourceTreeData,
-            functionTreeData,
-            sysFunctionTreeData,
-            scriptTreeData,
-            tableTreeData,
             toggleCreateFn,
             toggleCreateScript,
             showSeachTask,
@@ -178,6 +172,11 @@ class OfflineTabPane extends Component {
         }
     }
 
+    // refresh = (nodePid, type) => {
+    //     let pid = '';
+    //     this.props.reloadTreeNodes();
+    // }
+
     renderTabPanes = () => {
 
         const {
@@ -187,6 +186,7 @@ class OfflineTabPane extends Component {
             sysFunctionTreeData,
             scriptTreeData,
             tableTreeData,
+            reloadTreeNodes,
         } = this.props;
 
         const { subMenus } = this.state
@@ -200,6 +200,14 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        className=""
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="task:newTask">
@@ -231,6 +239,14 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.SCRIPT: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        className=""
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="script:newScript">
@@ -259,6 +275,14 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.RESOURCE: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        className=""
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="resource:upload">
@@ -290,6 +314,14 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.FUNCTION: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        className=""
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="function:newFunc">
@@ -345,7 +377,7 @@ class OfflineTabPane extends Component {
         const {
             taskTreeData
         } = this.props;
-        const defaultOpen = [`${taskTreeData.id}`];
+        // const defaultOpen = [`${taskTreeData.id}`];
 
         return (
             <div className="g-taskOfflineSidebar task-sidebar m-tabs">
@@ -429,6 +461,10 @@ dispatch => {
 
         loadTaskParams: function() {
             actions.loadTaskParams();
+        },
+
+        reloadTreeNodes: function(nodePid, type) {
+            actions.loadTreeNode(nodePid, type);
         },
 
         dispatch
