@@ -14,36 +14,12 @@ class ColumnsConfig extends React.Component {
     state = {
         InputSelectedRows: [],
         OutSelectedRows: [],
-        InputIsEdit: false,
-        OutputIsEdit: false
+    }
 
-    }
-    componentWillMount(){
-        const {isEdit} = this.props;
-        if(isEdit){
-            this.setState({
-                InputIsEdit: true,
-                OutputIsEdit: true
-            })
-        }
-    }
-    componentWillReceiveProps(nextProps){
-        const {isEdit} = this.props;
-        if(nextProps.isEdit!=isEdit&&nextProps.isEdit){
-            this.setState({
-                InputIsEdit: true,
-                OutputIsEdit: true
-            })
-        }
-    }
-    changeEditStatus(key, value) {
-        this.setState({
-            [key]: value
-        },
-            () => {
-                this.props.changeEditStatus(this.state.InputIsEdit || this.state.OutputIsEdit);
-            })
+    changeEditStatus(input, output) {
+        const {InputIsEdit,OutputIsEdit} = this.props;
 
+        this.props.changeColumnsEditStatus(typeof input=="boolean"?input:InputIsEdit,typeof output=="boolean"?output:OutputIsEdit);         
     }
     renderEdit(dataIndex, id, type, initialValue) {
         const { getFieldDecorator } = this.props.form;
@@ -110,7 +86,7 @@ class ColumnsConfig extends React.Component {
         }
     }
     initColumns(type) {
-        const { InputIsEdit, OutputIsEdit } = this.state;
+        const { InputIsEdit, OutputIsEdit } = this.props;
         const {mode} =this.props;
         const isGuideMode=mode==API_MODE.GUIDE;
         if (type == 'in') {
@@ -225,24 +201,16 @@ class ColumnsConfig extends React.Component {
 
     onEdit(type) {
         if (type == 'in') {
-            this.changeEditStatus(
-                'InputIsEdit', true
-            )
+            this.changeEditStatus(true)
         } else if (type == 'out') {
-            this.changeEditStatus(
-                'OutputIsEdit', true
-            )
+            this.changeEditStatus(null,true)
         }
     }
     cancelEdit(type) {
         if (type == 'in') {
-            this.changeEditStatus(
-                'InputIsEdit', false
-            )
+            this.changeEditStatus(false)
         } else if (type == 'out') {
-            this.changeEditStatus(
-                'OutputIsEdit', false
-            )
+            this.changeEditStatus(null,false)
         }
     }
     filterSelectRow(rows, type) {
@@ -297,13 +265,13 @@ class ColumnsConfig extends React.Component {
         validateFields(validateFieldsKeys, (errors, values) => {
             if (!errors) {
                 let Columns;
-                let stateName;
+                let input,output;
                 if (type == 'in') {
                     Columns = cloneDeep(InputColumns);
-                    stateName = 'InputIsEdit'
+                    input=false;
                 } else if (type == 'out') {
                     Columns = cloneDeep(OutputColums);
-                    stateName = 'OutputIsEdit'
+                    output = false;
 
                 }
                 const updateData = Columns.map(
@@ -322,9 +290,7 @@ class ColumnsConfig extends React.Component {
                 )
                 if (checkRepeat(updateData)) {
                     updateColumns(updateData, type)
-                    this.changeEditStatus(
-                        stateName, false
-                    )
+                    this.changeEditStatus(input,output)
                 } else {
                     message.error("参数不能重复", 2)
                 }
@@ -344,8 +310,9 @@ class ColumnsConfig extends React.Component {
 
     render() {
         const { InputColumns, OutputColums, addColumns, removeColumns, selectedRows,
-            resultPageChecked, resultPage, resultPageCheckedChange, resultPageChange, mode } = this.props;
-        const { InputSelectedRows, OutSelectedRows, InputIsEdit, OutputIsEdit } = this.state;
+            resultPageChecked, resultPage, resultPageCheckedChange, resultPageChange, mode,
+            InputIsEdit,OutputIsEdit } = this.props;
+        const { InputSelectedRows, OutSelectedRows } = this.state;
         const inputTableColumns = this.initColumns('in');
         const outputTableColumns = this.initColumns('out');
 

@@ -76,7 +76,7 @@ class detailSlidePane extends Component {
                     tabBarExtraContent={this.getDateTypeView()}
                 >
                     <Tabs.TabPane tab="API详情" key="callMethod">
-                        <ApiCallMethod {...this.props} ></ApiCallMethod>
+                        <ApiCallMethod {...this.props} showUserInfo={true} ></ApiCallMethod>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="调用情况" key="callState">
                         <h1 className="title-border-l-blue slide-title">调用统计</h1>

@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 import { Input, Icon, Button, Checkbox, Select, Form, Table, message, Card } from "antd";
-import {cloneDeep} from "lodash";
+import { cloneDeep } from "lodash";
 
 import ColumnsConfig from "./params/columnsConfig"
 import ColumnsModel from "../../../model/columnsModel"
@@ -35,18 +35,18 @@ class ManageParamsConfig extends Component {
     }
 
     componentWillMount() {
-        const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql, isEdit } = this.props;
+        const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql,
+            InputIsEdit, OutputIsEdit } = this.props;
         this.setState({
             InputColumns: inputParam || [],
             OutputColums: outputParam || [],
             resultPageChecked: resultPageChecked,
             resultPage: resultPage,
-            isEdit: isEdit,
             editor: {
                 sql: sql,
                 sync: true
             },
-            sqlModeShow:isEdit
+            sqlModeShow: InputIsEdit && OutputIsEdit
         });
         if (dataSrcId || dataSrcId == 0) {
             this.props.tablelist(dataSrcId)
@@ -82,7 +82,7 @@ class ManageParamsConfig extends Component {
                 sync: false,
             }
         })
-        this.props.changeEditStatus(true)
+        this.props.changeColumnsEditStatus(true,true)
     }
     resultPageCheckedChange(evt) {
         this.setState({
@@ -94,8 +94,8 @@ class ManageParamsConfig extends Component {
             resultPage: value
         })
     }
-    changeEditStatus(value) {
-        this.props.changeEditStatus(value)
+    changeColumnsEditStatus(input,output) {
+        this.props.changeColumnsEditStatus(input,output)
     }
     updateColumns(columns, type) {
         switch (type) {
@@ -280,15 +280,18 @@ class ManageParamsConfig extends Component {
         cancelAndSave(this.getSaveData());
     }
     pass() {
-        const {isEdit,mode} = this.props;
-        const {  InputColumns, OutputColums, editor } = this.state;
-        if(!editor.sql&&mode==API_MODE.SQL){
+        const { InputIsEdit, OutputIsEdit, mode } = this.props;
+        const isEdit = InputIsEdit || OutputIsEdit;
+        const { InputColumns, OutputColums, editor } = this.state;
+        if (!editor.sql && mode == API_MODE.SQL) {
             console.log("sql不能为空")
             return
         }
         if (isEdit) {
             message.warning("请先完成参数编辑", 2)
-            this.sqlModeShowChange(true);
+            if(mode==API_MODE.SQL){
+                this.sqlModeShowChange(true);
+            }
             return;
         }
         if (!OutputColums || OutputColums.length == 0) {
@@ -306,7 +309,8 @@ class ManageParamsConfig extends Component {
         this.props.dataChange(this.getSaveData())
     }
     prev() {
-        const { mode , isEdit} = this.props;
+        const { mode, InputIsEdit, OutputIsEdit } = this.props;
+        const isEdit = InputIsEdit || OutputIsEdit;
         if (isEdit && API_MODE.GUIDE == mode) {
             message.warning("请先完成参数编辑", 2)
             return;
@@ -329,70 +333,70 @@ class ManageParamsConfig extends Component {
         return true;
     }
     sqlModeShowChange(isHide) {
-        isHide=typeof isHide=="boolean"?isHide:false;
+        isHide = typeof isHide == "boolean" ? isHide : false;
         const dataSource = this.props.form.getFieldValue("dataSource");
         const sql = this.state.editor.sql;
         const show = !this.state.sqlModeShow;
-        if(show){
+        if (show) {
             this.setState({
-                sqlModeShow: isHide?false:true
+                sqlModeShow: isHide ? false : true
             });
-            return ;
+            return;
         }
-        if(!dataSource&&dataSource!=0){
+        if (!dataSource && dataSource != 0) {
             message.warning("请选择数据源!");
             return;
         }
-        if(!sql){
+        if (!sql) {
             message.warning("sql不能为空!");
             return;
         }
         this.setState({
-            loading:true
+            loading: true
         })
-        this.props.sqlParser(sql,dataSource)
+        this.props.sqlParser(sql, dataSource)
             .then(
                 (res) => {
                     if (res) {
                         this.setState({
-                            InputColumns:this.exchangeServerParams(res.data.inputParam,'in'),
-                            OutputColums:this.exchangeServerParams(res.data.outputParam,'out'),
+                            InputColumns: this.exchangeServerParams(res.data.inputParam, 'in'),
+                            OutputColums: this.exchangeServerParams(res.data.outputParam, 'out'),
                             sqlModeShow: !this.state.sqlModeShow,
-                            loading:false
+                            loading: false
                         })
                     }
                 }
             )
     }
-    exchangeServerParams(columns,type){
-        const {InputColumns, OutputColums} = this.state;
-        let nowColumns=type=='in'?InputColumns:OutputColums;
-        const tmpCache={};
-        for(let i=0;i<nowColumns.length;i++){
-            let column=nowColumns[i];
-            tmpCache[column.columnName]=column;
+    exchangeServerParams(columns, type) {
+        const { InputColumns, OutputColums } = this.state;
+        let nowColumns = type == 'in' ? InputColumns : OutputColums;
+        const tmpCache = {};
+        for (let i = 0; i < nowColumns.length; i++) {
+            let column = nowColumns[i];
+            tmpCache[column.columnName] = column;
         }
-        return columns?columns.map(
-            (column)=>{
-                const cacheColumn=tmpCache[column.fieldName];
-                let id,desc,required;
+        return columns ? columns.map(
+            (column) => {
+                const cacheColumn = tmpCache[column.fieldName];
+                let id, desc, required;
 
-                if(cacheColumn){
-                    id=cacheColumn.id;
-                    desc=cacheColumn.desc;
-                    required=cacheColumn.required;
+                if (cacheColumn) {
+                    id = cacheColumn.id;
+                    desc = cacheColumn.desc;
+                    required = cacheColumn.required;
                 }
                 return new ColumnsModel({
-                    key:column.fieldName,
-                    type:column.paramType,
-                    paramsName:column.paramName,
-                    operator:column.operator,
-                    id:id,
+                    key: column.fieldName,
+                    type: column.paramType,
+                    paramsName: column.paramName,
+                    operator: column.operator,
+                    id: id,
                     desc: desc,
                     required: required
                 })
             }
-        ):[];
+        ) : [];
     }
     sqlFormat() {
         this.props.sqlFormat(this.state.editor.sql)
@@ -411,7 +415,7 @@ class ManageParamsConfig extends Component {
     }
     render() {
         const columns = this.initColumns();
-        const { mode, isEdit } = this.props;
+        const { mode, InputIsEdit, OutputIsEdit } = this.props;
         const { tableData, dataSourceList, tableList, InputColumns, OutputColums, selectedRows, resultPageChecked, resultPage, sqlModeShow, editor, loading } = this.state;
         const { getFieldDecorator } = this.props.form;
 
@@ -490,7 +494,7 @@ class ManageParamsConfig extends Component {
                                         addColumns={this.addColumns.bind(this)}
                                         removeColumns={this.removeColumns.bind(this)}
                                         updateColumns={this.updateColumns.bind(this)}
-                                        changeEditStatus={this.changeEditStatus.bind(this)}
+                                        changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
                                         checkRepeat={this.checkRepeat.bind(this)}
                                         resultPageChange={this.resultPageChange.bind(this)}
                                         resultPageCheckedChange={this.resultPageCheckedChange.bind(this)}
@@ -501,7 +505,8 @@ class ManageParamsConfig extends Component {
                                         resultPageChecked={resultPageChecked}
                                         resultPage={resultPage}
                                         mode={mode}
-                                        isEdit={isEdit}
+                                        InputIsEdit={InputIsEdit}
+                                        OutputIsEdit={OutputIsEdit}
                                     />
                                 )}
                         </div>

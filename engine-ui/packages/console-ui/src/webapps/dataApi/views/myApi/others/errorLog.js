@@ -35,7 +35,9 @@ class errorLog extends Component {
 
         if (apiId !== nextApiId || dateType !== nextDateType) {
             this.setState({
-                apiId: nextProps.showRecord.apiId
+                apiId: nextProps.showRecord.apiId,
+                pageIndex:1,
+                // total:0
             },
                 () => {
                     if (nextProps.slidePaneShow) {
@@ -145,7 +147,9 @@ class errorLog extends Component {
             filter: filter
         },
             () => {
-                this.getErrorInfo();
+                const { showRecord = {}, dateType } = this.props;
+                const { apiId } = showRecord;
+                this.getErrorInfo(apiId,dateType);
             });
     }
     lookAllErrorText(text) {
