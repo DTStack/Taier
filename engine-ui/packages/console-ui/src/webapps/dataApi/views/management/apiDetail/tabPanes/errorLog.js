@@ -70,7 +70,11 @@ class ManageErrorLog extends Component {
         const { apiId, dateType } = this.props;
         const { apiId:nextApiId, dateType:nextDateType } = nextProps;
         if (apiId != nextApiId || dateType != nextDateType) {
-            this.getErrorInfo(nextApiId,nextDateType);
+            this.setState({
+                pageIndex:1
+            },()=>{
+                this.getErrorInfo(nextApiId,nextDateType);
+            })  
         }
     }
     getErrorInfo(apiId, dateType) {
@@ -180,7 +184,8 @@ class ManageErrorLog extends Component {
             filter: filter
         },
             () => {
-                this.getErrorInfo();
+                const {apiId,dateType} = this.props;
+                this.getErrorInfo(apiId,dateType);
             });
     }
     lookAllErrorText(text) {

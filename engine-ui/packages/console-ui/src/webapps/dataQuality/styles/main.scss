@@ -104,6 +104,7 @@ table{
 .container-relative .container{
     position: relative;
     overflow-y: unset;
+    overflow-x:hidden; 
 }
 .ant-form-inline .ant-form-item-with-help.cell-center{
     margin-bottom: 0px;
