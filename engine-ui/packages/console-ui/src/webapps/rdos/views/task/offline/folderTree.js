@@ -28,44 +28,13 @@ const isRootFolder = (node) => {
 
 class FolderTree extends React.Component {
 
+    state = {
+        expandedKeys: null,
+    }
+
     constructor(props) {
         super(props);
         this.handleChange = this.props.onChange;
-    }
-
-    render() {
-        const { type, placeholder } = this.props;
-        return (
-            <div>
-                {this.props.ispicker ?
-                <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
-                    <TreeSelect
-                        size="large"
-                        key={type}
-                        dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
-                        showSearch={ !this.props.isFilepicker }
-                        showIcon={ true }
-                        loadData={ this.onLoadData.bind(this, type) }
-                        onChange={ this.handleChange }
-                        defaultValue={ this.props.defaultNode }
-                        getPopupContainer={() => this.selEle }
-                        placeholder={placeholder}
-                        treeNodeFilterProp="name"
-                    >
-                        { this.genetateTreeNode() }
-                    </TreeSelect>
-                </div> :
-                <Tree 
-                    showIcon={ true }
-                    placeholder={placeholder}
-                    loadData={ this.onLoadData.bind(this, type) }
-                    onSelect={ this.handleSelect.bind(this) }
-                >
-                    { this.genetateTreeNode() }
-                </Tree>
-                }
-            </div>
-        )
     }
 
     onLoadData(type, treeNode) {
@@ -84,7 +53,7 @@ class FolderTree extends React.Component {
 
     handleSelect(selectedKeys, e) {
         const { isLeaf, value, treeType, data } = e.node.props;
-        const { openTab, openScriptTab, tabs, currentTab } = this.props;
+        const { openTab, tabs, currentTab } = this.props;
 
         if(!isLeaf) return;
         switch(treeType) {
@@ -443,6 +412,7 @@ class FolderTree extends React.Component {
     }
 
     genetateTreeNode() {
+
         const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
         const treeType = type;
 
@@ -484,7 +454,7 @@ class FolderTree extends React.Component {
                         </span>
                     </CtxMenu>
                 }
-                key={`${taskType}-${id}`}
+                key={`${treeType}-${id}`}
                 value={ id }
                 name={name}
                 isLeaf={type === 'file'}
@@ -499,6 +469,42 @@ class FolderTree extends React.Component {
         const clone = cloneDeep(treeData);
 
         return loop(clone);
+    }
+
+    render() {
+        const { type, placeholder, currentTab } = this.props;
+        return (
+            <div>
+                {this.props.ispicker ?
+                <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
+                    <TreeSelect
+                        size="large"
+                        key={type}
+                        dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
+                        showSearch={ !this.props.isFilepicker }
+                        showIcon={ true }
+                        loadData={ this.onLoadData.bind(this, type) }
+                        onChange={ this.handleChange }
+                        defaultValue={ this.props.defaultNode }
+                        getPopupContainer={() => this.selEle }
+                        placeholder={placeholder}
+                        treeNodeFilterProp="name"
+                    >
+                        { this.genetateTreeNode() }
+                    </TreeSelect>
+                </div> :
+                <Tree 
+                    showIcon={ true }
+                    placeholder={placeholder}
+                    selectedKeys={[`${type}-${currentTab}`]}
+                    loadData={ this.onLoadData.bind(this, type) }
+                    onSelect={ this.handleSelect.bind(this) }
+                >
+                    { this.genetateTreeNode() }
+                </Tree>
+                }
+            </div>
+        )
     }
 }
 

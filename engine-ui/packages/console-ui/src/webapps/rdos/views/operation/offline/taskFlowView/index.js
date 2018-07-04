@@ -261,7 +261,7 @@ class TaskFlowView extends Component {
         layout.edgeRouting = false;
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
-        
+
         this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
@@ -460,23 +460,13 @@ class TaskFlowView extends Component {
     render() {
         const { selectedJob, taskLog } = this.state;
         const { goToTaskDev, project, taskJob } = this.props
-        const progStyle = {
-            width: '50%',
-            height: '18px',
-            top: 0,
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            margin: 'auto',
-        }
+     
         return (
             <div className="graph-editor"
                 style={{
                     position: 'relative',
                 }}
             >
-
                 <Spin
                     tip="Loading..."
                     size="large"
@@ -487,7 +477,7 @@ class TaskFlowView extends Component {
                         ref={(e) => { this.Container = e }}
                         style={{
                             position: 'relative',
-                            overflow: 'auto',
+                            overflowX: 'auto',
                             paddingBottom: '20px',
                             height: '95%',
                         }}
