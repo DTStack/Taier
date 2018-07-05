@@ -21,6 +21,7 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResult
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkMode;
 import com.dtstack.rdos.engine.execution.flink150.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.source.batch.BatchSourceFactory;
@@ -154,6 +155,10 @@ public class FlinkClient extends AbsClient {
     public void initClient(){
         client = flinkClientBuilder.create(flinkConfig);
         setClientOn(true);
+        if (FlinkMode.NEW_MODE == FlinkMode.mode(flinkConfig.getFlinkMode())) {
+            FlinkResourceInfo.setFlinkMode(FlinkMode.NEW_MODE);
+            FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkNewModeMaxSlots());
+        }
     }
 
     private void initHadoopConf(FlinkConfig flinkConfig){
@@ -685,6 +690,7 @@ public class FlinkClient extends AbsClient {
 
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
         FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
+
         if(resourceInfo == null){
             logger.error("---flink cluster maybe down.----");
             resourceInfo = new FlinkResourceInfo();

@@ -240,15 +240,15 @@ public class FlinkClientBuilder {
         yarnClient.init(yarnConfiguration);
         yarnClient.start();
 
-        if (StringUtils.isBlank(flinkMode) || FlinkMode.LEGACY_MODE.name().equals(flinkMode)) {
-            return new LegacyYarnClusterDescriptor(
+        if (FlinkMode.NEW_MODE == FlinkMode.mode(flinkMode)) {
+            return new YarnClusterDescriptor(
                     configuration,
                     yarnConfiguration,
                     configurationDirectory,
                     yarnClient,
                     false);
         } else {
-            return new YarnClusterDescriptor(
+            return new LegacyYarnClusterDescriptor(
                     configuration,
                     yarnConfiguration,
                     configurationDirectory,
@@ -298,7 +298,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor(){
+    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor() {
         return yarnClusterDescriptor;
     }
 

@@ -1,164 +1,166 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Map;
 
 /**
- * 
  * @author sishu.yss
- *
  */
 public class FlinkConfig {
 
-	private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
+    private static final String DEFAULT_FLINK_PLUGIN_ROOT = "/opt/dtstack/flinkplugin";
 
-	private static final String DEFAULT_REMOTE_PLUGIN_ROOT_DIR = "/opt/dtstack/flinkplugin";
+    private static final String DEFAULT_REMOTE_PLUGIN_ROOT_DIR = "/opt/dtstack/flinkplugin";
 
-	private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink150";
+    private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink150";
 
-	private static final String DEFAULT_JAR_TMP_DIR = "../tmp150";
+    private static final String DEFAULT_JAR_TMP_DIR = "../tmp150";
 
-	private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink150/ha";
+    private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink150/ha";
 
-	private static final String HDFS_FLAG = "hdfs";
+    private static final String HDFS_FLAG = "hdfs";
 
     private String typeName;
 
-	private String flinkZkAddress;
+    private String flinkZkAddress;
 
-	private String flinkZkNamespace;
+    private String flinkZkNamespace;
 
-	private String flinkClusterId;
+    private String flinkClusterId;
 
-	private String flinkJobMgrUrl;
-	
-	private String flinkHighAvailabilityStorageDir;
-	
-	private String jarTmpDir;
+    private String flinkJobMgrUrl;
 
-	private String flinkPluginRoot;
+    private String flinkHighAvailabilityStorageDir;
 
-	private String monitorAddress;
+    private String jarTmpDir;
 
-	private String remotePluginRootDir;
+    private String flinkPluginRoot;
 
-	private String clusterMode; // 集群运行模式: standalone or yarn
+    private String monitorAddress;
 
-	private String flinkMode; // new or legacy
+    private String remotePluginRootDir;
 
-	private Map<String, Object> hadoopConf;
+    private String clusterMode; // 集群运行模式: standalone or yarn
 
-	private Map<String, Object> yarnConf;
+    private String flinkMode; // new or legacy
+
+    private String flinkNewModeMaxSlots; // max slots
+
+    private Map<String, Object> hadoopConf;
+
+    private Map<String, Object> yarnConf;
 
 
-	public String getFlinkZkAddress() {
-		return flinkZkAddress;
-	}
+    public String getFlinkZkAddress() {
+        return flinkZkAddress;
+    }
 
-	public void setFlinkZkAddress(String flinkZkAddress) {
-		this.flinkZkAddress = flinkZkAddress;
-	}
+    public void setFlinkZkAddress(String flinkZkAddress) {
+        this.flinkZkAddress = flinkZkAddress;
+    }
 
-	public String getFlinkZkNamespace() {
-	    if(Strings.isNullOrEmpty(flinkZkNamespace)){
-	        return DEFAULT_FLINK_ZK_NAMESPACE;
+    public String getFlinkZkNamespace() {
+        if (Strings.isNullOrEmpty(flinkZkNamespace)) {
+            return DEFAULT_FLINK_ZK_NAMESPACE;
         }
 
-		return flinkZkNamespace;
-	}
+        return flinkZkNamespace;
+    }
 
-	public void setFlinkZkNamespace(String flinkZkNamespace) {
-		this.flinkZkNamespace = flinkZkNamespace;
-	}
+    public void setFlinkZkNamespace(String flinkZkNamespace) {
+        this.flinkZkNamespace = flinkZkNamespace;
+    }
 
-	public String getFlinkClusterId() {
-		return flinkClusterId;
-	}
+    public String getFlinkClusterId() {
+        return flinkClusterId;
+    }
 
-	public void setFlinkClusterId(String flinkClusterId) {
-		this.flinkClusterId = flinkClusterId;
-	}
+    public void setFlinkClusterId(String flinkClusterId) {
+        this.flinkClusterId = flinkClusterId;
+    }
 
-	public String getJarTmpDir() {
-	    if(Strings.isNullOrEmpty(jarTmpDir)){
-	        return DEFAULT_JAR_TMP_DIR;
+    public String getJarTmpDir() {
+        if (Strings.isNullOrEmpty(jarTmpDir)) {
+            return DEFAULT_JAR_TMP_DIR;
         }
 
-		return jarTmpDir;
-	}
+        return jarTmpDir;
+    }
 
-	public void setJarTmpDir(String jarTmpDir) {
-		this.jarTmpDir = jarTmpDir;
-	}
+    public void setJarTmpDir(String jarTmpDir) {
+        this.jarTmpDir = jarTmpDir;
+    }
 
-	public String getFlinkJobMgrUrl() {
-		return flinkJobMgrUrl;
-	}
+    public String getFlinkJobMgrUrl() {
+        return flinkJobMgrUrl;
+    }
 
-	public void setFlinkJobMgrUrl(String flinkJobMgrUrl) {
-		this.flinkJobMgrUrl = flinkJobMgrUrl;
-	}
+    public void setFlinkJobMgrUrl(String flinkJobMgrUrl) {
+        this.flinkJobMgrUrl = flinkJobMgrUrl;
+    }
 
-	public String getFlinkHighAvailabilityStorageDir() {
-		return flinkHighAvailabilityStorageDir;
-	}
+    public String getFlinkHighAvailabilityStorageDir() {
+        return flinkHighAvailabilityStorageDir;
+    }
 
-	public void setFlinkHighAvailabilityStorageDir(
-			String flinkHighAvailabilityStorageDir) {
-		this.flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir;
-	}
+    public void setFlinkHighAvailabilityStorageDir(
+            String flinkHighAvailabilityStorageDir) {
+        this.flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir;
+    }
 
     public void setDefaultFlinkHighAvailabilityStorageDir(String defaultFS) {
         String defaultVal = String.format(DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR, defaultFS);
         this.flinkHighAvailabilityStorageDir = defaultVal;
     }
 
-    public void updateFlinkHighAvailabilityStorageDir(String defaultFS){
-		if(Strings.isNullOrEmpty(flinkHighAvailabilityStorageDir)){
-			return;
-		}
-
-		if(flinkHighAvailabilityStorageDir.trim().startsWith(HDFS_FLAG)){
-			return;
-		}
-
-		flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir.trim();
-		flinkHighAvailabilityStorageDir = defaultFS + flinkHighAvailabilityStorageDir;
-	}
-
-	public String getTypeName() {
-		return typeName;
-	}
-
-	public void setTypeName(String typeName) {
-		this.typeName = typeName;
-	}
-
-	public String getFlinkPluginRoot() {
-	    if(Strings.isNullOrEmpty(flinkPluginRoot)){
-	        return DEFAULT_FLINK_PLUGIN_ROOT;
+    public void updateFlinkHighAvailabilityStorageDir(String defaultFS) {
+        if (Strings.isNullOrEmpty(flinkHighAvailabilityStorageDir)) {
+            return;
         }
 
-		return flinkPluginRoot;
-	}
+        if (flinkHighAvailabilityStorageDir.trim().startsWith(HDFS_FLAG)) {
+            return;
+        }
 
-	public void setFlinkPluginRoot(String flinkPluginRoot) {
-		this.flinkPluginRoot = flinkPluginRoot;
-	}
+        flinkHighAvailabilityStorageDir = flinkHighAvailabilityStorageDir.trim();
+        flinkHighAvailabilityStorageDir = defaultFS + flinkHighAvailabilityStorageDir;
+    }
 
-	public String getMonitorAddress() {
-		return monitorAddress;
-	}
+    public String getTypeName() {
+        return typeName;
+    }
 
-	public void setMonitorAddress(String monitorAddress) {
-		this.monitorAddress = monitorAddress;
-	}
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public String getFlinkPluginRoot() {
+        if (Strings.isNullOrEmpty(flinkPluginRoot)) {
+            return DEFAULT_FLINK_PLUGIN_ROOT;
+        }
+
+        return flinkPluginRoot;
+    }
+
+    public void setFlinkPluginRoot(String flinkPluginRoot) {
+        this.flinkPluginRoot = flinkPluginRoot;
+    }
+
+    public String getMonitorAddress() {
+        return monitorAddress;
+    }
+
+    public void setMonitorAddress(String monitorAddress) {
+        this.monitorAddress = monitorAddress;
+    }
 
     public String getRemotePluginRootDir() {
 
-	    if(Strings.isNullOrEmpty(remotePluginRootDir)){
-	        return DEFAULT_REMOTE_PLUGIN_ROOT_DIR;
+        if (Strings.isNullOrEmpty(remotePluginRootDir)) {
+            return DEFAULT_REMOTE_PLUGIN_ROOT_DIR;
         }
 
         return remotePluginRootDir;
@@ -168,35 +170,44 @@ public class FlinkConfig {
         this.remotePluginRootDir = remotePluginRootDir;
     }
 
-	public String getClusterMode() {
-		return clusterMode;
-	}
+    public String getClusterMode() {
+        return clusterMode;
+    }
 
-	public void setClusterMode(String clusterMode) {
-		this.clusterMode = clusterMode;
-	}
+    public void setClusterMode(String clusterMode) {
+        this.clusterMode = clusterMode;
+    }
 
-	public String getFlinkMode() {
-		return flinkMode;
-	}
+    public String getFlinkMode() {
+        return flinkMode;
+    }
 
-	public void setFlinkMode(String flinkMode) {
-		this.flinkMode = flinkMode;
-	}
+    public void setFlinkMode(String flinkMode) {
+        this.flinkMode = flinkMode;
+    }
 
-	public Map<String, Object> getHadoopConf() {
-		return hadoopConf;
-	}
+    public int getFlinkNewModeMaxSlots() {
+        return StringUtils.isBlank(flinkNewModeMaxSlots) ? 0 : NumberUtils.toInt(flinkNewModeMaxSlots);
+    }
 
-	public void setHadoopConf(Map<String, Object> hadoopConf) {
-		this.hadoopConf = hadoopConf;
-	}
+    public void setFlinkNewModeMaxSlots(String flinkNewModeMaxSlots) {
+        this.flinkNewModeMaxSlots = flinkNewModeMaxSlots;
+    }
 
-	public Map<String, Object> getYarnConf() {
-		return yarnConf;
-	}
 
-	public void setYarnConf(Map<String, Object> yarnConf) {
-		this.yarnConf = yarnConf;
-	}
+    public Map<String, Object> getHadoopConf() {
+        return hadoopConf;
+    }
+
+    public void setHadoopConf(Map<String, Object> hadoopConf) {
+        this.hadoopConf = hadoopConf;
+    }
+
+    public Map<String, Object> getYarnConf() {
+        return yarnConf;
+    }
+
+    public void setYarnConf(Map<String, Object> yarnConf) {
+        this.yarnConf = yarnConf;
+    }
 }
