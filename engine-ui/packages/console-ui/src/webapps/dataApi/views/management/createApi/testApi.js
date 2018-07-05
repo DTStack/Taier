@@ -155,7 +155,7 @@ class TestApi extends React.Component {
                 <div className="steps-content">
                     <div className="testApi_box">
                         <div className="left_box">
-                            <p className="required-tip middle-title">API测试用例配置：</p>
+                            <p className="required-tip middle-title">API测试：</p>
                             <div style={{ paddingLeft: "20px" }}>
                                 <p style={{fontSize:"18px"}} className="middle-title">
                                     {basicProperties.APIName}
