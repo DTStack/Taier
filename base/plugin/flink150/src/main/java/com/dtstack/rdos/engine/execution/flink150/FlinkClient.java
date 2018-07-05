@@ -578,8 +578,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private String getNewReqUrl(){
-        String url = client.getWebInterfaceURL();
-        return url;
+        return client.getWebInterfaceURL();
     }
 
     /**
