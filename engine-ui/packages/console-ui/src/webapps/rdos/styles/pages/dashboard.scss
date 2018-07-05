@@ -31,7 +31,6 @@
             padding: 10px;
             height: 65px;
             text-align: left;
-
             .indicator-title {
                 font-size: 12px;
                 color: #999999;
@@ -61,4 +60,112 @@
             left: 80px;
         }
     }
+    .project-search {
+        display: inline-block;
+        width: 200px; 
+        margin-left: 16px; 
+    }
+    .card-width{
+        min-width: 375px;
+        .company-name{
+            font-size: 14px ;
+            cursor: pointer;
+        }
+        .company-name:hover{
+            color: #2491F7;
+        }
+        .tooltipSet{
+            float: right;
+            min-width: 136px;
+            .fail-task{
+                font-size: 14px;
+                 color: #999;
+                 padding-right: 10px;
+            }
+        }
+        .general-card{
+            margin-bottom: 10px;
+            height: 240px;
+            .card-content{
+                position: relative;
+                .statistics{
+                    line-height: 32px;
+                }
+                .ant-card-body{
+                    padding: 8px;
+                }
+                .number{
+                    font-size: 24px;
+                    color: #f00;
+                    text-align: center;
+                }
+                .card-task{
+                    text-align: center;
+                    margin-bottom: 5;
+                }
+                .img-container{
+                    padding-right: 5px;
+                    .task-img{
+                        height:16px;
+                        width: 20px;
+                        background: #2491F7;
+                        position: relative;
+                        top: 3px;
+                    }
+                }
+                
+            }
+            .triangle_border_right{
+                border-width: 16px;
+                border-style: solid;
+                border-color: transparent transparent transparent #696565;/*透明 透明 透明 灰*/
+                //margin:40px auto;
+                position: absolute;
+                bottom: -32px;
+                right: -40px;
+                transform: rotate(45deg);
+            }
+        }
+    }
+    .sortTitle{
+        height:20px;
+        margin-bottom: 5px;
+        .faileSort{
+            float: right;
+            padding: 0 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        // .faileSort:hover{
+        //     color: #2491F7;
+        // }
+        .defaultSort{
+            float: right;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        // .defaultSort:hover{
+        //     color: #2491F7;
+        // }
+    }
+    .title-help{
+        padding-bottom: 10px;
+        cursor: pointer;
+    }
+    .help-doc-rdos{
+        font-size: 14px;
+        line-height: 40px;
+    }
+    .ant-card-head{
+        padding: 0 10;
+    }
+    .ant-card-body{
+        padding: 16 10;
+    }
 }
+.tooltip-tittle-text{
+    cursor: pointer;
+}
+// .tooltip-tittle-text:hover{
+//     color: #2491F7;
+// }

@@ -8,7 +8,7 @@ import { rdosApp } from 'config/base'
 import { updateApp } from 'main/actions/app'
 
 import Header from './layout/header'
-import Dashboard from '../views/dashboard'
+import Dashboard from '../views/modelOverview'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 
