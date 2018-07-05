@@ -185,7 +185,8 @@ class ManageParamsConfig extends Component {
             },
             {
                 title: '字段类型',
-                dataIndex: 'type'
+                dataIndex: 'type',
+                width:"100px"
             }
         ]
     }
@@ -518,6 +519,7 @@ class ManageParamsConfig extends Component {
                                     dataSource={tableData}
                                     pagination={false}
                                     rowSelection={this.rowSelection()}
+                                    scroll={{y:400}}
                                 />
                             </section>
                         </div>
