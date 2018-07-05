@@ -15,6 +15,8 @@
  > 日期：2018-07-02
 
 - 【开发套件】修复任务参数Tab切换异常Bug
+- 【开发套件】修复数据导入，数据预览Bug
+
 
 - 【其他】主要以Bug修复为主，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-2-0/issues)
 

@@ -227,7 +227,7 @@ export default class TaskDetailPane extends Component {
                 }
                 return item.isSnapshot==0?true:false;
             }
-        ): []
+        ) : []
 
 
         let cardTitle = (
