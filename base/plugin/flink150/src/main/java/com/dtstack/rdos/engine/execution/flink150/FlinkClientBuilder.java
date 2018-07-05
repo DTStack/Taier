@@ -298,7 +298,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor() {
+    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor(){
         return yarnClusterDescriptor;
     }
 

@@ -569,11 +569,24 @@ public class FlinkClient extends AbsClient {
 
     }
 
+    public String getReqUrl() {
+        if (FlinkMode.NEW_MODE == FlinkMode.mode(flinkConfig.getFlinkMode())) {
+            return getNewReqUrl();
+        } else {
+            return getLegacyReqUrl();
+        }
+    }
+
+    private String getNewReqUrl(){
+        String url = client.getWebInterfaceURL();
+        return url;
+    }
+
     /**
      * 获取jobMgr-web地址
      * @return
      */
-    public String getReqUrl(){
+    private String getLegacyReqUrl(){
         String url = "";
         try{
             Field yarnClientField = ((YarnClusterClient) client).getClass().getDeclaredField("yarnClient");
@@ -690,7 +703,6 @@ public class FlinkClient extends AbsClient {
 
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
         FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
-
         if(resourceInfo == null){
             logger.error("---flink cluster maybe down.----");
             resourceInfo = new FlinkResourceInfo();

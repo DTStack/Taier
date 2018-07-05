@@ -18,7 +18,7 @@ public enum FlinkMode {
     }
 
     public static FlinkMode mode(String mode) {
-        if (StringUtils.isBlank(mode) || !FlinkMode.NEW_MODE.name().equals(mode)) {
+        if (StringUtils.isBlank(mode) || !FlinkMode.NEW_MODE.mode.equals(mode)) {
             return LEGACY_MODE;
         }
         return NEW_MODE;
