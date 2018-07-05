@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 import moment from 'moment'
 
 import {
-    Row, Col, Card, Select, DatePicker,
+    Row, Col, Select, DatePicker,
 } from 'antd'
 
 import utils from 'utils'
@@ -30,14 +30,10 @@ require('echarts/lib/component/title');
 const { RangePicker } = DatePicker;
 const Option = Select.Option;
 
-function initProject(props) {
-    return props.projects && props.projects.length > 0 
-    ? props.projects[0].id : ''
-}
-
 export default class ProjectList extends Component {
 
     state = {
+        isAdmin: this.props.isAdmin,
         project: {},
         projectTable: '',
         projectStore: '',
@@ -45,7 +41,7 @@ export default class ProjectList extends Component {
         chart2: '',
         chart3: '',
         selectedDate: '',
-        selectedProject: '',
+        selectedProject: this.props.projects&&this.props.projects[0].id||'',
         topStyle: {
             width: '50%',
             height: '100%',
@@ -54,18 +50,12 @@ export default class ProjectList extends Component {
     }
 
     componentDidMount() {
+        const { selectedProject } = this.state;
         this.loadProjectStoreTop5()
         this.loadProjectTableTop5()
         this.resizeChart()
-
-        if (this.props.projects.length > 0){
-            const pid = this.props.projects[0].id
-            this.setState({
-                selectedProject: pid
-            })
-            this.loadDataOverview(pid)
-            this.loadProjectCount()
-        }
+        this.loadProjectCount()
+        this.loadDataOverview(selectedProject)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -79,25 +69,33 @@ export default class ProjectList extends Component {
                 this.loadDataOverview(pid);
             })
             this.loadProjectCount();
+        }else if(nextProps.isAdmin!=this.props.isAdmin){
+            this.setState({
+                isAdmin: nextProps.isAdmin
+            }, this.componentDidMount)
+           
         }
     }
 
     loadProjectCount() {
         const ctx = this
+        const { isAdmin } = this.state;
+        const params = {};
+        if(isAdmin){
+            params.isAdmin = isAdmin;
+        }
         const userId = utils.getCookie('dt_user_id')
-        Api.getProjectInfo().then((res) => {
-            console.log('getProjectInfo:',res);
-            
+        Api.getProjectInfo(params).then((res) => {
             ctx.setState({
                 project: res.data,
             })
         })
-        TableDataApi.countProjectTable().then((res) => {
+        TableDataApi.countProjectTable(params).then((res) => {
             ctx.setState({
                 projectTable: res.data,
             })
         })
-        TableDataApi.countProjectStore().then((res) => {
+        TableDataApi.countProjectStore(params).then((res) => {
             ctx.setState({
                 projectStore: res.data,
             })
@@ -123,8 +121,13 @@ export default class ProjectList extends Component {
     }
 
     loadProjectStoreTop5() {
-        const ctx = this
-        TableDataApi.getProjectStoreTop({ top: 5 }).then((res) => {
+        const ctx = this;
+        const { isAdmin } = this.state;
+        const params = { top: 5 };
+        if(isAdmin){
+            params.isAdmin = isAdmin;
+        }
+        TableDataApi.getProjectStoreTop(params).then((res) => {
             if (res.code === 1) {
                 ctx.drawStoreTop5(res.data)
             }
@@ -133,7 +136,12 @@ export default class ProjectList extends Component {
 
     loadProjectTableTop5() {
         const ctx = this
-        TableDataApi.getProjectTableStoreTop({ top: 5 }).then((res) => {
+        const { isAdmin } = this.state;
+        const params = { top: 5 };
+        if(isAdmin){
+            params.isAdmin = isAdmin;
+        }
+        TableDataApi.getProjectTableStoreTop(params).then((res) => {
             if (res.code === 1) {
                 ctx.drawTableTop5(res.data)
             }
@@ -337,7 +345,8 @@ export default class ProjectList extends Component {
     }
 
     render() {
-
+        console.log(this.props);
+        
         const { project, selectedProject, projectTable, projectStore, topStyle } = this.state
 
         const { projects } = this.props
