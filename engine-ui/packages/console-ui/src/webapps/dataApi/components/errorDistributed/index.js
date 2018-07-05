@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { Card, Col, Row, Table } from 'antd';
 import { cloneDeep } from "lodash"
 
 import Resize from 'widgets/resize';
-import { pieOption } from '../../../../consts';
+import { pieOption } from '../../consts';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
 // 引入柱状图
@@ -45,7 +44,7 @@ const errorDic = [
         color: "#A2B5CD"
     },
 ]
-class AdminErrorDistributed extends Component {
+class ErrorDistributed extends Component {
     state = {
 
     }
@@ -111,4 +110,4 @@ class AdminErrorDistributed extends Component {
     }
 }
 
-export default AdminErrorDistributed;
+export default ErrorDistributed;
