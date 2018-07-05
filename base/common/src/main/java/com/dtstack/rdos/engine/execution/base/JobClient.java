@@ -38,9 +38,9 @@ public class JobClient extends OrderObject{
 
     private JobClientCallBack jobClientCallBack;
 
-    private List<AddJarInfo> attachJarInfos = Lists.newArrayList();
+    private List<JarFileInfo> attachJarInfos = Lists.newArrayList();
 
-    private AddJarInfo coreJarInfo;
+    private JarFileInfo coreJarInfo;
 
     private Properties confProperties;
 
@@ -210,16 +210,16 @@ public class JobClient extends OrderObject{
         return confProperties;
     }
 
-    public List<AddJarInfo> getAttachJarInfos() {
+    public List<JarFileInfo> getAttachJarInfos() {
         return attachJarInfos;
     }
 
-    public void setAttachJarInfos(List<AddJarInfo> attachJarInfos) {
+    public void setAttachJarInfos(List<JarFileInfo> attachJarInfos) {
         this.attachJarInfos = attachJarInfos;
     }
 
-    public void addAttachJarInfo(AddJarInfo addJarInfo){
-        attachJarInfos.add(addJarInfo);
+    public void addAttachJarInfo(JarFileInfo jarFileInfo){
+        attachJarInfos.add(jarFileInfo);
     }
 
     public void doJobClientCallBack(Map<String, ? extends Object> param){
@@ -306,11 +306,11 @@ public class JobClient extends OrderObject{
         this.pluginInfo = pluginInfo;
     }
 
-    public AddJarInfo getCoreJarInfo() {
+    public JarFileInfo getCoreJarInfo() {
         return coreJarInfo;
     }
 
-    public void setCoreJarInfo(AddJarInfo coreJarInfo) {
+    public void setCoreJarInfo(JarFileInfo coreJarInfo) {
         this.coreJarInfo = coreJarInfo;
     }
 

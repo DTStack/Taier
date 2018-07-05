@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink130;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.AddJarInfo;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -146,11 +146,11 @@ public class SqlPluginInfo {
         return args;
     }
 
-    public AddJarInfo createCoreJarInfo(){
-        AddJarInfo addJarInfo = new AddJarInfo();
+    public JarFileInfo createCoreJarInfo(){
+        JarFileInfo jarFileInfo = new JarFileInfo();
         String jarFilePath  = localSqlRootJar + SP + CORE_JAR;
-        addJarInfo.setJarPath(jarFilePath);
-        return addJarInfo;
+        jarFileInfo.setJarPath(jarFilePath);
+        return jarFileInfo;
     }
 
     public String getSqlPluginDir(String pluginRoot){

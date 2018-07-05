@@ -7,7 +7,7 @@ package com.dtstack.rdos.engine.execution.base;
  * @author xuchao
  */
 
-public class AddJarInfo {
+public class JarFileInfo {
 
     private String jarPath;
 

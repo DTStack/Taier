@@ -26,11 +26,11 @@ public class JobParam {
      */
     public JobParam(JobClient jobClient){
 
-        AddJarInfo addJarInfo = jobClient.getCoreJarInfo();
-        Preconditions.checkNotNull(addJarInfo, "submit need to add jar operator.");
+        JarFileInfo jarFileInfo = jobClient.getCoreJarInfo();
+        Preconditions.checkNotNull(jarFileInfo, "submit need to add jar operator.");
 
-        jarPath = addJarInfo.getJarPath();
-        mainClass = addJarInfo.getMainClass();
+        jarPath = jarFileInfo.getJarPath();
+        mainClass = jarFileInfo.getMainClass();
 
         Preconditions.checkNotNull(jarPath, "submit need to add jar operator.");
 

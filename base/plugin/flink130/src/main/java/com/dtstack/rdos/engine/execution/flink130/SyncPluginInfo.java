@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink130;
 
-import com.dtstack.rdos.engine.execution.base.AddJarInfo;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -82,11 +82,11 @@ public class SyncPluginInfo {
         return programArgList;
     }
 
-    public AddJarInfo createAddJarInfo(){
-        AddJarInfo addJarInfo = new AddJarInfo();
+    public JarFileInfo createAddJarInfo(){
+        JarFileInfo jarFileInfo = new JarFileInfo();
         String jarFilePath  = localSyncFileDir + fileSP + syncJarFileName;
-        addJarInfo.setJarPath(jarFilePath);
-        return addJarInfo;
+        jarFileInfo.setJarPath(jarFilePath);
+        return jarFileInfo;
     }
 
     public String getSyncPluginDir(String pluginRoot){

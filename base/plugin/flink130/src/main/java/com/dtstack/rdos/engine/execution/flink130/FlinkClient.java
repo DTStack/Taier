@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
-import com.dtstack.rdos.engine.execution.base.AddJarInfo;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobParam;
@@ -267,7 +267,7 @@ public class FlinkClient extends AbsClient {
                 args.add(URLEncoder.encode(attachJarStr, Charsets.UTF_8.name()));
             }
 
-            AddJarInfo coreJarInfo = sqlPluginInfo.createCoreJarInfo();
+            JarFileInfo coreJarInfo = sqlPluginInfo.createCoreJarInfo();
             jobClient.setCoreJarInfo(coreJarInfo);
 
             return submitJobWithJar(jobClient, Lists.newArrayList(), args);
@@ -383,7 +383,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
-        AddJarInfo coreJar = syncPluginInfo.createAddJarInfo();
+        JarFileInfo coreJar = syncPluginInfo.createAddJarInfo();
         jobClient.setCoreJarInfo(coreJar);
 
         List<String> programArgList = syncPluginInfo.createSyncPluginArgs(jobClient, this);

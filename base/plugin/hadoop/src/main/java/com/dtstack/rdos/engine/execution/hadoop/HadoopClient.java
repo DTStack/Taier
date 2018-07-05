@@ -5,7 +5,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
-import com.dtstack.rdos.engine.execution.base.AddJarInfo;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -148,20 +148,20 @@ public class HadoopClient extends AbsClient {
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
         try {
-            AddJarInfo addJarInfo = null;
+            JarFileInfo jarFileInfo = null;
             String sql = jobClient.getSql();
             for(String tmpSql : DtStringUtil.splitIgnoreQuota(sql, ";")){
                 if(AddJarOperator.verific(tmpSql)){
-                    addJarInfo = AddJarOperator.parseSql(tmpSql);
+                    jarFileInfo = AddJarOperator.parseSql(tmpSql);
                     break;
                 }
             }
 
-            if(addJarInfo == null){
+            if(jarFileInfo == null){
                 throw new RdosException("need at least one jar.");
             }
 
-            String jarPath = addJarInfo.getJarPath();
+            String jarPath = jarFileInfo.getJarPath();
             if(StringUtils.isBlank(jarPath)) {
                 throw new RdosException("jar path is needful");
             }
