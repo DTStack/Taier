@@ -49,6 +49,8 @@ public class FlinkConfig {
 
     private String flinkYarnNewModeMaxSlots; // max slots
 
+    private String flinkConfigDir;
+
     private Map<String, Object> hadoopConf;
 
     private Map<String, Object> yarnConf;
@@ -209,5 +211,13 @@ public class FlinkConfig {
 
     public void setYarnConf(Map<String, Object> yarnConf) {
         this.yarnConf = yarnConf;
+    }
+
+    public String getFlinkConfigDir() {
+        return flinkConfigDir;
+    }
+
+    public void setFlinkConfigDir(String flinkConfigDir) {
+        this.flinkConfigDir = flinkConfigDir;
     }
 }

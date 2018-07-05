@@ -193,23 +193,7 @@ public class FlinkClientBuilder {
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
 
-        Configuration config = new Configuration();
-        if (StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
-            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
-            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
-        }
-
-        if (flinkConfig.getFlinkZkNamespace() != null) {//不设置默认值"/flink"
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
-        }
-
-        if (flinkConfig.getFlinkClusterId() != null) {//不设置默认值"/default"
-            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
-        }
-
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), config, yarnConf, ".");
-        yarnClusterDescriptor = clusterDescriptor;
+        AbstractYarnClusterDescriptor clusterDescriptor = createClusterDescriptor(flinkConfig);
 
         String applicationId = acquireApplicationId(clusterDescriptor);
 
@@ -231,7 +215,28 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    private AbstractYarnClusterDescriptor getClusterDescriptor(
+    private AbstractYarnClusterDescriptor createClusterDescriptor(FlinkConfig flinkConfig) {
+        Configuration config = new Configuration();
+        if (StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
+            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
+            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
+        }
+
+        if (flinkConfig.getFlinkZkNamespace() != null) {//不设置默认值"/flink"
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
+        }
+
+        if (flinkConfig.getFlinkClusterId() != null) {//不设置默认值"/default"
+            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+        }
+
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), config, yarnConf, ".");
+        yarnClusterDescriptor = clusterDescriptor;
+        return clusterDescriptor;
+    }
+
+    public AbstractYarnClusterDescriptor getClusterDescriptor(
             String flinkMode,
             Configuration configuration,
             YarnConfiguration yarnConfiguration,

@@ -26,6 +26,7 @@ import com.dtstack.rdos.engine.execution.flink150.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.source.batch.BatchSourceFactory;
 import com.dtstack.rdos.engine.execution.flink150.source.stream.StreamSourceFactory;
+import com.dtstack.rdos.engine.execution.flink150.util.FLinkConf;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.HadoopConf;
 import com.google.common.base.Strings;
@@ -41,8 +42,11 @@ import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.PackagedProgramUtils;
+import org.apache.flink.client.program.ProgramInvocationException;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.optimizer.DataStatistics;
@@ -57,6 +61,7 @@ import org.apache.flink.table.api.java.BatchTableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.table.sinks.TableSink;
 import org.apache.flink.table.sources.BatchTableSource;
+import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -131,6 +136,10 @@ public class FlinkClient extends AbsClient {
 
     private FlinkYarnMode flinkYarnMode;
 
+    private Configuration flinkConfiguration;
+
+    private ClusterSpecification clusterSpecification;
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -147,10 +156,17 @@ public class FlinkClient extends AbsClient {
 
         boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
         flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
-        boolean yarnSessionMode = flinkYarnMode == FlinkYarnMode.LEGACY||flinkYarnMode == FlinkYarnMode.NEW;
+        boolean yarnSessionMode = yarnCluster && (flinkYarnMode == FlinkYarnMode.LEGACY||flinkYarnMode == FlinkYarnMode.NEW);
         if(!yarnCluster || yarnSessionMode){
             initClient();
         }
+        if (yarnCluster && FlinkYarnMode.PER_JOB == flinkYarnMode){
+            flinkConfiguration = FLinkConf.getConfiguration(flinkConfig.getFlinkConfigDir());
+            clusterSpecification = FLinkConf.createClusterSpecification(flinkConfiguration);
+            setClientOn(true);
+        }
+
+        setFlinkResourceInfo();
 
         if (yarnSessionMode){
             ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
@@ -164,10 +180,33 @@ public class FlinkClient extends AbsClient {
     public void initClient(){
         client = flinkClientBuilder.create(flinkConfig);
         setClientOn(true);
-        if (FlinkYarnMode.NEW == flinkYarnMode) {
-            FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.NEW);
-            FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkYarnNewModeMaxSlots());
+    }
+
+    public JobSubmissionResult runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
+        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+            return runJobCluster(program, parallelism);
+        } else {
+            return client.run(program, parallelism);
         }
+    }
+
+    private JobSubmissionResult runJobCluster(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
+        AbstractYarnClusterDescriptor abstractYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig.getFlinkYarnMode(), flinkConfiguration, yarnConf, ".");
+        final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkConfiguration, parallelism);
+        //flinkYarnMode:new 时，必须要指定 taskmanager数量，既参数 -n，这里默认为1，-s 没有配置默认也为1
+        //taskmanager.heap.mb、jobmanager.heap.mb 配置文件没有设置则默认为1024
+        ClusterClient clusterClient = abstractYarnClusterDescriptor.deployJobCluster(clusterSpecification, jobGraph, true);
+        try {
+            clusterClient.shutdown();
+        } catch (Exception e) {
+            logger.info("Could not properly shut down the client.", e);
+        }
+        try {
+            abstractYarnClusterDescriptor.close();
+        } catch (Exception e) {
+            logger.info("Could not properly close the cluster descriptor.", e);
+        }
+        return new JobSubmissionResult(jobGraph.getJobID());
     }
 
     private void initHadoopConf(FlinkConfig flinkConfig){
@@ -709,6 +748,10 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
+        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+            return new FlinkResourceInfo();
+        }
+
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
         FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
         if(resourceInfo == null){
@@ -743,5 +786,16 @@ public class FlinkClient extends AbsClient {
 
     public ClusterClient getClient() {
         return client;
+    }
+
+    private void setFlinkResourceInfo() {
+        if (FlinkYarnMode.NEW == flinkYarnMode) {
+            FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.NEW);
+            FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkYarnNewModeMaxSlots());
+        }
+
+        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+            FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.PER_JOB);
+        }
     }
 }
