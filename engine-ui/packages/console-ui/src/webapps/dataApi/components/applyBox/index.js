@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Modal, Form, Input, message, Button, DatePicker, InputNumber, Checkbox } from "antd"
+import { Modal, Form, Input, message, Button, DatePicker, InputNumber, Checkbox, Tooltip, Icon } from "antd"
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
 import moment from "moment";
@@ -162,6 +162,9 @@ class ApplyBox extends Component {
                                 ]
                             })(<InputNumber min={1} disabled={countMode} type="number" />)}
                             <Checkbox checked={countMode} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
+                            <Tooltip title="当服务端多机部署时，可能会存在实际调用次数略大于申请次数的情况，但不会少于申请次数。">
+                                <Icon type="question-circle" />
+                            </Tooltip>
                         </FormItem>
                         <FormItem
                             label="调用周期"
