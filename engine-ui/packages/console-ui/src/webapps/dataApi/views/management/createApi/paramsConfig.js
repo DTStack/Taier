@@ -36,7 +36,7 @@ class ManageParamsConfig extends Component {
 
     componentWillMount() {
         const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql,
-            InputIsEdit, OutputIsEdit } = this.props;
+            InputIsEdit, OutputIsEdit,dataSourceType } = this.props;
         this.setState({
             InputColumns: inputParam || [],
             OutputColums: outputParam || [],
@@ -48,6 +48,9 @@ class ManageParamsConfig extends Component {
             },
             sqlModeShow: InputIsEdit && OutputIsEdit
         });
+        if(dataSourceType||dataSourceType==0){
+            this.getDataSource(dataSourceType);
+        }
         if (dataSrcId || dataSrcId == 0) {
             this.props.tablelist(dataSrcId)
                 .then(
@@ -72,7 +75,8 @@ class ManageParamsConfig extends Component {
                     }
                 )
         }
-        this.getDataSource();
+        // this.getDataSource();
+        this.props.getDataSourcesType();
     }
     sqlOnChange(initValue, value, doc) {
         this.setState({
@@ -186,8 +190,8 @@ class ManageParamsConfig extends Component {
         ]
     }
 
-    getDataSource() {
-        this.props.getDataSourceList(null)
+    getDataSource(type) {
+        this.props.getDataSourceList(type)
             .then(
                 (res) => {
                     if (res) {
@@ -220,6 +224,22 @@ class ManageParamsConfig extends Component {
                     }
                 }
             );
+    }
+    dataSourceTypeChange(key){
+        this.setState({
+            dataSourceList:[],
+            tableData: [],
+            tableList: [],
+            InputColumns: [],
+            OutputColums: [],
+            selectedRows: []
+        })
+        this.props.form.setFieldsValue({
+            'tableSource': undefined,
+            "dataSource":undefined
+
+        })
+        this.getDataSource(key);
     }
     tableChange(key) {
         const dataSource = this.props.form.getFieldValue("dataSource");
@@ -264,8 +284,10 @@ class ManageParamsConfig extends Component {
         const { InputColumns, OutputColums, resultPageChecked, resultPage, editor } = this.state;
         const dataSource = this.props.form.getFieldValue("dataSource");
         const tableSource = this.props.form.getFieldValue("tableSource");
+        const dataSourceType=this.props.form.getFieldValue("dataSourceType");
         const params = {
             dataSrcId: dataSource,
+            dataSourceType:dataSourceType,
             tableName: tableSource,
             inputParam: InputColumns,
             outputParam: OutputColums,
@@ -415,9 +437,10 @@ class ManageParamsConfig extends Component {
     }
     render() {
         const columns = this.initColumns();
-        const { mode, InputIsEdit, OutputIsEdit } = this.props;
+        const { mode, InputIsEdit, OutputIsEdit,dataSource } = this.props;
         const { tableData, dataSourceList, tableList, InputColumns, OutputColums, selectedRows, resultPageChecked, resultPage, sqlModeShow, editor, loading } = this.state;
         const { getFieldDecorator } = this.props.form;
+        const dataSourceType=dataSource.sourceType||[];
 
         const dataSourceOptions = dataSourceList.map(
             (data) => {
@@ -429,6 +452,12 @@ class ManageParamsConfig extends Component {
                 return <Option value={data}>{data}</Option>
             }
         )
+        const dataSourceTypeOption=dataSourceType.map(
+            (data)=>{
+                return <Option value={data.value}>{data.name}</Option>
+            }
+        )
+
 
         return (
             <div>
@@ -437,6 +466,20 @@ class ManageParamsConfig extends Component {
                         <div className="paramsConfig_data">
                             <p className="required-tip middle-title">数据源配置:</p>
                             <section style={{ paddingTop: "10px" }}>
+                            <FormItem>
+                                    {getFieldDecorator('dataSourceType', {
+                                        initialValue: this.props.dataSourceType
+                                    })(
+                                        <Select
+                                            placeholder="数据源类型"
+                                            style={{ width: "100%" }}
+                                            showSearch
+                                            onChange={this.dataSourceTypeChange.bind(this)}
+                                        >
+                                            {dataSourceTypeOption}
+                                        </Select>
+                                    )}
+                                </FormItem>
                                 <FormItem>
                                     {getFieldDecorator('dataSource', {
                                         initialValue: this.props.dataSrcId

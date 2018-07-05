@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import utils from "utils"
 import { apiManageActions } from '../../../../actions/apiManage';
 import { mineActions } from '../../../../actions/mine';
-import AdminErrorDistributed from "./errorDistributed";
+import AdminErrorDistributed from "../../../../components/errorDistributed";
 
 const errorType = {
     1: "disable",
@@ -13,7 +13,7 @@ const errorType = {
     3: "paramerror",
     4: "timeout",
     5: "outlimit",
-    6: "other"
+    6: "other" 
 }
 const errorExchange = {
     disable: "禁用",

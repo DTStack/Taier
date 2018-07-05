@@ -192,7 +192,7 @@ class APIMana extends Component {
                 if(!record.dataSourceType&&!record.dataSourceName){
                     return null;
                 }
-                return record.dataSourceType||"无" + ' / ' + record.dataSourceName||"无"
+                return (record.dataSourceType||"无") + ' / ' + (record.dataSourceName||"无");
             }
         }, {
             title: '最近24小时调用',
