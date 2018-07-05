@@ -8,12 +8,16 @@ import Overview from './overview'
 
 class Index extends Component {
 
+    state = {
+        isAdmin: false
+    }
+
     componentDidMount() {
         this.props.dispatch(setProject({ id: 0 }))
     }
 
     onChange = (e) => {
-        console.log(`checked = ${e.target.checked}`);
+        this.setState({isAdmin: e.target.checked})
       }
 
     render() {
@@ -26,7 +30,7 @@ class Index extends Component {
                     </span>&nbsp;&nbsp;&nbsp;&nbsp;
                     <Checkbox onChange={this.onChange}>只看我参与的项</Checkbox>
                 </h1>
-                <Overview {...this.props} />
+                <Overview {...this.props} isAdmin={this.state.isAdmin}/>
             </div>
         )
     }
