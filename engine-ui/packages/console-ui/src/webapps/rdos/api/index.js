@@ -167,7 +167,10 @@ export default {
         return http.post(req.PUBLISH_REALTIME_TASK, params)
     },
     taskVersionScheduleConf(params){
-        return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF,params)
+        return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF, params)
+    },
+    updateTaskOwner(params) {
+        return http.post(offlineReq.UPDATE_TASK_OWNER, params)
     },
 
     // ========== CATALOGUE ========== //

@@ -10,7 +10,6 @@ import {
     sourceMapAction,
     targetMapAction,
     keyMapAction,
-    dataSyncAction,
     workbenchAction,
     taskTreeAction,
     resTreeAction,
@@ -160,11 +159,43 @@ export const keyMapActions = (dispatch) => {
 export const workbenchActions = (dispatch) => {
 
     return {
-
+        dispatch,
+        
+        /**
+         * 更新Tab数据
+         */
         updateTabData: (data) => {
             dispatch({
                 type: workbenchAction.UPDATE_TASK_TAB,
                 payload: data
+            });
+        },
+
+        /**
+         * 重新reload Tab 中的任务
+         */
+        reloadTabTask: (taskId) => {
+            // 更新tabs数据
+            ajax.getOfflineTaskDetail({
+                id: taskId,
+            }).then(res => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: workbenchAction.UPDATE_TASK_TAB,
+                        payload: res.data
+                    });
+                }
+            });
+        },
+
+        /**
+         * 更新当前任务的字段
+         * @param {*} taskFields 
+         */
+        updateTaskField(taskFields) {
+            dispatch({
+                type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                payload: taskFields, 
             });
         },
 

@@ -1,6 +1,3 @@
-import localDb from 'utils/localDb'
-import utils from 'utils'
-
 import http from './http'
 import dataManageReq from './reqDataManage';
 

@@ -25,6 +25,7 @@ export default {
     GET_CUSTOM_TASK_PARAMS: `${RDOS_BASE_URL}/batch/batchTask/getSysParams`, // 获取任务自定义参数
     FROZEN_TASK: `${RDOS_BASE_URL}/batch/batchTask/frozenTask`, // 冻结/解冻任务
     TASK_VERSION_SCHEDULE_CONF :`${RDOS_BASE_URL}/batch/batchTask/taskVersionScheduleConf `,
+    UPDATE_TASK_OWNER :`${RDOS_BASE_URL}/batch/batchTask/setOwnerUser `,
 
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/addOrUpdateScript`, // 保存脚本

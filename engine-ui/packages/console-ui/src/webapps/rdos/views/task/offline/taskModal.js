@@ -7,7 +7,6 @@ import ajax from '../../../api';
 import {
     modalAction,
     taskTreeAction,
-    workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
@@ -17,7 +16,6 @@ import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE, HE
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
-const Option = Select.Optioin;
 const RadioGroup = Radio.Group;
 
 class TaskForm extends React.Component {
