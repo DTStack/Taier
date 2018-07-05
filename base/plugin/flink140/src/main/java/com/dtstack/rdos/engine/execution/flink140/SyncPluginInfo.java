@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.dtstack.rdos.engine.execution.base.AddJarInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;

@@ -1,13 +1,10 @@
 package com.dtstack.rdos.engine.entrance.test;
 
-import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.collect.Maps;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
