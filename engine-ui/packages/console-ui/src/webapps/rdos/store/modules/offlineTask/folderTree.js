@@ -43,6 +43,12 @@ function loadFolderContent(action, state) {
     return clone;
 }
 
+function sortByName(arr) {
+    arr.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    })
+}
+
 /**
  * @description 新增文件夹内容
  *
@@ -68,6 +74,8 @@ function addFolderChild(action, state) {
                     }
                 }
                 node.children.splice(fileIndex, 0, data);
+                // Sort children by name
+                sortByName(node.children);
             }
             else{
                 loop(node.children || []);

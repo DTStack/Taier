@@ -41,9 +41,9 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
         .then(
             (res) => {
                 //获取到返回值
-                if (res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+                if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
                 //状态正常
-                if (res.code === 1) {
+                if (res && res.code === 1) {
                     switch (EXCHANGE_STATUS[res.data.status]) {
                         case "success": {
                             //成功
@@ -66,12 +66,7 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                             )
                             return;
                         }
-                        case "fail": {
-                            //失败，则直接返回
-                            dispatch(removeLoadingTab(currentTab))
-                            resolve(false)
-                            return;
-                        }
+                        case "fail":
                         default: {
                             //同失败
                             dispatch(removeLoadingTab(currentTab))
@@ -79,10 +74,12 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                             return;
                         }
                     }
-
                 } else {
-                    //不正常，则直接终止执行
+                    dispatch(output(currentTab, `请求异常！`))
                     dispatch(removeLoadingTab(currentTab))
+                    setTimeout(() => {
+                    }, 0);
+                    //不正常，则直接终止执行
                     resolve(false)
                     return;
                 }
