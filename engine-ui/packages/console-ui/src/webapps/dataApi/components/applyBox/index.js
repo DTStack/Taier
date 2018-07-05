@@ -21,14 +21,14 @@ const formLayout = {
 let modal;
 
 const mapDispatchToProps = dispatch => ({
-    apiApply(apiId, applyContent,callLimit,callTime) {
-        return dispatch(apiMarketActions.apiApply({ 
-            apiId: apiId, 
+    apiApply(apiId, applyContent, callLimit, callTime) {
+        return dispatch(apiMarketActions.apiApply({
+            apiId: apiId,
             applyContent: applyContent,
-            callLimit:callLimit,
-            beginTime:callTime&&callTime.length>1&&callTime[0].valueOf(),
-            endTime:callTime&&callTime.length>1&&callTime[1].valueOf()
-         }));
+            callLimit: callLimit,
+            beginTime: callTime && callTime.length > 1 && callTime[0].valueOf(),
+            endTime: callTime && callTime.length > 1 && callTime[1].valueOf()
+        }));
     },
     getApiExtInfo(apiId) {
         dispatch(
@@ -43,22 +43,22 @@ const mapDispatchToProps = dispatch => ({
 class ApplyBox extends Component {
     state = {
         loading: false,
-        countMode:false,
-        dateMode:false
+        countMode: false,
+        dateMode: false
     }
     handleSubmit(values) {
         console.log(values)
     }
     handleOk() {
-        const {countMode, dateMode} = this.state;
-        const {hideJump} = this.props;
+        const { countMode, dateMode } = this.state;
+        const { hideJump } = this.props;
 
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 this.setState({
                     loading: true
                 })
-                this.props.apiApply(this.props.apiId, values.applyMsg,countMode?-1:values.callCount,dateMode?null:values.callDateRange)
+                this.props.apiApply(this.props.apiId, values.applyMsg, countMode ? -1 : values.callCount, dateMode ? null : values.callDateRange)
                     .then(
                         (res) => {
                             this.setState({
@@ -101,16 +101,16 @@ class ApplyBox extends Component {
 
         hashHistory.push("/api/mine");
     }
-    changeCountMode(evt){
+    changeCountMode(evt) {
         this.props.form.resetFields(['callCount'])
         this.setState({
-            countMode:evt.target.checked
+            countMode: evt.target.checked
         })
     }
-    changeDateMode(evt){
+    changeDateMode(evt) {
         this.props.form.resetFields(['callDateRange'])
         this.setState({
-            dateMode:evt.target.checked
+            dateMode: evt.target.checked
         })
     }
     disabledDate = (current) => {
@@ -150,9 +150,18 @@ class ApplyBox extends Component {
                             {getFieldDecorator('callCount', {
                                 rules: [
                                     { required: !countMode, message: "请输入调用次数" },
+                                    {
+                                        validator: function (rule, value, callback) {
+                                            if ((value||value===0) && value < 1) {
+                                                callback("次数不能小于1")
+                                                return;
+                                            }
+                                            callback();
+                                        }
+                                    },
                                 ]
                             })(<InputNumber min={1} disabled={countMode} type="number" />)}
-                             <Checkbox checked={countMode} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
+                            <Checkbox checked={countMode} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
                         </FormItem>
                         <FormItem
                             label="调用周期"
@@ -160,7 +169,7 @@ class ApplyBox extends Component {
                         >
                             {getFieldDecorator('callDateRange', {
                                 rules: [{ required: !dateMode, message: "请选择调用周期" }]
-                            })(<RangePicker disabledDate={this.disabledDate} disabled={dateMode} style={{width:"220px",verticalAlign:"middle",marginRight:"8px"}} popupStyle={{fontSize:"14px"}} />)}
+                            })(<RangePicker disabledDate={this.disabledDate} disabled={dateMode} style={{ width: "220px", verticalAlign: "middle", marginRight: "8px" }} popupStyle={{ fontSize: "14px" }} />)}
                             <Checkbox checked={dateMode} onChange={this.changeDateMode.bind(this)}>不限制调用时间</Checkbox>
                         </FormItem>
                         <FormItem
