@@ -42,7 +42,7 @@ function TaskInfo(props) {
 
             <Row>
                 <Col span="10" className="txt-right">创建人员：</Col>
-                <Col span="14">{taskInfo.createUser.userName}</Col>
+                <Col span="14">{taskInfo.createUser && taskInfo.createUser.userName}</Col>
             </Row>
             <Row>
                 <Col span="10" className="txt-right">创建时间：</Col>

@@ -1,32 +1,25 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
-import moment from 'moment'
-import { debounce } from 'lodash';
 
 import {
     Table, message, Modal,
-    Row, Col, Card, Input,
-    Radio, Button, Select,
-    Dropdown, Menu, Icon,
-    DatePicker, Tooltip,
-    InputNumber, Form, Checkbox,
+    Card, Input, Button, Select,
+    Icon, DatePicker, Tooltip, Form, Checkbox,
 } from 'antd'
 
-import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
 import { Circle } from 'widgets/circle'
 import GoBack from 'main/components/go-back'
 
 import Api from '../../../api'
 import {
-    offlineTaskStatusFilter, jobTypes,
-    ScheduleTypeFilter, TASK_STATUS,
+    offlineTaskStatusFilter,
+    TASK_STATUS,
     offlineTaskTypeFilter,
 } from '../../../comm/const'
 
 import {
-    OfflineTaskStatus, TaskTimeType, TaskType,
+    OfflineTaskStatus, TaskType,
 } from '../../../components/status'
 
 
@@ -593,13 +586,15 @@ class PatchDataDetail extends Component {
                             </div>
                         }
                         extra={
-                            <Icon type="reload" onClick={this.search}
-                                style={{
-                                    cursor: 'pointer',
-                                    marginTop: '16px',
-                                    color: '#94A8C6'
-                                }}
-                            />
+                            <Tooltip title="刷新数据">
+                                <Icon type="sync" onClick={this.search}
+                                    style={{
+                                        cursor: 'pointer',
+                                        marginTop: '16px',
+                                        color: '#94A8C6'
+                                    }}
+                                />
+                            </Tooltip>
                         }
                     >
                         <Table

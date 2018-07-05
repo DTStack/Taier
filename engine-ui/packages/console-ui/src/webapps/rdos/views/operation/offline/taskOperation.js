@@ -1,16 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
 import moment from 'moment'
-import { debounce, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 
 import {
     Table, message, Modal,
-    Row, Col, Card, Input,
-    Radio, Button, Select,
-    Dropdown, Menu, Icon,
-    DatePicker, Tooltip,
-    InputNumber, Form, Checkbox,
+    Card, Input, Button, Select,
+    Icon, DatePicker, Tooltip,
+    Form, Checkbox,
 } from 'antd'
 
 import utils from 'utils'
@@ -626,13 +623,15 @@ class OfflineTaskList extends Component {
                             </Form>
                         }
                         extra={
-                            <Icon type="reload" onClick={this.search}
-                                style={{
-                                    cursor: 'pointer',
-                                    marginTop: '16px',
-                                    color: '#94A8C6'
-                                }}
-                            />
+                            <Tooltip title="刷新数据">
+                                <Icon type="sync" onClick={this.search}
+                                    style={{
+                                        cursor: 'pointer',
+                                        marginTop: '16px',
+                                        color: '#94A8C6'
+                                    }}
+                                />
+                            </Tooltip>
                         }
                     >
                         <Table

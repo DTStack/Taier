@@ -9,7 +9,7 @@ require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-import { lineAreaChartOptions } from '../../consts';
+import { lineAreaChartOptions, DATA_SOURCE } from '../../consts';
 import TQApi from '../../api/taskQuery';
 
 export default class TaskTablePane extends Component {
@@ -167,7 +167,8 @@ export default class TaskTablePane extends Component {
     }
 
     init30TimesTableReport = () => {
-        return [{
+        const { data } = this.props;
+        const colums = [{
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
@@ -177,13 +178,24 @@ export default class TaskTablePane extends Component {
             title: '记录数',
             dataIndex: 'dayCountRecord',
             key: 'dayCountRecord',
-            width: '30%'
+            width: '20%'
         }, {
             title: '总告警数',
             dataIndex: 'dayCountTrigger',
             key: 'dayCountTrigger',
-            width: '30%'
-        }]
+            width: '20%'
+        }];
+
+        // Hive表，增加分区显示
+        if (data.dataSourceType === DATA_SOURCE.HIVE) {
+            colums.push({
+                title: '分区',
+                dataIndex: 'partition',
+                key: 'partition',
+                width: '20%'
+            })
+        }
+        return colums
     }
 
     render() {
@@ -240,7 +252,7 @@ export default class TaskTablePane extends Component {
                             title="最近30次综合报告" 
                         >
                             <Table 
-                                rowKey="tableName"
+                                rowKey="id"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesInfo()}
                                 pagination={false}
@@ -252,14 +264,14 @@ export default class TaskTablePane extends Component {
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Card   
+                        <Card
                             noHovering
                             bordered={false}
-                            loading={false} 
+                            loading={false}
                             className="shadow"
-                            title="最近30次表级统计" 
+                            title="最近30次表级统计"
                         >
-                            <Table 
+                            <Table
                                 rowKey="id"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesTableReport()}
@@ -271,7 +283,7 @@ export default class TaskTablePane extends Component {
                     </Col>
 
                     <Col span={12}>
-                        <Card   
+                        <Card
                             noHovering
                             bordered={false}
                             loading={false} 

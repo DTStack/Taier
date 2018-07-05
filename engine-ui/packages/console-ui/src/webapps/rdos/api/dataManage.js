@@ -13,6 +13,9 @@ export default {
     searchTable(params) {
         return http.post(dataManageReq.SEARCH_TABLE, params)
     },
+    queryTable(params) {
+        return http.post(dataManageReq.QUERY_TABLE, params)
+    },
     newSearchTable(params) {
         return http.post(dataManageReq.NEW_SEARCH_TABLE, params)
     },
