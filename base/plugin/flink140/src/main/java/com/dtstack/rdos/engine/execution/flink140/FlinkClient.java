@@ -258,8 +258,8 @@ public class FlinkClient extends AbsClient {
         try {
             //构建args
             List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
-
             List<String> attachJarLists = cacheFile.get(jobClient.getTaskId());
+
             if(!CollectionUtils.isEmpty(attachJarLists)){
                 args.add("-addjar");
                 String attachJarStr = PublicUtil.objToString(attachJarLists);
@@ -457,13 +457,13 @@ public class FlinkClient extends AbsClient {
         }
 
         List<String> sqlList = Lists.newArrayList(sqlArr);
-        Iterator<String> sqlIter = sqlList.iterator();
+        Iterator<String> sqlItera = sqlList.iterator();
         List<String> fileList = Lists.newArrayList();
 
-        while (sqlIter.hasNext()){
-            String tmpSql = sqlIter.next();
+        while (sqlItera.hasNext()){
+            String tmpSql = sqlItera.next();
             if(AddJarOperator.verific(tmpSql)){
-                sqlIter.remove();
+                sqlItera.remove();
                 JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
                 String addFilePath = jarFileInfo.getJarPath();
                 File tmpFile = null;
