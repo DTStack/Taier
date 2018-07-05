@@ -45,9 +45,9 @@ public class FlinkConfig {
 
     private String clusterMode; // 集群运行模式: standalone or yarn
 
-    private String flinkMode; // new or legacy
+    private String flinkYarnMode; // new or legacy
 
-    private String flinkNewModeMaxSlots; // max slots
+    private String flinkYarnNewModeMaxSlots; // max slots
 
     private Map<String, Object> hadoopConf;
 
@@ -178,20 +178,20 @@ public class FlinkConfig {
         this.clusterMode = clusterMode;
     }
 
-    public String getFlinkMode() {
-        return flinkMode;
+    public String getFlinkYarnMode() {
+        return flinkYarnMode;
     }
 
-    public void setFlinkMode(String flinkMode) {
-        this.flinkMode = flinkMode;
+    public void setFlinkYarnMode(String flinkYarnMode) {
+        this.flinkYarnMode = flinkYarnMode;
     }
 
-    public int getFlinkNewModeMaxSlots() {
-        return StringUtils.isBlank(flinkNewModeMaxSlots) ? 0 : NumberUtils.toInt(flinkNewModeMaxSlots);
+    public int getFlinkYarnNewModeMaxSlots() {
+        return StringUtils.isBlank(flinkYarnNewModeMaxSlots) ? 0 : NumberUtils.toInt(flinkYarnNewModeMaxSlots);
     }
 
-    public void setFlinkNewModeMaxSlots(String flinkNewModeMaxSlots) {
-        this.flinkNewModeMaxSlots = flinkNewModeMaxSlots;
+    public void setFlinkYarnNewModeMaxSlots(String flinkYarnNewModeMaxSlots) {
+        this.flinkYarnNewModeMaxSlots = flinkYarnNewModeMaxSlots;
     }
 
 

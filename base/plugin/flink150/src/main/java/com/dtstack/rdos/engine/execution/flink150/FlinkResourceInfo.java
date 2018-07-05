@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
-import com.dtstack.rdos.engine.execution.flink150.enums.FlinkMode;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -19,7 +19,7 @@ public class FlinkResourceInfo extends EngineResourceInfo{
 
     public static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
 
-    private static FlinkMode flinkMode = FlinkMode.LEGACY_MODE;
+    private static FlinkYarnMode flinkYarnMode = null;
     private static int FLINK_NEW_MODE_MAX_SLOTS = 0;
 
     @Override
@@ -34,7 +34,7 @@ public class FlinkResourceInfo extends EngineResourceInfo{
             availableSlots += freeSlots;
             totalSlots += slotsNumber;
         }
-        if (FlinkMode.NEW_MODE == flinkMode) {
+        if (FlinkYarnMode.NEW == flinkYarnMode) {
             availableSlots = FLINK_NEW_MODE_MAX_SLOTS - totalSlots + availableSlots;
             totalSlots = FLINK_NEW_MODE_MAX_SLOTS;
         }
@@ -68,7 +68,7 @@ public class FlinkResourceInfo extends EngineResourceInfo{
         FLINK_NEW_MODE_MAX_SLOTS = flinkNewModeMaxSlots;
     }
 
-    public static void setFlinkMode(FlinkMode flinkMode) {
-        FlinkResourceInfo.flinkMode = flinkMode;
+    public static void setFlinkYarnMode(FlinkYarnMode flinkYarnMode) {
+        FlinkResourceInfo.flinkYarnMode = flinkYarnMode;
     }
 }

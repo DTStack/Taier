@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
-import com.dtstack.rdos.engine.execution.flink150.enums.FlinkMode;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
@@ -208,7 +208,7 @@ public class FlinkClientBuilder {
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkMode(), config, yarnConf, ".");
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), config, yarnConf, ".");
         yarnClusterDescriptor = clusterDescriptor;
 
         String applicationId = acquireApplicationId(clusterDescriptor);
@@ -240,7 +240,7 @@ public class FlinkClientBuilder {
         yarnClient.init(yarnConfiguration);
         yarnClient.start();
 
-        if (FlinkMode.NEW_MODE == FlinkMode.mode(flinkMode)) {
+        if (FlinkYarnMode.NEW == FlinkYarnMode.mode(flinkMode)) {
             return new YarnClusterDescriptor(
                     configuration,
                     yarnConfiguration,

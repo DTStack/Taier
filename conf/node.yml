@@ -76,8 +76,6 @@ engineTypes:
     -
         typeName: flink150
         clusterMode: yarn
-        flinkMode: new # new / legacy
-        flinkNewModeMaxSlots: 4
         flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
         #简化为只配置/flink150/ha
         flinkHighAvailabilityStorageDir: hdfs://ns1/flink150/ha
@@ -85,6 +83,8 @@ engineTypes:
         jarTmpDir: ../tmp150
         flinkPluginRoot: /opt/dtstack/flinkplugin
         remotePluginRootDir: /opt/dtstack/flinkplugin
+        flinkYarnMode: new # flinkOnYarn 三种模式： new、legacy、per_job
+        flinkYarnNewModeMaxSlots: 4
 #        hadoopConf:
 #            dfs.nameservices: ns1
 #            fs.defaultFS: hdfs://ns1

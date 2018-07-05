@@ -21,7 +21,7 @@ import com.dtstack.rdos.engine.execution.base.operator.stream.StreamCreateResult
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
-import com.dtstack.rdos.engine.execution.flink150.enums.FlinkMode;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.source.batch.BatchSourceFactory;
@@ -129,6 +129,8 @@ public class FlinkClient extends AbsClient {
     /**客户端是否处于可用状态*/
     private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
+    private FlinkYarnMode flinkYarnMode;
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -142,8 +144,15 @@ public class FlinkClient extends AbsClient {
 
         initHadoopConf(flinkConfig);
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
-        initClient();
-        if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
+
+        boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
+        flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
+        boolean yarnSessionMode = flinkYarnMode == FlinkYarnMode.LEGACY||flinkYarnMode == FlinkYarnMode.NEW;
+        if(!yarnCluster || yarnSessionMode){
+            initClient();
+        }
+
+        if (yarnSessionMode){
             ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
             //仅作用于yarn模式下
             AbstractYarnClusterDescriptor yarnClusterDescriptor = FlinkClientBuilder.getYarnClusterDescriptor();
@@ -155,9 +164,9 @@ public class FlinkClient extends AbsClient {
     public void initClient(){
         client = flinkClientBuilder.create(flinkConfig);
         setClientOn(true);
-        if (FlinkMode.NEW_MODE == FlinkMode.mode(flinkConfig.getFlinkMode())) {
-            FlinkResourceInfo.setFlinkMode(FlinkMode.NEW_MODE);
-            FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkNewModeMaxSlots());
+        if (FlinkYarnMode.NEW == flinkYarnMode) {
+            FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.NEW);
+            FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkYarnNewModeMaxSlots());
         }
     }
 
@@ -570,7 +579,7 @@ public class FlinkClient extends AbsClient {
     }
 
     public String getReqUrl() {
-        if (FlinkMode.NEW_MODE == FlinkMode.mode(flinkConfig.getFlinkMode())) {
+        if (FlinkYarnMode.NEW == flinkYarnMode) {
             return getNewReqUrl();
         } else {
             return getLegacyReqUrl();
