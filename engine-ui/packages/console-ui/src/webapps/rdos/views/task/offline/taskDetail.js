@@ -156,7 +156,6 @@ class TaskDetail extends React.Component {
 }
 
 export default connect((state, ownProps) => {
-    console.log('ownProps:', ownProps)
     return {
         projectUsers: state.projectUsers,
     };

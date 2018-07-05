@@ -160,7 +160,7 @@ export const workbenchActions = (dispatch) => {
 
     return {
         dispatch,
-        
+
         /**
          * 更新Tab数据
          */
@@ -252,7 +252,7 @@ export const workbenchActions = (dispatch) => {
         },
 
         loadTreeNode: (nodePid, type) => {
-            ajax.getOfflineCatelogue({
+            ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,
                 catalogueType: type,

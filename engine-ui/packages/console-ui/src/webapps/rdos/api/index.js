@@ -411,15 +411,20 @@ export default {
     },
 
     // =========== 离线catalogue目录模块 ==================//
-    getOfflineCatelogue(params) {
-        return http.post(offlineReq.GET_OFFLINE_CATELOGUE, params)
+    getOfflineCatalogue(params) {
+        return http.post(offlineReq.GET_OFFLINE_CATALOGUE, params)
     },
-    addOfflineCatelogue(params) {
-        return http.post(offlineReq.ADD_OFFLINE_CATELOGUE, params)
+    addOfflineCatalogue(params) {
+        return http.post(offlineReq.ADD_OFFLINE_CATALOGUE, params)
     },
-    editOfflineCatelogue(params) {
-        return http.post(offlineReq.EDIT_OFFLINE_CATELOGUE, params)
+    editOfflineCatalogue(params) {
+        return http.post(offlineReq.EDIT_OFFLINE_CATALOGUE, params)
     },
+    getOfflineCataloguesByLocation(params) {
+        return http.post(offlineReq.GET_OFFLINE_CATALOGUE_BY_LOCATION, params)
+    },
+
+
     addOfflineResource(params) {
         return http.postAsFormData(offlineReq.ADD_OFFLINE_RESOURCE, params)
     },

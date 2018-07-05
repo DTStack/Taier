@@ -70,10 +70,10 @@ export default {
     DOWNLOAD_SQL_RESULT:`${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`,//下载运行结果
     
     // ===== catalogue目录模块 ===== //
-    // GET_OFFLINE_CATELOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
-    GET_OFFLINE_CATELOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/getCatalogue`,
-    ADD_OFFLINE_CATELOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`,
-    EDIT_OFFLINE_CATELOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateCatalogue`,
+    // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
+    GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/getCatalogue`,
+    ADD_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`,
+    EDIT_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateCatalogue`,
     ADD_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/upload/batch/batchResource/addResource`,
     ADD_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     GET_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/getTaskById`,

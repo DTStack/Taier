@@ -70,7 +70,7 @@ class OfflineTabPane extends Component {
         const { dispatch } = this.props;
         // dispatch(clearTreeData())
         // 四组数据在一个接口里面, 所以不在container中dispatch
-        ajax.getOfflineCatelogue({
+        ajax.getOfflineCatalogue({
             isGetFile: !!1,
             nodePid: 0
         }).then(res => {
