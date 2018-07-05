@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { 
-    Collapse, Icon, Tooltip, 
+    Icon, Tooltip, 
     Tabs, Dropdown, Menu 
 } from 'antd';
 import { isEmpty } from 'lodash';
@@ -17,7 +17,6 @@ import {
     fnTreeAction,
     sysFnTreeActon,
     scriptTreeAction,
-    workbenchAction,
     tableTreeAction,
 } from '../../store/modules/offlineTask/actionType';
 
@@ -26,11 +25,8 @@ import {
 } from '../../store/modules/offlineTask/offlineAction';
 
 import { showSeach } from '../../store/modules/comm';
-import { clearTreeData } from '../../store/modules/offlineTask/folderTree';
 import { MENU_TYPE } from '../../comm/const';
-import MyIcon from '../../components/icon';
 
-const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 
 class OfflineTabPane extends Component {
@@ -41,6 +37,8 @@ class OfflineTabPane extends Component {
 
     state = {
         subMenus: [],
+        expandedKeys: [],
+        expandedKeys2: []
     }
 
     componentDidMount() {
@@ -54,6 +52,18 @@ class OfflineTabPane extends Component {
         if (newData && (!old || (old.id !== 0 && old.id !== newData.id))) {
             this.getCatelogue();
         }
+    }
+
+    onExpand = (expandedKeys) => {
+        this.setState({
+            expandedKeys,
+        })
+    }
+
+    onExpand2 = (expandedKeys) => {
+        this.setState({
+            expandedKeys2: expandedKeys,
+        })
     }
 
     getCatelogue() {
@@ -172,10 +182,12 @@ class OfflineTabPane extends Component {
         }
     }
 
-    // refresh = (nodePid, type) => {
-    //     let pid = '';
-    //     this.props.reloadTreeNodes();
-    // }
+    reloadTreeNodes = (id, type) => {
+        this.props.reloadTreeNodes(id, type);
+        this.setState({
+            expandedKeys: [`${type}-${id}`]
+        })
+    }
 
     renderTabPanes = () => {
 
@@ -186,10 +198,10 @@ class OfflineTabPane extends Component {
             sysFunctionTreeData,
             scriptTreeData,
             tableTreeData,
-            reloadTreeNodes,
         } = this.props;
 
-        const { subMenus } = this.state
+        const { subMenus, expandedKeys, expandedKeys2 } = this.state;
+        const reloadTreeNodes = this.reloadTreeNodes;
 
         const menus = []
         if (subMenus && subMenus.length > 0) {
@@ -200,10 +212,15 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="定位">
+                                    <Icon
+                                        type="environment"
+                                        onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        className=""
                                         style={{fontSize: '12px'}}
                                         onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
                                     />
@@ -229,6 +246,8 @@ class OfflineTabPane extends Component {
                                     !isEmpty(taskTreeData) &&
                                     <FolderTree 
                                         type={MENU_TYPE.TASK_DEV} 
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
                                         treeData={taskTreeData} 
                                     />
                                 }
@@ -242,7 +261,6 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        className=""
                                         style={{fontSize: '12px'}}
                                         onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
                                     />
@@ -264,7 +282,9 @@ class OfflineTabPane extends Component {
                                 { 
                                     !isEmpty(scriptTreeData) &&
                                     <FolderTree 
-                                        type={menuItem.catalogueType} 
+                                        type={menuItem.catalogueType}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
                                         treeData={scriptTreeData} 
                                     />
                                 }
@@ -278,7 +298,6 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        className=""
                                         style={{fontSize: '12px'}}
                                         onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
                                     />
@@ -304,6 +323,8 @@ class OfflineTabPane extends Component {
                                     !isEmpty(resourceTreeData) &&
                                     <FolderTree 
                                         type={menuItem.catalogueType} 
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
                                         treeData={resourceTreeData} 
                                     />
                                 }
@@ -317,7 +338,6 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        className=""
                                         style={{fontSize: '12px'}}
                                         onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
                                     />
@@ -339,14 +359,18 @@ class OfflineTabPane extends Component {
                                 {
                                     !isEmpty(functionTreeData) &&
                                     <FolderTree 
-                                    type={MENU_TYPE.COSTOMFUC} 
+                                    type={MENU_TYPE.COSTOMFUC}
+                                    expandedKeys={expandedKeys}
+                                    onExpand={this.onExpand}
                                     treeData={functionTreeData} />
                                 }
                                 {
                                     !isEmpty(sysFunctionTreeData) &&
                                     <FolderTree 
-                                        type={MENU_TYPE.SYSFUC} 
-                                        treeData={sysFunctionTreeData} 
+                                        type={MENU_TYPE.SYSFUC}
+                                        expandedKeys={expandedKeys2}
+                                        onExpand={this.onExpand2}
+                                        treeData={sysFunctionTreeData}
                                     />
                                 }
                             </div>

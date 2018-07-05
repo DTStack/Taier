@@ -220,14 +220,14 @@ export default class TaskDetailPane extends Component {
     render() {
         const { visible, currentRecord, taskDetail, showSnapshot } = this.state;
 
-        const filterTaskDetail = taskDetail.filter(
+        const filterTaskDetail = taskDetail ? taskDetail.filter(
             (item)=>{
                 if(showSnapshot){
                     return true;
                 }
                 return item.isSnapshot==0?true:false;
             }
-        )
+        ): []
 
 
         let cardTitle = (

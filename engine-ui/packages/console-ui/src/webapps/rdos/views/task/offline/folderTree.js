@@ -28,10 +28,6 @@ const isRootFolder = (node) => {
 
 class FolderTree extends React.Component {
 
-    state = {
-        expandedKeys: null,
-    }
-
     constructor(props) {
         super(props);
         this.handleChange = this.props.onChange;
@@ -39,6 +35,7 @@ class FolderTree extends React.Component {
 
     onLoadData(type, treeNode) {
         const { loadTreeNode, ispicker } = this.props;
+        const ctx = this;
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             const cataType = type || data.catalogueType
@@ -46,6 +43,7 @@ class FolderTree extends React.Component {
                 resolve();
                 return;
             }
+            ctx._asyncLoadData = true;
             loadTreeNode(data.id, cataType);
             resolve();
         });
@@ -472,7 +470,7 @@ class FolderTree extends React.Component {
     }
 
     render() {
-        const { type, placeholder, currentTab } = this.props;
+        const { type, placeholder, currentTab, onExpand, expandedKeys } = this.props;
         return (
             <div>
                 {this.props.ispicker ?
@@ -498,6 +496,8 @@ class FolderTree extends React.Component {
                     placeholder={placeholder}
                     selectedKeys={[`${type}-${currentTab}`]}
                     loadData={ this.onLoadData.bind(this, type) }
+                    expandedKeys={ expandedKeys }
+                    onExpand={ onExpand }
                     onSelect={ this.handleSelect.bind(this) }
                 >
                     { this.genetateTreeNode() }
