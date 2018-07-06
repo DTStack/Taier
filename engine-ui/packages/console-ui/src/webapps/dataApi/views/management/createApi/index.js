@@ -45,8 +45,8 @@ const mapDispatchToProps = dispatch => ({
     saveOrUpdateApiInfo(params) {
         return dispatch(apiManageActions.saveOrUpdateApiInfo(params));
     },
-    sqlFormat(sql) {
-        return dispatch(apiManageActions.sqlFormat({ sql }));
+    sqlFormat(sql,type) {
+        return dispatch(apiManageActions.sqlFormat({ sql,type }));
     },
     sqlParser(sql, sourceId) {
         return dispatch(apiManageActions.sqlParser({ sql, sourceId }));
@@ -184,9 +184,9 @@ class NewApi extends Component {
                 method: data.reqType,
                 protocol: data.protocol,
                 responseType: data.responseType,
-                dataSourceType:data.dataSourceType
             },
             paramsConfig: {
+                dataSourceType:data.dataSourceType,
                 dataSrcId: data.dataSrcId,
                 tableName: data.tableName,
                 resultPage: data.respPageSize,
