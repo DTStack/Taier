@@ -15,7 +15,7 @@ import {
 } from '../../../store/modules/offlineTask/actionType';
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
-import UpdateTaskOwnerModal from './UpdateTaskOwnerModal';
+import UpdateTaskOwnerModal from './updateTaskOwnerModal';
 
 const Panel = Collapse.Panel;
 
