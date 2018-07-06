@@ -121,6 +121,7 @@ class Content extends Component {
                         <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
                         <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{this.getValue('reqMethod')}</span>
+                        <p data-title="调用限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
                             <p data-title="申请调用次数：" className="pseudo-title p-line">{callLimit == -1 ? '无限制' : callLimit}</p>
