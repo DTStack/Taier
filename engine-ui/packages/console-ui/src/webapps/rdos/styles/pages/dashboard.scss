@@ -90,6 +90,7 @@
                 position: relative;
                 .statistics{
                     line-height: 32px;
+                    min-width: 190px;
                 }
                 .ant-card-body{
                     padding: 8px;
@@ -100,6 +101,7 @@
                     text-align: center;
                 }
                 .card-task{
+                    min-width: 115px;
                     text-align: center;
                     margin-bottom: 5;
                 }
@@ -121,15 +123,14 @@
                 border-color: transparent transparent transparent #696565;/*透明 透明 透明 灰*/
                 //margin:40px auto;
                 position: absolute;
-                bottom: -32px;
-                right: -40px;
+                bottom: -16px;
+                right: -16px;
                 transform: rotate(45deg);
             }
         }
     }
     .sortTitle{
-        height:20px;
-        margin-bottom: 5px;
+        line-height:45px;
         .faileSort{
             float: right;
             padding: 0 20px;
