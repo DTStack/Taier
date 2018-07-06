@@ -72,7 +72,7 @@ class apiSlidePane extends Component {
             <SlidePane
                 className="m-tabs tabs-filter-show"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '800px', height: '100%' }}
+                style={{ right: '-20px', width: '80%', minHeight: '760px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
                     animated={false}

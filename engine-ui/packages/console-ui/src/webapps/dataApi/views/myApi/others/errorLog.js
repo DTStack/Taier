@@ -1,6 +1,9 @@
 import React, { Component } from "react";
-import { Table, Modal } from "antd"
+import { Table, Modal,Row,Col } from "antd"
 import utils from "utils"
+
+import ErrorDistributed from "../../../components/errorDistributed";
+
 const errorType = {
     1: "禁用",
     2: "未认证",
@@ -19,16 +22,17 @@ class errorLog extends Component {
         loading: false,
         pageIndex: 1,
         total: 0,
-        filter: {}
+        filter: {},
+        recordInfoList:[]
     }
     componentDidMount() {
         const { showRecord = {}, dateType } = this.props;
         const { apiId } = showRecord;
-        this.getErrorInfo(apiId,dateType);
+        this.getErrorInfo(apiId, dateType);
 
     }
     componentWillReceiveProps(nextProps) {
-        const { showRecord: nextShowRecord = {}, dateType:nextDateType } = nextProps;
+        const { showRecord: nextShowRecord = {}, dateType: nextDateType } = nextProps;
         const { showRecord = {}, dateType } = this.props;
         const { apiId } = showRecord;
         const { apiId: nextApiId } = nextShowRecord;
@@ -36,23 +40,23 @@ class errorLog extends Component {
         if (apiId !== nextApiId || dateType !== nextDateType) {
             this.setState({
                 apiId: nextProps.showRecord.apiId,
-                pageIndex:1,
+                pageIndex: 1,
                 // total:0
             },
                 () => {
                     if (nextProps.slidePaneShow) {
-                        this.getErrorInfo(nextApiId,nextDateType);
+                        this.getErrorInfo(nextApiId, nextDateType);
                     }
                 })
         }
     }
-    getErrorInfo(apiId,dateType) {
+    getErrorInfo(apiId, dateType) {
 
         if (!apiId) {
             return;
         }
 
-        this.props.getApiCallErrorInfo(apiId,dateType)
+        this.props.getApiCallErrorInfo(apiId, dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -69,12 +73,13 @@ class errorLog extends Component {
                             }
                         }
                         this.setState({
-                            error: dic
+                            error: dic,
+                            recordInfoList:res.data.recordInfoList
                         })
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0],dateType)
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0], dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -149,7 +154,7 @@ class errorLog extends Component {
             () => {
                 const { showRecord = {}, dateType } = this.props;
                 const { apiId } = showRecord;
-                this.getErrorInfo(apiId,dateType);
+                this.getErrorInfo(apiId, dateType);
             });
     }
     lookAllErrorText(text) {
@@ -171,27 +176,35 @@ class errorLog extends Component {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
     render() {
-
+        const {recordInfoList, loading} =this.state;
 
         return (
             <div style={{ padding: "10px 30px" }}>
-                <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
-                    <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
-                    <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
-                    <span>未认证: {this.getErrorPercent('未认证')}% ({this.getErrorCount('未认证')}次)</span>
-                    <span>超时: {this.getErrorPercent('超时')}% ({this.getErrorCount('超时')}次)</span>
-                    <span>超出限制: {this.getErrorPercent('超出限制')}% ({this.getErrorCount('超出限制')}次)</span>
-                    <span>其他: {this.getErrorPercent('其他')}% ({this.getErrorCount('其他')}次)</span>
-                </p>
-                <Table
-                    rowKey="id"
-                    className="m-table monitor-table"
-                    columns={this.initColumns()}
-                    loading={this.state.loading}
-                    pagination={this.getPagination()}
-                    dataSource={this.getSource()}
-                    onChange={this.onTableChange}
-                />
+                <Row>
+                    <Col span={16} style={{ paddingRight: "20px" }}>
+                        <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
+                            <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
+                            <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
+                            <span>未认证: {this.getErrorPercent('未认证')}% ({this.getErrorCount('未认证')}次)</span>
+                            <span>超时: {this.getErrorPercent('超时')}% ({this.getErrorCount('超时')}次)</span>
+                            <span>超出限制: {this.getErrorPercent('超出限制')}% ({this.getErrorCount('超出限制')}次)</span>
+                            <span>其他: {this.getErrorPercent('其他')}% ({this.getErrorCount('其他')}次)</span>
+                        </p>
+                        <Table
+                            rowKey="id"
+                            className="m-table monitor-table"
+                            columns={this.initColumns()}
+                            loading={loading}
+                            pagination={this.getPagination()}
+                            dataSource={this.getSource()}
+                            onChange={this.onTableChange}
+                            scroll={{ y: 180 }}
+                        />
+                    </Col>
+                    <Col span={8} >
+                        <ErrorDistributed chartData={recordInfoList} mode="mini" />
+                    </Col>
+                </Row>
             </div>
         )
     }

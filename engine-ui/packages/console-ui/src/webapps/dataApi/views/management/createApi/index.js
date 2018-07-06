@@ -12,14 +12,15 @@ import ModeChoose from "./modeChoose"
 import TestApi from "./testApi"
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
+import { dataSourceActions } from '../../../actions/dataSource';
 import utils from "../../../../../utils";
 import ColumnsModel from "../../../model/columnsModel";
 
 const Step = Steps.Step;
 
 const mapStateToProps = state => {
-    const { user, apiMarket } = state;
-    return { apiMarket, user }
+    const { user, apiMarket, dataSource } = state;
+    return { apiMarket, user, dataSource }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -55,6 +56,9 @@ const mapDispatchToProps = dispatch => ({
     },
     apiTest(params) {
         return dispatch(apiManageActions.apiTest(params));
+    },
+    getDataSourcesType() {
+        return dispatch(dataSourceActions.getDataSourcesType());
     }
 });
 
@@ -179,7 +183,8 @@ class NewApi extends Component {
                 callLimit: data.reqLimit,
                 method: data.reqType,
                 protocol: data.protocol,
-                responseType: data.responseType
+                responseType: data.responseType,
+                dataSourceType:data.dataSourceType
             },
             paramsConfig: {
                 dataSrcId: data.dataSrcId,
@@ -267,6 +272,7 @@ class NewApi extends Component {
         params.apiDesc = this.state.basicProperties.APIdescription;//描述
         params.dataSrcId = this.state.paramsConfig.dataSrcId;//数据源
         params.tableName = this.state.paramsConfig.tableName;//数据表
+        params.dataSourceType=this.state.paramsConfig.dataSourceType;//数据源类型
         params.reqLimit = this.state.basicProperties.callLimit;//调用限制
         params.apiPath = this.state.basicProperties.APIPath;//api路径
         params.reqType = this.state.basicProperties.method;//http method
