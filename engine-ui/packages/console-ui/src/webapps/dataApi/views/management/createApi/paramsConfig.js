@@ -422,7 +422,7 @@ class ManageParamsConfig extends Component {
         ) : [];
     }
     sqlFormat() {
-        this.props.sqlFormat(this.state.editor.sql)
+        this.props.sqlFormat(this.state.editor.sql,this.props.dataSourceType)
             .then(
                 (res) => {
                     if (res) {
