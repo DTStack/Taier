@@ -190,9 +190,7 @@ class APIApproval extends Component {
                 dealView.push(<span className="ant-divider" ></span>);
                 dealView.push(cancelButton);
                 break;
-
             case API_USER_STATUS.DISABLE:
-
                 dealView.push(detailButton);
                 dealView.push(<span className="ant-divider" ></span>);
                 dealView.push(redoButton);
