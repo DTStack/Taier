@@ -160,19 +160,6 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'DATE',
 ]
 
-export const dataSourceTypes = [ // 数据源类型
-    '未知类型',
-    'MySql',
-    'Oracle',
-    'SQLServer',
-    'PostgreSQL',
-    'RDBMS',
-    'HDFS',
-    'Hive',
-    'HBase',
-    'FTP',
-]
-
 // 表模型规则列表
 export const tableModelRules = [{
     name: '层级',

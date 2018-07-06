@@ -140,8 +140,8 @@ class TaskDetail extends React.Component {
                         projectUsers={projectUsers}
                         onSelect={this.onSelectUser}
                         onOk={this.modifyTaskOwner}
-                        defaultValue={`${tabData.ownerUserId}`}
-                        onCancle={() => {this.setState({visible: false})}}
+                        defaultValue={`${tabData.ownerUserId || ''}`}
+                        onCancel={() => {this.setState({visible: false})}}
                     />
                 </Panel>
                 <Panel key="2" header="历史发布版本">

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tag, Badge, Tooltip } from 'antd'
+import { Tag, Badge } from 'antd'
 import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../comm/const'
 import { Circle } from 'widgets/circle' 
 

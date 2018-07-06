@@ -20,7 +20,6 @@ import { matchTaskParams } from '../../../../comm';
 
 import {
     formItemLayout,
-    dataSourceTypes,
     DATA_SOURCE,
     DATA_SOURCE_TEXT
 } from '../../../../comm/const';

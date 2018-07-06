@@ -24,6 +24,7 @@ export const taskTreeAction = mc([
     'DEL_OFFLINE_FOLDER',
     'EDIT_FOLDER_CHILD',
     'EDIT_FOLDER_CHILD_FIELDS',
+    'MERGE_FOLDER_CONTENT',
 ], {prefix: 'offline/taskTree/'});
 
 export const resTreeAction = mc([
@@ -59,6 +60,7 @@ export const scriptTreeAction = mc([
     'DEL_OFFLINE_FOLDER',
     'EDIT_FOLDER_CHILD',
     'EDIT_FOLDER_CHILD_FIELDS',
+    'MERGE_FOLDER_CONTENT',
 ], { prefix: 'offline/scriptTree/' });
 
 export const tableTreeAction = mc([

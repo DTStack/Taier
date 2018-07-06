@@ -251,6 +251,24 @@ export const workbenchActions = (dispatch) => {
             })
         },
 
+        /**
+         * 定位文件位置
+         */
+        locateFilePos(data, type) {
+            if (type === MENU_TYPE.TASK || type === MENU_TYPE.TASK_DEV) {
+                dispatch({
+                    type: taskTreeAction.MERGE_FOLDER_CONTENT,
+                    payload: data
+                });
+            }
+            else if (MENU_TYPE.SCRIPT) {
+                dispatch({
+                    type: scriptTreeAction.MERGE_FOLDER_CONTENT,
+                    payload: data
+                });
+            }
+        },
+
         loadTreeNode: (nodePid, type) => {
             ajax.getOfflineCatalogue({
                 isGetFile: !!1,
@@ -366,6 +384,7 @@ export const workbenchActions = (dispatch) => {
                 }
             })
         },
+
 
         loadTaskParams() {
             ajax.getCustomParams()

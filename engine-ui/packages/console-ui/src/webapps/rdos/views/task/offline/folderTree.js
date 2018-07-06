@@ -471,6 +471,8 @@ class FolderTree extends React.Component {
 
     render() {
         const { type, placeholder, currentTab, onExpand, expandedKeys } = this.props;
+        console.log('expandedKeys:', expandedKeys)
+
         return (
             <div>
                 {this.props.ispicker ?
@@ -496,9 +498,11 @@ class FolderTree extends React.Component {
                     placeholder={placeholder}
                     selectedKeys={[`${type}-${currentTab}`]}
                     loadData={ this.onLoadData.bind(this, type) }
-                    expandedKeys={ expandedKeys }
-                    onExpand={ onExpand }
+                    // expandedKeys={ expandedKeys }
+                    // onExpand={ onExpand }
+                    defaultExpandAll
                     onSelect={ this.handleSelect.bind(this) }
+                    // autoExpandParent={false}
                 >
                     { this.genetateTreeNode() }
                 </Tree>

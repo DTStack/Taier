@@ -10,7 +10,7 @@ import {
     tableTreeAction,
 } from './actionType';
 
-import { replaceTreeNode } from 'funcs'
+import { replaceTreeNode, mergeTreeNodes } from 'funcs'
 
 /**
  * @description 加载文件夹内容
@@ -146,6 +146,15 @@ export const taskTreeReducer = (state = {}, action) => {
             const updated = cloneDeep(state)
             replaceTreeNode(updated, action.payload)
             return updated;
+        }
+        case taskTreeAction.MERGE_FOLDER_CONTENT: {
+            const data = action.payload;
+            if (state.children) {
+                const origin = cloneDeep(state);
+                mergeTreeNodes(origin, data);
+                return origin;
+            }
+            return Object.assign({}, data)
         }
         default:
             return state;

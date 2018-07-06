@@ -420,7 +420,7 @@ export default {
     editOfflineCatalogue(params) {
         return http.post(offlineReq.EDIT_OFFLINE_CATALOGUE, params)
     },
-    getOfflineCataloguesByLocation(params) {
+    locateCataPosition(params) {
         return http.post(offlineReq.GET_OFFLINE_CATALOGUE_BY_LOCATION, params)
     },
 

@@ -72,6 +72,7 @@ export default {
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
     GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/getCatalogue`,
+    GET_OFFLINE_CATALOGUE_BY_LOCATION: `${RDOS_BASE_URL}/batch/batchCatalogue/getLocation`,
     ADD_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`,
     EDIT_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateCatalogue`,
     ADD_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/upload/batch/batchResource/addResource`,

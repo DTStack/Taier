@@ -54,7 +54,8 @@ class OfflineTabPane extends Component {
         }
     }
 
-    onExpand = (expandedKeys) => {
+    onExpand = (expandedKeys, { expanded, node }) => {
+        console.log('onExpand', expandedKeys, expanded, node)
         this.setState({
             expandedKeys,
         })
@@ -65,6 +66,52 @@ class OfflineTabPane extends Component {
             expandedKeys2: expandedKeys,
         })
     }
+
+    reloadTreeNodes = (id, type) => {
+        this.props.reloadTreeNodes(id, type);
+        this.setState({
+            expandedKeys: [`${type}-${id}`]
+        })
+    }
+
+    locateFilePos = (id, name, type) => {
+        // const rootId = this.props.taskTreeData.id
+        const { currentTab, currentTabData} = this.props;
+        this.setState({
+            expandedKeys: [`${type}-${currentTabData.nodePid}`]
+        })
+
+        const getExpandPath = (data, id, path) => {
+            console.log('path:', data.id, id)
+            path.push(`${type}-${data.id}`)
+            if (data && data.id === id) {
+                return path;
+            }
+            if (data.children) {
+                const children = data.children
+                for (let i = 0; i < children.length; i += 1) {
+                    getExpandPath(children[i], id, path)
+                }
+            }
+        }
+
+        ajax.locateCataPosition({
+            id,
+            catalogueType: type,
+            name: name,
+        }).then(res => {
+            if (res.code === 1 && res.data) {
+                const data = res.data.children[0];
+                const path = [];
+
+                const checkedPath = getExpandPath(data, currentTab, path);
+                console.log('checkedPath:', path);
+                this.props.locateFilePos(data, type);
+            }
+        });
+
+    }
+
 
     getCatelogue() {
         const { dispatch } = this.props;
@@ -182,13 +229,6 @@ class OfflineTabPane extends Component {
         }
     }
 
-    reloadTreeNodes = (id, type) => {
-        this.props.reloadTreeNodes(id, type);
-        this.setState({
-            expandedKeys: [`${type}-${id}`]
-        })
-    }
-
     renderTabPanes = () => {
 
         const {
@@ -198,10 +238,13 @@ class OfflineTabPane extends Component {
             sysFunctionTreeData,
             scriptTreeData,
             tableTreeData,
+            currentTab,
         } = this.props;
 
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
+
+        console.log('taskTreeData', taskTreeData)
 
         const menus = []
         if (subMenus && subMenus.length > 0) {
@@ -215,7 +258,7 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="定位">
                                     <Icon
                                         type="environment"
-                                        onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
+                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新">
@@ -387,7 +430,7 @@ class OfflineTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <TabPane tab={menuItem.name} key={menuItem.id}> 
+                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.id}> 
                         {menuContent} 
                     </TabPane>
                 )
@@ -401,7 +444,6 @@ class OfflineTabPane extends Component {
         const {
             taskTreeData
         } = this.props;
-        // const defaultOpen = [`${taskTreeData.id}`];
 
         return (
             <div className="g-taskOfflineSidebar task-sidebar m-tabs">
@@ -420,6 +462,11 @@ class OfflineTabPane extends Component {
 
 export default connect(state => {
     const { offlineTask } = state;
+    const { currentTab, tabs } = offlineTask.workbench;
+
+    const currentTabData = tabs.filter(tab => {
+        return tab.id === currentTab;
+    })[0];
 
     return {
         project: state.project,
@@ -429,6 +476,8 @@ export default connect(state => {
         sysFunctionTreeData: offlineTask.sysFunctionTree,
         scriptTreeData: offlineTask.scriptTree,
         tableTreeData: offlineTask.tableTree,
+        currentTab,
+        currentTabData,
     }
 },
 dispatch => {
@@ -489,6 +538,10 @@ dispatch => {
 
         reloadTreeNodes: function(nodePid, type) {
             actions.loadTreeNode(nodePid, type);
+        },
+
+        locateFilePos: function(data, type) {
+            actions.locateFilePos(data, type);
         },
 
         dispatch
