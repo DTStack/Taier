@@ -185,18 +185,20 @@ class APIApproval extends Component {
                 dealView.push(approvalButton);
                 break;
             case API_USER_STATUS.PASS:
+            case API_USER_STATUS.STOPPED:
                 dealView.push(detailButton);
                 dealView.push(<span className="ant-divider" ></span>);
                 dealView.push(cancelButton);
                 break;
-            case API_USER_STATUS.REJECT:
+
             case API_USER_STATUS.DISABLE:
-            case API_USER_STATUS.STOPPED:
+
                 dealView.push(detailButton);
                 dealView.push(<span className="ant-divider" ></span>);
                 dealView.push(redoButton);
                 break;
             case API_USER_STATUS.EXPIRED:
+            case API_USER_STATUS.REJECT:
                 dealView.push(detailButton);
                 break;
         }
@@ -424,13 +426,13 @@ class APIApproval extends Component {
                             {...formItemLayout}
                             label="调用次数"
                         >
-                            {spApplyMsg.callLimit==-1?'无限制':spApplyMsg.callLimit}
+                            {spApplyMsg.callLimit == -1 ? '无限制' : spApplyMsg.callLimit}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="调用周期"
                         >
-                            {spApplyMsg.beginTime?`${new moment(spApplyMsg.beginTime).format("YYYY-MM-DD")} ~ ${new moment(spApplyMsg.endTime).format("YYYY-MM-DD")}`:"无限制"}
+                            {spApplyMsg.beginTime ? `${new moment(spApplyMsg.beginTime).format("YYYY-MM-DD")} ~ ${new moment(spApplyMsg.endTime).format("YYYY-MM-DD")}` : "无限制"}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
