@@ -67,6 +67,7 @@
     }
     .card-width{
         min-width: 375px;
+        
         .company-name{
             font-size: 14px ;
             cursor: pointer;
@@ -74,46 +75,48 @@
         .company-name:hover{
             color: #2491F7;
         }
-        .tooltipSet{
-            float: right;
-            min-width: 136px;
-            .fail-task{
-                font-size: 14px;
-                 color: #999;
-                 padding-right: 10px;
-            }
-        }
         .general-card{
             margin-bottom: 10px;
             height: 240px;
             .card-content{
                 position: relative;
                 .statistics{
-                    line-height: 32px;
+                    line-height: 26px;
                     min-width: 190px;
                 }
                 .ant-card-body{
-                    padding: 8px;
+                    padding: 4px;
+                }
+                .card-task-padding{
+                    padding: 0;
                 }
                 .number{
-                    font-size: 24px;
+                    font-size: 32px;
                     color: #f00;
-                    text-align: center;
+                }
+                .number:hover{
+                    cursor: pointer;
                 }
                 .card-task{
                     min-width: 115px;
                     text-align: center;
-                    margin-bottom: 5;
+                    margin-top: 10px;
+                    background: #2491F7;
+                    color: #fff;
                 }
                 .img-container{
                     padding-right: 5px;
                     .task-img{
+                        display: inline-block;
                         height:16px;
                         width: 20px;
                         background: #2491F7;
                         position: relative;
                         top: 3px;
                     }
+                }
+                .card-task:hover{
+                    cursor: pointer;
                 }
                 
             }
@@ -133,7 +136,7 @@
         line-height:45px;
         .faileSort{
             float: right;
-            padding: 0 20px;
+            padding-left: 20px;
             font-size: 14px;
             cursor: pointer;
         }
@@ -163,10 +166,24 @@
     .ant-card-body{
         padding: 16 10;
     }
+    
+
 }
 .tooltip-tittle-text{
     cursor: pointer;
 }
+.tooltip{
+    .ant-tooltip-arrow{
+        border-bottom-color: #2491F7;
+    }
+    .ant-tooltip-arrow{
+        border-bottom-color: #2491F7;
+    }
+    .ant-tooltip-inner{
+        background-color: #2491F7; 
+    }
+}
+
 // .tooltip-tittle-text:hover{
 //     color: #2491F7;
 // }
