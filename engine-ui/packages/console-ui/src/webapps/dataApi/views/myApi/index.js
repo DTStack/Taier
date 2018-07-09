@@ -115,6 +115,7 @@ class MyAPI extends Component {
                 className="box-1"
                 noHovering>
                     <Tabs
+                    style={{overflow:"unset"}}
                         animated={false}
                         defaultActiveKey={nowView}
                         onChange={this.handleClick.bind(this)}
