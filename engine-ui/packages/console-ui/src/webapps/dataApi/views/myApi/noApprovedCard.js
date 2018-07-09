@@ -170,12 +170,14 @@ class NoApprovedCard extends Component {
     render() {
         return (
             <div>
-                <SlidePane
-                    {...this.props}
-                    slidePaneShow={this.state.slidePaneShow}
-                    showRecord={this.state.showRecord}
-                    closeSlidePane={this.closeSlidePane.bind(this)}
-                ></SlidePane>
+                <div style={{ marginRight: "-20px", position: "relative" }}>
+                    <SlidePane
+                        {...this.props}
+                        slidePaneShow={this.state.slidePaneShow}
+                        showRecord={this.state.showRecord}
+                        closeSlidePane={this.closeSlidePane.bind(this)}
+                    ></SlidePane>
+                </div>
                 <Card
                     noHovering
                 >
