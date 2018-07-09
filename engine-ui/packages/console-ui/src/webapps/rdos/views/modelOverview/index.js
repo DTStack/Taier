@@ -118,7 +118,7 @@ class Index extends Component {
             </div>
         const title = <div>
             <Row>
-                <Col span="12" >
+                <Col span="20" >
                     <Link to={`/offline/task?projectId=${data.id}`}>
                         <span className="company-name" onClick={()=>{this.setRouter('operation',data)}}>
                             {data.projectName}&nbsp;&nbsp;
@@ -136,12 +136,9 @@ class Index extends Component {
                         </span> 
                     }
                 </Col>
-                <Col span="8" className="tooltipSet">
-                    <span className="fail-task" >
-                        今日任务失败数
-                    </span>
-                    <Tooltip title={tooltipTittle} >
-                        <Icon type="setting" style={{ fontSize: 14}} />
+                <Col span="4">
+                    <Tooltip title={tooltipTittle} placement="bottomRight" overlayClassName="tooltip">
+                        <Icon type="setting" style={{ fontSize: 16,marginTop: "16px" ,float: "right"}} />
                     </Tooltip>
                 </Col>
             </Row>
@@ -178,7 +175,7 @@ class Index extends Component {
         return (
             <Spin tip="Loading..." spinning={loading}  delay={500} >
                 <div className="project-dashboard" style={{ padding: 40 }}>
-                    <Row gutter={40}>
+                    <Row gutter={10}>
                         <Col span="10" >
                             <h1 className="box-title" style={{ padding: 0}}>
                                 我的项目: 
@@ -188,7 +185,7 @@ class Index extends Component {
                             </h1>
                             
                         </Col>
-                        <Col span="10" style={{ marginBottom: -10,paddingTop: 10 }}>
+                        <Col span="14" >
                             <div className="sortTitle">
                                 <span  className="faileSort" style={sortTitleStatus == 2 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('faileSort')}}>按任务失败数排序</span>
                                 <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认顺序</span>
@@ -196,49 +193,61 @@ class Index extends Component {
                         </Col>
                     </Row>
                     <Row gutter={40}>
-                        <Col span="20" >
+                        <Col span="24" >
                             <Row gutter={24}>   
                                 {
-                                    //mockData projectListInfo
                                     projectListInfo.map(v=>{
                                         return  <Col span="8" className="card-width" key={v.id}>
                                                     <Card  className="general-card" title={this.generalTitle(v)}>
                                                         <Row className="card-content">
-                                                            <Col span="14">
+                                                            <Col span="18">
                                                                 <div className="statistics" >已发布/总任务数： {`${v.taskCountMap.allCount}/${v.taskCountMap.submitCount}`}</div>
                                                                 <div className="statistics" >表数量： {v.tableCount}</div>
                                                                 <div className="statistics" >项目占用存储： {v.totalSize}</div>
                                                                 <div className="statistics" >创建时间： {moment(v.gmtCreate).format("YYYY-MM-DD hh:mm:ss")}</div>
                                                             </Col>
-                                                            <Col span="10">
+                                                            <Col span="6">
+                                                                <div style={{fontSize:14}}>今日任务失败数</div>
                                                                 <div className="number" onClick={()=>{this.setRouter('operation',v)}}>
                                                                     {
                                                                         v.jobSum ? <span>{v.jobSum}</span> :
                                                                             <span style={{color: "#999"}}>{v.jobSum||0}</span>
                                                                     }
                                                                 </div>
-                                                            
+                        
+                                                            </Col>
+                                                            <Col span="24" className="card-task-padding">
                                                                 {
-                                                                    v.status == 2 || v.status == 3 ? "" : <div>
-                                                                        <Card className="card-task" onClick={()=>{this.setRouter('offline',v)}}>
-                                                                            <span className="img-container">
-                                                                                <img className="task-img" src="/public/rdos/img/icon/offline.png" />
-                                                                            </span>
-                                                                            离线任务开发
-                                                                        </Card>
-                                                                        <Card className="card-task" onClick={()=>{this.setRouter('realtime',v)}}>
-                                                                            <span className="img-container">
-                                                                                <img className="task-img" src="/public/rdos/img/icon/realtime.png" />
-                                                                            </span>
-                                                                            实时任务开发
-                                                                        </Card>
-                                                                        <Card className="card-task" onClick={()=>{this.setRouter('operation',v)}}>运维中心</Card>
-                                                                    </div>
+                                                                    v.status == 2 || v.status == 3 ? "" : <Row >
+                                                                        <Col span="8">
+                                                                            <Card className="card-task" onClick={()=>{this.setRouter('offline',v)}}>
+                                                                                <span className="img-container">
+                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline.png" />
+                                                                                </span>
+                                                                                离线任务开发
+                                                                            </Card>
+                                                                        </Col>
+                                                                        <Col span="8">
+                                                                            <Card className="card-task" onClick={()=>{this.setRouter('realtime',v)}}>
+                                                                                <span className="img-container">
+                                                                                    <img className="task-img" src="/public/rdos/img/icon/realtime.png" />
+                                                                                </span>
+                                                                                实时任务开发
+                                                                            </Card>
+                                                                        </Col >
+                                                                        <Col span="8">
+                                                                            <Card className="card-task" onClick={()=>{this.setRouter('operation',v)}}>
+                                                                                <span className="img-container">
+                                                                                        <span className="task-img" />
+                                                                                    </span>
+                                                                                运维中心
+                                                                            </Card>
+                                                                        </Col>
+                                                                    </Row>
                                                                 }
                                                             </Col>
-                                                        
                                                         </Row>
-                                                    {
+                                                        {
                                                             v.stickStatus == 1 ? <div className="triangle_border_right">
                                                                     <span></span>
                                                                 </div>:""
@@ -249,42 +258,25 @@ class Index extends Component {
                                 }
                             </Row>
                             <Row>
-                            <Col span="12">
-                                <Button 
-                                    style={{ marginTop: 10 }}
-                                    type="primary" 
-                                    onClick={() => { this.setState({ visible: true }) }}>
-                                    创建项目
-                                </Button>
-                            </Col>
-                            <Col span="12">
-                                <div style={{float: "right"}}>
-                                    <Pagination 
-                                        current={projectListParams.page} 
-                                        total={totalSize} 
-                                        onChange={this.changePage}
-                                        pageSize={projectListParams.pageSize}
-                                    />
-                                </div>
-                            </Col>
-                        </Row>
-                        </Col>
-                        <Col span="4">
-                            <Card  style={{ minHeight: 400 ,padding:"0 20" }}>
-                                <h3 className="title-help">使用帮助</h3>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>支持对哪些数据源做同步</a></p>
-                                <p className="help-doc-rdos"><a>如何配置数据源</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                                <p className="help-doc-rdos"><a>开发套件产品介绍</a></p>
-                            </Card>
+                                <Col span="12">
+                                    <Button 
+                                        style={{ marginTop: 10 }}
+                                        type="primary" 
+                                        onClick={() => { this.setState({ visible: true }) }}>
+                                        创建项目
+                                    </Button>
+                                </Col>
+                                <Col span="12">
+                                    <div style={{float: "right"}}>
+                                        <Pagination 
+                                            current={projectListParams.page} 
+                                            total={totalSize} 
+                                            onChange={this.changePage}
+                                            pageSize={projectListParams.pageSize}
+                                        />
+                                    </div>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                     <ProjectForm
