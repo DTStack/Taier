@@ -4,9 +4,11 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
+import com.dtstack.rdos.engine.execution.flink150.util.FLinkConf;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
+import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
@@ -22,6 +24,7 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.LegacyYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterDescriptor;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -31,6 +34,7 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -57,6 +61,9 @@ public class FlinkClientBuilder {
     private YarnConfiguration yarnConf;
 
     private static AbstractYarnClusterDescriptor yarnClusterDescriptor;
+
+    private Configuration flinkConfiguration;
+    private static AbstractYarnClusterDescriptor perJobYarnClusterDescriptor;
 
     private FlinkClientBuilder() {
     }
@@ -236,6 +243,32 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
+    public void createPerJobYarnClusterDescriptor(FlinkConfig flinkConfig) {
+        flinkConfiguration = FLinkConf.getConfiguration(flinkConfig.getFlinkConfigDir());
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), flinkConfiguration, yarnConf, ".");
+
+        String flinkJarPath = null;
+        File flinkLib = null;
+        if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
+            if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
+                throw new RdosException("The Flink jar path is not exist");
+            }
+            flinkJarPath = flinkConfig.getFlinkJarPath();
+        } else if ((flinkLib = new File(flinkConfiguration + "/../lib")).isDirectory()) {
+            for (File flinkJarFile : flinkLib.listFiles()) {
+                if (flinkJarFile.getName().startsWith("flink-dist")) {
+                    flinkJarPath = flinkJarFile.getPath();
+                }
+            }
+        }
+        if (flinkJarPath != null) {
+            clusterDescriptor.setLocalJarPath(new Path(flinkJarPath));
+        } else {
+            throw new RdosException("The Flink jar path is null");
+        }
+        perJobYarnClusterDescriptor = clusterDescriptor;
+    }
+
     public AbstractYarnClusterDescriptor getClusterDescriptor(
             String flinkMode,
             Configuration configuration,
@@ -245,7 +278,7 @@ public class FlinkClientBuilder {
         yarnClient.init(yarnConfiguration);
         yarnClient.start();
 
-        if (FlinkYarnMode.NEW == FlinkYarnMode.mode(flinkMode)) {
+        if (FlinkYarnMode.NEW == FlinkYarnMode.mode(flinkMode) || FlinkYarnMode.PER_JOB == FlinkYarnMode.mode(flinkMode)) {
             return new YarnClusterDescriptor(
                     configuration,
                     yarnConfiguration,
@@ -303,7 +336,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor(){
+    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor() {
         return yarnClusterDescriptor;
     }
 
@@ -321,5 +354,23 @@ public class FlinkClientBuilder {
 
     public void setYarnConf(YarnConfiguration yarnConf) {
         this.yarnConf = yarnConf;
+    }
+
+    public Configuration getFlinkConfiguration() {
+        if (flinkConfiguration == null) {
+            throw new RdosException("Configuration directory not set");
+        }
+        return flinkConfiguration;
+    }
+
+    public ClusterSpecification getClusterSpecification() {
+        if (flinkConfiguration == null) {
+            throw new RdosException("Configuration directory not set");
+        }
+        return FLinkConf.createClusterSpecification(flinkConfiguration);
+    }
+
+    public static AbstractYarnClusterDescriptor getPerJobYarnClusterDescriptor() {
+        return perJobYarnClusterDescriptor;
     }
 }

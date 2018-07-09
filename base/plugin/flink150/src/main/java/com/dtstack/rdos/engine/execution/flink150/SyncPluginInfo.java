@@ -32,7 +32,7 @@ public class SyncPluginInfo {
 
     private static final String fileSP = File.separator;
 
-    private static final String syncPluginDirName = "syncplugin";
+    private static final String syncPluginDirName = "syncplugin_150";
 
     /**插件jar名称*/
     private static final String syncJarFileName = "flinkx.jar";

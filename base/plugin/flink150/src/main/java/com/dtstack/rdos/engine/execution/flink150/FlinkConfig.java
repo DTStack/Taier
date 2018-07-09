@@ -51,6 +51,8 @@ public class FlinkConfig {
 
     private String flinkConfigDir;
 
+    private String flinkJarPath;
+
     private Map<String, Object> hadoopConf;
 
     private Map<String, Object> yarnConf;
@@ -219,5 +221,13 @@ public class FlinkConfig {
 
     public void setFlinkConfigDir(String flinkConfigDir) {
         this.flinkConfigDir = flinkConfigDir;
+    }
+
+    public String getFlinkJarPath() {
+        return flinkJarPath;
+    }
+
+    public void setFlinkJarPath(String flinkJarPath) {
+        this.flinkJarPath = flinkJarPath;
     }
 }

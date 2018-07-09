@@ -26,7 +26,6 @@ import com.dtstack.rdos.engine.execution.flink150.sink.batch.BatchSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.sink.stream.StreamSinkFactory;
 import com.dtstack.rdos.engine.execution.flink150.source.batch.BatchSourceFactory;
 import com.dtstack.rdos.engine.execution.flink150.source.stream.StreamSourceFactory;
-import com.dtstack.rdos.engine.execution.flink150.util.FLinkConf;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.HadoopConf;
 import com.google.common.base.Strings;
@@ -136,10 +135,6 @@ public class FlinkClient extends AbsClient {
 
     private FlinkYarnMode flinkYarnMode;
 
-    private Configuration flinkConfiguration;
-
-    private ClusterSpecification clusterSpecification;
-
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -161,8 +156,7 @@ public class FlinkClient extends AbsClient {
             initClient();
         }
         if (yarnCluster && FlinkYarnMode.PER_JOB == flinkYarnMode){
-            flinkConfiguration = FLinkConf.getConfiguration(flinkConfig.getFlinkConfigDir());
-            clusterSpecification = FLinkConf.createClusterSpecification(flinkConfiguration);
+            flinkClientBuilder.createPerJobYarnClusterDescriptor(flinkConfig);
             setClientOn(true);
         }
 
@@ -191,20 +185,15 @@ public class FlinkClient extends AbsClient {
     }
 
     private JobSubmissionResult runJobCluster(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
-        AbstractYarnClusterDescriptor abstractYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig.getFlinkYarnMode(), flinkConfiguration, yarnConf, ".");
-        final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkConfiguration, parallelism);
+        ClusterSpecification clusterSpecification = flinkClientBuilder.getClusterSpecification();
+        final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
         //flinkYarnMode:new 时，必须要指定 taskmanager数量，既参数 -n，这里默认为1，-s 没有配置默认也为1
         //taskmanager.heap.mb、jobmanager.heap.mb 配置文件没有设置则默认为1024
-        ClusterClient clusterClient = abstractYarnClusterDescriptor.deployJobCluster(clusterSpecification, jobGraph, true);
+        ClusterClient clusterClient = FlinkClientBuilder.getPerJobYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph, true);
         try {
             clusterClient.shutdown();
         } catch (Exception e) {
             logger.info("Could not properly shut down the client.", e);
-        }
-        try {
-            abstractYarnClusterDescriptor.close();
-        } catch (Exception e) {
-            logger.info("Could not properly close the cluster descriptor.", e);
         }
         return new JobSubmissionResult(jobGraph.getJobID());
     }
@@ -264,7 +253,7 @@ public class FlinkClient extends AbsClient {
         JobSubmissionResult result = null;
 
         try {
-            result = client.run(packagedProgram, runParallelism);
+            result = runJob(packagedProgram, runParallelism);
         }catch (Exception e){
             logger.error("", e);
             return JobResult.createErrorResult(e);
@@ -582,6 +571,10 @@ public class FlinkClient extends AbsClient {
     		return null;
     	}
 
+    	if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+            return RdosTaskStatus.FINISHED;
+        }
+
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
         String response = null;
         try{
@@ -618,7 +611,9 @@ public class FlinkClient extends AbsClient {
     }
 
     public String getReqUrl() {
-        if (FlinkYarnMode.NEW == flinkYarnMode) {
+        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+            return "1";
+        }else if (FlinkYarnMode.NEW == flinkYarnMode) {
             return getNewReqUrl();
         } else {
             return getLegacyReqUrl();
@@ -722,6 +717,10 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobLog(String jobId) {
+        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+            return "per-job mode can not retrieve log";
+        }
+
         String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);
         String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);

@@ -84,9 +84,10 @@ engineTypes:
         flinkPluginRoot: /opt/dtstack/flinkplugin
         remotePluginRootDir: /opt/dtstack/flinkplugin
         #新增配置
-        flinkYarnMode: new # flinkOnYarn 三种模式： new、legacy、per_job
+        flinkYarnMode: per_job # flinkOnYarn 三种模式： new、legacy、per_job
         flinkYarnNewModeMaxSlots: 4
         flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
+        flinkJarPath: /opt/dtstack/flink-1.5.0/lib/flink-dist_2.11-1.5.0.jar
 #        hadoopConf:
 #            dfs.nameservices: ns1
 #            fs.defaultFS: hdfs://ns1
