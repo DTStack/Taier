@@ -472,19 +472,18 @@ class APIMana extends Component {
         )
     }
     render() {
-        const { children } = this.props;
         const { slidePaneShow, showRecord } = this.state
 
         return (
             <div className="api-management">
                 <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
+                <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
                     <Card
 
                         noHovering
                         title={this.getCardTitle()}
                         extra={this.getCardExtra()}
                     >
-                        <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
                         <Table
                             rowClassName={
                                 (record, index) => {

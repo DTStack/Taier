@@ -383,31 +383,31 @@ class ApprovedCard extends Component {
                     desc={applyRecord.apiDesc}
                     hideJump={true}
                 ></ApplyBox>
+                <SlidePane
+                    {...this.props}
+                    isApproved={true}
+                    showRecord={this.state.showRecord}
+                    slidePaneShow={this.state.slidePaneShowNoApproved}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                ></SlidePane>
+                <SlidePaneDisabled
+                    {...this.props}
+                    showRecord={this.state.showRecord}
+                    slidePaneShow={this.state.slidePaneShowDisabled}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                >
+                </SlidePaneDisabled>
+                <SlidePaneDetail
+                    style={{ right: "0px" }}
+                    {...this.props}
+                    showRecord={this.state.showRecord}
+                    slidePaneShow={this.state.slidePaneShowSuccess}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                >
+                </SlidePaneDetail>
                 <Card
                     noHovering
                 >
-                    <SlidePane
-                        {...this.props}
-                        isApproved={true}
-                        showRecord={this.state.showRecord}
-                        slidePaneShow={this.state.slidePaneShowNoApproved}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    ></SlidePane>
-                    <SlidePaneDisabled
-                        {...this.props}
-                        showRecord={this.state.showRecord}
-                        slidePaneShow={this.state.slidePaneShowDisabled}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    >
-                    </SlidePaneDisabled>
-                    <SlidePaneDetail
-                        style={{ right: "0px" }}
-                        {...this.props}
-                        showRecord={this.state.showRecord}
-                        slidePaneShow={this.state.slidePaneShowSuccess}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    >
-                    </SlidePaneDetail>
                     <div className="flex font-12">
                         <Search
                             placeholder="输入API名称搜索"

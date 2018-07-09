@@ -169,41 +169,45 @@ class NoApprovedCard extends Component {
     }
     render() {
         return (
-            <Card
-                noHovering
-            >
+            <div>
                 <SlidePane
                     {...this.props}
                     slidePaneShow={this.state.slidePaneShow}
                     showRecord={this.state.showRecord}
                     closeSlidePane={this.closeSlidePane.bind(this)}
                 ></SlidePane>
-                <div className="flex font-12">
-                    <Search
-                        placeholder="输入API名称搜索"
-                        style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
-                        onSearch={this.handleApiSearch.bind(this)}
-                    />
-                </div>
-                <Table
-                    rowKey="id"
-                    rowClassName={
-                        (record, index) => {
-                            if (this.state.showRecord.apiId == record.apiId) {
-                                return "row-select"
-                            } else {
-                                return "";
+                <Card
+                    noHovering
+                >
+
+                    <div className="flex font-12">
+                        <Search
+                            placeholder="输入API名称搜索"
+                            style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
+                            onSearch={this.handleApiSearch.bind(this)}
+                        />
+                    </div>
+                    <Table
+                        rowKey="id"
+                        rowClassName={
+                            (record, index) => {
+                                if (this.state.showRecord.apiId == record.apiId) {
+                                    return "row-select"
+                                } else {
+                                    return "";
+                                }
                             }
                         }
-                    }
-                    className="m-table monitor-table"
-                    columns={this.initColumns()}
-                    loading={this.state.loading}
-                    pagination={this.getPagination()}
-                    dataSource={this.getSource()}
-                    onChange={this.onTableChange}
-                />
-            </Card>
+                        className="m-table monitor-table"
+                        columns={this.initColumns()}
+                        loading={this.state.loading}
+                        pagination={this.getPagination()}
+                        dataSource={this.getSource()}
+                        onChange={this.onTableChange}
+                    />
+                </Card>
+            </div>
+
 
         )
     }
