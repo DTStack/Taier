@@ -258,7 +258,7 @@ class TableList extends Component {
     }
 
     renderPane = () => {
-        const { table, queryParams, editRecord, loading } = this.state;
+        const { table, queryParams, dataCatalogue, loading } = this.state;
         const { projects } = this.props;
         const projectOptions = projects.map(proj => <Option
             title={proj.projectAlias}
@@ -280,7 +280,7 @@ class TableList extends Component {
                             value={queryParams.catalogueId}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
-                            treeData={this.state.dataCatalogue}
+                            treeData={dataCatalogue&&dataCatalogue[0].children}
                         />
                     </span>
                 </FormItem>

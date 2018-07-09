@@ -104,6 +104,9 @@ export default {
     setSticky(params) {
         return http.post(req.SET_STICKY, params)
     },
+    deleteProject(params) {
+        return http.post(req.DELETE_PROJECT, params)
+    },
     // ========== Role ========== //
     getRoleList(params) {
         return http.post(req.GET_ROLE_LIST, params)

@@ -31,19 +31,23 @@ class Index extends Component {
     }
 
     setCard = (data) => {
-        if(data.projectStatus == 2||data.projectStatus == 3){//"删除项目" 
-            message.success('删除项目成功！');
-            this.getProjectListInfo();
-        }else if(data.status == 0){//"置顶"
-            Api.setSticky({appointProjectId: data.id,stick: 1}).then(v=>{
+        if(data.status == 2||data.status == 3){//"删除项目" 
+            Api.deleteProject({projectId: data.id}).then(v=>{
+                if(v.code==1){
+                    message.success('删除项目成功！');
+                    this.getProjectListInfo();
+                }
+            })
+        }else if(data.stickStatus == 0){//"置顶"
+            Api.setSticky({appointProjectId: data.id,stickStatus: 1}).then(v=>{
                 console.log('置顶',v);
                 if(v.code==1){
                     message.success('置顶成功！');
                     this.getProjectListInfo();
                 }
             })
-        }else if(data.status == 1){//"取消置顶"
-            Api.setSticky({appointProjectId: data.id,stick: 0}).then(v=>{
+        }else if(data.stickStatus == 1){//"取消置顶"
+            Api.setSticky({appointProjectId: data.id,stickStatus: 0}).then(v=>{
                 console.log('取消置顶',v);
                 if(v.code==1){
                     message.success('取消置顶成功！');
@@ -109,7 +113,7 @@ class Index extends Component {
     generalTitle = (data)=>{
         const tooltipTittle = <div className="tooltip-tittle-text" onClick={()=>{this.setCard(data)}}>
                 {
-                     data.projectStatus == 2||data.projectStatus == 3 ? "删除项目" : data.status == 0 ? "置顶" :  "取消置顶"
+                     data.status == 2||data.status == 3 ? "删除项目" : data.stickStatus == 1 ? "取消置顶" :  "置顶"
                 }
             </div>
         const title = <div>
@@ -121,7 +125,7 @@ class Index extends Component {
                         </span>
                     </Link>
                     {
-                       data.projectStatus == 2||data.projectStatus == 3 ? 
+                       data.status == 2||data.status == 3 ? 
                         <span>
                             <Icon type="close-circle" style={{ fontSize: 14,color:"#f00",paddingLeft: 16 }}/>
                             <span style={{ color: '#999'}}>  创建失败</span>
@@ -171,17 +175,6 @@ class Index extends Component {
 
     render() {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
-        const mockData = [
-            {id:142412,status:1,projectName:"wujing",projectAlias:"wujing_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:522,tableCount:4241,totalSize:"11241.g4Mb",taskCountMap:{allCount:2635252,submitCount:12511}},
-            {id:142411,status:2,projectName:"bajie",projectAlias:"bajie_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:522,tableCount:4741,totalSize:"71241.g4Mb",taskCountMap:{allCount:735252,submitCount:12611}},
-            {id:142413,status:0,projectName:"yuren",projectAlias:"yuren_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:522,tableCount:4841,totalSize:"61241.g4Mb",taskCountMap:{allCount:885252,submitCount:12311}},
-            {id:142414,status:0,projectName:"feizi",projectAlias:"feizi_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:522,tableCount:3241,totalSize:"41241.g4Mb",taskCountMap:{allCount:8535252,submitCount:12711}},
-            {id:142415,status:2,projectName:"dema",projectAlias:"dema_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:522,tableCount:7241,totalSize:"71241.g4Mb",taskCountMap:{allCount:635252,submitCount:12911}},
-            {id:142416,status:1,projectName:"浙大图书馆",projectAlias:"浙大图书馆_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:112,tableCount:4241,totalSize:"81241.g4Mb",taskCountMap:{allCount:4235252,submitCount:12011}},
-            {id:142417,status:0,projectName:"华夏银行",projectAlias:"华夏银行_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:322,tableCount:4241,totalSize:"1241.g4Mb",taskCountMap:{allCount:5235252,submitCount:12211}},
-            {id:142418,status:2,projectName:"招商银行",projectAlias:"招商银行_1",projectDesc:"",createUserId:"",tenantId:235252,jobSum:122,tableCount:4241,totalSize:"19241.g4Mb",taskCountMap:{allCount:1235252,submitCount:12111}},
-            {id:142419,status:2,projectName:"阿凡提",projectAlias:"afanty",projectDesc:"",createUserId:"",tenantId:2352,jobSum:521,tableCount:4241,totalSize:"41248.g4Mb",taskCountMap:{allCount:2735252,submitCount:62311}},
-        ]
         return (
             <Spin tip="Loading..." spinning={loading}  delay={500} >
                 <div className="project-dashboard" style={{ padding: 40 }}>
@@ -226,7 +219,7 @@ class Index extends Component {
                                                                 </div>
                                                             
                                                                 {
-                                                                    v.status == 0 ? "" : <div>
+                                                                    v.status == 2 || v.status == 3 ? "" : <div>
                                                                         <Card className="card-task" onClick={()=>{this.setRouter('offline',v)}}>
                                                                             <span className="img-container">
                                                                                 <img className="task-img" src="/public/rdos/img/icon/offline.png" />
@@ -246,7 +239,7 @@ class Index extends Component {
                                                         
                                                         </Row>
                                                     {
-                                                            v.status == 1 ? <div className="triangle_border_right">
+                                                            v.stickStatus == 1 ? <div className="triangle_border_right">
                                                                     <span></span>
                                                                 </div>:""
                                                         }

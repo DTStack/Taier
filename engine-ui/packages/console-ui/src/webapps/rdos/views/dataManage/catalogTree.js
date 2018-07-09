@@ -4,6 +4,7 @@ import {
     Tree, TreeSelect, Icon, message,
     Card, Input, Tooltip, Popconfirm
 } from 'antd'
+import { chunk } from 'lodash';
 
 const TreeNode = Tree.TreeNode
 
@@ -183,6 +184,7 @@ class CatalogueTree extends Component {
                 }
                 
                 if (data.isNew) this._active = key
+                console.log('isPicker : ',!isPicker);
                 
                 const title = !isPicker ? <span
                     title={item.name}
@@ -265,7 +267,7 @@ class CatalogueTree extends Component {
                     data={data}
                     className={isTable && 's-table'}
                 >
-                    {isFolder && loopTree(data.children)}
+                    {isFolder && data.children.length > 0 && loopTree(data.children)}
                 </TreeNode >)
             })
         }
@@ -276,16 +278,15 @@ class CatalogueTree extends Component {
     render() {
         let treeContent = ''
         const {
-            onSelect, onChange, treeData, id, value, showSearch, multiple,
+            onSelect, onChange, id, value, showSearch, multiple,
             loadData, isPicker, placeholder, defaultValue, treeCheckable,
         } = this.props;
-        
         if (isPicker) treeContent = (
             <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
                 <TreeSelect
                     allowClear
                     defaultExpandAll
-                    key={id}
+                    key={id || 'tableCatalogue'}
                     value={value}
                     showSearch={showSearch}
                     treeCheckable={treeCheckable}
@@ -298,7 +299,12 @@ class CatalogueTree extends Component {
                     dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
                     placeholder={placeholder || '请选择数据类目'}
                 >
-                    { this.renderTreeNodes() }
+                    { 
+                        this.renderTreeNodes()&&this.renderTreeNodes().filter(v=>{
+                            if(v) return v
+                        }) 
+                    }
+                    {/* {this.renderTreeNodes()} */}
                 </TreeSelect>
             </div>
         )
