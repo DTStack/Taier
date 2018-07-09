@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
-import SplitPane from 'react-split-pane'
 
 import utils from 'utils'
 
@@ -8,13 +7,11 @@ import Api from '../../../api'
 import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge';
 import Editor from '../../../components/code-editor'
-import { TaskBadgeStatus } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { updateRealtimeTreeNode } from '../../../store/modules/realtimeTask/tree'
 
-import EditorContainer from './editorContainer'
+import RealTimeEditor from './editor'
 import TaskDetail from './taskDetail'
-import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
@@ -250,7 +247,7 @@ export default class TaskBrowser extends Component {
                         {panels}
                     </Tabs>
                     {this.renderLock(currentPage)}
-                    <EditorContainer {...this.props} />
+                    <RealTimeEditor {...this.props} />
                     <div className="m-siderbench bd-left" ref={(e) => { this.SideBench = e }}>
                         <Tabs
                             activeKey={this.state.selected}

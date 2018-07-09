@@ -199,18 +199,6 @@ class TaskIndex extends Component {
             }
 
             result.publishDesc = publishDesc;
-            // 添加发布信息到发布记录
-            // const publishRecords = currentPage.taskVersions || []
-            // const time = Date.now()
-            // let taskVersions = [{
-            //     id: time,
-            //     gmtCreate: time,
-            //     userName: user.userName,
-            //     publishDesc: publishDesc,
-            //     sqlText: result.sqlText,
-            // }].concat(publishRecords)
-            // taskVersions = taskVersions.length >= 5 ? taskVersions.slice(0, 5) : taskVersions
-            // updateTaskFields({ taskVersions })
         } else {
             message.error('发布备注不可为空！')
             return false;

@@ -3,8 +3,8 @@ import {
     Form, Input, Radio,
  } from 'antd'
  
-import { formItemLayout } from '../../../comm/const'
-import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
+import { formItemLayout } from '../../../../comm/const'
+import * as BrowserAction from '../../../../store/modules/realtimeTask/browser'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group

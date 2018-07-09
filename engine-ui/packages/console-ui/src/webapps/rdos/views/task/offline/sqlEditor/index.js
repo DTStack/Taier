@@ -102,7 +102,6 @@ class SQLEditor extends Component {
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
 
-
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">

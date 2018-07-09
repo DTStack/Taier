@@ -74,9 +74,13 @@ class OfflineTabPane extends Component {
         })
     }
 
+    /**
+     * 定位任务在文件树的具体位置
+     */
     locateFilePos = (id, name, type) => {
         // const rootId = this.props.taskTreeData.id
         const { currentTab, currentTabData} = this.props;
+        if (!currentTab) return;
         this.setState({
             expandedKeys: [`${type}-${currentTabData.nodePid}`]
         })
