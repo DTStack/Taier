@@ -63,7 +63,6 @@ public class FlinkClientBuilder {
     private static AbstractYarnClusterDescriptor yarnClusterDescriptor;
 
     private Configuration flinkConfiguration;
-    private static AbstractYarnClusterDescriptor perJobYarnClusterDescriptor;
 
     private FlinkClientBuilder() {
     }
@@ -200,7 +199,7 @@ public class FlinkClientBuilder {
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
 
-        AbstractYarnClusterDescriptor clusterDescriptor = createClusterDescriptor(flinkConfig);
+        AbstractYarnClusterDescriptor clusterDescriptor = createSessionClusterDescriptor(flinkConfig);
 
         String applicationId = acquireApplicationId(clusterDescriptor);
 
@@ -222,7 +221,7 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    private AbstractYarnClusterDescriptor createClusterDescriptor(FlinkConfig flinkConfig) {
+    private AbstractYarnClusterDescriptor createSessionClusterDescriptor(FlinkConfig flinkConfig) {
         Configuration config = new Configuration();
         if (StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
@@ -243,7 +242,7 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
-    public void createPerJobYarnClusterDescriptor(FlinkConfig flinkConfig) {
+    public void createPerJobClusterDescriptor(FlinkConfig flinkConfig) {
         flinkConfiguration = FLinkConf.getConfiguration(flinkConfig.getFlinkConfigDir());
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), flinkConfiguration, yarnConf, ".");
 
@@ -266,10 +265,10 @@ public class FlinkClientBuilder {
         } else {
             throw new RdosException("The Flink jar path is null");
         }
-        perJobYarnClusterDescriptor = clusterDescriptor;
+        yarnClusterDescriptor = clusterDescriptor;
     }
 
-    public AbstractYarnClusterDescriptor getClusterDescriptor(
+    private AbstractYarnClusterDescriptor getClusterDescriptor(
             String flinkMode,
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
@@ -368,9 +367,5 @@ public class FlinkClientBuilder {
             throw new RdosException("Configuration directory not set");
         }
         return FLinkConf.createClusterSpecification(flinkConfiguration);
-    }
-
-    public static AbstractYarnClusterDescriptor getPerJobYarnClusterDescriptor() {
-        return perJobYarnClusterDescriptor;
     }
 }

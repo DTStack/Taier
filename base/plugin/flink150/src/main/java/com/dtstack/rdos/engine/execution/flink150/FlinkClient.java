@@ -156,7 +156,7 @@ public class FlinkClient extends AbsClient {
             initClient();
         }
         if (yarnCluster && FlinkYarnMode.PER_JOB == flinkYarnMode){
-            flinkClientBuilder.createPerJobYarnClusterDescriptor(flinkConfig);
+            flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig);
             setClientOn(true);
         }
 
@@ -185,11 +185,11 @@ public class FlinkClient extends AbsClient {
     }
 
     private JobSubmissionResult runJobCluster(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
+        //taskmanager数量，这里默认为1
+        //taskmanager.heap.mb、jobmanager.heap.mb 配置文件没有设置则默认为1024
         ClusterSpecification clusterSpecification = flinkClientBuilder.getClusterSpecification();
         final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
-        //flinkYarnMode:new 时，必须要指定 taskmanager数量，既参数 -n，这里默认为1，-s 没有配置默认也为1
-        //taskmanager.heap.mb、jobmanager.heap.mb 配置文件没有设置则默认为1024
-        ClusterClient clusterClient = FlinkClientBuilder.getPerJobYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph, true);
+        ClusterClient clusterClient = FlinkClientBuilder.getYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph, true);
         try {
             clusterClient.shutdown();
         } catch (Exception e) {
@@ -791,6 +791,9 @@ public class FlinkClient extends AbsClient {
         if (FlinkYarnMode.NEW == flinkYarnMode) {
             FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.NEW);
             FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkYarnNewModeMaxSlots());
+            if (logger.isInfoEnabled()){
+                logger.warn("node.yml flinkYarnNewModeMaxSlots:{}",flinkConfig.getFlinkYarnNewModeMaxSlots());
+            }
         }
 
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
