@@ -48,7 +48,7 @@ class ManageParamsConfig extends Component {
             },
             sqlModeShow: InputIsEdit && OutputIsEdit
         });
-        if(dataSourceType||dataSourceType==0){
+        if(dataSourceType||dataSourceType==0||dataSrcId||dataSrcId==0){
             this.getDataSource(dataSourceType);
         }
         if (dataSrcId || dataSrcId == 0) {
