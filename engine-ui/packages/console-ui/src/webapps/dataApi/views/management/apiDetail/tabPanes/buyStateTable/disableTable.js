@@ -19,15 +19,20 @@ class DisableTable extends Component {
             title: '最大调用次数',
             dataIndex: 'callLimit',
             key: 'callLimit',
-            width:"100px"
- 
+            width:"100px",
+            render(text){
+                return text==-1?"无限制":text;
+            }   
         },{
             title: '调用周期',
             dataIndex: 'callDateRange',
             key: 'callDateRange',
             width:"200px",
             render(text,record){
-                return <span>{new moment(record.beginTime).format("YYYY-MM-DD")} ~ {new moment(record.endTime).format("YYYY-MM-DD")}</span>
+                const beginTime=record.beginTime?new moment(record.beginTime).format("YYYY-MM-DD"):null;
+                const endTIme=record.endTime?new moment(record.endTime).format("YYYY-MM-DD"):null;
+                const time = beginTime?`${beginTime} ~ ${endTIme}`:"无限制"
+                return <span>{time}</span>
             }
  
         }, {
