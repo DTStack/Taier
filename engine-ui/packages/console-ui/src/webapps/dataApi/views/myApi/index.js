@@ -106,7 +106,7 @@ class MyAPI extends Component {
         return <ApprovedCard {...this.props}></ApprovedCard>
     }
     render() {
-        const { children } = this.props;
+        const {nowView} =this.state;
         return (
             <div className=" api-mine nobackground m-card height-auto m-tabs">
                 <h1 className="box-title">我的API</h1>
@@ -116,14 +116,14 @@ class MyAPI extends Component {
                 noHovering>
                     <Tabs
                         animated={false}
-                        defaultActiveKey={this.state.nowView}
+                        defaultActiveKey={nowView}
                         onChange={this.handleClick.bind(this)}
                     >
                         <Tabs.TabPane tab="已审批" key="approved">
-                            <ApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
+                            <ApprovedCard nowView={nowView} apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
                         <Tabs.TabPane tab="审批中" key="notApproved">
-                            <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
+                            <NoApprovedCard nowView={nowView} apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>
                 </Card>
