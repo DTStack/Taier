@@ -4,24 +4,30 @@ export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
     SQLSERVER: 3,
+    POSTGRESQL: 4,
     HDFS: 6,
     HIVE: 7,
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
     ES: 11,
+    REDIS: 12,
+    MONGODB: 13
 }
 
 export const DATA_SOURCE_TEXT = {
     1: 'MySql',
     2: 'Oracle',
     3: 'SQLServer',
+    4: 'PostgreSQL',
     6: 'HDFS',
     7: 'Hive',
     8: 'HBase',
     9: 'FTP',
     10: 'MaxCompute',
-    11: 'ElasticSearch'
+    11: 'ElasticSearch',
+    12: 'Redis',
+    13: 'MongoDB'
 }
 
 // 锁类型
@@ -152,19 +158,6 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'DOUBLE',
     'TIMESTAMP',
     'DATE',
-]
-
-export const dataSourceTypes = [ // 数据源类型
-    '未知类型',
-    'MySql',
-    'Oracle',
-    'SQLServer',
-    'PostgreSQL',
-    'RDBMS',
-    'HDFS',
-    'Hive',
-    'HBase',
-    'FTP',
 ]
 
 // 表模型规则列表
@@ -345,6 +338,9 @@ export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
     text: 'SQLServer',
     value: DATA_SOURCE.SQLSERVER,
 }, {
+    text: 'PostgreSQL',
+    value: DATA_SOURCE.POSTGRESQL,
+}, {
     text: 'HDFS',
     value: DATA_SOURCE.HDFS,
 }, {
@@ -362,6 +358,12 @@ export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
 }, {
     text: 'ElasticSearch',
     value: DATA_SOURCE.ES,
+}, {
+    text: 'Redis',
+    value: DATA_SOURCE.REDIS,
+}, {
+    text: 'MongoDB',
+    value: DATA_SOURCE.MONGODB,
 }]
 
 export const propEditorOptions = { // 编辑器选项

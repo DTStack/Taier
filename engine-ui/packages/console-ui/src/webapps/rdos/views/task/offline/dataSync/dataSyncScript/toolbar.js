@@ -11,7 +11,7 @@ import utils from 'utils'
 
 import API from '../../../../../api'
 import { DatabaseType } from '../../../../../components/status';
-import { formItemLayout, DATA_SOURCE, HELP_DOC_URL, dataSourceTypes } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE, HELP_DOC_URL } from '../../../../../comm/const'
 
 import {
     workbenchAction,
@@ -292,7 +292,7 @@ class SyncToolbar extends Component {
         data.sqlText = utils.jsonFormat(template);
 
         this.setState({
-            execConfirmVisible:false
+            execConfirmVisible: false
         });
 
         dispatch({

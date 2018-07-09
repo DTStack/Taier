@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { Menu, Card, Table, Tabs, Radio } from "antd"
+
 import SlidePane from "widgets/slidePane";
+import { API_USER_STATUS } from "../../consts/index.js";
+
 import ApiCallMethod from "./others/apiCallMethod";
 import ApiCallState from "./others/apiCallState";
 import ErrorLog from "./others/errorLog";
@@ -12,9 +15,8 @@ class detailSlidePane extends Component {
     state = {
         approvedText: "同意",
         applyText: "申请调用此接口，请批准",
-        nowView: "callState",
-        callStateDate: '1',
-        errorLogDate: '7'
+        nowView: "callMethod",
+        date:"1"
 
     }
 
@@ -26,52 +28,28 @@ class detailSlidePane extends Component {
     }
     chooseCallStateDate(e) {
         this.setState({
-            callStateDate: e.target.value
+            date: e.target.value
         });
     }
-    chooseErrorLogDate(e) {
-        this.setState({
-            errorLogDate: e.target.value
-        });
-    }
-    
     getDateTypeView() {
         switch (this.state.nowView) {
             case "callState":
                 return (
                     <div
                         className="m-radio-group"
-                        key="callStateDate"
+                        key="date"
                         style={{ marginTop: 4, marginRight: 28 }}
                     >
                         <RadioGroup
 
-                            name="callStateDate"
-                            defaultValue={this.state.callStateDate}
+                            name="date"
+                            defaultValue={this.state.date}
                             className="no-bd nobackground"
                             onChange={this.chooseCallStateDate.bind(this)}
                         >
                             <RadioButton value='1'>最近24小时</RadioButton>
                             <RadioButton value='7'>最近7天</RadioButton>
                             <RadioButton value='30'>最近30天</RadioButton>
-                        </RadioGroup>
-                    </div>
-                );
-            case "errorLog":
-                return (
-                    <div
-                        className="m-radio-group"
-                        key="errorLogDate"
-                        style={{ marginTop: 4, marginRight: 28 }}
-                    >
-                        <RadioGroup
-
-                            name="errorLogDate"
-                            defaultValue={this.state.errorLogDate}
-                            className="no-bd nobackground"
-                            onChange={this.chooseErrorLogDate.bind(this)}
-                        >
-                            <RadioButton value='7'>最近7天</RadioButton>
                         </RadioGroup>
                     </div>
                 );
@@ -84,39 +62,30 @@ class detailSlidePane extends Component {
 
 
     render() {
-        
-        const callMethodView = this.props.showRecord.status == 3 ? null : (
-            <Tabs.TabPane tab="调用方式" key="callMethod">
-                <ApiCallMethod {...this.props} ></ApiCallMethod>
-            </Tabs.TabPane>
-        )
+
         return (
-
-
             <SlidePane
                 className="m-tabs tabs-filter-show"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '600px', height: '100%'}}
+                style={{ right: '-20px', width: '80%', minHeight: '750px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
+                    animated={false} 
                     activeKey={this.state.nowView}
                     onChange={this.callback.bind(this)}
                     tabBarExtraContent={this.getDateTypeView()}
                 >
+                    <Tabs.TabPane tab="API详情" key="callMethod">
+                        <ApiCallMethod {...this.props} showUserInfo={true} ></ApiCallMethod>
+                    </Tabs.TabPane>
                     <Tabs.TabPane tab="调用情况" key="callState">
-                        <ApiCallState {...this.props} dateType={this.state.callStateDate}></ApiCallState>
+                        <h1 className="title-border-l-blue slide-title">调用统计</h1>
+                        <ApiCallState {...this.props} dateType={this.state.date}></ApiCallState>
+                        <h1 className="title-border-l-blue slide-title">错误日志</h1>
+                        <ErrorLog {...this.props} dateType={this.state.date}></ErrorLog>
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="错误日志" key="errorLog">
-                        <ErrorLog {...this.props} dateType={this.state.errorLogDate}></ErrorLog>
-                    </Tabs.TabPane>
-                    {callMethodView}
                 </Tabs>
-
-
             </SlidePane>
-
-
-
         )
     }
 }

@@ -15,10 +15,10 @@ class ManageTopCall extends Component {
                         return record.userId
                     }}
                     
-                    style={{marginTop:"20px",marginBottom:"20px"}}
+                    style={{marginTop:"15px"}}
                     className="m-table border-table table-p-l20"
                     rowClassName={() => {
-                        return "h-33"
+                        return "h-mini"
                     }}
                     pagination={false}
                     columns={[{

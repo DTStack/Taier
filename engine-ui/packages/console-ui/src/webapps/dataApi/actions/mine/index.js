@@ -24,7 +24,7 @@ export const mineActions = {
     getAppliedList(params) {
         params=params||{};
         if(!params.status || params.status.length === 0){
-            params.status=[1,2,3,4];
+            params.status=[1,2,3,4,5];
         }
         
         return (dispatch) => {

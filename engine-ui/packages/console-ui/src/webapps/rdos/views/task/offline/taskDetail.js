@@ -1,17 +1,21 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Tag, Collapse, Table } from 'antd';
+import { Row, Col, Tag, Collapse, message } from 'antd';
 
 import utils from 'utils';
 
 import { TaskType } from '../../../components/status';
-import { TASK_TYPE } from '../../../comm/const';
+import { getProjectUsers } from '../../../store/modules/user';
 
 import TaskVersion from './taskVersion';
+import Api from '../../../api';
 
 import {
     workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
+import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
+
+import UpdateTaskOwnerModal from './updateTaskOwnerModal';
 
 const Panel = Collapse.Panel;
 
@@ -41,8 +45,12 @@ function TaskInfo(props) {
             </Row>}
 
             <Row>
-                <Col span="10" className="txt-right">创建人员：</Col>
-                <Col span="14">{taskInfo.createUser.userName}</Col>
+                <Col span="10" className="txt-right">责任人：</Col>
+                <Col span="14">
+                    {
+                        taskInfo.owneruser && taskInfo.owneruser.userName
+                    } <a onClick={props.modifyTaskOwner}>修改</a>
+                </Col>
             </Row>
             <Row>
                 <Col span="10" className="txt-right">创建时间：</Col>
@@ -75,17 +83,71 @@ class TaskDetail extends React.Component {
         super(props);
     }
 
+    state = {
+        visible: false,
+        selectedUser: '',
+    }
+
+    componentDidMount() {
+        this.props.dispatch(getProjectUsers())
+    }
+
+    onSelectUser = (value) => {
+        this.setState({
+            selectedUser: value,
+        })
+    }
+
+    modifyTaskOwner = () => {
+        const ownerId = this.state.selectedUser;
+        const taskId = this.props.tabData.id;
+        if (ownerId) {
+            Api.updateTaskOwner({
+                ownerUserId: ownerId,
+                taskId,
+            }).then((res) => {
+                if (res.code === 1) {
+                    message.success('修改成功！');
+                    this.props.reloadTabTask(taskId)
+                    this.setState({
+                        visible: false,
+                        selectedUser: '',
+                    });
+                }
+            })
+        } else {
+            message.error('请选择所属用户！');
+        }
+    }
+
+    setSqlText(sqlText) {
+        this.props.updateTaskField({ sqlText, merged: true })
+    }
+
     render() {
-        const { tabData } = this.props;
+        const { visible } = this.state;
+        const { tabData, projectUsers } = this.props;
+
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2']}>
                 <Panel key="1" header="任务属性">
-                    <TaskInfo taskInfo={tabData} />
+                    <TaskInfo 
+                        taskInfo={tabData} 
+                        modifyTaskOwner={() => {this.setState({visible: true})}}
+                    />
+                    <UpdateTaskOwnerModal 
+                        visible={visible}
+                        projectUsers={projectUsers}
+                        onSelect={this.onSelectUser}
+                        onOk={this.modifyTaskOwner}
+                        defaultValue={`${tabData.ownerUserId || ''}`}
+                        onCancel={() => {this.setState({visible: false})}}
+                    />
                 </Panel>
                 <Panel key="2" header="历史发布版本">
                     <TaskVersion
                         taskInfo={tabData}
-                        changeSql={this.props.setSqlText}
+                        changeSql={this.setSqlText}
                     />
                 </Panel>
             </Collapse>
@@ -94,14 +156,8 @@ class TaskDetail extends React.Component {
 }
 
 export default connect((state, ownProps) => {
-    return {...ownProps};
-}, dispatch => {
     return {
-        setSqlText(sqlText) {
-            dispatch({
-                type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: { sqlText, merged: true } 
-            });
-        },
-    }
-})(TaskDetail);
+        projectUsers: state.projectUsers,
+    };
+
+}, workbenchActions)(TaskDetail);

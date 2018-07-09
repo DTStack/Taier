@@ -20,7 +20,6 @@ import { matchTaskParams } from '../../../../comm';
 
 import {
     formItemLayout,
-    dataSourceTypes,
     DATA_SOURCE,
     DATA_SOURCE_TEXT
 } from '../../../../comm/const';
@@ -242,6 +241,7 @@ class SourceForm extends React.Component {
               sourceMap.type.type === DATA_SOURCE.HBASE ||
               sourceMap.type.type === DATA_SOURCE.FTP;
 
+
         return <div className="g-step1">
             <Form>
                 <FormItem
@@ -262,12 +262,16 @@ class SourceForm extends React.Component {
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+                                
+                                const disableSelect = src.type === DATA_SOURCE.ES ||
+                                      src.type === DATA_SOURCE.REDIS ||
+                                      src.type === DATA_SOURCE.MONGODB;
 
                                 return <Option
                                     key={src.id}
                                     name={src.dataName}
                                     value={`${src.id}`}
-                                    disabled={src.type === DATA_SOURCE.ES}>
+                                    disabled={disableSelect}>
                                     {title}
                                 </Option>
                             })}
@@ -358,14 +362,16 @@ class SourceForm extends React.Component {
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
-        const { sourceMap, dataSourceList, isCurrentTabNew } = this.props;
+        const { sourceMap, isCurrentTabNew } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
+
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER: {
+            case DATA_SOURCE.SQLSERVER: 
+            case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
                     !selectHack&&<FormItem
                         {...formItemLayout}

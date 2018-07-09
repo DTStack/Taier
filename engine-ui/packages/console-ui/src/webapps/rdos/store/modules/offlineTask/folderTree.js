@@ -10,7 +10,7 @@ import {
     tableTreeAction,
 } from './actionType';
 
-import { replaceTreeNode } from 'funcs'
+import { replaceTreeNode, mergeTreeNodes } from 'funcs'
 
 /**
  * @description 加载文件夹内容
@@ -43,6 +43,12 @@ function loadFolderContent(action, state) {
     return clone;
 }
 
+function sortByName(arr) {
+    arr.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    })
+}
+
 /**
  * @description 新增文件夹内容
  *
@@ -68,6 +74,8 @@ function addFolderChild(action, state) {
                     }
                 }
                 node.children.splice(fileIndex, 0, data);
+                // Sort children by name
+                sortByName(node.children);
             }
             else{
                 loop(node.children || []);
@@ -138,6 +146,15 @@ export const taskTreeReducer = (state = {}, action) => {
             const updated = cloneDeep(state)
             replaceTreeNode(updated, action.payload)
             return updated;
+        }
+        case taskTreeAction.MERGE_FOLDER_CONTENT: {
+            const data = action.payload;
+            if (state.children) {
+                const origin = cloneDeep(state);
+                mergeTreeNodes(origin, data);
+                return origin;
+            }
+            return Object.assign({}, data)
         }
         default:
             return state;

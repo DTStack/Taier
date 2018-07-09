@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import moment from "moment";
 import { Table } from "antd"
 import utils from "utils";
 class DisableTable extends Component {
@@ -11,8 +12,24 @@ class DisableTable extends Component {
         return [{
             title: '用户',
             dataIndex: 'userName',
-            key: 'userName'
+            key: 'userName',
+            width:"180px"
 
+        },{
+            title: '最大调用次数',
+            dataIndex: 'callLimit',
+            key: 'callLimit',
+            width:"100px"
+ 
+        },{
+            title: '调用周期',
+            dataIndex: 'callDateRange',
+            key: 'callDateRange',
+            width:"200px",
+            render(text,record){
+                return <span>{new moment(record.beginTime).format("YYYY-MM-DD")} ~ {new moment(record.endTime).format("YYYY-MM-DD")}</span>
+            }
+ 
         }, {
             title: '最近24小时调用',
             dataIndex: 'recent24HCallNum',
@@ -44,6 +61,7 @@ class DisableTable extends Component {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
+            width:"200px",
             render(text){
                 return utils.formatDateTime(text);
             }
@@ -83,6 +101,7 @@ class DisableTable extends Component {
                 pagination={this.getPagination()}
                 dataSource={this.props.data}
                 onChange={this.onTableChange}
+                scroll={{x:1200}}
             />
         )
     }

@@ -23,6 +23,12 @@
 .state-disabled{
     position: relative;
 }
+.state-expired{
+    position: relative;
+}
+.state-editting{
+    position: relative;
+}
 .state-success:before{
     content: "";
     width: 6px;
@@ -68,6 +74,28 @@
     left: -10px; 
     transform: translateY(-50%);
 }
+.state-expired:before{
+    content: "";
+    width: 6px;
+    height: 6px;
+    position: absolute;
+    top: 50%;
+    background: rgb(115, 185, 241);
+    border-radius: 50%;
+    left: -10px; 
+    transform: translateY(-50%);
+}
+.state-editting:before{
+    content: "";
+    width: 6px;
+    height: 6px;
+    position: absolute;
+    top: 50%;
+    background: rgb(211, 201, 145);
+    border-radius: 50%;
+    left: -10px; 
+    transform: translateY(-50%);
+}
 .child-span-padding-r20 span{
     padding-right:20px;
 }
@@ -81,9 +109,6 @@
 .height-auto .ant-tabs{
     min-height: 100%;
     height: auto;
-}
-.row-select{
-    background: #D7EEF2;
 }
 .disable-all{
     color: rgba(0,0,0,0.4);

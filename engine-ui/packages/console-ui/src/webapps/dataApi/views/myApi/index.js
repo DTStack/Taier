@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Menu, Card, Table, Tabs } from "antd"
 import { connect } from "react-redux";
+
 import { mineActions } from '../../actions/mine';
 import NoApprovedCard from "./noApprovedCard"
 import ApprovedCard from "./approvedCard"
@@ -43,9 +44,10 @@ const mapDispatchToProps = dispatch => ({
         }));
     },
 
-    getApiCallErrorInfo(id){
+    getApiCallErrorInfo(id,time){
         return dispatch(mineActions.getApiCallErrorInfo({
-            apiId:id
+            apiId:id,
+            time:time
         }));
     },
     getApiCallUrl(id){
@@ -53,12 +55,13 @@ const mapDispatchToProps = dispatch => ({
             apiId:id
         }));
     },
-    queryApiCallLog(id,currentPage,bizType){
+    queryApiCallLog(id,currentPage,bizType,time){
         return dispatch(mineActions.queryApiCallLog({
             apiId:id,
             currentPage:currentPage,
             bizType:bizType,
-            pageSize:5
+            pageSize:5,
+            time:time
         }));
     },
     getApiCreatorInfo(apiId){
@@ -84,7 +87,7 @@ class MyAPI extends Component {
         if(e=="approved"){
             this.props.router.replace("/api/mine/approved")
         }else{
-            this.props.router.replace("/api/mine")
+            this.props.router.replace("/api/mine/notApproved")
         }
     }
     componentWillMount() {
@@ -112,13 +115,14 @@ class MyAPI extends Component {
                 className="box-1"
                 noHovering>
                     <Tabs
+                        animated={false}
                         defaultActiveKey={this.state.nowView}
                         onChange={this.handleClick.bind(this)}
                     >
                         <Tabs.TabPane tab="已审批" key="approved">
                             <ApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></ApprovedCard>
                         </Tabs.TabPane>
-                        <Tabs.TabPane tab="未审批" key="notApproved">
+                        <Tabs.TabPane tab="审批中" key="notApproved">
                             <NoApprovedCard apiId={this.props.location.query&&this.props.location.query.apiId} {...this.props}></NoApprovedCard>
                         </Tabs.TabPane>
                     </Tabs>

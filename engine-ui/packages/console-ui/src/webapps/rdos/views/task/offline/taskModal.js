@@ -7,7 +7,6 @@ import ajax from '../../../api';
 import {
     modalAction,
     taskTreeAction,
-    workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
@@ -17,7 +16,6 @@ import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE, HE
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
-const Option = Select.Optioin;
 const RadioGroup = Radio.Group;
 
 class TaskForm extends React.Component {
@@ -417,7 +415,7 @@ class TaskModal extends React.Component {
         return (
             <div>
                 <Modal
-                    title={isCreate ? '编辑离线任务' : '新建离线任务'}
+                    title={isCreate ? '新建离线任务': '编辑离线任务' }
                     key={this.dtcount}
                     visible={isModalShow}
                     footer={[
@@ -472,15 +470,19 @@ export default connect(state => {
                 return ajax.addOfflineTask(params)
                     .then(res => {
                         if (res.code === 1) {
+                            // Reload current TreeNodes
                             if (!isEditExist) {
-                                // dispatch({
-                                //     type: taskTreeAction.ADD_FOLDER_CHILD,
-                                //     payload: res.data
-                                // });
-                                // benchActions.loadTreeNode(params.nodePid, "TaskDevelop")
                                 benchActions.openTaskInDev(res.data.id);
                             }
                             else {
+                                // 如果文件位置有移动，则进行文件移动处理
+                                let newData = Object.assign(defaultData, res.data);
+                                newData.originPid = defaultData.nodePid;
+                                dispatch({
+                                    type: taskTreeAction.EDIT_FOLDER_CHILD,
+                                    payload: newData
+                                });
+
                                 // 更新tabs数据
                                 ajax.getOfflineTaskDetail({
                                     id: defaultData.id,
@@ -489,13 +491,7 @@ export default connect(state => {
                                         benchActions.updateTabData(res.data);
                                     }
                                 });
-
-                                // 如果文件位置有移动，则进行文件移动处理
-                                if (params.nodePid !== defaultData.nodePid) {
-                                    benchActions.loadTreeNode(defaultData.nodePid, MENU_TYPE.TASK_DEV)
-                                }
                             }
-                            benchActions.loadTreeNode(params.nodePid, MENU_TYPE.TASK_DEV)
                             return true;
                         }
                     });

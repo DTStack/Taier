@@ -18,6 +18,7 @@ export default {
     UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/batchHiveDataImport/importData`, // 
     CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
     NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/pageQuery`,//新的查询表的详细信息
+    QUERY_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/tableQuery`,// 表查询
 
     GET_USERS_IN_TENANT:`${RDOS_BASE_URL}/common/user/getUsersInTenant`,//用户列表
 

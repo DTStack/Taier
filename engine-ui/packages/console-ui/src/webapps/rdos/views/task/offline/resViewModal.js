@@ -1,12 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Button, Spin } from 'antd';
-import moment from 'moment';
 
 import utils from 'utils';
 
 import ajax from '../../../api';
-import { RESOURCE_TYPE } from '../../../comm/const';
 import { ResType } from '../../../components/status';
 
 import {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { 
-    Collapse, Icon, Tooltip, 
+    Icon, Tooltip, 
     Tabs, Dropdown, Menu 
 } from 'antd';
 import { isEmpty } from 'lodash';
@@ -17,7 +17,6 @@ import {
     fnTreeAction,
     sysFnTreeActon,
     scriptTreeAction,
-    workbenchAction,
     tableTreeAction,
 } from '../../store/modules/offlineTask/actionType';
 
@@ -26,11 +25,8 @@ import {
 } from '../../store/modules/offlineTask/offlineAction';
 
 import { showSeach } from '../../store/modules/comm';
-import { clearTreeData } from '../../store/modules/offlineTask/folderTree';
 import { MENU_TYPE } from '../../comm/const';
-import MyIcon from '../../components/icon';
 
-const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 
 class OfflineTabPane extends Component {
@@ -41,6 +37,8 @@ class OfflineTabPane extends Component {
 
     state = {
         subMenus: [],
+        expandedKeys: [],
+        expandedKeys2: []
     }
 
     componentDidMount() {
@@ -56,11 +54,70 @@ class OfflineTabPane extends Component {
         }
     }
 
+    onExpand = (expandedKeys, { expanded, node }) => {
+        console.log('onExpand', expandedKeys, expanded, node)
+        this.setState({
+            expandedKeys,
+        })
+    }
+
+    onExpand2 = (expandedKeys) => {
+        this.setState({
+            expandedKeys2: expandedKeys,
+        })
+    }
+
+    reloadTreeNodes = (id, type) => {
+        this.props.reloadTreeNodes(id, type);
+        this.setState({
+            expandedKeys: [`${type}-${id}`]
+        })
+    }
+
+    locateFilePos = (id, name, type) => {
+        // const rootId = this.props.taskTreeData.id
+        const { currentTab, currentTabData} = this.props;
+        this.setState({
+            expandedKeys: [`${type}-${currentTabData.nodePid}`]
+        })
+
+        const getExpandPath = (data, id, path) => {
+            console.log('path:', data.id, id)
+            path.push(`${type}-${data.id}`)
+            if (data && data.id === id) {
+                return path;
+            }
+            if (data.children) {
+                const children = data.children
+                for (let i = 0; i < children.length; i += 1) {
+                    getExpandPath(children[i], id, path)
+                }
+            }
+        }
+
+        ajax.locateCataPosition({
+            id,
+            catalogueType: type,
+            name: name,
+        }).then(res => {
+            if (res.code === 1 && res.data) {
+                const data = res.data.children[0];
+                const path = [];
+
+                const checkedPath = getExpandPath(data, currentTab, path);
+                console.log('checkedPath:', path);
+                this.props.locateFilePos(data, type);
+            }
+        });
+
+    }
+
+
     getCatelogue() {
         const { dispatch } = this.props;
         // dispatch(clearTreeData())
         // 四组数据在一个接口里面, 所以不在container中dispatch
-        ajax.getOfflineCatelogue({
+        ajax.getOfflineCatalogue({
             isGetFile: !!1,
             nodePid: 0
         }).then(res => {
@@ -123,12 +180,6 @@ class OfflineTabPane extends Component {
             toggleUpload,
             toggleCreateFolder,
             toggleCoverUpload,
-            taskTreeData,
-            resourceTreeData,
-            functionTreeData,
-            sysFunctionTreeData,
-            scriptTreeData,
-            tableTreeData,
             toggleCreateFn,
             toggleCreateScript,
             showSeachTask,
@@ -187,9 +238,13 @@ class OfflineTabPane extends Component {
             sysFunctionTreeData,
             scriptTreeData,
             tableTreeData,
+            currentTab,
         } = this.props;
 
-        const { subMenus } = this.state
+        const { subMenus, expandedKeys, expandedKeys2 } = this.state;
+        const reloadTreeNodes = this.reloadTreeNodes;
+
+        console.log('taskTreeData', taskTreeData)
 
         const menus = []
         if (subMenus && subMenus.length > 0) {
@@ -200,6 +255,19 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="定位">
+                                    <Icon
+                                        type="environment"
+                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="task:newTask">
@@ -221,6 +289,8 @@ class OfflineTabPane extends Component {
                                     !isEmpty(taskTreeData) &&
                                     <FolderTree 
                                         type={MENU_TYPE.TASK_DEV} 
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
                                         treeData={taskTreeData} 
                                     />
                                 }
@@ -231,6 +301,13 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.SCRIPT: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="script:newScript">
@@ -248,7 +325,9 @@ class OfflineTabPane extends Component {
                                 { 
                                     !isEmpty(scriptTreeData) &&
                                     <FolderTree 
-                                        type={menuItem.catalogueType} 
+                                        type={menuItem.catalogueType}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
                                         treeData={scriptTreeData} 
                                     />
                                 }
@@ -259,6 +338,13 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.RESOURCE: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="resource:upload">
@@ -280,6 +366,8 @@ class OfflineTabPane extends Component {
                                     !isEmpty(resourceTreeData) &&
                                     <FolderTree 
                                         type={menuItem.catalogueType} 
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
                                         treeData={resourceTreeData} 
                                     />
                                 }
@@ -290,6 +378,13 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.FUNCTION: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="function:newFunc">
@@ -307,14 +402,18 @@ class OfflineTabPane extends Component {
                                 {
                                     !isEmpty(functionTreeData) &&
                                     <FolderTree 
-                                    type={MENU_TYPE.COSTOMFUC} 
+                                    type={MENU_TYPE.COSTOMFUC}
+                                    expandedKeys={expandedKeys}
+                                    onExpand={this.onExpand}
                                     treeData={functionTreeData} />
                                 }
                                 {
                                     !isEmpty(sysFunctionTreeData) &&
                                     <FolderTree 
-                                        type={MENU_TYPE.SYSFUC} 
-                                        treeData={sysFunctionTreeData} 
+                                        type={MENU_TYPE.SYSFUC}
+                                        expandedKeys={expandedKeys2}
+                                        onExpand={this.onExpand2}
+                                        treeData={sysFunctionTreeData}
                                     />
                                 }
                             </div>
@@ -331,7 +430,7 @@ class OfflineTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <TabPane tab={menuItem.name} key={menuItem.id}> 
+                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.id}> 
                         {menuContent} 
                     </TabPane>
                 )
@@ -345,7 +444,6 @@ class OfflineTabPane extends Component {
         const {
             taskTreeData
         } = this.props;
-        const defaultOpen = [`${taskTreeData.id}`];
 
         return (
             <div className="g-taskOfflineSidebar task-sidebar m-tabs">
@@ -364,6 +462,11 @@ class OfflineTabPane extends Component {
 
 export default connect(state => {
     const { offlineTask } = state;
+    const { currentTab, tabs } = offlineTask.workbench;
+
+    const currentTabData = tabs.filter(tab => {
+        return tab.id === currentTab;
+    })[0];
 
     return {
         project: state.project,
@@ -373,6 +476,8 @@ export default connect(state => {
         sysFunctionTreeData: offlineTask.sysFunctionTree,
         scriptTreeData: offlineTask.scriptTree,
         tableTreeData: offlineTask.tableTree,
+        currentTab,
+        currentTabData,
     }
 },
 dispatch => {
@@ -429,6 +534,14 @@ dispatch => {
 
         loadTaskParams: function() {
             actions.loadTaskParams();
+        },
+
+        reloadTreeNodes: function(nodePid, type) {
+            actions.loadTreeNode(nodePid, type);
+        },
+
+        locateFilePos: function(data, type) {
+            actions.locateFilePos(data, type);
         },
 
         dispatch

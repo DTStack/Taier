@@ -1,4 +1,4 @@
-import { debounce, endsWith } from 'lodash';
+import { debounce, endsWith, cloneDeep } from 'lodash';
 
 /**
  * 存放一些零碎的公共方法
@@ -79,6 +79,21 @@ export function replaceTreeNode(treeNode, replace) {
         const children = treeNode.children
         for (let i = 0; i < children.length; i += 1) {
             replaceTreeNode(children[i], replace)
+        }
+    }
+}
+
+/**
+ * 
+ * @param {*} origin
+ * @param {*} mergeTo
+ */
+export function mergeTreeNodes(origin, target) {
+    replaceTreeNode(origin, target);
+    if (target.children) {
+        const children = target.children
+        for (let i = 0; i < children.length; i += 1) {
+            mergeTreeNodes(origin, children[i])
         }
     }
 }
