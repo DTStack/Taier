@@ -342,11 +342,6 @@ class AuthMana extends Component {
         return content
     }
 
-    applyDataSort = (x,y,z)=>{
-        console.log(x,y,z);
-        
-    }
-
     initialColumns = () => {
         const ctx = this;
         const { queryParams } = this.state;
@@ -409,7 +404,6 @@ class AuthMana extends Component {
                             title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
-                            sorter:true,
                             render(text, record) {
                                 return `${text}天`
                             }
@@ -465,7 +459,6 @@ class AuthMana extends Component {
                             title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
-                            sorter:true,
                             render(text, record) {
                                 return `${text}天`
                             }
@@ -525,7 +518,6 @@ class AuthMana extends Component {
                             title: '有效期',
                             key: 'day',
                             dataIndex: 'day',
-                            sorter:true,
                             render(text, record) {
                                 return `${text}天`
                             }
@@ -667,19 +659,21 @@ class AuthMana extends Component {
                         {projectOptions}
                     </Select>
                 </FormItem>
-                <FormItem label="申请人">
-                    <Select
-                        allowClear
-                        showSearch
-                        optionFilterProp="name"
-                        style={{ width: 120 }}
-                        placeholder="选择申请人"
-                        value={queryParams.applyUserId}
-                        onChange={(value) => this.changeParams('applyUserId', value)}
-                    >
-                        {userOptions}
-                    </Select>
-                </FormItem>
+                {
+                     queryParams.listType == 1 ? "" : <FormItem label="申请人">
+                        <Select
+                            allowClear
+                            showSearch
+                            optionFilterProp="name"
+                            style={{ width: 120 }}
+                            placeholder="选择申请人"
+                            value={queryParams.applyUserId}
+                            onChange={(value) => this.changeParams('applyUserId', value)}
+                        >
+                            {userOptions}
+                        </Select>
+                    </FormItem>
+                }
                 {
                     queryParams.listType == 0||queryParams.listType == 3 ? "" : <FormItem label="状态">
                             <Select

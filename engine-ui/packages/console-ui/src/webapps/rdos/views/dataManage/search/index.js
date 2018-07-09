@@ -1,17 +1,12 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import {
-    Input, Button, Table, Form,
-    Pagination, Modal, message,
-    Tag, Icon, Card, Select,Spin,
-    Tooltip
+    Input, Table, Form, message,
+    Card, Select, Spin, Tooltip
 } from 'antd';
 
 import { Link } from 'react-router';
 import { parse } from 'qs';
-import moment from 'moment';
-import { isEmpty } from 'lodash';
 
 import utils from 'utils';
 import { APPLY_RESOURCE_TYPE } from "../../../comm/const";
@@ -244,7 +239,7 @@ class SearchTable extends Component {
 
 
     render() {
-        const { table, queryParams, visible, editRecord, cardLoading } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
         const { projects } = this.props;
 
         const marginTop10 = { marginTop: '8px' };
@@ -257,7 +252,6 @@ class SearchTable extends Component {
         >
             {proj.projectAlias}
         </Option>)
-
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem label="类目">
@@ -269,7 +263,7 @@ class SearchTable extends Component {
                             value={queryParams.catalogueId}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
-                            treeData={this.state.dataCatalogue}
+                            treeData={dataCatalogue&&dataCatalogue[0].children}
                         />
                     </span>
                 </FormItem>
