@@ -25,7 +25,7 @@ public class ClientFactory {
 
     private static Map<String, String> typeRefClassName = Maps.newHashMap();
 
-    static{
+    static {
         typeRefClassName.put("flink120", "com.dtstack.rdos.engine.execution.flink120.FlinkClient");
         typeRefClassName.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkClient");
         typeRefClassName.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkClient");
@@ -38,7 +38,7 @@ public class ClientFactory {
         typeRefClassName.put("maxcompute", "com.dtstack.rdos.engine.execution.odps.OdpsClient");
         typeRefClassName.put("hadoop", "com.dtstack.rdos.engine.execution.hadoop.HadoopClient");
         typeRefClassName.put("hive", "com.dtstack.rdos.engine.execution.hive.HiveClient");
-
+        typeRefClassName.put("learning", "com.dtstack.rdos.engine.execution.learning.LearningClient");
     }
 
     public static ClassLoader getClassLoader(String pluginType){

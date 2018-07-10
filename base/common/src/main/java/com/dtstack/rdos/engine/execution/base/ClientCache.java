@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -141,17 +142,18 @@ public class ClientCache {
 
     private URLClassLoader getClassLoad(File dir) throws IOException {
         File[] files = dir.listFiles();
-        URL[] urls = new URL[files.length];
+        List<URL> urlList = new ArrayList<>();
         int index = 0;
         if (files!=null && files.length>0){
             for(File f : files){
                 String jarName = f.getName();
                 if(f.isFile() && jarName.endsWith(".jar")){
-                    urls[index] = f.toURI().toURL();
+                    urlList.add(f.toURI().toURL());
                     index = index+1;
                 }
             }
         }
+        URL[] urls = urlList.toArray(new URL[urlList.size()]);
         return new DtClassLoader(urls, this.getClass().getClassLoader());
     }
 

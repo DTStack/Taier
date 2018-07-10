@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public enum EngineType {
 
-    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5), Hadoop(6), Hive(7);
+    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5), Hadoop(6), Hive(7), Learning(8);
 
     private int val;
 
@@ -43,6 +43,8 @@ public enum EngineType {
             case "hadoop": return EngineType.Hadoop;
 
             case "hive": return EngineType.Hive;
+
+            case "learning": return EngineType.Learning;
         }
          return null;
     }
