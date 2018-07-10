@@ -14,7 +14,6 @@ import {
 import { isDisabledRole } from './form'
 
 const FormItem = Form.Item
-const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
 const formItemLayout={
