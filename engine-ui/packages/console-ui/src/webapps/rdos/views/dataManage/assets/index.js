@@ -13,7 +13,7 @@ class Index extends Component {
     }
 
     componentDidMount() {
-        this.props.dispatch(setProject({ id: 0 }))
+        // this.props.dispatch(setProject({ id: 0 }))
     }
 
     onChange = (e) => {
