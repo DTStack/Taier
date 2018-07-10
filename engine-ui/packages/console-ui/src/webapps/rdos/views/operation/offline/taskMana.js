@@ -71,7 +71,7 @@ class OfflineTaskMana extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (project && oldProj.id !== project.id) {
-            this.setState({ current: 1, taskName: '' }, () => {
+            this.setState({ current: 1, taskName: '', visibleSlidePane: false }, () => {
                 this.search()
             })
         }

@@ -7,12 +7,11 @@ import moment from 'moment';
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { DataCheckStatus } from '../../../components/display';
-import { CHECK_STATUS, CHECK_STATUS_CN } from '../../../consts';
+import { CHECK_STATUS, CHECK_STATUS_CN, DATA_SOURCE } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
 import '../../../styles/views/dataCheck.scss';
 
 const Search = Input.Search;
-const InputGroup = Input.Group;
 const Option = Select.Option;
 
 const mapStateToProps = state => {
@@ -71,6 +70,14 @@ export default class DataCheck extends Component {
             title: '分区',
             dataIndex: 'targetPartition',
             key: 'targetPartition',
+            width: '11%',
+            render: (text, record) => {
+                return text ? text : '--';
+            }
+        }, {
+            title: '类型',
+            dataIndex: 'sourceTypeName',
+            key: 'sourceTypeName',
             width: '11%',
             render: (text, record) => {
                 return text ? text : '--';
@@ -171,6 +178,12 @@ export default class DataCheck extends Component {
                         <Menu.Item>
                             <Link to={`dq/dataCheck/edit/${record.verifyId}`}>再次运行</Link>
                         </Menu.Item>
+                        {
+                            record.dataSourceType === DATA_SOURCE.HIVE && 
+                            <Menu.Item>
+                                <a>环境参数</a>
+                            </Menu.Item>
+                        }
                         {/* <Menu.Item>
                             <Popconfirm
                                 title="确定删除此校验？"

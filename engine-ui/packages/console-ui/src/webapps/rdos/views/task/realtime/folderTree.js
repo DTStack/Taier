@@ -126,8 +126,11 @@ class FolderTree extends Component {
         let treeContent = ''
         const { 
             onRightClick, onSelect, onChange, multiple, id,
-            loadData, isPicker, placeholder, disabled, value, 
+            loadData, isPicker, placeholder, disabled, value,
+            expandedKeys, onExpand, selectedKeys,
         } = this.props;
+
+        console.log('selectedKeys:', selectedKeys)
 
         if (isPicker) treeContent = (
             <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
@@ -159,6 +162,10 @@ class FolderTree extends Component {
                 onSelect={onSelect}
                 onChange={onChange}
                 loadData={loadData}
+                selectedKeys={selectedKeys}
+                expandedKeys={ expandedKeys }
+                onExpand={ onExpand }
+                autoExpandParent={false}
             >
                 {this.renderTreeNodes()}
             </Tree>

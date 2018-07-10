@@ -25,7 +25,6 @@ const isRootFolder = (node) => {
     return node.level === 1;
 }
 
-
 class FolderTree extends React.Component {
 
     constructor(props) {
@@ -414,6 +413,8 @@ class FolderTree extends React.Component {
         const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
         const treeType = type;
 
+        console.log('treeData', treeData)
+
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
 
@@ -470,8 +471,10 @@ class FolderTree extends React.Component {
     }
 
     render() {
-        const { type, placeholder, currentTab, onExpand, expandedKeys } = this.props;
-        console.log('expandedKeys:', expandedKeys)
+        const { 
+            type, placeholder, currentTab,
+            onExpand, expandedKeys,
+        } = this.props;
 
         return (
             <div>
@@ -498,11 +501,10 @@ class FolderTree extends React.Component {
                     placeholder={placeholder}
                     selectedKeys={[`${type}-${currentTab}`]}
                     loadData={ this.onLoadData.bind(this, type) }
-                    // expandedKeys={ expandedKeys }
-                    // onExpand={ onExpand }
-                    defaultExpandAll
+                    expandedKeys={ expandedKeys }
+                    onExpand={ onExpand }
+                    autoExpandParent={false}
                     onSelect={ this.handleSelect.bind(this) }
-                    // autoExpandParent={false}
                 >
                     { this.genetateTreeNode() }
                 </Tree>

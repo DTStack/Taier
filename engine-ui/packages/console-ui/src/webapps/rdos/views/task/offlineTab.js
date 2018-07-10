@@ -38,7 +38,7 @@ class OfflineTabPane extends Component {
     state = {
         subMenus: [],
         expandedKeys: [],
-        expandedKeys2: []
+        expandedKeys2: [],
     }
 
     componentDidMount() {
@@ -78,27 +78,42 @@ class OfflineTabPane extends Component {
      * 定位任务在文件树的具体位置
      */
     locateFilePos = (id, name, type) => {
-        // const rootId = this.props.taskTreeData.id
-        const { currentTab, currentTabData} = this.props;
-        if (!currentTab) return;
-        this.setState({
-            expandedKeys: [`${type}-${currentTabData.nodePid}`]
-        })
 
-        const getExpandPath = (data, id, path) => {
-            console.log('path:', data.id, id)
-            path.push(`${type}-${data.id}`)
+        let checkedPath = ''; // 路径存储
+        const { currentTab, currentTabData } = this.props;
+
+        // 过滤任务开发定位脚本，或者脚本定位任务的无效情况
+        if (!currentTab || 
+            (currentTabData.taskType !== undefined && type === MENU_TYPE.SCRIPT) ||
+            (currentTabData.scriptText !== undefined && type === MENU_TYPE.TASK_DEV)
+        ) return;
+
+
+        const hasPath = (data, id, path) => {
+
+            if (!data) return false;
+            path = `${path ? path + '-' : path}${data.id}`
             if (data && data.id === id) {
-                return path;
+                checkedPath = path;
+                return true;
             }
+
             if (data.children) {
                 const children = data.children
                 for (let i = 0; i < children.length; i += 1) {
-                    getExpandPath(children[i], id, path)
+                    if (hasPath(children[i], id, path)) {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
 
+        const getExpandedKey = (path) => {
+            const arr = path && path.split('-');
+            return arr && arr.map(p => `${type}-${p}`);
+        }
+        
         ajax.locateCataPosition({
             id,
             catalogueType: type,
@@ -106,20 +121,21 @@ class OfflineTabPane extends Component {
         }).then(res => {
             if (res.code === 1 && res.data) {
                 const data = res.data.children[0];
-                const path = [];
-
-                const checkedPath = getExpandPath(data, currentTab, path);
-                console.log('checkedPath:', path);
+                let path = '';
+                if (hasPath(data, currentTab, path)) {
+                    const keys = getExpandedKey(checkedPath);
+                    this.setState({
+                        expandedKeys: keys
+                    })
+                }
                 this.props.locateFilePos(data, type);
             }
         });
-
     }
 
 
     getCatelogue() {
         const { dispatch } = this.props;
-        // dispatch(clearTreeData())
         // 四组数据在一个接口里面, 所以不在container中dispatch
         ajax.getOfflineCatalogue({
             isGetFile: !!1,
@@ -291,11 +307,11 @@ class OfflineTabPane extends Component {
                             <div>
                                 {
                                     !isEmpty(taskTreeData) &&
-                                    <FolderTree 
-                                        type={MENU_TYPE.TASK_DEV} 
-                                        expandedKeys={expandedKeys}
+                                    <FolderTree
+                                        type={MENU_TYPE.TASK_DEV}
                                         onExpand={this.onExpand}
-                                        treeData={taskTreeData} 
+                                        treeData={taskTreeData}
+                                        expandedKeys={expandedKeys}
                                     />
                                 }
                             </div>
@@ -305,6 +321,12 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.SCRIPT: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="定位">
+                                    <Icon
+                                        type="environment"
+                                        onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType)}
+                                    />
+                                </Tooltip>
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"

@@ -7,11 +7,13 @@ import utils from "utils";
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
-import SelectSearch from "../../../components/selectSearch";
 import SlidePane from 'widgets/slidePane';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import RCApi from '../../../api/ruleConfig';
+import { DATA_SOURCE } from '../../../consts';
+
+
 import '../../../styles/views/ruleConfig.scss';
 
 const Search = Input.Search;
@@ -118,10 +120,23 @@ export default class RuleConfig extends Component {
             }
         }, {
             title: '操作',
+            width: '10%',
             render: (text, record) => {
-                return <a onClick={this.onSubscribe.bind(this, record)}>
-                    {record.isSubscribe ? '取消订阅' : '订阅'}
-                </a>
+                return <span>
+                        <a onClick={this.onSubscribe.bind(this, record)}>
+                            {record.isSubscribe ? '取消订阅' : '订阅'}
+                        </a> 
+                        <span className=""></span>
+                        {
+                            record.dataSourceType === DATA_SOURCE.HIVE &&
+                            <span>
+                                <span className="ant-divider"></span>
+                                <a>
+                                环境参数
+                                </a>
+                            </span>
+                        }
+                    </span>
             }
         }]
     }
