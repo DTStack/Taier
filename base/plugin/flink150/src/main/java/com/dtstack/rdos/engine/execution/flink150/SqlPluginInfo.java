@@ -1,13 +1,18 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.google.gson.Gson;
+import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URL;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.List;
 
 
 /**
@@ -22,15 +27,13 @@ public class SqlPluginInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(SqlPluginInfo.class);
 
-    private static String SINK_GENER_CLASS_KEY = "className";
-
     private static final String sqlPluginDirName = "sqlplugin";
+
+    private static final String CORE_JAR = "core.jar";
 
     private static String SP = File.separator;
 
-    private static Gson gson = new Gson();
-
-    private String sqlRootDir;
+    private String localSqlRootJar;
 
     private String remoteSqlRootDir;
 
@@ -53,52 +56,28 @@ public class SqlPluginInfo {
             throw new RdosException("not exists flink sql plugin dir:" + localSqlPluginDir + ", please check it!!!");
         }
 
-        setSourceJarRootDir(localSqlPluginDir);
+        setLocalJarRootDir(localSqlPluginDir);
         setRemoteSourceJarRootDir(remoteSqlPluginDir);
     }
 
-    public String getJarFilePath(String type){
-        String jarPath = sqlRootDir + SP + type + SP + type + ".jar";
+    public String getJarFileDirPath(String type){
+        String jarPath = localSqlRootJar + SP + type;
         File jarFile = new File(jarPath);
 
-        if(!jarFile.exists() || jarFile.isDirectory()){
-            throw new RdosException("not correct jar file path " + jarPath);
+        if(!jarFile.exists()){
+            throw new RdosException("不存在路径: " + jarPath);
         }
 
         return jarPath;
     }
 
-    public String getRemoteJarFilePath(String type){
-        String jarPath = remoteSqlRootDir + SP + type + SP + type + ".jar";
-        return jarPath;
-    }
+    public void setLocalJarRootDir(String rootDir){
 
-    public static String getFileURLFormat(String filePath){
-        return "file://" + filePath;
-    }
-
-    public String getClassName(String sinkType) throws IOException {
-        String jsonPath = sqlRootDir + SP + sinkType + SP + sinkType + ".json";
-        File jsonFile = new File(jsonPath);
-
-        if(!jsonFile.exists() || jsonFile.isDirectory()){
-            throw new RdosException("not correct json file path " + jsonPath);
-        }
-
-        URL jsonUrl = jsonFile.toURI().toURL();
-        InputStream inputStream = jsonUrl.openStream();
-        Reader rd = new InputStreamReader(inputStream);
-        Map<String, String> map = gson.fromJson(rd, Map.class);
-        return  map.get(SINK_GENER_CLASS_KEY);
-    }
-
-    public void setSourceJarRootDir(String rootDir){
-
-        if(sqlRootDir != null){
+        if(localSqlRootJar != null){
             return;
         }
 
-        sqlRootDir = rootDir;
+        localSqlRootJar = rootDir;
         logger.info("---------local sql plugin root dir is:" + rootDir);
     }
 
@@ -114,6 +93,34 @@ public class SqlPluginInfo {
 
     public String getSqlPluginDir(String pluginRoot){
         return pluginRoot + SP + sqlPluginDirName;
+    }
+
+    public List<String> buildExeArgs(JobClient jobClient) throws IOException {
+        List<String> args = Lists.newArrayList();
+        args.add("-sql");
+        args.add(jobClient.getSql());
+
+        args.add("-name");
+        args.add(jobClient.getJobName());
+
+        args.add("-localSqlPluginPath");
+        args.add(localSqlRootJar);
+
+        args.add("-remoteSqlPluginPath");
+        args.add(remoteSqlRootDir);
+
+        args.add("-confProp");
+        String confPropStr = PublicUtil.objToString(jobClient.getConfProperties());
+        confPropStr = URLEncoder.encode(confPropStr, Charsets.UTF_8.name());
+        args.add(confPropStr);
+        return args;
+    }
+
+    public JarFileInfo createCoreJarInfo(){
+        JarFileInfo jarFileInfo = new JarFileInfo();
+        String jarFilePath  = localSqlRootJar + SP + CORE_JAR;
+        jarFileInfo.setJarPath(jarFilePath);
+        return jarFileInfo;
     }
 
 }

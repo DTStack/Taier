@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -32,7 +32,7 @@ public class SyncPluginInfo {
 
     private static final String fileSP = File.separator;
 
-    private static final String syncPluginDirName = "syncplugin_150";
+    private static final String syncPluginDirName = "syncplugin";
 
     /**插件jar名称*/
     private static final String syncJarFileName = "flinkx.jar";
@@ -83,11 +83,11 @@ public class SyncPluginInfo {
         return programArgList;
     }
 
-    public AddJarOperator createAddJarOperator(){
-        AddJarOperator addjarOperator = new AddJarOperator();
+    public JarFileInfo createAddJarInfo(){
+        JarFileInfo jarFileInfo = new JarFileInfo();
         String jarFilePath  = localSyncFileDir + fileSP + syncJarFileName;
-        addjarOperator.setJarPath(jarFilePath);
-        return addjarOperator;
+        jarFileInfo.setJarPath(jarFilePath);
+        return jarFileInfo;
     }
 
     public String getSyncPluginDir(String pluginRoot){

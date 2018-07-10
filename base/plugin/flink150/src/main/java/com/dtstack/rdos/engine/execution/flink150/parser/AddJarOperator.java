@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.flink140.parser;
+package com.dtstack.rdos.engine.execution.flink150.parser;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
@@ -7,8 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
-public class AddJarOperator{
+public class AddJarOperator {
 	
 	private static Pattern pattern = Pattern.compile("(?i)\\s*add\\s+jar\\s+with\\s+(\\S+)(\\s+AS\\s+(\\S+))?");
 
