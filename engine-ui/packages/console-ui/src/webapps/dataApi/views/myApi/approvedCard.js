@@ -45,7 +45,7 @@ class ApprovedCard extends Component {
         this.setState({
             loading: true
         })
-        this.props.getAppliedList(
+        return this.props.getAppliedList(
             this.state.pageIndex,
             sortType[this.state.sortedInfo.columnKey],
             orderType[this.state.sortedInfo.order],
@@ -55,26 +55,30 @@ class ApprovedCard extends Component {
 
             .then(
                 (res) => {
-
-                    if (this.props.apiId) {
-                        if (res) {
-                            for (let i in res.data.data) {
-                                let item = res.data.data[i];
-                                if (this.props.apiId == item.apiId) {
-                                    this.apiClick(item);
-                                    break;
-                                }
-                            }
-                        }
-                    }
                     this.setState({
                         loading: false
                     })
+                    return res;
                 }
             );
     }
     componentDidMount() {
-        this.getAppliedList();
+        this.getAppliedList()
+        .then(
+            (res)=>{
+                if (this.props.apiId) {
+                    if (res) {
+                        for (let i in res.data.data) {
+                            let item = res.data.data[i];
+                            if (this.props.apiId == item.apiId) {
+                                this.apiClick(item);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        );
     }
     componentWillReceiveProps(nextProps) {
         if (this.props.nowView != nextProps.nowView && nextProps.nowView == "approved") {
