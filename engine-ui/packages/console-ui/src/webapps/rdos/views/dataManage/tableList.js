@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
-import { parse } from 'qs';
 import {
-    Input, Button, Table, Form,
-    Pagination, Modal, message,
-    Tag, Icon, Card, Select, Tabs,
-    Spin
+    Input, Table, Form, message,
+    Card, Select, Tabs,Spin
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
@@ -34,22 +30,22 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType,tableName } = this.props.location.search && parse(this.props.location.search.substr(1)) || { listType: "1",tableName: undefined };
+        const { listType,tableName,catalogueId,pId,pageIndex } = this.props.location.query;
         this.state = {
             table: [],
             editRecord: {},
             loading: false,
             tableLog: {
                 tableId: undefined,
-                tableName: undefined,
+                tableName,
                 visible: false,
             },
             queryParams: {
-                listType,
-                pageIndex: 1,
+                listType:listType || "1",
+                pageIndex: pageIndex || 1,
                 pageSize: 10,
-                catalogueId: undefined,
-                pId: undefined,
+                catalogueId,
+                pId,
                 tableName,
             },
         }
@@ -57,17 +53,17 @@ class TableList extends Component {
     }
 
     componentDidMount() {
-        this.search();
         this.loadCatalogue();
-    }
-
-    componentWillReceiveProps(nextProps) {
-
     }
 
     search = () => {
         const { queryParams } = this.state;
-        this.setState({ table: [], loading: true })
+        this.setState({ table: [], loading: true });
+        const pathname = this.props.location.pathname;
+        hashHistory.push({
+            pathname,
+            query: queryParams,
+        })
         ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -93,15 +89,12 @@ class TableList extends Component {
     }
 
     changeParams = (field, value) => {
-        let queryParams = Object.assign(this.state.queryParams);
-        const pathname = this.props.location.pathname;
+        let queryParams = Object.assign(this.state.queryParams);      
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
-            if (field === "listType") {
-                hashHistory.push(`${pathname}?listType=${value}`)
-            }
         }
+       
         this.setState({
             queryParams,
         }, this.search)
@@ -111,7 +104,7 @@ class TableList extends Component {
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],
-            })
+            },this.search)
         })
     }
 
@@ -277,7 +270,7 @@ class TableList extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogueId}
+                            value={queryParams.catalogueId&&Number(queryParams.catalogueId)}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
                             treeData={dataCatalogue&&dataCatalogue[0].children}
@@ -309,10 +302,10 @@ class TableList extends Component {
                 </FormItem>
             </Form>
         )
-
         const pagination = {
-            total: table.totalCount,
+            total: Number(table.totalCount),
             defaultPageSize: 10,
+            current: Number(queryParams.pageIndex)
         };
 
         return <div className="m-tablelist">
