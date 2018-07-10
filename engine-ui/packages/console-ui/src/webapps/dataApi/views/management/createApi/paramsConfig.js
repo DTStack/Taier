@@ -48,7 +48,7 @@ class ManageParamsConfig extends Component {
             },
             sqlModeShow: InputIsEdit && OutputIsEdit
         });
-        if(dataSourceType||dataSourceType==0){
+        if(dataSourceType||dataSourceType==0||dataSrcId||dataSrcId==0){
             this.getDataSource(dataSourceType);
         }
         if (dataSrcId || dataSrcId == 0) {
@@ -397,14 +397,14 @@ class ManageParamsConfig extends Component {
         const tmpCache = {};
         for (let i = 0; i < nowColumns.length; i++) {
             let column = nowColumns[i];
-            tmpCache[column.columnName] = column;
+            tmpCache[column.paramsName] = column;
         }
         return columns ? columns.map(
             (column) => {
-                const cacheColumn = tmpCache[column.fieldName];
+                const cacheColumn = tmpCache[column.paramName];
                 let id, desc, required;
 
-                if (cacheColumn) {
+                if (cacheColumn&&cacheColumn.columnName==column.fieldName) {
                     id = cacheColumn.id;
                     desc = cacheColumn.desc;
                     required = cacheColumn.required;

@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 
 const initialState = {
     loading: false,
+    approvalWarning:true,
     topRecords: [],
     alarmTrend: [],
     alarmSum: {},
@@ -204,6 +205,11 @@ export default function dashBoard(state = initialState, action) {
         case dashBoardActionType.CHOOSE_ADMIN_DATE:{
             const clone = cloneDeep(state);
             clone.adminDate = payload;
+            return clone;
+        }
+        case dashBoardActionType.CLOSE_APPROVAL_WARNING:{
+            const clone = cloneDeep(state);
+            clone.approvalWarning=false;
             return clone;
         }
 

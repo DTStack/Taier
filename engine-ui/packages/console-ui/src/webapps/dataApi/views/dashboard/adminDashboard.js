@@ -35,11 +35,13 @@ class AdminDashboard extends Component {
 
 
     render() {
-        const approval_alert = this.props.dashBoard.approvedMsgCount > 0 ? (
+        const {approvalWarning} = this.props.dashBoard;
+        const approval_alert = (this.props.dashBoard.approvedMsgCount > 0&&approvalWarning) ? (
             <Alert
                 message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
                 type="warning"
                 closable
+                onClose={this.props.closeWarning}
             />
         ) : null
         const marketOverview = this.props.dashBoard.marketOverview[this.getDateChoose()];

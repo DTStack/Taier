@@ -10,6 +10,7 @@ import TopFail from "./topFail";
 import ErrorDistributed from "./errorDistributed";
 
 import { lineAreaChartOptions } from '../../consts';
+import {dashBoardActionType} from "../../consts/dashBoardActionType"
 import { dashBoardActions } from '../../actions/dashBoard';
 import AdminDashboard from './adminDashboard';
 import UserDashboard from './userDashboard';
@@ -58,6 +59,11 @@ const mapDispatchToProps = dispatch => ({
     },
     listApiCallNumTopNForManager(date){
         dispatch(dashBoardActions.listApiCallNumTopNForManager({topn:10,time:date}))
+    },
+    closeWarning(){
+        dispatch({
+            type:dashBoardActionType.CLOSE_APPROVAL_WARNING
+        })
     }
 });
 
