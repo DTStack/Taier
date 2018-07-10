@@ -30,8 +30,8 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
     public final static String CONTAINER = "container";
     public final static String SLOTS = "slots";
 
-    private final static int MIN_JM_MEMORY = 1024; // the minimum memory should be higher than the min heap cutoff
-    private final static int MIN_TM_MEMORY = 1024;
+    public final static int MIN_JM_MEMORY = 1024; // the minimum memory should be higher than the min heap cutoff
+    public final static int MIN_TM_MEMORY = 1024;
 
     private int jobmanagerMemoryMb = MIN_JM_MEMORY;
     private int taskmanagerMemoryMb = MIN_JM_MEMORY;

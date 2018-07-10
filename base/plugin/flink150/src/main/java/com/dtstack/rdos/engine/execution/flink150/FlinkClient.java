@@ -247,7 +247,13 @@ public class FlinkClient extends AbsClient {
                 && confProperties.containsKey(FlinkPerJobResourceInfo.CONTAINER)
                 && confProperties.containsKey(FlinkPerJobResourceInfo.SLOTS)){
             int jobmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB));
+            if (jobmanagerMemoryMb<FlinkPerJobResourceInfo.MIN_JM_MEMORY){
+                jobmanagerMemoryMb = FlinkPerJobResourceInfo.MIN_JM_MEMORY;
+            }
             int taskmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB));
+            if (taskmanagerMemoryMb<FlinkPerJobResourceInfo.MIN_TM_MEMORY){
+                taskmanagerMemoryMb = FlinkPerJobResourceInfo.MIN_TM_MEMORY;
+            }
             int numberTaskManagers = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.CONTAINER));
             int slotsPerTaskManager = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.SLOTS));
             return new ClusterSpecification.ClusterSpecificationBuilder()
