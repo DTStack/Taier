@@ -195,6 +195,7 @@ class Index extends Component {
                         <Col span="14" >
                             <div className="sortTitle">
                                 <span  className="faileSort" style={sortTitleStatus == 2 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('faileSort')}}>按任务失败数排序</span>
+                                 <span className="faileSort">|</span>
                                 <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认顺序</span>
                             </div>
                         </Col>
