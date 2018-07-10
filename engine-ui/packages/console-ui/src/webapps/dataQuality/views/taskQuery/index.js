@@ -76,7 +76,7 @@ export default class TaskQuery extends Component {
             title = <span
                 className="tooltip_content_a" 
             >
-                {record.logInfo || '空'}
+                {record.logInfo || '空'}&nbsp;
                 <a onClick={this.openSlidePane.bind(this, record)}>查看详情</a>
             </span>
             icon = 'exclamation-circle-o';

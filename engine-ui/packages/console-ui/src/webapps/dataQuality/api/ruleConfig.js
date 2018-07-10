@@ -1,4 +1,3 @@
-import utils from 'utils'
 import http from './http'
 import req from '../consts/reqUrls'
 
@@ -57,6 +56,9 @@ export default {
     },
     checkMonitor(params){
         return http.post(req.CHECK_MONITOR, params);
-    }
+    },
+    updateTaskParams(params) {
+        return http.post(req.UPDATE_TASK_PARAMS, params);
+    }, 
     
 }
