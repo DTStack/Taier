@@ -2,15 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
-    Pagination, Modal, message, Checkbox,
-    Tag, Icon, Card, Select, Tabs, DatePicker,
-    Spin,Tooltip
+    message, Checkbox,Card, Select,
+    Tabs, DatePicker,Spin,Tooltip
 } from 'antd';
 
 import { Link,hashHistory } from 'react-router';
 import { parse } from 'qs';
 import moment from 'moment';
-import { isEmpty } from 'lodash';
 
 import utils from 'utils';
 
@@ -47,6 +45,13 @@ const revokeStatus = (status) => {
     }
 }
 
+const selectStatusList = [
+    {status:0,value: "待审批"},
+    {status:1,value: "已通过"},
+    {status:2,value: "未通过"},
+    {status:3,value: "已过期"},
+    {status:4,value: "已撤销"}
+];
 
 @connect(state => {
     return {
@@ -60,7 +65,7 @@ class AuthMana extends Component {
         super(props);
         const isAdminAbove = this.props.user&&this.props.user.isAdminAbove || 0;
         const isPermission = isAdminAbove==0 ? "1" : "0";
-        const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
+        const { listType, pageIndex, resourceName, startTime, endTime ,belongProjectId, applyUserId, status } = this.props.location.query;
         this.state = {
             isAdminAbove,
             table: [],
@@ -70,15 +75,18 @@ class AuthMana extends Component {
             agreeApply: undefined,
             visible: false,
             loading: false,
-            rangeTime: [],
+            rangeTime: startTime&&endTime&&[moment(Number(startTime)),moment(Number(endTime))]||[],
+            userList:[],
             queryParams: {
-                listType,
-                pageIndex: 1,
+                listType: listType || isPermission,
+                pageIndex: pageIndex || 1,
                 pageSize: 10,
-                resourceName: undefined,
-                startTime: undefined,
-                endTime: undefined,
-                belongProjectId: undefined,
+                resourceName,
+                startTime,
+                endTime,
+                belongProjectId,
+                applyUserId,
+                status: status&&[status]||undefined,
             },
         }
     }
@@ -86,6 +94,19 @@ class AuthMana extends Component {
     componentDidMount() {
         this.search();
         this.loadCatalogue();
+        this.getUsersInTenant();
+    }
+
+    getUsersInTenant(){
+        ajax.getUsersInTenant().then(res=>{
+            console.log("getUsersInTenant",res);
+            if(res.code === 1){
+                this.setState({
+                    userList: res.data || []
+                })
+            }
+            
+        })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -104,10 +125,14 @@ class AuthMana extends Component {
     }
 
     search = () => {
-        const { table, loading } = this.state;
         this.setState({ table: [], loading: true })
-        const params = this.state.queryParams;
-        ajax.getApplyList(params).then(res => {
+        const { queryParams } = this.state;
+        const pathname = this.props.location.pathname;
+        hashHistory.push({
+            pathname,
+            query: queryParams,
+        })
+        ajax.getApplyList(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
@@ -177,9 +202,6 @@ class AuthMana extends Component {
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
-            if(field==="listType"){
-                hashHistory.push(`${pathname}?listType=${value}`)
-            }
         }
         this.setState({
             queryParams,
@@ -199,6 +221,13 @@ class AuthMana extends Component {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
         })
+        if(Object.keys(sorter).length > 0){
+            if(sorter.field === "applyTime"){
+                queryParams.sort = sorter.order === "descend" ? "desc" : "asc"
+            }else{
+                queryParams.sortColumn = sorter.order === "descend" ? "gmt_create" : "day"
+            }
+        }
         this.setState({
             queryParams,
             selectedRowKeys: [],
@@ -364,6 +393,7 @@ class AuthMana extends Component {
                             title: '申请时间',
                             key: 'applyTime',
                             dataIndex: 'applyTime',
+                            sorter:true,
                             render(text, record) {
                                 return utils.formatDateTime(text)
                             }
@@ -418,6 +448,7 @@ class AuthMana extends Component {
                             title: '申请时间',
                             key: 'applyTime',
                             dataIndex: 'applyTime',
+                            sorter: true,
                             render(text, record) {
                                 return utils.formatDateTime(text)
                             }
@@ -476,6 +507,7 @@ class AuthMana extends Component {
                             title: '申请时间',
                             key: 'applyTime',
                             dataIndex: 'applyTime',
+                            sorter:true,
                             render(text, record) {
                                 return utils.formatDateTime(text)
                             }
@@ -564,19 +596,18 @@ class AuthMana extends Component {
     }
 
     onChangeTime = (date, dateString) => {
-        let { queryParams, rangeTime } = this.state;
-        rangeTime = date;
-        const startTime = Date.parse(dateString[0]);
-        const endTime = Date.parse(dateString[1]);
+        const { queryParams } = this.state;
+        const startTime = dateString&&Date.parse(dateString[0])||undefined;
+        const endTime = dateString&&Date.parse(dateString[1])||undefined;
         queryParams.startTime = startTime;
         queryParams.endTime = endTime;
         this.setState({
-            queryParams, rangeTime
+            queryParams, rangeTime: date
         }, this.search);
     };
 
     renderPane = (isShowRowSelection = false) => {
-        const { table, selectedRowKeys, queryParams, rangeTime, loading } = this.state;
+        const { table, selectedRowKeys, queryParams, rangeTime, loading, userList, } = this.state;
 
         const { projects } = this.props;
 
@@ -592,6 +623,25 @@ class AuthMana extends Component {
             {proj.projectAlias}
         </Option>)
 
+        const userOptions = userList.map(v => <Option
+            title={v.userName}
+            key={v.userId}
+            name={v.userName}
+            value={`${v.userId}`}
+        >
+            {v.userName}
+        </Option>)
+
+        const selectStatus = selectStatusList.map(v => <Option
+            title={v.value}
+            key={v.status}
+            name={v.value}
+            value={`${v.status}`}
+        >
+            {v.value}
+        </Option>)
+        console.log('rangeTime',rangeTime);
+    
         const title = (
             <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
                 <FormItem label="项目">
@@ -607,6 +657,36 @@ class AuthMana extends Component {
                         {projectOptions}
                     </Select>
                 </FormItem>
+                {
+                     queryParams.listType == 1 ? "" : <FormItem label="申请人">
+                        <Select
+                            allowClear
+                            showSearch
+                            optionFilterProp="name"
+                            style={{ width: 120 }}
+                            placeholder="选择申请人"
+                            value={queryParams.applyUserId}
+                            onChange={(value) => this.changeParams('applyUserId', value)}
+                        >
+                            {userOptions}
+                        </Select>
+                    </FormItem>
+                }
+                {
+                    queryParams.listType == 0||queryParams.listType == 3 ? "" : <FormItem label="状态">
+                            <Select
+                                allowClear
+                                showSearch
+                                optionFilterProp="status"
+                                style={{ width: 120 }}
+                                placeholder="选择状态"
+                                value={queryParams.status}
+                                onChange={(value) => this.changeParams('status', value ? [value] : undefined)}
+                            >
+                                {selectStatus}
+                            </Select>
+                        </FormItem>
+                }
                 <FormItem>
                     <Input.Search
                         placeholder="按表名搜索"
@@ -617,7 +697,7 @@ class AuthMana extends Component {
                         onSearch={this.search}
                     />
                 </FormItem>
-                <FormItem label="时间选择">
+                <FormItem label="申请时间">
                     <RangePicker 
                         onChange={this.onChangeTime} 
                         format="YYYY-MM-DD HH:mm:ss" 
@@ -629,8 +709,10 @@ class AuthMana extends Component {
         )
 
         const pagination = {
-            total: table.totalCount,
+            total: Number(table.totalCount),
             defaultPageSize: 10,
+            current: Number(queryParams.pageIndex)
+
         };
 
         const rowSelection = isShowRowSelection ? {

@@ -43,30 +43,72 @@ class TaskInfo extends React.Component {
             <Col span={12}>
                 <div className="title">{version}</div>
                 <div className="box-padding">
-                    <div className="sub-title" style={attributes ? contrastStyle : {}}>调度属性</div>
-                    <div className="line"></div>
-                    <Row>
-                        <Col span="6" className="txt-left">调度状态 : </Col>
-                        <Col span="18" className="txt-left">
-                            {taskInfo.scheduleStatus}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span="6" className="txt-left">生效日期 : </Col>
-                        <Col span="18" className="txt-left">
-                        {taskInfo.effectiveDate}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span="6" className="txt-left">调度周期 : </Col>
-                        <Col span="18" className="txt-left">{taskInfo.schedulingCycle}</Col>
-                    </Row>
-                    <Row>
-                        <Col span="6" className="txt-left">具体时间 : </Col>
-                        <Col span="18" className="txt-left">
-                            {taskInfo.specificTime}
-                        </Col>
-                    </Row>
+                    <div className="schedulingCycle">
+                        <div className="sub-title" style={attributes ? contrastStyle : {}}>调度属性</div>
+                        <div className="line"></div>
+                        <Row>
+                            <Col span="6" className="txt-left">调度状态 : </Col>
+                            <Col span="18" className="txt-left">
+                                {taskInfo.scheduleStatus}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span="6" className="txt-left">生效日期 : </Col>
+                            <Col span="18" className="txt-left">
+                            {taskInfo.effectiveDate}
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span="6" className="txt-left">调度周期 : </Col>
+                            <Col span="18" className="txt-left">{taskInfo.schedulingCycle&&taskInfo.schedulingCycle.period}</Col>
+                        </Row>
+                        { 
+                            taskInfo.schedulingCycle && taskInfo.schedulingCycle.beginTime ?
+                                <Row>
+                                    <Col span="6" className="txt-left">开始时间 : </Col>
+                                    <Col span="18" className="txt-left">
+                                        {taskInfo.schedulingCycle.beginTime}
+                                    </Col>
+                                </Row> : ""
+                        }
+                        { 
+                            taskInfo.schedulingCycle && taskInfo.schedulingCycle.gapTime ?
+                                <Row>
+                                    <Col span="6" className="txt-left">间隔时间 : </Col>
+                                    <Col span="18" className="txt-left">
+                                        {taskInfo.schedulingCycle.gapTime}
+                                    </Col>
+                                </Row> : ""
+                        }
+                        { 
+                            taskInfo.schedulingCycle && taskInfo.schedulingCycle.endTime ?
+                                <Row>
+                                    <Col span="6" className="txt-left">结束时间 : </Col>
+                                    <Col span="18" className="txt-left">
+                                        {taskInfo.schedulingCycle.endTime}
+                                    </Col>
+                                </Row> : ""
+                        }
+                        
+                        { 
+                            taskInfo.schedulingCycle && taskInfo.schedulingCycle.selectTime ?
+                                <Row>
+                                    <Col span="6" className="txt-left">选择时间 : </Col>
+                                    <Col span="18" className="txt-left">
+                                        {taskInfo.schedulingCycle.selectTime}
+                                    </Col>
+                                </Row> : ""
+                        }
+                        { 
+                            taskInfo.schedulingCycle && taskInfo.schedulingCycle.specificTime ?
+                                <Row>
+                                    <Col span="6" className="txt-left">具体时间 : </Col>
+                                    <Col span="18" className="txt-left">
+                                        {taskInfo.schedulingCycle.specificTime}
+                                    </Col>
+                                </Row> : ""
+                        }
+                    </div>
                     <div className="sub-title" style={upstreamTask ? contrastStyle : {}}>任务间依赖</div>
                     <div className="line"></div>
                     <Row>
@@ -171,6 +213,38 @@ class DiffParams extends React.Component {
         return modTime;
     }
 
+    dealWeekDay = (day) => {
+        let weekDay;
+        console.log('dealWeekDay',day);
+        
+        switch (day.toString()) {
+            case "1":
+                weekDay = "一"
+                break;
+            case "2":
+                weekDay = "二"
+                break;
+            case "3":
+                weekDay = "三"
+                break;
+            case "4":
+                weekDay = "四"
+                break;
+            case "5":
+                weekDay = "五"
+                break;
+            case "6":
+                weekDay = "六"
+                break;
+            case "7":
+                weekDay = "七"
+                break;
+            default:
+                break;
+        }
+        return weekDay ? `星期${weekDay}` : " ";
+    }
+
     parseScheduleConf = (data,type)=> {
         const parseScheduleConf = {};
         const scheduleConf = data.scheduleConf&&JSON.parse(data.scheduleConf) || {};
@@ -186,31 +260,42 @@ class DiffParams extends React.Component {
         const effectiveDate = scheduleConf.beginDate&&scheduleConf.endDate ? `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}` : "";
         parseScheduleConf.effectiveDate = effectiveDate;
 
-        let schedulingCycle;
+        let schedulingCycle = {};
         switch (scheduleConf.periodType) {
             case "0":
-                schedulingCycle = "分钟"
+                schedulingCycle.period = "分钟"
+                schedulingCycle.gapTime = scheduleConf.gapMin ? `${scheduleConf.gapMin}分钟` : " ";
+                schedulingCycle.beginTime =  `${this.checkTime(scheduleConf.beginHour)}:${this.checkTime(scheduleConf.beginMin)}`;
+                schedulingCycle.endTime =  `${this.checkTime(scheduleConf.endHour)}:${this.checkTime(scheduleConf.endMin)}`;
                 break;
             case "1":
-                schedulingCycle = "小时"
+                schedulingCycle.period = "小时";
+                schedulingCycle.gapTime = scheduleConf.gapHour ? `${scheduleConf.gapHour}小时`:" ";
+                schedulingCycle.beginTime =  `${this.checkTime(scheduleConf.beginHour)}:${this.checkTime(scheduleConf.beginMin)}`;
+                schedulingCycle.endTime =  `${this.checkTime(scheduleConf.endHour)}:${this.checkTime(scheduleConf.endMin)}`;
                 break;
             case "2":
-                schedulingCycle = "天"
+                schedulingCycle.period = "天";
+                schedulingCycle.specificTime =  `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
                 break;
             case "3":
-                schedulingCycle = "周"
+                schedulingCycle.period = "周"
+                let weekDay = scheduleConf.weekDay ? scheduleConf.weekDay.split(',').map(v=>{
+                    return this.dealWeekDay(v);
+                }): []
+                schedulingCycle.selectTime = weekDay ? weekDay.join(',') : " ";
+                schedulingCycle.specificTime =  `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
                 break;
             case "4":
-                schedulingCycle = "月"
+                schedulingCycle.period = "月"
+                schedulingCycle.selectTime = scheduleConf.day  ? `每月${scheduleConf.day}号`: " ";
+                schedulingCycle.specificTime =  `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
                 break;
             default:
-                schedulingCycle = ""
+                schedulingCycle.period = ""
                 break;
         }
         parseScheduleConf.schedulingCycle = schedulingCycle;
-        
-        const specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
-        parseScheduleConf.specificTime = specificTime;
 
         if(type === 1){
             const upstreamTask = data.dependencyTaskNames&&data.dependencyTaskNames.join(" 、");
@@ -257,13 +342,15 @@ class DiffParams extends React.Component {
         contrastResults.attributes = false;
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
-     
         const historyParse = this.parseScheduleConf(historyvalue,1);
         const currentParse = this.parseScheduleConf(this.currentValue,2);
-        const currentAttributes = ["scheduleStatus","effectiveDate","schedulingCycle","specificTime"];
+        console.log('historyParse',historyParse);
+        console.log('currentParse',currentParse);
+        
+        const currentAttributes = ["scheduleStatus","effectiveDate","schedulingCycle"];
         
         currentAttributes.forEach(v => {
-            if(historyParse[v] != currentParse[v]){
+            if(JSON.stringify(historyParse[v]) != JSON.stringify(currentParse[v])){
                 
                 contrastResults.attributes = true;
                 return;

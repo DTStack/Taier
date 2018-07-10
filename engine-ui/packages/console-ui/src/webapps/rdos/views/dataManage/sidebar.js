@@ -35,10 +35,9 @@ export default class Sidebar extends Component {
         this.setState({
             current: e.key,
         });
-    }
+    } 
 
     render() {
-        const props = this.props
         const base = `/data-manage`
         return (
             <div className="sidebar m-ant-menu">
@@ -49,6 +48,11 @@ export default class Sidebar extends Component {
                     defaultSelectedKeys={[this.state.current]}
                     mode="inline"
                 >
+                    <Menu.Item key="assets">
+                        <Link to={`${base}/assets`}>
+                            <Icon type="pie-chart" />数据资产
+                        </Link>
+                    </Menu.Item>
                     <Menu.Item key="search">
                         <Link to={`${base}/search`}>
                             <Icon type="search" />查找数据

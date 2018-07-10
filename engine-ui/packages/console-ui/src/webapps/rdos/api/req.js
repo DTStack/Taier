@@ -25,7 +25,10 @@ export default {
     GET_PROJECT_BY_ID: `${RDOS_BASE_URL}/common/project/getProjectByProjectId`, // 获取项目详情
     UPDATE_PROJECT_INFO: `${RDOS_BASE_URL}/common/project/updateProjectInfo`, // 修改项目描述
     GET_PROJECT_INFO: `${RDOS_BASE_URL}/common/project/getProjectInfo`, // 获取项目信息包括告警
-
+    GET_PROJECT_LIST_INFO: `${RDOS_BASE_URL}/common/project/getProjectList`, // 首页project查询
+    SET_STICKY: `${RDOS_BASE_URL}/common/project/setSticky`, // 首页project查询
+    DELETE_PROJECT: `${RDOS_BASE_URL}/common/project/deleteProject`, // 删除项目接口
+    
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表
     UPDATE_ROLE: `${RDOS_BASE_URL}/common/role/addOrUpdateRole`, // 新建/更新角色

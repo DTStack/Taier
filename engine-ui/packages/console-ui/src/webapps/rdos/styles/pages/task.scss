@@ -307,6 +307,9 @@
        margin-left: 10;
        padding-left: 10;
        border: 1px solid #ccc;
+       .schedulingCycle{
+           min-height: 281px;
+       }
        .line{
             width: 80%;
             border-bottom: 1px solid #ccc;
