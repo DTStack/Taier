@@ -1,8 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
-import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 
@@ -12,112 +10,115 @@ import java.util.Properties;
  * flink yarn 资源相关
  * Date: 2018/07/10
  * Company: www.dtstack.com
+ *
  * @author toutian
  */
 
 public class FlinkPerJobResourceInfo extends EngineResourceInfo {
 
+
     public final static String CORE_TOTAL_KEY = "cores.total";
-
     public final static String CORE_USED_KEY = "cores.used";
-
     public final static String CORE_FREE_KEY = "cores.free";
 
     public final static String MEMORY_TOTAL_KEY = "memory.total";
-
     public final static String MEMORY_USED_KEY = "memory.used";
-
     public final static String MEMORY_FREE_KEY = "memory.free";
 
-    private final static String EXECUTOR_INSTANCES_KEY = "executor.instances";
+    public final static String JOBMANAGER_MEMORY_MB = "jobmanager.memory.mb";
+    public final static String TASKMANAGER_MEMORY_MB = "taskmanager.memory.mb";
+    public final static String CONTAINER = "container";
+    public final static String SLOTS = "slots";
 
-    private final static String EXECUTOR_MEM_KEY = "executor.memory";
+    private final static int MIN_JM_MEMORY = 1024; // the minimum memory should be higher than the min heap cutoff
+    private final static int MIN_TM_MEMORY = 1024;
 
-    private final static String EXECUTOR_CORES_KEY = "executor.cores";
-
-    private final static String EXECUTOR_MEM_OVERHEAD_KEY = "yarn.executor.memoryOverhead";
-
-    public final static int DEFAULT_CORES = 1;
-
-    public final static int DEFAULT_INSTANCES = 1;
-
-    public final static int DEFAULT_MEM = 768;
-
-    public final static int DEFAULT_MEM_OVERHEAD = 576;
-
+    private int jobmanagerMemoryMb = MIN_JM_MEMORY;
+    private int taskmanagerMemoryMb = MIN_JM_MEMORY;
+    private int numberTaskManagers = 1;
+    private int slotsPerTaskManager = 1;
+    private int containerLimit;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         int totalFreeCore = 0;
         int totalFreeMem = 0;
 
-        int totalCore = 0;
-        int totalMem = 0;
-
-        for(NodeResourceInfo tmpMap : nodeResourceMap.values()){
+        int[] nmFree = new int[nodeResourceMap.size()];
+        int index = 0;
+        for (NodeResourceInfo tmpMap : nodeResourceMap.values()) {
             int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
             int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
-            int nodeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_TOTAL_KEY));
-            int nodeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_TOTAL_KEY));
 
             totalFreeMem += nodeFreeMem;
             totalFreeCore += nodeFreeCores;
-            totalCore += nodeCores;
-            totalMem += nodeMem;
+
+            nmFree[index++] = nodeFreeMem;
         }
 
-        if(totalFreeCore == 0 || totalFreeMem == 0){
+        if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
 
         Properties properties = jobClient.getConfProperties();
-        int instances = DEFAULT_INSTANCES;
-        if(properties != null && properties.containsKey(EXECUTOR_INSTANCES_KEY)){
-            instances = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
+
+        if (properties != null && properties.containsKey(SLOTS)) {
+            slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
+        }
+        if (totalFreeCore < slotsPerTaskManager) {
+            return false;
         }
 
-        return judgeCores(jobClient, instances, totalFreeCore, totalCore)
-                && judgeMem(jobClient, instances, totalFreeMem, totalMem);
+        if (properties != null && properties.containsKey(JOBMANAGER_MEMORY_MB)) {
+            jobmanagerMemoryMb = MathUtil.getIntegerVal(properties.get(JOBMANAGER_MEMORY_MB));
+        }
+        if (jobmanagerMemoryMb < MIN_JM_MEMORY) {
+            jobmanagerMemoryMb = MIN_JM_MEMORY;
+        }
+
+        if (properties != null && properties.containsKey(TASKMANAGER_MEMORY_MB)) {
+            taskmanagerMemoryMb = MathUtil.getIntegerVal(properties.get(TASKMANAGER_MEMORY_MB));
+        }
+        if (taskmanagerMemoryMb < MIN_TM_MEMORY) {
+            taskmanagerMemoryMb = MIN_TM_MEMORY;
+        }
+
+        if (properties != null && properties.containsKey(CONTAINER)) {
+            numberTaskManagers = MathUtil.getIntegerVal(properties.get(CONTAINER));
+        }
+
+        int totalMemoryRequired = jobmanagerMemoryMb + taskmanagerMemoryMb * numberTaskManagers;
+        if (totalFreeMem < totalMemoryRequired) {
+            return false;
+        }
+        if (taskmanagerMemoryMb > containerLimit || jobmanagerMemoryMb > containerLimit) {
+            return false;
+        }
+
+        if (!allocateResource(nmFree, jobmanagerMemoryMb)) {
+            return false;
+        }
+
+        for (int i = 0; i < numberTaskManagers; i++) {
+            if (!allocateResource(nmFree, taskmanagerMemoryMb)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    private boolean judgeCores(JobClient jobClient, int instances, int freeCore, int totalCore){
-
-        Properties properties = jobClient.getConfProperties();
-        int executorCores = DEFAULT_CORES;
-        if(properties != null && properties.containsKey(EXECUTOR_CORES_KEY)){
-            executorCores = MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY));
+    private boolean allocateResource(int[] nodeManagers, int toAllocate) {
+        for (int i = 0; i < nodeManagers.length; i++) {
+            if (nodeManagers[i] >= toAllocate) {
+                nodeManagers[i] -= toAllocate;
+                return true;
+            }
         }
-
-        int needCores = instances * executorCores;
-        if(needCores > totalCore){
-            throw new RdosException("任务设置的core 大于 集群最大的core");
-        }
-
-        return needCores <= freeCore;
+        return false;
     }
 
-    private boolean judgeMem(JobClient jobClient, int instances, int freeMem, int totalMem){
-        Properties properties = jobClient.getConfProperties();
-
-        int oneNeedMem = DEFAULT_MEM;
-        if(properties != null && properties.containsKey(EXECUTOR_MEM_KEY)){
-            String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
-            oneNeedMem = UnitConvertUtil.convert2MB(setMemStr);
-        }
-
-        int executorJvmMem = DEFAULT_MEM_OVERHEAD;
-        if(properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
-            String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
-            executorJvmMem = UnitConvertUtil.convert2MB(setMemStr);
-        }
-
-        oneNeedMem += executorJvmMem;
-        int needTotal = instances * oneNeedMem;
-
-        if(needTotal > totalMem){
-            throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
-        }
-
-        return needTotal <= freeMem;
+    public void setContainerLimit(int containerLimit) {
+        this.containerLimit = containerLimit;
     }
 }

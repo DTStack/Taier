@@ -360,7 +360,7 @@ public class FlinkClientBuilder {
         return flinkConfiguration;
     }
 
-    public ClusterSpecification getClusterSpecification() {
+    public ClusterSpecification getDefaultClusterSpecification() {
         if (flinkConfiguration == null) {
             throw new RdosException("Configuration directory not set");
         }

@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -148,6 +149,8 @@ public class FlinkClient extends AbsClient {
 
     private YarnClient yarnClient;
 
+    private static ThreadLocal<Properties> propertiesThreadLocal = new ThreadLocal<>();
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -225,7 +228,7 @@ public class FlinkClient extends AbsClient {
     private String runPerJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
         //taskmanager数量，这里默认为1
         //taskmanager.heap.mb、jobmanager.heap.mb 配置文件没有设置则默认为1024
-        ClusterSpecification clusterSpecification = flinkClientBuilder.getClusterSpecification();
+        ClusterSpecification clusterSpecification = createClusterSpecification();
         final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
         ClusterClient<ApplicationId> clusterClient = FlinkClientBuilder.getYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph, true);
         try {
@@ -234,6 +237,27 @@ public class FlinkClient extends AbsClient {
             logger.info("Could not properly shut down the client.", e);
         }
         return clusterClient.getClusterId().toString();
+    }
+
+    private ClusterSpecification createClusterSpecification() {
+        Properties confProperties = propertiesThreadLocal.get();
+        if (confProperties!=null
+                && confProperties.containsKey(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB)
+                && confProperties.containsKey(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB)
+                && confProperties.containsKey(FlinkPerJobResourceInfo.CONTAINER)
+                && confProperties.containsKey(FlinkPerJobResourceInfo.SLOTS)){
+            int jobmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB));
+            int taskmanagerMemoryMb = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB));
+            int numberTaskManagers = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.CONTAINER));
+            int slotsPerTaskManager = MathUtil.getIntegerVal(confProperties.get(FlinkPerJobResourceInfo.SLOTS));
+            return new ClusterSpecification.ClusterSpecificationBuilder()
+                    .setMasterMemoryMB(jobmanagerMemoryMb)
+                    .setTaskManagerMemoryMB(taskmanagerMemoryMb)
+                    .setNumberTaskManagers(numberTaskManagers)
+                    .setSlotsPerTaskManager(slotsPerTaskManager)
+                    .createClusterSpecification();
+        }
+        return flinkClientBuilder.getDefaultClusterSpecification();
     }
 
     private void initHadoopConf(FlinkConfig flinkConfig){
@@ -288,6 +312,7 @@ public class FlinkClient extends AbsClient {
 
         //只有当程序本身没有指定并行度的时候该参数才生效
         Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
+        propertiesThreadLocal.set(jobClient.getConfProperties());
         String taskId = null;
 
         try {
@@ -297,6 +322,7 @@ public class FlinkClient extends AbsClient {
             return JobResult.createErrorResult(e);
         }finally {
             packagedProgram.deleteExtractedLibraries();
+            propertiesThreadLocal.remove();
         }
 
         return JobResult.createSuccessResult(taskId);
@@ -825,6 +851,7 @@ public class FlinkClient extends AbsClient {
             FlinkPerJobResourceInfo resourceInfo = new FlinkPerJobResourceInfo();
             try {
                 List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+                int containerLimit = 0;
                 for(NodeReport report : nodeReports){
                     Resource capability = report.getCapability();
                     Resource used = report.getUsed();
@@ -841,10 +868,16 @@ public class FlinkClient extends AbsClient {
 
                     workerInfo.put(FlinkPerJobResourceInfo.MEMORY_TOTAL_KEY, totalMem);
                     workerInfo.put(FlinkPerJobResourceInfo.MEMORY_USED_KEY, usedMem);
-                    workerInfo.put(FlinkPerJobResourceInfo.MEMORY_FREE_KEY, totalMem - usedMem);
+                    int free = totalMem - usedMem;
+                    workerInfo.put(FlinkPerJobResourceInfo.MEMORY_FREE_KEY, free);
+
+                    if (free > containerLimit) {
+                        containerLimit = free;
+                    }
 
                     resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
                 }
+                resourceInfo.setContainerLimit(containerLimit);
             } catch (Exception e) {
                 logger.error("", e);
             }
