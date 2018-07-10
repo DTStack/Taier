@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.sql.parser.SqlParser;
 import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -56,7 +55,7 @@ public class JobSubmitProcessor implements Runnable{
 
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTED.getStatus());
                     jobClient.doJobClientCallBack(updateStatus);
-                    jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
+                    //TODO jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
 
                     jobResult = clusterClient.submitJob(jobClient);
 

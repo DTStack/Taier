@@ -1,6 +1,11 @@
 package com.dtstack.rdos.engine.execution.flink130;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +16,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 
@@ -30,11 +37,13 @@ public class SqlPluginInfo {
 
     private static final String sqlPluginDirName = "sqlplugin";
 
+    private static final String CORE_JAR = "core.jar";
+
     private static String SP = File.separator;
 
     private static Gson gson = new Gson();
 
-    private String sqlRootDir;
+    private String localSqlRootJar;
 
     private String remoteSqlRootDir;
 
@@ -62,7 +71,7 @@ public class SqlPluginInfo {
     }
 
     public String getJarFilePath(String type){
-        String jarPath = sqlRootDir + SP + type + SP + type + ".jar";
+        String jarPath = localSqlRootJar + SP + type + SP + type + ".jar";
         File jarFile = new File(jarPath);
 
         if(!jarFile.exists() || jarFile.isDirectory()){
@@ -82,7 +91,7 @@ public class SqlPluginInfo {
     }
 
     public String getClassName(String sinkType) throws IOException {
-        String jsonPath = sqlRootDir + SP + sinkType + SP + sinkType + ".json";
+        String jsonPath = localSqlRootJar + SP + sinkType + SP + sinkType + ".json";
         File jsonFile = new File(jsonPath);
 
         if(!jsonFile.exists() || jsonFile.isDirectory()){
@@ -98,11 +107,11 @@ public class SqlPluginInfo {
 
     public void setSourceJarRootDir(String rootDir){
 
-        if(sqlRootDir != null){
+        if(localSqlRootJar != null){
             return;
         }
 
-        sqlRootDir = rootDir;
+        localSqlRootJar = rootDir;
         logger.info("---------local sql plugin root dir is:" + rootDir);
     }
 
@@ -114,6 +123,34 @@ public class SqlPluginInfo {
 
         remoteSqlRootDir = remoteRootDir;
         logger.info("---------remote sql plugin root dir is:" + remoteSqlRootDir);
+    }
+
+    public List<String> buildExeArgs(JobClient jobClient) throws IOException {
+        List<String> args = Lists.newArrayList();
+        args.add("-sql");
+        args.add(jobClient.getSql());
+
+        args.add("-name");
+        args.add(jobClient.getJobName());
+
+        args.add("-localSqlPluginPath");
+        args.add(localSqlRootJar);
+
+        args.add("-remoteSqlPluginPath");
+        args.add(remoteSqlRootDir);
+
+        args.add("-confProp");
+        String confPropStr = PublicUtil.objToString(jobClient.getConfProperties());
+        confPropStr = URLEncoder.encode(confPropStr, Charsets.UTF_8.name());
+        args.add(confPropStr);
+        return args;
+    }
+
+    public JarFileInfo createCoreJarInfo(){
+        JarFileInfo jarFileInfo = new JarFileInfo();
+        String jarFilePath  = localSqlRootJar + SP + CORE_JAR;
+        jarFileInfo.setJarPath(jarFilePath);
+        return jarFileInfo;
     }
 
     public String getSqlPluginDir(String pluginRoot){

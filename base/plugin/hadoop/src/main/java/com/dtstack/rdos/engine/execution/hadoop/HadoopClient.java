@@ -2,14 +2,15 @@ package com.dtstack.rdos.engine.execution.hadoop;
 
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
-import com.dtstack.rdos.engine.execution.base.operator.batch.BatchAddJarOperator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.hadoop.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.hadoop.util.HadoopConf;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
@@ -147,19 +148,20 @@ public class HadoopClient extends AbsClient {
     @Override
     public JobResult submitJobWithJar(JobClient jobClient) {
         try {
-            BatchAddJarOperator jarOperator = null;
-            for(Operator operator : jobClient.getOperators()){
-                if(operator instanceof BatchAddJarOperator){
-                    jarOperator = (BatchAddJarOperator) operator;
+            JarFileInfo jarFileInfo = null;
+            String sql = jobClient.getSql();
+            for(String tmpSql : DtStringUtil.splitIgnoreQuota(sql, ";")){
+                if(AddJarOperator.verific(tmpSql)){
+                    jarFileInfo = AddJarOperator.parseSql(tmpSql);
                     break;
                 }
             }
 
-            if(jarOperator == null){
-                throw new RdosException("submit type of MR need to add jar operator.");
+            if(jarFileInfo == null){
+                throw new RdosException("need at least one jar.");
             }
 
-            String jarPath = jarOperator.getJarPath();
+            String jarPath = jarFileInfo.getJarPath();
             if(StringUtils.isBlank(jarPath)) {
                 throw new RdosException("jar path is needful");
             }

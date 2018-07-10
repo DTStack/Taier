@@ -4,10 +4,10 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.queue.OrderObject;
@@ -38,7 +38,9 @@ public class JobClient extends OrderObject{
 
     private JobClientCallBack jobClientCallBack;
 
-    private List<Operator> operators;
+    private List<JarFileInfo> attachJarInfos = Lists.newArrayList();
+
+    private JarFileInfo coreJarInfo;
 
     private Properties confProperties;
 
@@ -163,18 +165,6 @@ public class JobClient extends OrderObject{
         this.engineTaskId = engineTaskId;
     }
 
-    public void addOperators(List<Operator> operators) {
-        this.operators.addAll(operators);
-    }
-
-    public void addOperator(Operator operator) {
-        operators.add(operator);
-    }
-
-    public List<Operator> getOperators() {
-        return operators;
-    }
-
 
     public String getJobName() {
         return jobName;
@@ -220,6 +210,18 @@ public class JobClient extends OrderObject{
         return confProperties;
     }
 
+    public List<JarFileInfo> getAttachJarInfos() {
+        return attachJarInfos;
+    }
+
+    public void setAttachJarInfos(List<JarFileInfo> attachJarInfos) {
+        this.attachJarInfos = attachJarInfos;
+    }
+
+    public void addAttachJarInfo(JarFileInfo jarFileInfo){
+        attachJarInfos.add(jarFileInfo);
+    }
+
     public void doJobClientCallBack(Map<String, ? extends Object> param){
         if(jobClientCallBack == null){
             throw new RdosException("not set jobClientCallBak...");
@@ -238,10 +240,6 @@ public class JobClient extends OrderObject{
 
     public String getTaskParams() {
         return taskParams;
-    }
-
-    public void setOperators(List<Operator> operators) {
-        this.operators = operators;
     }
 
     public String getClassArgs() {
@@ -308,11 +306,20 @@ public class JobClient extends OrderObject{
         this.pluginInfo = pluginInfo;
     }
 
+    public JarFileInfo getCoreJarInfo() {
+        return coreJarInfo;
+    }
+
+    public void setCoreJarInfo(JarFileInfo coreJarInfo) {
+        this.coreJarInfo = coreJarInfo;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
-                "jobClientCallBack=" + jobClientCallBack +
-                ", operators=" + operators +
+                " jobClientCallBack=" + jobClientCallBack +
+                ", attachJarInfos=" + attachJarInfos +
+                ", coreJar=" + coreJarInfo +
                 ", confProperties=" + confProperties +
                 ", sql='" + sql +
                 ", taskParams='" + taskParams +

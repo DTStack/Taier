@@ -1,16 +1,16 @@
 package com.dtstack.rdos.base.flink;
 
 import com.dtstack.rdos.common.http.PoolHttpClient;
-import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.operator.stream.AddJarOperator;
 import com.google.common.collect.Maps;
-
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Reason:
@@ -42,14 +42,6 @@ public class FlinkSubmitTest {
 
     @Test
     public void submitJar() throws Exception{
-        init();
-        JobClient jobClient = new JobClient();
-        AddJarOperator addJarOperator = new AddJarOperator();
-        addJarOperator.setJarPath("http://114.55.63.129/flinktest-1.0-SNAPSHOT.jar");
-        jobClient.addOperator(addJarOperator);
-
-        JobSubmitExecutor.getInstance().submitJob(jobClient);
-        System.out.println("---------over--------");
     }
 
     @Test

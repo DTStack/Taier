@@ -1,23 +1,26 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
-import com.clearspring.analytics.util.Lists;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.operator.Operator;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
+import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -220,20 +223,9 @@ public class SparkYarnClient extends AbsClient {
      */
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
         setHadoopUserName(sparkYarnConfig);
-        if(jobClient.getOperators().size() < 1){
-            throw new RdosException("don't have any batch operator for spark sql job. please check it.");
-        }
 
-        StringBuffer sb = new StringBuffer("");
-        for(Operator operator : jobClient.getOperators()){
-            String tmpSql = operator.getSql();
-            sb.append(tmpSql)
-                    .append(";");
-        }
-
-        String exeSql = sb.toString();
         Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put("sql", exeSql);
+        paramsMap.put("sql", jobClient.getSql());
         paramsMap.put("appName", jobClient.getJobName());
 
         String sqlExeJson = null;
@@ -517,5 +509,35 @@ public class SparkYarnClient extends AbsClient {
         }
 
         UserGroupInformation.setThreadLocalData(HADOOP_USER_NAME, sparkYarnConfig.getHadoopUserName());
+    }
+
+    @Override
+    public void beforeSubmitFunc(JobClient jobClient) {
+        String sql = jobClient.getSql();
+        String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
+        if(sqlArr.length == 0){
+            return;
+        }
+
+        List<String> sqlList = Lists.newArrayList(sqlArr);
+        Iterator<String> sqlItera = sqlList.iterator();
+
+        while (sqlItera.hasNext()){
+            String tmpSql = sqlItera.next();
+            if(AddJarOperator.verific(tmpSql)){
+                sqlItera.remove();
+                JarFileInfo jarFileInfo = AddJarOperator.parseSql(tmpSql);
+
+                if(jobClient.getJobType() == EJobType.SQL){
+                    //SQL当前不允许提交jar包,自定义函数已经在web端处理了。
+                }else{
+                    //非sql任务只允许提交一个附件包
+                    jobClient.setCoreJarInfo(jarFileInfo);
+                    break;
+                }
+            }
+        }
+
+        jobClient.setSql(String.join(";", sqlList));
     }
 }
