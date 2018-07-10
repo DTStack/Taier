@@ -57,21 +57,38 @@ engineTypes:
         flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
         #flinkZkNamespace: /flink140
         #jarTmpDir: ../tmp140
-        flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
+        #flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
         #remotePluginRootDir: /opt/dtstack/flinkplugin
-        #hadoopConf:
-        #    dfs.nameservices: ns1
-        #    fs.defaultFS: hdfs://ns1
-        #    dfs.ha.namenodes.ns1: nn1,nn2
-        #    dfs.namenode.rpc-address.ns1.nn1: node02:9000
-        #    dfs.namenode.rpc-address.ns1.nn2: node03:9000
-        #    #dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
-        #    #fs.hdfs.impl.disable.cache: true
-        #yarnConf:
-        #    yarn.resourcemanager.address.rm1: node02:8032
-        #    yarn.resourcemanager.address.rm2: node03:8032
-        #    yarn.resourcemanager.ha.rm-ids: rm1,rm2
-        #    yarn.resourcemanager.ha.enabled: true
+        hadoopConf:
+            dfs.nameservices: ns1
+            fs.defaultFS: hdfs://ns1
+            dfs.ha.namenodes.ns1: nn1,nn2
+            dfs.namenode.rpc-address.ns1.nn1: node02:9000
+            dfs.namenode.rpc-address.ns1.nn2: node03:9000
+            #dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+            #fs.hdfs.impl.disable.cache: true
+        yarnConf:
+            yarn.resourcemanager.address.rm1: node02:8032
+            yarn.resourcemanager.address.rm2: node03:8032
+            yarn.resourcemanager.ha.rm-ids: rm1,rm2
+            yarn.resourcemanager.ha.enabled: true
+
+
+#    -
+#        typeName: flink150
+#        clusterMode: yarn
+#        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
+#        #简化为只配置/flink150/ha
+#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink150/ha
+#        flinkZkNamespace: /flink152
+#        jarTmpDir: ../tmp150
+#        flinkPluginRoot: /opt/dtstack/flinkplugin
+#        remotePluginRootDir: /opt/dtstack/flinkplugin
+#        #新增配置
+#        flinkYarnMode: per_job # flinkOnYarn 三种模式： new、legacy、per_job
+#        flinkYarnNewModeMaxSlots: 4
+#        flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
+#        flinkJarPath: /opt/dtstack/flink-1.5.0/lib/flink-dist_2.11-1.5.0.jar
 
 
     #-

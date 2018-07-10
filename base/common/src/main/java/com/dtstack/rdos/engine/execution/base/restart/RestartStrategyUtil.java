@@ -36,6 +36,7 @@ public class RestartStrategyUtil {
         dealerClassNameMap.put("flink120", "com.dtstack.rdos.engine.execution.flink120.FlinkRestartStrategy");
         dealerClassNameMap.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkRestartStrategy");
         dealerClassNameMap.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkRestartStrategy");
+        dealerClassNameMap.put("flink150", "com.dtstack.rdos.engine.execution.flink150.FlinkRestartStrategy");
         dealerClassNameMap.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkRestartStrategy");
         dealerClassNameMap.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkRestartStrategy");
 
