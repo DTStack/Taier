@@ -13,7 +13,11 @@ class Index extends Component {
     }
 
     componentDidMount() {
+<<<<<<< HEAD
         // this.props.dispatch(setProject({ id: 0 }))
+=======
+        this.props.dispatch(setProject({ id: 0 }))
+>>>>>>> 9a1c481802d969752135b5c9294087be804e03a1
     }
 
     onChange = (e) => {
