@@ -422,7 +422,7 @@ export default class RuleConfig extends Component {
         )
 
         return (
-            <div className="rule-dashboard" style={{  overflow: 'hidden', height: '100%' }}>
+            <div className="rule-dashboard">
                 <h1 className="box-title">
                     监控规则
                 </h1>
@@ -457,7 +457,7 @@ export default class RuleConfig extends Component {
                             onClose={this.closeSlidePane}
                             visible={showSlidePane}
                             className="slide-pane-box"
-                            style={{ right: '0px', width: '80%',height:"100%", minHeight: '650px' }}
+                            style={{ right: '0px', width: '80%', height:"100%", minHeight: '650px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 

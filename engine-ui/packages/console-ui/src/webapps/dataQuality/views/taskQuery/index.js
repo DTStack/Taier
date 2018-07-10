@@ -443,7 +443,7 @@ export default class TaskQuery extends Component {
         )
 
         return (
-            <div className="task-dashboard" style={{  overflow: 'hidden', height: '100%' }}>
+            <div className="task-dashboard">
                 <h1 className="box-title">
                     任务查询 <span style={{ fontSize: "12px", color: "rgb(153, 153, 153)" }}>
                         告警总数: {

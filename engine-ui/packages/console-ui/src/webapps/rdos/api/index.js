@@ -199,6 +199,9 @@ export default {
     deleteCatalogue(params) {
         return http.post(req.DELETE_CATALOGUE, params)
     },
+    locateStreamCataPosition(params) {
+        return http.post(req.GET_STREAM_CATALOGUE_BY_LOCATION, params)
+    },
 
     getFunc(params) {
         return http.post(req.GET_FUNC, params)
