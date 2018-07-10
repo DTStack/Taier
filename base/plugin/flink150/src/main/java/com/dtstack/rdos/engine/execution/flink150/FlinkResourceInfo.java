@@ -25,10 +25,6 @@ public class FlinkResourceInfo extends EngineResourceInfo{
     @Override
     public boolean judgeSlots(JobClient jobClient) {
 
-        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
-            return true;
-        }
-
         int availableSlots = 0;
         int totalSlots = 0;
 

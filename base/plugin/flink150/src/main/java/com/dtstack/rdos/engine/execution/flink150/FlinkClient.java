@@ -30,6 +30,7 @@ import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.HadoopConf;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +68,9 @@ import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -818,7 +822,33 @@ public class FlinkClient extends AbsClient {
         }
 
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
-            return new FlinkResourceInfo();
+            FlinkPerJobResourceInfo resourceInfo = new FlinkPerJobResourceInfo();
+            try {
+                List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+                for(NodeReport report : nodeReports){
+                    Resource capability = report.getCapability();
+                    Resource used = report.getUsed();
+                    int totalMem = capability.getMemory();
+                    int totalCores = capability.getVirtualCores();
+
+                    int usedMem = used.getMemory();
+                    int usedCores = used.getVirtualCores();
+
+                    Map<String, Object> workerInfo = Maps.newHashMap();
+                    workerInfo.put(FlinkPerJobResourceInfo.CORE_TOTAL_KEY, totalCores);
+                    workerInfo.put(FlinkPerJobResourceInfo.CORE_USED_KEY, usedCores);
+                    workerInfo.put(FlinkPerJobResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
+
+                    workerInfo.put(FlinkPerJobResourceInfo.MEMORY_TOTAL_KEY, totalMem);
+                    workerInfo.put(FlinkPerJobResourceInfo.MEMORY_USED_KEY, usedMem);
+                    workerInfo.put(FlinkPerJobResourceInfo.MEMORY_FREE_KEY, totalMem - usedMem);
+
+                    resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+                }
+            } catch (Exception e) {
+                logger.error("", e);
+            }
+            return resourceInfo;
         }
 
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
@@ -864,10 +894,6 @@ public class FlinkClient extends AbsClient {
             if (logger.isInfoEnabled()){
                 logger.warn("node.yml flinkYarnNewModeMaxSlots:{}",flinkConfig.getFlinkYarnNewModeMaxSlots());
             }
-        }
-
-        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
-            FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.PER_JOB);
         }
     }
 }
