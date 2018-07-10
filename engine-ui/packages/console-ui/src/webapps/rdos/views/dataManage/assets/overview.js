@@ -33,7 +33,7 @@ const Option = Select.Option;
 export default class ProjectList extends Component {
 
     state = {
-        isAdmin: this.props.isAdmin,
+        total: this.props.total || true,
         project: {},
         projectTable: '',
         projectStore: '',
@@ -69,9 +69,9 @@ export default class ProjectList extends Component {
                 this.loadDataOverview(pid);
             })
             this.loadProjectCount();
-        }else if(nextProps.isAdmin!=this.props.isAdmin){
+        }else if(nextProps.total!=this.props.total){
             this.setState({
-                isAdmin: nextProps.isAdmin
+                total: nextProps.total
             }, this.componentDidMount)
            
         }
@@ -79,11 +79,11 @@ export default class ProjectList extends Component {
 
     loadProjectCount() {
         const ctx = this
-        const { isAdmin } = this.state;
+        const { total } = this.state;
         const params = {};
-        if(isAdmin){
-            params.isAdmin = isAdmin;
-        }
+        
+        params.total = total;
+        
         const userId = utils.getCookie('dt_user_id')
         Api.getProjectInfo(params).then((res) => {
             ctx.setState({
@@ -122,11 +122,9 @@ export default class ProjectList extends Component {
 
     loadProjectStoreTop5() {
         const ctx = this;
-        const { isAdmin } = this.state;
+        const { total } = this.state;
         const params = { top: 5 };
-        if(isAdmin){
-            params.isAdmin = isAdmin;
-        }
+        params.total = total;
         TableDataApi.getProjectStoreTop(params).then((res) => {
             if (res.code === 1) {
                 ctx.drawStoreTop5(res.data)
@@ -136,11 +134,9 @@ export default class ProjectList extends Component {
 
     loadProjectTableTop5() {
         const ctx = this
-        const { isAdmin } = this.state;
+        const { total } = this.state;
         const params = { top: 5 };
-        if(isAdmin){
-            params.isAdmin = isAdmin;
-        }
+        params.total = total;
         TableDataApi.getProjectTableStoreTop(params).then((res) => {
             if (res.code === 1) {
                 ctx.drawTableTop5(res.data)
