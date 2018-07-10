@@ -17,7 +17,7 @@ class Index extends Component {
     }
 
     onChange = (e) => {
-        this.setState({isAdmin: e.target.checked})
+        this.setState({total: e.target.checked})
       }
 
     render() {
@@ -30,7 +30,7 @@ class Index extends Component {
                     </span>&nbsp;&nbsp;&nbsp;&nbsp;
                     <Checkbox onChange={this.onChange}>只看我参与的项</Checkbox>
                 </h1>
-                <Overview {...this.props} isAdmin={this.state.isAdmin}/>
+                <Overview {...this.props} total={!this.state.total}/>
             </div>
         )
     }
