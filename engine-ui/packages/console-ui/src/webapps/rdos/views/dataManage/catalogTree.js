@@ -174,18 +174,13 @@ class CatalogueTree extends Component {
                 const isTable = item.type === 'table'
                 const isLeaf = !data.children || data.children.length === 0
                 const isRoot = item.parentId === 0;
-
                 if (isFolderPicker && isTable) {
                     return null;
                 }
-                
                 if(this._expendKeys.indexOf(key+'')==-1){
                     this._expendKeys.push(`${key}`)
                 }
-                
                 if (data.isNew) this._active = key
-                console.log('isPicker : ',!isPicker);
-                
                 const title = !isPicker ? <span
                     title={item.name}
                     onMouseOver={this.mouseOver}
