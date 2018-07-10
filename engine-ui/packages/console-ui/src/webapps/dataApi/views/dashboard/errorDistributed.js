@@ -21,7 +21,7 @@ const errorDic = [
     {
         code: "unauthorize",
         name: "未认证",
-        color: "#EE4000"
+        color: "rgba(244,67,54,0.9)"
     },
     {
         code: "paramerror",
