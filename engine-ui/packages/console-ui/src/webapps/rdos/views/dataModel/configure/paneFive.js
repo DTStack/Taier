@@ -153,7 +153,7 @@ class ModelDefineRule extends Component {
             const rule = tbNameRules[i];
             switch(rule.value) {
                 case TABLE_MODEL_RULE.LEVEL: {
-                    names.push('ODS'); continue;
+                    names.push('ods'); continue;
                 }
                 case TABLE_MODEL_RULE.SUBJECT: {
                     names.push('sales'); continue;
@@ -162,7 +162,7 @@ class ModelDefineRule extends Component {
                     names.push('i'); continue;
                 }
                 case TABLE_MODEL_RULE.FREQUENCY: {
-                    names.push('M'); continue;
+                    names.push('m'); continue;
                 }
                 case TABLE_MODEL_RULE.CUSTOM: {
                     names.push('custom'); continue;

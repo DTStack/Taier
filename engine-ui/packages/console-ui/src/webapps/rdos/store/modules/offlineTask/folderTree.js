@@ -270,10 +270,20 @@ export const scriptTreeReducer = (state = {}, action) => {
             return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
         }
 
-        case taskTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
+        case scriptTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
             const updated = cloneDeep(state)
             replaceTreeNode(updated, action.payload)
             return updated;
+        }
+
+        case scriptTreeAction.MERGE_FOLDER_CONTENT: {
+            const data = action.payload;
+            if (state.children) {
+                const origin = cloneDeep(state);
+                mergeTreeNodes(origin, data);
+                return origin;
+            }
+            return Object.assign({}, data)
         }
 
         default:

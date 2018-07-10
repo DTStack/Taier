@@ -5,7 +5,6 @@ import { debounce } from 'lodash';
 
 import utils from "utils";
 
-import ajax from '../../../../../api';
 import { jsonEditorOptions, } from "../../../../../comm/const";
 import CodeEditor from '../../../../../components/code-editor';
 import Toolbar from "./toolbar.js";
@@ -74,7 +73,8 @@ class DataSyncScript extends Component {
 
     render() {
         const { merged, sqlText, cursor } = this.props;
-
+        // TODO 最好默认不处理格式
+        const formated = utils.jsonFormat(sqlText);
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">
@@ -89,8 +89,7 @@ class DataSyncScript extends Component {
                                 options={jsonEditorOptions}
                                 cursor={cursor}
                                 onChange={this.debounceChange}
-                                value={sqlText}
-
+                                value={formated}
                             />
                         </div>
                     }

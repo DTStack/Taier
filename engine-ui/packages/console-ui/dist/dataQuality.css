@@ -437,6 +437,10 @@
   padding-left: 136px;
 }
 
+.m-table.m-table-showselect .ant-table-thead .ant-table-selection-column > span {
+  visibility: unset;
+}
+
 .m-table .ant-pagination {
   margin-right: 20px !important;
 }
@@ -764,6 +768,7 @@ table {
 .container-relative .container {
   position: relative;
   overflow-y: unset;
+  overflow-x: hidden;
 }
 
 .ant-form-inline .ant-form-item-with-help.cell-center {

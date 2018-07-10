@@ -460,6 +460,10 @@ ul,li{
   padding-left: 136px;
 }
 
+.m-table.m-table-showselect .ant-table-thead .ant-table-selection-column > span {
+  visibility: unset;
+}
+
 .m-table .ant-pagination {
   margin-right: 20px !important;
 }

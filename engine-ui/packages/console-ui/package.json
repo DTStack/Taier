@@ -82,7 +82,8 @@
     "test": "test",
     "release": "./scripts/build.sh",
     "ssh": "./scripts/ssh_server.sh",
-    "hotfix": "./scripts/hotfix.sh --b"
+    "hotfix": "./scripts/hotfix.sh --b",
+    "scp": "./scripts/scp.sh"
   },
   "keywords": [
     "generator",

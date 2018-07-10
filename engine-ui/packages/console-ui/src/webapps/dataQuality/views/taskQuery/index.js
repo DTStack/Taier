@@ -9,6 +9,7 @@ import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
 
 import { TaskStatus } from '../../components/display';
+import { TASK_STATUS } from '../../consts';
 import { taskStatusFilter } from '../../consts';
 import { taskQueryActions } from '../../actions/taskQuery';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -61,6 +62,38 @@ export default class TaskQuery extends Component {
         this.props.getDataSourcesList();
     }
 
+    renderLogInfo = (status, record) => {
+        const { visibleList } = this.state;
+        let title = '';
+        let icon = 'close-circle-o';
+        if (status === TASK_STATUS.FAIL) {
+            title = <a 
+            className="tooltip_content_a" 
+            onClick={this.showDetailLogInfo.bind(this, record.id, record.tableName, record.logInfo)}>
+                { record.logInfo || '空' }
+            </a>;
+        } else if (status === TASK_STATUS.UNPASS) {
+            title = <span
+                className="tooltip_content_a" 
+            >
+                {record.logInfo || '空'}
+                <a onClick={this.openSlidePane.bind(this, record)}>查看详情</a>
+            </span>
+            icon = 'exclamation-circle-o';
+        } else { return null }
+        return (
+            <Tooltip
+                placement="right"
+                visible={visibleList.indexOf(record.id) > -1 ? true : false}
+                onVisibleChange={this.tooltipChange.bind(this, record.id)}
+                title={title}
+                overlayStyle={{ wordBreak: 'break-word' }}
+            >
+                <Icon className="font-14" type={icon} />
+            </Tooltip>
+        )
+    }
+
     // table设置
     initColumns = () => {
         const { visibleList, params } = this.state;
@@ -85,26 +118,10 @@ export default class TaskQuery extends Component {
             width: '10%',
             dataIndex: 'status',
             key: 'status',
-            render: (text, record) => {
+            render: (status, record) => {
                 return <div>
-                    <TaskStatus style={{ marginRight: 30 }} value={text} />
-                    {
-                        text === 2
-                        &&
-                        <Tooltip
-                            placement="right"
-                            visible={visibleList.indexOf(record.id) > -1 ? true : false}
-                            onVisibleChange={this.tooltipChange.bind(this, record.id)}
-                            title={
-                                (
-                                    <a className="tooltip_content_a" onClick={this.showDetailLogInfo.bind(this, record.id, record.tableName, record.logInfo)}>{record.logInfo}</a>
-                                )
-                            }
-                            overlayStyle={{ wordBreak: 'break-word' }}
-                        >
-                            <Icon className="font-14" type="info-circle-o" />
-                        </Tooltip>
-                    }
+                    <TaskStatus style={{ display: 'inline-block', width: '80px' }} value={status} />
+                    { this.renderLogInfo(status, record) }
                 </div>
             },
             filters: taskStatusFilter,
@@ -281,6 +298,7 @@ export default class TaskQuery extends Component {
         this.props.getTaskList(params);
         this.setState({ params });
     }
+
     showDetailLogInfo(id, tableName, info) {
         this.tooltipChange(id, false);
         Modal.error({
@@ -293,6 +311,7 @@ export default class TaskQuery extends Component {
             ),
         });
     }
+
     tooltipChange(id, show) {
 
         const { visibleList } = this.state;
@@ -350,8 +369,6 @@ export default class TaskQuery extends Component {
         if (executeStartTime && executeEndTime) {
             defaultRangeValue = [moment(parseInt(executeStartTime)), moment(parseInt(executeEndTime))]
         }
-        
-        console.log('showSlidePane:', showSlidePane)
 
         const cardTitle = (
             <div className="flex font-12">

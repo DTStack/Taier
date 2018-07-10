@@ -2,6 +2,7 @@
 import { RDOS_BASE_URL } from 'config/base';
 
 export default {
+
     // ===== 用户模块 ===== //
     // LOGIN: `${RDOS_BASE_URL}/user/login`,
     ADD_ROLE_USRE: `${RDOS_BASE_URL}/common/roleUser/addRoleUser`, // 项目用户
@@ -33,6 +34,8 @@ export default {
     GET_ROLE_INFO: `${RDOS_BASE_URL}/common/permission/getPermissionIdsByRoleId`, // 获取角色信息
 
     // ========================= 实时任务 ========================= //
+    SQL_FORMAT: `${RDOS_BASE_URL}/stream/streamTask/sqlFormat`,
+
     // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/stream/streamTask/addOrUpdateTask`, // 添加或者更新任务
     FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/stream/streamTask/forceUpdate`, // 强制更新

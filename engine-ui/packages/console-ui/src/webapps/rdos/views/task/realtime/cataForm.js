@@ -45,7 +45,6 @@ class CataFormModal extends Component {
             savePath = isEdit ? defaultData.parentId : defaultData.id;
         }
 
-        console.log('savePath', savePath)
         return (
             <Modal
               title={title}

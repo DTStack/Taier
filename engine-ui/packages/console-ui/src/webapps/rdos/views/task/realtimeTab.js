@@ -63,6 +63,8 @@ class RealTimeTabPane extends Component {
         visibleFn: false,
         visibleMoveFn: false,
         visibleFnInfo: false,
+        expandedKeys: [],
+        expandedKeys2: [],
     }
 
     componentDidMount() {
@@ -80,6 +82,18 @@ class RealTimeTabPane extends Component {
             dispatch(TreeAction.getRealtimeTree(rootNode))
             dispatch(ResAction.getResources())
         }
+    }
+
+    onExpand = (expandedKeys) => {
+        this.setState({
+            expandedKeys,
+        })
+    }
+
+    onExpand2 = (expandedKeys) => {
+        this.setState({
+            expandedKeys2: expandedKeys,
+        })
     }
 
     loadTaskTypes = () => {
@@ -351,12 +365,64 @@ class RealTimeTabPane extends Component {
 
     loadTreeData = (treeNode) => {
         const { dispatch } = this.props
-        const treeType = treeNode.props.treeType
         const node = treeNode.props.data
         return new Promise((resolve) => {
             dispatch(TreeAction.getRealtimeTree(node))
             resolve();
         })
+    }
+
+    locateFilePos = () => {
+        let checkedPath = ''; // 路径存储
+        const { currentTab } = this.props;
+        if (!currentTab) return;
+
+        const hasPath = (data, id, path) => {
+
+            if (!data) return false;
+            path = `${path ? path + '-' : path}${data.id}`
+            if (data && data.id === id) {
+                checkedPath = path;
+                return true;
+            }
+
+            if (data.children) {
+                const children = data.children
+                for (let i = 0; i < children.length; i += 1) {
+                    if (hasPath(children[i], id, path)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        const getExpandedKey = (path) => {
+            const arr = path && path.split('-');
+            return arr && arr.map(p => `${type}-${p}`);
+        }
+
+        Api.locateCataPosition({
+            id,
+            catalogueType: type,
+            name: name,
+        }).then(res => {
+            if (res.code === 1 && res.data) {
+                const data = res.data.children[0];
+                let path = '';
+                if (hasPath(data, currentTab, path)) {
+                    const keys = getExpandedKey(checkedPath);
+                    this.setState({
+                        expandedKeys: keys
+                    })
+                }
+                this.props.locateFilePos(data, type);
+            }
+        });
+    }
+
+    reloadTreeNodes = () => {
+
     }
 
     doAction = (action) => {
@@ -407,7 +473,8 @@ class RealTimeTabPane extends Component {
     }
 
     renderTabPanes = () => {
-        const { realtimeTree, dispatch } = this.props;
+        const { realtimeTree, currentPage } = this.props;
+        const { expandedKeys, expandedKeys2 } = this.state;
         const menus = []
         if (realtimeTree && realtimeTree.length > 0) {
             for (let i = 0; i < realtimeTree.length; i++) {
@@ -418,6 +485,19 @@ class RealTimeTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="定位">
+                                    <Icon
+                                        type="environment"
+                                        onClick={() => this.locateFilePos(currentPage.id, null, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => this.reloadTreeNodes(menuItem.children[0].id, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="task:newTask">
@@ -440,6 +520,9 @@ class RealTimeTabPane extends Component {
                                 loadData={this.loadTreeData}
                                 treeData={menuItem.children}
                                 treeType={menuItem.catalogueType}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
+                                selectedKeys={[currentPage.id]}
                             />
                         </div>
                         break;
@@ -466,6 +549,8 @@ class RealTimeTabPane extends Component {
                                 loadData={this.loadTreeData}
                                 treeData={menuItem.children}
                                 treeType={menuItem.catalogueType}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
                             />
                         </div>
                         break;
@@ -499,6 +584,8 @@ class RealTimeTabPane extends Component {
                                 onSelect={this.chooseFn}
                                 treeData={customTreeData ? [customTreeData] : []}
                                 treeType={MENU_TYPE.COSTOMFUC}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
                             />
                             <FolderTree
                                 onRightClick={this.rightClick}
@@ -506,6 +593,8 @@ class RealTimeTabPane extends Component {
                                 onSelect={this.chooseFn}
                                 treeData={systemTreeData ? [systemTreeData] : []}
                                 treeType={MENU_TYPE.SYSFUC}
+                                expandedKeys={expandedKeys2}
+                                onExpand={this.onExpand2}
                             />
                         </div>
                         break;
@@ -527,6 +616,8 @@ class RealTimeTabPane extends Component {
                                 loadData={this.loadTreeData}
                                 treeData={menuItem.children}
                                 treeType={menuItem.catalogueType}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
                             />
                         </div>;
                         break;
@@ -567,7 +658,7 @@ class RealTimeTabPane extends Component {
         } = this.state
 
         const {
-            taskTree, modal, dispatch,
+            taskTree, modal,
             resourceTree, functionTree,
         } = this.props
 
