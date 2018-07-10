@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { Card, Input, Select, Cascader, Table, Modal, Tabs } from "antd"
+import { Card, Input, Select, Cascader, Table, Modal, Tabs, Tooltip } from "antd"
 import { apiMarketActions } from '../../actions/apiMarket';
 import utils from "utils";
 
@@ -251,7 +251,13 @@ class APIMarket extends Component {
             title: '描述',
             dataIndex: 'description',
             key: 'description',
-            width: 300
+            width: 300,
+            render(text) {
+                const desc = (text && text.length > 21) ? (<Tooltip title={text}>
+                    <span>{`${text.substr(0, 21)}......`}</span>
+                </Tooltip>) : text;
+                return desc;
+            }
         }, {
             title: '累计调用（次）',
             dataIndex: 'callCount',
@@ -390,7 +396,7 @@ class APIMarket extends Component {
                         onClose={this.closeSlide.bind(this)}>
                         <Tabs
                             animated={false}
-                            
+
                         >
                             <Tabs.TabPane tab="API详情" key="callMethod">
                                 <div style={{ paddingLeft: "40px", paddingTop: "20px" }}>

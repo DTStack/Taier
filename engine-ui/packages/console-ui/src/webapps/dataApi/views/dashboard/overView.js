@@ -93,15 +93,10 @@ class TopCall extends Component {
             yAxisIndex: 1,
             itemStyle: {
                 normal: {
-                    color: '#EE0000'
+                    color: 'rgba(244,67,54,0.9)'
                 }
             },
         }];
-
-
-
-
-
 
         option.xAxis[0].data = times;
         console.log(option)
