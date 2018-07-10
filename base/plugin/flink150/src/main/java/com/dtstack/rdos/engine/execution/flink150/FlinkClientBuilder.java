@@ -64,6 +64,8 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
+    private YarnClient yarnClient;
+
     private FlinkClientBuilder() {
     }
 
@@ -273,10 +275,6 @@ public class FlinkClientBuilder {
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory) {
-        final YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(yarnConfiguration);
-        yarnClient.start();
-
         if (FlinkYarnMode.NEW == FlinkYarnMode.mode(flinkMode) || FlinkYarnMode.PER_JOB == FlinkYarnMode.mode(flinkMode)) {
             return new YarnClusterDescriptor(
                     configuration,
@@ -367,5 +365,9 @@ public class FlinkClientBuilder {
             throw new RdosException("Configuration directory not set");
         }
         return FLinkConf.createClusterSpecification(flinkConfiguration);
+    }
+
+    public void setYarnClient(YarnClient yarnClient) {
+        this.yarnClient = yarnClient;
     }
 }

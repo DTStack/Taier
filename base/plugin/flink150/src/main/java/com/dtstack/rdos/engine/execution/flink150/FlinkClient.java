@@ -64,6 +64,7 @@ import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.http.HttpStatus;
 import org.apache.http.conn.HttpHostConnectException;
@@ -135,6 +136,8 @@ public class FlinkClient extends AbsClient {
 
     private FlinkYarnMode flinkYarnMode;
 
+    private YarnClient yarnClient;
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -150,6 +153,9 @@ public class FlinkClient extends AbsClient {
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
 
         boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
+        if (yarnCluster){
+            initYarnClient();
+        }
         flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
         boolean yarnSessionMode = yarnCluster && (flinkYarnMode == FlinkYarnMode.LEGACY||flinkYarnMode == FlinkYarnMode.NEW);
         if(!yarnCluster || yarnSessionMode){
@@ -169,6 +175,14 @@ public class FlinkClient extends AbsClient {
             //启动守护线程---用于获取当前application状态和更新flink对应的application
             yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClusterDescriptor, yarnMonitorES));
         }
+    }
+
+    private void initYarnClient() {
+        yarnClient = YarnClient.createYarnClient();
+        yarnClient.init(yarnConf);
+        yarnClient.start();
+
+        flinkClientBuilder.setYarnClient(yarnClient);
     }
 
     public void initClient(){
