@@ -410,7 +410,7 @@ export default class ProjectList extends Component {
 }
 
 function Abstract(props) {
-    const { project, projectTable, projectStore } = props
+    const { project, projectTable, projectStore,total } = props
     return (
         <Row gutter={32}>
             <Col span={6} style={{ marginLeft:10 }}>
@@ -420,7 +420,7 @@ function Abstract(props) {
                     </div>
                     <div className="left indicator-detail">
                         <section className="indicator-title">总项目数</section>
-                        <section className="indicator-content">{project.joinProjects || 0}</section>
+                        <section className="indicator-content">{ total ? project.allProjects || 0 :project.joinProjects || 0 }</section>
                     </div>
                 </div>
             </Col>
