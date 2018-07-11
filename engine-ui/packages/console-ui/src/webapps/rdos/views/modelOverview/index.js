@@ -123,7 +123,7 @@ class Index extends Component {
                 <Col span="20" >
                     <Link to={`/offline/task?projectId=${data.id}`}>
                         <span className="company-name" onClick={()=>{this.setRouter('operation',data)}}>
-                            {data.projectName}&nbsp;&nbsp;
+                            {data.projectAlias}&nbsp;&nbsp;
                         </span>
                     </Link>
                     {
@@ -134,7 +134,7 @@ class Index extends Component {
                         </span>
                         :
                         <span style={{ color: '#999' }}>
-                            { `(${data.projectAlias})` }
+                            { `(${data.projectName})` }
                         </span> 
                     }
                 </Col>
@@ -196,7 +196,7 @@ class Index extends Component {
                             <div className="sortTitle">
                                 <span  className="faileSort" style={sortTitleStatus == 2 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('faileSort')}}>按任务失败数排序</span>
                                  <span className="faileSort">|</span>
-                                <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认顺序</span>
+                                <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认排顺</span>
                             </div>
                         </Col>
                     </Row>
