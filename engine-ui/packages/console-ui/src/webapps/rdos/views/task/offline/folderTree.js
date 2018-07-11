@@ -16,7 +16,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import { taskTypeIcon, resourceTypeIcon } from '../../../comm'
-import { TASK_TYPE, MENU_TYPE } from '../../../comm/const'
+import { MENU_TYPE } from '../../../comm/const'
 
 const { TreeNode } = Tree;
 const confirm = Modal.confirm;
@@ -413,8 +413,6 @@ class FolderTree extends React.Component {
         const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
         const treeType = type;
 
-        console.log('treeData', treeData)
-
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
 
@@ -475,6 +473,8 @@ class FolderTree extends React.Component {
             type, placeholder, currentTab,
             onExpand, expandedKeys,
         } = this.props;
+
+        console.log('expandedKeys', expandedKeys)
 
         return (
             <div>

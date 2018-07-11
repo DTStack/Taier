@@ -134,9 +134,6 @@ class OfflineTaskMana extends Component {
             return false;
         }
 
-        console.log('selected:',selected);
-            
-       
         Api.forzenTask({
             taskIdList: selected, 
             scheduleStatus: mode  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
@@ -309,7 +306,7 @@ class OfflineTaskMana extends Component {
             dataIndex: 'userName',
             key: 'userName',
             render: (text, record) => {
-                return <span>{record.createUser && record.createUser.userName}</span>
+                return <span>{record.ownerUser && record.ownerUser.userName}</span>
             },
         }, {
             title: '操作',

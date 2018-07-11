@@ -44,7 +44,6 @@ import {
     }
 
     onCheck = (checkedKeys) => {
-        console.log('onCheck:', checkedKeys)
         this.setState({ checkedKeys }, () => {
             // 只需要叶子节点即可
             // const arr = this.getLeafNodes(checkedKeys)

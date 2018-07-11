@@ -45,8 +45,6 @@ class SQLEditor extends Component {
     }
 
     changeTab = (state) => {
-        console.log('changeTab',state);
-        
         let { changeTab } = this.state;
         if(state){
             changeTab = true;

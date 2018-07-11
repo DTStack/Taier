@@ -18,7 +18,6 @@ import Api from '../../../../../api';
 
 import { 
     hdfsFieldTypes, 
-    formItemLayoutm, 
     DATA_TYPE_ARRAY, 
     DATA_SOURCE,
 } from '../../../../../comm/const';
@@ -195,9 +194,9 @@ class Keymap extends React.Component{
     renderLines() {
         const { w, h, W, padding } = this.state;
         const { 
-            targetCol, sourceCol, keymap, 
-            sourceSrcType, sourceFileType, 
-            targetSrcType, targetFileType 
+            keymap, 
+            sourceSrcType,
+            targetSrcType,  
         } = this.props;
         const { source, target } = keymap;
         const $dagL = selectAll('.col-dag-l');
@@ -434,7 +433,7 @@ class Keymap extends React.Component{
         const { w, h, W, H, padding } = this.state;
 
         const { 
-            targetCol, sourceCol, keymap,
+            sourceCol, keymap,
             sourceSrcType, sourceFileType,
             removeSourceKeyRow, readonly,
         } = this.props;
@@ -890,13 +889,12 @@ class Keymap extends React.Component{
 
         const {
             targetCol, sourceCol, keymap, 
-            sourceSrcType, sourceFileType, 
+            sourceSrcType, 
             navtoStep, targetSrcType, 
             addSourceKeyRow,
         } = this.props;
 
         const H = h * (Math.max(targetCol.length, sourceCol.length) + 1);
-        const { source, target } = keymap;
 
         return <div>
             <p style={{ fontSize: 12, color: '#ccc', marginTop: -20 }}>
@@ -1248,7 +1246,7 @@ class Keymap extends React.Component{
         const { rowMap, nameMap } = this.state;
         const { 
             targetCol, sourceCol, sourceSrcType, 
-            sourceFileType, targetSrcType, targetFileType, 
+            targetSrcType,
         } = this.props;
 
         const convertColumn2Keymap_s = (column) => {

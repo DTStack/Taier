@@ -16,7 +16,6 @@ import {
 
 const FormItem = Form.Item
 const Option = Select.Option
-const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group;
 
 

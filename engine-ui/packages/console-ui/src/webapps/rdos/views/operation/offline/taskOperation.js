@@ -452,8 +452,8 @@ class OfflineTaskList extends Component {
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
-                return record.batchTask && record.batchTask.createUser
-                    && record.batchTask.createUser.userName
+                return record.batchTask && record.batchTask.ownerUser
+                    && record.batchTask.ownerUser.userName
             }
         }]
     }

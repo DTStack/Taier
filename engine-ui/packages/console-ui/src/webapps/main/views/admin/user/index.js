@@ -20,7 +20,6 @@ import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
 const Option = Select.Option
-const TabPane = Tabs.TabPane
 
 @connect(state => {
     return {
@@ -72,7 +71,9 @@ class AdminUser extends Component {
             this.getProjects(active);
         } else if (!selectedProject && !hasProject(app)) {
             this.loadUsers(active, params);
-            this.loadRoles(active, params);
+            this.loadRoles(active, assign(params, {
+                currentPage: 1,
+            }));
         } else {
             params.projectId = selectedProject;
             this.loadUsers(active, params);

@@ -51,11 +51,14 @@ class OfflineTabPane extends Component {
         const newData = nextProps.project
         if (newData && (!old || (old.id !== 0 && old.id !== newData.id))) {
             this.getCatelogue();
+            this.setState({
+                expandedKeys: [],
+                expandedKeys2: [],
+            })
         }
     }
 
-    onExpand = (expandedKeys, { expanded, node }) => {
-        console.log('onExpand', expandedKeys, expanded, node)
+    onExpand = (expandedKeys) => {
         this.setState({
             expandedKeys,
         })
@@ -262,8 +265,6 @@ class OfflineTabPane extends Component {
 
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
-
-        console.log('taskTreeData', taskTreeData)
 
         const menus = []
         if (subMenus && subMenus.length > 0) {
