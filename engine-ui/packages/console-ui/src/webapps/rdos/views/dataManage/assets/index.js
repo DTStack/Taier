@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { Checkbox } from "antd" 
-import { setProject } from '../../../store/modules/project'
 
 import Overview from './overview'
 
@@ -12,13 +11,9 @@ class Index extends Component {
         isAdmin: false
     }
 
-    componentDidMount() {
-        this.props.dispatch(setProject({ id: 0 }))
-    }
-
     onChange = (e) => {
         this.setState({total: e.target.checked})
-      }
+    }
 
     render() {
         return (

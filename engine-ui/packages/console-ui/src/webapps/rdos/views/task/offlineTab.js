@@ -88,7 +88,6 @@ class OfflineTabPane extends Component {
             (currentTabData.scriptText !== undefined && type === MENU_TYPE.TASK_DEV)
         ) return;
 
-
         const hasPath = (data, id, path) => {
 
             if (!data) return false;

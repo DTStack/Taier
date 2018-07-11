@@ -61,7 +61,8 @@ export default {
     UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录
     ADD_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/addCatalogue`, // 新增目录
     DELETE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/deleteCatalogue`, // 删除目录
-    
+    GET_STREAM_CATALOGUE_BY_LOCATION: `${RDOS_BASE_URL}/stream/streamCatalogue/getLocation`,
+
     CREATE_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/addFunction`, // 添加函数
     GET_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/getFunction`, // 获取函数
     DELETE_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/deleteFunction`, // 删除加函数

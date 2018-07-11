@@ -25,5 +25,8 @@ export default {
     getCheckReportTable(params) {
         return http.post(req.GET_CHECK_REPORT_TABLE, params);
     },
+    updateTaskParams(params) {
+        return http.post(req.UPDATE_CHECK_ENV_PARAMS, params);
+    },
 
 }

@@ -37,4 +37,5 @@ export const treeAction = mc([
     'UPDATE_REALTIME_TREE_NODE',
     'UPDATE_REALTIME_TREE',
     'REMOVE_REALTIME_TREE_NODE',
+    'MERGE_REALTIME_TREE',
 ], { prefix: 'realtimeTask/tree/' })

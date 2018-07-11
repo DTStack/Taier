@@ -1,10 +1,9 @@
 import { cloneDeep, assign } from 'lodash'
 
 import Api from '../../../api'
-import { MENU_TYPE } from '../../../comm/const'
-import { replaceTreeNode, removeTreeNode } from '../../../comm'
+import { replaceTreeNode, removeTreeNode, mergeTreeNodes } from 'funcs'
 
-import { treeAction, resAction } from './actionTypes'
+import { treeAction, } from './actionTypes'
 
 /* eslint-disable */
 const defaultReqParams = { isGetFile: true, nodePid: 0 }
@@ -53,6 +52,12 @@ export function updateRealtimeTree(tree) {
         data: tree,
     }
 }
+export function mergeRealtimeTree(tree) {
+    return {
+        type: treeAction.MERGE_REALTIME_TREE,
+        data: tree,
+    }
+}
 
 export function updateRealtimeTreeNode(node) {
     return {
@@ -73,13 +78,20 @@ export function realtimeTree(state = {}, action) {
         }
         return updated
     }
-    case treeAction.UPDATE_REALTIME_TREE_NODE:
+    case treeAction.UPDATE_REALTIME_TREE_NODE: {
         const updated = cloneDeep(state)
         replaceTreeNode(updated, action.data)
         return updated
-    case treeAction.UPDATE_REALTIME_TREE:
-         const tree = assign({}, action.data)
-         return tree
+    }
+    case treeAction.MERGE_REALTIME_TREE: {
+        const updated = cloneDeep(state)
+        mergeTreeNodes(updated, action.data)
+        return updated
+    }
+    case treeAction.UPDATE_REALTIME_TREE: {
+        const tree = assign({}, action.data)
+        return tree
+    }
     case treeAction.REMOVE_REALTIME_TREE_NODE: {
         const removed = [cloneDeep(state)]
         if (action.data) {

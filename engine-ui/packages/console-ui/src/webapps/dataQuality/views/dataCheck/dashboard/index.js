@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, Popconfirm, message, Card, Tooltip } from 'antd';
-import moment from 'moment';
+import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, message, Card, Tooltip } from 'antd';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { DataCheckStatus } from '../../../components/display';
 import { CHECK_STATUS, CHECK_STATUS_CN, DATA_SOURCE } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
+import EnvModal from '../../envModal';
+
 import '../../../styles/views/dataCheck.scss';
 
 const Search = Input.Search;
@@ -37,7 +38,10 @@ export default class DataCheck extends Component {
             pageSize: 20,
             tableName: undefined,
             lastModifyUserId: undefined,
-            executeTime: undefined
+            executeTime: undefined,
+
+            visibleEnvModal: false,
+            selectedRecord: '',
         }
     }
 
@@ -83,7 +87,7 @@ export default class DataCheck extends Component {
                 return text ? text : '--';
             }
         }, {
-            title: <div>
+            title: <span>
                 校验结果
                 <Tooltip 
                     placement="bottom" 
@@ -98,22 +102,23 @@ export default class DataCheck extends Component {
                 >
                     <Icon className="font-12 m-l-8" type="question-circle-o" />
                 </Tooltip>
-            </div>,
+            </span>,
             dataIndex: 'status',
             key: 'status',
             width: '10%',
             render: (text, record) => {
                 return (
                     text == 3 ?
-                    <div className="flex">
+                    <span>
                         <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
+                        &nbsp;
                         <Tooltip 
                             placement="right" 
                             title={record.report}
                             overlayClassName="m-tooltip">
                             <Icon className="font-14" type="info-circle-o" />
                         </Tooltip>
-                    </div>
+                    </span>
                     :
                     <DataCheckStatus value={text} />
                 )   
@@ -141,7 +146,6 @@ export default class DataCheck extends Component {
                     overlayClassName="m-tooltip"
                     title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
                 >
-                    
                     <Icon className="font-12 m-l-8" type="question-circle-o" />
                 </Tooltip>
             </div>,
@@ -181,7 +185,10 @@ export default class DataCheck extends Component {
                         {
                             record.dataSourceType === DATA_SOURCE.HIVE && 
                             <Menu.Item>
-                                <a>环境参数</a>
+                                <a onClick={() => { this.setState({
+                                    selectedRecord: record,
+                                    visibleEnvModal: true,
+                                })}}>环境参数</a>
                             </Menu.Item>
                         }
                         {/* <Menu.Item>
@@ -222,6 +229,26 @@ export default class DataCheck extends Component {
         })
     }
 
+    // 修改任务参数
+    updateEnvParams = (value) => {
+        if (!value) {
+            message.error('环境参数为空！');
+            return; 
+        }
+        const { selectedRecord } = this.state;
+
+        DCApi.updateTaskParams({ verifyId: selectedRecord.verifyId, taskParams: value, }).then((res) => {
+            if (res.code === 1) {
+                message.success('修改环境参数成功');
+                this.setState({
+                    visibleEnvModal: false,
+                    selectedRecord: '',
+                });
+                this.props.getLists(this.state.params);
+            }
+        });
+    }
+    
     // 表格回调
     onTableChange = (page, filter, sorter) => {
         let params = {...this.state.params, 
@@ -341,7 +368,8 @@ export default class DataCheck extends Component {
         const { userList } = common;
         const { sourceList } = dataSource;
         const { lists, loading } = dataCheck;
-        const { params } = this.state;
+
+        const { params, visibleEnvModal, selectedRecord } = this.state;
 
         const pagination = {
             current: params.currentPage,
@@ -445,7 +473,18 @@ export default class DataCheck extends Component {
                         />
                     </Card>
                 </div>
-
+                <EnvModal 
+                    key="ruleConfigEnvModal"
+                    title="配置环境参数"
+                    visible={visibleEnvModal}
+                    onCancel={
+                        () => this.setState({
+                            visibleEnvModal: false,
+                        })
+                    }
+                    value={selectedRecord && selectedRecord.taskParams}
+                    onOk={this.updateEnvParams}
+                />
         	</div>
         )
     }
