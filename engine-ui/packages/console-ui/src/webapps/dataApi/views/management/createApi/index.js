@@ -316,7 +316,14 @@ class NewApi extends Component {
         const { pageNo, pageSize, ...other } = values;
         params.pageNo = pageNo;
         params.pageSize = pageSize;
-        params.inFields = other;
+        const keys=Object.entries(other);
+        const inFields={};
+        keys.map(
+            ([key,value])=>{
+                inFields[key]=value||undefined;
+            }
+        )
+        params.inFields = inFields;
         this.setState({
             isSaveResult:false
         })
