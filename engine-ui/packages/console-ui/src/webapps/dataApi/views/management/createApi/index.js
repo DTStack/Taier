@@ -256,7 +256,7 @@ class NewApi extends Component {
                     if (res) {
                         message.success("保存成功！")
                         if (back) {
-                            this.props.router.goBack();
+                            this.props.router.push("/api/manage");
                         }
                     }
                 }
@@ -405,7 +405,7 @@ class NewApi extends Component {
 
         return (
             <div className="m-card g-datamanage">
-                <h1 className="box-title"> <GoBack></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
+                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
                 {loading ? <div style={{ textAlign: "center", marginTop: "400px" }}>
                     <Spin size="large" />
                 </div> : <Card

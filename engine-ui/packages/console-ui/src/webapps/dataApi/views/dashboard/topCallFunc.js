@@ -6,16 +6,21 @@ class TopCall extends Component {
     getDataSource(){
         return this.props.data||[];
     }
-    openNewDetail(text){
+    openNewDetail(text,apiName){
         if(this.props.idAdmin){
             this.props.router.push({
-                pathname:'/api/manage/detail/'+text
+                pathname:'/api/manage',
+                state:{
+                    apiName:apiName,
+                    apiId:text
+                }
             })
             return;
         }
         this.props.router.push({
             pathname:'/api/mine/approved',
             query:{
+                apiName:apiName,
                 apiId:text
             }
         })
@@ -51,7 +56,7 @@ class TopCall extends Component {
                         key: 'apiName',
                         className: "color-666",
                         render:(text,record)=> {
-                            return <a onClick={this.openNewDetail.bind(this,record.id)}>{text}</a>
+                            return <a onClick={this.openNewDetail.bind(this,record.id,record.apiName)}>{text}</a>
                         }
                     }, {
                         title: '调用次数',

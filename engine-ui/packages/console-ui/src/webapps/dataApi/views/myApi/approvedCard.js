@@ -36,7 +36,7 @@ class ApprovedCard extends Component {
         sortedInfo: {},
         filterInfo: {},
         showRecord: {},
-        apiName: "",
+        apiName: utils.getParameterByName("apiName"),
         applyBox: false,
         applyRecord: {}
 
@@ -374,7 +374,7 @@ class ApprovedCard extends Component {
     }
 
     render() {
-        const { applyBox, applyRecord } = this.state;
+        const { applyBox, applyRecord,apiName } = this.state;
 
         return (
             <div>
@@ -419,6 +419,7 @@ class ApprovedCard extends Component {
                             placeholder="输入API名称搜索"
                             style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
                             onSearch={this.handleApiSearch.bind(this)}
+                            defaultValue={apiName}
                         />
                     </div>
                     <Table
