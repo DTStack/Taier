@@ -48,7 +48,7 @@ function TaskInfo(props) {
                 <Col span="10" className="txt-right">责任人：</Col>
                 <Col span="14">
                     {
-                        taskInfo.owneruser && taskInfo.owneruser.userName
+                        taskInfo.ownerUser && taskInfo.ownerUser.userName
                     } <a onClick={props.modifyTaskOwner}>修改</a>
                 </Col>
             </Row>

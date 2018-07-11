@@ -29,7 +29,6 @@ class FolderTree extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handleChange = this.props.onChange;
     }
 
     onLoadData(type, treeNode) {
@@ -42,7 +41,6 @@ class FolderTree extends React.Component {
                 resolve();
                 return;
             }
-            ctx._asyncLoadData = true;
             loadTreeNode(data.id, cataType);
             resolve();
         });
@@ -428,6 +426,7 @@ class FolderTree extends React.Component {
                     return o.type === 'folder';
                 });
             }
+            console.log('loop data', data)
 
             return <TreeNode
                 title={
@@ -471,10 +470,8 @@ class FolderTree extends React.Component {
     render() {
         const { 
             type, placeholder, currentTab,
-            onExpand, expandedKeys,
+            onExpand, expandedKeys, onChange
         } = this.props;
-
-        console.log('expandedKeys', expandedKeys)
 
         return (
             <div>
@@ -487,7 +484,7 @@ class FolderTree extends React.Component {
                         showSearch={ !this.props.isFilepicker }
                         showIcon={ true }
                         loadData={ this.onLoadData.bind(this, type) }
-                        onChange={ this.handleChange }
+                        onChange={ onChange }
                         defaultValue={ this.props.defaultNode }
                         getPopupContainer={() => this.selEle }
                         placeholder={placeholder}
