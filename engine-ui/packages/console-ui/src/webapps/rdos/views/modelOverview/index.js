@@ -201,7 +201,7 @@ class Index extends Component {
                             <div className="sortTitle">
                                 <span  className="faileSort" style={sortTitleStatus == 2 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('faileSort')}}>按任务失败数排序</span>
                                  <span className="faileSort">|</span>
-                                <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认排顺</span>
+                                <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认排序</span>
                             </div>
                         </Col>
                     </Row>
@@ -214,7 +214,7 @@ class Index extends Component {
                                                     <Card  className="general-card" title={this.generalTitle(v)}>
                                                         <Row className="card-content">
                                                             <Col span="18">
-                                                                <div className="statistics" >已发布/总任务数： {`${v.taskCountMap.allCount}/${v.taskCountMap.submitCount}`}</div>
+                                                                <div className="statistics" >已发布/总任务数： {`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</div>
                                                                 <div className="statistics" >表数量： {v.tableCount}</div>
                                                                 <div className="statistics" >项目占用存储： {v.totalSize}</div>
                                                                 <div className="statistics" >创建时间： {moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</div>
