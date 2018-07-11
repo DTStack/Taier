@@ -31,7 +31,7 @@ class Container extends Component {
     }
 
     componentDidMount() {
-        // window.addEventListener('beforeunload', this.beforeunload, false);
+        window.addEventListener('beforeunload', this.beforeunload, false);
     }
 
     componentWillUnmount() {
@@ -46,7 +46,7 @@ class Container extends Component {
 
     beforeunload = e => {
         /* eslint-disable */
-        const confirmationMessage = "o/";
+        const confirmationMessage = "\o/";
         (e || window.event).returnValue = confirmationMessage; // Gecko + IE
         return confirmationMessage; // Webkit, Safari, Chrome
         /* eslint-disable */

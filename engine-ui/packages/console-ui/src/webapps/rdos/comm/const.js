@@ -74,10 +74,11 @@ export const PROJECT_ROLE = { // 项目角色
     VISITOR: 4, // 访客
 }
 
-export const DATA_TYPE_ARRAY = [ // sql/oracle/sqlserver
+export const DATA_TYPE_ARRAY = [ // sql/oracle/sqlserver/postgresql
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
+    DATA_SOURCE.POSTGRESQL,
 ]
 
 export const TASK_TYPE = { // 任务类型
