@@ -20,7 +20,7 @@ class NoApprovedCard extends Component {
         sortedInfo: {},
         loading: false,
         showRecord: {},
-        apiName: ""
+        apiName: utils.getParameterByName("apiName")
     }
     getApplyingList(callback) {
         this.setState({
@@ -168,6 +168,7 @@ class NoApprovedCard extends Component {
             })
     }
     render() {
+        const {apiName} = this.state;
         return (
             <div>
                 <div style={{ marginRight: "-20px", position: "relative" }}>
@@ -187,6 +188,7 @@ class NoApprovedCard extends Component {
                             placeholder="输入API名称搜索"
                             style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
                             onSearch={this.handleApiSearch.bind(this)}
+                            defaultValue={apiName}
                         />
                     </div>
                     <Table
