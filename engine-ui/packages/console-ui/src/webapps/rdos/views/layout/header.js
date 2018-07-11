@@ -211,7 +211,7 @@ class Header extends Component {
                             key="data-manage"
                             style={{ display }}
                         >
-                            <a href={`${basePath}/data-manage/search`}>
+                            <a href={`${basePath}/data-manage/assets`}>
                                 数据地图
                             </a>
                         </Menu.Item>

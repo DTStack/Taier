@@ -19,12 +19,14 @@ const defaultPro = {
 class Container extends Component {
     componentWillReceiveProps(nextProps) {
         if(this.props.project && nextProps.project !== this.props.project) {
-            if(window.location.pathname !== '/data-manage/table') {
-                this.props.router.push('/data-manage/table')
-            }
-            else {
-                this.props.searchTable();
-            }
+            // if(window.location.pathname !== '/data-manage/table') {
+            //     this.props.router.push('/data-manage/table')
+            // }
+            // else {
+            //     this.props.searchTable();
+            // }
+            // this.props.searchTable();
+
         }
     }
 

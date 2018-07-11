@@ -55,6 +55,7 @@ export default {
     DELETE_CHECK: `${DQ_BASE_URL}/verify/deleteVerify`,               // 删除逐行校验
     GET_CHECK_REPORT: `${DQ_BASE_URL}/verify/report`,                 // 获取报告信息
     GET_CHECK_REPORT_TABLE: `${DQ_BASE_URL}/verify/reportTable`,      // 获取报告差异表格数据
+    UPDATE_CHECK_ENV_PARAMS: `${DQ_BASE_URL}/verify/updateTaskParams`, // 更新逐行校验环境参数
 
     // ===== 规则配置 ===== //
     GET_MONITOR_LIST: `${DQ_BASE_URL}/monitor/pageQuery`,             // 规则配置列表
@@ -65,7 +66,8 @@ export default {
     GET_MONITOR_DETAIL: `${DQ_BASE_URL}/monitor/detail`,              // 告警信息详情
     RULE_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/remoteTrigger`,      // 远程触发
     EXECUTE_MONITOR: `${DQ_BASE_URL}/monitor/immediatelyExecuted`,    // 立即执行
-    CHECK_MONITOR:`${DQ_BASE_URL}/monitor/checkMonitor`,      // 检测监控对象是否已存在
+    CHECK_MONITOR:`${DQ_BASE_URL}/monitor/checkMonitor`,              // 检测监控对象是否已存在
+    UPDATE_TASK_PARAMS:`${DQ_BASE_URL}/monitor/updateTaskParams`,          //  更新环境参数
 
     GET_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/getRemoteTrigger`,    // 获取配置的远程触发
     ADD_REMOTE_TRIGGER: `${DQ_BASE_URL}/monitor/addRemoteTriger`,     // 新增和更新远程触发

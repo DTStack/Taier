@@ -372,10 +372,10 @@ class RealTimeTabPane extends Component {
         })
     }
 
-    locateFilePos = () => {
+    locateFilePos = (id, type, name) => {
         let checkedPath = ''; // 路径存储
-        const { currentTab } = this.props;
-        if (!currentTab) return;
+        const { currentPage, dispatch } = this.props;
+        if (!currentPage) return;
 
         const hasPath = (data, id, path) => {
 
@@ -398,11 +398,10 @@ class RealTimeTabPane extends Component {
         }
 
         const getExpandedKey = (path) => {
-            const arr = path && path.split('-');
-            return arr && arr.map(p => `${type}-${p}`);
+            return path && path.split('-');
         }
 
-        Api.locateCataPosition({
+        Api.locateStreamCataPosition({
             id,
             catalogueType: type,
             name: name,
@@ -410,19 +409,22 @@ class RealTimeTabPane extends Component {
             if (res.code === 1 && res.data) {
                 const data = res.data.children[0];
                 let path = '';
-                if (hasPath(data, currentTab, path)) {
+                if (hasPath(data, currentPage.id, path)) {
                     const keys = getExpandedKey(checkedPath);
                     this.setState({
                         expandedKeys: keys
                     })
                 }
-                this.props.locateFilePos(data, type);
+                dispatch(TreeAction.mergeRealtimeTree(data))
             }
         });
     }
 
-    reloadTreeNodes = () => {
-
+    reloadTreeNodes = (id, type) => {
+        this.props.dispatch(TreeAction.getRealtimeTree({ id, catalogueType: type }))
+        this.setState({
+            expandedKeys: [`${id}`]
+        })
     }
 
     doAction = (action) => {
@@ -488,7 +490,7 @@ class RealTimeTabPane extends Component {
                                 <Tooltip title="定位">
                                     <Icon
                                         type="environment"
-                                        onClick={() => this.locateFilePos(currentPage.id, null, MENU_TYPE.TASK_DEV)}
+                                        onClick={() => this.locateFilePos(currentPage.id, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新">
@@ -522,7 +524,7 @@ class RealTimeTabPane extends Component {
                                 treeType={menuItem.catalogueType}
                                 expandedKeys={expandedKeys}
                                 onExpand={this.onExpand}
-                                selectedKeys={[currentPage.id]}
+                                selectedKeys={[`${currentPage.id}`]}
                             />
                         </div>
                         break;

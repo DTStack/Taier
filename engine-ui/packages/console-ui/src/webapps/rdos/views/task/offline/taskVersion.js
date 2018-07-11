@@ -95,7 +95,7 @@ export default class TaskVersion extends React.Component {
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="代码对比"
                     width="900px"
-                    bodyStyle={{ height: "500px" }}
+                    bodyStyle={{ minHeight: "500px" }}
                     visible={showDiff}
                     onCancel={this.close}
                     cancelText="关闭"
@@ -112,7 +112,7 @@ export default class TaskVersion extends React.Component {
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="参数对比"
                     width="900px"
-                    bodyStyle={{ height: "500px" }}
+                    bodyStyle={{ minHeight: "500px",paddingBottom: 20 }}
                     visible={diffParams.showDiffparams}
                     onCancel={this.closeParamsModal}
                     cancelText="关闭"

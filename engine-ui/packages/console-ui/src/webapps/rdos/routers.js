@@ -21,6 +21,8 @@ import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
 import Dashboard from './views/dashboard'
+import modelOverview from './views/modelOverview'
+
 
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
@@ -61,6 +63,7 @@ import Log from './views/dataManage/log';
 import DataCatalogue from './views/dataManage/dataCatalogue';
 import AuthMana from './views/dataManage/authority';
 import SearchTable from './views/dataManage/search';
+import AssetOverview from './views/dataManage/assets'
 
 // ======= 数据模型 =======
 import DataModelOverview from './views/dataModel/overview';
@@ -127,7 +130,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/rdos" component={Container}>
-            <IndexRoute component={Dashboard} />
+            <IndexRoute component={modelOverview} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />
@@ -174,6 +177,7 @@ export default (
                 <Route path="catalogue" component={DataCatalogue} />
                 <Route path="auth" component={AuthMana} />
                 <Route path="search" component={SearchTable} />
+                <Route path="assets" component={AssetOverview} />
 
             </Route>
             <Route path="/data-model" component={DataModelContainer}>

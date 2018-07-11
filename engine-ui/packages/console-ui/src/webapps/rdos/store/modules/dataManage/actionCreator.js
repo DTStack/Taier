@@ -35,7 +35,7 @@ function formatTableData(resData) {
 export default {
     searchTable(params) {
         return dispatch => {
-            tableMaApi.searchTable(params).then(res => {
+            tableMaApi.newSearchTable(params).then(res => {
                 if(res.code === 1) {
                     dispatch(this.loadTableList(res.data))
                 }

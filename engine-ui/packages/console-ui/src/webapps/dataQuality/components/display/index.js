@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Circle } from 'widgets/circle';
-
+import { Icon,Tooltip } from "antd";
 import { 
     TASK_STATUS, 
     CHECK_STATUS, 
@@ -16,7 +16,9 @@ export function DetailCheckStatus(props) {
             return <span>通过</span>
         }
         case false: {
-            return <span>未通过</span>
+            return <Tooltip title="未通过">
+                <Icon type="close-circle-o"  style={{ fontSize: 16, color: '#f00' }}/>
+            </Tooltip>
         }
         default: {
             return <span>--</span>
