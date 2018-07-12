@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect } from 'react-router'
+import { Route, IndexRoute } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
 import { isSelectedProject } from './interceptor'
@@ -20,7 +20,6 @@ import GRoleAdd from 'main/views/admin/role/add'
 import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
-import Dashboard from './views/dashboard'
 import modelOverview from './views/modelOverview'
 
 

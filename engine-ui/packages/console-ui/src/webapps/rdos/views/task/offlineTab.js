@@ -6,6 +6,8 @@ import {
 } from 'antd';
 import { isEmpty } from 'lodash';
 
+import { scrollToView } from 'funcs';
+
 import FolderTree from './offline/folderTree';
 import TableTree from './offline/tableTree';
 import ajax from '../../api';
@@ -55,6 +57,10 @@ class OfflineTabPane extends Component {
                 expandedKeys: [],
                 expandedKeys2: [],
             })
+        }
+        // 滚动
+        if (this.props.currentTab !== nextProps.currentTab) {
+            scrollToView(`JS_${nextProps.currentTab}`)
         }
     }
 
@@ -131,6 +137,9 @@ class OfflineTabPane extends Component {
                     })
                 }
                 this.props.locateFilePos(data, type);
+                setTimeout(() => {
+                    scrollToView(`JS_${currentTab}`)
+                },0 )
             }
         });
     }

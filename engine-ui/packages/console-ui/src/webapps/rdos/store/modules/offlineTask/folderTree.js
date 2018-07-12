@@ -148,13 +148,15 @@ export const taskTreeReducer = (state = {}, action) => {
             return updated;
         }
         case taskTreeAction.MERGE_FOLDER_CONTENT: {
-            const data = action.payload;
-            if (state.children) {
-                const origin = cloneDeep(state);
-                mergeTreeNodes(origin, data);
+            const origin = action.payload;
+            // if (origin) return origin;
+            const target = cloneDeep(state);
+            if (target.children) {
+                mergeTreeNodes(origin, target);
+                console.log('mergeTreeNodes', origin)
                 return origin;
             }
-            return Object.assign({}, data)
+            return Object.assign({}, origin)
         }
         default:
             return state;
@@ -277,13 +279,14 @@ export const scriptTreeReducer = (state = {}, action) => {
         }
 
         case scriptTreeAction.MERGE_FOLDER_CONTENT: {
-            const data = action.payload;
-            if (state.children) {
-                const origin = cloneDeep(state);
-                mergeTreeNodes(origin, data);
+            const origin = action.payload;
+            // if (origin) return origin;
+            const target = cloneDeep(state);
+            if (target.children) {
+                mergeTreeNodes(origin, target);
                 return origin;
             }
-            return Object.assign({}, data)
+            return Object.assign({}, origin)
         }
 
         default:
