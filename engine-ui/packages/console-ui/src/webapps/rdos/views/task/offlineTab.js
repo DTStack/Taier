@@ -60,6 +60,11 @@ class OfflineTabPane extends Component {
         }
         // 滚动
         if (this.props.currentTab !== nextProps.currentTab) {
+            console.log(
+                'visibleSearchTask:',
+                this.props.visibleSearchTask,
+                nextProps.visibleSearchTask,
+            )
             scrollToView(`JS_${nextProps.currentTab}`)
         }
     }
@@ -121,7 +126,7 @@ class OfflineTabPane extends Component {
             const arr = path && path.split('-');
             return arr && arr.map(p => `${type}-${p}`);
         }
-        
+
         ajax.locateCataPosition({
             id,
             catalogueType: type,
@@ -139,7 +144,7 @@ class OfflineTabPane extends Component {
                 this.props.locateFilePos(data, type);
                 setTimeout(() => {
                     scrollToView(`JS_${currentTab}`)
-                },0 )
+                }, 0)
             }
         });
     }
@@ -505,6 +510,7 @@ export default connect(state => {
 
     return {
         project: state.project,
+        visibleSearchTask: state.visibleSearchTask,
         taskTreeData: offlineTask.taskTree,
         resourceTreeData: offlineTask.resourceTree,
         functionTreeData: offlineTask.functionTree,

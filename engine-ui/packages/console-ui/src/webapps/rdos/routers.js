@@ -20,7 +20,7 @@ import GRoleAdd from 'main/views/admin/role/add'
 import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
-import modelOverview from './views/modelOverview'
+import Dashboard from './views/dashboard'
 
 
 // ======= 项目 =======
@@ -129,7 +129,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/rdos" component={Container}>
-            <IndexRoute component={modelOverview} />
+            <IndexRoute component={Dashboard} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />

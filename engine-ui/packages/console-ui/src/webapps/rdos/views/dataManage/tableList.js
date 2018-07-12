@@ -30,7 +30,7 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType,tableName,catalogueId,pId,pageIndex } = this.props.location.query;
+        const { listType,tableName,pId,pageIndex } = this.props.location.query;
         this.state = {
             table: [],
             editRecord: {},
@@ -44,7 +44,7 @@ class TableList extends Component {
                 listType:listType || "1",
                 pageIndex: pageIndex || 1,
                 pageSize: 10,
-                catalogueId,
+                catalogueId: undefined,
                 pId,
                 tableName,
             },
@@ -99,11 +99,16 @@ class TableList extends Component {
             queryParams,
         }, this.search)
     }
-
+ 
     loadCatalogue = () => {
+        const { queryParams } = this.state;
+        this.setState({loading: true });
         ajax.getDataCatalogues().then(res => {
+            const { catalogueId } =  this.props.location.query;
+            queryParams.catalogueId = catalogueId||undefined;
             this.setState({
                 dataCatalogue: res.data && [res.data],
+                queryParams
             },this.search)
         })
     }
