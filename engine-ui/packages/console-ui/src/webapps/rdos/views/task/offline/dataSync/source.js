@@ -241,7 +241,6 @@ class SourceForm extends React.Component {
               sourceMap.type.type === DATA_SOURCE.HBASE ||
               sourceMap.type.type === DATA_SOURCE.FTP;
 
-
         return <div className="g-step1">
             <Form>
                 <FormItem

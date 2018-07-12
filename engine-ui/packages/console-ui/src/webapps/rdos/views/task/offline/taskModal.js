@@ -246,6 +246,7 @@ class TaskForm extends React.Component {
                     })(
                         <FolderPicker
                             ispicker
+                            id="Task_dev_catalogue"
                             type={MENU_TYPE.TASK_DEV}
                             treeData={this.props.treeData}
                             onChange={this.handleSelectTreeChange.bind(this)}
@@ -350,13 +351,6 @@ class TaskModal extends React.Component {
         this.handleCancel = this.handleCancel.bind(this);
 
         this.dtcount = 0;
-    }
-
-    shouldComponentUpdate (nextProps, nextState) {
-        if (this.props.isModalShow !== nextProps.isModalShow) {
-            return true;
-        }
-        return false;
     }
 
     handleSubmit() {

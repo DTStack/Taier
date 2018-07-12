@@ -123,7 +123,7 @@ class Index extends Component {
                 <Col span="20" >
                     <Link to={`/offline/task?projectId=${data.id}`}>
                         <span className="company-name" onClick={()=>{this.setRouter('operation',data)}}>
-                            {data.projectName}&nbsp;&nbsp;
+                            {data.projectAlias}&nbsp;&nbsp;
                         </span>
                     </Link>
                     {
@@ -134,7 +134,7 @@ class Index extends Component {
                         </span>
                         :
                         <span style={{ color: '#999' }}>
-                            { `(${data.projectAlias})` }
+                            { `(${data.projectName})` }
                         </span> 
                     }
                 </Col>
@@ -184,19 +184,24 @@ class Index extends Component {
                 <div className="project-dashboard" style={{ padding: "20 40" }}>
                     <Row gutter={10}>
                         <Col span="10" >
-                            <h1 className="box-title" style={{ padding: 0}}>
+                            <h1 className="box-title" style={{ float: "left", padding: 0}}>
                                 我的项目: 
                                 <div className="project-search" >
                                     <Search placeholder="按项目名称、项目显示名称搜索"  onSearch={value => this.searchProject(null,value)} onPressEnter={this.searchProject}/>
                                 </div>
                             </h1>
-                            
+                            <Button 
+                                style={{ float: "left" ,margin: "10 0 0 20" }}
+                                type="primary" 
+                                onClick={() => { this.setState({ visible: true }) }}>
+                                创建项目
+                            </Button>
                         </Col>
                         <Col span="14" >
                             <div className="sortTitle">
                                 <span  className="faileSort" style={sortTitleStatus == 2 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('faileSort')}}>按任务失败数排序</span>
                                  <span className="faileSort">|</span>
-                                <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认顺序</span>
+                                <span  className="defaultSort" style={sortTitleStatus == 1 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('defaultSort')}}>默认排序</span>
                             </div>
                         </Col>
                     </Row>
@@ -209,10 +214,10 @@ class Index extends Component {
                                                     <Card  className="general-card" title={this.generalTitle(v)}>
                                                         <Row className="card-content">
                                                             <Col span="18">
-                                                                <div className="statistics" >已发布/总任务数： {`${v.taskCountMap.allCount}/${v.taskCountMap.submitCount}`}</div>
+                                                                <div className="statistics" >已发布/总任务数： {`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</div>
                                                                 <div className="statistics" >表数量： {v.tableCount}</div>
                                                                 <div className="statistics" >项目占用存储： {v.totalSize}</div>
-                                                                <div className="statistics" >创建时间： {moment(v.gmtCreate).format("YYYY-MM-DD hh:mm:ss")}</div>
+                                                                <div className="statistics" >创建时间： {moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</div>
                                                             </Col>
                                                             <Col span="6">
                                                                 <div style={{fontSize:14}}>今日任务失败数</div>
@@ -267,12 +272,7 @@ class Index extends Component {
                             </Row>
                             <Row>
                                 <Col span="12">
-                                    <Button 
-                                        style={{ marginTop: 10 }}
-                                        type="primary" 
-                                        onClick={() => { this.setState({ visible: true }) }}>
-                                        创建项目
-                                    </Button>
+                                    
                                 </Col>
                                 <Col span="12">
                                     <div style={{float: "right"}}>

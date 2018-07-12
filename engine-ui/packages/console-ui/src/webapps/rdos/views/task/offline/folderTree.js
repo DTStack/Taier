@@ -16,7 +16,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import { taskTypeIcon, resourceTypeIcon } from '../../../comm'
-import { TASK_TYPE, MENU_TYPE } from '../../../comm/const'
+import { MENU_TYPE } from '../../../comm/const'
 
 const { TreeNode } = Tree;
 const confirm = Modal.confirm;
@@ -29,7 +29,6 @@ class FolderTree extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handleChange = this.props.onChange;
     }
 
     onLoadData(type, treeNode) {
@@ -42,7 +41,6 @@ class FolderTree extends React.Component {
                 resolve();
                 return;
             }
-            ctx._asyncLoadData = true;
             loadTreeNode(data.id, cataType);
             resolve();
         });
@@ -413,8 +411,6 @@ class FolderTree extends React.Component {
         const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
         const treeType = type;
 
-        console.log('treeData', treeData)
-
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
 
@@ -430,6 +426,7 @@ class FolderTree extends React.Component {
                     return o.type === 'folder';
                 });
             }
+            console.log('loop data', data)
 
             return <TreeNode
                 title={
@@ -473,7 +470,7 @@ class FolderTree extends React.Component {
     render() {
         const { 
             type, placeholder, currentTab,
-            onExpand, expandedKeys,
+            onExpand, expandedKeys, onChange
         } = this.props;
 
         return (
@@ -487,7 +484,7 @@ class FolderTree extends React.Component {
                         showSearch={ !this.props.isFilepicker }
                         showIcon={ true }
                         loadData={ this.onLoadData.bind(this, type) }
-                        onChange={ this.handleChange }
+                        onChange={ onChange }
                         defaultValue={ this.props.defaultNode }
                         getPopupContainer={() => this.selEle }
                         placeholder={placeholder}

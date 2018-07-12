@@ -77,8 +77,6 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                 } else {
                     dispatch(output(currentTab, `请求异常！`))
                     dispatch(removeLoadingTab(currentTab))
-                    setTimeout(() => {
-                    }, 0);
                     //不正常，则直接终止执行
                     resolve(false)
                     return;
@@ -116,12 +114,13 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
             stopSign[currentTab] = false;
             return;
         }
-        if (res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+        if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
         //执行结束
-        if (res.code != 1) {
+        if (!res || (res && res.code != 1)) {
+            dispatch(output(currentTab, `请求异常！`))
             dispatch(removeLoadingTab(currentTab))
         }
-        if (res.code === 1) {
+        if (res && res.code === 1) {
             if (res.data.jobId) {
                 runningSql[currentTab]=res.data.jobId;
                 selectData(dispatch, res.data.jobId, currentTab)

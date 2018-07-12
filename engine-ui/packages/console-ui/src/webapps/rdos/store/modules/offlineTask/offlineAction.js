@@ -1,5 +1,4 @@
 import { message } from 'antd'
-import { isEmpty } from 'lodash'
 import { hashHistory } from 'react-router'
 
 import ajax from '../../../api'

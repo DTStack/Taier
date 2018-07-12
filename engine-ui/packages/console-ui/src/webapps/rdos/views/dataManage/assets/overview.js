@@ -251,7 +251,7 @@ export default class ProjectList extends Component {
                     projectId = v.projectId
                 }
             })
-            if (projectId) hashHistory.push(`/data-manage/search?projectId=${projectId}`)
+            if (projectId) hashHistory.push(`/data-manage/search?pId=${projectId}`)
 
         });
         //const ctx = this;
