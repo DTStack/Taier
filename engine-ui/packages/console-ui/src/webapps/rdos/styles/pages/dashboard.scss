@@ -61,9 +61,9 @@
         }
     }
     .project-search {
-        display: inline-block;
-        width: 200px; 
-        margin-left: 16px; 
+        float: left;
+        width: 220px;
+        margin-top: 10px;
     }
     .card-width{
         min-width: 375px;

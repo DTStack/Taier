@@ -93,7 +93,7 @@ class AuthMana extends Component {
 
     componentDidMount() {
         this.search();
-        this.loadCatalogue();
+        //this.loadCatalogue();
         this.getUsersInTenant();
     }
 
