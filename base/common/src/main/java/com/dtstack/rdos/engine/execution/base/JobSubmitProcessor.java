@@ -65,7 +65,6 @@ public class JobSubmitProcessor implements Runnable{
 
                     String jobId = jobResult.getData(JobResult.JOB_ID_KEY);
                     jobClient.setEngineTaskId(jobId);
-                    jobClient.setJobResult(jobResult);
                     addToTaskListener(jobClient, jobResult);
                     if(logger.isInfoEnabled()){
                         logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
@@ -79,7 +78,6 @@ public class JobSubmitProcessor implements Runnable{
                 //捕获未处理异常,防止跳出执行线程
                 jobClient.setEngineTaskId(null);
                 jobResult = JobResult.createErrorResult(e);
-                jobClient.setJobResult(jobResult);
                 addToTaskListener(jobClient, jobResult);
                 logger.error("get unexpected exception", e);
             }
