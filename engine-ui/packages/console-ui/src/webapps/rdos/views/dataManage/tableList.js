@@ -99,8 +99,9 @@ class TableList extends Component {
             queryParams,
         }, this.search)
     }
-
+ 
     loadCatalogue = () => {
+        this.setState({loading: true });
         ajax.getDataCatalogues().then(res => {
             this.setState({
                 dataCatalogue: res.data && [res.data],

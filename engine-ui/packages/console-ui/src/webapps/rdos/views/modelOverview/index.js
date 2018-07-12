@@ -184,12 +184,9 @@ class Index extends Component {
                 <div className="project-dashboard" style={{ padding: "20 40" }}>
                     <Row gutter={10}>
                         <Col span="10" >
-                            <h1 className="box-title" style={{ float: "left", padding: 0}}>
-                                我的项目: 
-                                <div className="project-search" >
-                                    <Search placeholder="按项目名称、项目显示名称搜索"  onSearch={value => this.searchProject(null,value)} onPressEnter={this.searchProject}/>
-                                </div>
-                            </h1>
+                            <div className="project-search" >
+                                <Search placeholder="按项目名称、项目显示名称搜索"  onSearch={value => this.searchProject(null,value)} onPressEnter={this.searchProject}/>
+                            </div>
                             <Button 
                                 style={{ float: "left" ,margin: "10 0 0 20" }}
                                 type="primary" 
