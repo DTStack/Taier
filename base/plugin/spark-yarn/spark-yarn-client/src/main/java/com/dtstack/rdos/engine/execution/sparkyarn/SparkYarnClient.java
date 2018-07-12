@@ -270,6 +270,7 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.jars");
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
+        sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
