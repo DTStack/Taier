@@ -268,10 +268,7 @@ class Index extends Component {
                                 }
                             </Row>
                             <Row>
-                                <Col span="12">
-                                    
-                                </Col>
-                                <Col span="12">
+                                <Col >
                                     <div style={{float: "right"}}>
                                         <Pagination 
                                             current={projectListParams.page} 
