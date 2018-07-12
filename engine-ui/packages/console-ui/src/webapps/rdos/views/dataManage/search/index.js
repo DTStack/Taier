@@ -25,7 +25,7 @@ class SearchTable extends Component {
 
     constructor(props) {
         super(props);
-        const { pId, pageIndex,catalogueId,permissionStatus,tableName} = this.props.location.query;
+        const { pId, pageIndex,permissionStatus,tableName} = this.props.location.query;
         this.state = {
             visible: false,
             table: [],
@@ -34,7 +34,7 @@ class SearchTable extends Component {
             queryParams: {
                 pId,
                 pageIndex: pageIndex || 1,
-                catalogueId,
+                catalogueId: undefined,
                 permissionStatus,
                 tableName,
             },
@@ -99,13 +99,17 @@ class SearchTable extends Component {
     }
 
     loadCatalogue = () => {
+        const { queryParams } = this.state;
         this.setState({
             cardLoading: true,
         })
         ajax.getDataCatalogues().then(res => {
+            const { catalogueId } =  this.props.location.query;
+            queryParams.catalogueId = catalogueId||undefined;
             this.setState({
                 dataCatalogue: res.data && [res.data],
                 pageIndex: 1,
+                queryParams,
             },this.search)
         })
     }
