@@ -5,9 +5,6 @@ import java.util.Map;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBack;
 import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 
 /**
@@ -18,8 +15,6 @@ import com.google.common.collect.Maps;
  */
 
 public class ClientFactory {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClientFactory.class);
 
     private static Map<String, ClassLoader> pluginClassLoader = Maps.newConcurrentMap();
 
@@ -48,25 +43,20 @@ public class ClientFactory {
     
 	public static IClient createPluginClass(String pluginType) throws Exception{
 
-        Map<String, IClient> clientMap = Maps.newConcurrentMap();
         ClassLoader classLoader = pluginClassLoader.get(pluginType);
-        ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<Object>(){
+        return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<IClient>(){
 
             @Override
-            public Object execute() throws Exception {
+            public IClient execute() throws Exception {
                 String className = typeRefClassName.get(pluginType);
                 if(className == null){
                     throw new RuntimeException("not support for engine type " + pluginType);
                 }
 
                 IClient client = classLoader.loadClass(className).asSubclass(IClient.class).newInstance();
-                ClientProxy proxyClient = new ClientProxy(client);
-                clientMap.put(pluginType, proxyClient);
-                return null;
+                return new ClientProxy(client);
             }
         }, classLoader, true);
-
-        return clientMap.get(pluginType);
     }
 
     public static void addClassLoader(String pluginType, ClassLoader classLoader){
