@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { assign } from 'lodash';
 import { connect } from 'react-redux';
 import {
     Select, Table, Card,
-    Button, Tabs, Modal,
+    Button, Modal,
     Popconfirm, message
 } from 'antd'
-import { Link } from 'react-router'
 
 import utils from 'utils'
 import { hasProject } from 'funcs'
@@ -20,6 +18,7 @@ import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
 const Option = Select.Option
+
 
 @connect(state => {
     return {
@@ -37,7 +36,7 @@ class AdminUser extends Component {
         },
 
         projects: [],
-        selectedProject: '',
+        selectedProject: null,
         notProjectUsers: [],
         roles: [],
         editTarget: '',
@@ -52,6 +51,7 @@ class AdminUser extends Component {
 
         if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
+
             const defaultApp = apps.find(app => app.default);
             const appKey = initialApp || defaultApp.id;
 
@@ -62,14 +62,14 @@ class AdminUser extends Component {
     }
 
     loadData = () => {
-        const { active, selectedProject, currentPage } = this.state;
+        const { active, selectedProject, currentPage, projects } = this.state;
         const params = {
             pageSize: 10,
             currentPage: currentPage,
         }
-        if (!selectedProject && hasProject(active)) {
+        if (projects.length === 0 && hasProject(active)) {
             this.getProjects(active);
-        } else if (!selectedProject && !hasProject(app)) {
+        } else if (projects.length === 0 && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
@@ -103,7 +103,7 @@ class AdminUser extends Component {
         Api.getProjects(app).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ projects: res.data })
-                const selectedProject = res.data[0].id
+                const selectedProject = utils.getCookie('project_id') || res.data[0].id
                 this.setState({
                     selectedProject
                 }, this.loadData)
@@ -300,6 +300,7 @@ class AdminUser extends Component {
         }, {
             title: '操作',
             dataIndex: 'id',
+            width: 135,
             key: 'id',
             render(id, record) {
                 return <span>
@@ -331,7 +332,7 @@ class AdminUser extends Component {
         const { projects, active, selectedProject } = this.state;
 
         const projectOpts = projects && projects.map(project =>
-            <Option value={`${project.id}`} key={project.id}>
+            <Option value={`${project.id}`} key={`${project.id}`}>
                 {project.projectAlias}
             </Option>
         )

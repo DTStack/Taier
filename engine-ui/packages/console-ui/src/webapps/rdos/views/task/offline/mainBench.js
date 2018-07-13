@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Alert, Modal, message } from 'antd';
 
 import utils from 'utils'
@@ -7,7 +6,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import { 
     defaultEditorOptions, 
-    TASK_TYPE, SCRIPT_TYPE, LOCK_TYPE, DATA_SYNC_TYPE,
+    TASK_TYPE, LOCK_TYPE, DATA_SYNC_TYPE,
 } from '../../../comm/const'
 
 import DataSync from './dataSync';
@@ -150,7 +149,11 @@ export default class MainBench extends React.Component {
                     return <NormalTaskForm key={ tabData.id } {...tabData} />
                 case TASK_TYPE.SYNC: // 数据同步
                     if(tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT){
-                        return <DataSyncScript key={ tabData.id } { ...tabData }  />
+                        return <DataSyncScript
+                            key={ tabData.id }
+                            { ...tabData }
+                            taskCustomParams={ taskCustomParams }
+                        />
                     }
                     return <DataSync key={ tabData.id } { ...tabData }/>
                 case TASK_TYPE.SQL: // SQL

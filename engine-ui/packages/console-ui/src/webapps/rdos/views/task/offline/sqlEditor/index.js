@@ -9,7 +9,6 @@ import { filterComments } from 'funcs';
 import Toolbar from './toolbar';
 import Console from './console';
 
-import Api from '../../../../api';
 import { matchTaskParams } from '../../../../comm';
 import CodeEditor from '../../../../components/code-editor';
 
@@ -177,7 +176,6 @@ export default connect(state => {
         sqlEditor: state.sqlEditor,
         project: state.project,
         user: state.user,
-
     }
 }, dispatch => {
     return {

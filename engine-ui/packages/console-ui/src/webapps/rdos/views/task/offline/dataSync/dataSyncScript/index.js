@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { Steps, Button, message } from 'antd';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 
 import utils from "utils";
 
+import { matchTaskParams } from '../../../../../comm';
 import { jsonEditorOptions, } from "../../../../../comm/const";
 import CodeEditor from '../../../../../components/code-editor';
 import Toolbar from "./toolbar.js";
@@ -36,16 +36,8 @@ import { setSelectionContent } from '../../../../../store/modules/offlineTask/sq
 })
 class DataSyncScript extends Component {
 
-    componentDidMount() {
-
-    }
-
-    componentWillReceiveProps(nextProps) {
-
-    }
-
     handleEditorTxtChange = (old, newVal, doc) => {
-        const { taskType } = this.props
+        const { taskType, taskCustomParams } = this.props
         let params = {
             merged: false,
             cursor: doc.getCursor(),
@@ -53,6 +45,7 @@ class DataSyncScript extends Component {
 
         if (utils.checkExist(taskType)) {
             params.sqlText = newVal
+            params.taskVariables = matchTaskParams(taskCustomParams, newVal);
         }
         this.props.updateTaskFields(params);
     }
