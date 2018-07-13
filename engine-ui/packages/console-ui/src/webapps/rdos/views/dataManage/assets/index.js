@@ -20,7 +20,7 @@ export default class Index extends Component {
     
 
     onChange = (e) => {
-        this.setState({total: e.target.checked},this.getAllProjects)
+        this.setState({total: !e.target.checked},this.getAllProjects)
     }
 
     getAllProjects(){
@@ -45,7 +45,7 @@ export default class Index extends Component {
                     </span>&nbsp;&nbsp;&nbsp;&nbsp;
                     <Checkbox onChange={this.onChange}>只看我参与的项目</Checkbox>
                 </h1>
-                <Overview {...this.props} projects = {projects} total={!total}/>
+                <Overview {...this.props} projects = {projects} total={total}/>
             </div>
         )
     }
