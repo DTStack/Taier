@@ -142,6 +142,7 @@ class AdminRole extends Component {
             title: '最近修改人',
             dataIndex: 'person',
             key: 'person',
+            width: 120,
             render(text) {
                 return text || '-'
             }
@@ -149,6 +150,7 @@ class AdminRole extends Component {
             title: '操作',
             dataIndex: 'id',
             key: 'id',
+            width: 80,
             render(id, record) {
                 return <span>
                     <Link to={`/admin/role/edit/${id}?app=${active}`}>查看</Link>

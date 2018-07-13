@@ -8,7 +8,6 @@ import UserApi from '../../api/user'
 import './style.scss'
 
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
-const SubMenu = Menu.SubMenu
 
 export const Title = styled.span`
     color: #ffffff;
@@ -60,9 +59,10 @@ export function MenuLeft(props) {
 
 export function MenuRight(props) {
     const { 
-        activeKey, onClick, settingMenus, user,
+        onClick, settingMenus, user,
         apps, app, showHelpSite, helpUrl 
     } = props;
+
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -89,7 +89,7 @@ export function MenuRight(props) {
     )
 
     const appMenus = (
-        <Menu selectedKeys={[`${app.id}`]}>
+        <Menu selectedKeys={[`${app && app.id}`]}>
             {renderATagMenuItems(apps)}
         </Menu>
     )
