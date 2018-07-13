@@ -380,12 +380,14 @@ class ManageParamsConfig extends Component {
         this.props.sqlParser(sql, dataSource)
             .then(
                 (res) => {
+                    this.setState({
+                        loading: false
+                    })
                     if (res) {
                         this.setState({
                             InputColumns: this.exchangeServerParams(res.data.inputParam, 'in'),
                             OutputColums: this.exchangeServerParams(res.data.outputParam, 'out'),
-                            sqlModeShow: !this.state.sqlModeShow,
-                            loading: false
+                            sqlModeShow: !this.state.sqlModeShow
                         })
                     }
                 }
