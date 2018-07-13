@@ -312,7 +312,7 @@ export const workbenchActions = (dispatch) => {
             ajax.delOfflineTask(params)
                 .then(res => {
                     if (res.code == 1) {
-                        message.info('删除成功');
+                        message.success('删除成功');
                         dispatch({
                             type: taskTreeAction.DEL_OFFLINE_TASK,
                             payload: {

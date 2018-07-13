@@ -4,7 +4,7 @@ import {
     Icon, Tooltip, 
     Tabs, Dropdown, Menu 
 } from 'antd';
-import { isEmpty } from 'lodash';
+import { isEmpty, union } from 'lodash';
 
 import { scrollToView } from 'funcs';
 
@@ -41,6 +41,7 @@ class OfflineTabPane extends Component {
         subMenus: [],
         expandedKeys: [],
         expandedKeys2: [],
+        menu: MENU_TYPE.TASK,
     }
 
     componentDidMount() {
@@ -49,8 +50,9 @@ class OfflineTabPane extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const old = this.props.project
-        const newData = nextProps.project
+        const old = this.props.project;
+        const newData = nextProps.project;
+        const nextTab = nextProps.currentTabData;
         if (newData && (!old || (old.id !== 0 && old.id !== newData.id))) {
             this.getCatelogue();
             this.setState({
@@ -58,15 +60,34 @@ class OfflineTabPane extends Component {
                 expandedKeys2: [],
             })
         }
-        // 滚动
+        // 字段任务定位滚动
         if (this.props.currentTab !== nextProps.currentTab) {
-            scrollToView(`JS_${nextProps.currentTab}`)
+            let type = MENU_TYPE.TASK_DEV, menu = MENU_TYPE.TASK;
+            if (nextTab.scriptText !== undefined) {
+                type = MENU_TYPE.SCRIPT;
+                menu = MENU_TYPE.SCRIPT;
+            }
+            this.setState({
+                menu,
+            }, () => {
+                this.locateFilePos(nextProps.currentTab, null, type, nextTab)
+            })
         }
     }
 
-    onExpand = (expandedKeys) => {
+    onExpand = (expandedKeys, { expanded }) => {
+        let keys = expandedKeys;
+        if (expanded) {
+            keys = union(this.state.expandedKeys, keys)
+        }
         this.setState({
-            expandedKeys,
+            expandedKeys: keys,
+        })
+    }
+
+    onMenuChange = (key) => {
+        this.setState({
+            menu: key
         })
     }
 
@@ -86,16 +107,37 @@ class OfflineTabPane extends Component {
     /**
      * 定位任务在文件树的具体位置
      */
-    locateFilePos = (id, name, type) => {
+    locateFilePos = (currentTab, name, type) => {
 
-        let checkedPath = ''; // 路径存储
-        const { currentTab, currentTabData } = this.props;
+        const { expandedKeys, menu } = this.state;
+        const {
+            taskTreeData, scriptTreeData,
+        } = this.props;
 
         // 过滤任务开发定位脚本，或者脚本定位任务的无效情况
-        if (!currentTab || 
-            (currentTabData.taskType !== undefined && type === MENU_TYPE.SCRIPT) ||
-            (currentTabData.scriptText !== undefined && type === MENU_TYPE.TASK_DEV)
+        if (
+            !currentTab || 
+            (type === MENU_TYPE.TASK_DEV && menu !== MENU_TYPE.TASK) ||
+            (type === MENU_TYPE.SCRIPT && menu !== MENU_TYPE.SCRIPT)
         ) return;
+
+        let treeData = taskTreeData;
+        if (type === MENU_TYPE.SCRIPT) {
+            treeData = scriptTreeData;
+        }
+
+        const getExpandedKey = (path) => {
+            const arr = path && path.split('-');
+            return arr && arr.map(p => `${type}-${p}`);
+        }
+
+        const scroll = () => {
+            setTimeout(() => {
+                scrollToView(`JS_${currentTab}`)
+            }, 0)
+        }
+
+        let checkedPath = '', path = ''; // 路径存储
 
         const hasPath = (data, id, path) => {
 
@@ -117,31 +159,29 @@ class OfflineTabPane extends Component {
             return false;
         }
 
-        const getExpandedKey = (path) => {
-            const arr = path && path.split('-');
-            return arr && arr.map(p => `${type}-${p}`);
-        }
-        
-        ajax.locateCataPosition({
-            id,
-            catalogueType: type,
-            name: name,
-        }).then(res => {
-            if (res.code === 1 && res.data) {
-                const data = res.data.children[0];
-                let path = '';
-                if (hasPath(data, currentTab, path)) {
-                    const keys = getExpandedKey(checkedPath);
-                    this.setState({
-                        expandedKeys: keys
-                    })
+        if (hasPath(treeData, currentTab, path)) {
+            const keys = getExpandedKey(checkedPath);
+            this.setState({ expandedKeys: union(expandedKeys, keys) });
+            scroll();
+        } else {
+            ajax.locateCataPosition({
+                id: currentTab,
+                catalogueType: type,
+                name: name,
+            }).then(res => {
+                if (res.code === 1 && res.data) {
+                    const data = res.data.children[0];
+                    if (hasPath(data, currentTab, path)) {
+                        const keys = getExpandedKey(checkedPath);
+                        this.setState({
+                            expandedKeys: keys,
+                        })
+                    }
+                    this.props.locateFilePos(data, type);
+                    scroll();
                 }
-                this.props.locateFilePos(data, type);
-                setTimeout(() => {
-                    scrollToView(`JS_${currentTab}`)
-                },0 )
-            }
-        });
+            });
+        }
     }
 
 
@@ -270,6 +310,7 @@ class OfflineTabPane extends Component {
             scriptTreeData,
             tableTreeData,
             currentTab,
+            currentTabData,
         } = this.props;
 
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
@@ -287,7 +328,7 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="定位">
                                     <Icon
                                         type="environment"
-                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV)}
+                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV, currentTabData)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新">
@@ -333,7 +374,7 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="定位">
                                     <Icon
                                         type="environment"
-                                        onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType)}
+                                        onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType, currentTabData)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新">
@@ -465,7 +506,7 @@ class OfflineTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.id}> 
+                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.catalogueType}> 
                         {menuContent} 
                     </TabPane>
                 )
@@ -487,6 +528,8 @@ class OfflineTabPane extends Component {
                     animated={false}
                     className="task-tab-menu"
                     style={{ height: '100%' }}
+                    activeKey={this.state.menu}
+                    onChange={this.onMenuChange}
                 >
                     { this.renderTabPanes() }
                 </Tabs>

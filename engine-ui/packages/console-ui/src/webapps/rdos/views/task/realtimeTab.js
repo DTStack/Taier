@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
+import { union } from 'lodash';
+
 import { 
-    Menu, Tree, message, Tabs,
+    Menu, message, Tabs,  Dropdown, 
     Popconfirm, Icon, Tooltip,
-    Dropdown, 
 } from 'antd'
 
 import {
     ContextMenu,
     MenuItem,
 } from 'widgets/context-menu'
+import { scrollToView } from 'funcs';
 
 
 import * as BrowserAction from '../../store/modules/realtimeTask/browser'
@@ -31,13 +33,9 @@ import FnViewModal from './realtime/function/fnViewModal'
 
 import Api from '../../api'
 import { showSeach } from '../../store/modules/comm';
-import { getTreeByType } from '../../comm';
+
 import { MENU_TYPE } from '../../comm/const';
-import MyIcon from '../../components/icon'
 
-
-const SubMenu = Menu.SubMenu
-const TreeNode = Tree.TreeNode
 const TabPane = Tabs.TabPane
 
 function isCreate(operation) {
@@ -80,13 +78,25 @@ class RealTimeTabPane extends Component {
         if (newData && old.id !== 0 && old.id !== newData.id) {
             const { dispatch } = this.props
             dispatch(TreeAction.getRealtimeTree(rootNode))
-            dispatch(ResAction.getResources())
+            dispatch(ResAction.getResources());
+            this.setState({
+                expandedKeys: [],
+                expandedKeys2: [],
+            })
+        }
+
+        if (this.props.currentPage !== nextProps.currentPage) {
+            this.locateFilePos(nextProps.currentPage.id, MENU_TYPE.TASK_DEV)
         }
     }
 
-    onExpand = (expandedKeys) => {
+    onExpand = (expandedKeys, { expanded }) => {
+        let keys = expandedKeys;
+        if (expanded) {
+            keys = union(this.state.expandedKeys, keys)
+        }
         this.setState({
-            expandedKeys,
+            expandedKeys: keys,
         })
     }
 
@@ -130,7 +140,6 @@ class RealTimeTabPane extends Component {
     }
 
     chooseFn = (selectedKeys, target) => {
-        const ctx = this
         const item = target.node.props.data
         if (item.type === 'file') {
             this.setState({
@@ -157,7 +166,6 @@ class RealTimeTabPane extends Component {
     }
 
     initAddTask = () => {
-        const { dispatch } = this.props
         const node = this.state.activeNode
         const taskInfo = { nodePid: node.id }
         this.setState({ taskInfo })
@@ -165,7 +173,7 @@ class RealTimeTabPane extends Component {
     }
 
     createOrUpdateTask = (task) => {
-        const { dispatch, realtimeTree, currentPage, modal } = this.props
+        const { dispatch, currentPage, modal } = this.props
         const { activeNode, taskInfo } = this.state
 
         if (isCreate(modal)) {
@@ -252,7 +260,7 @@ class RealTimeTabPane extends Component {
     }
 
     updateFolder = (cateInfo) => {
-        const { dispatch, realtimeTree, modal } = this.props
+        const { dispatch, modal } = this.props
         const { activeNode } = this.state
         const params = { id: cateInfo.nodePid,}
         switch (modal) {
@@ -373,9 +381,10 @@ class RealTimeTabPane extends Component {
     }
 
     locateFilePos = (id, type, name) => {
-        let checkedPath = ''; // 路径存储
-        const { currentPage, dispatch } = this.props;
-        if (!currentPage) return;
+
+        if (!id) return;
+        const { expandedKeys } = this.state;
+        const { dispatch, realtimeTree } = this.props;
 
         const hasPath = (data, id, path) => {
 
@@ -401,23 +410,38 @@ class RealTimeTabPane extends Component {
             return path && path.split('-');
         }
 
-        Api.locateStreamCataPosition({
-            id,
-            catalogueType: type,
-            name: name,
-        }).then(res => {
-            if (res.code === 1 && res.data) {
-                const data = res.data.children[0];
-                let path = '';
-                if (hasPath(data, currentPage.id, path)) {
-                    const keys = getExpandedKey(checkedPath);
-                    this.setState({
-                        expandedKeys: keys
-                    })
+        const scroll = () => {
+            setTimeout(() => {
+                scrollToView(`JS_${id}`)
+            }, 0)
+        }
+
+        let checkedPath = '', path = ''; // 路径存储
+
+        if (hasPath(realtimeTree[0], id, path)) {
+            const keys = getExpandedKey(checkedPath);
+            this.setState({ expandedKeys: union(expandedKeys, keys) });
+            scroll();
+        } else {
+            Api.locateStreamCataPosition({
+                id,
+                catalogueType: type,
+                name: name,
+            }).then(res => {
+                if (res.code === 1 && res.data) {
+                    const data = res.data.children[0];
+                    let path = '';
+                    if (hasPath(data, id, path)) {
+                        const keys = getExpandedKey(checkedPath);
+                        this.setState({
+                            expandedKeys: keys
+                        })
+                    }
+                    dispatch(TreeAction.mergeRealtimeTree(data));
+                    scroll();
                 }
-                dispatch(TreeAction.mergeRealtimeTree(data))
-            }
-        });
+            });
+        }
     }
 
     reloadTreeNodes = (id, type) => {

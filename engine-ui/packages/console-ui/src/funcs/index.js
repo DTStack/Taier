@@ -89,36 +89,11 @@ export function replaceTreeNode(treeNode, replace) {
  * @param {*} mergeTo
  */
 export function mergeTreeNodes(origin, target) {
-
-    if (origin.type !== 'folder') {
-        return false;
-    }
-
-    const merge = function(sourceNode, mergeTarget) {
-
-        if (mergeTarget.type !== 'folder') {
-            return false;
-        }
-
-        if ( sourceNode.id === mergeTarget.id ) {
-            console.log('merge:', sourceNode, mergeTarget)
-            sourceNode = Object.assign(sourceNode, mergeTarget);
-            return true;
-        }
-        if (mergeTarget.children) {
-            const children = mergeTarget.children
-            for (let i = 0; i < children.length; i += 1) {
-                merge(sourceNode, children[i])
-            }
-        }
-    }
-
-    merge(origin, target);
-
-    if (origin.children) {
-        const children = origin.children
+    replaceTreeNode(origin, target);
+    if (target.children) {
+        const children = target.children
         for (let i = 0; i < children.length; i += 1) {
-            mergeTreeNodes(children[i], target)
+            mergeTreeNodes(origin, children[i])
         }
     }
 }

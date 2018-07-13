@@ -344,6 +344,7 @@ class TaskForm extends React.Component {
 const TaskFormWrapper = Form.create()(TaskForm);
 
 class TaskModal extends React.Component {
+
     constructor(props) {
         super(props);
 

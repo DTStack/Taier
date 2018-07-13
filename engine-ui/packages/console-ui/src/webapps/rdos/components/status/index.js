@@ -95,8 +95,18 @@ export function OfflineTaskStatus(props) {
         case 8:
             return <span color="red">
                 <Circle style={{ background: '#EF5350' }} />&nbsp;
-                失败
+                运行失败
             </span>
+        case 9:
+                return <span color="red">
+                    <Circle style={{ background: '#EF5350' }} />&nbsp;
+                    提交失败
+                </span>
+        case 21:
+                return <span color="red">
+                    <Circle style={{ background: '#EF5350' }} />&nbsp;
+                    上游失败
+                </span>
         case 10:
             return <span color="green">
                 <Circle style={{ background: '#2491F7' }} />&nbsp;

@@ -131,6 +131,7 @@ export const TASK_STATUS = { // 任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
     FROZEN: 18,
+    PARENT_FAILD: 21, // 上游失败
 }
 
 // 表模型规则
