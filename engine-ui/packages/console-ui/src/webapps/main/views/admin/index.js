@@ -1,15 +1,11 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { Icon } from 'antd'
 
-import utils from 'utils'
 import NotFund from 'widgets/notFund'
 
-import Header from './../layout/header'
-import * as UserAction from '../../actions/user'
-import { Navigator, Logo, Title, MyIcon }  from '../../components/nav'
+import { Navigator, Title, MyIcon }  from '../../components/nav'
 
 @connect(state => {
     return {

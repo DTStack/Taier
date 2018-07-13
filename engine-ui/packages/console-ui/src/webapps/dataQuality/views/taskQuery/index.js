@@ -49,7 +49,6 @@ export default class TaskQuery extends Component {
             executeEndTime: utils.getParameterByName('endTime') || undefined,
             bizTime: 0,
             statusFilter:utils.getParameterByName('statusFilter')||""
-
         },
         tabKey: '1',
         showSlidePane: false,
@@ -125,7 +124,7 @@ export default class TaskQuery extends Component {
                 </div>
             },
             filters: taskStatusFilter,
-            filteredValue:params.statusFilter?params.statusFilter.split(","):[]
+            filteredValue: params.statusFilter ? params.statusFilter.split(",") : []
         }, {
             title: '规则异常数',
             dataIndex: 'alarmSum',

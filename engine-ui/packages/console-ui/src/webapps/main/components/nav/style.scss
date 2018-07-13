@@ -90,7 +90,7 @@ $activeColor: #262e36; // 主色
         width: 100%;
         height: 100%;
 
-        & > span {
+        .menu-item {
             padding: 16px 10px;
             color: #fff;
             float: left;
@@ -147,7 +147,6 @@ $activeColor: #262e36; // 主色
 
     }
 }
-
 
 .menu-text-ellipsis{
     display: inline-block;
