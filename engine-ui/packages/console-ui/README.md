@@ -11,7 +11,7 @@
 - 【数据地图】新增数据资产
 - 【数据集成】新增支持PG、MongoDB、Redis数据源和数据同步功能
 - 【数据质量】新增Hive, MaxCompute 数据源并发度参数设置
-- 【其他】22项优化，100多项Bugfix, 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-3-0/issues)
+- 【其他】总计约22项优化，100多项Bugfix, 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-3-0/issues)
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
