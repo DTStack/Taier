@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { 
-    Tree, TreeSelect, Input, 
-    message, Modal, Badge 
+    Tree, TreeSelect,
+    Modal, Badge 
 } from 'antd';
 
 import utils from 'utils';

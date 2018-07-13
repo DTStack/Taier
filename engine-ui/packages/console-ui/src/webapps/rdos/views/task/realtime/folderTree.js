@@ -95,6 +95,7 @@ class FolderTree extends Component {
 
                 const title = <span 
                     title={item.name}
+                    id={`JS_${item.id}`}
                     className={claTitle}>
                     {this.renderStatusBadge(treeType, item)}
                     {item.name} 
@@ -129,6 +130,8 @@ class FolderTree extends Component {
             loadData, isPicker, placeholder, disabled, value,
             expandedKeys, onExpand, selectedKeys,
         } = this.props;
+
+        console.log('expandedKeys:', expandedKeys);
 
         if (isPicker) treeContent = (
             <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>

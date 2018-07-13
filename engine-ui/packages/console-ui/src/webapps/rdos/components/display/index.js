@@ -41,8 +41,11 @@ export function taskStatusText(type) {
         case TASK_STATUS.STOPING:
             return '取消中';
         case TASK_STATUS.RUN_FAILED:
+            return '运行失败';
         case TASK_STATUS.SUBMIT_FAILED:
-            return '失败';
+            return '提交失败';
+        case TASK_STATUS.PARENT_FAILD:
+            return '上游失败';
         case TASK_STATUS.SUBMITTING:
             return '提交中';
         case TASK_STATUS.RESTARTING:

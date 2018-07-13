@@ -4,7 +4,6 @@ import { Link } from 'react-router'
 import styled from 'styled-components'
 
 import pureRender from 'utils/pureRender'
-import MIcon from '../icon'
 import UserApi from '../../api/user'
 import './style.scss'
 
@@ -60,7 +59,10 @@ export function MenuLeft(props) {
 }
 
 export function MenuRight(props) {
-    const { activeKey, onClick, settingMenus, user, apps, app,showHelpSite,helpUrl } = props;
+    const { 
+        activeKey, onClick, settingMenus, user,
+        apps, app, showHelpSite, helpUrl 
+    } = props;
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -87,7 +89,7 @@ export function MenuRight(props) {
     )
 
     const appMenus = (
-        <Menu>
+        <Menu selectedKeys={[`${app.id}`]}>
             {renderATagMenuItems(apps)}
         </Menu>
     )
@@ -109,7 +111,6 @@ export function MenuRight(props) {
                 <Dropdown overlay={appMenus} trigger={['click']}>
                     <span>
                         <Icon type="home" />
-                        {/* <MIcon type="home" /> */}
                     </span>
                 </Dropdown>
                 <span className="divide"></span>
