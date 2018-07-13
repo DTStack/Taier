@@ -346,7 +346,7 @@ export default class ProjectList extends Component {
         console.log('projects',projects.length);
         
         const projectOptions = projects ? projects.map(item => {
-            return <Option key={item.id} value={item.id}><Tooltip placement="top" title={item.projectAlias || item.projectName}><div>{item.projectAlias || item.projectName}</div></Tooltip></Option>
+            return <Option key={item.id} value={item.id}><Tooltip placement="top" mouseEnterDelay={1} title={item.projectAlias || item.projectName}><div>{item.projectAlias || item.projectName}</div></Tooltip></Option>
         }) : []
 
         return (
@@ -359,7 +359,7 @@ export default class ProjectList extends Component {
                 />
                 <Resize onResize={this.resizeChart}>
                 <Row style={{ marginTop: 20 }}>
-                        <Col span={12} style={{minWidth: 570, marginBottom: 20}} >
+                        <Col span={12} style={{minWidth: 600, marginBottom: 20}} >
                             <div className="chart-board shadow">
                                 <section
                                     id="DataOverview"
@@ -391,7 +391,7 @@ export default class ProjectList extends Component {
                                 </div>
                             </div>
                         </Col>
-                        <Col span={12} style={{minWidth: 570}}>
+                        <Col span={12} style={{minWidth: 600}}>
                             <div className="chart-board shadow">
                                 <section
                                     id="StoreTop5"
