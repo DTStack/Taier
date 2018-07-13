@@ -246,10 +246,7 @@ class Index extends Component {
                                                                             </Card>
                                                                         </Col >
                                                                         <Col span="8">
-                                                                            <Card className="card-task" onClick={()=>{this.setRouter('operation',v)}}>
-                                                                                <span className="img-container">
-                                                                                        <span className="task-img" />
-                                                                                    </span>
+                                                                            <Card className="card-task" style={{padding:"1.5 0"}} onClick={()=>{this.setRouter('operation',v)}}>
                                                                                 运维中心
                                                                             </Card>
                                                                         </Col>
