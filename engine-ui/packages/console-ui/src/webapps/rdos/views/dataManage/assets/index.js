@@ -3,19 +3,39 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import { Checkbox } from "antd" 
 
+import Api from '../../../api'
 import Overview from './overview'
 
-class Index extends Component {
+export default class Index extends Component {
 
     state = {
-        isAdmin: false
+        isAdmin: false,
+        projects: [],
     }
 
+    
+    componentDidMount() {
+        this.getAllProjects()
+    }
+    
+
     onChange = (e) => {
-        this.setState({total: e.target.checked})
+        this.setState({total: !e.target.checked},this.getAllProjects)
+    }
+
+    getAllProjects(){
+        const { total } = this.state;
+        Api.getAllProjects({total}).then((res) => {
+            if (res.code == 1) {
+                this.setState({
+                    projects: res.data
+                })
+            }
+        })
     }
 
     render() {
+        const { projects, total } = this.state;
         return (
             <div className="project-dashboard">
                 <h1 className="box-title">
@@ -25,14 +45,9 @@ class Index extends Component {
                     </span>&nbsp;&nbsp;&nbsp;&nbsp;
                     <Checkbox onChange={this.onChange}>只看我参与的项目</Checkbox>
                 </h1>
-                <Overview {...this.props} total={!this.state.total}/>
+                <Overview {...this.props} projects = {projects} total={total}/>
             </div>
         )
     }
 }
-export default connect((state) => {
-    return {
-        user: state.user,
-        projects: state.projects,
-    }
-})(Index)
+
