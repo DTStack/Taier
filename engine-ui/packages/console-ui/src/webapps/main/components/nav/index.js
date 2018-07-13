@@ -94,12 +94,11 @@ export function MenuRight(props) {
         </Menu>
     )
 
-
     return (
         <div className="menu right">
             <menu className="menu-right">
                 {showHelpSite ? (
-                    <span title="帮助文档">
+                    <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
                             <Icon type="question-circle-o" />
                         </a>
@@ -109,20 +108,20 @@ export function MenuRight(props) {
 
                 }
                 <Dropdown overlay={appMenus} trigger={['click']}>
-                    <span>
+                    <span className="menu-item">
                         <Icon type="home" />
                     </span>
                 </Dropdown>
-                <span className="divide"></span>
-                <span>
-                    <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                <span className="divide left"></span>
+                <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                    <span className="menu-item">
                         <Icon type="message" />
                         {/* <Badge dot>
                         </Badge> */}
-                    </a>
-                </span>
+                    </span>
+                </a>
                 <Dropdown overlay={settingMenuItems} trigger={['click']}>
-                    <span><Icon type="setting" /> </span>
+                    <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">
