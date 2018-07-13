@@ -120,7 +120,7 @@ class TaskDetail extends React.Component {
         }
     }
 
-    setSqlText(sqlText) {
+    setSqlText = (sqlText) => {
         this.props.updateTaskField({ sqlText, merged: true })
     }
 

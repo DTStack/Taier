@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { 
-    Tree, TreeSelect, Input, 
-    message, Modal, Badge 
+    Tree, TreeSelect,
+    Modal, Badge 
 } from 'antd';
 
 import utils from 'utils';
@@ -426,7 +426,6 @@ class FolderTree extends React.Component {
                     return o.type === 'folder';
                 });
             }
-            console.log('loop data', data)
 
             return <TreeNode
                 title={
@@ -441,7 +440,10 @@ class FolderTree extends React.Component {
                         id={ id }
                         key={ `${taskType}-ctxmenu-${id}` }
                         operations={ this.generateCtxMenu(type, treeType, data) } >
-                        <span title={name} className={type === 'file' ? 'task-item' : 'folder-item'}>
+                        <span 
+                            id={`JS_${id}`}
+                            title={name} 
+                            className={type === 'file' ? 'task-item' : 'folder-item'}>
                             { this.renderStatusBadge(treeType, data) }
                             { name } 
                             <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
@@ -450,13 +452,13 @@ class FolderTree extends React.Component {
                         </span>
                     </CtxMenu>
                 }
-                key={`${treeType}-${id}`}
                 value={ id }
                 name={name}
-                isLeaf={type === 'file'}
                 disabled={id === '0'}
                 data={data}
                 treeType={treeType}
+                isLeaf={type === 'file'}
+                key={`${treeType}-${id}`}
                 className={taskTypeIcon(taskType)||resourceTypeIcon(resourceType)}
             >
                 { data.children && data.children.map(o => loop(o)) }

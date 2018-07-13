@@ -115,6 +115,7 @@ export function hasProject(app) {
     return app === 'rdos'
 }
 
+
 /**
  * 字符串替换
  */
@@ -261,4 +262,16 @@ export function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
+
+/**
+ * 滚动元素到视窗范围内
+ */
+export function scrollToView(id) {
+    const ele = document.getElementById(id);
+    if (ele && ele.scrollIntoViewIfNeeded) {
+        ele.scrollIntoViewIfNeeded()
+    } else  if (ele && ele.scrollIntoView) {
+        ele.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
 }

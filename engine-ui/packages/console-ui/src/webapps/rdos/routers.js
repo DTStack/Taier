@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect } from 'react-router'
+import { Route, IndexRoute } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
 import { isSelectedProject } from './interceptor'
@@ -21,7 +21,6 @@ import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
 import Dashboard from './views/dashboard'
-import modelOverview from './views/modelOverview'
 
 
 // ======= 项目 =======
@@ -130,7 +129,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/rdos" component={Container}>
-            <IndexRoute component={modelOverview} />
+            <IndexRoute component={Dashboard} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />

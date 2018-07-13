@@ -13,6 +13,7 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
 const SubMenu = Menu.SubMenu;
 
 class Header extends Component {
+
     constructor(props) {
         super(props);
         this.state = {

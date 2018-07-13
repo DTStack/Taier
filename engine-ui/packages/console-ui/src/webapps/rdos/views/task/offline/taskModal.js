@@ -344,6 +344,7 @@ class TaskForm extends React.Component {
 const TaskFormWrapper = Form.create()(TaskForm);
 
 class TaskModal extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -354,7 +355,7 @@ class TaskModal extends React.Component {
     }
 
     handleSubmit() {
-        const { addOfflineTask, defaultData, currentTab } = this.props;
+        const { addOfflineTask, defaultData } = this.props;
         const form = this.form;
 
         const isCreateNormal = typeof defaultData === 'undefined';

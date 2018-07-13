@@ -31,7 +31,9 @@ class Container extends Component {
     }
 
     componentDidMount() {
-        window.addEventListener('beforeunload', this.beforeunload, false);
+        if (process.env.NODE_ENV === 'production') {
+            window.addEventListener('beforeunload', this.beforeunload, false);
+        }
     }
 
     componentWillUnmount() {
