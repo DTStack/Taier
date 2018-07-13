@@ -34,6 +34,7 @@ import {
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
+import resViewModal from './resViewModal';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -366,8 +367,8 @@ class Workbench extends React.Component {
 
     submitTab() {
         const {
-            publishTask, dataSync, currentTabData,
-            currentTab, updateTaskFields, user,
+            publishTask, dataSync,
+            currentTab, reloadTabTask,
         } = this.props;
 
 
@@ -387,21 +388,9 @@ class Workbench extends React.Component {
             ajax.publishOfflineTask(result).then(res =>{
                 if (res.code === 1) {
                     message.success('发布成功！');
-                    // 添加发布信息到发布记录
-                    const publishRecords = currentTabData.taskVersions || []
-                    const time = Date.now();
-                    let taskVersions = [{
-                        id: res.data.id,
-                        gmtCreate: time,
-                        userName: user.userName,
-                        publishDesc: publishDesc,
-                        sqlText: result.sqlText,
-                    }].concat(publishRecords)
-                    taskVersions = taskVersions.length >= 5 ? taskVersions.slice(0, 5) : taskVersions
-                    updateTaskFields({ taskVersions })
                     publishTask(res);
+                    reloadTabTask(currentTab);
                     this.closePublish();
-
                 }else{
                     message.error('发布失败！');
                     this.closePublish();
@@ -693,9 +682,12 @@ const mapDispatch = dispatch => {
             actions.openTaskInDev(id)
         },
 
+        reloadTabTask: (id) => {
+            actions.reloadTabTask(id)
+        },
+
         publishTask(res) {
             console.log('publishTask',res);
-            
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
                 payload: (res.data && res.data.submitStatus) || 1
@@ -704,6 +696,7 @@ const mapDispatch = dispatch => {
                 type: workbenchAction.MAKE_TAB_CLEAN
             })
         },
+
         toggleCreateTask: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK
