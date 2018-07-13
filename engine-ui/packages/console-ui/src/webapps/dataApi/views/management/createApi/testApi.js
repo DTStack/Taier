@@ -1,37 +1,37 @@
 import React from "react";
-import { Card, Table, Input, Button, Checkbox, Form } from "antd"
+import { Card, Table, Input, Button, Checkbox, Form, InputNumber } from "antd"
 
-import {API_METHOD_key} from "../../../consts";
+import { API_METHOD_key } from "../../../consts";
 import ColumnsModel from "../../../model/columnsModel"
 
-const TextArea=Input.TextArea;
-const FormItem=Form.Item;
+const TextArea = Input.TextArea;
+const FormItem = Form.Item;
 
-const apiTestStatus={
-    NOTHING:0,
-    SUCCESS:1,
-    ERROR:2
+const apiTestStatus = {
+    NOTHING: 0,
+    SUCCESS: 1,
+    ERROR: 2
 }
-const pageInput=[new ColumnsModel({
-    key:"pageNo",
-    type:"INT",
-    required:false
-}),new ColumnsModel({
-    key:"pageSize",
-    type:"INT",
-    required:false
-})]; 
+const pageInput = [new ColumnsModel({
+    key: "pageNo",
+    type: "INT",
+    required: false
+}), new ColumnsModel({
+    key: "pageSize",
+    type: "INT",
+    required: false
+})];
 class TestApi extends React.Component {
-    state={
-        results:[],
-        status:apiTestStatus.NOTHING
+    state = {
+        results: [],
+        status: apiTestStatus.NOTHING
     }
-    prev(){
+    prev() {
         this.props.prev();
     }
 
     initColumns() {
-        const  { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator } = this.props.form;
         return [
             {
                 title: '参数名称',
@@ -59,97 +59,111 @@ class TestApi extends React.Component {
             {
                 title: "值",
                 render: (text, record) => {
-                    const {inFields} = this.props;
-                    let data=inFields&&inFields.inFields;
+                    const { inFields } = this.props;
+                    let data = inFields && inFields.inFields;
                     let initialValue;
-                    if(record.paramsName=="pageNo"||record.paramsName=="pageSize"){
-                        initialValue=inFields&&inFields[record.paramsName];
-                    }else{
-                        initialValue=data&&data[record.paramsName];
+                    if (record.paramsName == "pageNo" || record.paramsName == "pageSize") {
+                        initialValue = inFields && inFields[record.paramsName];
+                        return <FormItem
+                            style={{ marginBottom: "0px" }}
+                        >
+                            {getFieldDecorator(record.paramsName, {
+                                rules: [{
+                                    required: record.required,
+                                    message: "该参数为必填项"
+                                },{
+                                    pattern:/^\d*$/,
+                                    message:"请输入数字"
+                                }],
+                                initialValue: initialValue
+                            })(<InputNumber min={1} style={{width:"100%"}} />)}
+                        </FormItem>
+                    } else {
+                        initialValue = data && data[record.paramsName];
+                        return (<FormItem
+                            style={{ marginBottom: "0px" }}
+                        >
+                            {getFieldDecorator(record.paramsName, {
+                                rules: [{
+                                    required: record.required,
+                                    message: "该参数为必填项"
+                                }],
+                                initialValue: initialValue
+                            })(<Input />)}
+                        </FormItem>)
                     }
-                    return <FormItem
-                    style={{marginBottom:"0px"}} 
-                    >
-                        { getFieldDecorator(record.paramsName,{
-                            rules:[{
-                                required:record.required,
-                                message:"该参数为必填项"
-                            }],
-                            initialValue:initialValue
-                        })(<Input />)}
-                    </FormItem> 
                 }
             }
         ]
     }
-    testApi(){
-        const {validateFieldsAndScroll} = this.props.form;
-        validateFieldsAndScroll({},(err,values)=>{
-            if(!err){
+    testApi() {
+        const { validateFieldsAndScroll } = this.props.form;
+        validateFieldsAndScroll({}, (err, values) => {
+            if (!err) {
                 this.setState({
-                    loading:true
+                    loading: true
                 })
                 this.props.apiTest(values)
-                .then(()=>{
-                    this.setState({
-                        loading:false
-                    })
-                });
+                    .then(() => {
+                        this.setState({
+                            loading: false
+                        })
+                    });
             }
         })
     }
-    initOutColumns(){
-        let x=100;
-        const arr=[];
-        const { outputParam } =this.props.paramsConfig;
-        for(let key in outputParam ){
-            let value=outputParam[key].paramsName;
+    initOutColumns() {
+        let x = 100;
+        const arr = [];
+        const { outputParam } = this.props.paramsConfig;
+        for (let key in outputParam) {
+            let value = outputParam[key].paramsName;
             arr.push({
-                title:value,
-                dataIndex:value,
-                width:Math.max(value.length*8+20,50)+"px"
+                title: value,
+                dataIndex: value,
+                width: Math.max(value.length * 8 + 20, 50) + "px"
             })
-            x=x+Math.max(value.length*8+20,50);
+            x = x + Math.max(value.length * 8 + 20, 50);
         }
-        return {outputResultColumns:arr,x};
+        return { outputResultColumns: arr, x };
     }
-    getSaveMsg(){
-        const {respJson} = this.props;
+    getSaveMsg() {
+        const { respJson } = this.props;
         let status;
-        if(respJson){
-            status=respJson.success?apiTestStatus.SUCCESS:apiTestStatus.ERROR;
-        }else{
-            status=apiTestStatus.NOTHING;
+        if (respJson) {
+            status = respJson.success ? apiTestStatus.SUCCESS : apiTestStatus.ERROR;
+        } else {
+            status = apiTestStatus.NOTHING;
         }
-        switch(status){
-            case apiTestStatus.NOTHING:{
+        switch (status) {
+            case apiTestStatus.NOTHING: {
                 return null;
             }
-            case apiTestStatus.SUCCESS:{
-                return <Checkbox onChange={this.props.saveResult} checked={this.props.isSaveResult} style={{marginTop:"8px"}}>将测试结果作为JSON样例保存</Checkbox>;
+            case apiTestStatus.SUCCESS: {
+                return <Checkbox onChange={this.props.saveResult} checked={this.props.isSaveResult} style={{ marginTop: "8px" }}>将测试结果作为JSON样例保存</Checkbox>;
             }
-            case apiTestStatus.ERROR:{
+            case apiTestStatus.ERROR: {
                 return "测试失败!请查看返回结果错误信息"
             }
         }
     }
-    wrapInputParams(){
+    wrapInputParams() {
         const { inputParam, resultPageChecked } = this.props.paramsConfig;
-       
-        if(resultPageChecked){
-            return [...pageInput,...inputParam]; 
+
+        if (resultPageChecked) {
+            return [...pageInput, ...inputParam];
         }
         return inputParam;
     }
-    pass(){
+    pass() {
         this.props.dataChange();
     }
     render() {
-        const {results, status, loading} =this.state;
-        const { basicProperties, respJson:testResult } =this.props;
+        const { results, status, loading } = this.state;
+        const { basicProperties, respJson: testResult } = this.props;
         const wrapInputParams = this.wrapInputParams();
         const inputTableColumns = this.initColumns();
-        const {outputResultColumns,x}= this.initOutColumns();
+        const { outputResultColumns, x } = this.initOutColumns();
         return (
             <div>
                 <div className="steps-content">
@@ -157,9 +171,9 @@ class TestApi extends React.Component {
                         <div className="left_box">
                             <p className="required-tip middle-title">API测试：</p>
                             <div style={{ paddingLeft: "20px" }}>
-                                <p style={{fontSize:"18px"}} className="middle-title">
+                                <p style={{ fontSize: "18px" }} className="middle-title">
                                     {basicProperties.APIName}
-                                <span className="shadowtext" style={{ marginLeft: "8px" }}>请求方式：{API_METHOD_key[basicProperties.method]}</span>
+                                    <span className="shadowtext" style={{ marginLeft: "8px" }}>请求方式：{API_METHOD_key[basicProperties.method]}</span>
                                     <span className="shadowtext" style={{ marginLeft: "8px" }}>返回类型：{basicProperties.protocol}</span>
                                 </p>
                                 <p style={{ marginTop: "5px" }} className="middle-title">输入参数：</p>
@@ -172,26 +186,26 @@ class TestApi extends React.Component {
                                     pagination={false}
                                     scroll={{ y: 300 }}
                                 />
-                                <Button  loading={loading} style={{ marginTop: 12,float:"right" }} onClick={() => this.testApi()}>开始测试</Button>
+                                <Button loading={loading} style={{ marginTop: 12, float: "right" }} onClick={() => this.testApi()}>开始测试</Button>
                             </div>
                         </div>
                         <div className="right_box">
-                        <p className="middle-title">测试结果：</p>
-                        <div style={{paddingLeft:"20px"}}>
-                            <p className="middle-title">返回结果：</p>
-                            <TextArea className="textarea_white_disable" value={testResult?JSON.stringify(testResult,null,4):null} disabled autosize={{ minRows: 8,maxRows:20}} />
-                            <p style={{ marginTop: "10px" }} className="middle-title">输出结果：</p>
-                            <Table
+                            <p className="middle-title">测试结果：</p>
+                            <div style={{ paddingLeft: "20px" }}>
+                                <p className="middle-title">返回结果：</p>
+                                <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: 8, maxRows: 20 }} />
+                                <p style={{ marginTop: "10px" }} className="middle-title">输出结果：</p>
+                                <Table
                                     className="m-table shadow"
-                                    style={{ background: "#fff"}}
+                                    style={{ background: "#fff" }}
                                     rowKey="id"
                                     columns={outputResultColumns}
-                                    dataSource={testResult&&testResult.data}
+                                    dataSource={testResult && testResult.data}
                                     pagination={false}
-                                    scroll={{ y: 300 ,x:x}}
+                                    scroll={{ y: 300, x: x }}
                                 />
-                            {this.getSaveMsg()}
-                        </div>
+                                {this.getSaveMsg()}
+                            </div>
                         </div>
                     </div>
                 </div>

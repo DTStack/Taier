@@ -25,7 +25,7 @@ class SearchTable extends Component {
 
     constructor(props) {
         super(props);
-        const { pId, pageIndex,catalogueId,permissionStatus,tableName} = this.props.location.query;
+        const { pId, pageIndex,permissionStatus,tableName} = this.props.location.query;
         this.state = {
             visible: false,
             table: [],
@@ -34,7 +34,7 @@ class SearchTable extends Component {
             queryParams: {
                 pId,
                 pageIndex: pageIndex || 1,
-                catalogueId,
+                catalogueId: undefined,
                 permissionStatus,
                 tableName,
             },
@@ -99,10 +99,17 @@ class SearchTable extends Component {
     }
 
     loadCatalogue = () => {
+        const { queryParams } = this.state;
+        this.setState({
+            cardLoading: true,
+        })
         ajax.getDataCatalogues().then(res => {
+            const { catalogueId } =  this.props.location.query;
+            queryParams.catalogueId = catalogueId||undefined;
             this.setState({
                 dataCatalogue: res.data && [res.data],
                 pageIndex: 1,
+                queryParams,
             },this.search)
         })
     }
@@ -315,8 +322,8 @@ class SearchTable extends Component {
         };
         return <div className="m-tablelist">
                     <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                        <Card noHovering bordered={false} title={title} >
-                            <Spin tip="正在加载中..." spinning={cardLoading}>
+                        <Spin tip="正在加载中..." spinning={cardLoading}>
+                            <Card noHovering bordered={false} title={title} >
                                 <div style={{ marginTop: '1px' }}>
                                     <Table
                                         rowKey="id"
@@ -327,8 +334,8 @@ class SearchTable extends Component {
                                         onChange={this.handleTableChange.bind(this)}
                                     />
                                 </div>
-                            </Spin>
-                        </Card>
+                            </Card>
+                        </Spin>
                         <TableApplyModal 
                             visible={visible}
                             table={editRecord}
