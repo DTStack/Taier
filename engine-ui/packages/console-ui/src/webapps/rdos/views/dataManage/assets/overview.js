@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 import moment from 'moment'
 
 import {
-    Row, Col, Select, DatePicker,
+    Row, Col, Select, DatePicker, Tooltip
 } from 'antd'
 
 import utils from 'utils'
@@ -41,7 +41,7 @@ export default class ProjectList extends Component {
         chart2: '',
         chart3: '',
         selectedDate: '',
-        selectedProject: this.props.projects&&this.props.projects[0].id||'',
+        selectedProject: this.props.projects[0]&&this.props.projects[0].id||'',
         topStyle: {
             width: '50%',
             height: '100%',
@@ -343,11 +343,11 @@ export default class ProjectList extends Component {
     render() {
         console.log(this.props);
         
-        const { project, selectedProject, projectTable, projectStore, topStyle } = this.state
+        const { project, selectedProject, projectTable, projectStore, topStyle, total } = this.state
 
         const { projects } = this.props
         const projectOptions = projects ? projects.map(item => {
-            return <Option key={item.id} value={item.id}>{item.projectAlias || item.projectName}</Option>
+            return  <Option key={item.id} value={item.id}><Tooltip placement="top" key={item.id} mouseEnterDelay={1} title={item.projectAlias || item.projectName}><div>{item.projectAlias || item.projectName}</div></Tooltip></Option>
         }) : []
 
         return (
@@ -356,10 +356,11 @@ export default class ProjectList extends Component {
                     project={project}
                     projectTable={projectTable}
                     projectStore={projectStore}
+                    total={total}
                 />
                 <Resize onResize={this.resizeChart}>
-                <Row style={{ marginTop: '20px' }}>
-                        <Col span={12}>
+                <Row style={{ marginTop: 20 }}>
+                        <Col span={12} style={{minWidth: 570, marginBottom: 20}} >
                             <div className="chart-board shadow">
                                 <section
                                     id="DataOverview"
@@ -368,9 +369,11 @@ export default class ProjectList extends Component {
                                 <div className="filter">
                                     <span className="chart-tip"> &nbsp;&nbsp;&nbsp;项目：</span>
                                     <Select
+                                        showSearch
                                         value={selectedProject}
                                         onChange={this.projectOnChange}
                                         style={{ width: '100px' }}
+                                        filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     >
                                         {projectOptions}
                                     </Select>
@@ -389,7 +392,7 @@ export default class ProjectList extends Component {
                                 </div>
                             </div>
                         </Col>
-                        <Col span={12}>
+                        <Col span={12} style={{minWidth: 570}}>
                             <div className="chart-board shadow">
                                 <section
                                     id="StoreTop5"
@@ -411,6 +414,7 @@ export default class ProjectList extends Component {
 
 function Abstract(props) {
     const { project, projectTable, projectStore,total } = props
+    console.log('total',total);
     return (
         <Row gutter={32}>
             <Col span={6} style={{ marginLeft:10 }}>
@@ -420,7 +424,7 @@ function Abstract(props) {
                     </div>
                     <div className="left indicator-detail">
                         <section className="indicator-title">总项目数</section>
-                        <section className="indicator-content">{ total ? project.allProjects || 0 :project.joinProjects || 0 }</section>
+                        <section className="indicator-content">{ total ? project.allProjects || 0 : project.joinProjects || 0 }</section>
                     </div>
                 </div>
             </Col>
