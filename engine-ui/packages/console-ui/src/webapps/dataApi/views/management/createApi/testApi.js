@@ -198,7 +198,9 @@ class TestApi extends React.Component {
                                 <Table
                                     className="m-table shadow"
                                     style={{ background: "#fff" }}
-                                    rowKey="id"
+                                    rowKey={(record,index)=>{
+                                        return index;
+                                    }}
                                     columns={outputResultColumns}
                                     dataSource={testResult && testResult.data}
                                     pagination={false}
