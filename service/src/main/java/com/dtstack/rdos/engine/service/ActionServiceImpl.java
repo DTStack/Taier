@@ -7,10 +7,7 @@ import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.*;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
+import com.dtstack.rdos.engine.service.db.dataobject.*;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.node.JobStopAction;
 import com.dtstack.rdos.engine.service.node.MasterNode;
@@ -53,6 +50,8 @@ public class ActionServiceImpl {
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
+
+    private RdosStreamTaskCheckpointDAO streamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
 
@@ -613,5 +612,14 @@ public class ActionServiceImpl {
             }
         }
         return uniqueSign;
+    }
+
+    public List<RdosStreamTaskCheckpoint> listStreamTaskCheckpoint(@Param("taskId") String taskId,@Param("triggerStart") Long triggerStart,
+                                                                   @Param("triggerEnd") Long triggerEnd){
+        if(triggerEnd == null || triggerStart == null){
+            return streamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,null,null);
+        } else {
+            return streamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
+        }
     }
 }
