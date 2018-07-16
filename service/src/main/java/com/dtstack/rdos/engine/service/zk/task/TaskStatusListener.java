@@ -296,6 +296,7 @@ public class TaskStatusListener implements Runnable{
         if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
+            rdosEngineJobCacheDao.deleteJob(jobId);
             zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
             rdosStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
@@ -358,6 +359,7 @@ public class TaskStatusListener implements Runnable{
         if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
 
             status = RdosTaskStatus.CANCELED.getStatus();
+            rdosEngineJobCacheDao.deleteJob(jobId);
             zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
             rdosBatchEngineJobDAO.updateJobStatusAndExecTime(jobId, status);
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
