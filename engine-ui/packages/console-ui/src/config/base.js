@@ -6,6 +6,7 @@ export const RDOS_BASE_URL = '/api/rdos';
 export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const DL_BASE_URL = '/api/tag/service';
+export const CONSOLE_BASE_URL = '/api/console/service';
 
 export const rdosApp = {
     id: 'rdos',
@@ -47,4 +48,14 @@ export const dlApp = {
     target: '_blank',
     enable: true,
     apiBase: '/tag',
+}
+
+export const consoleApp = {
+    id: 'console',
+    name: '控制台',
+    link: 'console.html#/',
+    filename: 'console.html',
+    target: '_blank',
+    enable: true,
+    apiBase: '/console',
 }

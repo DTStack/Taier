@@ -203,12 +203,12 @@ export class Navigator extends Component {
         const {
             user, logo, menuItems,
             settingMenus, apps, app,
-            menuLeft, menuRight
+            menuLeft, menuRight, logoWidth
         } = this.props;
         const { current } = this.state
         return (
             <header className="header">
-                <div className="logo left txt-left">
+                <div style={{width:logoWidth}} className="logo left txt-left">
                     {logo}
                 </div>
                 {

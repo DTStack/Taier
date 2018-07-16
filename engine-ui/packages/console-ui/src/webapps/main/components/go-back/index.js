@@ -17,7 +17,7 @@ export default class GoBack extends Component {
     }
 
     getButtonView() {
-        const { type, style } = this.props;
+        const { type, style, size } = this.props;
         let mStyle = {
             cursor: 'pointer'
         }
@@ -28,7 +28,7 @@ export default class GoBack extends Component {
             case "textButton":
                 mStyle.marginRight = '5px';
                 return (
-                    <Button style={mStyle} onClick={this.go} size="small">
+                    <Button style={mStyle} onClick={this.go} size={size||"small"}>
                         <Icon type="left" />返回
                     </Button>
                 );
