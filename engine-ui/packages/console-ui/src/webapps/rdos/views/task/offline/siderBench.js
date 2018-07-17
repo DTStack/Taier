@@ -69,25 +69,28 @@ class SiderBench extends React.Component {
             </TabPane>
         ]
         if (tabData && utils.checkExist(tabData.taskType) && tabData.taskType !== TASK_TYPE.VIRTUAL_NODE) {
-            panes.push([
+            panes.push(
                 <TabPane tab={<span className="title-vertical">任务参数</span>} key="params5">
                     <TaskParams
                         tabData={tabData}
                         onChange={this.handleCustomParamsChange}
                     />
                 </TabPane>,
-                <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
-                    <SQLEditor
-                        options={{...propEditorOptions,readOnly:isLocked}}
-                        key={'params' + tabData.id}
-                        value={tabData.taskParams}
-                        onFocus={() => { }}
-                        focusOut={() => { }}
-                        onChange={this.handleTaskParamChange.bind(this)}
-                    />
-                </TabPane>,
-
-            ])
+            )
+            if (tabData.taskType !== TASK_TYPE.SYNC) {
+                panes.push(
+                    <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
+                        <SQLEditor
+                            options={{...propEditorOptions,readOnly:isLocked}}
+                            key={'params' + tabData.id}
+                            value={tabData.taskParams}
+                            onFocus={() => { }}
+                            focusOut={() => { }}
+                            onChange={this.handleTaskParamChange.bind(this)}
+                        />
+                    </TabPane>,
+                )
+            }
         } else if (utils.checkExist(tabData.type)) {
             return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
                 <ScriptDetail tabData={tabData} />

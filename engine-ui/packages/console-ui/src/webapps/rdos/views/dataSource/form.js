@@ -607,9 +607,6 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！',
-                            }],
                             initialValue: '',
                         })(
                             <Input type="password" autoComplete="off" />,
@@ -644,9 +641,6 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
-                            // rules: [{
-                            //     required: true, message: '用户名不可为空！',
-                            // }],
                             initialValue: '',
                         })(
                             <Input autoComplete="off" />,
@@ -659,9 +653,6 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
-                            // rules: [{
-                            //     required: true, message: '密码不可为空！',
-                            // }],
                             initialValue: '',
                         })(
                             <Input type="password" autoComplete="off" />,
