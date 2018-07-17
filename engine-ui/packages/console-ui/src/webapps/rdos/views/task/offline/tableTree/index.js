@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { 
+import {hashHistory} from "react-router";
+import {
     Tree, TreeSelect, Dropdown, Menu,
-    Input, Tooltip, Icon,
+    Input, Tooltip, Icon, Select
 } from 'antd';
 
 import Api from '../../../../api/dataManage'
@@ -15,6 +16,7 @@ import {
 import TableInfoPane from './tableInfoPane';
 
 const { TreeNode } = Tree;
+const Option = Select.Option;
 
 // 映射State
 const stateToProps = (state) => {
@@ -59,7 +61,7 @@ class TableTree extends React.Component {
     search = (e) => {
         e.preventDefault();
         const value = e.target.value;
-        if (value === "") this.setState({ tableId: ''})
+        if (value === "") this.setState({ tableId: '' })
         this.doReq(value)
     }
 
@@ -67,7 +69,7 @@ class TableTree extends React.Component {
         this.doReq('')
         this.setState({ tableId: '' })
     }
-    
+
     doReq = (queryName) => {
         const { treeData, loadTreeNode } = this.props;
         Api.queryTable({
@@ -80,7 +82,7 @@ class TableTree extends React.Component {
         })
     }
 
-    onClickSearch =() => {
+    onClickSearch = () => {
         this.setState({ displaySearch: true }, () => {
             const input = document.getElementById('tableTreeInput')
             if (input) input.focus()
@@ -91,7 +93,11 @@ class TableTree extends React.Component {
         const table = node.props.data
         this.setState({ tableId: table.id })
     }
-
+    jumpToDataMap(id){
+        hashHistory.push({
+            pathname:"data-manage/table/view/"+id
+        })
+    }
     renderNodes = () => {
         const { treeData } = this.props;
         const loop = (data) => {
@@ -104,22 +110,39 @@ class TableTree extends React.Component {
                 title={name}
                 className={isFolder ? 'folder-item' : 'file-item'}
             >
-                {name}  
+                {name}
                 <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
                     {data.chargeUser || data.userName}
                 </i>
             </span>
+            const nodeTitle=isFolder?name:(
+                <Tooltip overlayClassName="table-detail-card" title={(
+                    <div className="detail-content">
+                        <p className="text-item"><span className="text-item-name">表名</span><span className="text-item-value">{name}</span></p>
+                        <p className="text-item"><span className="text-item-name">责任人</span><span className="text-item-value">{data.chargeUser}</span></p>
+                        <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias||"-"}</span></p>
+                        <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay||'-'}</span></p>
+                        <p className="text-item"><span className="text-item-name">描述</span><span className="text-item-value">{data.tableDesc||"-"}</span></p>
+                        <a onClick={this.jumpToDataMap.bind(this,data.id)}>更多详情</a>
+                    </div>
+                )} 
+                placement="bottomLeft"
+                mouseEnterDelay={0.5}>
+                        {name}
+                </Tooltip>
+            )
 
             return data ? (
-                <TreeNode 
-                    title={title}
+
+                <TreeNode
+                    title={nodeTitle}
                     key={id}
                     value={id}
                     isLeaf={isFile}
                     data={data}
                     className={'s-table'}
                 >
-                    {data.children && data.children.map(subItem => loop(subItem)) }
+                    {data.children && data.children.map(subItem => loop(subItem))}
                 </TreeNode>
             ) : null
         }
@@ -130,10 +153,14 @@ class TableTree extends React.Component {
         const { displaySearch, tableId } = this.state
         const display = displaySearch ? 'block' : 'none';
         return (
-            <div className="menu-content">
-                <header>
+            <div className="menu-content" style={{ position: "relative" }}>
+                <header style={{ left: "13px" }}>
+                    <Select defaultValue="all" size="small" style={{ width: "100px", marginTop: "6.5px", float: "left" }}>
+                        <Option value="all">全部项目</Option>
+                        <Option value="dev">开发环境</Option>
+                    </Select>
                     <Tooltip title="表查询">
-                        <Icon 
+                        <Icon
                             type="search"
                             style={{ marginRight: '8px' }}
                             className="right" onClick={this.onClickSearch}
@@ -143,7 +170,7 @@ class TableTree extends React.Component {
                     <Tooltip title="刷新">
                         <Icon
                             type="sync"
-                            style={{fontSize: '12px'}}
+                            style={{ fontSize: '12px' }}
                             className="right" onClick={this.refresh}
                         />
                     </Tooltip>
@@ -158,18 +185,18 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list" style={{maxHeight: tableId ? '500px' : '100%', minHeight: '200px' }}>
+                <div className="tb-list" style={{ maxHeight: tableId ? '500px' : '100%', minHeight: '200px', paddingTop: "30px" }}>
                     <Tree
                         showIcon={true}
                         loadData={this.onLoadData}
                         onSelect={this.handleSelect}
                     >
-                        { this.renderNodes() }
+                        {this.renderNodes()}
                     </Tree>
-                    
+
                 </div>
                 {
-                    tableId && <div className="tb-info bd-top"> 
+                    tableId && <div className="tb-info bd-top">
                         <TableInfoPane tableId={tableId} />
                     </div>
                 }

@@ -242,8 +242,7 @@
             .tab-search {
                 min-width: 140px;
                 position: absolute;
-                top: 40px;
-                left: -120;
+                top: 35px;
                 height: 30px;
                 background: #fff;
                 z-index: 999;
@@ -717,4 +716,34 @@
     right: 0px;
     cursor: not-allowed;
     z-index: 999;
+}
+.table-detail-card{
+    .ant-tooltip-inner{
+        background: #fff;
+        color:rgba(1, 1, 1,0.84);
+        max-width:300px;
+    }   
+    .ant-tooltip-arrow{
+        border-right-color:#fff;
+        border-bottom-color:#fff;
+    }
+    .detail-content{
+        padding: 10px;
+        font-size: 12px;
+        width: 300px;
+    }
+    .text-item{
+        margin-bottom:8px;
+    }
+    .text-item-value{
+        padding-right: 10px;
+        display: inline-block;
+        width: 140px;
+        vertical-align: text-top;
+        word-break: break-all;
+    }
+    .text-item-name{
+        width: 140px;
+        display: inline-block;
+    }
 }
