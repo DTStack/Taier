@@ -16,9 +16,9 @@ module.exports = function() {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
             rdos: MY_PATH.RDOS_APP_FILE,
-            // dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
-            // dataApi: MY_PATH.DATA_API_APP_FILE,
-            // dataLabel: MY_PATH.DATA_LABEL_APP_FILE
+            dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
+            dataApi: MY_PATH.DATA_API_APP_FILE,
+            dataLabel: MY_PATH.DATA_LABEL_APP_FILE
         },
         output: {
             path: MY_PATH.BUILD_PATH,
