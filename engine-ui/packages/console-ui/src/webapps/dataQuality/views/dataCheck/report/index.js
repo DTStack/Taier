@@ -95,6 +95,8 @@ export default class DataCheckReport extends Component {
             pageSize: params.pageSize,
             total: tableData.totalCount
         }
+        let getParams = `verifyRecordId=${params.verifyRecordId}&currentPage=${params.currentPage}&pageSize=${params.pageSize}`;
+        const downloadUrl=`/api/dq/export/verify/doExport?${getParams}`
 
         return (
             <div className="box-1">
@@ -156,11 +158,11 @@ export default class DataCheckReport extends Component {
                 <div className="report-content">
                     <h3 className="flex" style={{ justifyContent: 'space-between' }}>
                         具体差异
-                        <Icon 
+                        <a href={downloadUrl} download><Icon 
                             type="download" 
-                            onClick={this.handleDownload}
+                            // onClick={this.handleDownload}
                             style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }} 
-                        />
+                        /></a>
                     </h3>
                     <Table 
                         // rowKey="key"
