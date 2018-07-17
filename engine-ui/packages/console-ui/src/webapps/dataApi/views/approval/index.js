@@ -78,7 +78,7 @@ class APIApproval extends Component {
     getApprovalList() {
         this.props.approvalList({
             userName: this.state.userName,
-            status: this.state.filter.status && this.state.filter.status[0],
+            status: (this.state.filter.status && this.state.filter.status.length>0)?this.state.filter.status:null,
             currentPage: this.state.pageIndex,
             pageSize: 20,
             sort: orderType[this.state.sorter.order],
@@ -232,7 +232,7 @@ class APIApproval extends Component {
                 }
                 return <span className={`state-${EXCHANGE_APPLY_STATUS[text]}`}>{dic[EXCHANGE_APPLY_STATUS[text]]}</span>
             },
-            filterMultiple: false,
+            filterMultiple: true,
             filters: [
                 {
                     text: '未审批',
