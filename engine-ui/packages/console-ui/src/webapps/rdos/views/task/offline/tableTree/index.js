@@ -20,7 +20,9 @@ const Option = Select.Option;
 
 // 映射State
 const stateToProps = (state) => {
-    return {}
+    return {
+        project:state.project
+    }
 }
 
 // 映射Props
@@ -41,6 +43,7 @@ class TableTree extends React.Component {
     state = {
         displaySearch: false,
         tableId: '',
+        projectId:"all",
     }
 
     onLoadData = (treeNode) => {
@@ -71,11 +74,13 @@ class TableTree extends React.Component {
     }
 
     doReq = (queryName) => {
+        const {projectId,tableId} = this.state;
         const { treeData, loadTreeNode } = this.props;
         Api.queryTable({
-            tableName: queryName,
+            tableName: queryName||tableId,
             pageSize: 1000,
             pageIndex: 1,
+            appointProjectId:projectId=="all"?null:projectId
         }).then(res => {
             treeData.children = res.data && res.data.data;
             loadTreeNode(treeData)
@@ -121,7 +126,7 @@ class TableTree extends React.Component {
                         <p className="text-item"><span className="text-item-name">表名</span><span className="text-item-value">{name}</span></p>
                         <p className="text-item"><span className="text-item-name">责任人</span><span className="text-item-value">{data.chargeUser}</span></p>
                         <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias||"-"}</span></p>
-                        <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay||'-'}</span></p>
+                        <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay?`${data.lifeDay}天`:'-'}</span></p>
                         <p className="text-item"><span className="text-item-name">描述</span><span className="text-item-value">{data.tableDesc||"-"}</span></p>
                         <a onClick={this.jumpToDataMap.bind(this,data.id)}>更多详情</a>
                     </div>
@@ -148,16 +153,21 @@ class TableTree extends React.Component {
         }
         return loop(treeData)
     }
-
+    tableChange(value){
+        this.setState({
+            projectId:value
+        },this.doReq)
+    }
     render() {
-        const { displaySearch, tableId } = this.state
+        const { displaySearch, tableId, projectId } = this.state
+        const {project} = this.props;
         const display = displaySearch ? 'block' : 'none';
         return (
             <div className="menu-content" style={{ position: "relative" }}>
                 <header style={{ left: "13px" }}>
-                    <Select defaultValue="all" size="small" style={{ width: "100px", marginTop: "6.5px", float: "left" }}>
+                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", marginTop: "6.5px", float: "left" }}>
                         <Option value="all">全部项目</Option>
-                        <Option value="dev">开发环境</Option>
+                        <Option value={project.id}>{project.projectAlias}</Option>
                     </Select>
                     <Tooltip title="表查询">
                         <Icon
