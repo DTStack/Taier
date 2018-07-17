@@ -42,7 +42,6 @@ class Index extends Component {
             })
         }else if(data.stickStatus == 0){//"置顶"
             Api.setSticky({appointProjectId: data.id,stickStatus: 1}).then(v=>{
-                console.log('置顶',v);
                 if(v.code==1){
                     message.success('置顶成功！');
                     this.getProjectListInfo();
@@ -50,7 +49,6 @@ class Index extends Component {
             })
         }else if(data.stickStatus == 1){//"取消置顶"
             Api.setSticky({appointProjectId: data.id,stickStatus: 0}).then(v=>{
-                console.log('取消置顶',v);
                 if(v.code==1){
                     message.success('取消置顶成功！');
                     this.getProjectListInfo();
@@ -113,10 +111,20 @@ class Index extends Component {
     }
 
     generalTitle = (data)=>{
-        const tooltipTittle = <div className="tooltip-tittle-text" onClick={()=>{this.setCard(data)}}>
+        const deleteImg =  <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
+        const setTopImg =  <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
+        const cancelTopImg = <img className="tooltip-img" src="/public/rdos/img/cancel-top.svg" />;
+        const tooltipTittle = <div>
                 {
-                     data.status == 2||data.status == 3 ? "删除项目" : data.stickStatus == 1 ? "取消置顶" :  "置顶"
+                     data.status == 2 || data.status == 3 ? "删除项目" : data.stickStatus == 1 ? "取消置顶" :  "置顶"
                 }
+            </div>
+        const tooltipImg = <div onClick={()=>{this.setCard(data)}}>
+                <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
+                    {
+                        data.status == 2 || data.status == 3 ? deleteImg : data.stickStatus == 1 ? cancelTopImg :  setTopImg
+                    }
+                </Tooltip>
             </div>
         const title = <div>
             <Row>
@@ -139,9 +147,7 @@ class Index extends Component {
                     }
                 </Col>
                 <Col span="4">
-                    <Tooltip title={tooltipTittle} placement="bottomRight" overlayClassName="tooltip">
-                        <Icon type="setting" style={{ fontSize: 16,marginTop: "16px" ,float: "right"}} />
-                    </Tooltip>
+                    {tooltipImg}
                 </Col>
             </Row>
         </div>
@@ -176,9 +182,25 @@ class Index extends Component {
         }
     }
 
+    handleMouseOver = (type,e) => { 
+        if(type === "realtime"){
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.png"
+        }else{
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline3.png"
+        }
+    }
+
+    handleMouseOut = (type,e) => { 
+        if(type === "realtime"){
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.png"
+        }else{
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline2.png"
+        }
+    }
+
 
     render() {
-        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
+        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, offlineSrc, realtimeSrc } = this.state;
         return (
             <Spin tip="Loading..." spinning={loading}  delay={500} >
                 <div className="project-dashboard" style={{ padding: "20 40" }}>
@@ -230,17 +252,25 @@ class Index extends Component {
                                                                 {
                                                                     v.status == 2 || v.status == 3 ? "" : <Row >
                                                                         <Col span="8">
-                                                                            <Card className="card-task" onClick={()=>{this.setRouter('offline',v)}}>
+                                                                            <Card className="card-task" 
+                                                                                onClick={()=>{this.setRouter('offline',v)}} 
+                                                                                onMouseOver={(e)=>{this.handleMouseOver('offline',e)}} 
+                                                                                onMouseOut={(e)=>{this.handleMouseOut('offline',e)}}
+                                                                            >
                                                                                 <span className="img-container">
-                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline.png" />
+                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline2.png" />
                                                                                 </span>
                                                                                 离线任务开发
                                                                             </Card>
                                                                         </Col>
                                                                         <Col span="8">
-                                                                            <Card className="card-task" onClick={()=>{this.setRouter('realtime',v)}}>
+                                                                            <Card className="card-task" 
+                                                                                onClick={()=>{this.setRouter('realtime',v)}} 
+                                                                                onMouseOver={(e)=>{this.handleMouseOver('realtime',e)}} 
+                                                                                onMouseOut={(e)=>{this.handleMouseOut('realtime',e)}}
+                                                                            >
                                                                                 <span className="img-container">
-                                                                                    <img className="task-img" src="/public/rdos/img/icon/realtime.png" />
+                                                                                    <img className="task-img" src="/public/rdos/img/icon/realtime2.png" />
                                                                                 </span>
                                                                                 实时任务开发
                                                                             </Card>
