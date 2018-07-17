@@ -318,7 +318,7 @@ class TableList extends Component {
         const extra = (
             <div style={marginTop10}>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
-                    <Link to={`${ROUTER_BASE}/design`}>新建表</Link>
+                    <Link to={`${ROUTER_BASE}/design`}>模型建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
                     <Link to={`/data-model/table/create`}>普通建表</Link>
