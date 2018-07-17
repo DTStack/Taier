@@ -13,6 +13,14 @@
 - 【数据质量】新增Hive, MaxCompute 数据源并发度参数设置
 - 【其他】总计约22项优化，100多项Bugfix, 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-3-0/issues)
 
+# 更新日志
+ > 版本：DTinsight v2.3.2 <br>
+ > 日期：2018-07-17
+
+- 【开发套件】修复某些情况SQL无法执行的问题
+- 【开发套件】修复开发套件表查询查询异常
+
+
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
