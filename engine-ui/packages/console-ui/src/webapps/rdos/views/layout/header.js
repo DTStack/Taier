@@ -171,6 +171,7 @@ class Header extends Component {
     render() {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
+        console.log('this.props',this.props);
 
         let pathname = router.location.pathname;
 
@@ -182,7 +183,7 @@ class Header extends Component {
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
-            pathname.indexOf("/data-manage") > -1 ? false : true;
+            pathname.indexOf("/data-manage") > -1 || pathname === "/"  ? false : true;
 
         return (
             <div className="header">
