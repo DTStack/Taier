@@ -176,7 +176,6 @@ export function filterComments(sql) {
             continue;
         }
 
-
         let lastChar = tmpArr[tmpArr.length - 1];
 
         if (firstChar.char == "'" || firstChar.char == "\"") {
