@@ -215,7 +215,6 @@ export function filterComments(sql) {
     }
 
     sql = replaceStrFormIndexArr(sql, '', comments)
-    console.log(sql)
     return sql;
 }
 
