@@ -67,9 +67,18 @@
     }
     .card-width{
         min-width: 375px;
-        
+        .tooltip-img{
+            width: 20px;
+            float: right;
+            margin-top: 14;
+        }
+        .setTopImg{
+            transform: rotate(180deg);
+        }
         .company-name{
             font-size: 14px ;
+            color: #333;
+            font-weight: 600;
             cursor: pointer;
         }
         .company-name:hover{
@@ -101,8 +110,6 @@
                     min-width: 115px;
                     text-align: center;
                     margin-top: 10px;
-                    background: #2491F7;
-                    color: #fff;
                 }
                 .img-container{
                     padding-right: 5px;
@@ -110,20 +117,21 @@
                         display: inline-block;
                         height:16px;
                         width: 20px;
-                        background: #2491F7;
                         position: relative;
                         top: 3px;
                     }
                 }
                 .card-task:hover{
                     cursor: pointer;
+                    border: 1px solid #2491F7;
+                    color: #2491F7;
                 }
                 
             }
             .triangle_border_right{
                 border-width: 16px;
                 border-style: solid;
-                border-color: transparent transparent transparent #696565;/*透明 透明 透明 灰*/
+                border-color: transparent transparent transparent #94A8C6;/*透明 透明 透明 灰*/
                 //margin:40px auto;
                 position: absolute;
                 bottom: -16px;
@@ -168,20 +176,6 @@
     }
     
 
-}
-.tooltip-tittle-text{
-    cursor: pointer;
-}
-.tooltip{
-    .ant-tooltip-arrow{
-        border-bottom-color: #2491F7;
-    }
-    .ant-tooltip-arrow{
-        border-bottom-color: #2491F7;
-    }
-    .ant-tooltip-inner{
-        background-color: #2491F7; 
-    }
 }
 
 // .tooltip-tittle-text:hover{
