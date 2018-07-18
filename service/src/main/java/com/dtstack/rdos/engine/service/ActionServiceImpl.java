@@ -314,13 +314,10 @@ public class ActionServiceImpl {
                 engineStreamTaskDAO.insert(rdosEngineStreamJob);
                 result =  true;
             }else{
-                if(RdosTaskStatus.SUBMITTING.getStatus().equals(rdosEngineStreamJob.getStatus().intValue())){
-                    return false;
-                }
 
                 result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
-                if(result){
-                    engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
+                    engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
             }
         }else{
@@ -333,13 +330,9 @@ public class ActionServiceImpl {
                 result =  true;
             }else{
 
-                if(rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.SUBMITTING.getStatus()){
-                    return false;
-                }
-
                 result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
-                if(result){
-                    batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
+                    batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
                 }
             }
         }
