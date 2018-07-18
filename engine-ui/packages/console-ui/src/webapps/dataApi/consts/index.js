@@ -17,7 +17,7 @@ export const API_MODE = {
 }
 export const API_METHOD = {
     POST: 1,
-    // GET:2
+    GET:0
 }
 export const API_METHOD_key = {
     1: "POST",
