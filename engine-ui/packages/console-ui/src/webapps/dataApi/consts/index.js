@@ -21,7 +21,7 @@ export const API_METHOD = {
 }
 export const API_METHOD_key = {
     1: "POST",
-    2: "GET"
+    0: "GET"
 }
 
 export const API_STATUS = {
