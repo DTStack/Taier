@@ -156,3 +156,22 @@ export const taskDependentTypeDesc = (
         </p>
     </div>
 )
+
+export const inputTaskHelp=(
+    <div>
+        利用TensorFlow或MXNet进行数据处理时，可指定此任务在HDFS上的路径信息，无需更新任务代码，方便您通过修改路径来更新数据
+    </div>
+)
+
+
+export const outputTaskHelp=(
+    <div>
+        利用python、TensorFlow或shell进行模型训练时，可将训练完成的模型参数保存在此位置，无需更新任务代码，方便您通过修改路径来频繁训练
+    </div>
+)
+
+export const optionsTaskHelp=(
+    <div>
+        任务执行时的命令行参数
+    </div>
+)

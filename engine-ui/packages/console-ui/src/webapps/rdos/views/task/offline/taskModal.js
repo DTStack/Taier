@@ -9,15 +9,20 @@ import {
     taskTreeAction,
     workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
+import HelpDoc from "../../helpDoc"
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
-import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE, HELP_DOC_URL } from '../../../comm/const'
+import {
+    formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE,
+    HELP_DOC_URL, LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE
+} from '../../../comm/const'
 
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const TextArea = Input.TextArea;
 const RadioGroup = Radio.Group;
 
 class TaskForm extends React.Component {
@@ -25,11 +30,13 @@ class TaskForm extends React.Component {
         super(props);
 
         // this.handleRadioChange = this.handleRadioChange.bind(this);
-        this.handleTaskTypeChange=this.handleTaskTypeChange.bind(this);
+        this.handleTaskTypeChange = this.handleTaskTypeChange.bind(this);
         this.isEditExist = false;
         this.state = {
             value: 0,
-            taskTypes: []
+            operateModel: '',
+            taskTypes: [],
+
 
         };
 
@@ -37,9 +44,12 @@ class TaskForm extends React.Component {
     }
 
     componentDidMount() {
+        const { defaultData } = this.props;
         this.loadTaskTypes();
+        this.setState({
+            operateModel: defaultData ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
+        })
     }
-
     handleSelectTreeChange(value) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
@@ -54,7 +64,7 @@ class TaskForm extends React.Component {
         ajax.getTaskTypes().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    taskTypes: res.data || [],
+                    taskTypes: res.data.concat([{ value: "深度学习", key: 5 }, { value: "Python", key: 6 }, { value: "Shell", key: 7 }]) || [],
                 })
             }
         })
@@ -65,16 +75,22 @@ class TaskForm extends React.Component {
     //         value: e.target.value
     //     });
     // }
-    handleTaskTypeChange(value){
+    handleTaskTypeChange(value) {
         this.setState({
-            value:value
+            value: value
+        })
+    }
+
+    handleOperateModel(event) {
+        this.setState({
+            operateModel: event.target.value
         })
     }
 
     render() {
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
         const { defaultData } = this.props;
-        const { taskTypes } = this.state;
+        const { taskTypes, operateModel } = this.state;
 
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
@@ -106,9 +122,12 @@ class TaskForm extends React.Component {
             </div>
         )
 
+
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
         const isSyncTast = value == TASK_TYPE.SYNC
+        const isDeepLearning = value == TASK_TYPE.DEEP_LEARNING
+        const isPython23 = value == TASK_TYPE.PYTHON_23
         const acceptType = isMrTask ? RESOURCE_TYPE.JAR : isPyTask ? RESOURCE_TYPE.PY : '';
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
         return (
@@ -150,12 +169,125 @@ class TaskForm extends React.Component {
                             {taskOptions}
                         </Select>
                     )}
-                    {isMrTask&&<Tooltip title="支持MLLib机器学习">
+                    {isMrTask && <Tooltip title={(
+                        <div>
+                            <p>支持基于Spark MLLib的机器学习任务</p>
+                            <p>支持基于Spark API的Java处理程序</p>
+                        </div>
+                    )}>
                         <Icon className="formItem_inline_icon" type="question-circle-o" />
                     </Tooltip>}
                 </FormItem>
                 {
-                    (isMrTask || isPyTask) && <span>
+                    isDeepLearning && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="框架类型"
+                        >
+                            {getFieldDecorator('learningType', {
+                                rules: [{
+                                    required: true, message: '请选择框架类型',
+                                }],
+                                initialValue: this.isEditExist ? defaultData.learningType : LEARNING_TYPE.TENSORFLOW
+                            })(
+                                <RadioGroup
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                >
+                                    <Radio key={LEARNING_TYPE.TENSORFLOW} value={LEARNING_TYPE.TENSORFLOW}>TensorFlow</Radio>
+                                    <Radio key={LEARNING_TYPE.MXNET} value={LEARNING_TYPE.MXNET}>MXNet</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                    )
+                }
+                {
+                    (isDeepLearning || isPython23) && (
+                        <div>
+                            <FormItem
+                                {...formItemLayout}
+                                label="python版本"
+                            >
+                                {getFieldDecorator('pythonVersion', {
+                                    rules: [{
+                                        required: true, message: '请选择python版本',
+                                    }],
+                                    initialValue: this.isEditExist ? defaultData.pythonVersion : PYTON_VERSION.PYTHON2
+                                })(
+                                    <RadioGroup
+                                        disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                    >
+                                        <Radio key={PYTON_VERSION.PYTHON2} value={PYTON_VERSION.PYTHON2}>python2.x</Radio>
+                                        <Radio key={PYTON_VERSION.PYTHON3} value={PYTON_VERSION.PYTHON3}>python3.x</Radio>
+                                    </RadioGroup>
+                                )}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="操作模式"
+                            >
+                                {getFieldDecorator('operateModel', {
+                                    rules: [{
+                                        required: true, message: '请选择操作模式',
+                                    }],
+                                    initialValue: operateModel
+                                })(
+                                    <RadioGroup
+                                        disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                        onChange={this.handleOperateModel.bind(this)}
+                                    >
+                                        <Radio key={DEAL_MODEL_TYPE.RESOURCE} value={DEAL_MODEL_TYPE.RESOURCE}>资源上传</Radio>
+                                        <Radio key={DEAL_MODEL_TYPE.EDIT} value={DEAL_MODEL_TYPE.EDIT}>WEB编辑</Radio>
+                                    </RadioGroup>
+                                )}
+                            </FormItem>
+                        </div>
+                    )
+                }
+                {
+                    isDeepLearning && (
+                        <div>
+                            <FormItem
+                                {...formItemLayout}
+                                label="数据输入路径"
+                            >
+                                {getFieldDecorator('input', {
+                                    initialValue: this.isEditExist ? defaultData.input : ''
+                                })(
+                                    <Input placeholder="请输入数据输入路径" />
+                                )}
+                                <HelpDoc doc="inputTaskHelp" />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="模型输出路径"
+                            >
+                                {getFieldDecorator('output', {
+                                    initialValue: this.isEditExist ? defaultData.output : ''
+                                })(
+                                    <Input placeholder="请输入模型输出路径" />
+                                )}
+                                <HelpDoc doc="outputTaskHelp" />
+                            </FormItem>
+                        </div>
+                    )
+                }
+                {
+                    (isDeepLearning || isPython23) && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="参数"
+                        >
+                            {getFieldDecorator('options', {
+                                initialValue: this.isEditExist ? defaultData.options : ''
+                            })(
+                                <TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入命令行参数" />
+                            )}
+                            <HelpDoc doc="optionsTaskHelp" />
+                        </FormItem>
+                    )
+                }
+                {
+                    (isMrTask || isPyTask || ((isDeepLearning || isPython23) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
                         <FormItem
                             {...formItemLayout}
                             label="资源"
@@ -202,7 +334,7 @@ class TaskForm extends React.Component {
                                 )}
                             </FormItem>
                         }
-                        <FormItem
+                        {(isMrTask || isPyTask) && <FormItem
                             {...formItemLayout}
                             label="参数"
                             hasFeedback
@@ -216,14 +348,14 @@ class TaskForm extends React.Component {
                             })(
                                 <Input placeholder="请输入任务参数" />,
                             )}
-                        </FormItem>
+                        </FormItem>}
                     </span>
                 }
                 {
                     isSyncTast &&
                     <FormItem
                         {...formItemLayout}
-                        label="配置模式"
+                        label={"配置模式"}
                     >
                         {getFieldDecorator('createModel', {
                             rules: [{
@@ -363,7 +495,7 @@ class TaskModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
         if (this.props.isModalShow !== nextProps.isModalShow) {
             return true;
         }
@@ -395,11 +527,11 @@ class TaskModal extends React.Component {
 
                 addOfflineTask(values, isEditExist, defaultData)
                     .then(isSuccess => {
-                            if (isSuccess) {
-                                this.closeModal();
-                                form.resetFields();
-                            }
+                        if (isSuccess) {
+                            this.closeModal();
+                            form.resetFields();
                         }
+                    }
                     );
             }
         })
@@ -426,7 +558,7 @@ class TaskModal extends React.Component {
         return (
             <div>
                 <Modal
-                    title={isCreate ? '新建离线任务': '编辑离线任务' }
+                    title={isCreate ? '新建离线任务' : '编辑离线任务'}
                     key={this.dtcount}
                     visible={isModalShow}
                     maskClosable={false}

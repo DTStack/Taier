@@ -5,15 +5,16 @@ import { Alert, Modal, message } from 'antd';
 import utils from 'utils'
 
 import Api from '../../../api'
-import { 
-    defaultEditorOptions, 
-    TASK_TYPE, SCRIPT_TYPE, LOCK_TYPE, DATA_SYNC_TYPE,
+import {
+    defaultEditorOptions,
+    TASK_TYPE, SCRIPT_TYPE, LOCK_TYPE, DATA_SYNC_TYPE, DEAL_MODEL_TYPE,
 } from '../../../comm/const'
 
 import DataSync from './dataSync';
 import DataSyncScript from "./dataSync/dataSyncScript"
 import NormalTaskForm from './normalTask';
 import SQLEditor from './sqlEditor';
+import CommonEditor from "./commonEditor"
 
 const confirm = Modal.confirm;
 
@@ -38,10 +39,10 @@ export default class MainBench extends React.Component {
             okType: 'danger', // warning
             cancelText: '取消',
             onOk() {
-                const params = { 
-                    fileId: tabData.id, 
+                const params = {
+                    fileId: tabData.id,
                     lockVersion: lockInfo.version
-                 }; // 文件ID
+                }; // 文件ID
                 if (utils.checkExist(tabData.taskType)) {
                     params.type = LOCK_TYPE.OFFLINE_TASK // 离线任务锁
                 } else if (utils.checkExist(tabData.type)) {
@@ -77,7 +78,7 @@ export default class MainBench extends React.Component {
                                     updateTaskFields(taskInfo)
                                 }
                             })
-                        } else if(params.type === LOCK_TYPE.OFFLINE_SCRIPT) {
+                        } else if (params.type === LOCK_TYPE.OFFLINE_SCRIPT) {
                             Api.getScriptById(reqParams).then(res => {
                                 if (res.code === 1) {
                                     const scriptInfo = res.data
@@ -102,31 +103,31 @@ export default class MainBench extends React.Component {
     render() {
         const { tabData } = this.props;
         return <div className="m-mainbench editor-container">
-            { tabData && this.renderBench(tabData) }
-            { tabData && this.renderLock(tabData) }
+            {tabData && this.renderBench(tabData)}
+            {tabData && this.renderLock(tabData)}
         </div>
     }
 
     renderLock(tabData) {
-        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock 
-        const isSyncScript=tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT;
-        const isEditor=(tabData.taskType==TASK_TYPE.SQL)||isSyncScript||utils.checkExist(tabData && tabData.type);
- 
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
+        const isSyncScript = tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT;
+        const isEditor = (tabData.taskType == TASK_TYPE.SQL) || isSyncScript || utils.checkExist(tabData && tabData.type);
+
         let top = '0px';
-        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL&&!isSyncScript) top = '10px';
-        
+        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL && !isSyncScript) top = '10px';
+
         //根据不同的类型设置不通的锁样式，编辑器-只添加按钮点击部分遮罩，界面-添加全部遮罩，脚本向导模式-不添加遮罩，由内部来添加屏蔽遮罩
-        let lockClassName='lock-layer';
-        if(isEditor){
-            lockClassName='lock-layer-editor';
-        }else if(tabData.taskType==TASK_TYPE.SYNC){
-            lockClassName='lock-layer-sync';
+        let lockClassName = 'lock-layer';
+        if (isEditor) {
+            lockClassName = 'lock-layer-editor';
+        } else if (tabData.taskType == TASK_TYPE.SYNC) {
+            lockClassName = 'lock-layer-sync';
         }
 
         return isLocked ? (
             <div className={lockClassName}>
                 <Alert
-                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999'}}
+                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"
@@ -143,30 +144,53 @@ export default class MainBench extends React.Component {
 
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
-            switch(tabData.taskType) {
+            switch (tabData.taskType) {
                 case TASK_TYPE.MR:
                 case TASK_TYPE.PYTHON:
                 case TASK_TYPE.VIRTUAL_NODE:
-                    return <NormalTaskForm key={ tabData.id } {...tabData} />
+                    return <NormalTaskForm key={tabData.id} {...tabData} />
                 case TASK_TYPE.SYNC: // 数据同步
-                    if(tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT){
-                        return <DataSyncScript key={ tabData.id } { ...tabData }  />
+                    if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
+                        return <DataSyncScript key={tabData.id} {...tabData} />
                     }
-                    return <DataSync key={ tabData.id } { ...tabData }/>
+                    return <DataSync key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
-                    return <SQLEditor 
+                    return <SQLEditor
                         options={defaultEditorOptions}
-                        taskCustomParams={ taskCustomParams }
-                        key={ tabData.id } 
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
                         value={tabData.sqlText}
-                        currentTab={ tabData.id }
-                        currentTabData={ tabData } />; 
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                case TASK_TYPE.SHELL:
+                    return <CommonEditor
+                        mode="shell"
+                        options={defaultEditorOptions}
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                case TASK_TYPE.DEEP_LEARNING:
+                case TASK_TYPE.PYTHON_23:
+                    if(tabData.operateModel==DEAL_MODEL_TYPE.EDIT){
+                        return <CommonEditor
+                        mode="python"
+                        options={defaultEditorOptions}
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                    }else{
+                        return  <NormalTaskForm key={tabData.id} {...tabData} />
+                    }
                 default:
-                    return <p className="txt-center" style={{lineHeight: '60px'}}>
+                    return <p className="txt-center" style={{ lineHeight: '60px' }}>
                         未知任务类型
                     </p>
             }
-        // 脚本类型
+            // 脚本类型
         } else if (utils.checkExist(tabData && tabData.type)) {
             return <SQLEditor
                 options={defaultEditorOptions}

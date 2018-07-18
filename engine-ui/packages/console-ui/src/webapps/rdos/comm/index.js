@@ -46,6 +46,15 @@ export function taskTypeIcon(type) {
         case TASK_TYPE.VIRTUAL_NODE: {
             return 's-virtualicon'
         }
+        case TASK_TYPE.DEEP_LEARNING: {
+            return 's-deeplearning'
+        }
+        case TASK_TYPE.PYTHON_23: {
+            return 's-pythonicon'
+        }
+        case TASK_TYPE.SHELL: {
+            return 's-shell'
+        }
         default: ''
     } 
 }

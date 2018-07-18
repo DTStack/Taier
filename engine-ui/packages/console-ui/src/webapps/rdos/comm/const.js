@@ -106,6 +106,11 @@ export const DATA_SYNC_TYPE = { //数据同步配置模式
     SCRIPT: 1
 }
 
+export const DEAL_MODEL_TYPE={//python和深度学习操作类型
+    EDIT:1,
+    RESOURCE:0
+}
+
 export const SCRIPT_TYPE = { // 脚本类型
     SQL: 0,
 }
