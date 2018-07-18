@@ -321,7 +321,7 @@ class ManageBasicProperties extends Component {
                         >
                             {getFieldDecorator('method', {
                                 rules: [{ required: true, message: "请选择请求方式" }],
-                                initialValue: API_METHOD.POST
+                                initialValue: (this.props.reqType||this.props.reqType==0)?this.props.reqType:API_METHOD.POST
                             })(
                                 <Select style={{ width: '85%' }}>
                                     {this.renderMethod()}

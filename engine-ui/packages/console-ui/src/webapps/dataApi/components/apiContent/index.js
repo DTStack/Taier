@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Row, Col, Table } from "antd"
 import moment from "moment";
 
-import { API_USER_STATUS,API_METHOD } from "../../consts";
+import { API_USER_STATUS,API_METHOD ,API_METHOD_key} from "../../consts";
 
 class Content extends Component {
 
@@ -132,7 +132,7 @@ class Content extends Component {
                     <div style={{ marginTop: 10 }}>
                         <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
-                        <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{this.getValue('reqMethod')}</span>
+                        <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_key[this.getValue('reqMethod')]}</span>
                         <p data-title="调用限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
