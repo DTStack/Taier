@@ -184,17 +184,17 @@ class Index extends Component {
 
     handleMouseOver = (type,e) => { 
         if(type === "realtime"){
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.png"
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.svg"
         }else{
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline3.png"
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline3.svg"
         }
     }
 
     handleMouseOut = (type,e) => { 
         if(type === "realtime"){
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.png"
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.svg"
         }else{
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline2.png"
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline2.svg"
         }
     }
 
@@ -203,14 +203,14 @@ class Index extends Component {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, offlineSrc, realtimeSrc } = this.state;
         return (
             <Spin tip="Loading..." spinning={loading}  delay={500} >
-                <div className="project-dashboard" style={{ padding: "20 40" }}>
+                <div className="project-dashboard develop-kit" style={{ padding: "20 35" }}>
                     <Row gutter={10}>
                         <Col span="10" >
                             <div className="project-search" >
                                 <Search placeholder="按项目名称、项目显示名称搜索"  onSearch={value => this.searchProject(null,value)} onPressEnter={this.searchProject}/>
                             </div>
                             <Button 
-                                style={{ float: "left" ,margin: "10 0 0 20" }}
+                                style={{ float: "left" ,margin: "10 0 0 15" }}
                                 type="primary" 
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
@@ -224,19 +224,19 @@ class Index extends Component {
                             </div>
                         </Col>
                     </Row>
-                    <Row gutter={40}>
+                    <Row gutter={10}>
                         <Col span="24" >
-                            <Row gutter={24}>   
+                            <Row gutter={10} style={{margin: 0}}>   
                                 {
                                     projectListInfo.map(v=>{
-                                        return  <Col span="8" className="card-width" key={v.id}>
-                                                    <Card  className="general-card" title={this.generalTitle(v)}>
-                                                        <Row className="card-content">
+                                        return  <Col span="8" className="card-width" key={v.id} style={{padding: 0}}>
+                                                    <Card  className="general-card" title={this.generalTitle(v)} noHovering>
+                                                        <Row className="card-content" >
                                                             <Col span="18">
-                                                                <div className="statistics" >已发布/总任务数： {`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</div>
-                                                                <div className="statistics" >表数量： {v.tableCount}</div>
-                                                                <div className="statistics" >项目占用存储： {v.totalSize}</div>
-                                                                <div className="statistics" >创建时间： {moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</div>
+                                                                <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
+                                                                <div className="statistics" >表数量： <span className="statistics-info">{v.tableCount}</span></div>
+                                                                <div className="statistics" >项目占用存储： <span className="statistics-info">{v.totalSize}</span></div>
+                                                                <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
                                                             </Col>
                                                             <Col span="6">
                                                                 <div style={{fontSize:14}}>今日任务失败数</div>
@@ -256,9 +256,10 @@ class Index extends Component {
                                                                                 onClick={()=>{this.setRouter('offline',v)}} 
                                                                                 onMouseOver={(e)=>{this.handleMouseOver('offline',e)}} 
                                                                                 onMouseOut={(e)=>{this.handleMouseOut('offline',e)}}
+                                                                                noHovering
                                                                             >
                                                                                 <span className="img-container">
-                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline2.png" />
+                                                                                    <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
                                                                                 </span>
                                                                                 离线任务开发
                                                                             </Card>
@@ -268,15 +269,16 @@ class Index extends Component {
                                                                                 onClick={()=>{this.setRouter('realtime',v)}} 
                                                                                 onMouseOver={(e)=>{this.handleMouseOver('realtime',e)}} 
                                                                                 onMouseOut={(e)=>{this.handleMouseOut('realtime',e)}}
+                                                                                noHovering
                                                                             >
                                                                                 <span className="img-container">
-                                                                                    <img className="task-img" src="/public/rdos/img/icon/realtime2.png" />
+                                                                                    <img className="task-img" src="/public/rdos/img/icon/realtime2.svg" />
                                                                                 </span>
                                                                                 实时任务开发
                                                                             </Card>
                                                                         </Col >
                                                                         <Col span="8">
-                                                                            <Card className="card-task" style={{padding:"1.5 0"}} onClick={()=>{this.setRouter('operation',v)}}>
+                                                                            <Card className="card-task" style={{padding:"1.5 0"}} onClick={()=>{this.setRouter('operation',v)}} noHovering>
                                                                                 运维中心
                                                                             </Card>
                                                                         </Col>

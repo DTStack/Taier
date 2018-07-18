@@ -64,6 +64,7 @@
         float: left;
         width: 220px;
         margin-top: 10px;
+        margin-left: 5px;
     }
     .card-width{
         min-width: 375px;
@@ -81,17 +82,21 @@
             font-weight: 600;
             cursor: pointer;
         }
+        
         .company-name:hover{
             color: #2491F7;
         }
         .general-card{
-            margin-bottom: 10px;
-            height: 230px;
+            margin: 0 5 10;
+            height: 220px;
             .card-content{
                 position: relative;
                 .statistics{
                     line-height: 26px;
                     min-width: 190px;
+                }
+                .statistics-info{
+                    color: #151515;
                 }
                 .ant-card-body{
                     padding: 4px;
@@ -129,22 +134,27 @@
                 
             }
             .triangle_border_right{
-                border-width: 16px;
+                border-width: 14px;
                 border-style: solid;
                 border-color: transparent transparent transparent #94A8C6;/*透明 透明 透明 灰*/
                 //margin:40px auto;
                 position: absolute;
-                bottom: -16px;
-                right: -16px;
+                bottom: -14px;
+                right: -14px;
                 transform: rotate(45deg);
             }
+        }
+        .general-card:hover{
+            box-shadow: 0 6px 12px 0 rgba(148,168,198,0.42);
         }
     }
     .sortTitle{
         line-height:45px;
+        margin-right: 5px;
         .faileSort{
             float: right;
             padding-left: 10px;
+            padding-right: 2px;
             font-size: 14px;
             cursor: pointer;
         }
@@ -181,3 +191,6 @@
 // .tooltip-tittle-text:hover{
 //     color: #2491F7;
 // }
+.project-dashboard .ant-card-body {
+    padding: 10px 10;
+}
