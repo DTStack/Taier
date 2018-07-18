@@ -184,6 +184,7 @@ class NewApi extends Component {
                 method: data.reqType,
                 protocol: data.protocol,
                 responseType: data.responseType,
+                reqType:data.reqType
             },
             paramsConfig: {
                 dataSourceType:data.dataSourceType,

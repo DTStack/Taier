@@ -244,6 +244,7 @@ class ManageBasicProperties extends Component {
                         >
                             {getFieldDecorator('APIName', {
                                 rules: [{ required: true, message: '请输入API名称' },
+                                { min: 2, message: "最小字数不能少于2" },
                                 { max: 16, message: "最大字数不能超过16" },
                                 { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
                                 initialValue: this.props.APIName
@@ -320,7 +321,7 @@ class ManageBasicProperties extends Component {
                         >
                             {getFieldDecorator('method', {
                                 rules: [{ required: true, message: "请选择请求方式" }],
-                                initialValue: API_METHOD.POST
+                                initialValue: (this.props.reqType||this.props.reqType==0)?this.props.reqType:API_METHOD.POST
                             })(
                                 <Select style={{ width: '85%' }}>
                                     {this.renderMethod()}

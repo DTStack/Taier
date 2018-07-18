@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Row, Col, Table } from "antd"
 import moment from "moment";
 
-import { API_USER_STATUS } from "../../consts";
+import { API_USER_STATUS,API_METHOD ,API_METHOD_key} from "../../consts";
 
 class Content extends Component {
 
@@ -112,7 +112,19 @@ class Content extends Component {
         const { callUrl, callLimit, beginTime, endTime, mode, showRecord, showMarketInfo, showUserInfo } = this.props;
         const isShowUrl = status != API_USER_STATUS.STOPPED && callUrl;
         const showExt = mode == 'manage';
+        const isGET=this.getValue('reqMethod')==API_METHOD.GET
+        let reqJson=this.getValue('reqJson');
 
+        if(isGET){
+            reqJson=Object.entries(reqJson).map(
+                ([key,value])=>{
+                    return `${key}=${value}`
+                }
+            ).join("&")
+            reqJson=reqJson?('?'+reqJson):"无"
+        }else{
+            reqJson=JSON.stringify(reqJson, null, "    \r")
+        }
         return (
             <div>
                 <section>
@@ -120,7 +132,7 @@ class Content extends Component {
                     <div style={{ marginTop: 10 }}>
                         <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
-                        <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{this.getValue('reqMethod')}</span>
+                        <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_key[this.getValue('reqMethod')]}</span>
                         <p data-title="调用限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
@@ -177,10 +189,10 @@ class Content extends Component {
                 <Row gutter={30} style={{ marginTop: 19.3 }}>
                     <Col span={11}>
                         <section>
-                            <h1 className="title-border-l-blue">请求JSON样例</h1>
+                            <h1 className="title-border-l-blue">请求{isGET?'URL':'JSON'}样例</h1>
                             <div style={{ marginTop: 18 }}>
                                 <pre style={{ maxHeight: "150px", overflow: "auto" }}>
-                                    {JSON.stringify(this.getValue('reqJson'), null, "    \r")}
+                                    {reqJson}
                                 </pre>
                             </div>
                         </section>
