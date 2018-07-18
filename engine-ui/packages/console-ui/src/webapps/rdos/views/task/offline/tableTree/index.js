@@ -65,6 +65,9 @@ class TableTree extends React.Component {
         e.preventDefault();
         const value = e.target.value;
         if (value === "") this.setState({ tableId: '' })
+        this.setState({
+            searchName:value
+        })
         this.doReq(value)
     }
 
@@ -74,10 +77,10 @@ class TableTree extends React.Component {
     }
 
     doReq = (queryName) => {
-        const {projectId,tableId} = this.state;
+        const {projectId,searchName} = this.state;
         const { treeData, loadTreeNode } = this.props;
         Api.queryTable({
-            tableName: queryName||tableId,
+            tableName: queryName||searchName,
             pageSize: 1000,
             pageIndex: 1,
             appointProjectId:projectId=="all"?null:projectId

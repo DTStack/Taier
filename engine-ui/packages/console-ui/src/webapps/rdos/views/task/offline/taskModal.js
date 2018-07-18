@@ -17,14 +17,15 @@ import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE, HE
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
-const Option = Select.Optioin;
+const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class TaskForm extends React.Component {
     constructor(props) {
         super(props);
 
-        this.handleRadioChange = this.handleRadioChange.bind(this);
+        // this.handleRadioChange = this.handleRadioChange.bind(this);
+        this.handleTaskTypeChange=this.handleTaskTypeChange.bind(this);
         this.isEditExist = false;
         this.state = {
             value: 0,
@@ -59,10 +60,15 @@ class TaskForm extends React.Component {
         })
     }
 
-    handleRadioChange(e) {
+    // handleRadioChange(e) {
+    //     this.setState({
+    //         value: e.target.value
+    //     });
+    // }
+    handleTaskTypeChange(value){
         this.setState({
-            value: e.target.value
-        });
+            value:value
+        })
     }
 
     render() {
@@ -84,8 +90,8 @@ class TaskForm extends React.Component {
         const value = isCreateNormal ? this.state.value :
             (!isCreateFromMenu ? defaultData.taskType : this.state.value);
 
-        const taskRadios = taskTypes.map(item =>
-            <Radio key={item.key} value={item.key}>{item.value}</Radio>
+        const taskOptions = taskTypes.map(item =>
+            <Option key={item.key} value={item.key}>{item.value}</Option>
         )
 
         const syncTaskHelp = (
@@ -137,13 +143,16 @@ class TaskForm extends React.Component {
                         }],
                         initialValue: this.isEditExist ? defaultData.taskType : (taskTypes.length > 0 && taskTypes[0].key)
                     })(
-                        <RadioGroup
+                        <Select
                             disabled={isCreateNormal ? false : !isCreateFromMenu}
-                            onChange={this.handleRadioChange}
+                            onChange={this.handleTaskTypeChange}
                         >
-                            {taskRadios}
-                        </RadioGroup>
+                            {taskOptions}
+                        </Select>
                     )}
+                    {isMrTask&&<Tooltip title="支持MLLib机器学习">
+                        <Icon className="formItem_inline_icon" type="question-circle-o" />
+                    </Tooltip>}
                 </FormItem>
                 {
                     (isMrTask || isPyTask) && <span>
@@ -420,6 +429,7 @@ class TaskModal extends React.Component {
                     title={isCreate ? '新建离线任务': '编辑离线任务' }
                     key={this.dtcount}
                     visible={isModalShow}
+                    maskClosable={false}
                     footer={[
                         <Button key="back"
                             size="large"
