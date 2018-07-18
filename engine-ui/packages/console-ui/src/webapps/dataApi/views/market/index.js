@@ -134,11 +134,17 @@ class APIMarket extends Component {
                 if (v.childCatalogue.length > 0) {
                     option.children = [];
                     v.childCatalogue.map(v => {
+                        if(v.api){
+                            return;
+                        }
                         const childOpt = {};
                         childOpt.value = childOpt.label = v.catalogueName;
                         childOpt.cid = v.id;
                         option.children.push(childOpt);
                     })
+                    if(option.children.length==0){
+                        option.children=undefined;
+                    }
                 }
                 cascaderData.push(option)
             })
