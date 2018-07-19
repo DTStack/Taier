@@ -167,10 +167,10 @@ public class RdosEngineBatchJobDAO {
         });
 	}
 
-	public List<Map<String, String>> listStatusByIds(List<String> jobIds){
-		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<Map<String, String>>>(){
+	public List<RdosEngineBatchJob> listStatusByIds(List<String> jobIds){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineBatchJob>>(){
 			@Override
-			public List<Map<String, String>> execute(SqlSession sqlSession) throws Exception {
+			public List<RdosEngineBatchJob> execute(SqlSession sqlSession) throws Exception {
 				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
 				return mapper.listStatusByIds(jobIds);
 			}

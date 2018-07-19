@@ -641,7 +641,7 @@ public class ActionServiceImpl {
         return engineBatchJobDAO.getRdosTaskByTaskIds(jobIds);
     }
 
-    public List<Map<String, String>> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
+    public List<RdosEngineBatchJob> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
         return engineBatchJobDAO.listStatusByIds(jobIds);
     }
 
