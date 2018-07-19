@@ -12,6 +12,16 @@ table {
     font-size: 12px;
 }
 
+.dt-dev-tools {
+    height: 100%;
+    width: 100%;
+}
+
+.dt-dev-tools:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+}
+
 .mask-layer {
     display: block;
     position: fixed;

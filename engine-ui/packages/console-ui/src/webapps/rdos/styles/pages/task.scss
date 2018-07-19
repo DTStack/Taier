@@ -1,6 +1,10 @@
 @import '../const.scss';
 .dt-dev-task {
 
+    .ant-layout-sider, .ant-layout-content {
+        height: 100%;
+    }
+
     .operation-card {
         width: 180px;
         margin: 0 10px;

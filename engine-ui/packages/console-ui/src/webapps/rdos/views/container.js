@@ -51,7 +51,7 @@ class Container extends Component {
     render() {
         const { children } = this.props
         return (
-            <div className="dt-dev-tools">
+            <div className="dt-dev-tools" id="JS_APP">
                 <Header showMenu {...this.props} />
                 <div className="container">
                     { children || <Dashboard /> }

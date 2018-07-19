@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 // import SplitPane from 'react-split-pane'
 
-// import {
-//     Form, Input, TreeSelect, Modal, Tree
-// } from 'antd'
+import {
+    Form, Input, TreeSelect, Modal, Tree, Row
+} from 'antd'
 
 // import GraphEditor from '../components/graph-editor'
 import Editor from 'widgets/editor';
@@ -19,10 +19,21 @@ export default class Test extends Component {
     render () {
         return (
             <div style={{height: '100%', width: '100%'}}>
-                <Editor 
-                    onChange={this.onEditorChange}
-                    language="sql"
-                />
+                <Row style={{height: '50%', width: '100%'}}>
+                    <Editor 
+                        key="sql"
+                        onChange={this.onEditorChange}
+                        language="sql"
+                    />
+                </Row>
+                <hr />
+                <Row style={{height: '50%', width: '100%'}}>
+                    <Editor 
+                        key="python"
+                        onChange={this.onEditorChange}
+                        language="python"
+                    />
+                </Row>
             </div>
         )
     }

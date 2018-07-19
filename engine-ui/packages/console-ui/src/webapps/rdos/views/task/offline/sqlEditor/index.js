@@ -143,11 +143,13 @@ class SQLEditor extends Component {
             <Editor 
                 key="sqlEditor"
                 sync={currentTabData.merged || undefined}
-                // options={{ readOnly: isLocked }}
+                options={{ 
+                    readOnly: isLocked, 
+                }}
+                language="sql"
                 value={value}
                 onCursorSelection={this.debounceSelectionChange}
                 onChange={this.debounceChange}
-                language="sql"
             />
         </div>
 
@@ -159,40 +161,40 @@ class SQLEditor extends Component {
                 <div className='ide-content'>
                     {
                         data.log ?
-                            <SplitPane
-                                split="horizontal"
-                                minSize={100}
-                                maxSize={-77}
-                                style={{ paddingBottom: '40px' }}
-                                defaultSize="60%"
-                                primary="first"
-                                size={size}
-                                onDragStarted={() => {
+                        <SplitPane
+                            split="horizontal"
+                            minSize={100}
+                            maxSize={-77}
+                            style={{ paddingBottom: '40px' }}
+                            defaultSize="60%"
+                            primary="first"
+                            size={size}
+                            onDragStarted={() => {
+                                this.setState({
+                                    size: undefined
+                                })
+                            }}
+                        >
+                            { editor }
+                            <Console
+                                changeTab={this.changeTab}
+                                changeTabStatus={this.state.changeTab}
+                                data={data}
+                                ref="getSwordButton"
+                                currentTab={currentTab}
+                                dispatch={this.props.dispatch}
+                                setMax={() => {
                                     this.setState({
-                                        size: undefined
+                                        size: '100px'
                                     })
                                 }}
-                            >
-                                { editor }
-                                <Console
-                                    changeTab={this.changeTab}
-                                    changeTabStatus={this.state.changeTab}
-                                    data={data}
-                                    ref="getSwordButton"
-                                    currentTab={currentTab}
-                                    dispatch={this.props.dispatch}
-                                    setMax={() => {
-                                        this.setState({
-                                            size: '100px'
-                                        })
-                                    }}
-                                    setMin={() => {
-                                        this.setState({
-                                            size: 'calc(100% - 40px)'
-                                        })
-                                    }}
-                                />
-                            </SplitPane> : editor
+                                setMin={() => {
+                                    this.setState({
+                                        size: 'calc(100% - 40px)'
+                                    })
+                                }}
+                            />
+                        </SplitPane> : editor
                     }
                 </div>
             </div>

@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Button, Icon } from 'antd'
 
+import MyIcon from 'rdos/components/icon';
+
 export default class FullScreenButton extends Component {
 
     state = {
@@ -43,11 +45,12 @@ export default class FullScreenButton extends Component {
     }
 
     render(){
-        const { title } = this.props;
-        const iconType = this.state.isFullScreen ? "shrink" : "arrows-alt";
+        const title = this.state.isFullScreen ? '退出全屏' : '全屏';
+        const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
         return (
-            <Button {...this.props} icon={iconType} onClick={this.fullScreen}>
-                {title || '全屏' }
+            <Button {...this.props} onClick={this.fullScreen}>
+                <MyIcon className="my-icon" type={iconType} />
+                {title}
             </Button>
         )
     }

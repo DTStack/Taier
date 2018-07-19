@@ -21,7 +21,7 @@ module.exports = [
         default: true, // 是否为默认应用选项
         apiBase: '/rdos',
         icon: '/public/main/img/icon_1.png',
-        description: '一站式数据开发管理平台，加速释放数据价值',
+        description: '一站式大数据开发平台，帮助企业快速完全数据中台搭建',
     },{
         id: 'dataQuality',
         name: '数据质量',
@@ -31,7 +31,7 @@ module.exports = [
         enable: true,
         apiBase: '/dq',
         icon: '/public/main/img/icon_2.png',
-        description: '支持多种异构数据源的质量校验、通知与管理',
+        description: '对过程数据和结果数据进行质量校验，帮助企业及时发现数据质量问题',
     },{
         id: 'dataApi',
         name: '数据API',
@@ -41,14 +41,14 @@ module.exports = [
         enable: true,
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_3.png',
-        description: '易上手、低成本、稳定的数据开放共享服务',
+        description: '快速生成数据API、统一管理API服务，帮助企业提高数据开放效率',
     }, {
         id: 'dataLabel',
         name: '标签工厂',
         link: 'dataLabel.html#/',
         filename: 'dataLabel.html',
         target: '_self',
-        enable: false,
+        enable: true,
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
@@ -60,14 +60,7 @@ module.exports = [
         target: '_self',
         enable: false,
         apiBase: '/map',
-    }, {
-        id: 'metaData',
-        name: '元数据管理',
-        filename: 'metaData.html#/',
-        link: 'metaData.html',
-        target: '_self',
-        enable: false,
-        apiBase: '/metaData',
+        description: '可视化的数据资产中心，帮助企业全盘掌控数据资产情况和数据的来源去向',
     },
 ];
 

@@ -1,7 +1,10 @@
 export const defaultOptions = {
     language: 'sql',
     readOnly: false,
-    find: true,
+    contextmenu: true,
+    autoIndent: true,
+    automaticLayout: true,
+    showFoldingControls: "always",
     folding: true,
-    foldingStrategy: 'auto',
+    foldingStrategy: "auto"
 }

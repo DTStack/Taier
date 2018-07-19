@@ -1,24 +1,17 @@
 import React from "react";
 
-// import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';
-// import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
-// import 'monaco-editor/esm/vs/editor/contrib/folding/folding.js';
-// import 'monaco-editor/esm/vs/editor/contrib/contextmenu/contextmenu.js';
-// import 'monaco-editor/esm/vs/editor/contrib/smartSelect/smartSelect.js';
-
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
-// import 'monaco-editor/esm/vs/editor/editor.all.js';
-// import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
+import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';
+import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
-import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
+// import 'monaco-editor/esm/vs/basic-languages/mysql/mysql.contribution.js';
+// import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
-// monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
-import "./languages/shell/shell.contribution.js";
 
 import "./style.scss";
 import { defaultOptions } from './config';
 
-class Editor extends React.Component {
+class DiffEditor extends React.Component {
 
     constructor(props) {
         super(props);
@@ -28,8 +21,8 @@ class Editor extends React.Component {
     }
 
     shouldComponentUpdate (nextProps, nextState) {
-        // console.log('shouldComponentUpdate')
-        // if (this.props.options !== nextProps.options) {
+        console.log('shouldComponentUpdate')
+        // if (this.props.option !== nextProps.option) {
         //     return true;
         // }
         return false;
@@ -84,10 +77,11 @@ class Editor extends React.Component {
             console.error("初始化dom节点出错");
             return;
         }
+        console.log('initMonaco', value)
 
         window.MonacoEnvironment = {
             getWorkerUrl: function(moduleId, label) {
-                console.log('getWorkerUrl:', label, arguments);
+                console.log('getWorkerUrl:', arguments);
                 if (label === "json") {
                     return "./json.worker.js";
                 }
@@ -107,12 +101,21 @@ class Editor extends React.Component {
             }
         };
 
-        const editorOptions = Object.assign(defaultOptions, options , {
+        const model = monaco.editor.createModel(
             value,
-            language: language || "sql",
-        });
+            language || "javascript"
+        );
 
-        console.log('editorOptions:', editorOptions);
+        // monaco.languages.registerCodeActionProvider(lang, {
+        //     provideCodeActions: function(model, range, context, token) {
+        //         console.log('token', token)
+        //     }
+        // });
+
+        const editorOptions = Object.assign({}, defaultOptions, options, {
+            model,
+        });
+        // console.log('model:', editorOptions)
         this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
 
         this.initEditor();
@@ -168,8 +171,6 @@ class Editor extends React.Component {
                 onCursorSelection(selectionContent);
             }
         });
-
-        
     }
 
     render() {
@@ -194,4 +195,4 @@ class Editor extends React.Component {
         />;
     }
 }
-export default Editor;
+export default DiffEditor;
