@@ -620,23 +620,8 @@ public class ActionServiceImpl {
         }
     }
 
-    public void insertEngineStreamJob(Map<String,Object> data) throws Exception{
-        RdosEngineStreamJob rdosEngineStreamJob = PublicUtil.mapToObject(data,RdosEngineStreamJob.class);
-        engineStreamTaskDAO.insert(rdosEngineStreamJob);
-    }
-
     public List<RdosEngineStreamJob> listEngineStreamJobByTaskIds(@Param("taskIds") List<String> taskIds){
         return engineStreamTaskDAO.getRdosTaskByTaskIds(taskIds);
-    }
-
-    public void updateStatusWithSpecStatus(@Param("taskId") String taskId, @Param("status") String status,
-                                           @Param("specStatus") String specStatus){
-        engineStreamTaskDAO.updateStatusWithSpecStatus(taskId,Integer.valueOf(status),Integer.valueOf(specStatus));
-    }
-
-    public void updateEngineStreamJob(Map<String,Object> data) throws Exception{
-        RdosEngineStreamJob rdosEngineStreamJob = PublicUtil.mapToObject(data,RdosEngineStreamJob.class);
-        engineStreamTaskDAO.update(rdosEngineStreamJob);
     }
 
     public List<RdosEngineBatchJob> listEngineBatchJobByTaskIds(@Param("jobIds") List<String> jobIds){
@@ -645,45 +630,5 @@ public class ActionServiceImpl {
 
     public List<RdosEngineBatchJob> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
         return engineBatchJobDAO.listStatusByIds(jobIds);
-    }
-
-    public void updateEngineBatchJobStatusAndLog(@Param("jobId") String jobId, @Param("status") String status,
-                                                 @Param("logInfo") String logInfo, @Param("engineLog") String engineLog,
-                                                 @Param("gmtModified") Timestamp gmtModified){
-        engineBatchJobDAO.updateJobStatusAndLog(jobId,Integer.valueOf(status),logInfo,engineLog,gmtModified);
-    }
-
-    public void insertEngineBatchJob(Map<String,Object> data) throws Exception{
-        RdosEngineBatchJob engineBatchJob = PublicUtil.mapToObject(data,RdosEngineBatchJob.class);
-        engineBatchJobDAO.insert(engineBatchJob);
-    }
-
-    public void batchInsertEngineBatchJob(@Param("engineJobs") List<Object> data) throws Exception{
-        List<RdosEngineBatchJob> engineJobs = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(data)){
-            for (Object datum : data) {
-                engineJobs.add(PublicUtil.mapToObject((Map<String,Object>)datum,RdosEngineBatchJob.class));
-            }
-        }
-        engineBatchJobDAO.batchInsert(engineJobs);
-    }
-
-    public void updateEngineBatchJob(Map<String,Object> data) throws Exception{
-        RdosEngineBatchJob engineBatchJob = PublicUtil.mapToObject(data,RdosEngineBatchJob.class);
-        engineBatchJobDAO.update(engineBatchJob);
-    }
-
-    public void finishEngineBatchJobWithStatus(@Param("jobId") String jobId, @Param("status") String status){
-        engineBatchJobDAO.finishJobWithStatus(jobId,Integer.valueOf(status));
-    }
-
-    public void updateEngineBatchJobStatus(@Param("jobId") String jobId, @Param("status") String status){
-        engineBatchJobDAO.updateJobStatus(jobId,Integer.valueOf(status));
-    }
-
-    public void updateUnsubmitEngineBatchJobStatus(@Param("fillDataJobNameLike") String fillDataJobNameLike,
-                                                   @Param("status") String status,
-                                                   @Param("projectId") Long projectId){
-        engineBatchJobDAO.updateUnsubmitJobStatus(fillDataJobNameLike,Integer.valueOf(status),projectId);
     }
 }
