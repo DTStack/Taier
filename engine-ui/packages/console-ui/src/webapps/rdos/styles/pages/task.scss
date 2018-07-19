@@ -173,6 +173,21 @@
                 background-image: url(/public/rdos/img/python.svg)
             }
         }
+        .s-sparkpythonicon {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/spark_python.svg)
+            }
+        }
+        .s-python2icon {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/python2.svg)
+            }
+        }
+        .s-python3icon {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/python3.svg)
+            }
+        }
         .s-pythonicon-r {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/icon/py.png)
@@ -181,6 +196,26 @@
         .s-virtualicon {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/virtual.svg)
+            }
+        }
+        .s-deeplearning {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/deepLearning.svg)
+            }
+        }
+        .s-mxnet {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/mxnet.svg)
+            }
+        }
+        .s-tensorflow {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/tensorflow.svg)
+            }
+        }
+        .s-shell {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/shell.svg)
             }
         }
         .s-table {
@@ -242,8 +277,7 @@
             .tab-search {
                 min-width: 140px;
                 position: absolute;
-                top: 40px;
-                left: -120;
+                top: 35px;
                 height: 30px;
                 background: #fff;
                 z-index: 999;
@@ -720,4 +754,34 @@
     right: 0px;
     cursor: not-allowed;
     z-index: 999;
+}
+.table-detail-card{
+    .ant-tooltip-inner{
+        background: #fff;
+        color:rgba(1, 1, 1,0.84);
+        max-width:300px;
+    }   
+    .ant-tooltip-arrow{
+        border-right-color:#fff;
+        border-bottom-color:#fff;
+    }
+    .detail-content{
+        padding: 10px;
+        font-size: 12px;
+        width: 300px;
+    }
+    .text-item{
+        margin-bottom:12px;
+    }
+    .text-item-value{
+        padding-right: 10px;
+        display: inline-block;
+        width: 140px;
+        vertical-align: text-top;
+        word-break: break-all;
+    }
+    .text-item-name{
+        width: 140px;
+        display: inline-block;
+    }
 }

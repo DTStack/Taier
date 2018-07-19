@@ -44,7 +44,10 @@ export function resetConsole(tab) {
     }
 }
 
-
+/**
+ * 初始化tab的console对象
+ * @param {tabId} key 
+ */
 export function getTab(key) {
     return {
         type: editorAction.GET_TAB,
