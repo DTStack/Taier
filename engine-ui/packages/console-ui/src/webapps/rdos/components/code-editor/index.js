@@ -11,6 +11,7 @@ const codemirror = require('codemirror')
 
 require('codemirror/mode/sql/sql')
 require('codemirror/mode/python/python')
+require('codemirror/mode/shell/shell')
 require('codemirror/mode/javascript/javascript')
 require('codemirror/mode/properties/properties')
 require('codemirror/addon/display/placeholder')
@@ -26,6 +27,7 @@ class CodeEditor extends Component {
         const ctx = this
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
+        console.log(options)
         const instance = this.getCodeMirrorIns()
         const { 
             value, onChange, onFocus, cursor,

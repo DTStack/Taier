@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { 
+import {hashHistory} from "react-router";
+import {
     Tree, TreeSelect, Dropdown, Menu,
-    Input, Tooltip, Icon,
+    Input, Tooltip, Icon, Select
 } from 'antd';
 
 import Api from '../../../../api/dataManage'
@@ -15,10 +16,13 @@ import {
 import TableInfoPane from './tableInfoPane';
 
 const { TreeNode } = Tree;
+const Option = Select.Option;
 
 // 映射State
 const stateToProps = (state) => {
-    return {}
+    return {
+        project:state.project
+    }
 }
 
 // 映射Props
@@ -39,6 +43,7 @@ class TableTree extends React.Component {
     state = {
         displaySearch: false,
         tableId: '',
+        projectId:"all",
     }
 
     onLoadData = (treeNode) => {
@@ -59,7 +64,10 @@ class TableTree extends React.Component {
     search = (e) => {
         e.preventDefault();
         const value = e.target.value;
-        if (value === "") this.setState({ tableId: ''})
+        if (value === "") this.setState({ tableId: '' })
+        this.setState({
+            searchName:value
+        })
         this.doReq(value)
     }
 
@@ -67,20 +75,22 @@ class TableTree extends React.Component {
         this.doReq('')
         this.setState({ tableId: '' })
     }
-    
+
     doReq = (queryName) => {
+        const {projectId,searchName} = this.state;
         const { treeData, loadTreeNode } = this.props;
         Api.queryTable({
-            tableName: queryName,
+            tableName: queryName||searchName,
             pageSize: 1000,
             pageIndex: 1,
+            appointProjectId:projectId=="all"?null:projectId
         }).then(res => {
             treeData.children = res.data && res.data.data;
             loadTreeNode(treeData)
         })
     }
 
-    onClickSearch =() => {
+    onClickSearch = () => {
         this.setState({ displaySearch: true }, () => {
             const input = document.getElementById('tableTreeInput')
             if (input) input.focus()
@@ -93,7 +103,11 @@ class TableTree extends React.Component {
             this.setState({ tableId: table.id })
         }
     }
-
+    jumpToDataMap(id){
+        hashHistory.push({
+            pathname:"data-manage/table/view/"+id
+        })
+    }
     renderNodes = () => {
         const { treeData } = this.props;
         const loop = (data) => {
@@ -106,36 +120,62 @@ class TableTree extends React.Component {
                 title={name}
                 className={isFolder ? 'folder-item' : 'file-item'}
             >
-                {name}  
+                {name}
                 <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
                     {data.chargeUser || data.userName}
                 </i>
             </span>
+            const nodeTitle=isFolder?name:(
+                <Tooltip overlayClassName="table-detail-card" title={(
+                    <div className="detail-content">
+                        <p className="text-item"><span className="text-item-name">表名</span><span className="text-item-value">{name}</span></p>
+                        <p className="text-item"><span className="text-item-name">责任人</span><span className="text-item-value">{data.chargeUser}</span></p>
+                        <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias||"-"}</span></p>
+                        <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay?`${data.lifeDay}天`:'-'}</span></p>
+                        <p className="text-item"><span className="text-item-name">描述</span><span className="text-item-value">{data.tableDesc||"-"}</span></p>
+                        <a onClick={this.jumpToDataMap.bind(this,data.id)}>更多详情</a>
+                    </div>
+                )} 
+                placement="bottomLeft"
+                mouseEnterDelay={0.5}>
+                        {name}
+                </Tooltip>
+            )
 
             return data ? (
-                <TreeNode 
-                    title={title}
+
+                <TreeNode
+                    title={nodeTitle}
                     key={id}
                     value={id}
                     isLeaf={isFile}
                     data={data}
                     className={'s-table'}
                 >
-                    {data.children && data.children.map(subItem => loop(subItem)) }
+                    {data.children && data.children.map(subItem => loop(subItem))}
                 </TreeNode>
             ) : null
         }
         return loop(treeData)
     }
-
+    tableChange(value){
+        this.setState({
+            projectId:value
+        },this.doReq)
+    }
     render() {
-        const { displaySearch, tableId } = this.state
+        const { displaySearch, tableId, projectId } = this.state
+        const {project} = this.props;
         const display = displaySearch ? 'block' : 'none';
         return (
-            <div className="menu-content">
-                <header>
+            <div className="menu-content" style={{ position: "relative" }}>
+                <header style={{ left: "13px" }}>
+                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", marginTop: "6.5px", float: "left" }}>
+                        <Option value="all">全部项目</Option>
+                        <Option value={project.id}>{project.projectAlias}</Option>
+                    </Select>
                     <Tooltip title="表查询">
-                        <Icon 
+                        <Icon
                             type="search"
                             style={{ marginRight: '8px' }}
                             className="right" onClick={this.onClickSearch}
@@ -145,7 +185,7 @@ class TableTree extends React.Component {
                     <Tooltip title="刷新">
                         <Icon
                             type="sync"
-                            style={{fontSize: '12px'}}
+                            style={{ fontSize: '12px' }}
                             className="right" onClick={this.refresh}
                         />
                     </Tooltip>
@@ -160,17 +200,17 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list" style={{maxHeight: tableId ? '500px' : '100%', minHeight: '200px' }}>
+                <div className="tb-list" style={{ maxHeight: tableId ? '500px' : '100%', minHeight: '200px', paddingTop: "30px" }}>
                     <Tree
                         showIcon={true}
                         loadData={this.onLoadData}
                         onSelect={this.handleSelect}
                     >
-                        { this.renderNodes() }
+                        {this.renderNodes()}
                     </Tree>
                 </div>
                 {
-                    tableId && <div className="tb-info bd-top"> 
+                    tableId && <div className="tb-info bd-top">
                         <TableInfoPane tableId={tableId} />
                     </div>
                 }

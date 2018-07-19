@@ -9,7 +9,7 @@ import {
     workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
 
-import { formItemLayout, SCRIPT_TYPE, MENU_TYPE } from '../../../comm/const'
+import { formItemLayout, SCRIPT_TYPE, MENU_TYPE, TASK_TYPE } from '../../../comm/const'
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;

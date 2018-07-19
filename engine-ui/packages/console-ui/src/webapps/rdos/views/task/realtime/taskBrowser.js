@@ -31,6 +31,12 @@ export default class TaskBrowser extends Component {
             dispatch(BrowserAction.setCurrentPage(page))
         }
     }
+    
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.currentPage!=this.props.currentPage){
+            this._syncEditor=true;
+        }
+    }
 
     onEdit = (targetKey, action) => {
         const { pages, currentPage, dispatch } = this.props
@@ -214,12 +220,14 @@ export default class TaskBrowser extends Component {
             }
         }
     }
-
+    editorParamsChange(){
+        this._syncEditor=false;
+        this.props.editorParamsChange(...arguments);
+    }
     render() {
         const {
             currentPage, pages, router,
             editorFocus, editorFocusOut,
-            editorParamsChange,
         } = this.props
         if (pages.length === 0) router.push('/realtime')
         const panels = this.mapPanels(pages)
@@ -265,8 +273,9 @@ export default class TaskBrowser extends Component {
                                     options={propEditorOptions}
                                     onFocus={editorFocus}
                                     focusOut={editorFocusOut}
+                                    sync={this._syncEditor}
                                     value={currentPage.taskParams}
-                                    onChange={editorParamsChange}
+                                    onChange={this.editorParamsChange.bind(this)}
                                 />
                             </TabPane>
                         </Tabs>
