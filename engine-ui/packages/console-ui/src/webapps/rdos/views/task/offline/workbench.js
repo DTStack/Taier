@@ -6,10 +6,10 @@ import {
     Tabs, Menu, Dropdown, Icon, Modal, Tag,
 } from 'antd';
 
-import SplitPane from 'react-split-pane';
 import { cloneDeep, isEmpty } from 'lodash';
 
 import utils from 'utils'
+import FullScreenButton from 'widgets/fullscreen';
 
 import ajax from '../../../api';
 
@@ -163,6 +163,7 @@ class Workbench extends React.Component {
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
+                    <FullScreenButton/>
                 </Col>
 
                 {showPublish ? (<Col className="right">

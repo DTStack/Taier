@@ -29,7 +29,7 @@ export function taskStatusText(type) {
         case TASK_STATUS.CREATED:
             return '数据同步';
         case TASK_STATUS.INVOKED:
-            return '已调用';
+            return '已调度';
         case TASK_STATUS.DEPLOYING:
             return '部署中';
         case TASK_STATUS.RUNNING:

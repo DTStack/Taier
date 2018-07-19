@@ -65,7 +65,7 @@ class Container extends Component {
     render() {
         const { children } = this.props;
         return (
-            <Layout className="dt-dev-task">
+            <Layout className="dt-dev-task" id="JS_WORKBENCH">
                 <SplitPane
                     split="vertical"
                     minSize={200}
