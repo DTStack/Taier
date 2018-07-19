@@ -1,5 +1,4 @@
 import { message } from 'antd'
-import { isEmpty } from 'lodash'
 import { hashHistory } from 'react-router'
 
 import ajax from '../../../api'
@@ -10,7 +9,6 @@ import {
     sourceMapAction,
     targetMapAction,
     keyMapAction,
-    dataSyncAction,
     workbenchAction,
     taskTreeAction,
     resTreeAction,
@@ -160,11 +158,43 @@ export const keyMapActions = (dispatch) => {
 export const workbenchActions = (dispatch) => {
 
     return {
+        dispatch,
 
+        /**
+         * 更新Tab数据
+         */
         updateTabData: (data) => {
             dispatch({
                 type: workbenchAction.UPDATE_TASK_TAB,
                 payload: data
+            });
+        },
+
+        /**
+         * 重新reload Tab 中的任务
+         */
+        reloadTabTask: (taskId) => {
+            // 更新tabs数据
+            ajax.getOfflineTaskDetail({
+                id: taskId,
+            }).then(res => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: workbenchAction.UPDATE_TASK_TAB,
+                        payload: res.data
+                    });
+                }
+            });
+        },
+
+        /**
+         * 更新当前任务的字段
+         * @param {*} taskFields 
+         */
+        updateTaskField(taskFields) {
+            dispatch({
+                type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                payload: taskFields, 
             });
         },
 
@@ -220,8 +250,26 @@ export const workbenchActions = (dispatch) => {
             })
         },
 
+        /**
+         * 定位文件位置
+         */
+        locateFilePos(data, type) {
+            if (type === MENU_TYPE.TASK || type === MENU_TYPE.TASK_DEV) {
+                dispatch({
+                    type: taskTreeAction.MERGE_FOLDER_CONTENT,
+                    payload: data
+                });
+            }
+            else if (MENU_TYPE.SCRIPT) {
+                dispatch({
+                    type: scriptTreeAction.MERGE_FOLDER_CONTENT,
+                    payload: data
+                });
+            }
+        },
+
         loadTreeNode: (nodePid, type) => {
-            ajax.getOfflineCatelogue({
+            ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,
                 catalogueType: type,
@@ -264,7 +312,7 @@ export const workbenchActions = (dispatch) => {
             ajax.delOfflineTask(params)
                 .then(res => {
                     if (res.code == 1) {
-                        message.info('删除成功');
+                        message.success('删除成功');
                         dispatch({
                             type: taskTreeAction.DEL_OFFLINE_TASK,
                             payload: {
@@ -335,6 +383,7 @@ export const workbenchActions = (dispatch) => {
                 }
             })
         },
+
 
         loadTaskParams() {
             ajax.getCustomParams()

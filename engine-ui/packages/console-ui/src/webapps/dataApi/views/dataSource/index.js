@@ -61,6 +61,8 @@ export default class DataSource extends Component {
                 ...source, ...sourceFormData
             }).then((res) => {
                 if (res.code === 1) {
+                    formObj.resetFields();
+                    this.setState({ visible: false });
                     message.success(`${title}成功！`);
                     this.props.getDataSources(params);
                 }
@@ -68,14 +70,13 @@ export default class DataSource extends Component {
         } else {
             Api.addDataSource(sourceFormData).then((res) => {
                 if (res.code === 1) {
+                    formObj.resetFields();
+                    this.setState({ visible: false });
                     message.success(`${title}成功！`);
                     this.props.getDataSources(params);
                 }
             });
         }
-
-        formObj.resetFields();
-        this.setState({ visible: false });
     }
 
     remove = (record) => {

@@ -50,7 +50,7 @@ class Main extends Component {
             <div className="main">
             
                 {header}
-                <div className="container">
+                <div className="container overflow-x-hidden">
                     { children || "加载中...." }
                 </div>
             </div>

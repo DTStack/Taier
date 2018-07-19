@@ -614,7 +614,7 @@ export default class TableRelation extends React.Component {
     }
 
     render() {
-        const { tableInfo, relationTasks } = this.state;
+        const { tableInfo, relationTasks, loading } = this.state;
         return (
             <div className="graph-editor"
                 style={{ position: 'relative', background: '#FAFAFA', height: '1000px' }}
@@ -622,7 +622,7 @@ export default class TableRelation extends React.Component {
                 <Spin
                     tip="Loading..."
                     size="large"
-                    spinning={this.state.loading === 'loading'}
+                    spinning={loading === 'loading'}
                 >
                     <div className="absolute-middle graph-bg">血缘关系</div>
                     <div className="editor pointer" style={{ height: '600px' }} ref={(e) => { this.Container = e }} />

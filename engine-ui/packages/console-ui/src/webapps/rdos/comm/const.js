@@ -74,10 +74,11 @@ export const PROJECT_ROLE = { // 项目角色
     VISITOR: 4, // 访客
 }
 
-export const DATA_TYPE_ARRAY = [ // sql/oracle/sqlserver
+export const DATA_TYPE_ARRAY = [ // sql/oracle/sqlserver/postgresql
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
+    DATA_SOURCE.POSTGRESQL,
 ]
 
 export const TASK_TYPE = { // 任务类型
@@ -147,6 +148,7 @@ export const TASK_STATUS = { // 任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
     FROZEN: 18,
+    PARENT_FAILD: 21, // 上游失败
 }
 
 // 表模型规则
@@ -175,19 +177,6 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'DOUBLE',
     'TIMESTAMP',
     'DATE',
-]
-
-export const dataSourceTypes = [ // 数据源类型
-    '未知类型',
-    'MySql',
-    'Oracle',
-    'SQLServer',
-    'PostgreSQL',
-    'RDBMS',
-    'HDFS',
-    'Hive',
-    'HBase',
-    'FTP',
 ]
 
 // 表模型规则列表

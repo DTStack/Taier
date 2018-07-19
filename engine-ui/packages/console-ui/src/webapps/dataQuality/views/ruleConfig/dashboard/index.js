@@ -7,11 +7,12 @@ import utils from "utils";
 
 import RuleEditPane from './ruleEditPane';
 import RemoteTriggerPane from './remoteTriggerPane';
-import SelectSearch from "../../../components/selectSearch";
 import SlidePane from 'widgets/slidePane';
 import { dataSourceActions } from '../../../actions/dataSource';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import RCApi from '../../../api/ruleConfig';
+import { DATA_SOURCE } from '../../../consts';
+
 import '../../../styles/views/ruleConfig.scss';
 
 const Search = Input.Search;
@@ -48,7 +49,8 @@ export default class RuleConfig extends Component {
         },
         tabKey: '1',
         showSlidePane: false,
-        currentMonitor: {}
+        currentMonitor: {},
+
     }
 
     componentDidMount() {
@@ -118,10 +120,13 @@ export default class RuleConfig extends Component {
             }
         }, {
             title: '操作',
+            width: '10%',
             render: (text, record) => {
-                return <a onClick={this.onSubscribe.bind(this, record)}>
-                    {record.isSubscribe ? '取消订阅' : '订阅'}
-                </a>
+                return <span>
+                        <a onClick={this.onSubscribe.bind(this, record)}>
+                            {record.isSubscribe ? '取消订阅' : '订阅'}
+                        </a> 
+                    </span>
             }
         }]
     }
@@ -337,7 +342,6 @@ export default class RuleConfig extends Component {
 
         const cardTitle = (
             <div className="flex font-12">
-                
 
                 <Search
                     placeholder="输入表名搜索"
@@ -453,7 +457,7 @@ export default class RuleConfig extends Component {
                             onClose={this.closeSlidePane}
                             visible={showSlidePane}
                             className="slide-pane-box"
-                            style={{ right: '0px', width: '80%',height:"100%", minHeight: '650px' }}
+                            style={{ right: '0px', width: '80%', height:"100%", minHeight: '650px' }}
                         >
                             <div className="m-tabs">
                                 <Tabs 
@@ -476,6 +480,7 @@ export default class RuleConfig extends Component {
                                 </Tabs>
                             </div>
                         </SlidePane>
+                       
                     </Card>
                 </div>
             </div>

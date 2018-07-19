@@ -1,17 +1,10 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import {
-    Input, Button, Table, Form,
-    Pagination, Modal, message,
-    Tag, Icon, Card, Select,Spin,
-    Tooltip
+    Input, Table, Form, message,
+    Card, Select, Spin, Tooltip
 } from 'antd';
-
-import { Link } from 'react-router';
-import moment from 'moment';
-import { isEmpty } from 'lodash';
-
+import { Link, hashHistory } from 'react-router';
 import utils from 'utils';
 import { APPLY_RESOURCE_TYPE } from "../../../comm/const";
 import CatalogueTree from '../catalogTree';
@@ -32,23 +25,23 @@ class SearchTable extends Component {
 
     constructor(props) {
         super(props);
+        const { pId, pageIndex,permissionStatus,tableName} = this.props.location.query;
         this.state = {
             visible: false,
             table: [],
             editRecord: {},
             cardLoading:false,
             queryParams: {
-                pageIndex: 1,
+                pId,
+                pageIndex: pageIndex || 1,
                 catalogueId: undefined,
-                permissionStatus: undefined,
-                projectId: undefined,
-                tableName: undefined,
+                permissionStatus,
+                tableName,
             },
         }
     }
 
     componentDidMount() {
-        this.search();
         this.loadCatalogue();
     }
 
@@ -57,12 +50,16 @@ class SearchTable extends Component {
     }
 
     search = () => {
-        const { cardLoading } = this.state;
         this.setState({
             cardLoading: true,
             table: [],
         })
         const { queryParams } = this.state;
+        const pathname = this.props.location.pathname;
+        hashHistory.push({
+            pathname,
+            query: queryParams,
+        })
         ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -94,7 +91,7 @@ class SearchTable extends Component {
         let queryParams = Object.assign(this.state.queryParams);
         queryParams.pageIndex = 1;
         if (field) {
-            queryParams[field] = value === "all" ? "" : value;
+            queryParams[field] = value === " " ? " " : value;
         }
         this.setState({
             queryParams,
@@ -102,11 +99,18 @@ class SearchTable extends Component {
     }
 
     loadCatalogue = () => {
+        const { queryParams } = this.state;
+        this.setState({
+            cardLoading: true,
+        })
         ajax.getDataCatalogues().then(res => {
+            const { catalogueId } =  this.props.location.query;
+            queryParams.catalogueId = catalogueId||undefined;
             this.setState({
                 dataCatalogue: res.data && [res.data],
                 pageIndex: 1,
-            })
+                queryParams,
+            },this.search)
         })
     }
 
@@ -147,7 +151,7 @@ class SearchTable extends Component {
         )
        
         return content
-    }
+    } 
 
     initialColumns = () => {
         const ctx = this;
@@ -243,7 +247,7 @@ class SearchTable extends Component {
 
 
     render() {
-        const { table, queryParams, visible, editRecord, cardLoading } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
         const { projects } = this.props;
 
         const marginTop10 = { marginTop: '8px' };
@@ -256,7 +260,6 @@ class SearchTable extends Component {
         >
             {proj.projectAlias}
         </Option>)
-
         const title = (
             <Form className="m-form-inline" layout="inline" style={marginTop10}>
                 <FormItem label="类目">
@@ -265,10 +268,10 @@ class SearchTable extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogueId}
+                            value={queryParams.catalogueId&&Number(queryParams.catalogueId)}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
-                            treeData={this.state.dataCatalogue}
+                            treeData={dataCatalogue&&dataCatalogue[0].children}
                         />
                     </span>
                 </FormItem>
@@ -277,9 +280,10 @@ class SearchTable extends Component {
                         allowClear
                         style={{ width: 120 }}
                         placeholder="选择指标类型"
+                        value={queryParams.permissionStatus}
                         onChange={(value) => this.changeParams('permissionStatus', value)}
                     >
-                        <Option value="all">全部表</Option>
+                        <Option value=" ">全部表</Option>
                         <Option value="0">申请授权</Option>
                         <Option value="1">授权成功</Option>
                         <Option value="2">等待授权</Option>
@@ -292,6 +296,7 @@ class SearchTable extends Component {
                         optionFilterProp="name"
                         style={{ width: 120 }}
                         placeholder="选择项目"
+                        value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
                     >
                         {projectOptions}
@@ -302,6 +307,7 @@ class SearchTable extends Component {
                         placeholder="按表名搜索"
                         style={{ width: 200 }}
                         size="default"
+                        value={queryParams.tableName}
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
                     />
@@ -310,13 +316,14 @@ class SearchTable extends Component {
         )
 
         const pagination = {
-            total: table.totalCount,
+            total: Number(table.totalCount),
             defaultPageSize: 10,
+            current: Number(queryParams.pageIndex)
         };
         return <div className="m-tablelist">
                     <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
-                        <Card noHovering bordered={false} title={title} >
-                            <Spin tip="正在加载中..." spinning={cardLoading}>
+                        <Spin tip="正在加载中..." spinning={cardLoading}>
+                            <Card noHovering bordered={false} title={title} >
                                 <div style={{ marginTop: '1px' }}>
                                     <Table
                                         rowKey="id"
@@ -327,8 +334,8 @@ class SearchTable extends Component {
                                         onChange={this.handleTableChange.bind(this)}
                                     />
                                 </div>
-                            </Spin>
-                        </Card>
+                            </Card>
+                        </Spin>
                         <TableApplyModal 
                             visible={visible}
                             table={editRecord}

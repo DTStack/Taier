@@ -1,26 +1,40 @@
 import React, { Component } from 'react'
-import {  Card, Col, Row, Table } from 'antd';
-import {Link} from "react-router"
+import { Card, Col, Row, Table } from 'antd';
+import { Link } from "react-router"
 class TopFail extends Component {
-    getDataSource(){
-       return this.props.data||[];
+    getDataSource() {
+        return this.props.data || [];
     }
-    openNewDetail(text){
-        this.props.router.push({
-            pathname:'/api/manage/detail/'+text
-        })
+    openNewDetail(text, apiName) {
+        if (this.props.isAdmin) {
+            this.props.router.push({
+                pathname: '/api/manage',
+                state:{
+                    apiName: apiName,
+                    apiId: text
+                }
+            })
+        } else {
+            this.props.router.push({
+                pathname: '/api/mine/approved',
+                query: {
+                    apiName: apiName,
+                    apiId: text
+                }
+            })
+        }
     }
 
     render() {
         return (
             <Card
                 noHovering
-                title={this.props.noTitle?'':"失败率TOP10"}
-                style={{ height: this.props.cardHeight||403 }}
+                title={this.props.noTitle ? '' : "失败率TOP10"}
+                style={{ height: this.props.cardHeight || 403 }}
                 className="shadow"
             >
                 <Table
-                    rowKey={(record)=>{
+                    rowKey={(record) => {
                         return record.id
                     }}
                     className="m-table"
@@ -33,16 +47,16 @@ class TopFail extends Component {
                         dataIndex: 'rank',
                         key: 'rank',
                         className: "color-666",
-                        render(text, record,index) {
-                            return <span className={`rank-number rank-number-fail_${index+1}`}>{index+1}</span>
+                        render(text, record, index) {
+                            return <span className={`rank-number rank-number-fail_${index + 1}`}>{index + 1}</span>
                         }
                     }, {
                         title: '接口',
                         dataIndex: 'apiName',
                         key: 'apiName',
                         className: "color-666",
-                        render:(text,record)=> {
-                            return <a onClick={this.openNewDetail.bind(this,record.id)}>{text}</a>
+                        render: (text, record) => {
+                            return <a onClick={this.openNewDetail.bind(this, record.id, record.apiName)}>{text}</a>
                         }
                     }, {
                         title: '调用次数',
@@ -55,8 +69,8 @@ class TopFail extends Component {
                         dataIndex: 'failRate',
                         key: 'failRate',
                         className: "color-666",
-                        render(text){
-                            return text+"%"
+                        render(text) {
+                            return text + "%"
                         }
                     }]}
 

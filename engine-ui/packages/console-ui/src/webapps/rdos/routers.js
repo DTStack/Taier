@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect } from 'react-router'
+import { Route, IndexRoute } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
 import { isSelectedProject } from './interceptor'
@@ -21,6 +21,7 @@ import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
 import Dashboard from './views/dashboard'
+
 
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
@@ -61,6 +62,7 @@ import Log from './views/dataManage/log';
 import DataCatalogue from './views/dataManage/dataCatalogue';
 import AuthMana from './views/dataManage/authority';
 import SearchTable from './views/dataManage/search';
+import AssetOverview from './views/dataManage/assets'
 
 // ======= 数据模型 =======
 import DataModelOverview from './views/dataModel/overview';
@@ -174,6 +176,7 @@ export default (
                 <Route path="catalogue" component={DataCatalogue} />
                 <Route path="auth" component={AuthMana} />
                 <Route path="search" component={SearchTable} />
+                <Route path="assets" component={AssetOverview} />
 
             </Route>
             <Route path="/data-model" component={DataModelContainer}>

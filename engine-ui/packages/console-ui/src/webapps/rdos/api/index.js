@@ -5,6 +5,7 @@ import req from './req'
 import http from './http'
 import offlineReq from './reqOffline';
 import dataManageReq from './reqDataManage';
+import realtime from '../views/task/realtime';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -14,6 +15,10 @@ export default {
 
     sqlFormat(params) { // SQL格式化
         return http.post(offlineReq.SQL_FORMAT, params)
+    },
+
+    streamSqlFormat(params) {
+        return http.post(req.SQL_FORMAT, params)
     },
 
     unlockFile(params) {// 解锁文件
@@ -93,7 +98,15 @@ export default {
     getProjectInfo(params) {
         return http.post(req.GET_PROJECT_INFO, params)
     },
-
+    getProjectListInfo(params) {
+        return http.post(req.GET_PROJECT_LIST_INFO, params)
+    },
+    setSticky(params) {
+        return http.post(req.SET_STICKY, params)
+    },
+    deleteProject(params) {
+        return http.post(req.DELETE_PROJECT, params)
+    },
     // ========== Role ========== //
     getRoleList(params) {
         return http.post(req.GET_ROLE_LIST, params)
@@ -167,7 +180,10 @@ export default {
         return http.post(req.PUBLISH_REALTIME_TASK, params)
     },
     taskVersionScheduleConf(params){
-        return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF,params)
+        return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF, params)
+    },
+    updateTaskOwner(params) {
+        return http.post(offlineReq.UPDATE_TASK_OWNER, params)
     },
 
     // ========== CATALOGUE ========== //
@@ -182,6 +198,9 @@ export default {
     },
     deleteCatalogue(params) {
         return http.post(req.DELETE_CATALOGUE, params)
+    },
+    locateStreamCataPosition(params) {
+        return http.post(req.GET_STREAM_CATALOGUE_BY_LOCATION, params)
     },
 
     getFunc(params) {
@@ -408,15 +427,20 @@ export default {
     },
 
     // =========== 离线catalogue目录模块 ==================//
-    getOfflineCatelogue(params) {
-        return http.post(offlineReq.GET_OFFLINE_CATELOGUE, params)
+    getOfflineCatalogue(params) {
+        return http.post(offlineReq.GET_OFFLINE_CATALOGUE, params)
     },
-    addOfflineCatelogue(params) {
-        return http.post(offlineReq.ADD_OFFLINE_CATELOGUE, params)
+    addOfflineCatalogue(params) {
+        return http.post(offlineReq.ADD_OFFLINE_CATALOGUE, params)
     },
-    editOfflineCatelogue(params) {
-        return http.post(offlineReq.EDIT_OFFLINE_CATELOGUE, params)
+    editOfflineCatalogue(params) {
+        return http.post(offlineReq.EDIT_OFFLINE_CATALOGUE, params)
     },
+    locateCataPosition(params) {
+        return http.post(offlineReq.GET_OFFLINE_CATALOGUE_BY_LOCATION, params)
+    },
+
+
     addOfflineResource(params) {
         return http.postAsFormData(offlineReq.ADD_OFFLINE_RESOURCE, params)
     },

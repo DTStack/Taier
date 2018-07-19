@@ -32,21 +32,23 @@ const mapDispatchToProps = dispatch => ({
 class ApiCallMethod extends Component {
     state = {
         callUrl: "",
-        beginTime:undefined,
-        endTime:undefined,
-        callLimit:0
+        beginTime: undefined,
+        endTime: undefined,
+        callLimit: 0
     }
 
     getApiCallUrl(apiId) {
+      
+
         this.props.getApiCallUrl(apiId)
             .then(
                 (res) => {
                     if (res) {
                         this.setState({
                             callUrl: res.data.url,
-                            beginTime:res.data.beginTime,
-                            endTime:res.data.endTime,
-                            callLimit:res.data.callLimit
+                            beginTime: res.data.beginTime,
+                            endTime: res.data.endTime,
+                            callLimit: res.data.callLimit
                         })
                     }
                 }
@@ -75,11 +77,17 @@ class ApiCallMethod extends Component {
         }
     }
     updateData(apiId, status, mode) {
+        this.setState({
+            callUrl: "",
+            beginTime: undefined,
+            endTime: undefined,
+            callLimit: 0
+        })
         if (!apiId) {
             return;
         }
 
-        if (status != API_USER_STATUS.STOPPED && mode != 'manage') {
+        if (mode != 'manage') {
             this.getApiCallUrl(apiId);
         }
 
@@ -88,14 +96,14 @@ class ApiCallMethod extends Component {
     }
     render() {
         const { callUrl, beginTime, endTime, callLimit } = this.state;
-        const { showRecord = {}, apiMarket, mode } = this.props;
+        const { showRecord = {}, apiMarket, mode, showUserInfo } = this.props;
         let { apiId, id } = showRecord;
         apiId = mode == 'manage' ? id : apiId;
 
         return (
             <div>
                 <div style={{ paddingLeft: 30, marginTop: "20px" }}>
-                    <Content showTime={true} callLimit={callLimit} beginTime={beginTime} endTime={endTime} showRecord={showRecord} mode={mode} callUrl={callUrl} apiMarket={apiMarket} apiId={apiId} />
+                    <Content showUserInfo={showUserInfo} callLimit={callLimit} beginTime={beginTime} endTime={endTime} showRecord={showRecord} mode={mode} callUrl={callUrl} apiMarket={apiMarket} apiId={apiId} />
                 </div>
             </div>
         )

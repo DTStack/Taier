@@ -20,13 +20,13 @@ class NoApprovedCard extends Component {
         sortedInfo: {},
         loading: false,
         showRecord: {},
-        apiName:""
+        apiName: utils.getParameterByName("apiName")
     }
     getApplyingList(callback) {
         this.setState({
             loading: true
         })
-        this.props.getApplyingList(this.state.pageIndex, sortType[this.state.sortedInfo.columnKey], orderType[this.state.sortedInfo.order],this.state.apiName)
+        this.props.getApplyingList(this.state.pageIndex, sortType[this.state.sortedInfo.columnKey], orderType[this.state.sortedInfo.order], this.state.apiName)
             .then(
                 () => {
                     this.setState({
@@ -47,6 +47,9 @@ class NoApprovedCard extends Component {
         );
     }
     componentWillReceiveProps(nextProps) {
+        if (this.props.nowView != nextProps.nowView && nextProps.nowView == "notApproved") {
+            this.getApplyingList();
+        }
 
         if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
 
@@ -103,19 +106,19 @@ class NoApprovedCard extends Component {
             title: '申请次数',
             dataIndex: 'callLimit',
             key: 'callLimit',
-            width:"100px",
-            render(text){
-                if(text==-1){
+            width: "100px",
+            render(text) {
+                if (text == -1) {
                     return "无限制"
                 }
                 return text;
             }
-        },{
+        }, {
             title: '申请周期',
             dataIndex: 'applyDateRange',
             key: 'applyDateRange',
-            render(text,record){
-                if(!record.beginTime||!record.endTime){
+            render(text, record) {
+                if (!record.beginTime || !record.endTime) {
                     return "无时间限制";
                 }
                 return <span>{new moment(record.beginTime).format("YYYY-MM-DD")} ~ {new moment(record.endTime).format("YYYY-MM-DD")}</span>
@@ -152,61 +155,63 @@ class NoApprovedCard extends Component {
     closeSlidePane() {
         this.setState({
             slidePaneShow: false,
-            showRecord:{}
+            showRecord: {}
         })
     }
     handleApiSearch(key) {
         this.setState({
             apiName: key,
-            pageIndex:1
+            pageIndex: 1
         },
             () => {
                 this.getApplyingList();
             })
     }
     render() {
+        const {apiName} = this.state;
         return (
-
-            <Card
-                noHovering
-            >
-
-                <SlidePane
-                    {...this.props}
-                    slidePaneShow={this.state.slidePaneShow}
-                    showRecord={this.state.showRecord}
-                    closeSlidePane={this.closeSlidePane.bind(this)}
-                ></SlidePane>
-                <div className="flex font-12">
-
-
-                    <Search
-                        placeholder="输入API名称搜索"
-                        style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
-                        onSearch={this.handleApiSearch.bind(this)}
-                    />
-
-
+            <div>
+                <div style={{ marginRight: "-20px", position: "relative" }}>
+                    <SlidePane
+                        {...this.props}
+                        slidePaneShow={this.state.slidePaneShow}
+                        showRecord={this.state.showRecord}
+                        closeSlidePane={this.closeSlidePane.bind(this)}
+                    ></SlidePane>
                 </div>
-                <Table
-                    rowKey="id"
-                    rowClassName={
-                        (record, index) => {
-                            if (this.state.showRecord.apiId == record.apiId) {
-                                return "row-select"
-                            } else {
-                                return "";
+                <Card
+                    noHovering
+                >
+
+                    <div className="flex font-12">
+                        <Search
+                            placeholder="输入API名称搜索"
+                            style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
+                            onSearch={this.handleApiSearch.bind(this)}
+                            defaultValue={apiName}
+                        />
+                    </div>
+                    <Table
+                        rowKey="id"
+                        rowClassName={
+                            (record, index) => {
+                                if (this.state.showRecord.apiId == record.apiId) {
+                                    return "row-select"
+                                } else {
+                                    return "";
+                                }
                             }
                         }
-                    }
-                    className="m-table monitor-table"
-                    columns={this.initColumns()}
-                    loading={this.state.loading}
-                    pagination={this.getPagination()}
-                    dataSource={this.getSource()}
-                    onChange={this.onTableChange}
-                />
-            </Card>
+                        className="m-table monitor-table"
+                        columns={this.initColumns()}
+                        loading={this.state.loading}
+                        pagination={this.getPagination()}
+                        dataSource={this.getSource()}
+                        onChange={this.onTableChange}
+                    />
+                </Card>
+            </div>
+
 
         )
     }

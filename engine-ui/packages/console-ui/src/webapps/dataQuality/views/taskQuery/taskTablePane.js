@@ -187,7 +187,10 @@ export default class TaskTablePane extends Component {
         }];
 
         // Hive表，增加分区显示
-        if (data.dataSourceType === DATA_SOURCE.HIVE) {
+        if (
+            data.dataSourceType === DATA_SOURCE.HIVE ||
+            data.dataSourceType === DATA_SOURCE.MAXCOMPUTE
+        ) {
             colums.push({
                 title: '分区',
                 dataIndex: 'partition',

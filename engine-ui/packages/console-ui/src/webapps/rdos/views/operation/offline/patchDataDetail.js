@@ -70,7 +70,7 @@ class PatchDataDetail extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.setState({ current: 1 }, () => {
+            this.setState({ current: 1, visibleSlidePane: false, }, () => {
                 this.search()
             })
         }

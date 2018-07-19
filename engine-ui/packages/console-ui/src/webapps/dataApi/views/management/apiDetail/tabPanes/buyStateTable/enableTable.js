@@ -42,7 +42,10 @@ class EnableTable extends Component {
             title: '最大调用次数',
             dataIndex: 'callLimit',
             key: 'callLimit',
-            width:"150px"
+            width:"150px",
+            render(text){
+                return text==-1?"无限制":text;
+            }
  
         },{
             title: '调用周期',
@@ -50,7 +53,10 @@ class EnableTable extends Component {
             key: 'callDateRange',
             width:"200px",
             render(text,record){
-                return <span>{new moment(record.beginTime).format("YYYY-MM-DD")} ~ {new moment(record.endTime).format("YYYY-MM-DD")}</span>
+                const beginTime=record.beginTime?new moment(record.beginTime).format("YYYY-MM-DD"):null;
+                const endTIme=record.endTime?new moment(record.endTime).format("YYYY-MM-DD"):null;
+                const time = beginTime?`${beginTime} ~ ${endTIme}`:"无限制"
+                return <span>{time}</span>
             }
  
         }, {

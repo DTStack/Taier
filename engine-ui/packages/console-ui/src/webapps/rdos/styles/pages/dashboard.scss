@@ -31,7 +31,6 @@
             padding: 10px;
             height: 65px;
             text-align: left;
-
             .indicator-title {
                 font-size: 12px;
                 color: #999999;
@@ -61,4 +60,130 @@
             left: 80px;
         }
     }
+    .project-search {
+        float: left;
+        width: 220px;
+        margin-top: 10px;
+    }
+    .card-width{
+        min-width: 375px;
+        
+        .company-name{
+            font-size: 14px ;
+            cursor: pointer;
+        }
+        .company-name:hover{
+            color: #2491F7;
+        }
+        .general-card{
+            margin-bottom: 10px;
+            height: 230px;
+            .card-content{
+                position: relative;
+                .statistics{
+                    line-height: 26px;
+                    min-width: 190px;
+                }
+                .ant-card-body{
+                    padding: 4px;
+                }
+                .card-task-padding{
+                    padding: 0;
+                }
+                .number{
+                    font-size: 32px;
+                    color: #f00;
+                }
+                .number:hover{
+                    cursor: pointer;
+                }
+                .card-task{
+                    min-width: 115px;
+                    text-align: center;
+                    margin-top: 10px;
+                    background: #2491F7;
+                    color: #fff;
+                }
+                .img-container{
+                    padding-right: 5px;
+                    .task-img{
+                        display: inline-block;
+                        height:16px;
+                        width: 20px;
+                        background: #2491F7;
+                        position: relative;
+                        top: 3px;
+                    }
+                }
+                .card-task:hover{
+                    cursor: pointer;
+                }
+                
+            }
+            .triangle_border_right{
+                border-width: 16px;
+                border-style: solid;
+                border-color: transparent transparent transparent #696565;/*透明 透明 透明 灰*/
+                //margin:40px auto;
+                position: absolute;
+                bottom: -16px;
+                right: -16px;
+                transform: rotate(45deg);
+            }
+        }
+    }
+    .sortTitle{
+        line-height:45px;
+        .faileSort{
+            float: right;
+            padding-left: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        // .faileSort:hover{
+        //     color: #2491F7;
+        // }
+        .defaultSort{
+            float: right;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        // .defaultSort:hover{
+        //     color: #2491F7;
+        // }
+    }
+    .title-help{
+        padding-bottom: 10px;
+        cursor: pointer;
+    }
+    .help-doc-rdos{
+        font-size: 14px;
+        line-height: 40px;
+    }
+    .ant-card-head{
+        padding: 0 10;
+    }
+    .ant-card-body{
+        padding: 16 10;
+    }
+    
+
 }
+.tooltip-tittle-text{
+    cursor: pointer;
+}
+.tooltip{
+    .ant-tooltip-arrow{
+        border-bottom-color: #2491F7;
+    }
+    .ant-tooltip-arrow{
+        border-bottom-color: #2491F7;
+    }
+    .ant-tooltip-inner{
+        background-color: #2491F7; 
+    }
+}
+
+// .tooltip-tittle-text:hover{
+//     color: #2491F7;
+// }

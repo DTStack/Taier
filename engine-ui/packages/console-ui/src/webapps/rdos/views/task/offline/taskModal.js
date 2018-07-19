@@ -7,7 +7,6 @@ import ajax from '../../../api';
 import {
     modalAction,
     taskTreeAction,
-    workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
 import HelpDoc from "../../helpDoc"
 
@@ -389,6 +388,7 @@ class TaskForm extends React.Component {
                     })(
                         <FolderPicker
                             ispicker
+                            id="Task_dev_catalogue"
                             type={MENU_TYPE.TASK_DEV}
                             treeData={this.props.treeData}
                             onChange={this.handleSelectTreeChange.bind(this)}
@@ -486,6 +486,7 @@ class TaskForm extends React.Component {
 const TaskFormWrapper = Form.create()(TaskForm);
 
 class TaskModal extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -495,15 +496,8 @@ class TaskModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if (this.props.isModalShow !== nextProps.isModalShow) {
-            return true;
-        }
-        return false;
-    }
-
     handleSubmit() {
-        const { addOfflineTask, defaultData, currentTab } = this.props;
+        const { addOfflineTask, defaultData } = this.props;
         const form = this.form;
 
         const isCreateNormal = typeof defaultData === 'undefined';

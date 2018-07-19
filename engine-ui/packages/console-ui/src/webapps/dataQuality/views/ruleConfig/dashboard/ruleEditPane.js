@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 import { isEmpty, isNull } from 'lodash';
 import { Button, Form, Select, Input, Row, Col, Table, message, Popconfirm, InputNumber, Modal } from 'antd';
 
 import ExecuteForm from './executeForm';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { rowFormItemLayout, operatorSelect, operatorSelect1 } from '../../../consts';
+import { rowFormItemLayout, operatorSelect, operatorSelect1, DATA_SOURCE } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
+import EnvModal from '../../envModal';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -47,6 +47,8 @@ export default class RuleEditPane extends Component {
             monitorId: undefined,
             havePart: false,
             showExecuteModal: false,
+
+            visibleEnvModal: false,
         };
     }
 
@@ -730,6 +732,25 @@ export default class RuleEditPane extends Component {
         });
     }
 
+    // 修改任务参数
+    updateEnvParams = (value) => {
+        if (!value) {
+            message.error('环境参数为空！');
+            return; 
+        }
+        const { monitorId } = this.state;
+
+        RCApi.updateTaskParams({ monitorId, taskParams: value, }).then((res) => {
+            if (res.code === 1) {
+                message.success('修改环境参数成功');
+                this.setState({
+                    visibleEnvModal: false,
+                })
+                this.props.getMonitorDetail({ monitorId });
+            }
+        });
+    }
+
     // 打开编辑弹窗
     openExecuteModal = () => {
         this.setState({
@@ -754,11 +775,13 @@ export default class RuleEditPane extends Component {
     }
 
     render() {
-        const { data, ruleConfig, form, common } = this.props;
-        const { getFieldDecorator } = form;
+        const { data, ruleConfig } = this.props;
         const { monitorDetail } = ruleConfig;
-        const { periodType, notifyType } = common.allDict;
-        const { rules, monitorId, havePart, showExecuteModal } = this.state;
+
+        const { 
+            rules, monitorId, havePart, 
+            showExecuteModal, visibleEnvModal 
+        } = this.state;
 
         const filterRules=rules?rules.filter(
             (item)=>{
@@ -813,6 +836,15 @@ export default class RuleEditPane extends Component {
                             onClick={this.changeMonitorStatus.bind(this, monitorId)}>
                             {monitorDetail.isClosed ? '开启检测' : '关闭检测'}
                         </Button>
+                        {
+                            monitorDetail && monitorDetail.sourceType === DATA_SOURCE.HIVE &&
+                            <Button 
+                                className="m-l-8" 
+                                type="primary" 
+                                onClick={() => {this.setState({ visibleEnvModal: true })}}>
+                                环境参数
+                            </Button>
+                        }
                     </Col>
                 </Row>
 
@@ -875,6 +907,19 @@ export default class RuleEditPane extends Component {
                     visible={showExecuteModal} 
                     closeModal={this.closeExecuteModal}>
                 </ExecuteForm>
+
+                 <EnvModal 
+                    key="ruleConfigEnvModal"
+                    title="配置环境参数"
+                    visible={visibleEnvModal}
+                    onCancel={
+                        () => this.setState({
+                            visibleEnvModal: false,
+                        })
+                    }
+                    value={monitorDetail.taskParams}
+                    onOk={this.updateEnvParams}
+                />
             </div>
         );
     }

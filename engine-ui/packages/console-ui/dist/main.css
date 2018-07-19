@@ -229,6 +229,7 @@ ul,li{
   bottom: 0;
   background: #f2f7fa;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .container .ant-layout {
@@ -458,6 +459,10 @@ ul,li{
   width: 100%;
   position: absolute;
   padding-left: 136px;
+}
+
+.m-table.m-table-showselect .ant-table-thead .ant-table-selection-column > span {
+  visibility: unset;
 }
 
 .m-table .ant-pagination {

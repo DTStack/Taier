@@ -51,7 +51,7 @@ class APIMana extends Component {
         total: 0,
         dataSourceType: undefined,
         dataSource: undefined,
-        searchName: null,
+        searchName: this.props.location.state&&this.props.location.state.apiName,
         filter: {},
         sortedInfo: {},
         showRecord:{},
@@ -61,7 +61,19 @@ class APIMana extends Component {
     }
     componentDidMount() {
         this.props.getCatalogue(0);
-        this.getAllApi();
+        this.getAllApi()
+        .then((res)=>{
+            const apiId=this.props.location.state&&this.props.location.state.apiId;
+            if(res&&apiId){
+                    for (let i in res.data.data) {
+                        let item = res.data.data[i];
+                        if (apiId == item.id) {
+                            this.openDetail(item);
+                            break;
+                        }
+                    }
+            }
+        });
         this.getDataSource(null);
         this.props.getDataSourcesType();
     }
@@ -104,7 +116,7 @@ class APIMana extends Component {
         this.setState({
             loading: true
         })
-        this.props.getAllApiList(params)
+        return this.props.getAllApiList(params)
             .then(
                 (res) => {
                     this.setState({
@@ -114,12 +126,10 @@ class APIMana extends Component {
                         this.setState({
                             total: res.data.totalCount
                         })
+                        return res;
                     }
                 }
             );
-
-
-
     }
 
 
@@ -192,7 +202,7 @@ class APIMana extends Component {
                 if(!record.dataSourceType&&!record.dataSourceName){
                     return null;
                 }
-                return record.dataSourceType||"无" + ' / ' + record.dataSourceName||"无"
+                return (record.dataSourceType||"无") + ' / ' + (record.dataSourceName||"无");
             }
         }, {
             title: '最近24小时调用',
@@ -422,6 +432,7 @@ class APIMana extends Component {
         })
     }
     getCardTitle() {
+        const {searchName} = this.state;
         const cascaderData = this.getCascaderData();
         return (
             <div className="flex font-12">
@@ -429,6 +440,7 @@ class APIMana extends Component {
                     placeholder="输入API名称搜索"
                     style={{ width: 150, margin: '10px 0' }}
                     onSearch={this.handleSearch.bind(this)}
+                    defaultValue={searchName}
                 />
                 <div className="m-l-8">
                     API分类：
@@ -472,19 +484,18 @@ class APIMana extends Component {
         )
     }
     render() {
-        const { children } = this.props;
         const { slidePaneShow, showRecord } = this.state
 
         return (
             <div className="api-management">
                 <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
+                <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
                     <Card
 
                         noHovering
                         title={this.getCardTitle()}
                         extra={this.getCardExtra()}
                     >
-                        <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
                         <Table
                             rowClassName={
                                 (record, index) => {

@@ -2,6 +2,7 @@
 import { RDOS_BASE_URL } from 'config/base';
 
 export default {
+
     // ===== 用户模块 ===== //
     // LOGIN: `${RDOS_BASE_URL}/user/login`,
     ADD_ROLE_USRE: `${RDOS_BASE_URL}/common/roleUser/addRoleUser`, // 项目用户
@@ -24,7 +25,10 @@ export default {
     GET_PROJECT_BY_ID: `${RDOS_BASE_URL}/common/project/getProjectByProjectId`, // 获取项目详情
     UPDATE_PROJECT_INFO: `${RDOS_BASE_URL}/common/project/updateProjectInfo`, // 修改项目描述
     GET_PROJECT_INFO: `${RDOS_BASE_URL}/common/project/getProjectInfo`, // 获取项目信息包括告警
-
+    GET_PROJECT_LIST_INFO: `${RDOS_BASE_URL}/common/project/getProjectList`, // 首页project查询
+    SET_STICKY: `${RDOS_BASE_URL}/common/project/setSticky`, // 首页project查询
+    DELETE_PROJECT: `${RDOS_BASE_URL}/common/project/deleteProject`, // 删除项目接口
+    
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表
     UPDATE_ROLE: `${RDOS_BASE_URL}/common/role/addOrUpdateRole`, // 新建/更新角色
@@ -33,6 +37,8 @@ export default {
     GET_ROLE_INFO: `${RDOS_BASE_URL}/common/permission/getPermissionIdsByRoleId`, // 获取角色信息
 
     // ========================= 实时任务 ========================= //
+    SQL_FORMAT: `${RDOS_BASE_URL}/stream/streamTask/sqlFormat`,
+
     // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/stream/streamTask/addOrUpdateTask`, // 添加或者更新任务
     FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/stream/streamTask/forceUpdate`, // 强制更新
@@ -55,6 +61,7 @@ export default {
     UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录
     ADD_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/addCatalogue`, // 新增目录
     DELETE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/deleteCatalogue`, // 删除目录
+    GET_STREAM_CATALOGUE_BY_LOCATION: `${RDOS_BASE_URL}/stream/streamCatalogue/getLocation`,
 
     CREATE_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/addFunction`, // 添加函数
     GET_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/getFunction`, // 获取函数

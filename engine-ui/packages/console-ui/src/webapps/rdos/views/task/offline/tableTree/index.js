@@ -99,7 +99,9 @@ class TableTree extends React.Component {
 
     handleSelect = (key, { node }) => {
         const table = node.props.data
-        this.setState({ tableId: table.id })
+        if (table && table.type !== 'folder') {
+            this.setState({ tableId: table.id })
+        }
     }
     jumpToDataMap(id){
         hashHistory.push({
@@ -206,7 +208,6 @@ class TableTree extends React.Component {
                     >
                         {this.renderNodes()}
                     </Tree>
-
                 </div>
                 {
                     tableId && <div className="tb-info bd-top">

@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
+import { union } from 'lodash';
+
 import { 
-    Menu, Tree, message, Tabs,
+    Menu, message, Tabs,  Dropdown, 
     Popconfirm, Icon, Tooltip,
-    Dropdown, 
 } from 'antd'
 
 import {
     ContextMenu,
     MenuItem,
 } from 'widgets/context-menu'
+import { scrollToView } from 'funcs';
 
 
 import * as BrowserAction from '../../store/modules/realtimeTask/browser'
@@ -31,13 +33,9 @@ import FnViewModal from './realtime/function/fnViewModal'
 
 import Api from '../../api'
 import { showSeach } from '../../store/modules/comm';
-import { getTreeByType } from '../../comm';
+
 import { MENU_TYPE } from '../../comm/const';
-import MyIcon from '../../components/icon'
 
-
-const SubMenu = Menu.SubMenu
-const TreeNode = Tree.TreeNode
 const TabPane = Tabs.TabPane
 
 function isCreate(operation) {
@@ -63,6 +61,8 @@ class RealTimeTabPane extends Component {
         visibleFn: false,
         visibleMoveFn: false,
         visibleFnInfo: false,
+        expandedKeys: [],
+        expandedKeys2: [],
     }
 
     componentDidMount() {
@@ -78,8 +78,32 @@ class RealTimeTabPane extends Component {
         if (newData && old.id !== 0 && old.id !== newData.id) {
             const { dispatch } = this.props
             dispatch(TreeAction.getRealtimeTree(rootNode))
-            dispatch(ResAction.getResources())
+            dispatch(ResAction.getResources());
+            this.setState({
+                expandedKeys: [],
+                expandedKeys2: [],
+            })
         }
+
+        if (this.props.currentPage !== nextProps.currentPage) {
+            this.locateFilePos(nextProps.currentPage.id, MENU_TYPE.TASK_DEV)
+        }
+    }
+
+    onExpand = (expandedKeys, { expanded }) => {
+        let keys = expandedKeys;
+        if (expanded) {
+            keys = union(this.state.expandedKeys, keys)
+        }
+        this.setState({
+            expandedKeys: keys,
+        })
+    }
+
+    onExpand2 = (expandedKeys) => {
+        this.setState({
+            expandedKeys2: expandedKeys,
+        })
     }
 
     loadTaskTypes = () => {
@@ -116,7 +140,6 @@ class RealTimeTabPane extends Component {
     }
 
     chooseFn = (selectedKeys, target) => {
-        const ctx = this
         const item = target.node.props.data
         if (item.type === 'file') {
             this.setState({
@@ -143,7 +166,6 @@ class RealTimeTabPane extends Component {
     }
 
     initAddTask = () => {
-        const { dispatch } = this.props
         const node = this.state.activeNode
         const taskInfo = { nodePid: node.id }
         this.setState({ taskInfo })
@@ -151,7 +173,7 @@ class RealTimeTabPane extends Component {
     }
 
     createOrUpdateTask = (task) => {
-        const { dispatch, realtimeTree, currentPage, modal } = this.props
+        const { dispatch, currentPage, modal } = this.props
         const { activeNode, taskInfo } = this.state
 
         if (isCreate(modal)) {
@@ -238,7 +260,7 @@ class RealTimeTabPane extends Component {
     }
 
     updateFolder = (cateInfo) => {
-        const { dispatch, realtimeTree, modal } = this.props
+        const { dispatch, modal } = this.props
         const { activeNode } = this.state
         const params = { id: cateInfo.nodePid,}
         switch (modal) {
@@ -351,11 +373,81 @@ class RealTimeTabPane extends Component {
 
     loadTreeData = (treeNode) => {
         const { dispatch } = this.props
-        const treeType = treeNode.props.treeType
         const node = treeNode.props.data
         return new Promise((resolve) => {
             dispatch(TreeAction.getRealtimeTree(node))
             resolve();
+        })
+    }
+
+    locateFilePos = (id, type, name) => {
+
+        if (!id) return;
+        const { expandedKeys } = this.state;
+        const { dispatch, realtimeTree } = this.props;
+
+        const hasPath = (data, id, path) => {
+
+            if (!data) return false;
+            path = `${path ? path + '-' : path}${data.id}`
+            if (data && data.id === id) {
+                checkedPath = path;
+                return true;
+            }
+
+            if (data.children) {
+                const children = data.children
+                for (let i = 0; i < children.length; i += 1) {
+                    if (hasPath(children[i], id, path)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        const getExpandedKey = (path) => {
+            return path && path.split('-');
+        }
+
+        const scroll = () => {
+            setTimeout(() => {
+                scrollToView(`JS_${id}`)
+            }, 0)
+        }
+
+        let checkedPath = '', path = ''; // 路径存储
+
+        if (hasPath(realtimeTree[0], id, path)) {
+            const keys = getExpandedKey(checkedPath);
+            this.setState({ expandedKeys: union(expandedKeys, keys) });
+            scroll();
+        } else {
+            Api.locateStreamCataPosition({
+                id,
+                catalogueType: type,
+                name: name,
+            }).then(res => {
+                if (res.code === 1 && res.data) {
+                    const data = res.data.children[0];
+                    let path = '';
+                    if (hasPath(data, id, path)) {
+                        const keys = getExpandedKey(checkedPath);
+                        this.setState({
+                            expandedKeys: keys
+                        })
+                    }
+                    dispatch(TreeAction.mergeRealtimeTree(data));
+                    scroll();
+                }
+            });
+        }
+    }
+
+    reloadTreeNodes = (id, type) => {
+        this.props.dispatch(TreeAction.getRealtimeTree({ id, catalogueType: type }))
+        this.setState({
+            expandedKeys: [`${id}`]
         })
     }
 
@@ -407,7 +499,8 @@ class RealTimeTabPane extends Component {
     }
 
     renderTabPanes = () => {
-        const { realtimeTree, dispatch } = this.props;
+        const { realtimeTree, currentPage } = this.props;
+        const { expandedKeys, expandedKeys2 } = this.state;
         const menus = []
         if (realtimeTree && realtimeTree.length > 0) {
             for (let i = 0; i < realtimeTree.length; i++) {
@@ -418,6 +511,19 @@ class RealTimeTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="定位">
+                                    <Icon
+                                        type="environment"
+                                        onClick={() => this.locateFilePos(currentPage.id, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
+                                <Tooltip title="刷新">
+                                    <Icon
+                                        type="sync"
+                                        style={{fontSize: '12px'}}
+                                        onClick={() => this.reloadTreeNodes(menuItem.children[0].id, MENU_TYPE.TASK_DEV)}
+                                    />
+                                </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="task:newTask">
@@ -440,6 +546,9 @@ class RealTimeTabPane extends Component {
                                 loadData={this.loadTreeData}
                                 treeData={menuItem.children}
                                 treeType={menuItem.catalogueType}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
+                                selectedKeys={[`${currentPage.id}`]}
                             />
                         </div>
                         break;
@@ -466,6 +575,8 @@ class RealTimeTabPane extends Component {
                                 loadData={this.loadTreeData}
                                 treeData={menuItem.children}
                                 treeType={menuItem.catalogueType}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
                             />
                         </div>
                         break;
@@ -499,6 +610,8 @@ class RealTimeTabPane extends Component {
                                 onSelect={this.chooseFn}
                                 treeData={customTreeData ? [customTreeData] : []}
                                 treeType={MENU_TYPE.COSTOMFUC}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
                             />
                             <FolderTree
                                 onRightClick={this.rightClick}
@@ -506,6 +619,8 @@ class RealTimeTabPane extends Component {
                                 onSelect={this.chooseFn}
                                 treeData={systemTreeData ? [systemTreeData] : []}
                                 treeType={MENU_TYPE.SYSFUC}
+                                expandedKeys={expandedKeys2}
+                                onExpand={this.onExpand2}
                             />
                         </div>
                         break;
@@ -527,6 +642,8 @@ class RealTimeTabPane extends Component {
                                 loadData={this.loadTreeData}
                                 treeData={menuItem.children}
                                 treeType={menuItem.catalogueType}
+                                expandedKeys={expandedKeys}
+                                onExpand={this.onExpand}
                             />
                         </div>;
                         break;
@@ -567,7 +684,7 @@ class RealTimeTabPane extends Component {
         } = this.state
 
         const {
-            taskTree, modal, dispatch,
+            taskTree, modal,
             resourceTree, functionTree,
         } = this.props
 

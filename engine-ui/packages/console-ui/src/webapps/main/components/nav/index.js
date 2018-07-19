@@ -4,12 +4,10 @@ import { Link } from 'react-router'
 import styled from 'styled-components'
 
 import pureRender from 'utils/pureRender'
-import MIcon from '../icon'
 import UserApi from '../../api/user'
 import './style.scss'
 
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
-const SubMenu = Menu.SubMenu
 
 export const Title = styled.span`
     color: #ffffff;
@@ -60,7 +58,11 @@ export function MenuLeft(props) {
 }
 
 export function MenuRight(props) {
-    const { activeKey, onClick, settingMenus, user, apps, app,showHelpSite,helpUrl } = props;
+    const { 
+        onClick, settingMenus, user,
+        apps, app, showHelpSite, helpUrl 
+    } = props;
+
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -87,17 +89,16 @@ export function MenuRight(props) {
     )
 
     const appMenus = (
-        <Menu>
+        <Menu selectedKeys={[`${app && app.id}`]}>
             {renderATagMenuItems(apps)}
         </Menu>
     )
-
 
     return (
         <div className="menu right">
             <menu className="menu-right">
                 {showHelpSite ? (
-                    <span title="帮助文档">
+                    <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
                             <Icon type="question-circle-o" />
                         </a>
@@ -107,21 +108,20 @@ export function MenuRight(props) {
 
                 }
                 <Dropdown overlay={appMenus} trigger={['click']}>
-                    <span>
+                    <span className="menu-item">
                         <Icon type="home" />
-                        {/* <MIcon type="home" /> */}
                     </span>
                 </Dropdown>
-                <span className="divide"></span>
-                <span>
-                    <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                <span className="divide left"></span>
+                <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                    <span className="menu-item">
                         <Icon type="message" />
                         {/* <Badge dot>
                         </Badge> */}
-                    </a>
-                </span>
+                    </span>
+                </a>
                 <Dropdown overlay={settingMenuItems} trigger={['click']}>
-                    <span><Icon type="setting" /> </span>
+                    <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">

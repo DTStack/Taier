@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { 
-    Tree, TreeSelect, Input, 
-    message, Modal, Badge 
+    Tree, TreeSelect,
+    Modal, Badge 
 } from 'antd';
 
 import utils from 'utils';
@@ -16,7 +16,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import { taskTypeIcon, resourceTypeIcon } from '../../../comm'
-import { TASK_TYPE, MENU_TYPE } from '../../../comm/const'
+import { MENU_TYPE } from '../../../comm/const'
 
 const { TreeNode } = Tree;
 const confirm = Modal.confirm;
@@ -25,12 +25,10 @@ const isRootFolder = (node) => {
     return node.level === 1;
 }
 
-
 class FolderTree extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handleChange = this.props.onChange;
     }
 
     onLoadData(type, treeNode) {
@@ -43,7 +41,6 @@ class FolderTree extends React.Component {
                 resolve();
                 return;
             }
-            ctx._asyncLoadData = true;
             loadTreeNode(data.id, cataType);
             resolve();
         });
@@ -443,7 +440,10 @@ class FolderTree extends React.Component {
                         id={ id }
                         key={ `${taskType}-ctxmenu-${id}` }
                         operations={ this.generateCtxMenu(type, treeType, data) } >
-                        <span title={name} className={type === 'file' ? 'task-item' : 'folder-item'}>
+                        <span 
+                            id={`JS_${id}`}
+                            title={name} 
+                            className={type === 'file' ? 'task-item' : 'folder-item'}>
                             { this.renderStatusBadge(treeType, data) }
                             { name } 
                             <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
@@ -452,14 +452,14 @@ class FolderTree extends React.Component {
                         </span>
                     </CtxMenu>
                 }
-                key={`${treeType}-${id}`}
                 value={ id }
                 name={name}
-                isLeaf={type === 'file'}
                 disabled={id === '0'}
                 data={data}
                 treeType={treeType}
                 className={taskTypeIcon(taskType,data)||resourceTypeIcon(resourceType)}
+                isLeaf={type === 'file'}
+                key={`${treeType}-${id}`}
             >
                 { data.children && data.children.map(o => loop(o)) }
             </TreeNode>
@@ -470,7 +470,11 @@ class FolderTree extends React.Component {
     }
 
     render() {
-        const { type, placeholder, currentTab, onExpand, expandedKeys } = this.props;
+        const { 
+            type, placeholder, currentTab,
+            onExpand, expandedKeys, onChange
+        } = this.props;
+
         return (
             <div>
                 {this.props.ispicker ?
@@ -482,7 +486,7 @@ class FolderTree extends React.Component {
                         showSearch={ !this.props.isFilepicker }
                         showIcon={ true }
                         loadData={ this.onLoadData.bind(this, type) }
-                        onChange={ this.handleChange }
+                        onChange={ onChange }
                         defaultValue={ this.props.defaultNode }
                         getPopupContainer={() => this.selEle }
                         placeholder={placeholder}
@@ -498,6 +502,7 @@ class FolderTree extends React.Component {
                     loadData={ this.onLoadData.bind(this, type) }
                     expandedKeys={ expandedKeys }
                     onExpand={ onExpand }
+                    autoExpandParent={false}
                     onSelect={ this.handleSelect.bind(this) }
                 >
                     { this.genetateTreeNode() }

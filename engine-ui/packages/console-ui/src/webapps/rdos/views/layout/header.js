@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Menu, Icon } from "antd";
+import { Menu, Icon, Dropdown } from "antd";
 
 import { MenuRight } from "main/components/nav";
 
@@ -13,6 +13,7 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
 const SubMenu = Menu.SubMenu;
 
 class Header extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -31,18 +32,20 @@ class Header extends Component {
     }
 
     handleClick = e => {
-        const props = e.item.props;
-        const { router, dispatch, cleanAllTabData } = this.props;
         this.setState({ current: e.key });
-        const project = props.data;
-        if (project) {
-            dispatch(ProjectAction.getProject(project.id));
+    };
+
+    selectedProject = (evt) => {
+        const { router, dispatch } = this.props;
+        const projectId = evt.key;
+        if (projectId) {
+            dispatch(ProjectAction.getProject(projectId));
             // 清理tab数据
             if (this.state.current === "overview") {
                 router.push("/offline/task");
             }
         }
-    };
+    }
 
     clickUserMenu = obj => {
         if (obj.key === "logout") {
@@ -116,27 +119,51 @@ class Header extends Component {
             project && project.projectName
                 ? project.projectAlias || project.projectName
                 : "项目选择";
-
+    
+        const menu = (
+            <Menu
+                onClick={this.selectedProject}
+                selectedKeys={
+                    project ? [`${project.id}`] : []
+                }
+                style={{
+                    maxHeight: '400px',
+                    overflowY: 'auto',
+                    width: '145px'
+                }}
+            >
+                { this.getProjectItems() }
+            </Menu>
+        )
+   
         return (
             <SubMenu
-                defaultSelectedKeys={
-                    projects && projects[0] ? projects[0].id : ""
-                }
+                className="my-menu-item"
                 title={
-                    <span className="my-menu-item">
-                        {
+                    <Dropdown
+                        overlay={menu}
+                        trigger={['click']}
+                        placement="bottomCenter"
+                    >
+                        <span 
+                            style={{
+                                display: 'inline-block',
+                                height: '47px',
+                            }}
+                            className="my-menu-item"
+                        >
                             <span
                                 className="menu-text-ellipsis"
                                 title={projectName}
                             >
                                 {projectName}
                             </span>
-                        }{" "}
-                        <Icon type="caret-down" />
-                    </span>
+                            &nbsp;
+                            <Icon type="caret-down" />
+                        </span>
+                    </Dropdown>
                 }
             >
-                {this.getProjectItems()}
             </SubMenu>
         );
     };
@@ -147,8 +174,8 @@ class Header extends Component {
 
         let pathname = router.location.pathname;
 
-        const userMenu = this.initUserDropMenu();
         const display = current !== "overview" ? "inline-block" : "none";
+
         const pid = project && project.id ? project.id : "";
 
         const basePath = app.link;
@@ -211,7 +238,7 @@ class Header extends Component {
                             key="data-manage"
                             style={{ display }}
                         >
-                            <a href={`${basePath}/data-manage/search`}>
+                            <a href={`${basePath}/data-manage/assets`}>
                                 数据地图
                             </a>
                         </Menu.Item>

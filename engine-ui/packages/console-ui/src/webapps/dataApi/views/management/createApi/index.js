@@ -12,14 +12,15 @@ import ModeChoose from "./modeChoose"
 import TestApi from "./testApi"
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
+import { dataSourceActions } from '../../../actions/dataSource';
 import utils from "../../../../../utils";
 import ColumnsModel from "../../../model/columnsModel";
 
 const Step = Steps.Step;
 
 const mapStateToProps = state => {
-    const { user, apiMarket } = state;
-    return { apiMarket, user }
+    const { user, apiMarket, dataSource } = state;
+    return { apiMarket, user, dataSource }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -44,8 +45,8 @@ const mapDispatchToProps = dispatch => ({
     saveOrUpdateApiInfo(params) {
         return dispatch(apiManageActions.saveOrUpdateApiInfo(params));
     },
-    sqlFormat(sql) {
-        return dispatch(apiManageActions.sqlFormat({ sql }));
+    sqlFormat(sql,type) {
+        return dispatch(apiManageActions.sqlFormat({ sql,type }));
     },
     sqlParser(sql, sourceId) {
         return dispatch(apiManageActions.sqlParser({ sql, sourceId }));
@@ -55,6 +56,9 @@ const mapDispatchToProps = dispatch => ({
     },
     apiTest(params) {
         return dispatch(apiManageActions.apiTest(params));
+    },
+    getDataSourcesType() {
+        return dispatch(dataSourceActions.getDataSourcesType());
     }
 });
 
@@ -70,7 +74,9 @@ class NewApi extends Component {
         loading: false,
         apiEdit: false,
         isSaveResult:false,
-        isEdit:true
+        InputIsEdit:true,
+        OutputIsEdit:true
+        
     }
     componentWillMount() {
         const apiId = utils.getParameterByName("apiId");
@@ -104,9 +110,10 @@ class NewApi extends Component {
 
         }
     }
-    changeEditStatus(value) {
+    changeColumnsEditStatus(input,output){
         this.setState({
-            isEdit: value
+            InputIsEdit:input,
+            OutputIsEdit:output
         })
     }
     saveResult(e){
@@ -176,9 +183,10 @@ class NewApi extends Component {
                 callLimit: data.reqLimit,
                 method: data.reqType,
                 protocol: data.protocol,
-                responseType: data.responseType
+                responseType: data.responseType,
             },
             paramsConfig: {
+                dataSourceType:data.dataSourceType,
                 dataSrcId: data.dataSrcId,
                 tableName: data.tableName,
                 resultPage: data.respPageSize,
@@ -248,7 +256,7 @@ class NewApi extends Component {
                     if (res) {
                         message.success("保存成功！")
                         if (back) {
-                            this.props.router.goBack();
+                            this.props.router.push("/api/manage");
                         }
                     }
                 }
@@ -264,6 +272,7 @@ class NewApi extends Component {
         params.apiDesc = this.state.basicProperties.APIdescription;//描述
         params.dataSrcId = this.state.paramsConfig.dataSrcId;//数据源
         params.tableName = this.state.paramsConfig.tableName;//数据表
+        params.dataSourceType=this.state.paramsConfig.dataSourceType;//数据源类型
         params.reqLimit = this.state.basicProperties.callLimit;//调用限制
         params.apiPath = this.state.basicProperties.APIPath;//api路径
         params.reqType = this.state.basicProperties.method;//http method
@@ -307,7 +316,14 @@ class NewApi extends Component {
         const { pageNo, pageSize, ...other } = values;
         params.pageNo = pageNo;
         params.pageSize = pageSize;
-        params.inFields = other;
+        const keys=Object.entries(other);
+        const inFields={};
+        keys.map(
+            ([key,value])=>{
+                inFields[key]=value||undefined;
+            }
+        )
+        params.inFields = inFields;
         this.setState({
             isSaveResult:false
         })
@@ -368,7 +384,7 @@ class NewApi extends Component {
         }
     }
     render() {
-        const { mode, paramsConfig, basicProperties, apiEdit, loading, isSaveResult, isEdit } = this.state;
+        const { mode, paramsConfig, basicProperties, apiEdit, loading, isSaveResult, InputIsEdit,OutputIsEdit } = this.state;
 
         const steps = [
             {
@@ -396,7 +412,7 @@ class NewApi extends Component {
 
         return (
             <div className="m-card g-datamanage">
-                <h1 className="box-title"> <GoBack></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
+                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
                 {loading ? <div style={{ textAlign: "center", marginTop: "400px" }}>
                     <Spin size="large" />
                 </div> : <Card
@@ -422,13 +438,14 @@ class NewApi extends Component {
                                     prev={this.prev.bind(this)}
                                     mode={mode}
                                     isSaveResult={isSaveResult}
-                                    isEdit={isEdit}
+                                    InputIsEdit={InputIsEdit}
+                                    OutputIsEdit={OutputIsEdit}
                                     saveData={this.saveData.bind(this, key)}
                                     cancelAndSave={this.cancelAndSave.bind(this, key)}
                                     apiTest={this.apiTest.bind(this)}
                                     dataChange={this[key].bind(this)}
                                     saveResult={this.saveResult.bind(this)}
-                                    changeEditStatus={this.changeEditStatus.bind(this)}
+                                    changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
                                     ></Content>
                             </div>
                         ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}

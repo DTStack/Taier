@@ -4,7 +4,9 @@ import {
     Icon, Tooltip, 
     Tabs, Dropdown, Menu 
 } from 'antd';
-import { isEmpty } from 'lodash';
+import { isEmpty, union } from 'lodash';
+
+import { scrollToView } from 'funcs';
 
 import FolderTree from './offline/folderTree';
 import TableTree from './offline/tableTree';
@@ -38,7 +40,8 @@ class OfflineTabPane extends Component {
     state = {
         subMenus: [],
         expandedKeys: [],
-        expandedKeys2: []
+        expandedKeys2: [],
+        menu: MENU_TYPE.TASK,
     }
 
     componentDidMount() {
@@ -47,16 +50,44 @@ class OfflineTabPane extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const old = this.props.project
-        const newData = nextProps.project
+        const old = this.props.project;
+        const newData = nextProps.project;
+        const nextTab = nextProps.currentTabData;
         if (newData && (!old || (old.id !== 0 && old.id !== newData.id))) {
             this.getCatelogue();
+            this.setState({
+                expandedKeys: [],
+                expandedKeys2: [],
+            })
+        }
+        // 字段任务定位滚动
+        if (this.props.currentTab !== nextProps.currentTab) {
+            let type = MENU_TYPE.TASK_DEV, menu = MENU_TYPE.TASK;
+            if (nextTab && nextTab.scriptText !== undefined) {
+                type = MENU_TYPE.SCRIPT;
+                menu = MENU_TYPE.SCRIPT;
+            }
+            this.setState({
+                menu,
+            }, () => {
+                this.locateFilePos(nextProps.currentTab, null, type, nextTab)
+            })
         }
     }
 
-    onExpand = (expandedKeys) => {
+    onExpand = (expandedKeys, { expanded }) => {
+        let keys = expandedKeys;
+        if (expanded) {
+            keys = union(this.state.expandedKeys, keys)
+        }
         this.setState({
-            expandedKeys,
+            expandedKeys: keys,
+        })
+    }
+
+    onMenuChange = (key) => {
+        this.setState({
+            menu: key
         })
     }
 
@@ -66,11 +97,98 @@ class OfflineTabPane extends Component {
         })
     }
 
+    reloadTreeNodes = (id, type) => {
+        this.props.reloadTreeNodes(id, type);
+        this.setState({
+            expandedKeys: [`${type}-${id}`]
+        })
+    }
+
+    /**
+     * 定位任务在文件树的具体位置
+     */
+    locateFilePos = (currentTab, name, type) => {
+
+        const { expandedKeys, menu } = this.state;
+        const {
+            taskTreeData, scriptTreeData,
+        } = this.props;
+
+        // 过滤任务开发定位脚本，或者脚本定位任务的无效情况
+        if (
+            !currentTab || 
+            (type === MENU_TYPE.TASK_DEV && menu !== MENU_TYPE.TASK) ||
+            (type === MENU_TYPE.SCRIPT && menu !== MENU_TYPE.SCRIPT)
+        ) return;
+
+        let treeData = taskTreeData;
+        if (type === MENU_TYPE.SCRIPT) {
+            treeData = scriptTreeData;
+        }
+
+        const getExpandedKey = (path) => {
+            const arr = path && path.split('-');
+            return arr && arr.map(p => `${type}-${p}`);
+        }
+
+        const scroll = () => {
+            setTimeout(() => {
+                scrollToView(`JS_${currentTab}`)
+            }, 0)
+        }
+
+        let checkedPath = '', path = ''; // 路径存储
+
+        const hasPath = (data, id, path) => {
+
+            if (!data) return false;
+            path = `${path ? path + '-' : path}${data.id}`
+            if (data && data.id === id) {
+                checkedPath = path;
+                return true;
+            }
+
+            if (data.children) {
+                const children = data.children
+                for (let i = 0; i < children.length; i += 1) {
+                    if (hasPath(children[i], id, path)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        if (hasPath(treeData, currentTab, path)) {
+            const keys = getExpandedKey(checkedPath);
+            this.setState({ expandedKeys: union(expandedKeys, keys) });
+            scroll();
+        } else {
+            ajax.locateCataPosition({
+                id: currentTab,
+                catalogueType: type,
+                name: name,
+            }).then(res => {
+                if (res.code === 1 && res.data) {
+                    const data = res.data.children[0];
+                    if (hasPath(data, currentTab, path)) {
+                        const keys = getExpandedKey(checkedPath);
+                        this.setState({
+                            expandedKeys: keys,
+                        })
+                    }
+                    this.props.locateFilePos(data, type);
+                    scroll();
+                }
+            });
+        }
+    }
+
+
     getCatelogue() {
         const { dispatch } = this.props;
-        // dispatch(clearTreeData())
         // 四组数据在一个接口里面, 所以不在container中dispatch
-        ajax.getOfflineCatelogue({
+        ajax.getOfflineCatalogue({
             isGetFile: !!1,
             nodePid: 0
         }).then(res => {
@@ -182,13 +300,6 @@ class OfflineTabPane extends Component {
         }
     }
 
-    reloadTreeNodes = (id, type) => {
-        this.props.reloadTreeNodes(id, type);
-        this.setState({
-            expandedKeys: [`${type}-${id}`]
-        })
-    }
-
     renderTabPanes = () => {
 
         const {
@@ -198,6 +309,8 @@ class OfflineTabPane extends Component {
             sysFunctionTreeData,
             scriptTreeData,
             tableTreeData,
+            currentTab,
+            currentTabData,
         } = this.props;
 
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
@@ -215,7 +328,7 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="定位">
                                     <Icon
                                         type="environment"
-                                        onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
+                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV, currentTabData)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新">
@@ -244,11 +357,11 @@ class OfflineTabPane extends Component {
                             <div>
                                 {
                                     !isEmpty(taskTreeData) &&
-                                    <FolderTree 
-                                        type={MENU_TYPE.TASK_DEV} 
-                                        expandedKeys={expandedKeys}
+                                    <FolderTree
+                                        type={MENU_TYPE.TASK_DEV}
                                         onExpand={this.onExpand}
-                                        treeData={taskTreeData} 
+                                        treeData={taskTreeData}
+                                        expandedKeys={expandedKeys}
                                     />
                                 }
                             </div>
@@ -258,6 +371,12 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.SCRIPT: {
                         menuContent = <div className="menu-content">
                             <header>
+                                <Tooltip title="定位">
+                                    <Icon
+                                        type="environment"
+                                        onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType, currentTabData)}
+                                    />
+                                </Tooltip>
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
@@ -387,7 +506,7 @@ class OfflineTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <TabPane tab={menuItem.name} key={menuItem.id}> 
+                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.catalogueType}> 
                         {menuContent} 
                     </TabPane>
                 )
@@ -401,7 +520,6 @@ class OfflineTabPane extends Component {
         const {
             taskTreeData
         } = this.props;
-        // const defaultOpen = [`${taskTreeData.id}`];
 
         return (
             <div className="g-taskOfflineSidebar task-sidebar m-tabs">
@@ -410,6 +528,8 @@ class OfflineTabPane extends Component {
                     animated={false}
                     className="task-tab-menu"
                     style={{ height: '100%' }}
+                    activeKey={this.state.menu}
+                    onChange={this.onMenuChange}
                 >
                     { this.renderTabPanes() }
                 </Tabs>
@@ -420,6 +540,11 @@ class OfflineTabPane extends Component {
 
 export default connect(state => {
     const { offlineTask } = state;
+    const { currentTab, tabs } = offlineTask.workbench;
+
+    const currentTabData = tabs.filter(tab => {
+        return tab.id === currentTab;
+    })[0];
 
     return {
         project: state.project,
@@ -429,6 +554,8 @@ export default connect(state => {
         sysFunctionTreeData: offlineTask.sysFunctionTree,
         scriptTreeData: offlineTask.scriptTree,
         tableTreeData: offlineTask.tableTree,
+        currentTab,
+        currentTabData,
     }
 },
 dispatch => {
@@ -489,6 +616,10 @@ dispatch => {
 
         reloadTreeNodes: function(nodePid, type) {
             actions.loadTreeNode(nodePid, type);
+        },
+
+        locateFilePos: function(data, type) {
+            actions.locateFilePos(data, type);
         },
 
         dispatch

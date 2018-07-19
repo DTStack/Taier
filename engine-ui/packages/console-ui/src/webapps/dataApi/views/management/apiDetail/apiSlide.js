@@ -72,7 +72,7 @@ class apiSlidePane extends Component {
             <SlidePane
                 className="m-tabs tabs-filter-show"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '800px', height: '100%' }}
+                style={{ right: '-20px', width: '80%', minHeight: '760px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
                     animated={false}
@@ -81,7 +81,7 @@ class apiSlidePane extends Component {
                     tabBarExtraContent={this.getDateTypeView()}
                 >
                     <Tabs.TabPane tab="API详情" key="callMethod">
-                        <ApiCallMethod mode="manage" {...this.props} ></ApiCallMethod>
+                        <ApiCallMethod  mode="manage" {...this.props} ></ApiCallMethod>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="调用情况" key="callState">
                         <h1 className="title-border-l-blue slide-title">调用统计</h1>

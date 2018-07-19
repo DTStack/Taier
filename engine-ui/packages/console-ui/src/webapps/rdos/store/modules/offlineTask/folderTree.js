@@ -10,7 +10,7 @@ import {
     tableTreeAction,
 } from './actionType';
 
-import { replaceTreeNode } from 'funcs'
+import { replaceTreeNode, mergeTreeNodes } from 'funcs'
 
 /**
  * @description 加载文件夹内容
@@ -147,6 +147,10 @@ export const taskTreeReducer = (state = {}, action) => {
             replaceTreeNode(updated, action.payload)
             return updated;
         }
+        case taskTreeAction.MERGE_FOLDER_CONTENT: {
+            const origin = action.payload;
+            if (origin) return origin;
+        }
         default:
             return state;
     }
@@ -261,10 +265,15 @@ export const scriptTreeReducer = (state = {}, action) => {
             return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
         }
 
-        case taskTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
+        case scriptTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
             const updated = cloneDeep(state)
             replaceTreeNode(updated, action.payload)
             return updated;
+        }
+
+        case scriptTreeAction.MERGE_FOLDER_CONTENT: {
+            const origin = action.payload;
+            if (origin) return origin;
         }
 
         default:

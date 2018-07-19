@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { Card, Input, Select, Cascader, Table, Modal, Tabs } from "antd"
+import { Card, Input, Select, Cascader, Table, Modal, Tabs, Tooltip } from "antd"
 import { apiMarketActions } from '../../actions/apiMarket';
 import utils from "utils";
 
@@ -192,8 +192,13 @@ class APIMarket extends Component {
 
     }
     dealcomplete(record) {
-        this.props.router.push("/api/mine/approved?apiId=" + record.key);
-        console.log("dealcomplete", record);
+        this.props.router.push({
+            pathname:"/api/mine/approved",
+            query:{
+                apiId:record.key,
+                apiName:record.apiName
+            }
+        });
     }
     dealnothing(record) {
         this.setState({
@@ -207,8 +212,13 @@ class APIMarket extends Component {
         console.log("dealnothing", record);
     }
     dealapplying(record) {
-        this.props.router.push("/api/mine/notApproved?apiId=" + record.key);
-        console.log("dealapplying", record);
+        this.props.router.push({
+            pathname:"/api/mine/notApproved",
+            query:{
+                apiId:record.key,
+                apiName:record.apiName
+            }
+        });
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
@@ -251,7 +261,13 @@ class APIMarket extends Component {
             title: '描述',
             dataIndex: 'description',
             key: 'description',
-            width: 300
+            width: 300,
+            render(text) {
+                const desc = (text && text.length > 21) ? (<Tooltip title={text}>
+                    <span>{`${text.substr(0, 21)}......`}</span>
+                </Tooltip>) : text;
+                return desc;
+            }
         }, {
             title: '累计调用（次）',
             dataIndex: 'callCount',
@@ -368,7 +384,7 @@ class APIMarket extends Component {
     }
 
     render() {
-        const { children, apiMarket } = this.props
+        const { apiMarket } = this.props
         const { slidePaneShow, detailRecord } = this.state;
 
         return (
@@ -382,7 +398,6 @@ class APIMarket extends Component {
                 ></ApplyBox>
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">
-
                     <SlidePane
                         className="m-tabs tabs-filter-show"
                         visible={slidePaneShow}
@@ -390,11 +405,10 @@ class APIMarket extends Component {
                         onClose={this.closeSlide.bind(this)}>
                         <Tabs
                             animated={false}
-                            
                         >
                             <Tabs.TabPane tab="API详情" key="callMethod">
                                 <div style={{ paddingLeft: "40px", paddingTop: "20px" }}>
-                                    <Content apiMarket={apiMarket} apiId={detailRecord.key} />
+                                    <Content apiMarket={apiMarket} apiId={detailRecord.key} showMarketInfo={true} />
                                 </div>
                             </Tabs.TabPane>
                         </Tabs>

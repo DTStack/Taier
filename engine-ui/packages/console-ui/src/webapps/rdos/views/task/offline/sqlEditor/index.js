@@ -9,7 +9,6 @@ import { filterComments } from 'funcs';
 import Toolbar from './toolbar';
 import Console from './console';
 
-import Api from '../../../../api';
 import { matchTaskParams } from '../../../../comm';
 import CodeEditor from '../../../../components/code-editor';
 
@@ -45,8 +44,6 @@ class SQLEditor extends Component {
     }
 
     changeTab = (state) => {
-        console.log('changeTab',state);
-        
         let { changeTab } = this.state;
         if(state){
             changeTab = true;
@@ -100,7 +97,6 @@ class SQLEditor extends Component {
 
         const cursor = currentTabData.cursor || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-
 
 
         return (
@@ -180,7 +176,6 @@ export default connect(state => {
         sqlEditor: state.sqlEditor,
         project: state.project,
         user: state.user,
-
     }
 }, dispatch => {
     return {

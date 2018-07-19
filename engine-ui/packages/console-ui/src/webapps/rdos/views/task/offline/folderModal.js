@@ -133,7 +133,7 @@ class FolderModal extends React.Component {
         form.validateFields((err, values) => {
             if (!err) {
                 if (this.isCreate) {
-                    this.props.addOfflineCatelogue(values, cateType)
+                    this.props.addOfflineCatalogue(values, cateType)
                         .then(success => {
                             if (success) {
                                 this.closeModal();
@@ -141,7 +141,7 @@ class FolderModal extends React.Component {
                             }
                         });
                 } else {
-                    this.props.editOfflineCatelogue(assign(values, {
+                    this.props.editOfflineCatalogue(assign(values, {
                         id: defaultData.id
                     }), defaultData, cateType)
                         .then(success => {
@@ -241,8 +241,8 @@ dispatch => {
                 type: modalAction.TOGGLE_CREATE_FOLDER
             });
         },
-        addOfflineCatelogue: function(params, cateType) {
-            return ajax.addOfflineCatelogue(params)
+        addOfflineCatalogue: function(params, cateType) {
+            return ajax.addOfflineCatalogue(params)
                 .then(res => {
                     // let {data} = res;
                     // let action;
@@ -279,8 +279,8 @@ dispatch => {
                 });
         },
 
-        editOfflineCatelogue: function(params, defaultData, cateType) {
-            return ajax.editOfflineCatelogue(params)
+        editOfflineCatalogue: function(params, defaultData, cateType) {
+            return ajax.editOfflineCatalogue(params)
                 .then(res => {
                     if(res.code === 1) {
                         let newData = defaultData;

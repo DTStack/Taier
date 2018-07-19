@@ -84,7 +84,7 @@ class ApiType extends Component {
     render() {
         return (
             <div className="m-card">
-                <h1 className="box-title"> <GoBack></GoBack> 类目管理</h1>
+                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> 类目管理</h1>
                 <Card
                     className="box-2 g-datamanage"
                     noHovering

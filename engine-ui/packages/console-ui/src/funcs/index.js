@@ -1,4 +1,4 @@
-import { debounce, endsWith } from 'lodash';
+import { debounce, endsWith, cloneDeep } from 'lodash';
 
 /**
  * 存放一些零碎的公共方法
@@ -84,6 +84,21 @@ export function replaceTreeNode(treeNode, replace) {
 }
 
 /**
+ * 
+ * @param {*} origin
+ * @param {*} mergeTo
+ */
+export function mergeTreeNodes(origin, target) {
+    replaceTreeNode(origin, target);
+    if (target.children) {
+        const children = target.children
+        for (let i = 0; i < children.length; i += 1) {
+            mergeTreeNodes(origin, children[i])
+        }
+    }
+}
+
+/**
  * 打开新窗口
  * @param {*} url 
  * @param {*} target 
@@ -99,6 +114,7 @@ export function openNewWindow(url, target) {
 export function hasProject(app) {
     return app === 'rdos'
 }
+
 
 /**
  * 字符串替换
@@ -146,22 +162,21 @@ export function filterComments(sql) {
         let char = sql[i];
 
         //读取字符
-        if (char == "'" || char == "\"" || char == "-" || char == "\n") {
-            //推入数组
-            tmpArr.push({
-                index: i,
-                char: char
-            });
-        }
+        //推入数组
+        tmpArr.push({
+            index: i,
+            char: char
+        });
+        let firstChar = tmpArr[0];
         //校验数组是否有匹配语法
         if (tmpArr.length < 2) {
-            if (tmpArr[0] && tmpArr[0].char == "\n") {
+            if (firstChar.char != "'" && firstChar.char != "\"" && firstChar.char != "-") {
                 tmpArr = [];
             }
             continue;
         }
 
-        let firstChar = tmpArr[0];
+
         let lastChar = tmpArr[tmpArr.length - 1];
 
         if (firstChar.char == "'" || firstChar.char == "\"") {
@@ -172,7 +187,6 @@ export function filterComments(sql) {
             }
         } else if (firstChar.char == "-") {
             //假如第一个是横线，则开始校验注释规则
-
             //判断是否为两个注释符号，不是，则清空
             if (tmpArr[1].char != "-") {
                 tmpArr = [];
@@ -201,7 +215,7 @@ export function filterComments(sql) {
     }
 
     sql = replaceStrFormIndexArr(sql, '', comments)
-
+    console.log(sql)
     return sql;
 }
 
@@ -209,31 +223,31 @@ export function filterComments(sql) {
  * 分割sql
  * @param {String} sqlText 
  */
-export function splitSql(sqlText){
-    if(!sqlText){
+export function splitSql(sqlText) {
+    if (!sqlText) {
         return sqlText;
     }
-    sqlText=sqlText.trim();
-    if(!endsWith(sqlText,';')){
-        sqlText+=';';
+    sqlText = sqlText.trim();
+    if (!endsWith(sqlText, ';')) {
+        sqlText += ';';
     }
 
-    let results=[];
-    let index=0;
-    let tmpChar=null;
-    for(let i=0;i<sqlText.length;i++){
-        let char=sqlText[i];
+    let results = [];
+    let index = 0;
+    let tmpChar = null;
+    for (let i = 0; i < sqlText.length; i++) {
+        let char = sqlText[i];
 
-        if(char=="'"||char=='"'){
-            if(tmpChar==char){
-                tmpChar=null;
-            }else{
-                tmpChar=char;
+        if (char == "'" || char == '"') {
+            if (tmpChar == char) {
+                tmpChar = null;
+            } else {
+                tmpChar = char;
             }
-        }else if(char==';'){
-            if(tmpChar==null){
-                results.push(sqlText.substring(index,i));
-                index=i+1;
+        } else if (char == ';') {
+            if (tmpChar == null) {
+                results.push(sqlText.substring(index, i));
+                index = i + 1;
             }
         }
     }
@@ -246,4 +260,16 @@ export function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
+
+/**
+ * 滚动元素到视窗范围内
+ */
+export function scrollToView(id) {
+    const ele = document.getElementById(id);
+    if (ele && ele.scrollIntoViewIfNeeded) {
+        ele.scrollIntoViewIfNeeded()
+    } else if (ele && ele.scrollIntoView) {
+        ele.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+    }
 }
