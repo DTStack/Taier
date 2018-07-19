@@ -620,7 +620,8 @@ public class ActionServiceImpl {
         }
     }
 
-    public void insertEngineStreamJob(RdosEngineStreamJob rdosEngineStreamJob){
+    public void insertEngineStreamJob(Map<String,Object> data) throws Exception{
+        RdosEngineStreamJob rdosEngineStreamJob = PublicUtil.mapToObject(data,RdosEngineStreamJob.class);
         engineStreamTaskDAO.insert(rdosEngineStreamJob);
     }
 
@@ -633,7 +634,8 @@ public class ActionServiceImpl {
         engineStreamTaskDAO.updateStatusWithSpecStatus(taskId,Integer.valueOf(status),Integer.valueOf(specStatus));
     }
 
-    public void updateEngineStreamJob(RdosEngineStreamJob rdosEngineStreamJob){
+    public void updateEngineStreamJob(Map<String,Object> data) throws Exception{
+        RdosEngineStreamJob rdosEngineStreamJob = PublicUtil.mapToObject(data,RdosEngineStreamJob.class);
         engineStreamTaskDAO.update(rdosEngineStreamJob);
     }
 
@@ -651,15 +653,23 @@ public class ActionServiceImpl {
         engineBatchJobDAO.updateJobStatusAndLog(jobId,Integer.valueOf(status),logInfo,engineLog,gmtModified);
     }
 
-    public void insertEngineBatchJob(RdosEngineBatchJob engineBatchJob){
+    public void insertEngineBatchJob(Map<String,Object> data) throws Exception{
+        RdosEngineBatchJob engineBatchJob = PublicUtil.mapToObject(data,RdosEngineBatchJob.class);
         engineBatchJobDAO.insert(engineBatchJob);
     }
 
-    public void batchInsertEngineBatchJob(@Param("engineJobs") List<RdosEngineBatchJob> engineJobs){
+    public void batchInsertEngineBatchJob(@Param("engineJobs") List<Object> data) throws Exception{
+        List<RdosEngineBatchJob> engineJobs = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(data)){
+            for (Object datum : data) {
+                engineJobs.add(PublicUtil.mapToObject((Map<String,Object>)datum,RdosEngineBatchJob.class));
+            }
+        }
         engineBatchJobDAO.batchInsert(engineJobs);
     }
 
-    public void updateEngineBatchJob(RdosEngineBatchJob engineBatchJob){
+    public void updateEngineBatchJob(Map<String,Object> data) throws Exception{
+        RdosEngineBatchJob engineBatchJob = PublicUtil.mapToObject(data,RdosEngineBatchJob.class);
         engineBatchJobDAO.update(engineBatchJob);
     }
 
