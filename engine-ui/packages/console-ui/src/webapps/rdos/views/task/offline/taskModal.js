@@ -64,7 +64,7 @@ class TaskForm extends React.Component {
         ajax.getTaskTypes().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    taskTypes: res.data.concat([{ value: "深度学习", key: 5 }, { value: "Python", key: 6 }, { value: "Shell", key: 7 }]) || [],
+                    taskTypes: res.data || [],
                 })
             }
         })

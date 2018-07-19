@@ -170,7 +170,17 @@
         }
         .s-pythonicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/python.svg)
+                background-image: url(/public/rdos/img/spack_python.svg)
+            }
+        }
+        .s-python2icon {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/python2.svg)
+            }
+        }
+        .s-python3icon {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/python3.svg)
             }
         }
         .s-pythonicon-r {
@@ -185,12 +195,22 @@
         }
         .s-deeplearning {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/virtual.svg)
+                background-image: url(/public/rdos/img/deepLearning.svg)
+            }
+        }
+        .s-mxnet {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/mxnet.svg)
+            }
+        }
+        .s-tensorflow {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/tensorflow.svg)
             }
         }
         .s-shell {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/virtual.svg)
+                background-image: url(/public/rdos/img/shell.svg)
             }
         }
         .s-table {
