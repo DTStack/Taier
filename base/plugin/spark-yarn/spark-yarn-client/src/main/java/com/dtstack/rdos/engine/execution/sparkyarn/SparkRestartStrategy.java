@@ -42,7 +42,7 @@ public class SparkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkCanRestart(String jobId, String msg) {
-        boolean restart = false;
+        /*boolean restart = false;
         if(StringUtils.isNotBlank(msg)){
             for(String emsg : exceptionList){
                 if(msg.contains(emsg)){
@@ -55,6 +55,8 @@ public class SparkRestartStrategy extends IRestartStrategy {
             return retry(jobId,null);
         }else {
             return false;
-        }
+        }*/
+
+        return retry(jobId,null);
     }
 }

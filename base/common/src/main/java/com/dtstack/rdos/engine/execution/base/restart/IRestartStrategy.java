@@ -41,7 +41,7 @@ public abstract class IRestartStrategy {
 
     public boolean retry(String jobId,Integer retryNum){
         try {
-            Integer retry_limit_real = retryNum!=null?retryNum:RETRY_LIMIT;
+            Integer retry_limit_real = retryNum != null ? retryNum : RETRY_LIMIT;
             Integer rms = retryJobCache.get(jobId, ()-> 0);
             if(rms >= retry_limit_real){
                 retryJobCache.asMap().remove(jobId);
