@@ -114,6 +114,9 @@ export const DEAL_MODEL_TYPE={//python和深度学习操作类型
 
 export const SCRIPT_TYPE = { // 脚本类型
     SQL: 0,
+    PYTHON2:1,
+    PYTHON3:2,
+    SHELL:3
 }
 
 export const TASK_TYPE_ARRAY = [ //

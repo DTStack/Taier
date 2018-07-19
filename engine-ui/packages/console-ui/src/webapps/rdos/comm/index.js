@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { debounce } from 'lodash';
 
-import { TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, LEARNING_TYPE, PYTON_VERSION } from './const'
+import { TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE } from './const'
 
 // 请求防抖动
 export function debounceEventHander(...args) {
@@ -30,46 +30,65 @@ export function getDefaultSQLTemp(data) {
  * 获取任务类型指定图表className
  */
 export function taskTypeIcon(type, task) {
-    const { pythonVersion, learningType } = task;
-    switch (type) {
-        case TASK_TYPE.SQL: {
-            return 's-sqlicon'
-        }
-        case TASK_TYPE.MR: {
-            return 's-mricon'
-        }
-        case TASK_TYPE.SYNC: {
-            return 's-datasyncicon'
-        }
-        case TASK_TYPE.PYTHON: {
-            return 's-sparkpythonicon'
-        }
-        case TASK_TYPE.VIRTUAL_NODE: {
-            return 's-virtualicon'
-        }
-        case TASK_TYPE.DEEP_LEARNING: {
-            if (learningType == LEARNING_TYPE.MXNET) {
-                return 's-mxnet'
-            } else if (learningType == LEARNING_TYPE.TENSORFLOW) {
-                return 's-tensorflow'
-            } else {
-                return 's-deeplearning'
+    const { pythonVersion, learningType,scriptType } = task;
+    if(scriptType==null){
+        switch (type) {
+            case TASK_TYPE.SQL: {
+                return 's-sqlicon'
             }
+            case TASK_TYPE.MR: {
+                return 's-mricon'
+            }
+            case TASK_TYPE.SYNC: {
+                return 's-datasyncicon'
+            }
+            case TASK_TYPE.PYTHON: {
+                return 's-sparkpythonicon'
+            }
+            case TASK_TYPE.VIRTUAL_NODE: {
+                return 's-virtualicon'
+            }
+            case TASK_TYPE.DEEP_LEARNING: {
+                if (learningType == LEARNING_TYPE.MXNET) {
+                    return 's-mxnet'
+                } else if (learningType == LEARNING_TYPE.TENSORFLOW) {
+                    return 's-tensorflow'
+                } else {
+                    return 's-deeplearning'
+                }
+            }
+            case TASK_TYPE.PYTHON_23: {
+                if (pythonVersion == PYTON_VERSION.PYTHON2) {
+                    return 's-python2icon'
+                } else if (pythonVersion == PYTON_VERSION.PYTHON3) {
+                    return 's-python3icon'
+                } else {
+                    return 's-pythonicon'
+                }
+            }
+            case TASK_TYPE.SHELL: {
+                return 's-shell'
+            }
+            default: ''
         }
-        case TASK_TYPE.PYTHON_23: {
-            if (pythonVersion == PYTON_VERSION.PYTHON2) {
+    }else{
+        switch (type) {
+            case SCRIPT_TYPE.SQL: {
+                return 's-sqlicon'
+            }
+            case SCRIPT_TYPE.PYTHON2: {
                 return 's-python2icon'
-            } else if (pythonVersion == PYTON_VERSION.PYTHON3) {
-                return 's-python3icon'
-            } else {
-                return 's-pythonicon'
             }
+            case SCRIPT_TYPE.PYTHON3:{
+                return 's-python3icon'
+            }
+            case SCRIPT_TYPE.SHELL: {
+                return 's-shell'
+            }
+            default: ''
         }
-        case TASK_TYPE.SHELL: {
-            return 's-shell'
-        }
-        default: ''
     }
+    
 }
 
 export function resourceTypeIcon(type) {

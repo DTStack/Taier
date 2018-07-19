@@ -6,7 +6,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import {
     defaultEditorOptions,
-    TASK_TYPE, LOCK_TYPE, DATA_SYNC_TYPE, DEAL_MODEL_TYPE,
+    TASK_TYPE, LOCK_TYPE, DATA_SYNC_TYPE, DEAL_MODEL_TYPE, SCRIPT_TYPE,
 } from '../../../comm/const'
 
 import DataSync from './dataSync';
@@ -149,11 +149,11 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.VIRTUAL_NODE:
                     return <NormalTaskForm key={tabData.id} {...tabData} />
                 case TASK_TYPE.SYNC: // 数据同步
-                    if(tabData.createModel&&tabData.createModel==DATA_SYNC_TYPE.SCRIPT){
+                    if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
                         return <DataSyncScript
-                            key={ tabData.id }
-                            { ...tabData }
-                            taskCustomParams={ taskCustomParams }
+                            key={tabData.id}
+                            {...tabData}
+                            taskCustomParams={taskCustomParams}
                         />
                     }
                     return <DataSync key={tabData.id} {...tabData} />
@@ -176,17 +176,17 @@ export default class MainBench extends React.Component {
                         currentTabData={tabData} />;
                 case TASK_TYPE.DEEP_LEARNING:
                 case TASK_TYPE.PYTHON_23:
-                    if(tabData.operateModel==DEAL_MODEL_TYPE.EDIT){
+                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
                         return <CommonEditor
-                        mode="python"
-                        options={defaultEditorOptions}
-                        taskCustomParams={taskCustomParams}
-                        key={tabData.id}
-                        value={tabData.sqlText}
-                        currentTab={tabData.id}
-                        currentTabData={tabData} />;
-                    }else{
-                        return  <NormalTaskForm key={tabData.id} {...tabData} />
+                            mode="python"
+                            options={defaultEditorOptions}
+                            taskCustomParams={taskCustomParams}
+                            key={tabData.id}
+                            value={tabData.sqlText}
+                            currentTab={tabData.id}
+                            currentTabData={tabData} />;
+                    } else {
+                        return <NormalTaskForm key={tabData.id} {...tabData} />
                     }
                 default:
                     return <p className="txt-center" style={{ lineHeight: '60px' }}>
@@ -195,13 +195,35 @@ export default class MainBench extends React.Component {
             }
             // 脚本类型
         } else if (utils.checkExist(tabData && tabData.type)) {
-            return <SQLEditor
-                options={defaultEditorOptions}
-                key={tabData.id}
-                value={tabData.scriptText}
-                currentTab={tabData.id}
-                currentTabData={tabData} />;
+            switch (tabData.type) {
+                case SCRIPT_TYPE.SQL: {
+                    return <SQLEditor
+                        options={defaultEditorOptions}
+                        key={tabData.id}
+                        value={tabData.scriptText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                }
+                case SCRIPT_TYPE.PYTHON2:
+                case SCRIPT_TYPE.PYTHON3: {
+                    return <CommonEditor
+                        mode="python"
+                        options={defaultEditorOptions}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                }
+                case SCRIPT_TYPE.SHELL: {
+                    return <CommonEditor
+                        mode="shell"
+                        options={defaultEditorOptions}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                }
+            }
         }
-
     }
 }
