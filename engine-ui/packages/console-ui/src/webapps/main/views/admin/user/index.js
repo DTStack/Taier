@@ -3,7 +3,7 @@ import { assign } from 'lodash';
 import { connect } from 'react-redux';
 import {
     Select, Table, Card,
-    Button, Modal,
+    Button, Modal,Input,
     Popconfirm, message
 } from 'antd'
 
@@ -18,7 +18,7 @@ import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
 const Option = Select.Option
-
+const Search = Input.Search;
 
 @connect(state => {
     return {
@@ -44,6 +44,8 @@ class AdminUser extends Component {
         currentPage: 1,
         visible: false,
         visibleEditRole: false,
+
+        searchName: undefined,
     }
 
     componentDidMount() {
@@ -84,9 +86,12 @@ class AdminUser extends Component {
     }
 
     loadUsers = (app, params) => {
+        const { searchName } = this.state;
         const ctx = this
         this.setState({ loading: true })
-        Api.queryUser(app, params).then((res) => {
+        const queryParams = {...params}//复制一份
+        queryParams.name = searchName
+        Api.queryUser(app, queryParams).then((res) => {
             ctx.setState({ users: res.data, loading: false })
         })
     }
@@ -239,6 +244,7 @@ class AdminUser extends Component {
             currentPage: 1,
             roleIds: [],
             notProjectUsers: [],
+            searchName: undefined,
         }, this.loadData)
     }
 
@@ -277,10 +283,6 @@ class AdminUser extends Component {
             title: '手机号',
             dataIndex: 'user.phoneNumber',
             key: 'phoneNumber',
-        }, {
-            title: '姓名',
-            dataIndex: 'user.userName',
-            key: 'userName',
         }, {
             title: '角色',
             width: 120,
@@ -327,9 +329,21 @@ class AdminUser extends Component {
         }]
     }
 
+    searchProjectUser = (user) => {
+        this.setState({
+            searchName: user
+        },this.loadData)
+    }
+
+    searchNameChange = (e) => {
+        this.setState({
+            searchName: e.target.value
+        })
+    }
+
     renderTitle = () => {
 
-        const { projects, active, selectedProject } = this.state;
+        const { projects, active, selectedProject,searchName } = this.state;
 
         const projectOpts = projects && projects.map(project =>
             <Option value={`${project.id}`} key={`${project.id}`}>
@@ -337,21 +351,32 @@ class AdminUser extends Component {
             </Option>
         )
 
-        const title = hasProject(active) && (
-            <span
-                style={{ marginTop: '10px', position: 'relative' }}
-            >
-                选择项目：
-                <Select
-                    showSearch
-                    value={`${selectedProject}`}
-                    style={{ width: 200 }}
-                    placeholder="按项目名称搜索"
-                    optionFilterProp="name"
-                    onSelect={this.onProjectSelect}
-                >
-                    {projectOpts}
-                </Select>
+        const title = (
+            <span>
+                {
+                    hasProject(active)&&(
+                        <span> 
+                            选择项目：
+                            <Select
+                                showSearch
+                                value={`${selectedProject}`}
+                                style={{ width: 200, marginRight: 10 }}
+                                placeholder="按项目名称搜索"
+                                optionFilterProp="name"
+                                onSelect={this.onProjectSelect}
+                            >
+                                {projectOpts}
+                            </Select>
+                        </span>
+                    )
+                }
+                <Search
+                    placeholder="请输入要搜索的账号"
+                    value={searchName}
+                    onChange={e => this.searchNameChange(e)}
+                    style={{ width: 200 ,marginTop: 10 }}
+                    onSearch={value => this.searchProjectUser(value)}
+                />
             </span>
         )
 

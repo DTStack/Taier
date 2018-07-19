@@ -111,21 +111,25 @@ class Index extends Component {
     }
 
     generalTitle = (data)=>{
-        const deleteImg =  <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
-        const setTopImg =  <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
-        const cancelTopImg = <img className="tooltip-img" src="/public/rdos/img/cancel-top.svg" />;
+        const deleteImg = <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
+        const setTopImg = <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
+        const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
-                {
-                     data.status == 2 || data.status == 3 ? "删除项目" : data.stickStatus == 1 ? "取消置顶" :  "置顶"
-                }
-            </div>
+            {
+                    data.status == 2 || data.status == 3 ? "删除项目" : "置顶"
+            }
+        </div>
         const tooltipImg = <div onClick={()=>{this.setCard(data)}}>
-                <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
-                    {
-                        data.status == 2 || data.status == 3 ? deleteImg : data.stickStatus == 1 ? cancelTopImg :  setTopImg
-                    }
-                </Tooltip>
-            </div>
+           { 
+               ( data.status != 2 || data.status != 3 )&&data.stickStatus == 1 ? //取消置顶非图标,不需要Tooltip提示,过滤掉
+                    cancelTop : 
+                    <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
+                        {
+                            data.status == 2 || data.status == 3 ? deleteImg : setTopImg
+                        }
+                    </Tooltip>
+            }
+        </div>
         const title = <div>
             <Row>
                 <Col span="20" >
@@ -230,7 +234,7 @@ class Index extends Component {
                                 {
                                     projectListInfo.map(v=>{
                                         return  <Col span="8" className="card-width" key={v.id} style={{padding: 0}}>
-                                                    <Card  className="general-card" title={this.generalTitle(v)} noHovering>
+                                                    <Card  className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                         <Row className="card-content" >
                                                             <Col span="18">
                                                                 <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
@@ -278,7 +282,10 @@ class Index extends Component {
                                                                             </Card>
                                                                         </Col >
                                                                         <Col span="8">
-                                                                            <Card className="card-task" style={{padding:"1.5 0"}} onClick={()=>{this.setRouter('operation',v)}} noHovering>
+                                                                            <Card className="card-task" style={{padding:"1.5 0"}} 
+                                                                                onClick={()=>{this.setRouter('operation',v)}}
+                                                                                noHovering
+                                                                            >
                                                                                 运维中心
                                                                             </Card>
                                                                         </Col>
