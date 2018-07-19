@@ -622,4 +622,20 @@ public class ActionServiceImpl {
             return streamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
         }
     }
+
+    public void insertEngineStreamJob(RdosEngineStreamJob rdosEngineStreamJob){
+        engineStreamTaskDAO.insert(rdosEngineStreamJob);
+    }
+
+    public List<RdosEngineStreamJob> listEngineStreamJobByTaskIds(List<String> taskIds){
+        return engineStreamTaskDAO.getRdosTaskByTaskIds(taskIds);
+    }
+
+    public void updateStatusWithSpecStatus(String taskId, Integer status, Integer specStatus){
+        engineStreamTaskDAO.updateStatusWithSpecStatus(taskId,status,specStatus);
+    }
+
+    public void updateEngineStreamJob(RdosEngineStreamJob rdosEngineStreamJob){
+        engineStreamTaskDAO.update(rdosEngineStreamJob);
+    }
 }

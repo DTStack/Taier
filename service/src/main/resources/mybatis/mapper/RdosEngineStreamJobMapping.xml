@@ -15,6 +15,13 @@
         <result column="engine_log" property="engineLog" jdbcType="VARCHAR"/>
         <result column="log_info" property="logInfo" jdbcType="VARCHAR"/>
     </resultMap>
+
+    <sql id="update_fragment">
+        <set>
+            status = #{status},engine_task_id = #{engineTaskId},exec_start_time = #{execStartTime},exec_end_time = #{execEndTime},exec_time = #{execTime},log_info = #{logInfo},engine_log = #{engineLog},
+            gmt_modified = #{gmtModified},is_deleted = #{isDeleted}
+        </set>
+    </sql>
     
     <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
 	    insert into rdos_engine_stream_job(gmt_create,gmt_modified,exec_start_time,task_id,status, plugin_info_id)
@@ -59,5 +66,19 @@
     
     <update id="updateSubmitLog">
         update rdos_engine_stream_job set log_info = #{submitLog}, gmt_modified=now() where task_id = #{taskId}
+    </update>
+
+    <update id="updateStatusWithSpecStatus">
+        UPDATE rdos_engine_stream_job
+        SET status = #{status},gmt_modified = now()
+        WHERE task_id = #{taskId} AND is_deleted = 0 AND status = #{specStatus}
+    </update>
+
+    <update id="update" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
+        UPDATE
+        rdos_engine_stream_job
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
     </update>
 </mapper>

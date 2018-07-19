@@ -34,4 +34,8 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateSubmitLog(@Param("taskId")String taskId, @Param("submitLog")String submitLog);
 
+	void updateStatusWithSpecStatus(@Param("taskId") String taskId, @Param("status") Integer status,
+									   @Param("specStatus") Integer specStatus);
+
+	void update(RdosEngineStreamJob rdosEngineStreamJob);
 }

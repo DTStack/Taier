@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.service.db.dao;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.SqlSession;
 
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallback;
@@ -137,5 +138,29 @@ public class RdosEngineStreamJobDAO {
                 return null;
             }
         });
+	}
+
+	public void updateStatusWithSpecStatus(String taskId, Integer status, Integer specStatus){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper mapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				mapper.updateStatusWithSpecStatus(taskId,status,specStatus);
+				return null;
+			}
+		});
+	}
+
+	public void update(RdosEngineStreamJob rdosEngineStreamJob){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper mapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				mapper.update(rdosEngineStreamJob);
+				return null;
+			}
+		});
 	}
 }
