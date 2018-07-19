@@ -459,7 +459,7 @@ class FolderTree extends React.Component {
                 disabled={id === '0'}
                 data={data}
                 treeType={treeType}
-                className={taskTypeIcon(taskType)||resourceTypeIcon(resourceType)}
+                className={taskTypeIcon(taskType,data)||resourceTypeIcon(resourceType)}
             >
                 { data.children && data.children.map(o => loop(o)) }
             </TreeNode>

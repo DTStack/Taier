@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { debounce } from 'lodash';
 
-import {  TASK_TYPE, TASK_STATUS, RESOURCE_TYPE } from './const'
+import { TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, LEARNING_TYPE, PYTON_VERSION } from './const'
 
 // 请求防抖动
 export function debounceEventHander(...args) {
     const debounced = debounce(...args)
-    return function(e) {
+    return function (e) {
         e.persist()
         return debounced(e)
     }
@@ -18,8 +18,8 @@ export function debounceEventHander(...args) {
 export function getDefaultSQLTemp(data) {
     let temp = ''
     for (let i = 0; i < data.length; i++) {
-        temp += 
-`ADDJAR ADD JAR WITH 
+        temp +=
+            `ADDJAR ADD JAR WITH 
         ${data[i]};
     `
     }
@@ -29,7 +29,8 @@ export function getDefaultSQLTemp(data) {
 /**
  * 获取任务类型指定图表className
  */
-export function taskTypeIcon(type) {
+export function taskTypeIcon(type, task) {
+    const { pythonVersion, learningType } = task;
     switch (type) {
         case TASK_TYPE.SQL: {
             return 's-sqlicon'
@@ -41,25 +42,37 @@ export function taskTypeIcon(type) {
             return 's-datasyncicon'
         }
         case TASK_TYPE.PYTHON: {
-            return 's-pythonicon'
+            return 's-sparkpythonicon'
         }
         case TASK_TYPE.VIRTUAL_NODE: {
             return 's-virtualicon'
         }
         case TASK_TYPE.DEEP_LEARNING: {
-            return 's-deeplearning'
+            if (learningType == LEARNING_TYPE.MXNET) {
+                return 's-mxnet'
+            } else if (learningType == LEARNING_TYPE.TENSORFLOW) {
+                return 's-tensorflow'
+            } else {
+                return 's-deeplearning'
+            }
         }
         case TASK_TYPE.PYTHON_23: {
-            return 's-pythonicon'
+            if (pythonVersion == PYTON_VERSION.PYTHON2) {
+                return 's-python2icon'
+            } else if (pythonVersion == PYTON_VERSION.PYTHON3) {
+                return 's-python3icon'
+            } else {
+                return 's-pythonicon'
+            }
         }
         case TASK_TYPE.SHELL: {
             return 's-shell'
         }
         default: ''
-    } 
+    }
 }
 
-export function resourceTypeIcon(type){
+export function resourceTypeIcon(type) {
     switch (type) {
         case RESOURCE_TYPE.JAR: {
             return 's-jaricon-r'
@@ -67,7 +80,7 @@ export function resourceTypeIcon(type){
         case RESOURCE_TYPE.PY: {
             return 's-pythonicon-r'
         }
-        default: 
+        default:
             return '';
     }
 }
@@ -127,8 +140,8 @@ export function appendTreeNode(treeNode, append, target) {
 */
 export function replaceTreeNode(treeNode, replace) {
     if (
-        treeNode.id === parseInt(replace.id, 10) 
-        && 
+        treeNode.id === parseInt(replace.id, 10)
+        &&
         treeNode.level === replace.level
     ) {
         treeNode = Object.assign(treeNode, replace);
@@ -161,9 +174,9 @@ export function matchTaskParams(taskCustomParams, sqlText) {
         if (sysParam) {
             param.type = 0
             param.paramCommand = sysParam.paramCommand
-        } else { 
-            param.type = 1 
-        } 
+        } else {
+            param.type = 1
+        }
         // 去重
         const exist = data.find(item => name === item.paramName)
         if (!exist) {
@@ -180,7 +193,7 @@ export function getVertxtStyle(type) {
             return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;'
         case TASK_STATUS.SUBMITTING:
         case TASK_STATUS.RUNNING:
-                return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
+            return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
         case TASK_STATUS.RESTARTING:
         case TASK_STATUS.STOPING:
         case TASK_STATUS.DEPLOYING:

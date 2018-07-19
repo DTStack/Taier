@@ -636,6 +636,7 @@ export default connect(state => {
                                     }
                                 });
                             }
+                            benchActions.loadTreeNode(res.data.parentId,MENU_TYPE.TASK_DEV)
                             return true;
                         }
                     });
