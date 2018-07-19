@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -40,11 +41,9 @@ public class LearningClient extends AbsClient {
 
     private Client client;
 
-    private EngineResourceInfo resourceInfo;
 
     @Override
     public void init(Properties prop) throws Exception {
-        resourceInfo = new EngineResourceInfo();
         LearningConfiguration conf = new LearningConfiguration();
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
@@ -132,6 +131,7 @@ public class LearningClient extends AbsClient {
     public JobResult submitPythonJob(JobClient jobClient){
         try {
             String[] args = LearningUtil.buildPythonArgs(jobClient);
+            System.out.println(Arrays.asList(args));
             String jobId = client.submit(args);
             return JobResult.createSuccessResult(jobId);
         } catch(Exception ex) {
