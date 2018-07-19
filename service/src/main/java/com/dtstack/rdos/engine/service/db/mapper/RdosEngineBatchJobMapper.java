@@ -40,7 +40,7 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
-	List<Map<String, Object>> listStatusByIds(@Param("jobIds") Collection<String> jobIdList);
+	List<Map<String, String>> listStatusByIds(@Param("jobIds") Collection<String> jobIdList);
 
 	Integer updateJobStatusAndLog(@Param("jobId") String jobId, @Param("status") Integer taskStatus,
 								  @Param("logInfo") String logInfo, @Param("engineLog") String engineLog,

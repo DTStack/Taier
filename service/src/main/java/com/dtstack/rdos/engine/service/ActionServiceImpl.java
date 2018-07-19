@@ -628,9 +628,9 @@ public class ActionServiceImpl {
         return engineStreamTaskDAO.getRdosTaskByTaskIds(taskIds);
     }
 
-    public void updateStatusWithSpecStatus(@Param("taskId") String taskId, @Param("status") Integer status,
-                                           @Param("specStatus") Integer specStatus){
-        engineStreamTaskDAO.updateStatusWithSpecStatus(taskId,status,specStatus);
+    public void updateStatusWithSpecStatus(@Param("taskId") String taskId, @Param("status") String status,
+                                           @Param("specStatus") String specStatus){
+        engineStreamTaskDAO.updateStatusWithSpecStatus(taskId,Integer.valueOf(status),Integer.valueOf(specStatus));
     }
 
     public void updateEngineStreamJob(RdosEngineStreamJob rdosEngineStreamJob){
@@ -641,14 +641,14 @@ public class ActionServiceImpl {
         return engineBatchJobDAO.getRdosTaskByTaskIds(jobIds);
     }
 
-    public List<Map<String, Object>> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
+    public List<Map<String, String>> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
         return engineBatchJobDAO.listStatusByIds(jobIds);
     }
 
-    public void updateEngineBatchJobStatusAndLog(@Param("jobId") String jobId, @Param("status") Integer status,
+    public void updateEngineBatchJobStatusAndLog(@Param("jobId") String jobId, @Param("status") String status,
                                                  @Param("logInfo") String logInfo, @Param("engineLog") String engineLog,
                                                  @Param("gmtModified") Timestamp gmtModified){
-        engineBatchJobDAO.updateJobStatusAndLog(jobId,status,logInfo,engineLog,gmtModified);
+        engineBatchJobDAO.updateJobStatusAndLog(jobId,Integer.valueOf(status),logInfo,engineLog,gmtModified);
     }
 
     public void insertEngineBatchJob(RdosEngineBatchJob engineBatchJob){
@@ -663,17 +663,17 @@ public class ActionServiceImpl {
         engineBatchJobDAO.update(engineBatchJob);
     }
 
-    public void finishEngineBatchJobWithStatus(@Param("jobId") String jobId, @Param("status") Integer taskStatus){
-        engineBatchJobDAO.finishJobWithStatus(jobId,taskStatus);
+    public void finishEngineBatchJobWithStatus(@Param("jobId") String jobId, @Param("status") String status){
+        engineBatchJobDAO.finishJobWithStatus(jobId,Integer.valueOf(status));
     }
 
-    public void updateEngineBatchJobStatus(@Param("jobId") String jobId, @Param("status") Integer status){
-        engineBatchJobDAO.updateJobStatus(jobId,status);
+    public void updateEngineBatchJobStatus(@Param("jobId") String jobId, @Param("status") String status){
+        engineBatchJobDAO.updateJobStatus(jobId,Integer.valueOf(status));
     }
 
     public void updateUnsubmitEngineBatchJobStatus(@Param("fillDataJobNameLike") String fillDataJobNameLike,
-                                                   @Param("status") Integer status,
+                                                   @Param("status") String status,
                                                    @Param("projectId") Long projectId){
-        engineBatchJobDAO.updateUnsubmitJobStatus(fillDataJobNameLike,status,projectId);
+        engineBatchJobDAO.updateUnsubmitJobStatus(fillDataJobNameLike,Integer.valueOf(status),projectId);
     }
 }
