@@ -1,12 +1,16 @@
 package com.dtstack.rdos.engine.service.db.dao;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.SqlSession;
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.mapper.RdosEngineBatchJobMapper;
 
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -161,5 +165,70 @@ public class RdosEngineBatchJobDAO {
                 return null;
             }
         });
+	}
+
+	public List<Map<String, Object>> listStatusByIds(List<String> jobIds){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<Map<String, Object>>>(){
+			@Override
+			public List<Map<String, Object>> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				return mapper.listStatusByIds(jobIds);
+			}
+		});
+	}
+
+	public void updateJobStatusAndLog(String jobId, Integer taskStatus, String logInfo, String engineLog, Timestamp gmtModified){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				mapper.updateJobStatusAndLog(jobId,taskStatus,logInfo,engineLog,gmtModified);
+				return null;
+			}
+		});
+	}
+
+	public void batchInsert(Collection<RdosEngineBatchJob> engineJobs){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				mapper.batchInsert(engineJobs);
+				return null;
+			}
+		});
+	}
+
+	public void update(RdosEngineBatchJob engineBatchJob){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				mapper.update(engineBatchJob);
+				return null;
+			}
+		});
+	}
+
+	public void finishJobWithStatus(String jobId, Integer taskStatus){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				mapper.finishJobWithStatus(jobId,taskStatus);
+				return null;
+			}
+		});
+	}
+
+	public void updateUnsubmitJobStatus(String fillDataJobNameLike,Integer status, Long projectId){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				mapper.updateUnsubmitJobStatus(fillDataJobNameLike,status,projectId);
+				return null;
+			}
+		});
 	}
 }

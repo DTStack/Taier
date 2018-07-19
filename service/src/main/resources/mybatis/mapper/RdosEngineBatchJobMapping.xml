@@ -70,4 +70,60 @@
      <update id="updateSubmitLog">
         update rdos_engine_batch_job set log_info = #{submitLog}, gmt_modified=now() where job_id = #{jobId}
     </update>
+
+    <select id="listStatusByIds" resultType="java.util.Map">
+        SELECT
+        job_id,status
+        FROM rdos_engine_batch_job
+        WHERE 1=1
+        <if test="jobIds != null and jobIds.size > 0">
+            AND job_id IN
+            <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
+                #{jobId}
+            </foreach>
+        </if>
+        and is_deleted = 0
+    </select>
+
+    <update id="updateJobStatusAndLog">
+        UPDATE rdos_engine_batch_job
+        SET status = #{status} , log_info = #{logInfo}, engine_log = #{engineLog}, gmt_modified = #{gmtModified}
+        WHERE job_id = #{jobId} and is_deleted=0
+    </update>
+
+    <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rdos_engine_batch_job
+        (status,job_id,engine_job_id,log_info,engine_log,gmt_create,gmt_modified,is_deleted)
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.status},#{item.jobId},#{item.engineJobId},#{item.logInfo},#{item.engineLog},#{item.gmtCreate},#{item.gmtModified},#{item.isDeleted})
+        </foreach>
+    </insert>
+
+    <sql id="update_fragment">
+        <set>
+            status = #{status},engine_job_id = #{engineJobId},exec_start_time = #{execStartTime},exec_end_time = #{execEndTime}, exec_time = #{execTime}, log_info = #{logInfo},
+            engine_log = #{engineLog},gmt_modified = now()
+        </set>
+    </sql>
+
+    <update id="update" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
+        UPDATE
+        rdos_engine_batch_job
+        <include refid="update_fragment"/>
+        WHERE
+        id = #{id} AND is_deleted = 0
+    </update>
+
+    <update id="finishJobWithStatus">
+        UPDATE rdos_engine_batch_job
+        SET status = #{status}, exec_start_time = now(), exec_end_time= now(), gmt_modified = now(), exec_time = 0
+        WHERE job_id = #{jobId} and is_deleted=0
+    </update>
+
+    <update id="updateUnsubmitJobStatus" >
+        UPDATE  rdos_engine_batch_job
+        set status = #{status} where status = 0 and
+        job_id in (select job_id from rdos_batch_job where job_name like #{fillDataJobNameLike} and project_id = #{projectId});
+    </update>
 </mapper>

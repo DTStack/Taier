@@ -29,13 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * 接收http请求
@@ -60,6 +55,8 @@ public class ActionServiceImpl {
     private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
     private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
+
+    private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
 
     private JobStopAction stopAction = new JobStopAction();
 
@@ -627,15 +624,56 @@ public class ActionServiceImpl {
         engineStreamTaskDAO.insert(rdosEngineStreamJob);
     }
 
-    public List<RdosEngineStreamJob> listEngineStreamJobByTaskIds(List<String> taskIds){
+    public List<RdosEngineStreamJob> listEngineStreamJobByTaskIds(@Param("taskIds") List<String> taskIds){
         return engineStreamTaskDAO.getRdosTaskByTaskIds(taskIds);
     }
 
-    public void updateStatusWithSpecStatus(String taskId, Integer status, Integer specStatus){
+    public void updateStatusWithSpecStatus(@Param("taskId") String taskId, @Param("status") Integer status,
+                                           @Param("specStatus") Integer specStatus){
         engineStreamTaskDAO.updateStatusWithSpecStatus(taskId,status,specStatus);
     }
 
     public void updateEngineStreamJob(RdosEngineStreamJob rdosEngineStreamJob){
         engineStreamTaskDAO.update(rdosEngineStreamJob);
+    }
+
+    public List<RdosEngineBatchJob> listEngineBatchJobByTaskIds(@Param("jobIds") List<String> jobIds){
+        return engineBatchJobDAO.getRdosTaskByTaskIds(jobIds);
+    }
+
+    public List<Map<String, Object>> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
+        return engineBatchJobDAO.listStatusByIds(jobIds);
+    }
+
+    public void updateEngineBatchJobStatusAndLog(@Param("jobId") String jobId, @Param("status") Integer status,
+                                                 @Param("logInfo") String logInfo, @Param("engineLog") String engineLog,
+                                                 @Param("gmtModified") Timestamp gmtModified){
+        engineBatchJobDAO.updateJobStatusAndLog(jobId,status,logInfo,engineLog,gmtModified);
+    }
+
+    public void insertEngineBatchJob(RdosEngineBatchJob engineBatchJob){
+        engineBatchJobDAO.insert(engineBatchJob);
+    }
+
+    public void batchInsertEngineBatchJob(@Param("engineJobs") List<RdosEngineBatchJob> engineJobs){
+        engineBatchJobDAO.batchInsert(engineJobs);
+    }
+
+    public void updateEngineBatchJob(RdosEngineBatchJob engineBatchJob){
+        engineBatchJobDAO.update(engineBatchJob);
+    }
+
+    public void finishEngineBatchJobWithStatus(@Param("jobId") String jobId, @Param("status") Integer taskStatus){
+        engineBatchJobDAO.finishJobWithStatus(jobId,taskStatus);
+    }
+
+    public void updateEngineBatchJobStatus(@Param("jobId") String jobId, @Param("status") Integer status){
+        engineBatchJobDAO.updateJobStatus(jobId,status);
+    }
+
+    public void updateUnsubmitEngineBatchJobStatus(@Param("fillDataJobNameLike") String fillDataJobNameLike,
+                                                   @Param("status") Integer status,
+                                                   @Param("projectId") Long projectId){
+        engineBatchJobDAO.updateUnsubmitJobStatus(fillDataJobNameLike,status,projectId);
     }
 }

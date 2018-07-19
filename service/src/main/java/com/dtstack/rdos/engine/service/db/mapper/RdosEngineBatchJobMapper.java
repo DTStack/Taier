@@ -3,7 +3,10 @@ package com.dtstack.rdos.engine.service.db.mapper;
 import org.apache.ibatis.annotations.Param;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 
+import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -37,4 +40,18 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
+	List<Map<String, Object>> listStatusByIds(@Param("jobIds") Collection<String> jobIdList);
+
+	Integer updateJobStatusAndLog(@Param("jobId") String jobId, @Param("status") Integer taskStatus,
+								  @Param("logInfo") String logInfo, @Param("engineLog") String engineLog,
+								  @Param("gmtModified") Timestamp gmtModified);
+
+	Integer batchInsert(@Param("list") Collection<RdosEngineBatchJob> engineJobs);
+
+	Integer update(RdosEngineBatchJob engineJob);
+
+	Integer finishJobWithStatus(@Param("jobId") String jobId, @Param("status") Integer taskStatus);
+
+	Integer updateUnsubmitJobStatus(@Param("fillDataJobNameLike") String fillDataJobNameLike, @Param("status") Integer status,
+									@Param("projectId") Long projectId);
 }
