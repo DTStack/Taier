@@ -83,6 +83,8 @@ export default class ModelCheck extends Component {
     }
 
     changeParams = (field, value) => {
+        console.log('changeParams',value);
+        
         const params = {
             [field]: value,
         }
@@ -163,7 +165,7 @@ export default class ModelCheck extends Component {
         };
 
         return (
-            <div className="m-card">
+            <div className="m-card antd-input">
                 <Card
                     noHovering
                     bordered={false}
@@ -183,15 +185,18 @@ export default class ModelCheck extends Component {
                                     onSearch={this.loadData}
                                 />
                             </FormItem>
-                            <FormItem label="类型">
+                            <FormItem label="检测结果">
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 200 }}
-                                    placeholder="选择类型"
+                                    mode="multiple"
+                                    size="default"
+                                    style={{ minWidth: 200, marginTop: 3 }}
+                                    placeholder="选择检测结果"
                                     optionFilterProp="name"
                                     onChange={(value) => this.changeParams('triggerType', value)}
                                 >
+                                    <Option value="0">规范</Option>
                                     <Option value="1">分层不合理</Option>
                                     <Option value="2">主题域不合理</Option>
                                     <Option value="3">刷新频率不合理</Option>

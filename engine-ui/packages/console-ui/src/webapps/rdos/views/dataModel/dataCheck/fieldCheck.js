@@ -149,7 +149,7 @@ export default class FieldCheck extends Component {
         };
 
         return (
-            <div className="m-card">
+            <div className="m-card antd-input">
                 <Card
                     noHovering
                     bordered={false}
@@ -169,15 +169,18 @@ export default class FieldCheck extends Component {
                                     onSearch={ this.loadData }
                                 />
                             </FormItem>
-                            <FormItem label="类型">
+                            <FormItem label="检测结果">
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 200 }}
-                                    placeholder="选择类型"
+                                    mode="multiple"
+                                    size="default"
+                                    style={{ minWidth: 200, marginTop: 3 }}
+                                    placeholder="选择检测结果"
                                     optionFilterProp="name"
                                     onChange={(value) => this.changeParams('triggerType', value)}
                                 >
+                                    <Option value="0">规范</Option>
                                     <Option value="1">字段名称不合理</Option>
                                     <Option value="2">字段类型不合理</Option>
                                     <Option value="3">字段描述不合理</Option>

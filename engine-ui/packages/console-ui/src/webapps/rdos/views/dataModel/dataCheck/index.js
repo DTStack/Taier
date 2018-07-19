@@ -11,7 +11,7 @@ class DMCheckCenter extends Component {
 
     render() {
         return (
-            <div className="box-1 m-tabs">
+            <div className="box-1 m-tabs data-check">
                 <Tabs animated={false} style={{height: 'auto'}}>
                     <TabPane tab="模型检测" key="1">
                         <ModelCheck {...this.props}/>

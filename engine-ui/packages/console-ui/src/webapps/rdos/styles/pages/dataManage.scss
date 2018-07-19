@@ -229,6 +229,17 @@
     .button-top {
         margin: 18px 0 0 20px;
     }
+    .data-check {
+        .antd-input {
+            .m-form-inline .ant-form-item .ant-select:not(.native) 
+            .ant-select-search__field__wrap, .m-form-inline .ant-form-item .ant-select:not(.native) 
+            .ant-select-search__field, .m-form-inline .ant-form-item .ant-select:not(.native) 
+            .ant-select-selection--multiple, .m-form-inline .ant-form-item .ant-select:not(.native) 
+            .ant-select-selection--single {
+                margin-top: -3px;
+            }
+        }
+    }
 }
 
 .m-codemodal {
