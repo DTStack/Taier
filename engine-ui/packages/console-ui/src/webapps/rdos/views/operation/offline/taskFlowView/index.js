@@ -396,7 +396,6 @@ class TaskFlowView extends Component {
             if (cell && cell.vertex) {
                 const currentNode = ctx._vertexCells[cell.id].data;
                 ctx.showJobLog(currentNode.jobId)
-
             }
         })
     }

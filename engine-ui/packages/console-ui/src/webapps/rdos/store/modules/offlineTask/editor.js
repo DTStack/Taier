@@ -1,68 +1,6 @@
 import { combineReducers } from 'redux';
-import { cloneDeep } from 'lodash';
-import moment from "moment";
+import { cloneDeep, assign } from 'lodash';
 import { editorAction } from './actionType'
-
-// Actions
-export function output(tab, log) {
-    return {
-        type: editorAction.APPEND_CONSOLE_LOG,
-        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
-        key: tab,
-    }
-}
-
-export function setOutput(tab, log) {
-    return {
-        type: editorAction.SET_CONSOLE_LOG,
-        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
-        key: tab,
-    }
-}
-
-export function outputRes(tab, item, jobId) {
-    return {
-        type: editorAction.UPDATE_RESULTS,
-        data: {jobId:jobId,data:item},
-        key: tab,
-    }
-}
-
-export function removeRes(tab, index) {
-    return {
-        type: editorAction.DELETE_RESULT,
-        data: index,
-        key: tab,
-    }
-}
-
-
-export function resetConsole(tab) {
-    return {
-        type: editorAction.RESET_CONSOLE,
-        key: tab,
-    }
-}
-
-/**
- * 初始化tab的console对象
- * @param {tabId} key 
- */
-export function getTab(key) {
-    return {
-        type: editorAction.GET_TAB,
-        key
-    }
-}
-
-
-export function setSelectionContent(data) {
-    return {
-        type: editorAction.SET_SELECTION_CONTENT,
-        data
-    }
-}
-
 
 // Console Reducers 
 const console = (state = {}, action) => {
@@ -146,32 +84,11 @@ export const selection = (state = '', action) => {
 }
 
 /**running**/
-export function addLoadingTab(id) {
-    return {
-        type: editorAction.ADD_LOADING_TAB,
-        data:{
-            id:id
-        }
-    }
-}
-export function removeLoadingTab(id) {
-    return {
-        type: editorAction.REMOVE_LOADING_TAB,
-        data:{
-            id:id
-        }
-    }
-}
-export function removeAllLoadingTab() {
-    return {
-        type: editorAction.REMOVE_ALL_LOAING_TAB
-    }
-}
 //运行中的任务
 export const running = (state = [], action) => {
     switch(action.type) {
         case editorAction.ADD_LOADING_TAB: {
-            const list=cloneDeep(state);
+            const list = cloneDeep(state);
             list.push(action.data.id);
             return list
         }
@@ -191,8 +108,22 @@ export const running = (state = [], action) => {
 }
 /**running**/
 
-export const sqlEditor = combineReducers({
+/**
+ * 编辑器选项
+ */
+export const options = (state = {}, action) => {
+    switch(action.type) {
+        case editorAction.UPDATE_OPTIONS: {
+            return assign({}, state, action.data)
+        }
+    default:
+        return state
+    }
+}
+
+export const editor = combineReducers({
     console,
     selection,
-    running
+    running,
+    options
 })

@@ -12,7 +12,6 @@ import Toolbar from './toolbar';
 import Console from './console';
 
 import { matchTaskParams } from '../../../../comm';
-import CodeEditor from '../../../../components/code-editor';
 
 import {
     workbenchAction,
@@ -21,7 +20,7 @@ import {
 import {
     getTab,
     setSelectionContent,
-} from '../../../../store/modules/offlineTask/sqlEditor';
+} from '../../../../store/modules/offlineTask/editorAction';
 
 @pureRender
 class SQLEditor extends Component {
@@ -58,12 +57,12 @@ class SQLEditor extends Component {
        })
     }
 
-    handleEditorTxtChange = (newVal) => {
+    handleEditorTxtChange = (newVal, editorInstance) => {
         const task = this.props.currentTabData
         const taskCustomParams = this.props.taskCustomParams;
         let params = {
             merged: false,
-            // cursor: doc.getCursor(),
+            cursorPosition: editorInstance.getPosition(),
         }
         if (utils.checkExist(task.taskType)) {
             params.sqlText = newVal
@@ -76,42 +75,18 @@ class SQLEditor extends Component {
         this.props.updateTaskFields(params);
     }
 
-    // handleEditorTxtChange = (old, newVal, doc) => {
-    //     const task = this.props.currentTabData
-    //     const taskCustomParams = this.props.taskCustomParams;
-    //     let params = {
-    //         merged: false,
-    //         // cursor: doc.getCursor(),
-    //     }
-    //     if (utils.checkExist(task.taskType)) {
-    //         params.sqlText = newVal
-    //         // 过滤注释内容
-    //         const filterComm = filterComments(newVal)
-    //         params.taskVariables = matchTaskParams(taskCustomParams, filterComm)//this.matchTaskParams(newVal)
-    //     } else if (utils.checkExist(task.type)) {
-    //         params.scriptText = newVal
-    //     }
-    //     this.props.updateTaskFields(params);
-    // }
-
-    // onEditorSelection = (old, doc) => {
-    //     const selected = doc.getSelection()
-    //     if (doc.somethingSelected()) {
-    //         this.props.setSelection(selected)
-    //     } else {
-    //         const oldSelection = this.props.sqlEditor.selection
-    //         if (oldSelection !== '') this.props.setSelection('')
-    //     }
-    // }
-
     onEditorSelection = (selected) => {
         // const selected = doc.getSelection()
         if (selected) {
             this.props.setSelection(selected)
         } else {
-            const oldSelection = this.props.sqlEditor.selection
+            const oldSelection = this.props.editor.selection
             if (oldSelection !== '') this.props.setSelection('')
         }
+    }
+
+    changeEditorTheme = (theme) => {
+
     }
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
@@ -119,33 +94,24 @@ class SQLEditor extends Component {
     debounceSelectionChange = debounce(this.onEditorSelection, 200, { 'maxWait': 2000 })
 
     render() {
-        const { sqlEditor, currentTabData, options, value } = this.props
+        const { editor, currentTabData, options, value } = this.props
         const currentTab = currentTabData.id
-        const consoleData = sqlEditor.console
+        const consoleData = editor.console
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
         const size = this.state.size;
 
-        const cursor = currentTabData.cursor || undefined;
+        const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
-        // const editor = <CodeEditor
-        //     key="sqlEditor"
-        //     sync={currentTabData.merged || undefined}
-        //     options={{ ...options, readOnly: isLocked }}
-        //     cursor={cursor}
-        //     cursorActivity={this.debounceSelectionChange}
-        //     onChange={this.debounceChange}
-        //     value={value}
-        // />;
-
-        const editor = <div className="ide-editor bd-bottom">
+        const editorPane = <div className="ide-editor">
             <Editor 
                 key="sqlEditor"
                 sync={currentTabData.merged || undefined}
                 options={{ 
                     readOnly: isLocked, 
                 }}
+                cursorPosition={cursorPosition}
                 language="sql"
                 value={value}
                 onCursorSelection={this.debounceSelectionChange}
@@ -175,7 +141,7 @@ class SQLEditor extends Component {
                                 })
                             }}
                         >
-                            { editor }
+                            { editorPane }
                             <Console
                                 changeTab={this.changeTab}
                                 changeTabStatus={this.state.changeTab}
@@ -194,7 +160,7 @@ class SQLEditor extends Component {
                                     })
                                 }}
                             />
-                        </SplitPane> : editor
+                        </SplitPane> : editorPane
                     }
                 </div>
             </div>
@@ -204,7 +170,7 @@ class SQLEditor extends Component {
 
 export default connect(state => {
     return {
-        sqlEditor: state.sqlEditor,
+        editor: state.editor,
         project: state.project,
         user: state.user,
     }

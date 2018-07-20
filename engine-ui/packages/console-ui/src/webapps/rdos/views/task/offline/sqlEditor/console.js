@@ -1,15 +1,14 @@
 import React, { Component } from 'react'
 import { isEqual } from 'lodash'
-import { Table, Tabs, Icon, Tooltip, Button, Affix } from 'antd'
+import { Table, Tabs, Icon, Tooltip, Button } from 'antd'
 
 import reqOffline from '../../../../api/reqOffline';
 
 import CodeEditor from '../../../../components/code-editor'
 import {
     removeRes, resetConsole
-} from '../../../../store/modules/offlineTask/sqlEditor'
+} from '../../../../store/modules/offlineTask/editorAction'
 
-// import { isEqual } from 'utils/pureRender'
 
 const TabPane = Tabs.TabPane
 

@@ -3,19 +3,21 @@ import { Button, Icon } from 'antd'
 
 import MyIcon from 'rdos/components/icon';
 
+const isFullScreen = function() {
+    return document.fullscreenEnabled || 
+    document.webkitFullscreenEnabled ||
+    document.mozFullscreenEnabled ||
+    document.msFullscrrenEnabled;
+}
+
 export default class FullScreenButton extends Component {
 
     state = {
-        isFullScreen: false,
+        isFullScreen: isFullScreen(),
     }
 
     fullScreen = () => {
         const { target } = this.props;
-
-        var status = document.fullscreenEnabled || 
-        document.webkitFullscreenEnabled ||
-        document.mozFullscreenEnabled ||
-        document.msFullscrrenEnabled;
 
         if (this.state.isFullScreen) {
             if (document.exitFullscreen) {
@@ -39,14 +41,13 @@ export default class FullScreenButton extends Component {
                 domEle.webkitRequestFullscreen();
             }
         }
-        this.setState({
-            isFullScreen: !this.state.isFullScreen
-        })
+        this.setState({ isFullScreen: !this.state.isFullScreen })
     }
 
-    render(){
+    render() {
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
+
         return (
             <Button {...this.props} onClick={this.fullScreen}>
                 <MyIcon className="my-icon" type={iconType} />

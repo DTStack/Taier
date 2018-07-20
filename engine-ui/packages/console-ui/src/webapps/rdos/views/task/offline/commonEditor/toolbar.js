@@ -12,13 +12,11 @@ import CodeEditor from "../../../../components/code-editor";
 import { updateUser } from "../../../../store/modules/user";
 
 import {
+    execSql,
+    stopSql,
     setOutput,
     addLoadingTab
-} from "../../../../store/modules/offlineTask/sqlEditor";
-import {
-    execSql,
-    stopSql
-} from "../../../../store/modules/offlineTask/sqlEditorAction";
+} from "../../../../store/modules/offlineTask/editorAction";
 
 import { workbenchAction } from "../../../../store/modules/offlineTask/actionType";
 
@@ -37,7 +35,7 @@ export default class Toolbar extends Component {
     execSQL = () => {
         const {
             currentTab,
-            sqlEditor,
+            editor,
             user,
             currentTabData,
             project,
@@ -53,7 +51,7 @@ export default class Toolbar extends Component {
         this.setState({ execConfirmVisible: false });
 
         const code =
-            sqlEditor.selection ||
+            editor.selection ||
             currentTabData.sqlText ||
             currentTabData.scriptText;
 

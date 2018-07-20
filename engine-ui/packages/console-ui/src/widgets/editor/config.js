@@ -6,5 +6,5 @@ export const defaultOptions = {
     automaticLayout: true,
     showFoldingControls: "always",
     folding: true,
-    foldingStrategy: "auto"
+    foldingStrategy: "auto",
 }

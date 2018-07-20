@@ -3,15 +3,10 @@ import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import { debounce } from 'lodash';
 
-import utils from 'utils';
-import { filterComments } from 'funcs';
+import Editor from 'widgets/editor';
 
 import Toolbar from './toolbar';
 import Console from './console';
-
-import Api from '../../../../api';
-import { matchTaskParams } from '../../../../comm';
-import CodeEditor from '../../../../components/code-editor';
 
 import {
     workbenchAction,
@@ -20,7 +15,7 @@ import {
 import {
     getTab,
     setSelectionContent,
-} from '../../../../store/modules/offlineTask/sqlEditor';
+} from '../../../../store/modules/offlineTask/editorAction';
 
 class CommonEditor extends Component {
 
@@ -54,34 +49,24 @@ class CommonEditor extends Component {
             changeTab = false;
         }
        this.setState({
-        changeTab
+            changeTab
        })
     }
 
-    handleEditorTxtChange = (old, newVal, doc) => {
-        const task = this.props.currentTabData
-        const taskCustomParams = this.props.taskCustomParams;
+    handleEditorTxtChange = (newVal) => {
         let params = {
             merged: false,
-            cursor: doc.getCursor(),
-        }
-        if (utils.checkExist(task.taskType)) {
-            params.sqlText = newVal
-            // 过滤注释内容
-            const filterComm = filterComments(newVal)
-            params.taskVariables = matchTaskParams(taskCustomParams, filterComm)//this.matchTaskParams(newVal)
-        } else if (utils.checkExist(task.type)) {
-            params.scriptText = newVal
+            sqlText: newVal,
+            // cursor: doc.getCursor(),
         }
         this.props.updateTaskFields(params);
     }
 
-    onEditorSelection = (old, doc) => {
-        const selected = doc.getSelection()
-        if (doc.somethingSelected()) {
+    onEditorSelection = (selected) => {
+        if (selected) {
             this.props.setSelection(selected)
         } else {
-            const oldSelection = this.props.sqlEditor.selection
+            const oldSelection = this.props.editor.selection
             if (oldSelection !== '') this.props.setSelection('')
         }
     }
@@ -91,17 +76,31 @@ class CommonEditor extends Component {
     debounceSelectionChange = debounce(this.onEditorSelection, 200, { 'maxWait': 2000 })
 
     render() {
-        const { sqlEditor, currentTabData, options, value,mode } = this.props
+        const { editor, currentTabData, options, value,mode } = this.props
         const currentTab = currentTabData.id
-        const consoleData = sqlEditor.console
+        const consoleData = editor.console
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
         const size = this.state.size;
-        const language=mode=="shell"?'text/x-sh':'text/x-python'
+
+        const language = mode === "shell" ? 'shell' : 'python';
 
         const cursor = currentTabData.cursor || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
+        const editorPane = <div className="ide-editor bd-bottom">
+            <Editor 
+                key="commonEditor"
+                sync={currentTabData.merged || undefined}
+                options={{ 
+                    readOnly: isLocked, 
+                }}
+                language={language}
+                value={value}
+                onCursorSelection={this.debounceSelectionChange}
+                onChange={this.debounceChange}
+            />
+        </div>
 
 
         return (
@@ -126,18 +125,7 @@ class CommonEditor extends Component {
                                     })
                                 }}
                             >
-                                <div className="ide-editor bd-bottom">
-                                    <CodeEditor
-                                        key="shellEditor"
-                                        sync={currentTabData.merged || undefined}
-                                        options={{ ...options, readOnly: isLocked,mode: language }}
-                                        value={value}
-                                        cursor={cursor}
-                                        cursorActivity={this.debounceSelectionChange}
-                                        onChange={this.debounceChange}
-
-                                    />
-                                </div>
+                                { editorPane }
                                 <Console
                                     changeTab={this.changeTab}
                                     changeTabStatus={this.state.changeTab}
@@ -156,19 +144,7 @@ class CommonEditor extends Component {
                                         })
                                     }}
                                 />
-                            </SplitPane> :
-                            <div className="ide-editor bd-bottom">
-                                <CodeEditor
-                                    key="shellEditor"
-                                    sync={currentTabData.merged || undefined}
-                                    options={{ ...options, readOnly: isLocked,mode:language }}
-                                    cursor={cursor}
-                                    cursorActivity={this.debounceSelectionChange}
-                                    onChange={this.debounceChange}
-                                    value={value}
-
-                                />
-                            </div>
+                            </SplitPane> : editorPane
                     }
                 </div>
             </div>
@@ -178,7 +154,7 @@ class CommonEditor extends Component {
 
 export default connect(state => {
     return {
-        sqlEditor: state.sqlEditor,
+        editor: state.editor,
         project: state.project,
         user: state.user,
 

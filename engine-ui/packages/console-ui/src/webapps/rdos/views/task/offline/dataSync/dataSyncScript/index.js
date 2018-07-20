@@ -10,7 +10,7 @@ import CodeEditor from '../../../../../components/code-editor';
 import Toolbar from "./toolbar.js";
 
 import { workbenchAction } from '../../../../../store/modules/offlineTask/actionType';
-import { setSelectionContent } from '../../../../../store/modules/offlineTask/sqlEditor';
+import { setSelectionContent } from '../../../../../store/modules/offlineTask/editorAction';
 
 @connect(state => {
     return {
@@ -56,7 +56,7 @@ class DataSyncScript extends Component {
         if (doc.somethingSelected()) {
             this.props.setSelection(selected)
         } else {
-            const oldSelection = this.props.sqlEditor.selection
+            const oldSelection = this.props.editor.selection
 
             if (oldSelection !== '') this.props.setSelection('')
         }

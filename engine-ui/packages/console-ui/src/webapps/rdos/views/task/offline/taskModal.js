@@ -299,7 +299,7 @@ class TaskForm extends React.Component {
                                 }, {
                                     validator: this.checkNotDir.bind(this)
                                 }],
-                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0].id
+                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].id
                             })(
                                 <Input type="hidden" ></Input>
                             )}
@@ -311,7 +311,7 @@ class TaskForm extends React.Component {
                                 acceptRes={acceptType}
                                 treeData={this.props.resTreeData}
                                 onChange={this.handleResSelectTreeChange.bind(this)}
-                                defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0]["resourceName"]}
+                                defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0]["resourceName"]}
                             />
                         </FormItem>
                         {
@@ -553,7 +553,7 @@ class TaskModal extends React.Component {
             <div>
                 <Modal
                     title={isCreate ? '新建离线任务' : '编辑离线任务'}
-                    key={this.dtcount}
+                    // key={this.dtcount}
                     visible={isModalShow}
                     maskClosable={false}
                     footer={[

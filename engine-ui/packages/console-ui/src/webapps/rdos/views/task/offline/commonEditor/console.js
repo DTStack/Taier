@@ -5,9 +5,10 @@ import { Table, Tabs, Icon, Tooltip, Button, Affix } from 'antd'
 import reqOffline from '../../../../api/reqOffline';
 
 import CodeEditor from '../../../../components/code-editor'
+
 import {
     removeRes, resetConsole
-} from '../../../../store/modules/offlineTask/sqlEditor'
+} from '../../../../store/modules/offlineTask/editorAction'
 
 // import { isEqual } from 'utils/pureRender'
 

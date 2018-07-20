@@ -11,7 +11,7 @@ import { project, projects, allProjects } from './modules/project'
 import { realtimeTask } from './modules/realtimeTask'
 // 离线任务
 import { offlineTask } from './modules/offlineTask';
-import { sqlEditor } from './modules/offlineTask/sqlEditor';
+import { editor } from './modules/offlineTask/editor';
 // 数据源
 import { dataSource } from './modules/dataSource';
 // 数据管理
@@ -35,7 +35,7 @@ const rootReducer = combineReducers({
     allProjects, // 全局所有项目
     realtimeTask, // 实时任务
     offlineTask, // 离线任务
-    sqlEditor,
+    editor, // 编辑器
     operation, // 运维中心
     dataManage: dataManageReducer,
     dataSource,

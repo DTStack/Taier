@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Row, Tabs } from 'antd';
+import { Tabs } from 'antd';
 
 import utils from 'utils'
 

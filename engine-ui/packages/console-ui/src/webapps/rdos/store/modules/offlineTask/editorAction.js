@@ -2,13 +2,10 @@ import moment from 'moment'
 import utils from 'utils'
 import {
     message
-} from 'antd'
+} from 'antd';
 
 import API from "../../../api";
-import {
-    output, outputRes, removeLoadingTab
-} from './sqlEditor'
-
+import { editorAction } from './actionType';
 
 const INTERVALS = 3000;
 const EXCHANGE_STATUS = {
@@ -157,6 +154,8 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
             API.execScript(params).then(succCall)
     }
 }
+
+
 //执行sql
 export function execSql(currentTab, task, params, sqls) {
     return (dispatch) => {
@@ -164,12 +163,14 @@ export function execSql(currentTab, task, params, sqls) {
         exec(dispatch, currentTab, task, params, sqls, 0);
     }
 }
+
+
 //停止sql
 export function stopSql(currentTab, currentTabData, isSilent) {
     return (dispatch, getState) => {
         //静默关闭，不通知任何人（服务器，用户）
         if (isSilent) {
-            const running = getState().sqlEditor.running;
+            const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
                 stopSign[currentTab] = true;
                 dispatch(output(currentTab, "执行停止"))
@@ -211,5 +212,95 @@ export function stopSql(currentTab, currentTabData, isSilent) {
                 jobId: jobId,
             }).then(succCall)
         }
+    }
+}
+
+
+// Actions
+export function output(tab, log) {
+    return {
+        type: editorAction.APPEND_CONSOLE_LOG,
+        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
+        key: tab,
+    }
+}
+
+export function setOutput(tab, log) {
+    return {
+        type: editorAction.SET_CONSOLE_LOG,
+        data: `【${moment().format("HH:mm:ss")}】 ${log}`,
+        key: tab,
+    }
+}
+
+export function outputRes(tab, item, jobId) {
+    return {
+        type: editorAction.UPDATE_RESULTS,
+        data: {jobId:jobId,data:item},
+        key: tab,
+    }
+}
+
+export function removeRes(tab, index) {
+    return {
+        type: editorAction.DELETE_RESULT,
+        data: index,
+        key: tab,
+    }
+}
+
+
+export function resetConsole(tab) {
+    return {
+        type: editorAction.RESET_CONSOLE,
+        key: tab,
+    }
+}
+
+/**
+ * 初始化tab的console对象
+ * @param {tabId} key 
+ */
+export function getTab(key) {
+    return {
+        type: editorAction.GET_TAB,
+        key
+    }
+}
+
+export function setSelectionContent(data) {
+    return {
+        type: editorAction.SET_SELECTION_CONTENT,
+        data
+    }
+}
+
+// Loading actions
+export function addLoadingTab(id) {
+    return {
+        type: editorAction.ADD_LOADING_TAB,
+        data:{
+            id:id
+        }
+    }
+}
+export function removeLoadingTab(id) {
+    return {
+        type: editorAction.REMOVE_LOADING_TAB,
+        data:{
+            id:id
+        }
+    }
+}
+export function removeAllLoadingTab() {
+    return {
+        type: editorAction.REMOVE_ALL_LOAING_TAB
+    }
+}
+
+export function updateEditorOptions(data) {
+    return {
+        type: editorAction.UPDATE_OPTIONS,
+        data
     }
 }

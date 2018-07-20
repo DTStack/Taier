@@ -29,12 +29,11 @@ import {
 } from '../../../store/modules/offlineTask/actionType';
 import {
     stopSql
-} from '../../../store/modules/offlineTask/sqlEditorAction'
+} from '../../../store/modules/offlineTask/editorAction'
 
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
-import resViewModal from './resViewModal';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;

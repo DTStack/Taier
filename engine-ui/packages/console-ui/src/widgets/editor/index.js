@@ -6,9 +6,9 @@ import React from "react";
 // import 'monaco-editor/esm/vs/editor/contrib/contextmenu/contextmenu.js';
 // import 'monaco-editor/esm/vs/editor/contrib/smartSelect/smartSelect.js';
 
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 // import 'monaco-editor/esm/vs/editor/editor.all.js';
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
+import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
@@ -24,32 +24,26 @@ class Editor extends React.Component {
         super(props);
         this.monacoDom = null;
         this.monacoInstance = null;
-        this.__props_update = false; //非输入触发标志
     }
 
     shouldComponentUpdate (nextProps, nextState) {
-        // console.log('shouldComponentUpdate')
-        // if (this.props.options !== nextProps.options) {
-        //     return true;
-        // }
+        // // 此处禁用render， 直接用editor实例更新编辑器
         return false;
     }
 
     componentDidMount() {
-        console.log('init editor: ')
         this.initMonaco();
     }
 
-
     componentWillReceiveProps(nextProps) {
         const { sync, value } = nextProps;
-        console.log('Editor nextProps:', nextProps)
-        if ( this.props.value !== value) {
-            this.log("props value更新");
-            if (sync) {
-                const editorText = !value ? '' : value;
-                this.updateValueWithNoEvent(editorText);
-            }
+        this.log("props value更新", nextProps);
+        if ( this.props.value !== value && sync) {
+            const editorText = !value ? '' : value;
+            this.updateValueWithNoEvent(editorText);
+        }
+        if (this.props.options !== nextProps.options) {
+            this.monacoInstance.updateOptions(nextProps.options)
         }
     }
 
@@ -77,8 +71,7 @@ class Editor extends React.Component {
     }
 
     initMonaco() {
-        const { value, language, options } = this.props;
-        // const initValue = value || defaultValue;
+        const { value, language, options, cursorPosition } = this.props;
 
         if (!this.monacoDom) {
             console.error("初始化dom节点出错");
@@ -87,7 +80,6 @@ class Editor extends React.Component {
 
         window.MonacoEnvironment = {
             getWorkerUrl: function(moduleId, label) {
-                console.log('getWorkerUrl:', label, arguments);
                 if (label === "json") {
                     return "./json.worker.js";
                 }
@@ -115,6 +107,12 @@ class Editor extends React.Component {
         console.log('editorOptions:', editorOptions);
         this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
 
+        if (this.monacoInstance && cursorPosition) {
+            this.monacoInstance.setPosition(cursorPosition);
+            this.monacoInstance.focus();
+            this.monacoInstance.revealPosition(cursorPosition, monaco.editor.ScrollType.Immediate);
+        }
+
         this.initEditor();
     }
 
@@ -133,7 +131,7 @@ class Editor extends React.Component {
             const newValue = this.monacoInstance.getValue();
             if (onChange) {
                 this.log("订阅事件触发");
-                onChange(newValue);
+                onChange(newValue, this.monacoInstance);
             }
         });
 
@@ -168,8 +166,6 @@ class Editor extends React.Component {
                 onCursorSelection(selectionContent);
             }
         });
-
-        
     }
 
     render() {

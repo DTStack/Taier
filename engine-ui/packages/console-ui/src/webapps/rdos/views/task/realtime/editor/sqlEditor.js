@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import CodeEditor from '../../../../components/code-editor'
+import Editor from 'widgets/editor';
 import ToolBar from './toolbar';
 
 export default class SQLEditor extends Component {
@@ -16,12 +16,11 @@ export default class SQLEditor extends Component {
             <div className="ide-sql">
                 <ToolBar currentTabData={currentPage} dispatch={dispatch} />
                 <div className="ide-content">
-                    <CodeEditor
+                    <Editor
                         key={`main-editor-${currentPage.id}`}
                         value={currentPage.sqlText}
                         sync={currentPage.merged || undefined}
-                        onFocus={editorFocus}
-                        focusOut={editorFocusOut}
+                        language="sql"
                         onChange={editorChange}
                     />
                 </div>
