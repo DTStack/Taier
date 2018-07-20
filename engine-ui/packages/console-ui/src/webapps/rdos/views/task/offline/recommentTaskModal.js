@@ -5,15 +5,17 @@ import {Table,Modal} from "antd";
 class RecommentTaskModal extends React.Component{
     state={
         choosetask:[],//选择的任务
+        selectedRows:[],
     }
     resetState(){
         this.setState({
-            choosetask:[]
+            choosetask:[],
+            selectedRows:[]
         })
     }
     onOk(){
-        const {choosetask} = this.state;
-        this.props.onOk(choosetask);
+        const {selectedRows} = this.state;
+        this.props.onOk(selectedRows);
         this.resetState();
     }
     onCancel(){
@@ -36,7 +38,8 @@ class RecommentTaskModal extends React.Component{
             selectedRowKeys:this.state.choosetask,
             onChange:(selectedRowKeys, selectedRows)=>{
                 this.setState({
-                    choosetask:selectedRowKeys
+                    choosetask:selectedRowKeys,
+                    selectedRows:selectedRows
                 })
             },
             getCheckboxProps:(record)=>{
@@ -72,7 +75,7 @@ class RecommentTaskModal extends React.Component{
             >
             <p style={{margin:"10px 10px"}}>提示：该分析仅基于您已发布过的任务进行分析</p>
             <Table 
-                className="m-table"
+                className="m-table select-all-table"
                 columns={this.initColumns()}
                 dataSource={taskList}
                 pagination={false}

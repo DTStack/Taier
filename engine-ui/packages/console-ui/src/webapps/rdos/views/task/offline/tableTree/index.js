@@ -38,7 +38,18 @@ class TableTree extends React.Component {
         displaySearch: false,
         tableId: '',
         projectId: "all",
-        expandedKeys: []
+        expandedKeys: [],
+        searchName:""
+    }
+    componentWillReceiveProps(nextProps){
+        if(this.props.project.id!=nextProps.project.id){
+            this.setState({
+                projectId:"all",
+                expandedKeys:[],
+                tableId:'',
+                searchName:""
+            })
+        }
     }
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;
