@@ -6,6 +6,7 @@ import {
     Card, Button, message, Checkbox,
     DatePicker, Input,
 } from 'antd';
+import moment from "moment"
 
 import utils from 'utils';
 import Api from '../../../api/dataModel';
@@ -13,7 +14,7 @@ import { FieldNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
-const RangePicker = DatePicker.RangePicker;
+const { RangePicker } = DatePicker;
 
 export default class FieldCheck extends Component {
 
@@ -138,6 +139,24 @@ export default class FieldCheck extends Component {
         }]
     }
 
+    onChangeTime = (value) => {
+        window.moment = moment();
+        if(!value[0]){//清除时间段的回调
+            this.changeParams('startTime',this.handleMoment(value[0]));
+            this.changeParams('endTime',this.handleMoment(value[1]));
+        }
+       
+    }
+
+    handleMoment = (moment) => {//moment对象转成时间戳(毫秒数)
+        return moment&&moment.unix()*1000 
+    }
+      
+    onOk = (value) => {
+        this.changeParams('startTime',this.handleMoment(value[0]));
+        this.changeParams('endTime',this.handleMoment(value[1]));
+    }
+
     render() {
 
         const { loading, table, params } = this.state
@@ -185,6 +204,16 @@ export default class FieldCheck extends Component {
                                     <Option value="2">字段类型不合理</Option>
                                     <Option value="3">字段描述不合理</Option>
                                 </Select>
+                            </FormItem>
+                            <FormItem label="最后修改时间">
+                                <RangePicker
+                                    size="default"
+                                    showTime={{ format: 'HH:mm:ss' }}
+                                    format="YYYY-MM-DD HH:mm:ss"
+                                    placeholder={['开始时间', '结束时间']}
+                                    onChange={this.onChangeTime}
+                                    onOk={this.onOk}
+                                />
                             </FormItem>
                             <FormItem>
                                 <Checkbox 

@@ -8,6 +8,7 @@ import {
     DatePicker, Input,
 } from 'antd';
 
+import moment from "moment";
 import utils from 'utils';
 
 import Api from '../../../api/dataModel';
@@ -15,7 +16,8 @@ import { TableNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
-const RangePicker = DatePicker.RangePicker;
+const { RangePicker } = DatePicker;
+
 
 export default class ModelCheck extends Component {
 
@@ -83,8 +85,6 @@ export default class ModelCheck extends Component {
     }
 
     changeParams = (field, value) => {
-        console.log('changeParams',value);
-        
         const params = {
             [field]: value,
         }
@@ -154,6 +154,29 @@ export default class ModelCheck extends Component {
         }]
     }
 
+    onChangeTime = (value) => {
+        if(!value[0]){//清除选择的时间段的回调
+            this.changeParams('startTime',this.handleMoment(value[0]));
+            this.changeParams('endTime',this.handleMoment(value[1]));
+        }
+       
+    }
+
+    handleMoment = (moment) => {//moment对象转成时间戳(毫秒数)
+        return moment&&moment.unix()*1000 
+    }
+      
+    onOk = (value) => {
+        this.changeParams('startTime',this.handleMoment(value[0]));
+        this.changeParams('endTime',this.handleMoment(value[1]));
+      }
+
+    // getTodayRange = () => {
+    //     const today0 = new Date(new Date().toLocaleDateString()).getTime();//当天0点
+    //     const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;//当天24点
+    //     return {today0,today24}
+    // }
+
     render() {
 
         const { loading, table, params } = this.state
@@ -164,6 +187,7 @@ export default class ModelCheck extends Component {
             current: table.currentPage,
         };
 
+       // const todayRange = this.getTodayRange();
         return (
             <div className="m-card antd-input">
                 <Card
@@ -202,6 +226,17 @@ export default class ModelCheck extends Component {
                                     <Option value="3">刷新频率不合理</Option>
                                     <Option value="4">增量不合理</Option>
                                 </Select>
+                            </FormItem>
+                            <FormItem label="最后修改时间">
+                                <RangePicker
+                                    size="default"
+                                    showTime={{ format: 'HH:mm:ss' }}
+                                    format="YYYY-MM-DD HH:mm:ss"
+                                    placeholder={['开始时间', '结束时间']}
+                                    onChange={this.onChangeTime}
+                                    //ranges={{ Today: [moment(todayRange.today0), moment(todayRange.today24)]}}
+                                    onOk={this.onOk}
+                                />
                             </FormItem>
                             <FormItem>
                                 <Checkbox
