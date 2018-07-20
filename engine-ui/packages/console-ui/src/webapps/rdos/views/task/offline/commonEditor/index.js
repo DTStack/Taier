@@ -102,7 +102,6 @@ class CommonEditor extends Component {
             />
         </div>
 
-
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">
@@ -157,7 +156,6 @@ export default connect(state => {
         editor: state.editor,
         project: state.project,
         user: state.user,
-
     }
 }, dispatch => {
     return {
