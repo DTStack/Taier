@@ -551,7 +551,7 @@ class TaskModal extends React.Component {
             <div>
                 <Modal
                     title={isCreate ? '新建离线任务' : '编辑离线任务'}
-                    // key={this.dtcount}
+                    key={this.dtcount}
                     visible={isModalShow}
                     maskClosable={false}
                     footer={[
