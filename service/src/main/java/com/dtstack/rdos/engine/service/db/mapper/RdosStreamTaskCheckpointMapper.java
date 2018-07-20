@@ -1,10 +1,8 @@
 package com.dtstack.rdos.engine.service.db.mapper;
 
-import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import org.apache.ibatis.annotations.Param;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  *
@@ -18,8 +16,4 @@ public interface RdosStreamTaskCheckpointMapper {
     int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId,
                @Param("checkpoint") String checkpoint, @Param("triggerStart") Timestamp triggerStart,
                @Param("triggerEnd") Timestamp triggerEnd);
-
-    List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskId") String taskId,
-                                               @Param("triggerStart") Long triggerStart,
-                                               @Param("triggerEnd") Long triggerEnd);
 }

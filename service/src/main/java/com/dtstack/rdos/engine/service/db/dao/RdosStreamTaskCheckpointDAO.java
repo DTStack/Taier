@@ -2,12 +2,10 @@ package com.dtstack.rdos.engine.service.db.dao;
 
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallback;
 import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallbackMethod;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.dtstack.rdos.engine.service.db.mapper.RdosStreamTaskCheckpointMapper;
 import org.apache.ibatis.session.SqlSession;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * Reason:
@@ -27,16 +25,6 @@ public class RdosStreamTaskCheckpointDAO {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
                 taskCheckpointMapper.insert(taskId, engineTaskId, checkpointInfo, startTime, endTime);
                 return null;
-            }
-        });
-    }
-
-    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(String taskId,Long triggerStart,Long triggerEnd){
-        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>() {
-            @Override
-            public List<RdosStreamTaskCheckpoint> execute(SqlSession sqlSession) {
-                RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                return taskCheckpointMapper.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
             }
         });
     }

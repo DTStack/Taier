@@ -7,7 +7,10 @@ import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.*;
-import com.dtstack.rdos.engine.service.db.dataobject.*;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.node.JobStopAction;
 import com.dtstack.rdos.engine.service.node.MasterNode;
@@ -29,8 +32,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 /**
  * 接收http请求
@@ -46,8 +54,6 @@ public class ActionServiceImpl {
 
     private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
 
-    private RdosStreamTaskCheckpointDAO streamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
-
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
@@ -55,8 +61,6 @@ public class ActionServiceImpl {
     private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
     private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
-
-    private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
 
     private JobStopAction stopAction = new JobStopAction();
 
@@ -609,26 +613,5 @@ public class ActionServiceImpl {
             }
         }
         return uniqueSign;
-    }
-
-    public List<RdosStreamTaskCheckpoint> listStreamTaskCheckpoint(@Param("taskId") String taskId,@Param("triggerStart") Long triggerStart,
-                                                                   @Param("triggerEnd") Long triggerEnd){
-        if(triggerEnd == null || triggerStart == null){
-            return streamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,null,null);
-        } else {
-            return streamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
-        }
-    }
-
-    public List<RdosEngineStreamJob> listEngineStreamJobByTaskIds(@Param("taskIds") List<String> taskIds){
-        return engineStreamTaskDAO.getRdosTaskByTaskIds(taskIds);
-    }
-
-    public List<RdosEngineBatchJob> listEngineBatchJobByTaskIds(@Param("jobIds") List<String> jobIds){
-        return engineBatchJobDAO.getRdosTaskByTaskIds(jobIds);
-    }
-
-    public List<RdosEngineBatchJob> listEngineBatchJobStatusByJobIds(@Param("jobIds") List<String> jobIds){
-        return engineBatchJobDAO.listStatusByIds(jobIds);
     }
 }

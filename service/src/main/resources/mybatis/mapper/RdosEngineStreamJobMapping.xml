@@ -16,13 +16,6 @@
         <result column="log_info" property="logInfo" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <sql id="update_fragment">
-        <set>
-            status = #{status},engine_task_id = #{engineTaskId},exec_start_time = #{execStartTime},exec_end_time = #{execEndTime},exec_time = #{execTime},log_info = #{logInfo},engine_log = #{engineLog},
-            gmt_modified = #{gmtModified},is_deleted = #{isDeleted}
-        </set>
-    </sql>
-    
     <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
 	    insert into rdos_engine_stream_job(gmt_create,gmt_modified,exec_start_time,task_id,status, plugin_info_id)
 	    values(now(),now(),now(),#{taskId},#{status}, #{pluginInfoId})
@@ -30,7 +23,7 @@
 	       SELECT LAST_INSERT_ID() AS ID
 	    </selectKey>
     </insert>
-	
+
     <update id="updateTaskStatus" parameterType="java.util.HashMap">
 	    update rdos_engine_stream_job set gmt_modified=now(),status=#{status} where task_id=#{taskId};
     </update>
@@ -38,7 +31,7 @@
     <update id="updateTaskPluginId" parameterType="java.util.HashMap">
 	   update rdos_engine_stream_job set gmt_modified=now(), plugin_info_id=#{pluginId} where task_id=#{taskId};
     </update>
-   
+
     <update id="updateTaskEngineId" parameterType="java.util.HashMap">
  	   update rdos_engine_stream_job set gmt_modified=now(),exec_start_time=now(),exec_end_time=now(),engine_task_id=#{engineId} where task_id=#{taskId};
     </update>
@@ -59,26 +52,12 @@
         </foreach>
         and is_deleted=0;
     </select>
-   
+
     <update id="updateEngineLog">
         update rdos_engine_stream_job set engine_log = #{engineLog}, gmt_modified=now() where task_id = #{taskId}
     </update>
-    
+
     <update id="updateSubmitLog">
         update rdos_engine_stream_job set log_info = #{submitLog}, gmt_modified=now() where task_id = #{taskId}
-    </update>
-
-    <update id="updateStatusWithSpecStatus">
-        UPDATE rdos_engine_stream_job
-        SET status = #{status},gmt_modified = now()
-        WHERE task_id = #{taskId} AND is_deleted = 0 AND status = #{specStatus}
-    </update>
-
-    <update id="update" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
-        UPDATE
-        rdos_engine_stream_job
-        <include refid="update_fragment"/>
-        WHERE
-        id = #{id} AND is_deleted = 0
     </update>
 </mapper>
