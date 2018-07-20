@@ -12,8 +12,9 @@ class RecommentTaskModal extends React.Component{
         })
     }
     onOk(){
+        const {choosetask} = this.state;
+        this.props.onOk(choosetask);
         this.resetState();
-        this.props.onOk();
     }
     onCancel(){
         this.resetState();
@@ -21,17 +22,37 @@ class RecommentTaskModal extends React.Component{
     }
     initColumns(){
         return [{
+            title: '表名',
+            dataIndex: 'tableName',
+            width:"200px"
+        },{
             title: '任务名称',
             dataIndex: 'name',
         }]
     }
     rowSelection(){
+        const { existTask } = this.props;
         return {
             selectedRowKeys:this.state.choosetask,
             onChange:(selectedRowKeys, selectedRows)=>{
                 this.setState({
                     choosetask:selectedRowKeys
                 })
+            },
+            getCheckboxProps:(record)=>{
+                const id=record.id;
+                let isExist=false;
+                existTask&&existTask.map(
+                    (item)=>{
+                        if(item.id==id){
+                            isExist=true;
+                        }
+                    }
+                )
+                if(isExist){
+                    return {disabled:true}
+                }
+                return {};
             }
         }
     }
@@ -54,7 +75,9 @@ class RecommentTaskModal extends React.Component{
                 className="m-table"
                 columns={this.initColumns()}
                 dataSource={taskList}
+                pagination={false}
                 rowSelection={this.rowSelection()}
+                scroll={{y:400}}
             />
             </Modal>
         )

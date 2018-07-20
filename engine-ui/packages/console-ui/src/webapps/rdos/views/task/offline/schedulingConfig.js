@@ -602,6 +602,9 @@ class SchedulingConfig extends React.Component {
     }
     recommentTaskChoose(list){
         console.log(list);
+        for(let i =0;i<list.length;i++){
+            this.props.addVOS(list[i]);
+        }
         this.setState({
             recommentTaskModalVisible:false,
         })
@@ -838,6 +841,7 @@ class SchedulingConfig extends React.Component {
                 taskList={recommentTaskList}
                 onOk={this.recommentTaskChoose.bind(this)}
                 onCancel={this.recommentTaskClose.bind(this)}
+                existTask={tabData.taskVOS}
             />
         </div>
     }
