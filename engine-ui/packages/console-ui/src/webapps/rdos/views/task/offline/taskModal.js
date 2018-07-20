@@ -35,8 +35,6 @@ class TaskForm extends React.Component {
             value: 0,
             operateModel: '',
             taskTypes: [],
-
-
         };
 
         this._resChange = false;

@@ -759,7 +759,7 @@
     .ant-tooltip-inner{
         background: #fff;
         color:rgba(1, 1, 1,0.84);
-        max-width:300px;
+        max-width:350px;
     }   
     .ant-tooltip-arrow{
         border-right-color:#fff;
@@ -768,20 +768,23 @@
     .detail-content{
         padding: 10px;
         font-size: 12px;
-        width: 300px;
+        width: 350px;
     }
     .text-item{
         margin-bottom:12px;
     }
     .text-item-value{
+        color:rgba(1,1,1,0.84);
         padding-right: 10px;
         display: inline-block;
-        width: 140px;
+        width: 150px;
         vertical-align: text-top;
         word-break: break-all;
     }
     .text-item-name{
-        width: 140px;
+        font-weight: bold;
+        color:rgba(1,1,1,0.54);
+        width: 160px;
         display: inline-block;
     }
 }

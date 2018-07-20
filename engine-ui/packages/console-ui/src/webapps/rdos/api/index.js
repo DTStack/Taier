@@ -471,6 +471,12 @@ export default {
     addOfflineFunction(params) {
         return http.post(offlineReq.ADD_OFFLINE_FUNCTION, params)
     },
+    getTableListByName(params){
+        return http.post(req.GET_TABLE_LIST_BY_NAME,params)
+    },
+    getRecommentTask(params){
+        return http.post(req.GET_RECOMMEND_TASK,params)
+    },
     
 
     // =========== 离线文件操作 ==================//

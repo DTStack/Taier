@@ -16,6 +16,7 @@ import {
     editorAction,
     sysFnTreeActon,
     scriptTreeAction,
+    tableTreeAction,
 } from './actionType';
 
 
@@ -194,7 +195,7 @@ export const workbenchActions = (dispatch) => {
         updateTaskField(taskFields) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: taskFields, 
+                payload: taskFields,
             });
         },
 
@@ -202,7 +203,7 @@ export const workbenchActions = (dispatch) => {
             ajax.getOfflineTaskDetail({
                 id: id
             }).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     dispatch({
                         type: workbenchAction.LOAD_TASK_DETAIL,
                         payload: res.data
@@ -216,7 +217,7 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
-        openTab: function(data) {
+        openTab: function (data) {
             const { id, tabs, currentTab, treeType, lockInfo } = data
 
             if (tabs.map(o => o.id).indexOf(id) === -1) {
@@ -267,12 +268,28 @@ export const workbenchActions = (dispatch) => {
                 });
             }
         },
-
-        loadTreeNode: (nodePid, type) => {
+        loadTableListNodeByName: (nodePid, option = {}) => {
+            ajax.getTableListByName({
+                ...option
+            })
+                .then(
+                    (res) => {
+                        if (res.code == 1) {
+                            let { data } = res;
+                            data.children && dispatch({
+                                type: tableTreeAction.LOAD_FOLDER_CONTENT,
+                                payload: data
+                            });
+                        }
+                    }
+                )
+        },
+        loadTreeNode: (nodePid, type, option = {}) => {
             ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,
                 catalogueType: type,
+                ...option
             }).then(res => {
                 if (res.code === 1) {
                     let { data } = res;
@@ -295,6 +312,9 @@ export const workbenchActions = (dispatch) => {
                             break;
                         case MENU_TYPE.SCRIPT:
                             action = scriptTreeAction;
+                            break;
+                        case MENU_TYPE.TABLE:
+                            action = tableTreeAction
                             break;
                         default:
                             action = taskTreeAction;
@@ -330,71 +350,71 @@ export const workbenchActions = (dispatch) => {
 
         delOfflineScript(params, nodePid, type) {
             ajax.deleteScript(params)
-            .then(res => {
-                if (res.code == 1) {
-                    message.info('删除成功');
-                    dispatch({
-                        type: scriptTreeAction.DEL_SCRIPT,
-                        payload: {
-                            id: params.scriptId,
-                            parentId: nodePid
-                        }
-                    });
-                    dispatch({
-                        type: workbenchAction.CLOSE_TASK_TAB,
-                        payload: params.scriptId
-                    });
-                }
-            });
+                .then(res => {
+                    if (res.code == 1) {
+                        message.info('删除成功');
+                        dispatch({
+                            type: scriptTreeAction.DEL_SCRIPT,
+                            payload: {
+                                id: params.scriptId,
+                                parentId: nodePid
+                            }
+                        });
+                        dispatch({
+                            type: workbenchAction.CLOSE_TASK_TAB,
+                            payload: params.scriptId
+                        });
+                    }
+                });
         },
 
         delOfflineFolder(params, nodePid, cateType) {
             ajax.delOfflineFolder(params)
-            .then(res => {
-                if (res.code === 1) {
-                    let action;
+                .then(res => {
+                    if (res.code === 1) {
+                        let action;
 
-                    switch (cateType) {
-                        case MENU_TYPE.TASK:
-                        case MENU_TYPE.TASK_DEV:
-                            action = taskTreeAction;
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            action = resTreeAction;
-                            break;
-                        case MENU_TYPE.FUNCTION:
-                        case MENU_TYPE.COSTOMFUC:
-                            action = fnTreeAction;
-                            break;
-                        case MENU_TYPE.SCRIPT:
-                            action = scriptTreeAction;
-                            break;
-                        default:
-                            action = taskTreeAction;
-                    }
-
-                    dispatch({
-                        type: action.DEL_OFFLINE_FOLDER,
-                        payload: {
-                            id: params.id,
-                            parentId: nodePid
+                        switch (cateType) {
+                            case MENU_TYPE.TASK:
+                            case MENU_TYPE.TASK_DEV:
+                                action = taskTreeAction;
+                                break;
+                            case MENU_TYPE.RESOURCE:
+                                action = resTreeAction;
+                                break;
+                            case MENU_TYPE.FUNCTION:
+                            case MENU_TYPE.COSTOMFUC:
+                                action = fnTreeAction;
+                                break;
+                            case MENU_TYPE.SCRIPT:
+                                action = scriptTreeAction;
+                                break;
+                            default:
+                                action = taskTreeAction;
                         }
-                    })
-                }
-            })
+
+                        dispatch({
+                            type: action.DEL_OFFLINE_FOLDER,
+                            payload: {
+                                id: params.id,
+                                parentId: nodePid
+                            }
+                        })
+                    }
+                })
         },
 
 
         loadTaskParams() {
             ajax.getCustomParams()
-            .then(res => {
-                if (res.code === 1) {
-                    dispatch({
-                        type: workbenchAction.LOAD_TASK_CUSTOM_PARAMS,
-                        payload: res.data
-                    })
-                }
-            })
+                .then(res => {
+                    if (res.code === 1) {
+                        dispatch({
+                            type: workbenchAction.LOAD_TASK_CUSTOM_PARAMS,
+                            payload: res.data
+                        })
+                    }
+                })
         },
 
         setModalDefault(data) {
@@ -417,7 +437,7 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
-        toggleCreateScript: function() {
+        toggleCreateScript: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_SCRIPT
             });
@@ -487,7 +507,7 @@ export const workbenchActions = (dispatch) => {
                 payload: id
             })
         },
-        
+
         showResViewModal(id) {
             dispatch({
                 type: modalAction.SHOW_RESVIEW_MODAL,
