@@ -378,7 +378,7 @@ class ColumnsConfig extends React.Component {
                             返回结果分页
                     </Tooltip>
                         <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} />
-                        {resultPageChecked?<InputNumber style={{ marginLeft: "8px" }} min={1} max={1000} value={resultPage} onChange={resultPageChange} />:null}
+                        {resultPageChecked?<InputNumber  placeholder="请输入分页大小" style={{ marginLeft: "8px",width:"115px" }} min={1} max={1000} value={resultPage} onChange={resultPageChange} />:null}
                     </span>
                     {OutputIsEdit ?
                         <span>
