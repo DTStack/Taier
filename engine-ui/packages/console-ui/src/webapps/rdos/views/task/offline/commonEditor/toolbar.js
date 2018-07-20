@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import moment from "moment";
 
-import { Button, Modal, Checkbox } from "antd";
+import { Button, Modal, Checkbox, Dropdown, Icon, Menu } from "antd";
 
 import utils from "utils";
 import { filterComments, splitSql } from "funcs";
@@ -104,6 +104,27 @@ export default class Toolbar extends Component {
         return `${id}_${moment().valueOf()}`;
     }
 
+    editMenu = () => {
+        return (
+            <Menu>
+                <Menu.Item key="find">查找（Cmd/Ctrl）+ F</Menu.Item>
+                <Menu.Item key="replace">替换（Cmd/Ctrl）+ F</Menu.Item>
+                <Menu.Item key="commandPane">命令面板 (F1)</Menu.Item>
+            </Menu>
+        )
+    }
+
+    viewMenu = () => {
+        const { changeEditorTheme } = this.props;
+        return (
+            <Menu onClick={({key}) => {changeEditorTheme(key)}}>
+                <Menu.Item key="vs">默认</Menu.Item>
+                <Menu.Item key="vs-dark">黑色</Menu.Item>
+                <Menu.Item key="hc-black">高对比黑色</Menu.Item>
+            </Menu>
+        )
+    }
+
     render() {
 
         return (
@@ -115,6 +136,16 @@ export default class Toolbar extends Component {
                 >
                     格式化
                 </Button>
+                <Dropdown overlay={this.editMenu()} trigger={['click']}>
+                    <Button icon="edit" title="编辑">
+                        编辑<Icon type="down" />
+                    </Button>
+                </Dropdown>
+                <Dropdown overlay={this.viewMenu()} trigger={['click']}>
+                    <Button icon="skin" title="主题">
+                        主题<Icon type="down" />
+                    </Button>
+                </Dropdown>
             </div>
         );
     }

@@ -36,14 +36,18 @@ class Editor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { sync, value } = nextProps;
-        this.log("props value更新", nextProps);
+        const { sync, value, theme } = nextProps;
+
         if ( this.props.value !== value && sync) {
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);
         }
         if (this.props.options !== nextProps.options) {
             this.monacoInstance.updateOptions(nextProps.options)
+        }
+
+        if (this.props.theme !== nextProps.theme) {
+            monaco.editor.setTheme(nextProps.theme)
         }
     }
 

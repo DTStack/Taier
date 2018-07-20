@@ -15,6 +15,7 @@ import {
 import {
     getTab,
     setSelectionContent,
+    updateEditorOptions,
 } from '../../../../store/modules/offlineTask/editorAction';
 
 class CommonEditor extends Component {
@@ -95,6 +96,7 @@ class CommonEditor extends Component {
                 options={{ 
                     readOnly: isLocked, 
                 }}
+                theme={editor.options.theme}
                 language={language}
                 value={value}
                 onCursorSelection={this.debounceSelectionChange}
@@ -171,6 +173,9 @@ export default connect(state => {
         },
         getTab(id) {
             dispatch(getTab(id))
-        }
+        },
+        changeEditorTheme(theme) {
+            dispatch(updateEditorOptions({theme: theme}))
+        },
     }
 })(CommonEditor) 

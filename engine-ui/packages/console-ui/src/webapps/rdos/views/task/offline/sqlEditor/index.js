@@ -20,6 +20,7 @@ import {
 import {
     getTab,
     setSelectionContent,
+    updateEditorOptions,
 } from '../../../../store/modules/offlineTask/editorAction';
 
 @pureRender
@@ -76,17 +77,12 @@ class SQLEditor extends Component {
     }
 
     onEditorSelection = (selected) => {
-        // const selected = doc.getSelection()
         if (selected) {
             this.props.setSelection(selected)
         } else {
             const oldSelection = this.props.editor.selection
             if (oldSelection !== '') this.props.setSelection('')
         }
-    }
-
-    changeEditorTheme = (theme) => {
-
     }
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
@@ -104,13 +100,16 @@ class SQLEditor extends Component {
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
+        console.log("editor", editor);
+
         const editorPane = <div className="ide-editor">
             <Editor 
                 key="sqlEditor"
                 sync={currentTabData.merged || undefined}
-                options={{ 
-                    readOnly: isLocked, 
+                options={{
+                    readOnly: isLocked,
                 }}
+                theme={editor.options.theme}
                 cursorPosition={cursorPosition}
                 language="sql"
                 value={value}
@@ -188,6 +187,10 @@ export default connect(state => {
         },
         getTab(id) {
             dispatch(getTab(id))
-        }
+        },
+        changeEditorTheme(theme) {
+            console.log('changeEditorTheme', theme)
+            dispatch(updateEditorOptions({theme: theme}))
+        },
     }
 })(SQLEditor) 

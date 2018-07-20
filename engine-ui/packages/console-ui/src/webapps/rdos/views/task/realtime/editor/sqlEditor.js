@@ -8,7 +8,6 @@ export default class SQLEditor extends Component {
     render() {
         const {
             currentPage, editorChange,
-            editorFocus, editorFocusOut,
             dispatch,
         } = this.props
 
