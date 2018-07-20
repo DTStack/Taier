@@ -38,7 +38,10 @@ public abstract class AbsClient implements IClient{
             }else{
                 jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
                         " you need to set it in(MR, SQL, SYNC, PYTHON)");
-        }
+            }
+            if(!jobResult.isErr()){
+                jobResult.setData("sql", jobClient.getSql());
+            }
         }catch (Exception e){
             logger.error("", e);
             jobResult = JobResult.createErrorResult(e);
