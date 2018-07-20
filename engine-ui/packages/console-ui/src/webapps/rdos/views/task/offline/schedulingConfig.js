@@ -15,7 +15,8 @@ import { Row,
     Radio,
     Input,
     Spin,
-    message
+    message,
+    Button
  } from 'antd';
 
 import ajax from '../../../api';
@@ -23,6 +24,7 @@ import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounceEventHander } from '../../../comm';
 import HelpDoc from '../../helpDoc';
+import RecommentTaskModal from "./recommentTaskModal";
 
 const Panel = Collapse.Panel;
 const Option = Select.Option;
@@ -548,7 +550,10 @@ const FormWrap = Form.create()(ScheduleForm);
 class SchedulingConfig extends React.Component {
     constructor(props) {
         super(props);
-
+        this.state={
+            recommentTaskModalVisible:false,
+            recommentTaskList:[]
+        }
         const { tabData } = this.props;
         let initConf = tabData.scheduleConf;
         const scheduleConf = initConf === '' ?
@@ -573,7 +578,43 @@ class SchedulingConfig extends React.Component {
             this._selfReliance = 0;
         }
     }
-
+    showRecommentTask(){
+        const {tabData} = this.props;
+        this.setState({
+            loading:true
+        })
+        ajax.getRecommentTask({
+            taskId:tabData.id
+        })
+        .then(
+            (res)=>{
+                this.setState({
+                    loading:false
+                })
+                if(res.code==1){
+                    this.setState({
+                        recommentTaskModalVisible:true,
+                        recommentTaskList:res.data,
+                    })
+                }
+            }
+        )
+    }
+    recommentTaskChoose(list){
+        console.log(list);
+        for(let i =0;i<list.length;i++){
+            this.props.addVOS(list[i]);
+        }
+        this.setState({
+            recommentTaskModalVisible:false,
+        })
+    }
+    recommentTaskClose(){
+        this.setState({
+            recommentTaskModalVisible:false,
+        })
+    }
+    
     handleScheduleStatus(evt) {
         const { checked } = evt.target;
         // mutate
@@ -684,10 +725,11 @@ class SchedulingConfig extends React.Component {
     }
 
     render() {
+        const {recommentTaskModalVisible,recommentTaskList,loading} = this.state;
         const { tabData } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         let initConf = tabData.scheduleConf;
-
+        const isSql=tabData.taskType==TASK_TYPE.SQL;
         const scheduleConf = initConf === '' ?
             Object.assign(this.getDefaultScheduleConf(0), {
                 beginDate: '2001-01-01',
@@ -746,6 +788,7 @@ class SchedulingConfig extends React.Component {
                 {
                     tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
                     <Panel key="2" header="任务间依赖">
+                        {isSql&&<Button loading={loading} type="primary" style={{marginBottom:"20px"}} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
                         <Form>
                             <FormItem
                             {...formItemLayout}
@@ -793,6 +836,13 @@ class SchedulingConfig extends React.Component {
                     </Row>
                 </Panel>
             </Collapse>
+            <RecommentTaskModal 
+                visible={recommentTaskModalVisible}
+                taskList={recommentTaskList}
+                onOk={this.recommentTaskChoose.bind(this)}
+                onCancel={this.recommentTaskClose.bind(this)}
+                existTask={tabData.taskVOS}
+            />
         </div>
     }
 }
@@ -822,7 +872,7 @@ class TaskSelector extends React.Component {
             taskId: this.taskId
         }).then(res => {
             if(res.code === 1) {
-                res.data.length === 0 && message.error('没有符合条件的任务');
+                res.data.length === 0 && message.warning('没有符合条件的任务');
                 this.setState({
                     list: res.data,
                     fetching: false

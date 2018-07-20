@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Input, Button,  Select, Form, Checkbox, message } from 'antd';
+import { Modal, Input, Button, Select, Form, Checkbox, message } from 'antd';
 
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
@@ -10,8 +10,8 @@ import Api from '../../api/dataSource';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-const hdfsConf = 
-`{
+const hdfsConf =
+    `{
     "defaultFS": "",
     "hadoopConfig": {
         "dfs.nameservices": "defaultDfs", 
@@ -20,8 +20,8 @@ const hdfsConf =
         "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }
 }`
-const configConf = 
-`{
+const configConf =
+    `{
     "initialPoolSize": 100,
     "maxIdleTime": 30,
     "maxPoolSize": 100,
@@ -47,7 +47,7 @@ export default class DataSourceModal extends Component {
         sourceType: 1,
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
-        
+
     }
 
     componentDidMount() {
@@ -103,7 +103,7 @@ export default class DataSourceModal extends Component {
                 })
             }
         });
-        
+
     }
 
     cancel = () => {
@@ -114,16 +114,16 @@ export default class DataSourceModal extends Component {
     }
 
     sourceChange = (value) => {
-        const group=[DATA_SOURCE.MYSQL,DATA_SOURCE.SQLSERVER,DATA_SOURCE.ORACLE];
-        const prevValue=this.state.sourceType;
+        const group = [DATA_SOURCE.MYSQL, DATA_SOURCE.SQLSERVER, DATA_SOURCE.ORACLE];
+        const prevValue = this.state.sourceType;
 
         this.setState({ sourceType: parseInt(value) })
-        if(group.indexOf(prevValue)==-1||group.indexOf(parseInt(value))==-1){
+        if (group.indexOf(prevValue) == -1 || group.indexOf(parseInt(value)) == -1) {
             this.props.form.resetFields();
         }
-        
-       
-        
+
+
+
     }
 
     enableHdfsConfig = (e) => {
@@ -138,12 +138,12 @@ export default class DataSourceModal extends Component {
     }
 
     renderDynamic() {
-        const { hasHdfsConfig, sourceType,detailConfig } = this.state
+        const { hasHdfsConfig, sourceType, detailConfig } = this.state
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
 
-        switch(sourceType) {
+        switch (sourceType) {
             case DATA_SOURCE.HIVE: {
                 return [
                     <FormItem {...formItemLayout} label="JDBC URL" key="jdbcUrl" hasFeedback>
@@ -170,11 +170,11 @@ export default class DataSourceModal extends Component {
                     </FormItem>,
                     <FormItem {...formItemLayout} label="密码" key="password">
                         {
-                                getFieldDecorator('dataJson.password', {
+                            getFieldDecorator('dataJson.password', {
                                 rules: [],
                                 initialValue: '',
                             })(
-                                <Input type="password"/>,
+                                <Input type="password" />,
                             )
                         }
                     </FormItem>,
@@ -186,7 +186,7 @@ export default class DataSourceModal extends Component {
                                 }],
                                 initialValue: config.defaultFS || '',
                             })(
-                                <Input placeholder="hdfs://host:port"/>,
+                                <Input placeholder="hdfs://host:port" />,
                             )
                         }
                     </FormItem>,
@@ -201,7 +201,7 @@ export default class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="高可用配置" key="hadoopConfig" style={{display: hasHdfsConfig ? 'block' : 'none'}}>
+                    <FormItem {...formItemLayout} label="高可用配置" key="hadoopConfig" style={{ display: hasHdfsConfig ? 'block' : 'none' }}>
                         {
                             getFieldDecorator('dataJson.hadoopConfig', {
                                 rules: [],
@@ -305,32 +305,32 @@ export default class DataSourceModal extends Component {
                                 }],
                                 initialValue: '',
                             })(
-                                <Input type="password"/>,
+                                <Input type="password" />,
                             )
                         }
                     </FormItem>,
-                //     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
-                //     {
-                //         getFieldDecorator('hasHdfsConfig', {
-                //             initialValue: false,
-                //         })(
-                //             <Checkbox checked={detailConfig} onChange={this.enableDetailConfig}>
-                //                 高级配置
-                //             </Checkbox>,
-                //         )
-                //     }
-                // </FormItem>,
-                // <FormItem {...formItemLayout} label="连接池信息" key="detailConfig" style={{display: detailConfig ? 'block' : 'none'}}>
-                //     {
-                //         getFieldDecorator('dataJson.config', {
-                //             rules: [],
-                //             initialValue: config.config || ''
-                //         })(
-                //             <Input type="textarea" rows={5} placeholder={configConf} />,
-                //         )
-                //     }
-                //     {/* <HelpDoc doc="hdfsConfig" /> */}
-                // </FormItem>
+                    //     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
+                    //     {
+                    //         getFieldDecorator('hasHdfsConfig', {
+                    //             initialValue: false,
+                    //         })(
+                    //             <Checkbox checked={detailConfig} onChange={this.enableDetailConfig}>
+                    //                 高级配置
+                    //             </Checkbox>,
+                    //         )
+                    //     }
+                    // </FormItem>,
+                    // <FormItem {...formItemLayout} label="连接池信息" key="detailConfig" style={{display: detailConfig ? 'block' : 'none'}}>
+                    //     {
+                    //         getFieldDecorator('dataJson.config', {
+                    //             rules: [],
+                    //             initialValue: config.config || ''
+                    //         })(
+                    //             <Input type="textarea" rows={5} placeholder={configConf} />,
+                    //         )
+                    //     }
+                    //     {/* <HelpDoc doc="hdfsConfig" /> */}
+                    // </FormItem>
                 ]
             }
         }
@@ -360,6 +360,23 @@ export default class DataSourceModal extends Component {
                 footer={false}
             >
                 <Form>
+                    <FormItem {...formItemLayout} label="数据源类型" hasFeedback>
+                        {
+                            getFieldDecorator('type', {
+                                rules: [{
+                                    required: true, message: '数据源类型不可为空！',
+                                }],
+                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType,
+                            })(
+                                <Select
+                                    onChange={this.sourceChange}
+                                    disabled={status === 'edit'}>
+                                    {
+                                        this.renderSourceType(dataSource.sourceType)
+                                    }
+                                </Select>,
+                            )}
+                    </FormItem>
                     <FormItem {...formItemLayout} label="数据源名称" hasFeedback>
                         {
                             getFieldDecorator('dataName', {
@@ -373,9 +390,9 @@ export default class DataSourceModal extends Component {
                                     message: '名称只能由字母与数字、下划线组成',
                                 }],
                                 initialValue: sourceData.dataName || '',
-                        })(
-                            <Input autoComplete="off" disabled={status === 'edit'} />,
-                        )}
+                            })(
+                                <Input autoComplete="off" disabled={status === 'edit'} />,
+                            )}
                     </FormItem>
 
                     <FormItem {...formItemLayout} label="数据源描述" hasFeedback>
@@ -386,27 +403,9 @@ export default class DataSourceModal extends Component {
                                     message: '描述请控制在200个字符以内！',
                                 }],
                                 initialValue: sourceData.dataDesc || '',
-                        })(
-                            <Input type="textarea" rows={4} />,
-                        )}
-                    </FormItem>
-
-                    <FormItem {...formItemLayout} label="数据源类型" hasFeedback>
-                        {
-                            getFieldDecorator('type', {
-                                rules: [{
-                                    required: true, message: '数据源类型不可为空！',
-                                }],
-                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType,
-                        })(
-                            <Select 
-                                onChange={this.sourceChange} 
-                                disabled={status === 'edit'}>
-                                {
-                                    this.renderSourceType(dataSource.sourceType)
-                                }
-                            </Select>,
-                        )}
+                            })(
+                                <Input type="textarea" rows={4} />,
+                            )}
                     </FormItem>
 
                     {
