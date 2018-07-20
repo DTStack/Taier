@@ -29,7 +29,7 @@ export function getDefaultSQLTemp(data) {
 /**
  * 获取任务类型指定图表className
  */
-export function taskTypeIcon(type, task) {
+export function taskTypeIcon(type, task={}) {
     const { pythonVersion, learningType,scriptType } = task;
     if(scriptType==null){
         switch (type) {
