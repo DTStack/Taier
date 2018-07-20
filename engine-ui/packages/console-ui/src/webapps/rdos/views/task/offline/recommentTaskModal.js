@@ -5,15 +5,17 @@ import {Table,Modal} from "antd";
 class RecommentTaskModal extends React.Component{
     state={
         choosetask:[],//选择的任务
+        selectedRows:[],
     }
     resetState(){
         this.setState({
-            choosetask:[]
+            choosetask:[],
+            selectedRows:[]
         })
     }
     onOk(){
-        const {choosetask} = this.state;
-        this.props.onOk(choosetask);
+        const {selectedRows} = this.state;
+        this.props.onOk(selectedRows);
         this.resetState();
     }
     onCancel(){
@@ -36,7 +38,8 @@ class RecommentTaskModal extends React.Component{
             selectedRowKeys:this.state.choosetask,
             onChange:(selectedRowKeys, selectedRows)=>{
                 this.setState({
-                    choosetask:selectedRowKeys
+                    choosetask:selectedRowKeys,
+                    selectedRows:selectedRows
                 })
             },
             getCheckboxProps:(record)=>{
