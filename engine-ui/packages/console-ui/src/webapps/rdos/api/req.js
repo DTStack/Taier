@@ -68,6 +68,8 @@ export default {
     DELETE_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/deleteFunction`, // 删除加函数
     MOVE_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/moveFunction`, // 移动函数
     GET_SYS_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/getSystemFunctions`, // 获取系统函数
+    GET_TABLE_LIST_BY_NAME:`${RDOS_BASE_URL}/batch/batchCatalogue/getTableList`,//根据表名的表查询
+    GET_RECOMMEND_TASK:`${RDOS_BASE_URL}/batch/batchTask/recommendDependencyTask`,//获取推荐的依赖任务
 
     // ===== resource资源模块 ===== //
     UPLOAD_RES: `${RDOS_BASE_URL}/upload/stream/streamResource/addResource`, // 资源上传

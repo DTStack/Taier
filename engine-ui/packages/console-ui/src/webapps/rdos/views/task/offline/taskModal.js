@@ -35,8 +35,6 @@ class TaskForm extends React.Component {
             value: 0,
             operateModel: '',
             taskTypes: [],
-
-
         };
 
         this._resChange = false;
@@ -46,7 +44,7 @@ class TaskForm extends React.Component {
         const { defaultData } = this.props;
         this.loadTaskTypes();
         this.setState({
-            operateModel: defaultData ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
+            operateModel: (defaultData&&defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
         })
     }
     handleSelectTreeChange(value) {

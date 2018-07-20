@@ -8,7 +8,8 @@ export const tableAction = mc([
     'DEL_ROW',
     'REPLACE_ROW',
     'MOVE_ROW',
-    'SAVE_TABLE'
+    'SAVE_TABLE',
+    'LOAD_FOLDER_CONTENT'
 ], { prefix: 'datamanage/table/' });
 
 export const logAction = mc([
