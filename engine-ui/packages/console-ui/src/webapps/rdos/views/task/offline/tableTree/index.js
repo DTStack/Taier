@@ -61,21 +61,10 @@ class TableTree extends React.Component {
         })
     }
     onLoadData = (treeNode) => {
-        const { loadTreeNode, dispatch } = this.props;
-        const { projectId, searchName } = this.state;
         const { data } = treeNode.props;
-        const params = {
-            isDeleted: 0,
-            isDirtyDataTable: 0,
-            appointProjectId: projectId == "all" ? null : projectId,
-        };
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
-                if (searchName) {
-                    this.doReq();
-                } else {
-                    loadTreeNode(data.id, MENU_TYPE.TABLE, params)
-                }
+                this.doReq();
             }
             resolve();
         });
@@ -102,7 +91,7 @@ class TableTree extends React.Component {
         this.setState({
             expandedKeys: [treeData.id + '']
         })
-        if (searchName) {
+        if (searchName||projectId!="all") {
             loadTableListNodeByName(treeData.id, {
                 tableName: queryName || searchName,
                 appointProjectId: projectId == "all" ? null : projectId,
@@ -197,7 +186,7 @@ class TableTree extends React.Component {
         const display = displaySearch ? 'block' : 'none';
         return (
             <div className="menu-content" style={{ position: "relative" }}>
-                <header style={{ left: "13px" }}>
+                <header style={{ left: "13px",background:"#fff" }}>
                     <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", marginTop: "6.5px", float: "left" }}>
                         <Option value="all">全部项目</Option>
                         <Option value={project.id}>{project.projectAlias}</Option>
@@ -228,7 +217,7 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list" style={{ maxHeight: tableId ? '500px' : '100%', minHeight: '200px', paddingTop: "30px" }}>
+                <div className="tb-list" style={{ maxHeight: tableId ? '500px' : 'calc(100% - 30px)', minHeight: '200px', paddingTop: "30px" }}>
                     <TreeContent
                         showIcon={true}
                         loadData={this.onLoadData}
