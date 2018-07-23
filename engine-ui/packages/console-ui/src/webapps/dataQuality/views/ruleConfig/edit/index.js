@@ -19,6 +19,7 @@ export default class RuleConfigEdit extends Component {
             isSubscribe: 1,
             scheduleConf: '',
             sendTypes: [],
+            webhook: '', // 钉钉hook
             notifyUser: [],
             rules: []
         },

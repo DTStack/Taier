@@ -118,8 +118,12 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
             dispatch(removeLoadingTab(currentTab))
         }
         if (res && res.code === 1) {
+
+            if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+
             if (res.data.jobId) {
                 runningSql[currentTab]=res.data.jobId;
+              
                 selectData(dispatch, res.data.jobId, currentTab)
                     .then(
                         (isSuccess) => {

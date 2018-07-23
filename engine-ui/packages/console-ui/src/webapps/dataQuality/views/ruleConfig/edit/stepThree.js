@@ -6,7 +6,7 @@ import moment from 'moment';
 import { Button, Form, Select, DatePicker, Checkbox, message } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { halfFormItemLayout } from '../../../consts';
+import { halfFormItemLayout, ALARM_TYPE } from '../../../consts';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -101,7 +101,6 @@ export default class StepThree extends Component {
         if (value.length === 0 && notifyUser.length === 0) {
             form.setFieldsValue({ notifyUser: [] });
         }
-
         this.props.changeParams({ sendTypes: value });
     }
 
@@ -124,7 +123,6 @@ export default class StepThree extends Component {
         if (value.length === 0 && sendTypes.length === 0) {
             form.setFieldsValue({ sendTypes: [] });
         }
-
         this.props.changeParams({ notifyUser: value });
     }
 
@@ -150,6 +148,12 @@ export default class StepThree extends Component {
 
     onEndDateChange = (date, dateString) => {
         this.changeScheduleConfTime('endDate', dateString);
+    }
+
+    onWebHookChange = (e) => {
+        this.props.changeParams({
+            webhook: e.target.value
+        });
     }
 
     // 根据调度类型的不同返回不同的调度配置
@@ -562,7 +566,6 @@ export default class StepThree extends Component {
                     },
                     1000
                 )
-                
             }
         });
     }
@@ -571,11 +574,14 @@ export default class StepThree extends Component {
         const { form, common, editParams } = this.props;
         const { getFieldDecorator } = form;
         const { allDict, userList } = common;
-        const { notifyUser, sendTypes } = editParams;
+        const { notifyUser, sendTypes, webhook } = editParams;
         const { scheduleConfObj } = this.state;
 
         let periodType = allDict.periodType ? allDict.periodType : [],
             notifyType = allDict.notifyType ? allDict.notifyType : [];
+
+        // 钉钉告警
+        const hasDDAlarm = sendTypes.indexOf(ALARM_TYPE.DINGDING) > -1 ;
 
         return (
             <div>
@@ -666,7 +672,20 @@ export default class StepThree extends Component {
                                 )
                             }
                         </FormItem>
-                        
+                        { hasDDAlarm && <FormItem
+                            {...formItemLayout}
+                            label="webhook"
+                        >
+                            {getFieldDecorator('webhook', {
+                                rules: [{
+                                    required: true, message: 'webhook不能为空',
+                                }],
+                                initialValue: webhook || '',
+                            })(
+                                <Input onChange={this.onWebHookChange} />,
+                            )}
+                        </FormItem>}
+
                         <FormItem {...halfFormItemLayout} label="告警接收人">
                             {
                                 getFieldDecorator('notifyUser', {

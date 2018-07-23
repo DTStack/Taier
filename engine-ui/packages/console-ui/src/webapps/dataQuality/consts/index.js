@@ -7,6 +7,13 @@ export const TASK_STATUS = {
     UNPASS: 4,
 }
 
+// 告警类型
+export const ALARM_TYPE = {
+    EMAIL: 1,
+    SMS: 2,
+    DINGDING: 4,
+}
+
 
 // 数据源类型
 export const DATA_SOURCE = {
@@ -19,7 +26,6 @@ export const DATA_SOURCE = {
     FTP: 9,
     MAXCOMPUTE: 10,
 }
-
 
 /**
  * 校验状态
