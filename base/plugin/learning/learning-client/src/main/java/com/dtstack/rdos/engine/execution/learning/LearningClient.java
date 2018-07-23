@@ -45,6 +45,7 @@ public class LearningClient extends AbsClient {
     @Override
     public void init(Properties prop) throws Exception {
         LearningConfiguration conf = new LearningConfiguration();
+        conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
         if(StringUtils.isNotBlank(hadoopConfDir)) {
