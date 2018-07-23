@@ -128,9 +128,9 @@ class AlarmForm extends Component {
         const { myTrigger, triggerTimeType, senderTypes } = this.state;
         const display = myTrigger === 2 ? 'block' : 'none'
 
-        let showDD=false;
+        let showDD = false;
         if(senderTypes.indexOf(4)>-1){
-            showDD=true;
+            showDD = true;
         }
         console.log('myTrigger:', myTrigger)
         

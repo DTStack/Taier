@@ -11,12 +11,17 @@ export function taskTypeText(type) {
             return '数据同步';
         case TASK_TYPE.VIRTUAL_NODE:
             return 'Virtual';
+        case TASK_TYPE.PYTHON_23:
         case TASK_TYPE.PYTHON:
             return 'Python';
         case TASK_TYPE.R:
             return 'R';
         case TASK_TYPE.SQL:
             return 'SQL';
+        case TASK_TYPE.SHELL:
+            return 'Shell';
+        case TASK_TYPE.DEEP_LEARNING:
+            return '深度学习';
         default:
             return '未知';
     }

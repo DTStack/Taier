@@ -201,7 +201,7 @@ export default class StepOne extends Component {
         let params = {
             tableName: name,
             rules: [],
-            partition: 'column=${sys.recentPart}'
+            partition: undefined,
         };
 
         // 重置分区数据

@@ -162,7 +162,7 @@ export default class StepOne extends Component {
         let sourceId = editParams.origin.dataSourceId;
         let origin = {
             dataSourceId: sourceId,
-            table: name
+            table: name,
         };
 
         // 重置分区表单和参数

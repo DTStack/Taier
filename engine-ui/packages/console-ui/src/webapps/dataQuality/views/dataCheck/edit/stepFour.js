@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, hashHistory } from 'react-router';
-import { isEmpty } from 'lodash';
+import { hashHistory } from 'react-router';
 import moment from 'moment';
-import { Button, Form, Select, Row, Col, Radio, TimePicker, DatePicker, Checkbox, message } from 'antd';
+import { 
+    Button, Form, Select, Row, Col, Input,
+    Radio, TimePicker, DatePicker, Checkbox, message
+ } from 'antd';
 
-import { formItemLayout } from '../../../consts';
+import { formItemLayout, ALARM_TYPE } from '../../../consts';
 import DCApi from '../../../api/dataCheck';
 
 const FormItem = Form.Item;
@@ -91,6 +93,14 @@ export default class StepFour extends Component {
         });
     }
 
+    onWebHookChange = (e) => {
+        const { notifyVO } = this.props.editParams;
+
+        this.props.changeParams({
+            notifyVO: { ...notifyVO, webhook: e.target.value }
+        });
+    }
+
     // 执行时间变化
     changeScheduleConfTime = (type, date, dateString) => {
         const { scheduleConfObj } = this.state;
@@ -124,6 +134,16 @@ export default class StepFour extends Component {
                 {item.userName}
             </Option>
         });
+    }
+
+    renderSendTypeList = (data) => {
+        return data && data.map((item) => {
+            return <Checkbox 
+                key={item.value} 
+                value={item.value.toString()}>
+                {item.name}
+            </Checkbox>
+        })
     }
 
     // 不能选取当天以前的时间
@@ -179,13 +199,20 @@ export default class StepFour extends Component {
 
     render() {
         const { form, common, editParams, editStatus } = this.props;
-        const { userList } = common;
+        const { userList, allDict } = common;
         const { getFieldDecorator } = form;
         const { executeType, notifyVO } = editParams;
         const { isInform, scheduleConfObj } = this.state;
 
         let sendTypes = notifyVO ? notifyVO.sendTypes : undefined,
-            receivers = notifyVO ? notifyVO.receivers : undefined;
+            receivers = notifyVO ? notifyVO.receivers : undefined,
+            webhook = notifyVO ? notifyVO.webhook : undefined,
+            notifyType = allDict.notifyType ? allDict.notifyType : [];
+
+        const alarmTypes = sendTypes ? sendTypes.map(item => item.toString()) : [];
+
+        // 钉钉告警
+        const hasDDAlarm = alarmTypes.indexOf(ALARM_TYPE.DINGDING) > -1;
 
         return (
             <div>
@@ -278,13 +305,27 @@ export default class StepFour extends Component {
                                             initialValue: sendTypes ? sendTypes.map(item => item.toString()) : []
                                         })(
                                             <Checkbox.Group onChange={this.onInformTypeChange}>
-                                                <Checkbox value="0">邮件</Checkbox>
-                                                <Checkbox value="1">短信</Checkbox>
+                                                {
+                                                    this.renderSendTypeList(notifyType)
+                                                }
                                             </Checkbox.Group>
                                         )
                                     }
                                 </FormItem>
-                                
+                                { hasDDAlarm && <FormItem
+                                    {...formItemLayout}
+                                    label="webhook"
+                                >
+                                    {getFieldDecorator('webhook', {
+                                        rules: [{
+                                            required: true, message: 'webhook不能为空',
+                                        }],
+                                        initialValue: webhook || '',
+                                    })(
+                                        <Input onChange={this.onWebHookChange} />,
+                                    )}
+                                </FormItem>}
+
                                 <FormItem {...formItemLayout} label="通知接收人">
                                     {
                                         getFieldDecorator('receivers', {

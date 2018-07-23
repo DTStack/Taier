@@ -7,9 +7,7 @@ const TabPane = Tabs.TabPane;
 import DiffCodeEditor from '../../../components/diff-code-editor';
 
 import ajax  from '../../../api/index';
-
-import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
-import { realtimeTask } from '../../../store/modules/realtimeTask';
+import { TASK_TYPE } from '../../../comm/const';
 
 class TaskInfo extends React.Component {
 
@@ -393,28 +391,31 @@ class DiffParams extends React.Component {
 
     render() {
         const { taskType } = this.props;
-        const { contrastResults,historyParse,currentParse,historyvalue,tabKey,tableRefresh } = this.state;
-        const isLocked = this.currentValue.readWriteLockVO && !this.currentValue.readWriteLockVO.getLock
-        
-        return <div className="m-taksdetail">
-            <Tabs onChange={this.callback} type="card"  activeKey={tabKey} >
+        const { contrastResults, historyParse, currentParse, historyvalue, tabKey, tableRefresh } = this.state;
+
+        return <div className="m-taksdetail" style={{marginTop: '5px'}}>
+            <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
                 {
                     taskType === "realTimeTask" ?  "" : 
                         <TabPane tab="调度配置" key="config">
-                            <TaskInfo historyvalue={historyParse} contrastResults={contrastResults} currentValue={currentParse} />
+                            <TaskInfo 
+                                historyvalue={historyParse} 
+                                contrastResults={contrastResults} 
+                                currentValue={currentParse} 
+                            />
                         </TabPane>
                 }
-                <TabPane tab="环境参数" key="params">
-                    <DiffCodeEditor
-                        readOnly={true}
-                        // readOnly={isLocked}
-                        compareTo={historyvalue&&historyvalue.taskParams||" "} 
-                        value={this.currentValue&&this.currentValue.taskParams||" "}
-                        tableRefresh={tableRefresh}
-                        // onChange={this.codeChange}
-                    /> 
-                </TabPane>
-
+                {
+                    this.currentValue.taskType !== TASK_TYPE.SYNC && 
+                    <TabPane tab="环境参数" key="params">
+                        <DiffCodeEditor
+                            readOnly={true}
+                            compareTo={historyvalue&&historyvalue.taskParams||" "} 
+                            value={this.currentValue&&this.currentValue.taskParams||" "}
+                            tableRefresh={tableRefresh}
+                        /> 
+                    </TabPane>
+                }
             </Tabs>
         </div>
     }
