@@ -54,6 +54,9 @@ export function LogInfo(props) {
     let logText = ''
     if (log.msg_info) {
         logText = `${wrappTitle('基本日志')}\n${log.msg_info}`
+        if(log["sql"]){
+            logText=`${wrappTitle('任务信息')}\n${log.sql}\n`+logText
+        }
     }
 
     if (log['perf']) {
