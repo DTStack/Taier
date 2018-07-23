@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 
 import {
-    Table, Row, Col, Select, Form,
-    Card, Button, message, Checkbox,
+    Table, Select, Form,
+    Card, message, Checkbox,
     DatePicker, Input,
 } from 'antd';
 
@@ -12,7 +11,6 @@ import moment from "moment";
 import utils from 'utils';
 
 import Api from '../../../api/dataModel';
-import { TableNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -21,19 +19,25 @@ const { RangePicker } = DatePicker;
 
 export default class ModelCheck extends Component {
 
-    state = {
-        table: { data: [] },
-        loading: false,
-
-        params: {
-            pageIndex: 1,
-            pageSize: 10,
-            tableName: '',
-            ignore: 0, // 1 忽略，0 不忽略
-            type: '1',
-        },
+    constructor(props) {
+        super(props)
+        const {  triggerType1, startTime1, endTime1 } = this.props.location.query;
+        this. state = {
+            table: { data: [] },
+            loading: false,
+            params: {
+                pageIndex: 1,
+                pageSize: 10,
+                tableName: '',
+                ignore: 0, // 1 忽略，0 不忽略
+                type: '1',
+                triggerType: triggerType1&&triggerType1.split(",")||[],
+                startTime: startTime1,
+                endTime: endTime1,
+            },
+        }
     }
-
+    
     componentDidMount() {
         this.loadData();
     }
@@ -48,6 +52,19 @@ export default class ModelCheck extends Component {
 
     loadData = () => {
         const { params } = this.state;
+        const { startTime,endTime,triggerType } = params;
+        const { pathname, query } = this.props.location;
+
+        const pathQuery = { 
+            currentTab: '1', 
+            startTime1: startTime, 
+            endTime1: endTime, 
+            triggerType1: triggerType.join(",")||undefined
+        };
+        hashHistory.push({
+            pathname,
+            query: Object.assign(query,pathQuery),
+        })
         this.setState({
             loading: true,
         })
@@ -155,11 +172,8 @@ export default class ModelCheck extends Component {
     }
 
     onChangeTime = (value) => {
-        if(!value[0]){//清除选择的时间段的回调
-            this.changeParams('startTime',this.handleMoment(value[0]));
-            this.changeParams('endTime',this.handleMoment(value[1]));
-        }
-       
+        this.changeParams('startTime',this.handleMoment(value[0]));
+        this.changeParams('endTime',this.handleMoment(value[1]));
     }
 
     handleMoment = (moment) => {//moment对象转成时间戳(毫秒数)
@@ -171,14 +185,7 @@ export default class ModelCheck extends Component {
         this.changeParams('endTime',this.handleMoment(value[1]));
       }
 
-    // getTodayRange = () => {
-    //     const today0 = new Date(new Date().toLocaleDateString()).getTime();//当天0点
-    //     const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;//当天24点
-    //     return {today0,today24}
-    // }
-
     render() {
-
         const { loading, table, params } = this.state
 
         const pagination = {
@@ -186,8 +193,6 @@ export default class ModelCheck extends Component {
             defaultPageSize: 10,
             current: table.currentPage,
         };
-
-       // const todayRange = this.getTodayRange();
         return (
             <div className="m-card antd-input">
                 <Card
@@ -215,6 +220,7 @@ export default class ModelCheck extends Component {
                                     showSearch
                                     mode="multiple"
                                     size="default"
+                                    value={params.triggerType}
                                     style={{ minWidth: 200, marginTop: 3 }}
                                     placeholder="选择检测结果"
                                     optionFilterProp="name"
@@ -230,6 +236,7 @@ export default class ModelCheck extends Component {
                             <FormItem label="最后修改时间">
                                 <RangePicker
                                     size="default"
+                                    value={params.startTime&&params.endTime&&[moment(Number(params.startTime)),moment(Number(params.endTime))]}
                                     showTime={{ format: 'HH:mm:ss' }}
                                     format="YYYY-MM-DD HH:mm:ss"
                                     placeholder={['开始时间', '结束时间']}

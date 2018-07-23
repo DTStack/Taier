@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { hashHistory } from 'react-router';
+
 import moment from 'moment';
 import { cloneDeep } from 'lodash';
 import {
@@ -263,6 +265,42 @@ class Overview extends Component {
         }
     }
 
+    getTodayRange = () => {
+        const today0 = new Date(new Date().toLocaleDateString()).getTime();//当天0点
+        const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;//当天24点
+        return {today0,today24}
+    }
+
+    linkToCheckPage = (type) => {
+        const {today0,today24} = this.getTodayRange();
+        const pathName = "/data-model/check";
+        const triggerType1 = '1,2,3,4';
+        const triggerType2 = '1,2,3';
+
+        let src;
+        switch (type) {
+            case "todayAddModel":
+                src=`${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}`;
+                break;
+            case "todayAddPoint":
+                src=`${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}`
+                break;
+            case "todayNonstandardModel":
+                src=`${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}&triggerType1=${triggerType1}`
+                break;
+            case "todayNonstandardPoint":
+                src=`${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}&triggerType2=${triggerType2}`
+                break;
+            case "accumulativeNonstandardModel":
+                src=`${pathName}?currentTab=1&triggerType1=${triggerType1}`
+                break;
+            default:
+                src=`${pathName}?currentTab=2&triggerType2=${triggerType2}`
+                break;
+        }
+        hashHistory.push(src);       
+    }
+
     render() {
         const { data } = this.state;
         const flex = {
@@ -297,37 +335,37 @@ class Overview extends Component {
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日新增模型</span>
-                                                <span className="m-count-content font-black">{data.todayNewTable || 0}</span>
+                                                <span className="m-count-content font-black" onClick={()=>{this.linkToCheckPage("todayAddModel")}}>{data.todayNewTable || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日新增指标</span>
-                                                <span className="m-count-content font-red">{data.todayNewColumn || 0}</span>
+                                                <span className="m-count-content font-red" onClick={()=>{this.linkToCheckPage("todayAddPoint")}}>{data.todayNewColumn || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日不规范模型</span>
-                                                <span className="m-count-content font-organge">{data.todayBadTable || 0}</span>
+                                                <span className="m-count-content font-organge" onClick={()=>{this.linkToCheckPage("todayNonstandardModel")}}>{data.todayBadTable || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
                                                 <span className="m-count-title">今日不规范指标</span>
-                                                <span className="m-count-content font-green">{data.todayBadColumn || 0}</span>
+                                                <span className="m-count-content font-green" onClick={()=>{this.linkToCheckPage("todayNonstandardPoint")}}>{data.todayBadColumn || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
-                                                <span className="m-count-title">累计不规范模型</span>
-                                                <span className="m-count-content font-gray">{data.sumBadTable || 0}</span>
+                                                <span className="m-count-title" >累计不规范模型</span>
+                                                <span className="m-count-content font-gray" onClick={()=>{this.linkToCheckPage("accumulativeNonstandardModel")}}>{data.sumBadTable || 0}</span>
                                             </section>
                                         </Col>
                                         <Col style={flex}>
                                             <section style={countWidth} className="m-count-section">
-                                                <span className="m-count-title">累计不规范指标</span>
-                                                <span className="m-count-content font-organge">{data.sumBadColumn || 0}</span>
+                                                <span className="m-count-title" >累计不规范指标</span>
+                                                <span className="m-count-content font-organge" onClick={()=>{this.linkToCheckPage("accumulativeNonstandardPoint")}}>{data.sumBadColumn || 0}</span>
                                             </section>
                                         </Col>
                                     </Row>

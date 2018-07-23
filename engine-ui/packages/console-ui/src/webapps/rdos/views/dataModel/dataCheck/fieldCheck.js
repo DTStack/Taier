@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 
 import {
-    Table, Row, Col, Select, Form, 
-    Card, Button, message, Checkbox,
+    Table, Select, Form, 
+    Card, message, Checkbox,
     DatePicker, Input,
 } from 'antd';
 import moment from "moment"
-
 import utils from 'utils';
+
 import Api from '../../../api/dataModel';
-import { FieldNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -18,17 +17,23 @@ const { RangePicker } = DatePicker;
 
 export default class FieldCheck extends Component {
 
-    state ={
-        table: {data: []},
-        loading: false,
-
-        params: {
-            pageIndex: 1,
-            pageSize: 10,
-            columnName: '',
-            ignore: 0, // 1 忽略，0 不忽略
-            type: '2',
-        },
+    constructor(props) {
+        super(props)
+        const {  triggerType2, startTime2, endTime2 } = this.props.location.query;
+        this. state = {
+            table: { data: [] },
+            loading: false,
+            params: {
+                pageIndex: 1,
+                pageSize: 10,
+                tableName: '',
+                ignore: 0, // 1 忽略，0 不忽略
+                type: '2',
+                triggerType: triggerType2&&triggerType2.split(",")||[],
+                startTime: startTime2,
+                endTime: endTime2,
+            },
+        }
     }
 
   
@@ -47,6 +52,18 @@ export default class FieldCheck extends Component {
 
     loadData = () => {
         const { params } = this.state;
+        const { startTime,endTime,triggerType} = params;
+        const { pathname, query} = this.props.location;
+        const pathQuery = { 
+            currentTab: '2', 
+            startTime2: startTime, 
+            endTime2: endTime, 
+            triggerType2: triggerType.join(",")||undefined
+        };
+        hashHistory.push({
+            pathname,
+            query: Object.assign(query,pathQuery),
+        })
         this.setState({
             loading: true,
         })
@@ -140,12 +157,8 @@ export default class FieldCheck extends Component {
     }
 
     onChangeTime = (value) => {
-        window.moment = moment();
-        if(!value[0]){//清除时间段的回调
-            this.changeParams('startTime',this.handleMoment(value[0]));
-            this.changeParams('endTime',this.handleMoment(value[1]));
-        }
-       
+        this.changeParams('startTime',this.handleMoment(value[0]));
+        this.changeParams('endTime',this.handleMoment(value[1]));
     }
 
     handleMoment = (moment) => {//moment对象转成时间戳(毫秒数)
@@ -153,6 +166,7 @@ export default class FieldCheck extends Component {
     }
       
     onOk = (value) => {
+        console.log(value);
         this.changeParams('startTime',this.handleMoment(value[0]));
         this.changeParams('endTime',this.handleMoment(value[1]));
     }
@@ -160,7 +174,8 @@ export default class FieldCheck extends Component {
     render() {
 
         const { loading, table, params } = this.state
-
+        console.log('params',params);
+        
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
@@ -194,6 +209,7 @@ export default class FieldCheck extends Component {
                                     showSearch
                                     mode="multiple"
                                     size="default"
+                                    value={params.triggerType}
                                     style={{ minWidth: 200, marginTop: 3 }}
                                     placeholder="选择检测结果"
                                     optionFilterProp="name"
@@ -208,6 +224,7 @@ export default class FieldCheck extends Component {
                             <FormItem label="最后修改时间">
                                 <RangePicker
                                     size="default"
+                                    value={params.startTime&&params.endTime&&[moment(Number(params.startTime)),moment(Number(params.endTime))]||[]}
                                     showTime={{ format: 'HH:mm:ss' }}
                                     format="YYYY-MM-DD HH:mm:ss"
                                     placeholder={['开始时间', '结束时间']}
