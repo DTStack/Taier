@@ -189,7 +189,6 @@ export default connect(state => {
             dispatch(getTab(id))
         },
         changeEditorTheme(theme) {
-            console.log('changeEditorTheme', theme)
             dispatch(updateEditorOptions({theme: theme}))
         },
     }

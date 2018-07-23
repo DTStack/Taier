@@ -82,26 +82,26 @@ class Editor extends React.Component {
             return;
         }
 
-        window.MonacoEnvironment = {
-            getWorkerUrl: function(moduleId, label) {
-                if (label === "json") {
-                    return "./json.worker.js";
-                }
-                if (label === "css") {
-                    return "./css.worker.js";
-                }
-                if (label === "html") {
-                    return "./html.worker.js";
-                }
-                if (label === "typescript" || label === "javascript") {
-                    return "./typescript.worker.js";
-                }
-                if (label === "sql") {
-                    return "./sql.worker.js";
-                }
-                return "./editor.worker.js";
-            }
-        };
+        // window.MonacoEnvironment = {
+        //     getWorkerUrl: function(moduleId, label) {
+        //         if (label === "json") {
+        //             return "./json.worker.js";
+        //         }
+        //         if (label === "css") {
+        //             return "./css.worker.js";
+        //         }
+        //         if (label === "html") {
+        //             return "./html.worker.js";
+        //         }
+        //         if (label === "typescript" || label === "javascript") {
+        //             return "./typescript.worker.js";
+        //         }
+        //         if (label === "sql") {
+        //             return "./sql.worker.js";
+        //         }
+        //         return "./editor.worker.js";
+        //     }
+        // };
 
         const editorOptions = Object.assign(defaultOptions, options , {
             value,

@@ -71,7 +71,7 @@ export default class TaskDetail extends Component {
 
     render() {
         const { visibleAlterRes, resList } = this.state
-        const { resources, currentPage, editorChange, versionEditorChange } = this.props
+        const { resources, currentPage, editorChange } = this.props
         const taskRes = currentPage.resourceList && currentPage.resourceList.map((item) => {
             return <Tag key={item.id} color="blue">{item.resourceName}</Tag>
         })
@@ -143,7 +143,7 @@ export default class TaskDetail extends Component {
                     <Panel key="2" header="历史发布版本">
                         <TaskVersion
                             taskInfo={currentPage}
-                            changeSql={editorChange.bind(null,true)}
+                            changeSql={editorChange}
                             taskType="realTimeTask" 
                         />
                     </Panel>

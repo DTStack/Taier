@@ -5,9 +5,18 @@ import ToolBar from './toolbar';
 
 export default class SQLEditor extends Component {
 
+    onContentChange = (value, editorInstance) => {
+        const { editorChange } = this.props;
+        editorChange({
+            merged: false,
+            sqlText: value,
+            cursorPosition: editorInstance.getPosition() 
+        })
+    }
+
     render() {
         const {
-            currentPage, editorChange,
+            currentPage,
             dispatch,
         } = this.props
 
@@ -20,7 +29,7 @@ export default class SQLEditor extends Component {
                         value={currentPage.sqlText}
                         sync={currentPage.merged || undefined}
                         language="sql"
-                        onChange={editorChange}
+                        onChange={this.onContentChange}
                     />
                 </div>
             </div>
