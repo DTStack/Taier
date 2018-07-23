@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, hashHistory } from 'react-router';
-import { isEmpty } from 'lodash';
+import { hashHistory } from 'react-router';
 import moment from 'moment';
-import { Button, Form, Select, DatePicker, Checkbox, message } from 'antd';
+import { 
+    Button, Form, Select, 
+    DatePicker, Checkbox, message, Input 
+} from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { halfFormItemLayout, ALARM_TYPE } from '../../../consts';
@@ -101,6 +103,7 @@ export default class StepThree extends Component {
         if (value.length === 0 && notifyUser.length === 0) {
             form.setFieldsValue({ notifyUser: [] });
         }
+        console.log('sendTypes:', value)
         this.props.changeParams({ sendTypes: value });
     }
 
@@ -543,7 +546,6 @@ export default class StepThree extends Component {
     save = () => {
         const { form, editParams, havePart } = this.props;
         form.validateFields((err, values) => {
-            console.log(err,values)
             if (err && err.endDate) {
                 message.error(err.endDate.errors[0].message)
             }
@@ -580,8 +582,9 @@ export default class StepThree extends Component {
         let periodType = allDict.periodType ? allDict.periodType : [],
             notifyType = allDict.notifyType ? allDict.notifyType : [];
 
+        const alarmTypes = sendTypes ? sendTypes.map(item => item.toString()) : [];
         // 钉钉告警
-        const hasDDAlarm = sendTypes.indexOf(ALARM_TYPE.DINGDING) > -1 ;
+        const hasDDAlarm = alarmTypes.indexOf(ALARM_TYPE.DINGDING) > -1;
 
         return (
             <div>
@@ -662,7 +665,7 @@ export default class StepThree extends Component {
                                         required: notifyUser.length,
                                         message: '选择告警方式',
                                     }],
-                                    initialValue: sendTypes.map(item => item.toString())
+                                    initialValue: alarmTypes,
                                 })(
                                     <Checkbox.Group onChange={this.onSendTypeChange}>
                                         {
@@ -673,7 +676,7 @@ export default class StepThree extends Component {
                             }
                         </FormItem>
                         { hasDDAlarm && <FormItem
-                            {...formItemLayout}
+                            {...halfFormItemLayout}
                             label="webhook"
                         >
                             {getFieldDecorator('webhook', {

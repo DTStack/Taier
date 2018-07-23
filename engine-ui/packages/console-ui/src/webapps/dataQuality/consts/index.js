@@ -9,11 +9,10 @@ export const TASK_STATUS = {
 
 // 告警类型
 export const ALARM_TYPE = {
-    EMAIL: 1,
-    SMS: 2,
-    DINGDING: 4,
+    EMAIL: "1",
+    SMS: "2",
+    DINGDING: "4",
 }
-
 
 // 数据源类型
 export const DATA_SOURCE = {

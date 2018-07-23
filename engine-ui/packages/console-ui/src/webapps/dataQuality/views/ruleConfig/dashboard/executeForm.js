@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Form, Select, DatePicker, Checkbox, Modal, message } from 'antd';
+import { Form, Select, DatePicker, Checkbox, Modal, message, Input } from 'antd';
 import moment from 'moment';
 
-import { formItemLayout } from '../../../consts';
+import { formItemLayout, ALARM_TYPE } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
@@ -40,7 +40,8 @@ export default class ExecuteForm extends Component {
                 sendTypes: [],
                 notifyUser: [],
                 periodType: undefined,
-                scheduleConf: undefined
+                scheduleConf: undefined,
+                webhook: undefined
             }
         }
     }
@@ -65,6 +66,7 @@ export default class ExecuteForm extends Component {
                 params: {
                     monitorId: data.monitorId,
                     sendTypes: data.sendTypes,
+                    webhook: data.webhook,
                     notifyUser: data.notifyUser.map(item => item.id),
                     periodType: data.periodType,
                     scheduleConf: data.scheduleConf
@@ -128,6 +130,12 @@ export default class ExecuteForm extends Component {
         });
     }
 
+    onWebHookChange = (e) => {
+        this.setState({
+            params: { ...this.state.params, webhook: e.target.value }
+        });
+    }
+
     onBeginDateChange = (date, dateString) => {
         this.changeScheduleConfTime('beginDate', dateString);
     }
@@ -136,6 +144,7 @@ export default class ExecuteForm extends Component {
         this.changeScheduleConfTime('endDate', dateString);
     }
 
+ 
     // 通知人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
@@ -598,10 +607,14 @@ export default class ExecuteForm extends Component {
         const { getFieldDecorator } = form;
         const { allDict, userList } = common;
         const { scheduleConfObj, params } = this.state;
-        const { notifyUser, sendTypes } = params;
+        const { notifyUser, sendTypes, webhook } = params;
 
         let periodType = allDict.periodType ? allDict.periodType : [],
             notifyType = allDict.notifyType ? allDict.notifyType : [];
+       
+        // 钉钉告警
+        const alarmTypes = sendTypes ? sendTypes.map(item => item.toString()) : [];
+        const hasDDAlarm = alarmTypes.indexOf(ALARM_TYPE.DINGDING) > -1;
 
         return (
             <Modal
@@ -690,7 +703,7 @@ export default class ExecuteForm extends Component {
                                     required: notifyUser.length,
                                     message: '选择告警方式',
                                 }], 
-                                initialValue: sendTypes.map(item => item.toString())
+                                initialValue: alarmTypes,
                             })(
                                 <Checkbox.Group onChange={this.onSendTypeChange}>
                                     {
@@ -700,7 +713,19 @@ export default class ExecuteForm extends Component {
                             )
                         }
                     </FormItem>
-                    
+                    { hasDDAlarm && <FormItem
+                            {...formItemLayout}
+                            label="webhook"
+                        >
+                            {getFieldDecorator('webhook', {
+                                rules: [{
+                                    required: true, message: 'webhook不能为空',
+                                }],
+                                initialValue: webhook || '',
+                            })(
+                                <Input onChange={this.onWebHookChange} />,
+                            )}
+                        </FormItem>}
                     <FormItem {...formItemLayout} label="告警接收人">
                         {
                             getFieldDecorator('notifyUser', {

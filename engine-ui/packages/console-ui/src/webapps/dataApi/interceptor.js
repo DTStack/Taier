@@ -41,7 +41,10 @@ export function authAfterFormated(response) {
         hashHistory.push('/');
     default:
         if (response.message) {
-            message.error(response.message, 3) // 异常消息默认显示5s
+            notification['error']({
+                message: '异常',
+                description: response.message,
+            });
         }
         return response
     }
