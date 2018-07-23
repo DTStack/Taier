@@ -13,7 +13,7 @@ export default class RealtimeEditor extends Component {
         } = this.props
 
         const showContent = currentPage.taskType === TASK_TYPE.SQL ?
-            (<SQLEditor  {...this.props}/>)
+            (<SQLEditor {...this.props}/>)
             :
             (<MrEditor {...this.props}/>)
 

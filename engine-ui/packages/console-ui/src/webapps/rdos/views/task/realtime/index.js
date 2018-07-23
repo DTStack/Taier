@@ -10,6 +10,8 @@ import {
 
 import utils from 'utils'
 
+import FullScreenButton from 'widgets/fullscreen';
+
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
 
@@ -112,20 +114,13 @@ class TaskIndex extends Component {
         })
     }
 
-    editorChange = (old, newVal) => {
+    editorChange = (data) => {
+        console.log('editorChange:', data)
         let { currentPage, dispatch } = this.props;
-        currentPage=cloneDeep(currentPage);
-        if (old !== newVal) {
-            //这里兼容离线任务的版本控制
-            if(typeof old=="boolean"){
-                currentPage.merged=true;
-            }else{
-                currentPage.merged=false;
-            }
-            currentPage.sqlText = newVal;
-            currentPage.notSynced = true;// 添加未保存标记
-            dispatch(BrowserAction.setCurrentPage(currentPage))
-        }
+        currentPage = cloneDeep(currentPage);
+        currentPage = Object.assign(currentPage, data);
+        currentPage.notSynced = true; // 添加未保存标记
+        dispatch(BrowserAction.setCurrentPage(currentPage));
     }
 
     debounceChange = debounce(this.editorChange, 300, { 'maxWait': 2000 })
@@ -224,9 +219,7 @@ class TaskIndex extends Component {
                 }
             }
         );
-        
     }
-
 
     publishChange = (e) => {
         this.setState({
@@ -297,6 +290,7 @@ class TaskIndex extends Component {
                         >
                             <MyIcon className="my-icon" type="save" />保存
                         </Button>
+                        <FullScreenButton />
                     </Col>
                     <Col className="right">
                         <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
