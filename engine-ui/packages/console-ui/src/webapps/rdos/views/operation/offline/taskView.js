@@ -31,7 +31,6 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxCompactTreeLayout,
-    mxUtils,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -192,10 +191,6 @@ export default class TaskView extends Component {
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        let layout = this.layout;
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2
-        const cy = 200
-
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 

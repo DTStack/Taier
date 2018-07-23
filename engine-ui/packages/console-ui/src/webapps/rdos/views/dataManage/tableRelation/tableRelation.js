@@ -257,7 +257,6 @@ export default class TableRelation extends React.Component {
     doInsertVertex = (data) => {
         const graph = this.graph;
 
-        const parent = graph.getDefaultParent();
         const model = graph.getModel();
 
         this.executeLayout = function (change, post) {

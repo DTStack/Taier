@@ -103,7 +103,7 @@ class TaskFlowView extends Component {
             if (res.code === 1) {
                 const data = res.data
                 ctx.setState({ selectedJob: data, data, sort: 'children' })
-                ctx.doInsertVertex(res.data, 'children')
+                ctx.doInsertVertex(data, 'children')
             }
             ctx.setState({ loading: 'success' })
         })
@@ -208,33 +208,37 @@ class TaskFlowView extends Component {
 
     insertEdge = (graph, type, parent, child) => {
         if (type === 'children') {
-            graph.insertEdge(parent, null, '', parent, child)
+            graph.insertEdge(graph.getDefaultParent(), null, '', parent, child)
         } else {
-            graph.insertEdge(parent, null, '', child, parent)
+            graph.insertEdge(graph.getDefaultParent(), null, '', child, parent)
         }
     }
 
     insertVertex = (graph, data, parent, type) => {
         if (data) {
             const style = getVertxtStyle(data.status)
-
-            const exist = this._vertexCells[data.id];
+            const defaultParent = graph.getDefaultParent();
+            const exist = this._vertexCells[data.jobId];
 
             let newVertex = exist;
 
-            if (exist && parent.id !== '1') {
-                this.insertEdge(graph, type, parent, exist);
+            if (exist) {
+                const edges = graph.getEdgesBetween(parent, exist);
+                if (edges.length === 0) {
+                    this.insertEdge(graph, type, parent, exist);
+                }
+                return exist;
             } else if (!exist) {
                 // 插入当前节点
                 const str = this.getShowStr(data);
                 newVertex = newVertex = graph.insertVertex(
-                    graph.getDefaultParent(), data.id, str, this.cx, this.cy,
+                    defaultParent, data.jobId, str, this.cx, this.cy,
                     VertexSize.width, VertexSize.height, style
                 );
                 newVertex.data = data;
                 this.insertEdge(graph, type, parent, newVertex);
                 // 缓存节点
-                this._vertexCells[data.id] = newVertex;
+                this._vertexCells[data.jobId] = newVertex;
             }
 
             if (data.jobVOS) {
