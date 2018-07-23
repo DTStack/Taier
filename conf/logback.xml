@@ -30,7 +30,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.dtstack.rdos.engine.entrance.zk" level="info" additivity="false">
+    <logger name="com.dtstack.rdos.engine.service.zk" level="info" additivity="false">
         <appender-ref ref="zkAppender" />
     </logger>
 
