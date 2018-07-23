@@ -195,66 +195,59 @@ export default class ModelCheck extends Component {
         };
         return (
             <div className="m-card antd-input">
-                <Card
-                    noHovering
-                    bordered={false}
-                    loading={false}
-                    title={
-                        <Form
-                            className="m-form-inline"
-                            layout="inline"
-                            style={{ marginTop: '10px' }}
-                        >
-                            <FormItem>
-                                <Input.Search
-                                    placeholder="按表名搜索"
-                                    style={{ width: 200 }}
-                                    size="default"
-                                    onChange={this.onTableNameChange}
-                                    onSearch={this.loadData}
-                                />
-                            </FormItem>
-                            <FormItem label="检测结果">
-                                <Select
-                                    allowClear
-                                    showSearch
-                                    mode="multiple"
-                                    size="default"
-                                    value={params.triggerType}
-                                    style={{ minWidth: 200, marginTop: 3 }}
-                                    placeholder="选择检测结果"
-                                    optionFilterProp="name"
-                                    onChange={(value) => this.changeParams('triggerType', value)}
-                                >
-                                    <Option value="0">规范</Option>
-                                    <Option value="1">分层不合理</Option>
-                                    <Option value="2">主题域不合理</Option>
-                                    <Option value="3">刷新频率不合理</Option>
-                                    <Option value="4">增量不合理</Option>
-                                </Select>
-                            </FormItem>
-                            <FormItem label="最后修改时间">
-                                <RangePicker
-                                    size="default"
-                                    value={params.startTime&&params.endTime&&[moment(Number(params.startTime)),moment(Number(params.endTime))]}
-                                    showTime={{ format: 'HH:mm:ss' }}
-                                    format="YYYY-MM-DD HH:mm:ss"
-                                    placeholder={['开始时间', '结束时间']}
-                                    onChange={this.onChangeTime}
-                                    //ranges={{ Today: [moment(todayRange.today0), moment(todayRange.today24)]}}
-                                    onOk={this.onOk}
-                                />
-                            </FormItem>
-                            <FormItem>
-                                <Checkbox
-                                    onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0)}
-                                >
-                                    已忽略
-                                </Checkbox>
-                            </FormItem>
-                        </Form>
-                    }
+                 <Form
+                    className="m-form-inline"
+                    layout="inline"
+                    style={{ margin: '10 0 0 20' }}
                 >
+                        <FormItem>
+                            <Input.Search
+                                placeholder="按表名搜索"
+                                style={{ width: 200 }}
+                                size="default"
+                                onChange={this.onTableNameChange}
+                                onSearch={this.loadData}
+                            />
+                        </FormItem>
+                        <FormItem label="检测结果">
+                            <Select
+                                allowClear
+                                showSearch
+                                mode="multiple"
+                                size="default"
+                                value={params.triggerType}
+                                style={{ minWidth: 200, marginTop: 3 }}
+                                placeholder="选择检测结果"
+                                optionFilterProp="name"
+                                onChange={(value) => this.changeParams('triggerType', value)}
+                            >
+                                <Option value="0">规范</Option>
+                                <Option value="1">分层不合理</Option>
+                                <Option value="2">主题域不合理</Option>
+                                <Option value="3">刷新频率不合理</Option>
+                                <Option value="4">增量不合理</Option>
+                            </Select>
+                        </FormItem>
+                        <FormItem label="最后修改时间">
+                            <RangePicker
+                                size="default"
+                                value={params.startTime&&params.endTime&&[moment(Number(params.startTime)),moment(Number(params.endTime))]}
+                                showTime={{ format: 'HH:mm:ss' }}
+                                format="YYYY-MM-DD HH:mm:ss"
+                                placeholder={['开始时间', '结束时间']}
+                                onChange={this.onChangeTime}
+                                //ranges={{ Today: [moment(todayRange.today0), moment(todayRange.today24)]}}
+                                onOk={this.onOk}
+                            />
+                        </FormItem>
+                        <FormItem>
+                            <Checkbox
+                                onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0)}
+                            >
+                                已忽略
+                            </Checkbox>
+                        </FormItem>
+                    </Form>
                     <Table
                         rowKey="id"
                         className="m-table"
@@ -264,7 +257,7 @@ export default class ModelCheck extends Component {
                         onChange={(pagination) => this.changeParams('pageIndex', pagination.current)}
                         dataSource={table.data || []}
                     />
-                </Card>
+                
             </div>
         )
     }
