@@ -10,7 +10,8 @@ import utils from "utils";
 import { filterComments, splitSql } from "funcs";
 
 import API from "../../../../api";
-import CodeEditor from "../../../../components/code-editor";
+// import CodeEditor from "../../../../components/code-editor";
+import Editor from 'widgets/editor';
 
 import { updateUser } from "../../../../store/modules/user";
 
@@ -248,7 +249,18 @@ export default class Toolbar extends Component {
                     }
                 >
                     <div style={{ height: "400px" }}>
-                        <CodeEditor value={confirmCode} sync={true} />
+                        {/* <CodeEditor value={confirmCode} sync={true} /> */}
+                        <Editor 
+                            value={confirmCode} 
+                            sync={true} 
+                            language="sql"
+                            options={{
+                                readOnly: true,
+                                minimap: {
+                                    enabled: false,
+                                },
+                            }}
+                        />
                     </div>
                 </Modal>
             </div>
